@@ -10,7 +10,7 @@ config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $routeProvider.
         when('/tour/', {
-            redirectTo: '/tour/welcome/1'
+            redirectTo: '/tour/variables/1'
         }).
         when('/tour/list', {
             templateUrl: '/tour/static/partials/list.html',
@@ -42,7 +42,7 @@ run(function($rootScope, $location, mapping) {
         var m = mapping[url.hash];
         if (m === undefined) {
             console.log('unknown url, redirecting home');
-            $location.path('/tour/welcome/1');
+            $location.path('/tour/variables/1');
             return;
         }
         $location.path('/tour' + m);
