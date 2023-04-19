@@ -25,7 +25,7 @@ config(['$routeProvider', '$locationProvider',
         otherwise({
             redirectTo: '/tour/'
         });
-
+        console.log("Foo")
         $locationProvider.html5Mode(true).hashPrefix('!');
     }
 ]).
