@@ -10,8 +10,11 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'language-mechanics',
     'title': 'Ultimate Go - Language Mechanics',
-    'description': '<p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>',
-    'lessons': ['variables']
+    'description': `
+        <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
+        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
+        `,
+    'lessons': ['variables', 'struct-types']
 }]).
 
 // translation
@@ -76,5 +79,5 @@ value('ui.config', {
 // mapping from the old paths (#42) to the new organization.
 // The values have been generated with the map.sh script in the tools directory.
 value('mapping', {
-    '#1': '/vaariables/1', // Variables
+    '#1': '/variables/1', // Variables
 });
