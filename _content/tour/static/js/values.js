@@ -76,5 +76,5 @@ value('ui.config', {
 // mapping from the old paths (#42) to the new organization.
 // The values have been generated with the map.sh script in the tools directory.
 value('mapping', {
-    '#1': '/vaariables/1', // Hello, 世界
+    '#1': '/vaariables/1', // Variables
 });
