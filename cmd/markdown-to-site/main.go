@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	r := regexp.MustCompile(`\[([\s\S]+?)\]\(http([\s\S]+?)\)`)
+	r := regexp.MustCompile(`\[([\s\S]+?)\]\(([\s\S]+?)\)`)
 	rTitle := regexp.MustCompile(`\[([\s\S]+?)\]`)
 	rURL := regexp.MustCompile(`\(([\s\S]+?)\)`)
 
