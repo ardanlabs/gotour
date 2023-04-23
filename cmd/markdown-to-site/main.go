@@ -49,6 +49,12 @@ func main() {
 
 	document = strings.ReplaceAll(
 		document,
+		"### ",
+		"",
+	)
+
+	document = strings.ReplaceAll(
+		document,
 		"## ",
 		"* ",
 	)
@@ -57,6 +63,15 @@ func main() {
 
 		title := rTitle.FindStringSubmatch(m)[1]
 		url := rURL.FindStringSubmatch(m)[1]
+
+		if strings.Contains(url, "https://play.golang.org") {
+			document = strings.ReplaceAll(
+				document,
+				fmt.Sprintf("(%s)", m),
+				"",
+			)
+			continue
+		}
 
 		if !strings.Contains(url, "http") {
 
