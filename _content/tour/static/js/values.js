@@ -23,6 +23,7 @@ value('tableOfContents', [{
         'arrays',
         'slices',
         'maps',
+        'methods',
     ]
 }]).
 
