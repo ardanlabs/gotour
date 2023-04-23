@@ -24,6 +24,7 @@ value('tableOfContents', [{
         'slices',
         'maps',
         'methods',
+        'interfaces',
     ]
 }]).
 
