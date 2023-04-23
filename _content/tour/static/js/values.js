@@ -22,6 +22,7 @@ value('tableOfContents', [{
         'functions',
         'arrays',
         'slices',
+        'maps',
     ]
 }]).
 
