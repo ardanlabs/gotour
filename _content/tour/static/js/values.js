@@ -26,6 +26,7 @@ value('tableOfContents', [{
         'methods',
         'interfaces',
         'embedding',
+        'exporting',
     ]
 }]).
 
