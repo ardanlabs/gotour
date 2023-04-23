@@ -21,6 +21,7 @@ value('tableOfContents', [{
         'constants',
         'functions',
         'arrays',
+        'slices',
     ]
 }]).
 
