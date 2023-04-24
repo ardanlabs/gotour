@@ -1,3 +1,11 @@
+// markdown-to-site utility to convert
+// markdown to format used by the gotour
+// project. Support exists for links, bullet-point lists
+// and level 3 headers denoted with '###'.
+// Run with flag debug to print the text without overwriting the target
+// file.
+// The program will overwrite the specified file_path. The contents
+// of file_path should be markdown on first run.
 package main
 
 import (
@@ -12,6 +20,7 @@ func main() {
 
 	var filePath string
 	var modName string
+	var debug bool
 
 	flag.StringVar(
 		&filePath,
@@ -20,11 +29,18 @@ func main() {
 		"Path to Markdown file",
 	)
 
+	flag.BoolVar(
+		&debug,
+		"debug",
+		false,
+		"Print generated file instead of writing.",
+	)
+
 	flag.StringVar(
 		&modName,
 		"module_name",
 		"pointers",
-		"name of module",
+		"Name of module",
 	)
 
 	flag.Parse()
@@ -104,7 +120,11 @@ func main() {
 		)
 	}
 
-	//fmt.Println(document)
+	if debug {
+		fmt.Println(document)
+		return
+	}
+
 	err = os.WriteFile(
 		filePath,
 		[]byte(document),
