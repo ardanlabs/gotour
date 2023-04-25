@@ -6,6 +6,8 @@
 // file.
 // The program will overwrite the specified file_path. The contents
 // of file_path should be markdown on first run.
+// Markdown URLs with parentheses will break the program.
+// for example, [Sample (Stuff)](http...)
 package main
 
 import (
@@ -94,7 +96,7 @@ func main() {
 			codeBlock := `
 - *Example* *:* %s
 .play %s/%s
-			`
+`
 			document = strings.ReplaceAll(
 				document,
 				m,
