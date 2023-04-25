@@ -40,6 +40,18 @@ value('tableOfContents', [{
        'error-handling',
        'packaging',
     ]
+},{
+    'id': 'concurrency',
+    'title': 'Ultimate Go - Concurrency',
+    'description': `
+        <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
+        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
+        `,
+    'lessons': [
+       'goroutines',
+       'data_race',
+       'channels'
+    ]
 }]).
 
 // translation

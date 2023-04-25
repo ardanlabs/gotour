@@ -1,0 +1,77 @@
+Goroutines
+Goroutines are functions that are created and scheduled to be run independently by the Go scheduler. The Go scheduler is responsible for the management and execution of goroutines.
+
+* Goroutines
+
+Goroutines are functions that are created and scheduled to be run independently by the Go scheduler. The Go scheduler is responsible for the management and execution of goroutines.
+
+* Notes
+
+- Goroutines are functions that are scheduled to run independently.
+- We must always maintain an account of running goroutines and shutdown cleanly.
+- Concurrency is not parallelism.
+
+- Concurrency is about dealing with lots of things at once.
+- Parallelism is about doing lots of things at once.
+
+"Parallelism is about physically doing two or more things at the same time. Concurrency is about undefined, out of order, execution." - William Kennedy
+
+"By default, goroutines shouldn't outlive the function they were created from. this forces you into a extremely good design posture." - Peter Bourgon
+
+* Design Guidelines
+
+- Learn about the [[../#concurrent-software-design][design guidelines]] for concurrency.
+
+* Diagrams
+
+How the scheduler works.
+
+.image /tour/static/img/scheduler.png
+
+* Links
+
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html][Scheduling In Go - Part I]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html][Scheduling In Go - Part II]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2015/02/scheduler-tracing-in-go.html][Scheduler Tracing In Go]] - William Kennedy   
+- [[https://blog.golang.org/advanced-go-concurrency-patterns][Advanced Go Concurrency Patterns]] - Sameer Ajmani    
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
+- [[https://blog.golang.org/concurrency-is-not-parallelism][Concurrency is not parallelism]] - Rob Pike    
+- [[https://talks.golang.org/2013/distsys.slide][Go, for Distributed Systems]] - Russ Cox    
+- [[https://docs.google.com/document/d/1At2Ls5_fhJQ59kDK2DFVhFu3g5mATSXqqV5QrxinasI/edit][Go 1.5 GOMAXPROCS Default]]    
+- [[https://www.ardanlabs.com/blog/2014/01/concurrency-goroutines-and-gomaxprocs.html][Concurrency, Goroutines and GOMAXPROCS]] - William Kennedy    
+- [[http://www.ece.ubc.ca/~sasha/papers/eurosys16-final29.pdf][The Linux Scheduler: a Decade of Wasted Cores]]    
+- [[https://news.ycombinator.com/item?id=12460807][Explanation of the Scheduler]]    
+- [[http://joeduffyblog.com/2016/11/30/15-years-of-concurrency/][15 Years of Concurrency]] - Joe Duffy    
+- [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor    
+- [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi    
+
+* Code Review
+
+
+- *Example* *1:* Goroutines and concurrency
+.play goroutines/example1/example1.go
+   
+
+- *Example* *2:* Goroutine time slicing
+.play goroutines/example2/example2.go
+   
+
+- *Example* *3:* Goroutines and parallelism
+.play goroutines/example3/example3.go
+   
+
+* Exercises
+
+Exercise 1
+
+*Part* *A* Create a program that declares two anonymous functions. One that counts down from 100 to 0 and one that counts up from 0 to 100. Display each number with an unique identifier for each goroutine. Then create goroutines from these functions and don't let main return until the goroutines complete.
+
+*Part* *B* Run the program in parallel.
+
+.play goroutines/exercises/template1/template1.go
+
+* Answer
+.play goroutines/exercises/exercise1/exercise1.go
+ 
+___
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
