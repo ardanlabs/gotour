@@ -50,7 +50,9 @@ value('tableOfContents', [{
     'lessons': [
        'goroutines',
        'data_race',
-       'channels'
+       'channels',
+       'context',
+       'patterns'
     ]
 }]).
 

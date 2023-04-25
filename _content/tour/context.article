@@ -1,0 +1,70 @@
+Context - Standard Library
+The package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+
+* Context - Standard Library
+
+The package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+
+* Notes
+
+- Incoming requests to a server should create a Context.
+- Outgoing calls to servers should accept a Context. 
+- The chain of function calls between them must propagate the Context.
+- Replace a Context using WithCancel, WithDeadline, WithTimeout, or WithValue.
+- When a Context is canceled, all Contexts derived from it are also canceled.
+- Do not store Contexts inside a struct type; instead, pass a Context explicitly to each function that needs it.
+- Do not pass a nil Context, even if a function permits it. Pass context.TODO if you are unsure about which Context to use.
+- Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions.
+- The same Context may be passed to functions running in different goroutines; Contexts are safe for simultaneous use by multiple goroutines.
+
+* Links
+
+- [[https://www.ardanlabs.com/blog/2019/09/context-package-semantics-in-go.html][Context Package Semantics In Go]] - William Kennedy  
+- [[https://golang.org/pkg/context][Package context]] - Go Team    
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
+- [[https://vimeo.com/115309491][Cancellation, Context, and Plumbing]] - Sameer Ajmani    
+- [[https://rakyll.org/leakingctx/][Using contexts to avoid leaking goroutines]] - JBD    
+
+* Code Review I
+
+"Context values are for request-scoped data that passes through programs in a distributed system. Litmus test: Could it be an HTTP header?" - Sameer Ajmani
+
+
+- *Example* *1:* Store / Retrieve context values
+.play context/example1/example1.go
+   
+- *Example* *2:* WithCancel
+.play context/example2/example2.go
+   
+
+- *Example* *3:* WithDeadline
+.play context/example3/example3.go
+
+* Code Review II
+
+- *Example* *4:* WithTimeout
+.play context/example4/example4.go
+   
+
+- *Example* *5:* Request/Response
+.play context/example5/example5.go
+
+
+- *Example* *6:* Cancellation
+.play context/example6/example6.go
+
+
+* Exercises
+
+Exercise 1
+
+Use the template and follow the directions. You will be writing a web handler that performs a mock database call but will timeout based on a context if the call takes too long. You will also save state into the context.
+
+.play context/exercises/template1/template1.go
+ 
+
+* Answer
+.play context/exercises/exercise1/exercise1.go
+   
+___
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
