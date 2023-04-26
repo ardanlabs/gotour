@@ -67,7 +67,7 @@ value('tableOfContents', [{
        'fuzzing',
        'profiling',
     ]
-}])
+}]).
 
 /*
 TODO: Re-add with markdown references on repository
