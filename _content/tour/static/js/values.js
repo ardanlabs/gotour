@@ -9,7 +9,7 @@ angular.module('tour.values', []).
 // List of modules with description and lessons in it.
 value('tableOfContents', [{
     'id': 'language-mechanics',
-    'title': 'Ultimate Go - Language Mechanics',
+    'title': 'Language Mechanics',
     'description': `
         <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
         <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
@@ -30,7 +30,7 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'software-design',
-    'title': 'Ultimate Go - Software Design',
+    'title': 'Software Design',
     'description': `
         <p>This material covers the essential things you need to know about designing software in Go.</p>
         <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
@@ -42,7 +42,7 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'concurrency',
-    'title': 'Ultimate Go - Concurrency',
+    'title': 'Concurrency',
     'description': `
         <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
         <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
@@ -53,6 +53,18 @@ value('tableOfContents', [{
        'channels',
        'context',
        'patterns'
+    ]
+},{
+    'id': 'tooling',
+    'title': 'Tooling',
+    'description': `
+        <p>This material covers a good portion of the tooling that comes with go. Specifically we cover testing and benchmarking. We also cover profiling memory and the scheduler. Finally we learn how to read stack traces.</p>
+        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
+        `,
+    'lessons': [
+       'testing',
+       'benchmarks',
+       'fuzzing',
     ]
 }]).
 

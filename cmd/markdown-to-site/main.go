@@ -1,12 +1,12 @@
 // markdown-to-site utility to convert
 // markdown to format used by the gotour
 // project. Support exists for links, bullet-point lists
-// and level 3 headers denoted with '###'.
+// and level 2 headings denoted with '##'.
 // Run with flag debug to print the text without overwriting the target
 // file.
 // The program will overwrite the specified file_path. The contents
 // of file_path should be markdown on first run.
-// Markdown URLs with parentheses will break the program.
+// Markdown URLs with parentheses in the title will break the program.
 // for example, [Sample (Stuff)](http...)
 package main
 

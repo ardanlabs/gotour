@@ -1,0 +1,77 @@
+Testing
+Testing is built right into the go tools and the standard library. Testing needs to be a vital part of the development process because it can save you a tremendous amount of time throughout the life cycle of the project.
+
+* Testing
+
+Testing is built right into the go tools and the standard library. Testing needs to be a vital part of the development process because it can save you a tremendous amount of time throughout the life cycle of the project. Benchmarking is also a very powerful tool tied to the testing functionality. Aspect of your code can be setup to be benchmarked for performance reviews. Profiling provides a view of the interations between functions and which functions are most heavily used.
+
+* Notes
+
+- The Go toolset has support for testing and benchmarking.
+- The tools are very flexible and give you many options.
+- Write tests in tandem with development.
+- Example code serve as both a test and documentation.
+- Benchmark throughout the dev, qa and release cycles.
+- If performance problems are observed, profile your code to see what functions to focus on.
+- The tools can interfere with each other. For example, precise memory profiling skews CPU profiles, goroutine blocking profiling affects scheduler trace, etc. Rerun tests for each needed profiling mode.
+
+* Quotes
+
+"A unit test is a test of behavior whose success or failure is wholly determined by the correctness of the test and the correctness of the unit under test." - Kevlin Henney
+
+* Links
+
+- [[https://www.youtube.com/watch?reload=9&feature=share&v=4cVZvoFGJTU&app=desktop][The deep synergy between testability and good design]] - Michael Feathers  
+- [[http://golang.org/pkg/testing/][testing package]]    
+- [[https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go][How to write benchmarks in Go]] - Dave Cheney    
+- [[http://saml.rilspace.com/profiling-and-creating-call-graphs-for-go-programs-with-go-tool-pprof][Profiling and creating call graphs for Go programs with "go tool pprof"]] - Samuel Lampa    
+- [[https://golang.org/pkg/net/http/pprof/][pprof package]]    
+- [[https://software.intel.com/en-us/blogs/2014/05/10/debugging-performance-issues-in-go-programs][Debugging performance issues in Go programs]] - Dmitry Vyukov    
+- [[https://talks.golang.org/2015/dynamic-tools.slide#1][https://github.com/dvyukov/go-fuzz]] - Dmitry Vyukov    
+- [[https://vimeo.com/141698770][Automated Testing with go-fuzz]] - Filippo Valsorda    
+- [[https://medium.com/@benbjohnson/structuring-tests-in-go-46ddee7a25c#.b2m3nziyb][Structuring Tests in Go]] - Ben Johnson  
+- [[https://speakerdeck.com/mpvl/advanced-testing-concepts-for-go-1-dot-7][Advanced Testing Concepts for Go 1.7]] - Marcel van Lohuizen  
+- [[https://rakyll.org/parallelize-test-tables/][Parallelize your table-driven tests]] - JBD     
+- [[https://www.youtube.com/shared?ci=LARb45o5TpA][Advanced Testing with Go - Video]] - Mitchell Hashimoto  
+- [[https://speakerdeck.com/mitchellh/advanced-testing-with-go][Advanced Testing with Go - Deck]] - Mitchell Hashimoto  
+- [[http://labs.ig.com/code-coverage-100-percent-tragedy][The tragedy of 100% code coverage]] - Daniel Lebrero's  
+
+* Code Review I
+
+- *Example* *1:* Basic Unit Test
+.play tests/example1/example1_test.go
+   
+- *Example* *2:* Table Unit Test
+.play tests/example2/example2_test.go
+   
+
+- *Example* *3:* Mocking Web Server Response
+.play tests/example3/example3_test.go
+   
+* Code Review II
+
+- *Handlers* *Test:* Testing Internal Endpoints
+.play tests/example4/handlers/handlers_test.go
+   
+- *Handlers* *Example* *Test:* Example Test
+.play tests/example4/handlers/handlers_example_test.go
+
+* Code Review III
+
+- *Example* *5:* Sub Tests
+.play tests/example5/example5_test.go
+   
+
+Look at the profiling topic to learn more about using test to [[/tour/profiling][profile]] code.
+
+* Coverage
+
+Making sure your tests cover as much of your code as possible is critical. Go's testing tool allows you to create a profile for the code that is executed during all the tests and see a visual of what is and is not covered.
+
+	go test -coverprofile cover.out
+	go tool cover -html=cover.out
+
+.image /tour/static/img/testing_coverage.png
+
+
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
