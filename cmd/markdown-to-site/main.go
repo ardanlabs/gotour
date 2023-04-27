@@ -1,8 +1,10 @@
 // markdown-to-site utility to convert
 // markdown to format used by the gotour
 // project. Support exists for links, bullet-point lists
-// and level 2 headings denoted with '##'.
-// Run with flag debug to print the text without overwriting the target
+// level 3 headings (###), and level 2 headings
+// denoted with '##'.
+// Run with flag `-debug` to print the formatted text
+// without overwriting the target
 // file.
 // The program will overwrite the specified file_path. The contents
 // of file_path should be markdown on first run.
@@ -35,7 +37,7 @@ func main() {
 		&debug,
 		"debug",
 		false,
-		"Print generated file instead of writing.",
+		"Print generated file instead of writing to file.",
 	)
 
 	flag.StringVar(
