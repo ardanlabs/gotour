@@ -82,20 +82,6 @@ value('tableOfContents', [{
       'reflection',
     ]
 }]).
-
-/*
-TODO: Re-add with markdown references on repository
-{
-    'id': 'add-content',
-    'title': 'Additional Content',
-    'description': `
-        <p>Misc. content</p>
-        <p><i></i></p>
-        `,
-    'lessons': [
-    ]
-}
-*/
 // translation
 value('translation', {
     'off': 'off',
