@@ -4,11 +4,11 @@ Channels allow goroutines to communicate with each other through the use of sign
 * Channels
 Channels allow goroutines to communicate with each other through the use of signaling semantics. Channels accomplish this signaling through the use of sending/receiving data or by identifying state changes on individual channels. Don't architect software with the idea of channels being a queue, focus on signaling and the semantics that simplify the orchestration required.
 
-* Design Guidelines
+** Design Guidelines
 
 - Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
 
-* Diagrams
+** Diagrams
 
 Guarantee Of Delivery
 
@@ -32,7 +32,7 @@ The behavior of a channel is directly influenced by its current `State`. The sta
 
 .image /tour/static/img/state.png
 
-* Links
+** Links
 
 - [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
 - [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
@@ -41,7 +41,7 @@ The behavior of a channel is directly influenced by its current `State`. The sta
 - [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
 - [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
 
-* Buffer Bloat - 2011
+** Buffer Bloat - 2011
 
 - Large buffers prevent timely notification of back pressure.
 - They defeat your ability to reduce back pressure in a timely matter.
@@ -55,7 +55,7 @@ The behavior of a channel is directly influenced by its current `State`. The sta
 - [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
 
-* Code Review I
+* Code Review
 
 - *Example* *1:* Basic mechanics
 .play channels/example1/example1.go
@@ -68,8 +68,6 @@ The behavior of a channel is directly influenced by its current `State`. The sta
 - *Example* *3:* Relay race
 .play channels/example3/example3.go
 
-* Code Review II   
-
 - *Example* *4:* Fan out pattern
 .play channels/example4/example4.go
    
@@ -77,52 +75,47 @@ The behavior of a channel is directly influenced by its current `State`. The sta
 - *Example* *5:* Monitor running time
 .play channels/example5/example5.go
    
-* Advanced Code Review
-
+** Advanced Code Review
 
 - *Example* *1:* Channel communication ordering
 .play channels/advanced/example1/example1.go
  
 
-* Exercise 1
+* Exercises
+
+** Exercise 1
 
 Write a program where two goroutines pass an integer back and forth ten times. Display when each goroutine receives the integer. Increment the integer with each pass. Once the integer equals ten, terminate the program cleanly.
 
 
 .play channels/exercises/template1/template1.go 
 
-* Exercise 1 Answer
 .play channels/exercises/exercise1/exercise1.go
  
 
-* Exercise 2
+** Exercise 2
 Write a program that uses a fan out pattern to generate 100 random numbers concurrently. Have each goroutine generate a single random number and return that number to the main goroutine over a buffered channel. Set the size of the buffer channel so no send ever blocks. Don't allocate more buffers than you need. Have the main goroutine display each random number it receives and then terminate the program.
-
 
 .play channels/exercises/template2/template2.go
 
-* Exercise 2 Answer
 .play channels/exercises/exercise2/exercise2.go
  
 
-* Exercise 3
+** Exercise 3
 Write a program that generates up to 100 random numbers concurrently. Do not send all 100 values so the number of sends/receives is unknown.
 
 
 .play channels/exercises/template3/template3.go 
 
-* Exercise 3 Answer
 .play channels/exercises/exercise3/exercise3.go
  
 
-* Exercise 4
+** Exercise 4
 Write a program that generates up to 100 random numbers concurrently using a worker pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have been collected.
 
 .play channels/exercises/template4/template4.go
  
-
-* Exercise 4 Answer
 .play channels/exercises/exercise4/exercise4.go
  
-___
+
 All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].

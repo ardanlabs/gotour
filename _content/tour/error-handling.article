@@ -5,18 +5,18 @@ Error handling is critical for making your programs reliable, trustworthy and re
 
 Error handling is critical for making your programs reliable, trustworthy and respectful to those who depend on them. A proper error value is both specific and informative. It must allow the caller to make an informed decision about the error that has occurred. There are several ways in Go to create error values. This depends on the amount of context that needs to be provided.
 
-* Notes
+** Notes
 
 - Use the default error value for static and simple formatted messages.
 - Create and return error variables to help the caller identify specific errors.
 - Create custom error types when the context of the error is more complex.
 - Error Values in Go aren't special, they are just values like any other, and so you have the entire language at your disposal.
 
-* Quotes
+** Quotes
 
 "Systems cannot be developed assuming that human beings will be able to write millions of lines of code without making mistakes, and debugging alone is not an efficient way to develop reliable systems." - Al Aho (inventor of AWK)
 
-* Links
+** Links
 
 - [[https://blog.golang.org/error-handling-and-go][Error handling and Go]]    
 - [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Error Handling In Go, Part I]] - William Kennedy    
@@ -33,10 +33,8 @@ Error handling is critical for making your programs reliable, trustworthy and re
 
 * Code Review I
 
-
 - *Example* *1:* Default Error Values
 .play error-handling/example1/example1.go
-   
 
 - *Example* *2:* Error Variables
 .play error-handling/example2/example2.go
@@ -45,20 +43,15 @@ Error handling is critical for making your programs reliable, trustworthy and re
 - *Example* *3:* Type As Context
 .play error-handling/example3/example3.go
 
-
-* Code Review II
-
 - *Example* *4:* Behavior As Context
 .play error-handling/example4/example4.go
    
-
 - *Example* *5:* Find The Bug
 .play error-handling/example5/example5.go
 
 - *Reason:* The Reason
 .play error-handling/example5/reason/reason.go
 
-* Code Review III 
 
 - *Example* *6:* Wrapping Errors With pkg/errors
 .play error-handling/example6/example6.go
@@ -67,20 +60,20 @@ Error handling is critical for making your programs reliable, trustworthy and re
 .play error-handling/example7/example7.go
    
 
-* Exercise 1
+* Excercise
+
+** Exercise 1
 
 Create two error variables, one called ErrInvalidValue and the other called ErrAmountTooLarge. Provide the static message for each variable. Then write a function called checkAmount that accepts a float64 type value and returns an error value. Check the value for zero and if it is, return the ErrInvalidValue. Check the value for greater than $1,000 and if it is, return the ErrAmountTooLarge. Write a main function to call the checkAmount function and check the return error value. Display a proper message to the screen.
 
 .play error-handling/exercises/template1/template1.go
  
-* Exercise 2
+** Exercise 2
 
 Create a custom error type called appError that contains three fields, err error, message string and code int. Implement the error interface providing your own message using these three fields. Implement a second method named temporary that returns false when the value of the code field is 9. Write a function called checkFlag that accepts a bool value. If the value is false, return a pointer of your custom error type initialized as you like. If the value is true, return a default error. Write a main function to call the checkFlag function and check the error using the temporary interface.
 
 .play error-handling/exercises/template2/template2.go
 
-
-* Answers
 
 .play error-handling/exercises/exercise1/exercise1.go
 

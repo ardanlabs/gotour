@@ -5,13 +5,13 @@ A data race is when two or more goroutines attempt to read and write to the same
 
 A data race is when two or more goroutines attempt to read and write to the same resource at the same time. Race conditions can create bugs that appear totally random or can never surface as they corrupt data. Atomic functions and mutexes are a way to synchronize the access of shared resources between goroutines.
 
-* Notes
+** Notes
 
 - Goroutines need to be coordinated and synchronized.
 - When two or more goroutines attempt to access the same resource, we have a data race.
 - Atomic functions and mutexes can provide the support we need.
 
-* Cache Coherency and False Sharing
+** Cache Coherency and False Sharing
 This content is provided by Scott Meyers from his talk in 2014 at Dive:
 
 [[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care (30:09-38:30)]]  
@@ -19,12 +19,12 @@ This content is provided by Scott Meyers from his talk in 2014 at Dive:
 
 .image /tour/static/img/figure1_data_race.png
 
-* Cache Coherency and False Sharing Notes
+** Cache Coherency and False Sharing Notes
 
 - Thread memory access matters.
 - If your algorithm is not scaling look for false sharing problems.
 
-* Links
+** Links
 
 - [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter    
 - [[https://golang.org/ref/mem][The Go Memory Model]]    
@@ -32,13 +32,13 @@ This content is provided by Scott Meyers from his talk in 2014 at Dive:
 - [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - William Kennedy    
 - [[https://golang.org/doc/articles/race_detector.html][Data Race Detector]]    
 
-* Diagram
+** Diagram
 
 View of Data Race in Example1.
 
 .image /tour/static/img/data_race.png
 
-* Code Review I
+* Code Review
 
 - *Example* *1:* Data Race
 .play data_race/example1/example1.go
@@ -51,7 +51,6 @@ View of Data Race in Example1.
 - *Example* *3:* Mutex
 .play data_race/example3/example3.go
     
-* Code Review II
 
 - *Example* *4:* Read/Write Mutex
 .play data_race/example4/example4.go
@@ -61,7 +60,7 @@ View of Data Race in Example1.
 .play data_race/example5/example5.go
      
 
-* Advanced Code Review
+** Advanced Code Review
 
 - *Example* *1:* Interface Based Race Condition
 .play data_race/advanced/example1/example1.go
@@ -75,7 +74,6 @@ Given the following program, use the race detector to find and correct the data 
 
 .play data_race/exercises/template1/template1.go
 
-* Answer
 .play data_race/exercises/exercise1/exercise1.go
  
 
