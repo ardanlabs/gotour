@@ -93,6 +93,7 @@ Output:
 - "Value of", what's in the box. "Address of" ( **&** ), where is the box.
 - The (*) operator declares a pointer variable and the "Value that the pointer points to".
 
+
 ** Escape Analysis
 
 The algorithm the compiler uses to determine if a value should be constructed on the stack or heap is called "escape analysis". The name of the algorithm makes it sound like values are constructed on the stack first and then escape (or move) to the heap when necessary. This is NOT the case. The construction of a value only happens once, and the escape analysis algorithm decides where that will be (stack or heap). Only construction on the heap is called an allocation in Go.
@@ -191,7 +192,7 @@ Once a value is constructed on the heap, the Garbage Collector (GC) has to get i
 
 "The stack is for data that needs to persist only for the lifetime of the function that constructs it, and is reclaimed without any cost when the function exits. The heap is for data that needs to persist after the function that constructs it exits, and is reclaimed by a sometimes costly garbage collection." - Ayan George
 
-*** Stack Growth
+** Stack Growth
 
 The size of each frame for every function is calculated at compile time. This means, if the compiler doesn’t know the size of a value at compile time, the value must be constructed on the heap. An example of this is using the built-in function make to construct a slice whose size is based on a variable.
 
