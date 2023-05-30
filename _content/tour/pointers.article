@@ -20,6 +20,7 @@ The size of a frame for a given function is calculated at compile time. No value
 Stacks are self cleaning and zero value helps with the initialization of the stack. Every time I make a function call, and a frame of memory is blocked out, the memory for that frame is initialized, which is how the stack is self cleaning. On a function return, the memory for the frame is left alone since it’s unknown if that memory will be needed again. It would be inefficient to initialize memory on returns.
 
 *** Pass By Value
+
 All data is moved around the program by value. This means as data is being passed across program boundaries, each function or Goroutine is given its own copy of the data. There are two types of data I work with, the value itself (int, string, user) or the value's address. Addresses are data that need to be copied and stored across program boundaries.
 
 The following code attempts to explain this more.
@@ -175,11 +176,27 @@ The design of the Go GC has changed over the years:
 
 Garbage Collection Semantics
 
+Once a value is constructed on the heap, the Garbage Collector (GC) has to get involved. The most important part of the GC is the pacing algorithm. It determines the frequency/pace that the GC has to run in order to maintain the smallest heap possible in conjunction with the best application throughput.
+
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
 ** Stack vs Heap
 
 "The stack is for data that needs to persist only for the lifetime of the function that constructs it, and is reclaimed without any cost when the function exits. The heap is for data that needs to persist after the function that constructs it exits, and is reclaimed by a sometimes costly garbage collection." - Ayan George
+
+*** Stack Growth
+
+The size of each frame for every function is calculated at compile time. This means, if the compiler doesn’t know the size of a value at compile time, the value must be constructed on the heap. An example of this is using the built-in function make to construct a slice whose size is based on a variable.
+
+Listing 4
+
+    b := make([]byte, size) // Backing array allocates on the heap.
+
+Go uses a contiguous stack implementation to determine how stacks grow and shrink. One alternative Go could have used is a segmented stack implementation, which is used by some operating systems.
+
+Every function call comes with a little preamble that asks, "Is there enough stack space for this new frame?". If yes, then no problem and the frame is taken and initialized. If not, then a new larger stack must be constructed and the memory on the existing stack must be copied over to the new one. This requires changes to pointers that reference memory on the stack. The benefits of contiguous memory and linear traversals with modern hardware is the tradeoff for the cost of the copy.
+
+Because of the use of contiguous stacks, no Goroutine can have a pointer to some other Goroutine’s stack. There would be too much overhead for the runtime to keep track of every pointer to every stack and readjust those pointers to the new location.
 
 ** Links
 
