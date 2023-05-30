@@ -92,6 +92,7 @@ A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all togethe
 
 Figure 1
 
+.image /tour/static/img/f1.png
 
 The idea of alignment is to allow the hardware to read memory more efficiently by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so I don’t have to.
 
@@ -106,7 +107,7 @@ Listing 6
         pi      float32
     }
 
-In this example, I’ve added a new field called flag2 between the counter and pi fields. This causes more padding inside the struct.
+In this example, I’ve added a new field called `flag2` between the counter and pi fields. This causes more padding inside the struct.
 
 
 Listing 7
@@ -126,6 +127,8 @@ This is how the alignment and padding play out if a value of type example2 start
 
 Figure 2
 
+.image /tour/static/img/f2.png
+
 The `flag2` field is a bool and can fall at the next address 0xc000100024. The final field is pi and requires 4 bytes of allocation so it needs to fall on a 4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That means 3 more padding bytes are needed to maintain a proper alignment. This results in a value of type example2 requiring 12 bytes of total memory allocation.
 
 The largest field in a struct represents the alignment boundary for the entire struct. In this case, the largest field is 4 bytes so the starting address for this struct value must be a multiple of 4. I can see the address 0xc000100020 is a multiple of 4.
@@ -144,6 +147,8 @@ Listing 8
 After the reordering of the fields, the struct value only requires 8 bytes of allocation and not 12 bytes. Since all the fields allow the struct value to fall on a 4-byte alignment, no extra padding bytes are necessary.
 
 Figure 3
+
+.image /tour/static/img/f3.png
 
 ** Assigning Values
 If I have two different named types that are identical in structure, I can't assign a value of one to the other.
