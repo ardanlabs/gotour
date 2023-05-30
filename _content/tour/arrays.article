@@ -1,9 +1,151 @@
 Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory. Arrays have some special features in Go related to how they are declared and viewed as types.
+Arrays can store multiple values in one variable. This section will cover how to define an array and it's semantics.
 
 * Arrays
 
 Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory. Arrays have some special features in Go related to how they are declared and viewed as types.
+
+** Declaring and Initializing Values
+Declare an array of five strings initialized to its zero value state.
+
+Listing 1
+
+    var strings [5]string
+
+A string is an immutable, two word, data structure representing a pointer to a backing array of bytes and the total number of bytes in the backing array. Since this array is set to its zero value state, every element is set to its zero value state. This means that each string has the first word set to nil and the second word set to 0.
+
+Figure 1
+
+.image /tour/static/img/a1.png
+
+** String Assignments
+What happens when a string is assigned to another string?
+
+Listing 2
+
+    strings[0] = "Apple"
+
+When a string is assigned to another string, the two word value is copied, resulting in two different string values both sharing the same backing array.
+
+Figure 2
+
+.image /tour/static/img/a2.png
+
+The cost of copying a string is the same regardless of the size of a string, a two word copy.
+
+** Iterating Over Collections
+Go provides two different semantics for iterating over a collection. I can iterate using value semantics or pointer semantics.
+
+Listing 3
+
+    // Value Semantic Iteration
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+
+    // Pointer Semantic Iteration
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+When using value semantic iteration, two things happen. First, the collection I’m iterating over is copied and I iterate over the copy. In the case of an array, the copy could be expensive since the entire array is copied. In the case of a slice, there is no real cost since only the internal slice value is copied and not the backing array. Second, I get a copy of each element being iterated on.
+
+When using pointer semantic iteration, I iterate over the original collection and I access each element associated with the collection directly.
+
+** Value Semantic Iteration
+Given the following code and output.
+
+Listing 4
+    
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+Output:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+The strings variable is an array of 5 strings. The loop iterates over each string in the collection and displays the index position and the string value. Since this is value semantic iteration, the for range is iterating over its own shallow copy of the array and on each iteration the fruit variable is a copy of each string (the two word data structure).
+
+Notice how the fruit variable is passed to the print function using value semantics. The print function is getting its own copy of the string value as well. By the time the string is passed to the print function, there are 4 copies of the string value (array, shallow copy, fruit variable and the print function’s copy). All 4 copies are sharing the same backing array of bytes. 
+
+Figure 3
+
+.image /tour/static/img/a3.png
+
+Making copies of the string value is important because it prevents the string value from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+
+** Pointer Semantic Iteration
+Given the following code and output.
+
+Listing 5
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Output:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Once again, the strings variable is an array of 5 strings. The loop iterates over each string in the collection and displays the index position and the string value. Since this is pointer semantic iteration, the for range is iterating over the strings array directly and on each iteration, the string value for each index position is accessed directly for the print call.
+
+** Different Type Arrays
+It’s interesting to see what the compiler provides as an error when assigning arrays of the same types that are of different lengths.
+
+Listing 6
+
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
+
+    five = four
+
+Compiler Error:
+
+    cannot use four (type [4]int) as type [5]int in assignment
+
+Here I declare an array of 4 and 5 integers initialized to its zero value state. Then try to assign them to each other and the compiler says, "cannot use four (type [4]int) as type [5]int in assignment".
+
+It’s important to be clear about what the compiler is saying. It’s saying that an array of 4 integers and an array of 5 integers represent data of different types. The size of an array is part of its type information. In Go, the size of an array has to be known at compile time.
+
+** Contiguous Memory Construction
+I want to prove that an array provides a contiguous layout of memory.
+
+Listing 7
+
+    five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
+
+    for i, v := range five {
+        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+            v, &v, &five[i])
+    }
+
+Output:
+
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+
+Here I declare an array of 5 strings initialized with values. Then use value semantic iteration to display information about each string. The output shows each individual string value, the address of the v variable and the address of each element in the array.
+
+I can see how the array is a contiguous block of memory and how a string is a two word or 16 byte data structure on my 64 bit architecture. The address for each element is distanced on a 16 byte stride.
+
+The fact that the v variable has the same address on each iteration strengthens the understanding that v is a local variable of type string which contains a copy of each string value during iteration.
+
+
 
 ** Notes
 
@@ -21,6 +163,109 @@ Arrays are a special data structure in Go that allow us to allocate contiguous b
 
 ** CPU Caches
 
+There are lots of mechanical differences between processors and their design. In this section, I will talk at a high level about processors and the semantics that are relatively the same between them all. This semantic understanding will provide me a good mental model for how the processor works and the sympathy I can provide.
+
+Each core inside the processor has its own local cache of memory (L1 and L2) and a common cache of memory (L3) used to store/access data and instructions. The hardware threads in each core can access their local L1 and L2 caches. Data from L3 or main memory needs to be copied into the L1 or L2 cache for access.
+
+Figure 4
+
+.image /tour/static/img/a4.png
+
+The latency cost of accessing data that exists in the different caches changes from least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance matters then the total amount of memory I have is the total amount of cache. Main memory is so slow to access, practically speaking, it might as well not even be there."
+
+Performance today is about how efficiently data flows through the hardware. If every piece of data the hardware needs (at any given time) exists only in main memory, my programs will run slower as compared to the data already being present in the L1 or L2 caches.
+
+Listing 8
+
+    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+
+    1 ns ............. 1 ns .............. 12 instructions  (one) 
+    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+
+    Industry Defined Latencies
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins
+
+How do I write code that guarantees the data that is needed to execute an instruction is always present in the L1 or L2 caches? I need to write code that is mechanically sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what data is needed before instructions request the data so it’s already present in either the L1 or L2 cache. 
+
+There are different granularities of memory access depending on where the access is happening. My code can read/write a byte of memory as the smallest unit of memory access. However, from the caching systems point of view, the granularity is 64 bytes. This 64 byte block of memory is called a cache line.
+
+The Prefetcher works best when the instructions being executed create predictable access patterns to memory. One way to create a predictable access pattern to memory is to construct a contiguous block of memory and then iterate over that memory performing a linear traversal with a predictable stride.
+
+The array is the most important data structure to the hardware because it supports predictable access patterns. However, the slice is the most important data structure in Go. Slices in Go use an array underneath.
+
+Once I construct an array, every element is equally distant from the next or previous element. As I iterate over an array, I begin to walk cache line by connected cache line in a predictable stride. The Prefetcher will pick up on this predictable data access pattern and begin to efficiently pull the data into the processor, thus reducing data access latency costs.
+Imagine I have a big square matrix of memory and a linked list of nodes that match the number of elements in the matrix. If I perform a traversal across the linked list, and then traverse the matrix in both directions (Column and Row), how will the performance of the different traversals compare?
+
+Listing 9
+
+    func RowTraverse() int {
+        var ctr int
+        for row := 0; row < rows; row++
+            for col := 0; col < cols; col++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+Row traverse will have the best performance because it walks through memory, cache line by connected cache line, which creates a predictable access pattern. Cache lines can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+
+Listing 10
+
+    func ColumnTraverse() int {
+        var ctr int
+        for col := 0; col < cols; col++ {
+            for row := 0; row < rows; row++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+Column Traverse is the worst by an order of magnitude because this access pattern crosses over OS page boundaries on each memory access. This causes no predictability for cache line prefetching and becomes essentially random access memory.
+
+Listing 11
+
+    func LinkedListTraverse() int {
+        var ctr int
+        d := list
+        for d != nil {
+            if d.v == 0xFF {
+                ctr++
+            }
+            d = d.p
+        }
+        return ctr
+    }
+
+The linked list is twice as slow as the row traversal mainly because there are cache line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes connected in the list exist inside the same OS pages.
+
+Listing 12
+
+    BenchmarkLinkListTraverse-16    128      28738407 ns/op
+    BenchmarkColumnTraverse-16       30     126878630 ns/op
+    BenchmarkRowTraverse-16         310      11060883 ns/op
+
+** Translation Lookaside Buffer (TLB)
+Each running program is given a full memory map of virtual memory by the OS and that running program thinks they have all of the physical memory on the machine. However, physical memory needs to be shared with all the running programs. The operating system shares physical memory by breaking the physical memory into pages and mapping pages to virtual memory for any given running program. Each OS can decide the size of a page, but 4k, 8k, 16k are reasonable and common sizes.
+
+The TLB is a small cache inside the processor that helps to reduce latency on translating a virtual address to a physical address within the scope of an OS page and offset inside the page. A miss against the TLB cache can cause large latencies because now the hardware has to wait for the OS to scan its page table to locate the right page for the virtual address in question. If the program is running on a virtual machine (like in the cloud) then the virtual machine paging table needs to be scanned first.
+
+Remember when I said:
+
+The linked list is twice as slow as the row traversal mainly because there are cache line misses but fewer TLB misses (explained next). A bulk of the nodes connected in the list exist inside the same OS pages.
+
+The LinkedList is orders of magnitude faster than the column traversal because of TLB access. Even though there are cache line misses with the linked list traversal, since a majority of the memory for a group of nodes will land inside the same page, TLB latencies are not affecting performance. This is why for programs that use a large amount of memory, like DNA based applications, I may want to use a distribution of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+
+All that said, data-oriented design matters. Writing an efficient algorithm has to take into account how the data is accessed. Remember, performance today is about how efficiently I can get data into the processor.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
@@ -37,8 +282,10 @@ Arrays are a special data structure in Go that allow us to allocate contiguous b
 - Main memory is built on relatively fast cheap memory. Caches are built on very fast expensive memory.
 
 - Access to main memory is incredibly slow, we need the cache.
-	- Accessing one byte from main memory will cause an entire cache line to be read and cached.
-	- Writes to one byte in a cache line requires the entire cache line to be written.
+	- Accessing one byte from main memory will cause an
+      entire cache line to be read and cached.
+	- Writes to one byte in a cache line requires the 
+      entire cache line to be written.
 
 - Small = Fast
 	- Compact, well localized code that fits in cache is fastest.
