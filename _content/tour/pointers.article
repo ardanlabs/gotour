@@ -12,6 +12,7 @@ Each Goroutine is given its own block of memory called a stack. Each stack start
 
 Figure 1
 
+.image /tour/static/img/p1.png
 
 Every time a function is called, a block of stack space is taken to help the Goroutine execute the instructions associated with that function. Each individual block of memory is called a frame.
 
@@ -19,7 +20,7 @@ The size of a frame for a given function is calculated at compile time. No value
  
 Stacks are self cleaning and zero value helps with the initialization of the stack. Every time I make a function call, and a frame of memory is blocked out, the memory for that frame is initialized, which is how the stack is self cleaning. On a function return, the memory for the frame is left alone since it’s unknown if that memory will be needed again. It would be inefficient to initialize memory on returns.
 
-*** Pass By Value
+*Pass* *By* *Value*
 
 All data is moved around the program by value. This means as data is being passed across program boundaries, each function or Goroutine is given its own copy of the data. There are two types of data I work with, the value itself (int, string, user) or the value's address. Addresses are data that need to be copied and stored across program boundaries.
 
@@ -50,7 +51,9 @@ Listing 1
 
         // Print out the "value of" and "address of" count.
         // The value of count has changed after the function call.
-        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
     }
 
     // increment1 declares the function to accept its own copy of
@@ -69,7 +72,10 @@ Listing 1
 
         // Increment the caller’s int value through the pointer.
         *inc++
-        println("inc2:\tValue Of[", inc, "]\tAddr Of[", &inc, "]\tPoints To[", *inc, "]")
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
     }
 
 Output:
@@ -87,7 +93,7 @@ Output:
 - "Value of", what's in the box. "Address of" ( **&** ), where is the box.
 - The (*) operator declares a pointer variable and the "Value that the pointer points to".
 
-* Escape Analysis
+** Escape Analysis
 
 The algorithm the compiler uses to determine if a value should be constructed on the stack or heap is called "escape analysis". The name of the algorithm makes it sound like values are constructed on the stack first and then escape (or move) to the heap when necessary. This is NOT the case. The construction of a value only happens once, and the escape analysis algorithm decides where that will be (stack or heap). Only construction on the heap is called an allocation in Go.
 
@@ -141,6 +147,7 @@ Think about what would happen if the user value in the last example was construc
 
 Figure 2
 
+.image /tour/static/img/p2.png
 
 The caller would get a copy of a stack address from the frame below and integrity would be lost. Once control goes back to the calling function, the memory on the stack where the user value exists is reusable again. The moment the calling function makes another function call, a new frame is sliced and the memory will be overridden, destroying the shared value.
 
