@@ -3,7 +3,86 @@ Packages contain the basic unit of compiled code. They define a scope for the id
 
 * Exporting
 
-Packages contain the basic unit of compiled code. They define a scope for the identifiers that are declared within them. Exporting is not the same as public and private semantics in other languages. But exporting is how we provide encapsulation in Go.
+Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. A package is the basic unit of compiled code in Go. It represents a physical compiled unit of code, usually as a compiled library on the host operating system. Exporting determines access to identifiers across package boundaries.
+
+Listing 1
+
+    package counters
+
+    type AlertCounter int
+
+In this case, since a capital letter is being used to name the type AlterCounter, the type is exported and can be referenced directly by code outside of the counters package.
+
+Listing 2
+
+    package counters
+
+    type alertCounter int
+
+Now that I changed the type’s name to start with a lowercase letter, the type is unexported. This means only code inside the counters package can reference this type directly.
+
+Listing 3
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+    return alertCounter(value)
+    }
+
+Even though the code above is legal syntax and will compile, there is no value in it. Returning a value of an unexported type is confusing since the caller (who will probably exist in a different package) can’t reference the type name directly.
+
+
+Listing 4
+
+    package main
+
+    import (
+    "fmt"
+
+    "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+In this case, the main function in package main calls the counters.New function successfully and the compiler can declare and construct a variable of the unexported type. This doesn't mean I should do this nor does it mean I’m getting any real protections for this. This should be avoided, and if New will return a value, it should be of an exported type.
+
+Listing 5
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+When it comes to fields in a struct, the first letter declares if the field is accessible to code outside of the package it’s declared in. In this case, Name and ID are accessible, but password is not. It’s an idiom to separate exported and unexported fields in this manner if this is reasonable or practical to do. Normally all fields would be one or the other.
+
+Listing 6
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+    Title string
+
+    user
+    }
+
+In this scenario, even though the user type is unexported, it has two exported fields. This means that when the user type is embedded in the exported Manager type, the user fields promote and are accessible. It’s common to have types that are unexported with exported fields because the reflection package can only operate on exported fields. Marshallers won’t work otherwise.
+
+The example creates a bad situation where code outside of package users can construct a Manager, but since the embedded type user is unexported, the fields for those type can be initialized. This creates partial construction problems that will lead to bugs. I need to be consistent with exporting and unexporting.
+
 
 ** Notes
 

@@ -3,7 +3,121 @@ Maps provide a data structure that allow for the storage and management of key/v
 
 * Maps
 
-Maps provide a data structure that allow for the storage and management of key/value pair data.
+A map is a data structure that provides support for storing and accessing data based on a key. It uses a hash map and bucket system that maintains a contiguous block of memory underneath.
+
+** Declaring And Constructing Maps
+
+Listing 1
+
+    type user struct {
+        name     string
+        username string
+    }
+
+    // Construct a map set to its zero value,
+    // that can store user values based on a key of type string.
+    // Trying to use this map will result in a runtime error (panic).
+    var users map[string]user
+
+    // Construct a map initialized using make,
+    // that can store user values based on a key of type string.
+    users := make(map[string]user)
+
+    // Construct a map initialized using empty literal construction,
+    // that can store user values based on a key of type string.
+    users := map[string]user{}
+
+There are several ways to construct a map for use. A map set to its zero value is not usable and will result in my program panicking. The use of the built-in function make and literal construction constructs a map ready for use.
+
+
+Listing 2
+
+    func main() {
+        users := make(map[string]user)
+
+        users["Roy"] = user{"Rob", "Roy"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Output:
+
+    Roy {Rob Roy}
+    Ford {Henry Ford}
+    Mouse {Mickey Mouse}
+    Jackson {Michael Jackson}
+
+If the built-in function make is used to construct a map, then the assignment operator can be used to add and update values in the map. The order of how keys/values are returned when ranging over a map is undefined by the spec and up to the compiler to implement. 
+
+Listing 3
+
+    func main() {
+        users := map[string]user{
+            "Roy":     {"Rob", "Roy"},
+            "Ford":    {"Henry", "Ford"},
+            "Mouse":   {"Mickey", "Mouse"},
+            "Jackson": {"Michael", "Jackson"},
+        }
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Output:
+
+    Ford {Henry Ford}
+    Jackson {Michael Jackson}
+    Roy {Rob Roy}
+    Mouse {Mickey Mouse}
+
+In this case, the output was returned in a different order from how they are listed in the construction. The current algorithm for 1.16 will return the results in a random order once the number of values reaches a certain limit. Once again, this is a compiler implementation that is allowed to change. I can’t depend on it.
+
+** Lookups and Deleting Map Keys
+Once data is stored inside of a map, to extract any data a key lookup is required.
+
+
+Listing 4
+
+    user1, exists1 := users["Bill"]
+    user2, exists2 := users["Ford"]
+
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
+
+Output:
+
+    Bill: false { }
+    Ford: true {Henry Ford}
+
+To perform a key lookup, square brackets are used with the map variable. Two values can be returned from a map lookup, the value and a boolean that represents if the value was found or not. If I don’t need to know this, I can leave the "exists" variable out.
+
+When a key is not found in the map, the operation returns a value of the map type set to its zero value state. I can see this with the "Bill" key lookup. Don’t use zero value to determine if a key exists in the map or not since zero value may be valid and what was actually stored for the key.
+
+Listing 5
+
+    delete(users, "Roy")
+
+There is a built-in function named delete that allows for the deletion of data from the map based on a key.
+
+** Key Map Restrictions
+Not all types can be used as a key.
+
+Listing 6
+
+    type slice []user
+    Users := make(map[slice]user)
+
+Compiler Error:
+
+    invalid map key type users
+
+A slice is a good example of a type that can’t be used as a key. Only values that can be run through the hash function are eligible. A good way to recognize types that can be a key is if the type can be used in a comparison operation. I can’t compare two slice values.
 
 ** Notes
 
