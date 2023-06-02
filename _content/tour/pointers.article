@@ -5,8 +5,21 @@ Pointers provide a way to share data across program boundaries. Having the abili
 
 Pointers serve the purpose of sharing values across program boundaries. There are several types of program boundaries. The most common one is between function calls. There is also a boundary between Goroutines which I have notes for later.
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are lightweight application level threads with many of the same semantics as operating system threads. Their job is to manage the physical execution of a distinct set of instructions.  Every Go program has at least 1 Goroutine that I call the main Goroutine.
+** Code Review
 
+- *Example* *1:* Pass by Value
+- *Example* *2:* Sharing Data I
+- *Example* *3:* Sharing Data II
+- *Example* *4:* Escape Analysis
+- *Example* *5:* Stack Grow
+
+.play pointers/example1/example1.go
+.play pointers/example2/example2.go
+.play pointers/example3/example3.go
+.play pointers/example4/example4.go
+.play pointers/example5/example5.go
+
+When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are lightweight application level threads with many of the same semantics as operating system threads. Their job is to manage the physical execution of a distinct set of instructions.  Every Go program has at least 1 Goroutine that I call the main Goroutine.
 Each Goroutine is given its own block of memory called a stack. Each stack starts out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
 
 
@@ -250,22 +263,6 @@ Static Single Assignment Optimizations
 Debugging code generation
 
 - [[https://rakyll.org/codegen/][Debugging code generation in Go]] - JBD    
-
-* Code Review
-
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
-
-.play pointers/example1/example1.go
-
-.play pointers/example2/example2.go
-.play pointers/example3/example3.go
-.play pointers/example4/example4.go
-.play pointers/example5/example5.go
-
 
 * Excercises
 
