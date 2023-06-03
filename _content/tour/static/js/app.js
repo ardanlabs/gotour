@@ -10,7 +10,7 @@ config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $routeProvider.
         when('/tour/', {
-            redirectTo: '/tour/welcome/1'
+            redirectTo: '/tour/list'
         }).
         when('/tour/list', {
             templateUrl: '/tour/static/partials/list.html',
