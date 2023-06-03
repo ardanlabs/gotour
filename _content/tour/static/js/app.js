@@ -42,7 +42,7 @@ run(function($rootScope, $location, mapping) {
         var m = mapping[url.hash];
         if (m === undefined) {
             console.log('unknown url, redirecting home');
-            $location.path('/tour/variables/1');
+            $location.path('/tour/list');
             return;
         }
         $location.path('/tour' + m);
