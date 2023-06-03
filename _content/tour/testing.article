@@ -1,9 +1,484 @@
 Testing
-Testing is built right into the go tools and the standard library. Testing needs to be a vital part of the development process because it can save you a tremendous amount of time throughout the life cycle of the project.
+In this section, I will learn how to write tests in Go and the integrated support provided by the language.
 
 * Testing
-
 Testing is built right into the go tools and the standard library. Testing needs to be a vital part of the development process because it can save you a tremendous amount of time throughout the life cycle of the project. Benchmarking is also a very powerful tool tied to the testing functionality. Aspect of your code can be setup to be benchmarked for performance reviews. Profiling provides a view of the interations between functions and which functions are most heavily used.
+
+** Code Review
+
+- *Example* *1:* Basic Unit Test
+.play tests/example1/example1_test.go
+   
+- *Example* *2:* Table Unit Test
+.play tests/example2/example2_test.go
+   
+- *Example* *3:* Mocking Web Server Response
+.play tests/example3/example3_test.go
+   
+
+- *Handlers* *Test:* Testing Internal Endpoints
+.play tests/example4/handlers/handlers_test.go
+   
+- *Handlers* *Example* *Test:* Example Test
+.play tests/example4/handlers/handlers_example_test.go
+
+- *Example* *5:* Sub Tests
+.play tests/example5/example5_test.go
+
+
+** Basic Unit Test
+One of the best things about Go is that the language defines what a unit of code is. A unit of code is called a package and it’s represented as a folder in my source tree. The compiler builds a static library from each folder and then links them all together to form the final application binary.
+
+When I talk about a unit test, I am talking about testing code from a single package. Usually exported function by exported function. This doesn’t restrict me from hitting external systems like a database or a set of web services to perform the tests. This is different from an integration test which will run tests across multiple packages.
+
+There are no rules or idioms when writing a unit test. What’s important is that a company or at least a team develops a set of consistent idioms and rules for writing a test. This way anyone can review a test result and maintain the code in a consistent way.
+
+One thing I need to decide upon is how verbose I want the tests to be. Do I want a test that only provides output when something fails, or do I want an indication as well that things are passing.
+
+The standard library and the Go frontend tooling has everything I need to write a test. It all starts with creating a file with the _test.go naming convention inside the package I want to test, and then adding test functions by using the word Test with a capital T for each function.
+
+Listing 1
+
+	sample_test.go
+
+	package sample_test
+
+	import (
+		"testing"
+	)
+
+	func TestDownload(t *testing.T) {}
+	func TestUpload(t *testing.T) {}
+
+These are examples of test functions I could declare in the sample_test.go testing file. It’s important that the first letter following the word Test in the function name starts with a capital letter. If I don’t, the testing tool won’t see the function as a test function. The other important piece is that the test function takes a testing.T pointer as the only argument.
+
+I should notice the package name also has the _test naming convention which puts the test functions in a different package and requires the test to import the package being tested and only work with the exported API. This is a good practice to force the test to use the package API like any other user. If I need to test unexported functions, I can’t use this convention.
+
+Listing 2
+
+	type T
+		func (c *T) Cleanup(f func())
+		func (t *T) Deadline() (deadline time.Time, ok bool)
+		func (c *T) Error(args ...interface{})
+		func (c *T) Errorf(format string, args ...interface{})
+		func (c *T) Fail()
+		func (c *T) FailNow()
+		func (c *T) Failed() bool
+		func (c *T) Fatal(args ...interface{})
+		func (c *T) Fatalf(format string, args ...interface{})
+		func (c *T) Helper()
+		func (c *T) Log(args ...interface{})
+		func (c *T) Logf(format string, args ...interface{})
+		func (c *T) Name() string
+		func (t *T) Parallel()
+		func (t *T) Run(name string, f func(t *T)) bool
+		func (c *T) Skip(args ...interface{})
+		func (c *T) SkipNow()
+		func (c *T) Skipf(format string, args ...interface{})
+		func (c *T) Skipped() bool
+		func (c *T) TempDir() string
+
+The `testing.T` value provides the API to share with the testing tool if the test passed or failed. Two families of functions exist, `t.Fatal` and `t.Error`, which are the most common API’s I will use and both indicate if a test failed. The big difference is calling t.Fatal will cause the test function to return and calling t.Error will allow the test function to continue and report potentially more failures within the test function. The t.Log function provides the option for verbose output for those who want to share more when a test fails or when the `-v` option is used when running a test.
+
+
+Listing 3
+
+	package sample_test
+
+	import (
+		"testing"
+		"http"
+	)
+
+	func TestDownload(t *testing.T) {
+		url := "https://www.ardanlabs.com/blog/index.xml"
+		statusCode := 200
+
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatalf("unable to issue GET on URL: %s: %s", url, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != statusCode {
+		t.Log("exp:", statusCode)
+		t.Log("got:", resp.StatusCode)
+		t.Fatal("status codes don’t match")
+		}
+	}
+
+In this test, I plan to test the ability to download the RSS feed for the Ardan Labs blog. First, I declare some variables with the URL to download and the expected status code. I then perform the http.Get call for the URL and check the error. It’s critical that any function called that returns an error has the error value checked. If there is an error, I call t.Fatal to report the problem and the test fails. If there is no error, I proceed to the next step which is checking the status code.
+
+Before checking the status code, I prepare the close call for the response body. Always write tests like production code. If I don’t get back the status code I expect, I provide verbose information about what I expected and what I got. This really helps with debugging failed tests. Then I call t.Fatal to report the test has failed. This is a test that only outputs information if the test fails.
+
+** Table Unit Test
+Table tests can be powerful when I have code that can be run through a series of different inputs and expected outputs. They are perfect for negative path testing.
+
+
+Listing 4
+
+	package sample_test
+
+	import (
+		"testing"
+		"http"
+	)
+
+	func TestDownload(t *testing.T) {
+		tt := []struct {
+			url        string
+			statusCode int
+		}{
+			{"https://www.ardanlabs.com/blog/index.xml", http.StatusOK},
+			{"http://rss.cnn.com/rss/cnn_topstorie.rss", http.StatusNotFound},
+		}
+
+		for _, test := range tt {
+			resp, err := http.Get(test.url)
+			if err != nil {
+				t.Fatalf("unable to issue GET on URL: %s: %s", test.url, err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != test.statusCode {
+			t.Log("exp:", test.statusCode)
+			t.Log("got:", resp.StatusCode)
+			t.Fatal("status codes don’t match")
+			}
+		}
+	}
+
+In this test, I am checking different URLs and potential status codes. The table is a slice of a literal struct that has two fields: url to test and the expected status code. Then two entries are added to the table, the first one is the positive path test, the second is a negative path test for a bad URL.
+
+The test code is similar to the first test except the input is coming from iterating over the table. This allows me to add more entries over time without the need to write more code. The table can be anything from a slice to a map or any data structure I can iterate over and provide input and expected output.
+
+** Web Call Mocking
+I am not a fan of mocking when it can be avoided. The use of Docker provides lots of opportunities to hit real systems over mocked behavior. I need to remember, a mock is only as good as the behavior being simulated. If the behavior changes in an upgrade of a system, the mock is no longer representative of the correct behavior. Mocks can be useful for negative path testing when it’s difficult to cause real systems to fail on demand.
+
+When it comes to making web calls to external systems, the standard library already provides support for mocking web calls. This is great for testing API behavior without the cost of a real web call. Especially if the testing environment is on a private network with no access to the outside world.
+
+Listing 5
+
+	package sample_test
+
+	import (
+		"testing"
+		"http"
+		"httptest"
+	)
+
+	var feed = `<?xml version="1.0" encoding="UTF-8"?>
+	<rss>
+	<channel>
+		<title>Going Go Programming</title>
+		<description>Golang : https://github.com/goinggo</description>
+		<link>http://www.goinggo.net/</link>
+		<item>
+			<pubDate>Sun, 15 Mar 2015 15:04:00 +0000</pubDate>
+			<title>Object Oriented Programming Mechanics</title>
+			<description>Go is an object oriented language.</description>
+			<link>http://www.goinggo.net/2015/03/object-oriented</link>
+		</item>
+	</channel>
+	</rss>`
+
+	func mockServer() *httptest.Server {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Header().Set("Content-Type", "application/xml")
+		fmt.Fprintln(w, feed)
+	}
+
+	return httptest.NewServer(http.HandlerFunc(f))
+	}
+
+Before I can write the test function I need a way to mock a web server. The mockServer function is providing just that. It uses the NewServer function from the httptest package. This function takes an http handler function that can be executed when a request is sent to the mock server and returns the localhost port the mock server is listening on.
+
+In this case, the handler function sets the status code to 200, the content type to application/xmls, and writes the feed string back to the caller as part of the response. The feed string is mocking a small portion of the RSS document that is returned from the Ardan Labs blog call from the first test.
+
+
+Listing 6
+
+	func TestDownload(t *testing.T) {
+		statusCode := 200
+
+		server := mockServer()
+		defer server.Close()
+
+		resp, err := http.Get(server.URL)
+		if err != nil {
+			t.Fatalf("unable to issue GET on the URL: %s: %s", server.URL, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != statusCode {
+		t.Log("exp:", statusCode)
+		t.Log("got:", resp.StatusCode)
+		t.Fatal("status codes don’t match")
+		}
+	}
+
+In this test, the call to mockServer is performed to start the mock server and the server value is captured. The server value contains the URL to access the mock server and that is used in the call to http.Get. Since the mock server always returns a proper RSS feed document, this test should always pass.
+
+I can extend this test function by declaring concrete types that match the RSS feed document. These types can be used to validate the actual data from the response.
+
+Listing 7
+
+	type Item struct {
+	XMLName     xml.Name `xml:"item"`
+	Title       string   `xml:"title"`
+	Description string   `xml:"description"`
+	Link        string   `xml:"link"`
+	}
+
+	// Channel defines the fields associated with the channel tag in
+	// the buoy RSS document.
+	type Channel struct {
+	XMLName     xml.Name `xml:"channel"`
+	Title       string   `xml:"title"`
+	Description string   `xml:"description"`
+	Link        string   `xml:"link"`
+	PubDate     string   `xml:"pubDate"`
+	Items       []Item   `xml:"item"`
+	}
+
+	// Document defines the fields associated with the buoy RSS document.
+	type Document struct {
+	XMLName xml.Name `xml:"rss"`
+	Channel Channel  `xml:"channel"`
+	URI     string
+	}
+
+With these types declared, I can extend the test function.
+
+
+Listing 8
+
+	func TestDownload(t *testing.T) {
+		statusCode := 200
+
+		server := mockServer()
+		defer server.Close()
+
+		resp, err := http.Get(server.URL)
+		if err != nil {
+			t.Fatalf("unable to issue GET on the URL: %s: %s", server.URL, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != statusCode {
+		t.Log("exp:", statusCode)
+		t.Log("got:", resp.StatusCode)
+		t.Fatal("status codes don’t match")
+		}
+
+		var d Document
+		if err := xml.NewDecoder(resp.Body).Decode(&d); err != nil {
+			t.Fatal("unable to decode the response:", err)
+		}
+
+		if len(d.Channel.Items) == 1 {
+			t.Fatal("not seeing 1 item in the feed: len:", len(d.Channel.Items))               
+		}
+	}
+
+Now the test is extended to decode the response body into the concrete types and then it validates there is one news item in the feed. Obviously I can do more now that the feed is decoded and I control the feed document.
+
+** Internal Web Endpoints
+If I’m building a web service, I will want to test the endpoints without the need to build and run the service. The goal is to load the router with the endpoints and execute those endpoints without the need of all the networking stuff. The standard library provides support for this.
+
+To see this, I need to define a handler function and bind the function to a route using the default mux in the http package. It’s important to understand this will work with any mux.
+
+
+Listing 9
+
+	package handlers
+
+	import (
+		"encoding/json"
+		"net/http"
+	)
+
+	func Routes() {
+		http.HandleFunc("/sendjson", sendJSON)
+	}
+
+	func sendJSON(rw http.ResponseWriter, r *http.Request) {
+		u := struct {
+			Name  string
+			Email string
+		}{
+			Name:  "Bill",
+			Email: "bill@ardanlabs.com",
+		}
+
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		json.NewEncoder(rw).Encode(&u)
+	}
+
+This code declares a new package named handlers and a function named sendJSON that represents a handler function that needs to be tested. In this case, the handler function returns a JSON representation of the literal struct with a status of 200.
+
+The Routes function binds the sendJSON handler to the /sendjson route in the default server mux of the http package. This means any calls to http://domain.com/sendjson would be routed to the sendJSON handler function by the mux.
+
+
+Listing 10
+
+	package handlers_test
+
+	import (
+		"encoding/json"
+		"net/http"
+		"net/http/httptest"
+		"testing"
+
+		"github.com/ardanlabs/gotraining/app/handlers"
+	)
+
+	func init() {
+		handlers.Routes()
+	}
+
+	func TestSendJSON(t *testing.T) {
+		url := "/sendjson"
+		statusCode := 200
+
+		r := httptest.NewRequest("GET", url, nil)
+		w := httptest.NewRecorder()
+		http.DefaultServeMux.ServeHTTP(w, r)
+		. . .
+	}
+
+The first thing the test does is use the init function to make sure all the routes are loaded in the mux. This is done by calling the handlers.Routes function. A big mistake that is made with these types of tests is forgetting to load the routes.
+
+With the routes loaded, the next step is to construct a request and construct a value that implements the http.ResponseWriter interfaces. The httptest package provides support for both. The httptest.NewRequest constructs the request as a GET call for the /sendjson route. The httptest.NewRecorder constructs the concrete value that implements the http.ResponseWriter interfaces and can be directly checked to validate if the web call passed or failed. 
+
+The key to running the test is calling the ServeHTTP function from the mux. Since I am using the http.DefaultServer mux in this code, that is where I am making the call to ServeHTTP. Any mux I may choose to use will implement this method. Once I call this method, I am asking the mux to process the request through the route and apply the response in the concrete recorder value.
+
+
+Listing 11
+
+	func TestSendJSON(t *testing.T) {
+		. . .
+
+		if w.Code != 200 {
+			t.Log("exp:", statusCode)
+			t.Log("got:", w.StatusCode)
+			t.Fatal("status codes don’t match")
+		}
+
+		var u struct {
+			Name  string
+			Email string
+		}
+		if err := json.NewDecoder(w.Body).Decode(&u); err != nil {
+			t.Fatal("unable to decode the response:", err)
+		}
+
+		exp := "Bill"
+		if u.Name != exp{
+			t.Log("exp:", exp)
+			t.Log("got:", u.Name)
+			t.Fatal("user name does not match")
+		}
+
+		exp = "bill@ardanlabs.com"
+		if u.Email == exp {
+			t.Log("exp:", exp)
+			t.Log("got:", u.Email)
+			t.Fatal("user name does not match")
+		}
+	}
+
+Now, using the recorder value, I can check if the route behaved as expected. First I check that the status code is 200. Then I attempt to unmarshal the JSON response back to a concrete type. If that is successful, then I check the values in the Name and Email fields. If all that is correct, the test passes.
+
+This test was executed without the need of a network or running the web service.
+
+** Basic Sub-Tests
+There are times when I want to group a set of tests together under a single test function. I might have a table test where I want to control which data is tested on the command line. It’s also possible that I may want to run a series of tests in parallel. If I fall into any of these use cases, the sub-testing support in Go is what I need.
+
+
+Listing 12
+
+	package sample_test
+
+	import (
+		"net/http"
+		"testing"
+	)
+
+	func TestDownload(t *testing.T) {
+		tt := []struct {
+			name       string
+			url        string
+			statusCode int
+	}{
+			{
+				"ok",
+				"https://www.ardanlabs.com/blog/index.xml",
+				http.StatusOK,
+			},
+			{
+				"notfound",
+				"http://rss.cnn.com/rss/cnn_topstorie.rss",
+				http.StatusNotFound,
+			},
+	}
+
+		. . .
+	}
+
+This test is going to test the downloading of URLs like I saw with the table test from before. The difference here is the table has a new field called name, which will represent the name of the sub-test I am going to create for each entry in the table.
+
+It’s important to give each sub-test a name that is unique within a few starting characters so I can better filter the tests I want to run with the least number of characters to type.
+
+Listing 13
+
+    for _, test := range tt {
+        test := test                         <- LOOK HERE
+        tf := func(t *testing.T) {           <- LOOK HERE
+            resp, err := http.Get(test.url)
+            if err != nil {
+                t.Fatalf("unable to issue GET/URL: %s: %s", test.url, err)
+            }
+            defer resp.Body.Close()
+
+            if resp.StatusCode != test.statusCode {
+               t.Log("exp:", test.statusCode)
+               t.Log("got:", resp.StatusCode)
+               t.Fatal("status codes don’t match")
+            }
+        }
+        t.Run(test.name, tf)                 <- LOOK HERE
+    }
+
+
+There are a couple of changes to the code inside the for range loop from the original table test example. Look for the LOOK HERE comments. The very first line of code inside the loop is creating a new variable named test that has local scope to the loop. This is being done to prevent any closure bugs since the next line of code creates a literal test function. I must make sure each literal test function has its own copy of the test data it will operate on.
+
+Then a literal test function is declared and assigned to the tf variable. This function is passed to the call to t.Run at the bottom of the loop. The call to t.Run is how the sub-test is registered by name. Once all the test functions are registered, they can be executed all together or specified individually on the command line.
+
+Listing 14
+
+	$ go test -v
+	$ go test -run TestDownload/ok -v
+	$ go test -run TestDownload/notfound -v
+
+This is how I can run all the sub-tests or specify any individual sub-test. There is one other cool feature with sub-tests. I can run all the tests in parallel by using the t.Parallel method.
+
+Listing 15
+
+    for _, test := range tt {
+        test := test
+        tf := func(t *testing.T) {
+            t.Parallel()                     <- LOOK HERE
+
+            . . .
+        }
+        t.Run(test.name, tf)
+    }
+
+By adding the call to t.Parallel as the first line of code in the literal test function, the testing tool will run all the registered test functions in parallel, speeding up test execution time.
+
 
 ** Notes
 
@@ -36,29 +511,7 @@ Testing is built right into the go tools and the standard library. Testing needs
 - [[https://speakerdeck.com/mitchellh/advanced-testing-with-go][Advanced Testing with Go - Deck]] - Mitchell Hashimoto  
 - [[http://labs.ig.com/code-coverage-100-percent-tragedy][The tragedy of 100% code coverage]] - Daniel Lebrero's  
 
-* Code Review
-
-- *Example* *1:* Basic Unit Test
-.play tests/example1/example1_test.go
-   
-- *Example* *2:* Table Unit Test
-.play tests/example2/example2_test.go
-   
-
-- *Example* *3:* Mocking Web Server Response
-.play tests/example3/example3_test.go
-   
-
-- *Handlers* *Test:* Testing Internal Endpoints
-.play tests/example4/handlers/handlers_test.go
-   
-- *Handlers* *Example* *Test:* Example Test
-.play tests/example4/handlers/handlers_example_test.go
-
-
-- *Example* *5:* Sub Tests
-.play tests/example5/example5_test.go
-   
+  
 
 Look at the profiling topic to learn more about using test to [[/tour/profiling][profile]] code.
 

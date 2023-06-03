@@ -57,8 +57,8 @@ value('tableOfContents', [{
     'lessons': [
        'goroutines',
        'data_race',
-       'channels',
        'context',
+       'channels',
        'patterns'
     ]
 },{
@@ -82,7 +82,6 @@ value('tableOfContents', [{
         <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
         `,
     'lessons': [
-      'context',
       'encoding',
       'io',
       'logging',
