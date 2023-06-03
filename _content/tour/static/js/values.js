@@ -8,6 +8,13 @@ angular.module('tour.values', []).
 
 // List of modules with description and lessons in it.
 value('tableOfContents', [{
+    'id': 'welcome',
+    'title': 'Welcome',
+    'description': `<p>Welcome to the Ultimate Go tour.</p>`,
+    'lessons': [
+        'welcome',
+    ]
+}, {
     'id': 'language-mechanics',
     'title': 'Language Mechanics',
     'description': `
