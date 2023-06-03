@@ -5,6 +5,320 @@ Goroutines are functions that are created and scheduled to be run independently 
 
 Goroutines are functions that are created and scheduled to be run independently by the Go scheduler. The Go scheduler is responsible for the management and execution of goroutines.
 
+** Code Review
+
+- *Example* *1:* Goroutines and concurrency
+.play goroutines/example1/example1.go
+   
+
+- *Example* *2:* Goroutine time slicing
+.play goroutines/example2/example2.go
+   
+
+- *Example* *3:* Goroutines and parallelism
+.play goroutines/example3/example3.go
+
+
+** Scheduler Semantics
+When a Go program starts up, the Go runtime asks the machine (virtual or physical) how many operating system threads can run in parallel. This is based on the number of cores that are available to the program. For each thread that can be run in parallel, the runtime creates an operating system thread (M) and attaches that to a data structure that represents a logical processor (P) inside the program. This P and M represent the compute power or execution context for running the Go program.
+
+Also, an initial Goroutine (G) is created to manage the execution of instructions on a selected M/P. Just like an M manages the execution of instructions on the hardware, a G manages the execution of instructions on the M. This creates a new layer of abstraction above the operating system, but it moves execution control to the application level.
+
+Figure 1
+
+.image /tour/static/img/gor1.png
+
+Since the Go scheduler sits on top of the operating system scheduler, it’s important to have some semantic understanding of the operating system scheduler and the constraints it applies to the Go scheduler and applications.
+
+The operating system scheduler has the job of creating the illusions that multiple pieces of work are being executed at the same time. Even when this is physically impossible. This requires some tradeoffs in the design of the scheduler. Before I go any further, it’s important to define some words.
+
+Work: A set of instructions to be executed for a running application. This is accomplished by threads and an application can have 1 to many threads.
+
+Thread: A path of execution that is scheduled and performed. Threads are responsible for the execution of instructions on the hardware.
+
+Thread States: A thread can be in one of three states: Running, Runnable, or Waiting. Running means the thread is executing its assigned instructions on the hardware by having a G placed on the M. Runnable means the thread wants time on the hardware to execute its assigned instructions and is sitting in a run queue. Waiting means the thread is waiting for something before it can resume its work. Waiting threads are not a concern of the scheduler.
+
+Concurrency: This means undefined out of order execution. In other words, given a set of instructions that would be executed in the order provided, they are executed in a different undefined order, but all executed. The key is, the result of executing the full set of instructions in any undefined order produces the same result. I will say work can be done concurrently when the order the work is executed in doesn’t matter, as long as all the work is completed.
+
+Parallelism: This means doing a lot of things at once. For this to be an option, I need the ability to physically execute two or more operating system threads at the same time on the hardware.
+
+CPU Bound Work: This is work that does not cause the thread to naturally move into a waiting state. Calculating fibonacci numbers would be considered CPU-Bound work. 
+
+I/O Bound Work: This is work that does cause the thread to naturally move into a waiting state. Fetching data from different URLs would be considered I/O-Bound work.
+
+Synchronization: When two or more Goroutines will need to access the same memory location potentially at the same time, they need to be synchronized and take turns. If this synchronization doesn’t take place, and at least one Goroutine is performing a write, I can end up with a data race. Data races are a cause of data corruption bugs that can be difficult to find.
+
+Orchestration: When two or more Goroutines need to signal each other, with or without data, orchestration is the mechanic required. If orchestration does not take place, guarantees about concurrent work being performed and completed will be missed. This can cause all sorts of data corruption bugs.
+
+There are lots of little details related to the scheduling semantics, so to learn more read the three posts in chapter 14 titled, Scheduling In Go.
+
+** Concurrency Basics
+
+Starting with a basic concurrency problem that requires orchestration.
+
+Listing 1
+
+    func init() {
+        runtime.GOMAXPROCS(1)
+    }
+
+The call to GOMAXPROCS is being used to run the Go program as a single threaded Go program. This program will be single threaded and have a single P/M to execute all Goroutines. The function is capitalized because it’ s also an environment variable. Though this function call will overwrite the variable.
+
+Listing 2
+
+    g := runtime.GOMAXPROCS(0)
+
+This function is an important function when I set CPU quotas to a container configuration. When passing 0, the number of threads the Go program will be using is reported. I must make sure that number matches the number of operating system threads I have available in my containerized environment. If the numbers are not the same, the Go program won’t run as well as it otherwise could. I might want to use the environment variable or this call to match things up.
+
+Listing 3
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        fmt.Println("Waiting To Finish")
+        wg.Wait()
+
+        fmt.Println("\nTerminating Program")
+    }
+
+This program has to solve an orchestration problem. The main Goroutine can’t allow the main function to return until there is a guarantee the two Goroutines being created finish their work first. A WaitGroup is a perfect tool for orchestration problems that don’t require data to be passed between Goroutines. The signaling here is performed through an API that allows a Goroutine to wait for other Goroutines to signal they’re done.
+
+In this code, a WaitGroup is constructed to its zero value state and then immediately the Add method is called to set the WaitGroup to 2, which will match the number of Goroutines to be created. When I know how many Goroutines upfront that will be created, I should call Add once with that number. When I don’t know (like in a streaming service) then calling Add(1) is acceptable.
+
+At the end of main is the call to Wait. Wait holds the main Goroutine from causing the function to return. When the main function returns, the Go program is shut down with extreme prejudice. This is why managing the orchestration with the proper guarantees is important. The Wait call will block until the WaitGroup is set back to 0.
+
+In the middle of the program, I have the creation of the two Goroutines.
+
+Listing 4
+
+    func main() {
+        . . .
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Literal functions are declared and executed with the use of the keyword go. At this point, I am telling the Go scheduler to execute these functions concurrently. To execute them in an undefined order. Inside the implementation of each Goroutine is the call to Done. That call is what decrements the WaitGroup by 1. Once both calls to Done are made, the WaitGroup will change from 2 to 0, and then the main Goroutine will be allowed to be unblocked from the call to Wait, terminating the program.
+
+Listing 5
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+An important part of this orchestration pattern is keeping the Add and Done calls in the same line of sight. Try not to pass the WaitGroup as a function parameter where the calls get lost. This will help to reduce bugs.
+
+Listing 6
+
+    Output:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    Terminating Program
+
+When I build and run this program, I see how this program runs concurrently. The second Goroutine created was scheduled first. It got to finish its work and then the other Goroutine ran. Both ran to completion before the program terminated. The next time I run this program, there is no guarantee I see the same output. The only guarantee in this program is that the program won’t terminate until the two Goroutines are done.
+
+Even if I run this program 100 times and see the same output, there is no guarantee it will happen again. It may be highly probable, but not guaranteed. Especially not guaranteed across different versions, operating systems and architectures.
+
+Listing 7
+
+    func main() {
+        . . .
+
+        fmt.Println("Waiting To Finish")
+        // wg.Wait()                           <-- CHANGED
+
+        fmt.Println("\nTerminating Program")
+    }
+
+If I comment the call to Wait what will happen when I run this program? Once again, there is no guarantee at all anymore with what will happen, but there are different possibilities.
+
+The program could behave as before since calls to Println are system calls that do allow the scheduler to make a context switch. The program could execute just one of the two Goroutines or possibly terminate immediately.
+
+Listing 8
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            // wg.Done()               <-- CHANGED
+        }()
+
+        . . .
+    }
+
+What happens if I forget to call Done in one of the Goroutines? In this case, the program would deadlock since the WaitGroup can’t get back down to 0. The Wait call will block forever.
+
+Listing 9
+
+    Output:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    fatal error: all goroutines are asleep - deadlock!
+
+    goroutine 1 [semacquire]:
+    sync.runtime_Semacquire(0xc00001a0a8)
+        /usr/local/go/src/runtime/sema.go:56 +0x45
+    sync.(*WaitGroup).Wait(0xc00001a0a0)
+        /usr/local/go/src/sync/waitgroup.go:130 +0x65
+    main.main()
+        concurrency/goroutines/example1/example1.go:42 +0x145
+    exit status 2
+
+I can see how the Go Runtime identifies the program is deadlocked on line 42 where the call to Wait is happening. I shouldn’t get too excited about deadlock detection since every single Goroutine needs to be blocked with no way out. This shows why keeping the Add and Done call together is so important.
+
+Listing 10
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(1)              <-- CHANGED, Number Too Small
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+What happens if I don’t give the WaitGroup the correct number of Goroutines to wait on? If the number is too large, I will have another deadlock. If the number is too small, there are no guarantees that the work is done before the program moves on. The output of the program is undefined.
+
+** Preemptive Scheduler
+Even though the scheduler runs within the scope of the application, it’s important to see how the schedule is preemptive. This means I can’t predict when a context switch will take place and this will change every time I run the program.
+
+Listing 11
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            printHashes("A")
+            wg.Done()
+        }()
+
+        go func() {
+            printHashes("B")
+            wg.Done()
+        }()
+
+        fmt.Println("Waiting To Finish")
+        wg.Wait()
+
+        fmt.Println("\nTerminating Program")
+    }
+
+Using the same orchestration pattern as before, this program has each Goroutine doing a lot more work. Work that the scheduler won’t give a Goroutine enough time to finish completely in one time slice.
+
+
+Listing 12
+
+    func printHashes(prefix string) {
+        for i := 1; i <= 50000; i++ {
+            num := strconv.Itoa(i)
+            sum := sha1.Sum([]byte(num))
+            fmt.Printf("%s: %05d: %x\n", prefix, i, sum)
+        }
+        fmt.Println("Completed", prefix)
+    }
+
+This function is performing a lot of I/O bound work that has the potential of being context switched.
+
+Listing 13
+
+    $ ./example2 | cut -c1 | grep '[AB]' | uniq
+    B
+    A
+    B
+    A
+    B
+    A
+    B
+    A
+    B
+    A  9 Context Switches
+
+    $ ./example2 | cut -c1 | grep '[AB]' | uniq
+    B
+    A
+    B
+    A  3 Context Switches
+
+As I can see, every time I run the program, there are a different number of context switches. This is a great thing because a scheduler shouldn’t be predictable. Concurrency needs to remain undefined and I must remember that when I use concurrency to solve my performance problems.
+
+Listing 14
+
+    func init() {
+        runtime.GOMAXPROCS(2)
+    }
+
+What happens if I go back to the original program but change GOMAXPROCS so the program runs as a two threaded Go program?
+
+
+Listing 15
+
+    Output:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    A B C D E F G H I J K L M N a b c d e f g h i j k l
+    m n o O P Q R S T U V W X Y Z A B C D E F G H I J K
+    L M N O P Q R S T U V W X Y Z p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    Terminating Program
+
+What I see is that the concurrency of the program is now more fine grained. The output to the letter is undefined and out of order.
+
 ** Notes
 
 - Goroutines are functions that are scheduled to run independently.
@@ -45,20 +359,6 @@ How the scheduler works.
 - [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor    
 - [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi    
 
-* Code Review
-
-
-- *Example* *1:* Goroutines and concurrency
-.play goroutines/example1/example1.go
-   
-
-- *Example* *2:* Goroutine time slicing
-.play goroutines/example2/example2.go
-   
-
-- *Example* *3:* Goroutines and parallelism
-.play goroutines/example3/example3.go
-   
 
 * Exercises
 

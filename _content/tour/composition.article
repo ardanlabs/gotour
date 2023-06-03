@@ -3,7 +3,622 @@ Composition goes beyond the mechanics of type embedding and is more than just a 
 
 * Interface and Composition Design
 
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. It is the key for maintaining stability in your software by having the ability to adapt to the data and transformation changes that are coming.
+The best way to take advantage of embedding is through the compositional design pattern. The idea is to compose larger types from smaller types and focus on the composition of behavior.
+
+** Code Review
+
+- *Example* *1:* Grouping By State
+.play composition/grouping/example1/example1.go
+   
+
+- *Example* *2:* Grouping By Behavior
+.play composition/grouping/example2/example2.go
+   
+
+- *Example* *1:* Struct Composition
+.play composition/decoupling/example1/example1.go
+   
+
+- *Example* *2:* Decoupling With Interface
+.play composition/decoupling/example2/example2.go
+   
+
+- *Example* *3:* Interface Composition
+.play composition/decoupling/example3/example3.go
+
+
+- *Example* *4:* Decoupling With Interface Composition
+.play composition/decoupling/example4/example4.go
+   
+
+- *Example* *5:* Remove Interface Pollution
+.play composition/decoupling/example5/example5.go
+   
+
+- *Example* *6:* More Precise API
+.play composition/decoupling/example6/example6.go
+ 
+
+Conversion and Assertions
+
+- *Example* *1:* Interface Conversions
+.play composition/assertions/example1/example1.go
+   
+
+- *Example* *2:* Runtime Type Assertions
+.play composition/assertions/example2/example2.go
+   
+
+- *Example* *3:* Behavior Changes
+.play composition/assertions/example3/example3.go
+   
+
+Interface Pollution
+
+
+- *Example* *1:* Create Interface Pollution
+.play composition/pollution/example1/example1.go
+   
+
+- *Example* *2:* Remove Interface Pollution
+.play composition/pollution/example2/example2.go
+ 
+
+Mocking
+
+- *PubSub:* Package To Mock
+.play composition/mocking/example1/pubsub/pubsub.go
+   
+
+- *Example* *1:* Client
+.play composition/mocking/example1/example1.go
+
+Listing 1
+
+    type Xenia struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Xenia) Pull(d *Data) error {
+        switch rand.Intn(10) {
+        case 1, 9:
+            return io.EOF
+        case 5:
+            return errors.New("Error reading data from Xenia")
+        default:
+            d.Line = "Data"
+            fmt.Println("In:", d.Line)
+            return nil
+        }
+    }
+
+The Xenia type represents a system that I need to pull data from. The implementation is not important. What is important is that the method Pull can succeed, fail, or not have any data to pull.
+
+Listing 2
+
+    type Pillar struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Pillar) Store(d *Data) error {
+        fmt.Println("Out:", d.Line)
+        return nil
+    }
+
+The Pillar type represents a system that I need to store data into. What is important again is that the method Store can succeed or fail.
+
+These two types represent a primitive layer of code that provides the base behavior required to solve the business problem of pulling data out of Xenia and storing that data into Pillar.
+
+Listing 3
+
+    func Pull(x *Xenia, data []Data) (int, error) {
+        for i := range data {
+            if err := x.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(p *Pillar, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+The next layer of code is represented by these two functions, Pull and Store. They build on the primitive layer of code by accepting a collection of data values to pull or store in the respective systems. These functions focus on the concrete types of Xenia and Pillar since those are the systems the program needs to work with at this time.
+
+Listing 3
+
+    func Copy(sys *System, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(&sys.Xenia, data)
+            if i > 0 {
+                if _, err := Store(&sys.Pillar, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+The Copy function builds on top of the Pull and Store functions to move all the data that is pending for each run. If I notice the first parameter to Copy, it’s a type called System.
+
+
+Listing 4
+
+    type System struct {
+        Xenia
+        Pillar
+    }
+
+The initial idea of the System type is to compose a system that knows how to Pull and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+
+Listing 5
+
+    func main() {
+        sys := System{
+            Xenia: Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Pillar: Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Finally, the main function can be written to construct a Xenia and Pillar within the composition of a System. Then the System can be passed to the Copy function and data can begin to flow between the two systems.
+
+With all this code, I now have my first draft of a concrete solution to a concrete problem.
+
+** Decoupling With Interfaces
+The next step is to understand what could change in the program. In this case, what can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could be Alice and Bob. With this knowledge, I want to decouple the existing concrete solution from this change. To do that, I want to change the concrete functions to be polymorphic functions.
+
+Listing 6
+
+    func Pull(p Puller, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(s Storer, data []Data) (int, error) {
+        for i := range data {
+            if err := s.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+Currently, the Pull function accepts a Xenia value and the Store function accepts a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s important is a concrete value that knows how to Pull and Store. I can change these concrete functions to be polymorphic by asking for data based on what it can do instead of what it is.
+
+Listing 7
+
+    type Puller interface {
+        Pull(d *Data) error
+    }
+
+    type Storer interface {
+        Store(d *Data) error
+    }
+
+These two interfaces describe what concrete data must do and it’s these types that are replaced in the declaration of the Pull and Store functions. Now these functions are polymorphic. When Alice and Bob are declared and implemented as a Puller and a Storer, they can be passed into the functions.
+
+I am not done yet. The Copy function needs to be polymorphic as well.
+
+
+Listing 8
+
+    func Copy(ps PullStorer, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(ps, data)
+            if i > 0 {
+                if _, err := Store(ps, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+The Copy function is no longer asking for a System value, but any concrete value that knows how to both Pull and Store.
+
+Listing 9
+
+    type PullStorer interface {
+        Puller
+        Storer
+    }
+
+The PullStorer interface is declared through the use of composition. It’s composed of the Puller and Storer interfaces. Work towards composing larger interfaces from smaller ones.
+
+Notice how the PullStorer variable is now being passed into the Pull and Store functions. How is this possible when the type information is different?
+
+Listing 10
+
+    // func Pull(p Puller, data []Data) (int, error) {
+    i, err := Pull(ps, data)
+
+    // func Store(s Storer, data []Data) (int, error) {
+    if _, err := Store(ps, data[:i]); err != nil {
+
+I always need to remember, I am never passing an interface value around my program since they don’t exist and are valueless. I can only pass concrete data. So the concrete data stored inside of the interface ps variable is what’s being passed to Pull and Store. Isn’t it true, the concrete value stored inside of ps must know how to Pull and Store?
+
+
+Figure 1
+
+.image /tour/static/img/comp1.png
+
+
+Since a System is composed from a Xenia and Pillar, System implements the PullStorer interface. With these changes, I can now create new concrete types that implement the PullStorer interface.
+
+Listing 11
+
+    type System1 struct {
+        Xenia
+        Pillar
+    }
+
+    type System2 struct {
+        Alice
+        Bob
+    }
+
+    type System3 struct {
+        Xenia
+        Bob
+    }
+
+    type System4 struct {
+        Alice
+        Pillar
+    }
+
+When I think about this more, declaring different System types for all the possible combinations is not realistic. This will work, but the maintenance nightmare requires a better solution.
+
+** Interface Composition
+What if I decided to compose my concrete system type from two interface types?
+
+
+Listing 12
+
+    type System struct {
+        Puller
+        Storer
+    }
+
+This is an interesting solution. This would allow the application to inject the concrete Puller or Storer into the system at application startup. 
+
+Listing 13
+
+    func main() {
+        sys := System{
+            Puller: &Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Storer: &Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+This one system type implements the PullStorer interface for all possible combinations of concrete types.
+
+Figure 2
+
+.image /tour/static/img/comp2.png
+
+With this change, the application is fully decoupled from changes to a new system that may come online over time.
+
+** Precision Review
+The next question to ask is, are the polymorphic functions as precise as they otherwise could be? This is a part of the engineering process that can’t be skipped. The answer is no, two changes can be made.
+
+Listing 14
+
+    func Copy(sys *System, batch int) error {
+
+The Copy function doesn’t need to be polymorphic anymore since there will only be a single System type. The PullStorer interface type can be removed from the program. Remember, I moved the polymorphism inside the type when I used composition with the interface types.
+
+Listing 15
+
+    func Copy(p Puller, s Storer, batch int) error {
+
+This is another change that can be made to the Copy function. This change makes the function more precise and polymorphic again. Now the function is asking for exactly what it needs based on what the concrete data can do.
+
+Figure 3
+
+.image /tour/static/img/comp3.png
+
+With that change the System struct type can be removed from the program as well.
+
+Listing 16
+
+    func main() {
+        x := Xenia{
+            Host:    "localhost:8000",
+            Timeout: time.Second,
+        }
+
+        p := Pillar{
+            Host:    "localhost:9000",
+            Timeout: time.Second,
+        }
+
+        if err := Copy(&x, &p, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+By removing the PullStorer and System types, the program simplifies. The main function can focus on constructing the concrete Puller and Storer values necessary for that moving data. The type system and APIs are more precise.
+This idea of precision comes from Edsger W. Dijkstra
+
+"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+
+** Implicit Interface Conversions
+As I saw in the last example, An interface value of one type can be passed for a different interface type if the concrete value stored inside the interface implements both behaviors. This could be considered an implicit interface conversion, but it’s better to think about how concrete data is being moved through interfaces in a decoupled state.
+
+Listing 17
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+
+Listing 18
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+And given this concrete type bike that implements all three interfaces. What can I do?
+
+
+Listing 19
+
+    var ml MoveLocker
+    var m Mover
+
+I can construct a value of type MoveLocker and Mover to its zero value state. These are interface values that are truly valueless. 
+
+Listing 20
+
+    ml = bike{}
+
+Then I can construct a value of type bike to its zero value state and assign a copy to the MoveLocker variable ml. This is possible because a bike implements all three behaviors, and the compiler can see that the implementation exists.
+
+Listing 21
+
+    m = ml
+
+I can then assign the MoveLocker variable ml to the Mover variable m. This is possible because I’m not assigning the interface value ml but the concrete value stored inside of ml which is a bike value. The compiler knows that any concrete value stored inside of ml must also implement the Mover interface.
+
+This assignment however is not valid. 
+
+Listing 22
+
+    ml = m
+
+Output:
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+I can’t assign the Mover variable m back to the MoverLocker variable ml because the compiler can only guarantee that the concrete value stored inside of m knows how to Move. It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+
+** Type assertions
+With all that being said, there is a way at runtime to test if the assignment is legal and then make it happen. That is by using a type assertion.
+
+Listing 23
+
+    b := m.(bike)
+    ml = b
+
+A type assertion allows me at runtime to ask a question, is there a value of the given type stored inside the interface. I see that with the m.(bike) syntax. In this case, I am asking if there is a bike value stored inside of m at the moment the code is executed. If there is, then the variable b is given a copy of the bike value stored. Then the copy can be copied inside of the ml interface variable.
+
+If there isn’t a bike value stored inside of the interface value, then the program panics. I want this if there absolutely should have been a bike value stored. What if there is a chance there isn’t and that is valid? Then I need the second form of the type assertion.
+
+Listing 24
+
+    b, ok := m.(bike)
+
+In this form, if ok is true, there is a bike value stored inside of the interface. If ok is false, then there isn’t and the program does not panic. The variable b however is still of type bike, but it is set to its zero value state.
+
+Listing 25
+
+    func main() {
+        rand.Seed(time.Now().UnixNano())
+
+        mvs := []fmt.Stringer{
+            Car{},
+            Cloud{},
+        }
+
+        for i := 0; i < 10; i++ {
+            rn := rand.Intn(2)
+
+            if v, is := mvs[rn].(Cloud); is {
+                fmt.Println("Got Lucky:", v)
+                continue
+            }
+
+            fmt.Println("Got Unlucky")
+        }
+    }
+
+Assuming the program does declare two types named Car and Cloud that each implement the fmt.Stringer interface, I can construct a collection that allows me to store a value of both Car and Cloud. Then 10 times, I randomly choose a number from 0 to 1, and perform a type assertion to see if the value at that random index contains a Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type assertion is critical here.
+
+** Interface Pollution
+I can spot interface pollution from a mile away. It mostly comes from the fact that people are designing software with interfaces instead of discovering them. I should design a concrete solution to the problem first. Then I can discover where the program needs to be polymorphic, if at all.
+
+These are things I’ve heard from other developers.
+
+"I’m using interfaces because we have to use interfaces".
+
+No. We don't have to use interfaces. We use interfaces when it’s practical and reasonable to do so. There is a cost of using interfaces: a level of indirection and allocation when we store concrete values inside of them. Unless the cost of the allocation is worth what I’m gaining by decoupling, I shouldn't be using interfaces.
+
+"I need to be able to test my code so I need to use interfaces".
+
+No. I must design my API for the user first, not my test. If the API is not testable, I should question if it’s usable. There are different layers of API’s as well. The lower level unexported API’s can and should focus on testability. The higher level exported API’s need to focus on usability.
+
+Functions that accept raw data in and return raw data out are the most testable. Separate the data transformation from where the data comes from and where it is going. This is a refactoring exercise I need to perform during the engineering coding cycle.
+
+Below is an example that creates interface pollution by improperly using an interface when one is not needed.
+
+Listing 26
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+The Server interface defines a contract for TCP servers. The problem here is I don’t need a contract, I need an implementation. There will only be one implementation as well, especially since I am the one implementing it. I do not need someone else to implement this for me.
+
+Plus, this interface is based on a noun and not a verb. Concrete types are nouns since they represent the concrete problem. Interfaces describe the behavior and Server is not behavior.
+Here are some ways to identify interface pollution:
+
+- A package declares an interface that matches the entire API of its own concrete type.
+- The interfaces are exported but the concrete types implementing the interface are unexported.
+- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
+- The interface can be removed and nothing changes for the user of the API.
+- The interface is not decoupling the API from change.
+
+Guidelines around interface pollution:
+
+Use an interface:
+- When users of the API need to provide an implementation detail.
+- When APIs have multiple implementations that need to be maintained.
+- When parts of the APIs that can change have been identified and require decoupling.
+
+Question an interface:
+- When its only purpose is for writing testable API’s (write usable APIs first).
+- When it’s not providing support for the API to decouple from change.
+- When it's not clear how the interface makes the code better.
+
+** Interface Ownership
+One thing that is different about Go from other languages is the idea of convention over configuration. This really shows itself with how Go handles interface compliance. Because the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+
+Listing 27
+
+    package pubsub
+
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+I’ve just implemented a new API that provides a concrete implementation for publish and subscribe. There are no interfaces being provided because this API does not need one. This is a single concrete implementation.
+
+What if the application developer wanting to use this new API needs an interface because they have the need to mock this implementation during tests? In Go, that developer can declare the interface and the compiler can identify the compliance.
+
+Listing 28
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // ADD MY MOCK FOR THE PUBLISH CALL.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        return nil
+    }
+
+This code in the main package is declaring an interface. This interface represents the API that the application is using from the pubsub package. The developer has implemented their own pubsub implementation for testing. The key here is that this application developer doesn’t use any concrete implementation directly, but decouples themselves through their own interface.
+
+Listing 29
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+To provide an example, the main function constructs a collection that is initialized with the pubsub implementation and the mock implementation. The publisher interface allows this. Then a for range loop is implemented to show how the application code is abstracted from any concrete implementation.
 
 ** Notes
 
@@ -38,74 +653,6 @@ Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/
 - [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
 - [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
 
-* Code Review
-
-- *Example* *1:* Grouping By State
-.play composition/grouping/example1/example1.go
-   
-
-- *Example* *2:* Grouping By Behavior
-.play composition/grouping/example2/example2.go
-   
-
-- *Example* *1:* Struct Composition
-.play composition/decoupling/example1/example1.go
-   
-
-- *Example* *2:* Decoupling With Interface
-.play composition/decoupling/example2/example2.go
-   
-
-- *Example* *3:* Interface Composition
-.play composition/decoupling/example3/example3.go
-
-
-- *Example* *4:* Decoupling With Interface Composition
-.play composition/decoupling/example4/example4.go
-   
-
-- *Example* *5:* Remove Interface Pollution
-.play composition/decoupling/example5/example5.go
-   
-
-- *Example* *6:* More Precise API
-.play composition/decoupling/example6/example6.go
- 
-
-** Conversion and Assertions
-
-- *Example* *1:* Interface Conversions
-.play composition/assertions/example1/example1.go
-   
-
-- *Example* *2:* Runtime Type Assertions
-.play composition/assertions/example2/example2.go
-   
-
-- *Example* *3:* Behavior Changes
-.play composition/assertions/example3/example3.go
-   
-
-** Interface Pollution
-
-
-- *Example* *1:* Create Interface Pollution
-.play composition/pollution/example1/example1.go
-   
-
-- *Example* *2:* Remove Interface Pollution
-.play composition/pollution/example2/example2.go
- 
-
-** Mocking
-
-- *PubSub:* Package To Mock
-.play composition/mocking/example1/pubsub/pubsub.go
-   
-
-- *Example* *1:* Client
-.play composition/mocking/example1/example1.go
- 
 
 * Exercises
 
