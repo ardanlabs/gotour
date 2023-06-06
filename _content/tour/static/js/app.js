@@ -49,8 +49,12 @@ run(function($rootScope, $location, mapping) {
     });
 });
 
-window?.scrollTo = (id) => {
+window.scrollTo = (id) => {
 
     const element = document.getElementById(id);
+
+    if(!element)
+        return
+    
     element.scrollIntoView();
 }
