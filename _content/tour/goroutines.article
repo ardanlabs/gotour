@@ -32,23 +32,23 @@ Since the Go scheduler sits on top of the operating system scheduler, it’s imp
 
 The operating system scheduler has the job of creating the illusions that multiple pieces of work are being executed at the same time. Even when this is physically impossible. This requires some tradeoffs in the design of the scheduler. Before I go any further, it’s important to define some words.
 
-Work: A set of instructions to be executed for a running application. This is accomplished by threads and an application can have 1 to many threads.
+*Work:* A set of instructions to be executed for a running application. This is accomplished by threads and an application can have 1 to many threads.
 
-Thread: A path of execution that is scheduled and performed. Threads are responsible for the execution of instructions on the hardware.
+*Thread:* A path of execution that is scheduled and performed. Threads are responsible for the execution of instructions on the hardware.
 
-Thread States: A thread can be in one of three states: Running, Runnable, or Waiting. Running means the thread is executing its assigned instructions on the hardware by having a G placed on the M. Runnable means the thread wants time on the hardware to execute its assigned instructions and is sitting in a run queue. Waiting means the thread is waiting for something before it can resume its work. Waiting threads are not a concern of the scheduler.
+*Thread* *States:* A thread can be in one of three states: Running, Runnable, or Waiting. Running means the thread is executing its assigned instructions on the hardware by having a G placed on the M. Runnable means the thread wants time on the hardware to execute its assigned instructions and is sitting in a run queue. Waiting means the thread is waiting for something before it can resume its work. Waiting threads are not a concern of the scheduler.
 
-Concurrency: This means undefined out of order execution. In other words, given a set of instructions that would be executed in the order provided, they are executed in a different undefined order, but all executed. The key is, the result of executing the full set of instructions in any undefined order produces the same result. I will say work can be done concurrently when the order the work is executed in doesn’t matter, as long as all the work is completed.
+*Concurrency:* This means undefined out of order execution. In other words, given a set of instructions that would be executed in the order provided, they are executed in a different undefined order, but all executed. The key is, the result of executing the full set of instructions in any undefined order produces the same result. I will say work can be done concurrently when the order the work is executed in doesn’t matter, as long as all the work is completed.
 
-Parallelism: This means doing a lot of things at once. For this to be an option, I need the ability to physically execute two or more operating system threads at the same time on the hardware.
+*Parallelism:* This means doing a lot of things at once. For this to be an option, I need the ability to physically execute two or more operating system threads at the same time on the hardware.
 
-CPU Bound Work: This is work that does not cause the thread to naturally move into a waiting state. Calculating fibonacci numbers would be considered CPU-Bound work. 
+*CPU* *Bound* *Work:* This is work that does not cause the thread to naturally move into a waiting state. Calculating fibonacci numbers would be considered CPU-Bound work. 
 
-I/O Bound Work: This is work that does cause the thread to naturally move into a waiting state. Fetching data from different URLs would be considered I/O-Bound work.
+*I/O* *Bound* *Work:* This is work that does cause the thread to naturally move into a waiting state. Fetching data from different URLs would be considered I/O-Bound work.
 
-Synchronization: When two or more Goroutines will need to access the same memory location potentially at the same time, they need to be synchronized and take turns. If this synchronization doesn’t take place, and at least one Goroutine is performing a write, I can end up with a data race. Data races are a cause of data corruption bugs that can be difficult to find.
+*Synchronization:* When two or more Goroutines will need to access the same memory location potentially at the same time, they need to be synchronized and take turns. If this synchronization doesn’t take place, and at least one Goroutine is performing a write, I can end up with a data race. Data races are a cause of data corruption bugs that can be difficult to find.
 
-Orchestration: When two or more Goroutines need to signal each other, with or without data, orchestration is the mechanic required. If orchestration does not take place, guarantees about concurrent work being performed and completed will be missed. This can cause all sorts of data corruption bugs.
+*Orchestration:* When two or more Goroutines need to signal each other, with or without data, orchestration is the mechanic required. If orchestration does not take place, guarantees about concurrent work being performed and completed will be missed. This can cause all sorts of data corruption bugs.
 
 There are lots of little details related to the scheduling semantics, so to learn more read the three posts in chapter 14 titled, Scheduling In Go.
 
@@ -142,12 +142,7 @@ Listing 6
 
     Start Goroutines
     Waiting To Finish
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
 When I build and run this program, I see how this program runs concurrently. The second Goroutine created was scheduled first. It got to finish its work and then the other Goroutine ran. Both ran to completion before the program terminated. The next time I run this program, there is no guarantee I see the same output. The only guarantee in this program is that the program won’t terminate until the two Goroutines are done.
@@ -191,12 +186,7 @@ Listing 9
 
     Start Goroutines
     Waiting To Finish
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     fatal error: all goroutines are asleep - deadlock!
 
     goroutine 1 [semacquire]:
@@ -309,12 +299,7 @@ Listing 15
 
     Start Goroutines
     Waiting To Finish
-    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    A B C D E F G H I J K L M N a b c d e f g h i j k l
-    m n o O P Q R S T U V W X Y Z A B C D E F G H I J K
-    L M N O P Q R S T U V W X Y Z p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
-    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
 What I see is that the concurrency of the program is now more fine grained. The output to the letter is undefined and out of order.
