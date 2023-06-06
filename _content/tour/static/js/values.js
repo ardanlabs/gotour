@@ -10,7 +10,7 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'welcome',
     'title': 'Welcome',
-    'description': `<p>Welcome to the Ultimate Go tour.</p>`,
+    'description': ``,
     'lessons': [
         'welcome',
     ]
