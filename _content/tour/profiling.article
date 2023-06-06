@@ -25,7 +25,7 @@ Before I profile, I must have a stable environment to get repeatable results.
 
 If I can afford it, buy dedicated performance test hardware. Rack them, disable all the power management and thermal scaling and never update the software on those machines. If I can’t, have a before and after sample and run them multiple times to get consistent results.
 
-*Types* *of* *Profiling*
+** Types of Profiling
 
 There are several types of profiling I can perform in Go.
 
@@ -42,6 +42,7 @@ Memory profiling records the stack trace when a heap allocation is made. Memory 
 Blocking profiling is quite unique. A block profile is similar to a CPU profile, but it records the amount of time a Goroutine spent waiting for a shared resource. This can be useful for determining concurrency bottlenecks in my application. Blocking profiling can show me when a large number of Goroutines could make progress, but were blocked.
 
 Blocking includes:
+
 - Sending or receiving on an unbuffered channel.
 - Sending to a full channel, receiving from an empty one.
 - Trying to Lock a sync.Mutex that is locked by another Goroutine.
@@ -85,24 +86,8 @@ The time command provides information that can help me get a sense how my progra
 
 If I’m on linux, then perf(1) is a great tool for profiling applications. Since Go has frame pointers, perf can profile Go applications.
 
-	$ go build -toolexec="perf stat" cmd/compile/internal/gc
-	# cmd/compile/internal/gc
-      Performance counter stats for '/home/dfc/go/pkg/tool/linux_amd64/compile -o $WORK/cmd/compile/internal/gc.a -trimpath $WORK -p cmd/compile/internal/gc -complete -buildid 87cd803267511b4d9e753d68b5b66a70e2f878c4 -D _/home/dfc/go/src/cmd/compile/internal/gc -I $WORK -pack ./alg.go ./align.go ./bexport.go ./bimport.go ./builtin.go ./bv.go ./cgen.go ./closure.go ./const.go ./cplx.go ./dcl.go ./esc.go ./export.go ./fmt.go ./gen.go ./go.go ./gsubr.go ./init.go ./inl.go ./lex.go ./magic.go ./main.go ./mpfloat.go ./mpint.go ./obj.go ./opnames.go ./order.go ./parser.go ./pgen.go ./plive.go ./popt.go ./racewalk.go ./range.go ./reflect.go ./reg.go ./select.go ./sinit.go ./sparselocatephifunctions.go ./ssa.go ./subr.go ./swt.go ./syntax.go ./type.go ./typecheck.go ./universe.go ./unsafe.go ./util.go ./walk.go':
+.code profiling/perf.log
 
-       7026.140760 task-clock (msec)         #    1.283 CPUs utilized          
-             1,665 context-switches          #    0.237 K/sec                  
-                39 cpu-migrations            #    0.006 K/sec                  
-            77,362 page-faults               #    0.011 M/sec                  
-      21,769,537,949 cycles                  #    3.098 GHz                     [83.41%]
-      11,671,235,864 stalled-cycles-frontend #   53.61% frontend cycles idle    [83.31%]
-     6,839,727,058 stalled-cycles-backend    #   31.42% backend  cycles idle    [66.65%]
-    27,157,950,447 instructions              #    1.25  insns per cycle        
-                                             #    0.43  stalled cycles per insn [83.25%]
-     5,351,057,260 branches                  #  761.593 M/sec                   [83.49%]
-       118,150,150 branch-misses             #    2.21% of all branches         [83.15%]
-
-       5.476816754 seconds time elapsed
-      
 ** Example Code
 
 I have a program that takes a stream of data looking for the name elvis with a lowercase e. If that name is found in the stream, the name is corrected by replacing the lowercase e with a capital E.
