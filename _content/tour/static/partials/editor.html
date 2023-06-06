@@ -6,9 +6,16 @@
                 <div class="slide-content" ng-bind-html-unsafe="toc.lessons[lessonId].Pages[curPage-1].Content"></div>
 
                 <div class="bar module-bar">
-                    <a href="#" class="prev-page" ng-click="prevPageClick($event)">-</a>
-                    <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
-                    <a href="#" class="next-page" ng-click="nextPageClick($event)">+</a>
+                    <div ng-class="{hidden: curPage != toc.lessons[lessonId].Pages.length}">
+                        <a href="#" class="prev-page" ng-click="prevPageClick($event)">-</a>
+                        <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
+                        <a href="#" class="next-page" ng-click="nextPageClick($event)">+ FINISH</a>
+                    </div>
+                    <div ng-class="{hidden: curPage == toc.lessons[lessonId].Pages.length}">
+                        <a href="#" class="prev-page" ng-click="prevPageClick($event)">-</a>
+                        <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
+                        <a href="#" class="next-page" ng-click="nextPageClick($event)">+</a>
+                    </div>
                 </div>
             </div>
         </div>
