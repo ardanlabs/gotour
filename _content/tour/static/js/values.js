@@ -21,7 +21,6 @@ value('tableOfContents', [{
     'title': 'Language Mechanics',
     'description': `
         <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
-        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
         `,
     'lessons': [
         'variables',
@@ -42,7 +41,6 @@ value('tableOfContents', [{
     'title': 'Software Design',
     'description': `
         <p>This material covers the essential things you need to know about designing software in Go.</p>
-        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
         `,
     'lessons': [
        'composition',
@@ -54,8 +52,7 @@ value('tableOfContents', [{
     'title': 'Concurrency',
     'description': `
         <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
-        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
-        `,
+       `,
     'lessons': [
        'goroutines',
        'data_race',
@@ -68,8 +65,7 @@ value('tableOfContents', [{
     'title': 'Tooling',
     'description': `
         <p>This material covers a good portion of the tooling that comes with go. Specifically we cover testing and benchmarking. We also cover profiling memory and the scheduler. Finally we learn how to read stack traces.</p>
-        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
-        `,
+       `,
     'lessons': [
        'testing',
        'benchmarks',
@@ -81,8 +77,7 @@ value('tableOfContents', [{
     'title': 'Packaging',
     'description': `
         <p>This material covers the essential things you need to know about the standard library and some important third party packages. Along the way you also learn about the most commonly used packages.</p>
-        <p><i>Note: This material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class.</i></p>
-        `,
+       `,
     'lessons': [
       'encoding',
       'io',
