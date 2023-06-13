@@ -32,7 +32,7 @@ type sbp struct {
 type tbp struct {
 	a bool //	1 byte				size 1
 	//			3 bytes padding		size 4
-	b int32 //	4 bytes				size 8 - Aligned on 2 bytes
+	b int32 //	4 bytes				size 8 - Aligned on 4 bytes
 }
 
 // Seven byte padding.
@@ -40,6 +40,14 @@ type svnbp struct {
 	a bool //	1 byte				size 1
 	//			7 bytes padding		size 8
 	b int64 //	8 bytes				size 16 - Aligned on 8 bytes
+}
+
+// No padding.
+type np struct {
+	a string // 16 bytes			size 16
+	b string // 16 bytes			size 32
+	c int32  //  4 bytes			size 36
+	d int32  //  4 bytes			size 40 - Aligned on 8 bytes
 }
 
 // Eight byte padding on 64bit Arch. Word size is 8 bytes.
@@ -52,62 +60,39 @@ type ebp64 struct {
 	//  		 4 bytes padding	size 48 - Aligned on 8 bytes
 }
 
-// No padding on 32bit Arch. Word size is 4 bytes.
-// To see this build as 32 bit: GOARCH=386 go build
-type ebp32 struct {
-	a string //	 8 bytes			size  8
-	b int32  //	 4 bytes			size 12
-	c string //	 8 bytes			size 20
-	d int32  //	 4 bytes			size 24 - Aligned on 4 bytes
-}
-
-// No padding.
-type np struct {
-	a string // 16 bytes			size 16
-	b string // 16 bytes			size 32
-	c int32  //  8 bytes			size 40
-	d int32  //  8 bytes			size 48 - Aligned on 8 bytes
-}
-
 func main() {
 
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 nbp | structlayout-pretty
 	var nbp nbp
 	size := unsafe.Sizeof(nbp)
-	fmt.Printf("SizeOf[%d][%p %p %p]\n", size, &nbp.a, &nbp.b, &nbp.c)
+	fmt.Printf("nbp  : SizeOf[%d][%p %p %p]\n", size, &nbp.a, &nbp.b, &nbp.c)
 
-	// =========================================================================
+	// -------------------------------------------------------------------------
 
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 sbp | structlayout-pretty
 	var sbp sbp
 	size = unsafe.Sizeof(sbp)
-	fmt.Printf("SizeOf[%d][%p %p]\n", size, &sbp.a, &sbp.b)
+	fmt.Printf("sbp  : SizeOf[%d][%p %p]\n", size, &sbp.a, &sbp.b)
 
-	// =========================================================================
+	// -------------------------------------------------------------------------
 
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 tbp | structlayout-pretty
 	var tbp tbp
 	size = unsafe.Sizeof(tbp)
-	fmt.Printf("SizeOf[%d][%p %p]\n", size, &tbp.a, &tbp.b)
+	fmt.Printf("tbp  : SizeOf[%d][%p %p]\n", size, &tbp.a, &tbp.b)
 
-	// =========================================================================
+	// -------------------------------------------------------------------------
 
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 fbp | structlayout-pretty
 	var svnbp svnbp
 	size = unsafe.Sizeof(svnbp)
-	fmt.Printf("SizeOf[%d][%p %p]\n", size, &svnbp.a, &svnbp.b)
+	fmt.Printf("svnbp: SizeOf[%d][%p %p]\n", size, &svnbp.a, &svnbp.b)
 
-	// =========================================================================
+	// -------------------------------------------------------------------------
 
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 ebp | structlayout-pretty
-	var ebp64 ebp64
-	size = unsafe.Sizeof(ebp64)
-	fmt.Printf("SizeOf[%d][%p %p %p %p]\n", size, &ebp64.a, &ebp64.b, &ebp64.c, &ebp64.d)
-
-	// =========================================================================
-
-	// structlayout -json github.com/ardanlabs/gotraining/topics/go/language/struct_types/advanced/example1 np | structlayout-pretty
 	var np np
 	size = unsafe.Sizeof(np)
-	fmt.Printf("SizeOf[%d][%p %p %p %p]\n", size, &np.a, &np.b, &np.c, &np.d)
+	fmt.Printf("np   : SizeOf[%d][%p %p %p %p]\n", size, &np.a, &np.b, &np.c, &np.d)
+
+	// -------------------------------------------------------------------------
+
+	var ebp64 ebp64
+	size = unsafe.Sizeof(ebp64)
+	fmt.Printf("ebp64: SizeOf[%d][%p %p %p %p]\n", size, &ebp64.a, &ebp64.b, &ebp64.c, &ebp64.d)
 }
