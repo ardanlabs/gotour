@@ -1,5 +1,4 @@
-Arrays
-Arrays can store multiple values in one variable. This section will cover how to define an array and it's semantics.
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
 
 * Arrays
 
@@ -8,52 +7,40 @@ Arrays are a special data structure in Go that allow us to allocate contiguous b
 ** Code Review
 
 - *Example* *1:* Declare, initialize and iterate
-.play arrays/example1/example1.go
-
-
 - *Example* *2:* Different type arrays
-.play arrays/example2/example2.go
-			   
-
 - *Example* *3:* Contiguous memory allocations
-.play arrays/example3/example3.go
-			   
-
 - *Example* *4:* Range mechanics
-.play arrays/example4/example4.go
+
+.play arrays/example1.go
+.play arrays/example2.go
+.play arrays/example3.go
+.play arrays/example4.go
 
 ** Declaring and Initializing Values
-Declare an array of five strings initialized to its zero value state.
 
-Listing 1
+Declare an array of five strings initialized to its zero value state.
 
     var strings [5]string
 
 A string is an immutable, two word, data structure representing a pointer to a backing array of bytes and the total number of bytes in the backing array. Since this array is set to its zero value state, every element is set to its zero value state. This means that each string has the first word set to nil and the second word set to 0.
 
-Figure 1
-
 .image /tour/static/img/a1.png
 
 ** String Assignments
-What happens when a string is assigned to another string?
 
-Listing 2
+What happens when a string is assigned to another string?
 
     strings[0] = "Apple"
 
 When a string is assigned to another string, the two word value is copied, resulting in two different string values both sharing the same backing array.
-
-Figure 2
 
 .image /tour/static/img/a2.png
 
 The cost of copying a string is the same regardless of the size of a string, a two word copy.
 
 ** Iterating Over Collections
-Go provides two different semantics for iterating over a collection. I can iterate using value semantics or pointer semantics.
 
-Listing 3
+Go provides two different semantics for iterating over a collection. I can iterate using value semantics or pointer semantics.
 
     // Value Semantic Iteration
     for i, fruit := range strings {
@@ -71,10 +58,9 @@ When using value semantic iteration, two things happen. First, the collection I�
 When using pointer semantic iteration, I iterate over the original collection and I access each element associated with the collection directly.
 
 ** Value Semantic Iteration
+
 Given the following code and output.
 
-Listing 4
-    
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
         println(i, fruit)
@@ -92,16 +78,13 @@ The strings variable is an array of 5 strings. The loop iterates over each strin
 
 Notice how the fruit variable is passed to the print function using value semantics. The print function is getting its own copy of the string value as well. By the time the string is passed to the print function, there are 4 copies of the string value (array, shallow copy, fruit variable and the print function’s copy). All 4 copies are sharing the same backing array of bytes. 
 
-Figure 3
-
 .image /tour/static/img/a3.png
 
 Making copies of the string value is important because it prevents the string value from ever escaping to the heap. This eliminates non-productive allocation on the heap.
 
 ** Pointer Semantic Iteration
-Given the following code and output.
 
-Listing 5
+Given the following code and output.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
@@ -119,9 +102,8 @@ Output:
 Once again, the strings variable is an array of 5 strings. The loop iterates over each string in the collection and displays the index position and the string value. Since this is pointer semantic iteration, the for range is iterating over the strings array directly and on each iteration, the string value for each index position is accessed directly for the print call.
 
 ** Different Type Arrays
-It’s interesting to see what the compiler provides as an error when assigning arrays of the same types that are of different lengths.
 
-Listing 6
+It’s interesting to see what the compiler provides as an error when assigning arrays of the same types that are of different lengths.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
@@ -137,9 +119,8 @@ Here I declare an array of 4 and 5 integers initialized to its zero value state.
 It’s important to be clear about what the compiler is saying. It’s saying that an array of 4 integers and an array of 5 integers represent data of different types. The size of an array is part of its type information. In Go, the size of an array has to be known at compile time.
 
 ** Contiguous Memory Construction
-I want to prove that an array provides a contiguous layout of memory.
 
-Listing 7
+I want to prove that an array provides a contiguous layout of memory.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -162,8 +143,6 @@ I can see how the array is a contiguous block of memory and how a string is a tw
 
 The fact that the v variable has the same address on each iteration strengthens the understanding that v is a local variable of type string which contains a copy of each string value during iteration.
 
-
-
 ** Notes
 
 - If you don't understand the data, you don't understand the problem.
@@ -174,25 +153,17 @@ The fact that the v variable has the same address on each iteration strengthens 
 - Memory is allocated as a contiguous block.
 - Go gives you control over spacial locality.
 
-** Design Guidelines
-
-- Learn about the design guidelines for data oriented design.
-
 ** CPU Caches
 
 There are lots of mechanical differences between processors and their design. In this section, I will talk at a high level about processors and the semantics that are relatively the same between them all. This semantic understanding will provide me a good mental model for how the processor works and the sympathy I can provide.
 
 Each core inside the processor has its own local cache of memory (L1 and L2) and a common cache of memory (L3) used to store/access data and instructions. The hardware threads in each core can access their local L1 and L2 caches. Data from L3 or main memory needs to be copied into the L1 or L2 cache for access.
 
-Figure 4
-
 .image /tour/static/img/a4.png
 
 The latency cost of accessing data that exists in the different caches changes from least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance matters then the total amount of memory I have is the total amount of cache. Main memory is so slow to access, practically speaking, it might as well not even be there."
 
 Performance today is about how efficiently data flows through the hardware. If every piece of data the hardware needs (at any given time) exists only in main memory, my programs will run slower as compared to the data already being present in the L1 or L2 caches.
-
-Listing 8
 
     3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
 
@@ -217,8 +188,6 @@ The array is the most important data structure to the hardware because it suppor
 Once I construct an array, every element is equally distant from the next or previous element. As I iterate over an array, I begin to walk cache line by connected cache line in a predictable stride. The Prefetcher will pick up on this predictable data access pattern and begin to efficiently pull the data into the processor, thus reducing data access latency costs.
 Imagine I have a big square matrix of memory and a linked list of nodes that match the number of elements in the matrix. If I perform a traversal across the linked list, and then traverse the matrix in both directions (Column and Row), how will the performance of the different traversals compare?
 
-Listing 9
-
     func RowTraverse() int {
         var ctr int
         for row := 0; row < rows; row++ {
@@ -232,8 +201,6 @@ Listing 9
     }
 
 Row traverse will have the best performance because it walks through memory, cache line by connected cache line, which creates a predictable access pattern. Cache lines can be prefetched and copied into the L1 or L2 cache before the data is needed. 
-
-Listing 10
 
     func ColumnTraverse() int {
         var ctr int
@@ -249,8 +216,6 @@ Listing 10
 
 Column Traverse is the worst by an order of magnitude because this access pattern crosses over OS page boundaries on each memory access. This causes no predictability for cache line prefetching and becomes essentially random access memory.
 
-Listing 11
-
     func LinkedListTraverse() int {
         var ctr int
         d := list
@@ -265,13 +230,12 @@ Listing 11
 
 The linked list is twice as slow as the row traversal mainly because there are cache line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes connected in the list exist inside the same OS pages.
 
-Listing 12
-
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
     BenchmarkRowTraverse-16         310      11060883 ns/op
 
 ** Translation Lookaside Buffer (TLB)
+
 Each running program is given a full memory map of virtual memory by the OS and that running program thinks they have all of the physical memory on the machine. However, physical memory needs to be shared with all the running programs. The operating system shares physical memory by breaking the physical memory into pages and mapping pages to virtual memory for any given running program. Each OS can decide the size of a page, but 4k, 8k, 16k are reasonable and common sizes.
 
 The TLB is a small cache inside the processor that helps to reduce latency on translating a virtual address to a physical address within the scope of an OS page and offset inside the page. A miss against the TLB cache can cause large latencies because now the hardware has to wait for the OS to scan its page table to locate the right page for the virtual address in question. If the program is running on a virtual machine (like in the cloud) then the virtual machine paging table needs to be scanned first.
@@ -292,17 +256,13 @@ All that said, data-oriented design matters. Writing an efficient algorithm has 
 
 .html arrays/array_list.html
 
-Cache Hierarchies
+** Cache Hierarchies
 
 This is a diagram showing the relationship of the cache hierarchy for the 4 Core i7-9xx processor. The caches in the diagram are not to scale. This processor has four cores and each core has two hardware threads. The hardware threads per core share the Level 1 caches. The cores have individual Level 1 and Level 2 caches. All cores for all the processor share the L3 cache.
 
 .image /tour/static/img/figure1.png
 			
-
 This is subject to be different in different processors. For this content, the following is the multi-levels of cache associated with the Intel 4 Core i7-9xx processor:
-
-Intel i7 CPU Latencies From Video
-
 
     3GHz(3 clock cycles/ns) - 4 instructions per cycle = 12 instructions per ns!
 
@@ -327,9 +287,7 @@ Intel i7 CPU Latencies From Video
         100 cycle of latency at 33.3 ns
         Stalled for 400 instructions
 
-
-Industry Defined Latencies
-
+*Industry* *Defined* *Latencies*
 
     L1 cache reference ......................... 0.5 ns ...................  6 ins
     Branch mispredict ............................ 5 ns ................... 60 ins
@@ -346,12 +304,10 @@ Industry Defined Latencies
     Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
     Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
-
-Cache Latencies Image
+*Cache* *Latencies* *Image*
 
 .image /tour/static/img/cache_latencies_graph.png
 			
-
 ** CPU Caches / Memory
 
 - [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
@@ -382,18 +338,13 @@ Cache Latencies Image
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
-			   
-
 * Exercises
 
-Exercise 1
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
 
 Declare an array of 5 strings with each element initialized to its zero value. Declare a second array of 5 strings and initialize this array with literal string values. Assign the second array to the first and display the results of the first array. Display the string value and address of each element.
 
-
-.play arrays/exercises/template1/template1.go
-
-.play arrays/exercises/exercise1/exercise1.go
-			 
-
-All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
+.play arrays/exercise1.go
+.play arrays/answer1.go
