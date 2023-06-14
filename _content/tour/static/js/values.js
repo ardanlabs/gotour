@@ -43,9 +43,13 @@ value('tableOfContents', [{
         <p>This material covers the essential things you need to know about designing software in Go.</p>
         `,
     'lessons': [
-       'composition',
-       'error-handling',
-       'packaging',
+        'composition-grouping',
+        'composition-assertions',
+        'composition-pollution',
+        'composition-mocking',
+        'composition-decoupling',
+        'error-handling',
+        'packaging',
     ]
 },{
     'id': 'concurrency',
@@ -54,11 +58,11 @@ value('tableOfContents', [{
         <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
        `,
     'lessons': [
-       'goroutines',
-       'data_race',
-       'context',
-       'channels',
-       'patterns'
+        'goroutines',
+        'data_race',
+        'context',
+        'channels',
+        'patterns'
     ]
 },{
     'id': 'packaging',

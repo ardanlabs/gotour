@@ -91,13 +91,3 @@ func main() {
 		animal.Speak()
 	}
 }
-
-// =============================================================================
-
-// NOTES:
-
-// Smells:
-// 	* The Animal type is providing an abstraction layer of reusable state.
-// 	* The program never needs to create or solely use a value of type Animal.
-// 	* The implementation of the Speak method for the Animal type is a generalization.
-// 	* The Speak method for the Animal type is never going to be called.

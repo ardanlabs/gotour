@@ -4,7 +4,10 @@
 // Sample program to show see if the class can find the bug.
 package main
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 // customError is just an empty struct.
 type customError struct{}
@@ -23,6 +26,19 @@ func main() {
 	var err error
 	if _, err = fail(); err != nil {
 		log.Fatal("Why did this fail?")
+	}
+
+	log.Println("No Error")
+}
+
+// =============================================================================
+
+func reason() {
+	var err error
+	fmt.Printf("Type of value stored inside the interface: %T\n", err)
+
+	if _, err = fail(); err != nil {
+		fmt.Printf("Type of value stored inside the interface: %T\n", err)
 	}
 
 	log.Println("No Error")

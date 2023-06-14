@@ -1,12 +1,55 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
+// THE EXAMPLE WON'T RUN SINCE WE NEED PACKAGING
+
+// =============================================================================
+// pubsub/pubsub.go
+
+// Package pubsub simulates a package that provides publication/subscription
+// type services.
+package pubsub
+
+// PubSub provides access to a queue system.
+type PubSub struct {
+	host string
+
+	// PRETEND THERE ARE MORE FIELDS.
+}
+
+// New creates a pubsub value for use.
+func New(host string) *PubSub {
+	ps := PubSub{
+		host: host,
+	}
+
+	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+
+	return &ps
+}
+
+// Publish sends the data for the specified key.
+func (ps *PubSub) Publish(key string, v interface{}) error {
+
+	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	return nil
+}
+
+// Subscribe sets up an request to receive messages for the specified key.
+func (ps *PubSub) Subscribe(key string) error {
+
+	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	return nil
+}
+
+// =============================================================================
+
 // Sample program to show how you can personally mock concrete types when
 // you need to for your own packages or tests.
 package main
 
 import (
-	"github.com/ardanlabs/gotraining/topics/go/design/composition/mocking/example1/pubsub"
+	"pubsub"
 )
 
 // publisher is an interface to allow this package to mock the pubsub
