@@ -4,45 +4,21 @@
 // Package toy contains support for managing toy inventory.
 package toy
 
-// Toy represents a toy we sell.
-type Toy struct {
-	Name   string
-	Weight int
+// Declare a struct type named Toy with four fields. Name string,
+// Weight int, onHand int and sold int.
 
-	onHand int
-	sold   int
-}
+// Declare a function named New that accepts values for the
+// exported fields. Return a pointer of type Toy that is initialized
+// with the parameters.
 
-// New creates values of type toy.
-func New(name string, weight int) *Toy {
-	return &Toy{
-		Name:   name,
-		Weight: weight,
-	}
-}
+// Declare a method named OnHand with a pointer receiver that
+// returns the current on hand count.
 
-// OnHand returns the current number of this
-// toy on hand.
-func (t *Toy) OnHand() int {
-	return t.onHand
-}
+// Declare a method named UpdateOnHand with a pointer receiver that
+// updates and returns the current on hand count.
 
-// UpdateOnHand updates the on hand count and
-// returns the current value.
-func (t *Toy) UpdateOnHand(count int) int {
-	t.onHand += count
-	return t.onHand
-}
+// Declare a method named Sold with a pointer receiver that
+// returns the current sold count.
 
-// Sold returns the current number of this
-// toy sold.
-func (t *Toy) Sold() int {
-	return t.sold
-}
-
-// UpdateSold updates the sold count and
-// returns the current value.
-func (t *Toy) UpdateSold(count int) int {
-	t.sold += count
-	return t.sold
-}
+// Declare a method named UpdateSold with a pointer receiver that
+// updates and returns the current sold count.

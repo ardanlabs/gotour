@@ -1,6 +1,20 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
+// THESE EXAMPLES WON'T RUN SINCE WE NEED PACKAGING
+
+// =============================================================================
+// counters/counters.go
+
+// Package counters provides alert counter support.
+package counters
+
+// alertCounter is an unexported named type that
+// contains an integer counter for alerts.
+type alertCounter int
+
+// =============================================================================
+
 // Sample program to show how the program can't access an
 // unexported identifier from another package.
 package main
@@ -8,7 +22,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ardanlabs/gotraining/topics/go/language/exporting/example2/counters"
+	"counters"
 )
 
 func main() {

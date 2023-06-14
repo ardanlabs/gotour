@@ -1,6 +1,24 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
+// THESE EXAMPLES WON'T RUN SINCE WE NEED PACKAGING
+
+// =============================================================================
+// users/users.go
+
+// Package users provides support for user management.
+package users
+
+// User represents information about a user.
+type User struct {
+	Name string
+	ID   int
+
+	password string
+}
+
+// =============================================================================
+
 // Sample program to show how unexported fields from an exported struct
 // type can't be accessed directly.
 package main

@@ -1,49 +1,26 @@
-Exporting
-Packages contain the basic unit of compiled code. They define a scope for the identifiers that are declared within them. Exporting is not the same as public and private semantics in other languages. But exporting is how we provide encapsulation in Go.
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
 
 * Exporting
 
-Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. A package is the basic unit of compiled code in Go. It represents a physical compiled unit of code, usually as a compiled library on the host operating system. Exporting determines access to identifiers across package boundaries.
+Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. 
 
 ** Code Review
 
-- *Example* *1:* Declare and access exported identifiers - Pkg
-.play exporting/example1/counters/counters.go
-			   
+- *Example* *1:* Declare and access exported identifiers
+- *Example* *2:* Declare unexported identifiers and restrictions
+- *Example* *3:* Access values of unexported identifiers
+- *Example* *4:* Unexported struct type fields
+- *Example* *5:* Unexported embedded types
 
-- *Example* *1:* Declare and access exported identifiers - Main
-.play exporting/example1/example1.go
-			   
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
 
-- *Example* *2:* Declare unexported identifiers and restrictions - Pkg
-.play exporting/example2/counters/counters.go
-			   
+** Exporting Mechanics
 
-- *Example* *2:* Declare unexported identifiers and restrictions - Main
-.play exporting/example2/example2.go
-
-- *Example* *3:* Access values of unexported identifiers - Pkg
-.play exporting/example3/counters/counters.go
-			   
-
-- *Example* *3:* Access values of unexported identifiers - Main
-.play exporting/example3/example3.go
-			   
-- *Example* *4:* Unexported struct type fields - Pkg
-.play exporting/example4/users/users.go
-			   
-
-- *Example* *4:* Unexported struct type fields - Main
-.play exporting/example4/example4.go
-
-
-- *Example* *5:* Unexported embedded types - Pkg
-.play exporting/example5/users/users.go
-
-- *Example* *5:* Unexported embedded types - Main
-.play exporting/example5/example5.go	
-
-Listing 1
+A package is the basic unit of compiled code in Go. It represents a physical compiled unit of code, usually as a compiled library on the host operating system. Exporting determines access to identifiers across package boundaries.
 
     package counters
 
@@ -51,35 +28,28 @@ Listing 1
 
 In this case, since a capital letter is being used to name the type AlterCounter, the type is exported and can be referenced directly by code outside of the counters package.
 
-Listing 2
-
     package counters
 
     type alertCounter int
 
-Now that I changed the type’s name to start with a lowercase letter, the type is unexported. This means only code inside the counters package can reference this type directly.
-
-Listing 3
+Now that you changed the type’s name to start with a lowercase letter, the type is unexported. This means only code inside the counters package can reference this type directly.
 
     package counters
 
     type alertCounter int
 
     func New(value int) alertCounter {
-    return alertCounter(value)
+        return alertCounter(value)
     }
 
 Even though the code above is legal syntax and will compile, there is no value in it. Returning a value of an unexported type is confusing since the caller (who will probably exist in a different package) can’t reference the type name directly.
 
-
-Listing 4
-
     package main
 
     import (
-    "fmt"
+        "fmt"
 
-    "github.com/ardanlabs/.../exporting/example3/counters"
+        "github.com/ardanlabs/.../exporting/example3/counters"
     )
 
     func main() {
@@ -87,9 +57,7 @@ Listing 4
         fmt.Printf("Counter: %d\n", counter)
     }
 
-In this case, the main function in package main calls the counters.New function successfully and the compiler can declare and construct a variable of the unexported type. This doesn't mean I should do this nor does it mean I’m getting any real protections for this. This should be avoided, and if New will return a value, it should be of an exported type.
-
-Listing 5
+In this case, the main function in package main calls the counters.New function successfully and the compiler can declare and construct a variable of the unexported type. This doesn't mean you should do this nor does it mean your're getting any real protections for this. This should be avoided, and if New will return a value, it should be of an exported type.
 
     package users
 
@@ -102,8 +70,6 @@ Listing 5
 
 When it comes to fields in a struct, the first letter declares if the field is accessible to code outside of the package it’s declared in. In this case, Name and ID are accessible, but password is not. It’s an idiom to separate exported and unexported fields in this manner if this is reasonable or practical to do. Normally all fields would be one or the other.
 
-Listing 6
-
     package users
 
     type user struct {
@@ -112,15 +78,13 @@ Listing 6
     }
 
     type Manager struct {
-    Title string
-
-    user
+        Title string
+        user
     }
 
 In this scenario, even though the user type is unexported, it has two exported fields. This means that when the user type is embedded in the exported Manager type, the user fields promote and are accessible. It’s common to have types that are unexported with exported fields because the reflection package can only operate on exported fields. Marshallers won’t work otherwise.
 
 The example creates a bad situation where code outside of package users can construct a Manager, but since the embedded type user is unexported, the fields for those type can be initialized. This creates partial construction problems that will lead to bugs. I need to be consistent with exporting and unexporting.
-
 
 ** Notes
 
@@ -129,23 +93,19 @@ The example creates a bad situation where code outside of package users can cons
 - We import packages to access exported identifiers.
 - Any package can use a value of an unexported type, but this is annoying to use.
 
-** Links
+** Extra Reading
 
 [[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
 
-   
 * Exercises
 
-Exercise 1
+** Exercise 1
 
 *Part* *A:* Create a package named toy with a single exported struct type named Toy. Add the exported fields Name and Weight. Then add two unexported fields named onHand and sold. Declare a factory function called New to create values of type toy and accept parameters for the exported fields. Then declare methods that return and update values for the unexported fields.
 
 *Part* *B:* Create a program that imports the toy package. Use the New function to create a value of type toy. Then use the methods to set the counts and display the field values of that toy value.
 
-.play exporting/exercises/template1/toy/toy.go
-	
-
 .play exporting/exercises/exercise1/toy/toy.go
-			
-
-All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
+.play exporting/exercises/exercise1/exercise1.go
+.play exporting/exercises/answer1/toy/toy.go
+.play exporting/exercises/answer1/answer1.go

@@ -61,18 +61,6 @@ value('tableOfContents', [{
        'patterns'
     ]
 },{
-    'id': 'tooling',
-    'title': 'Tooling',
-    'description': `
-        <p>This material covers a good portion of the tooling that comes with go. Specifically we cover testing and benchmarking. We also cover profiling memory and the scheduler. Finally we learn how to read stack traces.</p>
-       `,
-    'lessons': [
-       'testing',
-       'benchmarks',
-       'fuzzing',
-       'profiling',
-    ]
-},{
     'id': 'packaging',
     'title': 'Packaging',
     'description': `
