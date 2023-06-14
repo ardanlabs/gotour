@@ -1,16 +1,46 @@
-Interfaces
-Interfaces provide a way to declare types that define only behavior. This behavior can be implemented by concrete types, such as struct or named types, via methods.
+All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
 
 * Interfaces
 
-Interfaces give programs structure and encourage design by composition. They enable and enforce clean divisions between components. The standardization of interfaces can set clear and consistent expectations. Decoupling means reducing the dependencies between components and the types they use. This leads to correctness, quality and maintainability.
+Interfaces give programs structure and encourage design by composition. They enable and enforce clean divisions between
+components. The standardization of interfaces can set clear and consistent expectations. Decoupling means reducing the
+dependencies between components and the types they use. This leads to correctness, quality and maintainability.
 
-Interfaces allow me to group concrete data together by what the data can do. It’s about focusing on what data can do and not what the data is. Interfaces also help my code decouple itself from change by asking for concrete data based on what it can do. It’s not limited to one type of data.
+** Code Review 
 
-I must do my best to understand what data changes are coming and use interfaces to decouple my program from that change. Interfaces should describe behavior and not state. They should be verbs and not nouns.
+- *Example* *1:* Repetitive Code That Needs Polymorphism
+- *Example* *2:* Polymorphism
+- *Example* *3:* Method Sets
+- *Example* *4:* Address Of Value
+- *Example* *5:* Storage By Value
+- *Example* *6:* Type Assertions
+- *Example* *7:* Conditional Type Assertions
+- *Example* *8:* The Empty Interface and Type Switches
+- *Example* *9:* Storing Values
 
-Generalized interfaces that focus on behavior are best. Interfaces with more than one method have more than one reason to change. Interfaces that are based on nouns, tend to be less reusable, are more susceptible to change, and defeat the purpose of the interface.
-Uncertainty about change is not a license to guess but a directive to STOP and learn more. I must distinguish between code that defends against fraud vs protects against accidents.
+.play interfaces/example1.go
+.play interfaces/example2.go
+.play interfaces/example3.go
+.play interfaces/example4.go
+.play interfaces/example5.go
+.play interfaces/example6.go
+.play interfaces/example7.go
+.play interfaces/example8.go
+.play interfaces/example9.go
+
+** Interface Semantics
+
+Interfaces allow you to group concrete data together by what the data can do. It’s about focusing on what data can do and
+not what the data is. Interfaces also help my code decouple itself from change by asking for concrete data based on what
+it can do. It’s not limited to one type of data.
+
+You must do my best to understand what data changes are coming and use interfaces to decouple my program from that change.
+Interfaces should describe behavior and not state. They should be verbs and not nouns.
+
+Generalized interfaces that focus on behavior are best. Interfaces with more than one method have more than one reason to change.
+Interfaces that are based on nouns, tend to be less reusable, are more susceptible to change, and defeat the purpose of the interface.
+Uncertainty about change is not a license to guess but a directive to STOP and learn more. You must distinguish between code
+that defends against fraud vs protects against accidents.
 
 Use an interface when:
 
@@ -25,45 +55,9 @@ Don't use an interface:
 - When users can declare their own interfaces.
 - If it's not clear how the interface makes the code better.
 
-** Code Review 
-
-- *Example* *0:* Repetitive Code That Needs Polymorphism
-.play interfaces/example0/example0.go
-			   
-
-- *Example* *1:* Polymorphism
-.play interfaces/example1/example1.go
-		   
-- *Example* *2:* Method Sets
-.play interfaces/example2/example2.go
-
-		   
-- *Example* *3:* Address Of Value
-.play interfaces/example3/example3.go
-			   
-
-- *Example* *4:* Storage By Value
-.play interfaces/example4/example4.go
-			   
-
-- *Example* *5:* Type Assertions
-.play interfaces/example5/example5.go
-
-
-- *Example* *6:* Conditional Type Assertions
-.play interfaces/example6/example6.go
-			   
-
-- *Example* *7:* The Empty Interface and Type Switches
-.play interfaces/example7/example7.go
-			   
-- *Example* *1:* Storing Values
-.play interfaces/advanced/example1/example1.go
-
 ** Interfaces Are Valueless
-The first important thing to understand is that an interface type declares a valueless type.
 
-Listing 1
+The first important thing to understand is that an interface type declares a valueless type.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -71,16 +65,13 @@ Listing 1
 
 Type reader is not a struct type, but an interface type. Its declaration is not based on state, but behavior. Interface types declare a method-set of behavior that concrete data must exhibit in order to satisfy the interface. There is nothing concrete about interface types, therefore they are valueless.
 
-Listing 2
-
     var r reader
 
-Because they are valueless, the construction of a variable (like r) is odd because in our programming model, r does not exist, it’s valueless. There is nothing about r itself that I can manipulate or transform. This is a critical concept to understand. I’m never working with interface values, only concrete values. An interface has a compiler representation (internal type), but from our programming model, interfaces are valueless.
+Because they are valueless, the construction of a variable (like r) is odd because in our programming model, r does not exist, it’s valueless. There is nothing about r itself that you can manipulate or transform. This is a critical concept to understand. I’m never working with interface values, only concrete values. An interface has a compiler representation (internal type), but from our programming model, interfaces are valueless.
 
 ** Implementing Interfaces
-Go is a language that is about convention over configuration. When it comes to a concrete type implementing an interface, there is no exception.
 
-Listing 3
+Go is a language that is about convention over configuration. When it comes to a concrete type implementing an interface, there is no exception.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -96,13 +87,11 @@ Listing 3
         return len(s), nil
     }
 
-The code declares a type named file and then declares a method named read. Because of these two declarations, I can say the following:
+The code declares a type named file and then declares a method named read. Because of these two declarations, you can say the following:
 
 "The concrete type file now implements the reader interface using value semantics"
 
-Every word I just said is important. In Go, all I have to do is declare the full method-set of behavior defined by an interface to implement that interface. In this case, that is what I’ve done since the reader interface only declares a single act of behavior named read.
-
-Listing 4
+Every word said is important. In Go, all you have to do is declare the full method-set of behavior defined by an interface to implement that interface. In this case, that is what I’ve done since the reader interface only declares a single act of behavior named read.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -118,16 +107,15 @@ Listing 4
         return len(s), nil
     }
 
-This code declares a type named pipe and then declares a method name read. Because of these two declarations, I can say the following:
+This code declares a type named pipe and then declares a method name read. Because of these two declarations, you can say the following:
 
 "The concrete type pipe now implements the reader interface using value semantics"
 
-Now I have two concrete types implementing the reader interface. Two concrete types each with their unique implementation. One type is reading file systems and the other networks.
+Now you have two concrete types implementing the reader interface. Two concrete types each with their unique implementation. One type is reading file systems and the other networks.
 
 ** Polymorphism
-Polymorphism means that a piece of code changes its behavior depending on the concrete data it’s operating on. This was said by Tom Kurtz, who is the inventor of BASIC. This is the definition we will use moving forward.
 
-Listing 5
+Polymorphism means that a piece of code changes its behavior depending on the concrete data it’s operating on. This was said by Tom Kurtz, who is the inventor of BASIC. This is the definition we will use moving forward.
 
     // retrieve can read any device and process the data.
     func retrieve(r reader) error {
@@ -148,20 +136,15 @@ If the function is not asking for a reader value then what is the function askin
 
 The function retrieve is a polymorphic function because it’s asking for concrete data not based on what the data is (concrete type), but based on what the data can do (interface type).
 
-Listing 6
-
     f := file{"data.json"}
     p := pipe{"cfg_service"}
 
     retrieve(f)
     retrieve(p)
 
-I can construct two concrete values, one of type file and one of type pipe. Then I can pass a copy of each value to the polymorphic function. This is because each of these values implement the full method set of behavior defined by the reader interface.
+You can construct two concrete values, one of type file and one of type pipe. Then you can pass a copy of each value to the polymorphic function. This is because each of these values implement the full method set of behavior defined by the reader interface.
 
 When the concrete file value is passed into retrieve, the value is stored inside a two word internal type representing the interface value.
-
-
-Figure 1
 
 .image /tour/static/img/i1.png
 
@@ -174,13 +157,11 @@ The iTable serves 2 purposes:
 
 When the read call is made against the interface value, an iTable lookup is performed to find the concrete implementation of the read method associated with the type. Then the method call is made against the value being stored in the second word.
 
-I can say retrieve is a polymorphic function because the concrete value pipe can be passed into retrieve and now the call to read against the interface value changes its behavior. This time that call to read is reading a network instead of reading a file.
+You can say retrieve is a polymorphic function because the concrete value pipe can be passed into retrieve and now the call to read against the interface value changes its behavior. This time that call to read is reading a network instead of reading a file.
 
 ** Method Set Rules
+
 Implementing an interface using pointer semantics applies some constraints on interface compliance.
-
-
-Listing 7
 
     type notifier interface {
         notify()
@@ -206,8 +187,8 @@ Listing 7
 
 The notifier interface is implemented by the user type using pointer semantics. When value semantics are used to make the polymorphic call, the following compiler message is produced.
 
-"cannot use u (type user) as type notifier in argument to sendNotification:
-user does not implement notifier (notify method has pointer receiver)"
+    "cannot use u (type user) as type notifier in argument to sendNotification:
+    user does not implement notifier (notify method has pointer receiver)"
 
 This is because there is a special set of rules in the specification about method sets. These rules define what methods are attached to values and pointers of a type. They are in place to maintain the highest level of integrity in my program.
 
@@ -218,13 +199,11 @@ These are the rules defined in the specification:
       
 In other words, when working with an address (pointer), all methods implemented are attached and available to be called. When working with a value, only those methods implemented with value receivers are attached and available to be called.
 
-In the previous lesson about methods, I was able to call a method against a concrete piece of data regardless of the data semantics declared by the receiver. This is because the compiler can adjust to make the call. In this case, a value is being stored inside an interface and the methods must exist. No adjustments can be made.
+In the previous lesson about methods, you were able to call a method against a concrete piece of data regardless of the data semantics declared by the receiver. This is because the compiler can adjust to make the call. In this case, a value is being stored inside an interface and the methods must exist. No adjustments can be made.
 
 The question now becomes: Why can't methods implemented with pointer receivers be attached to values of type T? What is the integrity issue here?
 
-One reason is because I can’t guarantee that every value of type T is addressable. If a value doesn’t have an address, it can’t be shared.
-
-Listing 8
+One reason is because you can’t guarantee that every value of type T is addressable. If a value doesn’t have an address, it can’t be shared.
 
     type duration int
 
@@ -243,22 +222,18 @@ Compiler Error:
 
 In this example, the value of 42 is a constant of kind int. Even though the value is converted into a value of type duration, it’s not being stored inside a variable. This means the value is never on the stack or heap. There isn’t an address. Constants only live at compile time.
 
-The second reason is the bigger reason. The compiler is telling me that I am not allowed to use value semantics if I have chosen to use pointer semantics. In other words, I am being forced to share the value with the interface since it’s not safe to make a copy of a value that a pointer points to. If I chose to implement the method with pointer semantics, I am stating that a value of this type isn’t safe to be copied.
-
-Listing 9
+The second reason is the bigger reason. The compiler is telling you that you are not allowed to use value semantics if you have chosen to use pointer semantics. In other words, you are being forced to share the value with the interface since it’s not safe to make a copy of a value that a pointer points to. If you chose to implement the method with pointer semantics, you are stating that a value of this type isn’t safe to be copied.
 
     func main() {
         u := user{"Bill", "bill@email.com"}
         sendNotification(&u)
     }
 
-To fix the compiler message, I must use pointer semantics on the call to the polymorphic function and share u. The answer is not to change the method to use value semantics.
+To fix the compiler message, you must use pointer semantics on the call to the polymorphic function and share u. The answer is not to change the method to use value semantics.
 
 ** Slice of Interface
-When I declare a slice of an interface type, I’m capable of grouping different concrete values together based on what they can do. This is why Go doesn’t need the concept of sub-typing. It’s not about a common DNA, it’s about a common behavior.
 
-
-Listing 10
+When you declare a slice of an interface type, I’m capable of grouping different concrete values together based on what they can do. This is why Go doesn’t need the concept of sub-typing. It’s not about a common DNA, it’s about a common behavior.
 
     type printer interface {
         print()
@@ -325,7 +300,7 @@ The example also shows how the choice of data semantics changes the behavior of 
 
 "A proper abstraction decouples the code so that every change doesn’t echo throughout the entire code base." - Ronna Steinburg
 
-** Links
+** Extra Reading
 
 - [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]    
 - [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike    
@@ -335,19 +310,17 @@ The example also shows how the choice of data semantics changes the behavior of 
 - [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy    
 - [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum  
-
-			 
+- [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Engineering Innovation - Why Constraints Are Critical]] - André Eriksson (MUST WATCH)
 
 * Exercises
 
-Exercise 1
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
 
 *Part* *A:* Declare an interface named speaker with a method named speak. Declare a struct named english that represents a person who speaks english and declare a struct named chinese for someone who speaks chinese. Implement the speaker interface for each struct using a value receiver and these literal strings "Hello World" and "你好世界". Declare a variable of type speaker and assign the address of a value of type english and call the method. Do it again for a value of type chinese.
 
 *Part* *B:* Add a new function named sayHello that accepts a value of type speaker. Implement that function to call the speak method on the interface value. Then create new values of each type and use the function.
 
-.play interfaces/exercises/template1/template1.go
-
-.play interfaces/exercises/exercise1/exercise1.go
-			 
-All material is licensed under the [[http://www.apache.org/licenses/LICENSE-2.0][Apache License Version 2.0, January 2004]].
+.play interfaces/exercise1.go
+.play interfaces/answer1.go
