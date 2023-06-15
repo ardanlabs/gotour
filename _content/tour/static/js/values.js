@@ -49,7 +49,6 @@ value('tableOfContents', [{
         'composition-mocking',
         'composition-decoupling',
         'error-handling',
-        'packaging',
     ]
 },{
     'id': 'concurrency',
@@ -65,8 +64,8 @@ value('tableOfContents', [{
         'patterns'
     ]
 },{
-    'id': 'packaging',
-    'title': 'Packaging',
+    'id': 'stdlib',
+    'title': 'Standard Library',
     'description': `
         <p>This material covers the essential things you need to know about the standard library and some important third party packages. Along the way you also learn about the most commonly used packages.</p>
        `,

@@ -3,7 +3,9 @@ A map is a data structure that provides support for storing and accessing data b
 
 * Maps
 
-A map is a data structure that provides support for storing and accessing data based on a key. It uses a hash map and bucket system that maintains a contiguous block of memory underneath.
+A map is a data structure that provides support for storing and accessing data
+based on a key. It uses a hash map and bucket system that maintains a contiguous
+block of memory underneath.
 
 ** Code Review
 
@@ -45,7 +47,9 @@ Declaring and constructing a map can be done in several ways.
     // that can store user values based on a key of type string.
     users := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking. The use of the built-in function make and literal construction constructs a map ready for use.
+A map set to its zero value is not usable and will result in your program panicking.
+The use of the built-in function make and literal construction constructs a map
+ready for use.
 
     func main() {
         users := make(map[string]user)
@@ -67,7 +71,10 @@ Output:
     Mouse {Mickey Mouse}
     Jackson {Michael Jackson}
 
-If the built-in function make is used to construct a map, then the assignment operator can be used to add and update values in the map. The order of how keys/values are returned when ranging over a map is undefined by the spec and up to the compiler to implement. 
+If the built-in function make is used to construct a map, then the assignment operator
+can be used to add and update values in the map. The order of how keys/values are
+returned when ranging over a map is undefined by the spec and up to the compiler to
+implement. 
 
     func main() {
         users := map[string]user{
@@ -89,7 +96,10 @@ Output:
     Roy {Rob Roy}
     Mouse {Mickey Mouse}
 
-In this case, the output was returned in a different order from how they are listed in the construction. The current algorithm for 1.16 will return the results in a random order once the number of values reaches a certain limit. Once again, this is a compiler implementation that is allowed to change. I can’t depend on it.
+In this case, the output was returned in a different order from how they are
+listed in the construction. The current algorithm for 1.16 will return the results
+in a random order once the number of values reaches a certain limit. Once again,
+this is a compiler implementation that is allowed to change. You can’t depend on it.
 
 ** Lookups and Deleting Map Keys
 
@@ -106,13 +116,20 @@ Output:
     Bill: false { }
     Ford: true {Henry Ford}
 
-To perform a key lookup, square brackets are used with the map variable. Two values can be returned from a map lookup, the value and a boolean that represents if the value was found or not. If I don’t need to know this, I can leave the "exists" variable out.
+To perform a key lookup, square brackets are used with the map variable. Two
+values can be returned from a map lookup, the value and a boolean that represents
+if the value was found or not. If you don’t need to know this, you can leave the
+"exists" variable out.
 
-When a key is not found in the map, the operation returns a value of the map type set to its zero value state. I can see this with the "Bill" key lookup. Don’t use zero value to determine if a key exists in the map or not since zero value may be valid and what was actually stored for the key.
+When a key is not found in the map, the operation returns a value of the map type
+set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
+zero value to determine if a key exists in the map or not since zero value may be
+valid and what was actually stored for the key.
 
     delete(users, "Roy")
 
-There is a built-in function named delete that allows for the deletion of data from the map based on a key.
+There is a built-in function named delete that allows for the deletion of data
+from the map based on a key.
 
 ** Key Map Restrictions
 
@@ -125,7 +142,10 @@ Compiler Error:
 
     invalid map key type users
 
-A slice is a good example of a type that can’t be used as a key. Only values that can be run through the hash function are eligible. A good way to recognize types that can be a key is if the type can be used in a comparison operation. I can’t compare two slice values.
+A slice is a good example of a type that can’t be used as a key. Only values that
+can be run through the hash function are eligible. A good way to recognize types
+that can be a key is if the type can be used in a comparison operation. You can’t
+compare two slice values.
 
 ** Notes
 
@@ -149,7 +169,8 @@ Use the template as a starting point to complete the exercises. A possible solut
 
 ** Exercise 1
 
-Declare and make a map of integer values with a string as the key. Populate the map with five values and iterate over the map to display the key/value pairs.
+Declare and make a map of integer values with a string as the key. Populate the
+map with five values and iterate over the map to display the key/value pairs.
 
 .play maps/exercise1.go
 .play maps/answer1.go

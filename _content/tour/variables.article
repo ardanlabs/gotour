@@ -3,7 +3,10 @@ Variables are at the heart of the language and provide the ability to read from 
 
 * Variables
 
-Variables are at the heart of the language and provide the ability to read from and write to memory. In Go, access to memory is type safe. This means the compiler takes type seriously and will not allow us to use variables outside the scope of how they are declared.
+Variables are at the heart of the language and provide the ability to read from
+and write to memory. In Go, access to memory is type safe. This means the compiler
+takes type seriously and will not allow us to use variables outside the scope of
+how they are declared.
 
 ** Code Review
 
@@ -20,14 +23,17 @@ Types provide integrity and readability by asking 2 questions:
 Types can be specific to a precision such as int32 or int64:
 
 - uint8 represents an unsigned integer with 1 byte of allocation
-- int32 represents a signed integer with 4 bytes of allocationWhen I declare a type using a non-precision based type (unit, int) the size of the value is based on the architecture being used to build the program:
+- int32 represents a signed integer with 4 bytes of allocation. When you declare a type
+using a non-precision based type (unit, int) the size of the value is based on the
+architecture being used to build the program:
 
 - 32 bit arch: int represents a signed int at 4 bytes of memory allocation
 - 64 bit arch: int represents a signed int at 8 bytes of memory allocation
 
 ** Word Size
 
-The word size represents the amount of memory allocation required to store integers and pointers for a given architecture. For example:
+The word size represents the amount of memory allocation required to store integers
+and pointers for a given architecture. For example:
 
 - 32 bit arch: word size is 4 bytes of memory allocation
 - 64 bit arch: word size is 8 bytes of memory allocation
@@ -40,12 +46,12 @@ In Go, the amount of memory allocated for a value of type int, a pointer, or a w
 will always be the same on the same architecture.
 
 ** Zero Value Concept
-Every single value I construct in Go is initialized at least to its zero value state
-unless I specify the initialization value at construction. The zero value is the setting
+Every single value you construct in Go is initialized at least to its zero value state
+unless you specify the initialization value at construction. The zero value is the setting
 of every bit in every byte to zero.
 
 This is done for data integrity and it’s not free. It takes time to push electrons
-through the machine to reset those bits, but I should always take integrity over
+through the machine to reset those bits, but you should always take integrity over
 performance.
 
     Type               Zero Value
@@ -82,9 +88,11 @@ A string is a two-word internal data structure in Go:
 
 - The first word represents a pointer to a backing array of bytes
 - The second word represents the length or the number of bytes in the backing array
-- If the string is set to its zero value state, then the first word is nil and the second word is 0.
+- If the string is set to its zero value state, then the first word is nil and the
+second word is 0.
 
-Using the short variable declaration operator, I can declare, construct, and initialize a value all at the same time.
+Using the short variable declaration operator, you can declare, construct, and
+initialize a value all at the same time.
 
     aa := 10       // int [10]
     bb := "hello"  // string [hello]
@@ -105,7 +113,9 @@ Output:
 
 ** Conversion vs Casting
 
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a set of bytes to a different representation, the bytes need to be copied to a new memory location for the new representation.
+Go doesn't have casting, but conversion. Instead of telling the compiler to map a
+set of bytes to a different representation, the bytes need to be copied to a new
+memory location for the new representation.
 
     aaa := int32(10)
     fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
@@ -113,7 +123,10 @@ Go doesn't have casting, but conversion. Instead of telling the compiler to map 
     Output:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if I need to perform an actual casting operation. I should really avoid that and be honest with myself why I am considering using it. Performing a conversion provides the highest level of integrity for these types of operations.
+Go does have a package in the standard library called unsafe if you need to perform
+an actual casting operation. You should really avoid that and be honest with myself
+why you am considering using it. Performing a conversion provides the highest level
+of integrity for these types of operations.
 
 ** Notes
 
@@ -139,9 +152,12 @@ Use the template as a starting point to complete the exercises. A possible solut
 
 ** Exercise 1
 
-*Part* *A:* Declare three variables that are initialized to their zero value and three declared with a literal value. Declare variables of type string, int and bool. Display the values of those variables.
+*Part* *A:* Declare three variables that are initialized to their zero value and
+three declared with a literal value. Declare variables of type string, int and bool.
+Display the values of those variables.
 
-*Part* *B:* Declare a new variable of type float32 and initialize the variable by converting the literal value of Pi (3.14).
+*Part* *B:* Declare a new variable of type float32 and initialize the variable by
+converting the literal value of Pi (3.14).
 
 .play variables/exercise1.go
 .play variables/answer1.go
