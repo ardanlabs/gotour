@@ -1,6 +1,9 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
+// YOU NEED TO RUN THIS EXAMPLE OUTSIDE OF THE TOUR
+// go build -race  or  go run main.go -race
+
 // Sample program to show how to use the atomic package to
 // provide safe access to numeric types.
 package main

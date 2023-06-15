@@ -1,7 +1,8 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// go build -race
+// YOU NEED TO RUN THIS EXAMPLE OUTSIDE OF THE TOUR
+// go build -race  or  go run main.go -race
 
 // Sample program to show how to create race conditions in
 // our programs. We don't want to do this.
@@ -53,19 +54,19 @@ func main() {
 WARNING: DATA RACE
 Read at 0x0000011a5118 by goroutine 7:
   main.main.func1()
-      /Users/bill/code/go/src/github.com/ardanlabs/gotraining/topics/go/concurrency/data_race/example1/example1.go:33 +0x4e
+      example1.go:34 +0x4e
 
 Previous write at 0x0000011a5118 by goroutine 6:
   main.main.func1()
-      /Users/bill/code/go/src/github.com/ardanlabs/gotraining/topics/go/concurrency/data_race/example1/example1.go:39 +0x6d
+      example1.go:40 +0x6d
 
 Goroutine 7 (running) created at:
   main.main()
-      /Users/bill/code/go/src/github.com/ardanlabs/gotraining/topics/go/concurrency/data_race/example1/example1.go:43 +0xc3
+      example1.go:44 +0xc3
 
 Goroutine 6 (finished) created at:
   main.main()
-      /Users/bill/code/go/src/github.com/ardanlabs/gotraining/topics/go/concurrency/data_race/example1/example1.go:43 +0xc3
+      example1.go:44 +0xc3
 ==================
 Final Counter: 4
 Found 1 data race(s)
