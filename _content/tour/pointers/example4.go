@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,6 +23,7 @@ func main() {
 
 // createUserV1 creates a user value and passed
 // a copy back to the caller.
+//
 //go:noinline
 func createUserV1() user {
 	u := user{
@@ -34,6 +38,7 @@ func createUserV1() user {
 
 // createUserV2 creates a user value and shares
 // the value with the caller.
+//
 //go:noinline
 func createUserV2() *user {
 	u := user{

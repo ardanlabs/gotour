@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,6 +24,7 @@ func main() {
 
 // increment declares count as a pointer variable whose value is
 // always an address and points to values of type int.
+//
 //go:noinline
 func increment(inc *int) {
 

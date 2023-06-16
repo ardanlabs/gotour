@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -16,6 +19,7 @@ func main() {
 
 // stackCopy recursively runs increasing the size
 // of the stack.
+//
 //go:noinline
 func stackCopy(s *string, c int, a [size]int) {
 	println(c, s, *s)
