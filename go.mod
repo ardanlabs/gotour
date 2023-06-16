@@ -2,7 +2,7 @@ module github.com/ardanlabs/gotour
 
 go 1.18
 
-require golang.org/x/tools v0.9.3
+require golang.org/x/tools v0.10.0
 
 require (
 	github.com/yuin/goldmark v1.5.4 // indirect

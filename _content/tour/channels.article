@@ -4,9 +4,9 @@ Channels allow goroutines to communicate with each other through the use of sign
 * Channels
 
 It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that I send and receive from a channel,
-not read and write. If the problem in front of me can’t be solved with signaling,
-if the word signaling is not coming out of my mouth, I need to question the use of
+signaling. This goes in line with the idea that you send and receive from a channel,
+not read and write. If the problem in front of you can’t be solved with signaling,
+if the word signaling is not coming out of your mouth, you need to question the use of
 channels.
 
 ** Code Review
@@ -50,7 +50,7 @@ What if the process can’t wait for an unknown amount of time? What if that kin
 latency won’t work? Then the guarantee can’t be at the signaling level, it needs
 to be outside of it. The mechanics behind this working is that the send now happens
 before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, I hope,
+to be available. So the sender gets to walk away and not wait. Eventually, you hope,
 the receiver shows up and takes the signal.
 
 This is reducing latency cost on the send, but it’s creating uncertainty about signals
@@ -58,7 +58,7 @@ being received and therefore knowing if there are problems upstream with receive
 This can create the process to accept work that never gets started or finished. It
 could eventually cause massive back pressure and systems to crash.
 
-The second thing to focus on is, do I need to send data with the signal? If the signal
+The second thing to focus on is, do you need to send data with the signal? If the signal
 requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
 If a new Goroutine needs to receive the signal as well, a second signal must be sent.
 
@@ -70,7 +70,7 @@ The third thing to focus on is channel state. A channel can be in 1 of 3 states.
 
 A channel can be in a nil state by constructing the channel to its zero value state.
 Sends and receives against channels in this state will block. This is good for situations
-where I want to implement short term stoppages of work.
+where you want to implement short term stoppages of work.
 
 A channel can be in an open state by using the built-in function make. Sends and
 receives against channels in this state will work under the following conditions:
@@ -87,15 +87,15 @@ signal to be processed.
 receive. If the buffer is not full, sends can complete else they block. If the
 buffer is not empty, receives can complete else they block.
 
-A channel can be in a closed state by using the built-in function close. I don’t
+A channel can be in a closed state by using the built-in function close. You don’t
 need to close a channel to release memory, this is for changing the state. Sending
 on a closed channel will cause a panic, however receiving on a closed channel
 will return immediately.
 
-With all this information, I can focus on channel patterns. The focus on signaling
-is important. The idea is, if I need a guarantee at the signaling level or not,
-based on latency concerns. If I need to transmit data with the signal or not, based
-on handling cancellations or not. I want to convert the syntax to these semantics.
+With all this information, you can focus on channel patterns. The focus on signaling
+is important. The idea is, if you need a guarantee at the signaling level or not,
+based on latency concerns. If you need to transmit data with the signal or not, based
+on handling cancellations or not. You want to convert the syntax to these semantics.
 
 ** Design Guidelines
 
