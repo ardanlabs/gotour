@@ -10,7 +10,7 @@ config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $routeProvider.
         when('/tour/', {
-            redirectTo: '/tour/welcome/1'
+            redirectTo: '/tour/list'
         }).
         when('/tour/list', {
             templateUrl: '/tour/static/partials/list.html',
@@ -42,9 +42,19 @@ run(function($rootScope, $location, mapping) {
         var m = mapping[url.hash];
         if (m === undefined) {
             console.log('unknown url, redirecting home');
-            $location.path('/tour/welcome/1');
+            $location.path('/tour/list');
             return;
         }
         $location.path('/tour' + m);
     });
 });
+
+window.scrollTo = (id) => {
+
+    const element = document.getElementById(id);
+
+    if(!element)
+        return
+    
+    element.scrollIntoView();
+}

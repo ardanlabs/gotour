@@ -6,16 +6,24 @@
                 <div class="slide-content" ng-bind-html-unsafe="toc.lessons[lessonId].Pages[curPage-1].Content"></div>
 
                 <div class="bar module-bar">
-                    <a href="#" class="prev-page" ng-click="prevPageClick($event)">&lt;</a>
-                    <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
-                    <a href="#" class="next-page" ng-click="nextPageClick($event)">&gt;</a>
+                    <div ng-class="{hidden: curPage != toc.lessons[lessonId].Pages.length}">
+                        <a href="#" class="prev-page" ng-click="prevPageClick($event)">&lt;</a>
+                        <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
+                        <a href="#" class="next-page" ng-click="nextPageClick($event)">✅</a>
+                    </div>
+                    <div ng-class="{hidden: curPage == toc.lessons[lessonId].Pages.length}">
+                        <a href="#" class="prev-page" ng-click="prevPageClick($event)">&lt;</a>
+                        <span>{{curPage}}/{{toc.lessons[lessonId].Pages.length}}</span>
+                        <a href="#" class="next-page" ng-click="nextPageClick($event)">&gt;</a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="right-side" class="relative-content">
-            <div id="explorer" ng-class="{hidden: toc.lessons[lessonId].Pages[curPage-1].Files.length==0}">
-                <a class="menu-button" ng-repeat="f in toc.lessons[lessonId].Pages[curPage-1].Files" ng-click="openFile($index)" ng-class="{active: $index==curFile}">{{f.Name}}</a>
+            <div id="explorer" 
+            ng-class="{hidden: toc.lessons[lessonId].Pages[curPage-1].Files.length==0}">            
+                <a class="menu-button" ng-repeat="f in toc.lessons[lessonId].Pages[curPage-1].Files" ng-click="openFile($index)" ng-class="{active: $index==curFile}">{{f.Name}}</a>  
                 <a syntax-checkbox ng-class="{active: editor.syntax}" class="menu-button syntax-checkbox">Syntax</a>
                 <a imports-checkbox ng-class="{active: editor.imports}" class="menu-button imports-checkbox">Imports</a>
             </div>
