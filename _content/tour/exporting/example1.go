@@ -34,3 +34,5 @@ type AlertCounter int
 module "play.ground"
 
 go 1.20
+
+replace  "play.ground/counters" => ./counters

@@ -184,16 +184,6 @@ The fact that the v variable has the same address on each iteration strengthens 
 understanding that v is a local variable of type string which contains a copy of each
 string value during iteration.
 
-** Notes
-
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
-
 ** CPU Caches
 
 There are lots of mechanical differences between processors and their design. In
@@ -354,41 +344,7 @@ how efficiently you can get data into the processor.
 
 .html arrays/array_list.html
 
-** Cache Hierarchies
-
-This is a diagram showing the relationship of the cache hierarchy for the 4 Core
-i7-9xx processor. The caches in the diagram are not to scale. This processor has
-four cores and each core has two hardware threads. The hardware threads per core
-share the Level 1 caches. The cores have individual Level 1 and Level 2 caches.
-All cores for all the processor share the L3 cache.
-
-.image /tour/static/img/figure1.png
-			
-This is subject to be different in different processors. For this content, the
-following is the multi-levels of cache associated with the Intel 4 Core i7-9xx processor:
-
-    3GHz(3 clock cycles/ns) - 4 instructions per cycle = 12 instructions per ns!
-
-    1 ns ............. 1 ns .............. 12 instructions  (one) 
-    1 µs .......... 1000 ns .......... 12,000 instructions  (thousand)
-    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
-    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
-
-    L1 - 64KB Cache (Per Core)
-        4 cycles of latency at 1.3 ns
-        Stalls for 16 instructions
-
-    L2 - 256KB Cache (Per Core)
-        12 cycles of latency at 4 ns
-        Stalls for 48 instructions
-
-    L3 - 8MB Cache
-        40 cycles of latency at 13.3 ns
-        Stalls for 160 instructions
-
-    Main Memory
-        100 cycle of latency at 33.3 ns
-        Stalled for 400 instructions
+** Extra Diagrams
 
 *Industry* *Defined* *Latencies*
 
@@ -410,8 +366,10 @@ following is the multi-levels of cache associated with the Intel 4 Core i7-9xx p
 *Cache* *Latencies* *Image*
 
 .image /tour/static/img/cache_latencies_graph.png
-			
-** CPU Caches / Memory
+
+** Extra Reading
+
+*CPU* *Caches* */* *Memory*
 
 - [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
 - [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
@@ -431,7 +389,7 @@ following is the multi-levels of cache associated with the Intel 4 Core i7-9xx p
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
 - [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
 
-** Data-Oriented Design
+*Data-Oriented* *Design*
 
 - [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
 - [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
@@ -440,6 +398,16 @@ following is the multi-levels of cache associated with the Intel 4 Core i7-9xx p
 - [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+
+** Notes
+
+- If you don't understand the data, you don't understand the problem.
+- If you don't understand the cost of solving the problem, you can't reason about the problem.
+- If you don't understand the hardware, you can't reason about the cost of solving the problem.
+- Arrays are fixed length data structures that can't change.
+- Arrays of different sizes are considered to be of different types.
+- Memory is allocated as a contiguous block.
+- Go gives you control over spacial locality.
 
 * Exercises
 
