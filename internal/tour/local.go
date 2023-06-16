@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ardanlabs/gotour/internal/socket"
 	"github.com/ardanlabs/gotour/internal/webtest"
-	"golang.org/x/tools/playground/socket"
 )
 
 const (
@@ -96,7 +96,7 @@ func must(fsys fs.FS, err error) fs.FS {
 	return fsys
 }
 
-// rootHandler returns a handler for all the requests except the ones for lessons.
+// rootHandler returns a handler for all tfhe requests except the ones for lessons.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, "/tour/", http.StatusFound)
