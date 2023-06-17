@@ -7,6 +7,32 @@
 /* Directives */
 angular.module('tour.directives', []).
 
+directive('progressbar', function() {
+    return function(scope, el, attrs) {
+        const progress = document.getElementById("reading-progress");
+        
+        let elm = el[0]
+        
+        // Get the percentage scrolled of an element. It returns zero if its not in view.
+        function getScrollProgress(el) {
+            let coords = el.getBoundingClientRect();
+            let height = coords.height;
+       
+            let progressPercentage = 0;
+            if ( el.scrollTop > 4) {
+                progressPercentage = (Math.abs(el.scrollTop/10) / height) * 100;
+            }
+            return progressPercentage;
+        }
+        function showReadingProgress() {
+            progress.setAttribute("value", getScrollProgress(elm));
+        }
+       
+        //scroll event listener
+        elm.onscroll = showReadingProgress;
+    };
+}).
+
 directive('settitle', function() {
     return function(scope, elm, attrs) {
         const section = scope.$eval(attrs.settitle)
