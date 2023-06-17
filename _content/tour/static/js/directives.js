@@ -11,6 +11,10 @@ directive('settitle', function() {
     return function(scope, elm, attrs) {
         const section = scope.$eval(attrs.settitle)
         const str = scope.lessonId
+
+        if(!str)
+            return $("title").html(`Ultimate Go : ${section}`)
+
         const grp = str.charAt(0).toUpperCase() + str.slice(1);
         const title = section ? `${grp} - ${section}` : grp
 
