@@ -9,10 +9,10 @@ angular.module('tour.directives', []).
 
 directive('settitle', function() {
     return function(scope, elm, attrs) {
-        const title = scope.$eval(attrs.settitle)
-        
-        if(!title)
-            return
+        const section = scope.$eval(attrs.settitle)
+        const str = scope.lessonId
+        const grp = str.charAt(0).toUpperCase() + str.slice(1);
+        const title = section ? `${grp} - ${section}` : grp
 
         $("title").html(`Ultimate Go : ${title}`)
     };
