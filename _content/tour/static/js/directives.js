@@ -16,11 +16,11 @@ directive('progressbar', function() {
         // Get the percentage scrolled of an element. It returns zero if its not in view.
         function getScrollProgress(el) {
             let coords = el.getBoundingClientRect();
-            let height = coords.height;
-       
+            let height = el.scrollHeight - el.clientHeight;
+      
             let progressPercentage = 0;
             if ( el.scrollTop > 4) {
-                progressPercentage = (Math.abs(el.scrollTop/10) / height) * 100;
+                progressPercentage = (Math.abs(el.scrollTop) / height) * 100;
             }
             return progressPercentage;
         }
