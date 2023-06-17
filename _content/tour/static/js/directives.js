@@ -5,9 +5,48 @@
 'use strict';
 
 /* Directives */
-
 angular.module('tour.directives', []).
 
+directive('progressbar', function() {
+    return function(scope, el, attrs) {
+        const progress = document.getElementById("reading-progress");
+        
+        let elm = el[0]
+        
+        // Get the percentage scrolled of an element. It returns zero if its not in view.
+        function getScrollProgress(el) {
+            let coords = el.getBoundingClientRect();
+            let height = el.scrollHeight - el.clientHeight;
+      
+            let progressPercentage = 0;
+            if ( el.scrollTop > 4) {
+                progressPercentage = (Math.abs(el.scrollTop) / height) * 100;
+            }
+            return progressPercentage;
+        }
+        function showReadingProgress() {
+            progress.setAttribute("value", getScrollProgress(elm));
+        }
+       
+        //scroll event listener
+        elm.onscroll = showReadingProgress;
+    };
+}).
+
+directive('settitle', function() {
+    return function(scope, elm, attrs) {
+        const section = scope.$eval(attrs.settitle)
+        const str = scope.lessonId
+
+        if(!str)
+            return $("title").html(`Ultimate Go : ${section}`)
+
+        const grp = str.charAt(0).toUpperCase() + str.slice(1);
+        const title = section ? `${grp} - ${section}` : grp
+
+        $("title").html(`Ultimate Go : ${title}`)
+    };
+}).
 // onpageup executes the given expression when Page Up is released.
 directive('onpageup', function() {
     return function(scope, elm, attrs) {

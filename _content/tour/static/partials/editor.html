@@ -2,8 +2,13 @@
     <div class="relative-content" ng->
         <div vertical-slide left="#left-side" right="#right-side"></div>
         <div id="left-side">
+            <progress id="reading-progress" max="100" value="0"></progress>
             <div class="relative-content" autofocus="toc.lessons[lessonId].Pages[curPage-1].Files.length==0">
-                <div class="slide-content" ng-bind-html-unsafe="toc.lessons[lessonId].Pages[curPage-1].Content"></div>
+                
+                <div class="slide-content" 
+                progressbar=""
+                ng-bind-html-unsafe="toc.lessons[lessonId].Pages[curPage-1].Content"
+                settitle="toc.lessons[lessonId].Pages[curPage-1].Title"></div>
 
                 <div class="bar module-bar">
                     <div ng-class="{hidden: curPage != toc.lessons[lessonId].Pages.length}">
@@ -28,7 +33,7 @@
                 <a imports-checkbox ng-class="{active: editor.imports}" class="menu-button imports-checkbox">Imports</a>
             </div>
 
-            <div class="relative-content" ng-class="{hidden: toc.lessons[lessonId].Pages[curPage-1].Files.length==0}">
+            <div class="relative-content space-relative" ng-class="{hidden: toc.lessons[lessonId].Pages[curPage-1].Files.length==0}">
 
                 <div id="top-part">
                     <div class="relative-content">

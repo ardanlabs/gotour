@@ -44,7 +44,8 @@ run(function($rootScope, $location, mapping) {
             console.log('unknown url, redirecting home');
             $location.path('/tour/list');
             return;
-        }
+        } 
+      
         $location.path('/tour' + m);
     });
 });
