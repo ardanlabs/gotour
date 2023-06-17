@@ -5,9 +5,18 @@
 'use strict';
 
 /* Directives */
-
 angular.module('tour.directives', []).
 
+directive('settitle', function() {
+    return function(scope, elm, attrs) {
+        const title = scope.$eval(attrs.settitle)
+        
+        if(!title)
+            return
+
+        $("title").html(`Ultimate Go : ${title}`)
+    };
+}).
 // onpageup executes the given expression when Page Up is released.
 directive('onpageup', function() {
     return function(scope, elm, attrs) {
