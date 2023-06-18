@@ -76,13 +76,9 @@ value('tableOfContents', [{
         'generics-multi-type-params',
         'generics-slice-constraints',
         'generics-channels',
-        'generics-swapping',
+        'generics-hash-table',
     ]
 }]).
-// 
-// 'generics-hash-table',
-// 'generics-pointer-methods',
-// 'generics-io',
 // translation
 value('translation', {
     'off': 'off',

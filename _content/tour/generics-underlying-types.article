@@ -13,7 +13,7 @@ You can declare a generic type using an underlying type.
 
 ** Explained
 
-What if I wanted to declare my own generic type using an underlying type?
+What if you wanted to declare my own generic type using an underlying type?
 
     type vector[T any] []T
     func (v vector[T]) last() (T, error) {
@@ -84,10 +84,10 @@ its zero value state.
         return v[len(v)-1], nil
     }
 
-I need to focus on the method declaration for the last method and how the method
-returns a value of the generic type T. On the first return is a situation where I need
-to return the zero value for type T. The current draft provides two solutions to write
-this code. The first solution I see already. A variable named zero is constructed to
+You need to focus on the method declaration for the last method and how the method
+returns a value of the generic type T. On the first return is a situation where you need
+to return the zero value for type T. The current implementation provides two solutions to write
+this code. The first solution you see already. A variable named zero is constructed to
 its zero value state of type T and then that variable is used for the return.
 
 The other option is to use the built-in function new and dereference the returned
@@ -103,6 +103,7 @@ pointer within the return statement.
 
 This version of the last method is using the built-in function new for zero value
 construction and dereferencing of the returned pointer to satisfy return type T.
-Note: I might think why not use T{} to perform zero value construction? The
+
+Note: You might think why not use T{} to perform zero value construction? The
 problem is this syntax does not work with all types, such as the scalar types (int,
 string, bool). So it’s not an option.

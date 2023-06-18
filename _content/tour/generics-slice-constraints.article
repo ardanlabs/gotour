@@ -18,9 +18,9 @@ integers.
 
     type Numbers []int
 
-The compiler allows me to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what I want.
-Because of this functionality, I can write a generic function that can operate on a
+The compiler allows you to convert variables based on a slice of integers
+with variables of type Numbers. This is usually good and what you want.
+Because of this functionality, you can write a generic function that can operate on a
 slice respecting the underlying type.
 
     type operateFunc[T any] func(t T) T
@@ -59,8 +59,8 @@ operate function. In this case, the compiler leverages the underlying type in fo
 T and the Numbers value can be passed into the function. However, what is
 returned is a slice of type int, as seen in the output.
 
-If I need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, I can make the following changes.
+If you need to make sure that only a Numbers value can be passed in, and is returned
+by the operate function, you can make the following changes.
 
     type Slice[T any] interface {
         ~ []T
@@ -68,7 +68,7 @@ by the operate function, I can make the following changes.
 
 This interface declares a constraint to restrict a generic type to an actual slice of
 some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, I can change the operate function.
+underlying type is T. With this interface, you can change the operate function.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -91,7 +91,7 @@ underlying type is T. With this interface, I can change the operate function.
         return ret
     }
 
-I change the operate function to declare two generic types. Type S which represents
+Now change the operate function to declare two generic types. Type S which represents
 a slice value of some type T, and T which is a type that can be anything. The
 function returns a value of type S.
 
@@ -111,6 +111,6 @@ Output:
 
     main.Numbers
 
-This time when I pass the Numbers value into the operate function, the slice that is
+This time when you pass the Numbers value into the operate function, the slice that is
 returned is of type Numbers. The underlying type is ignored and the user-defined
 type is respected.

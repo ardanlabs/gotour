@@ -13,8 +13,8 @@ Learn how to use generics in Go.
 
 ** Explained
 
-If I want to write a single print function that can output a slice of any given type
-and not use reflection, I can use the new generics syntax.
+If you want to write a single print function that can output a slice of any given type
+and not use reflection, you can use the new generics syntax.
 
     func print[T any](slice []T) {
         fmt.Print("Generic: ")
@@ -27,22 +27,22 @@ and not use reflection, I can use the new generics syntax.
 This is an implementation of a single print function that can output a slice of any
 given type using the new generics syntax. What’s nice about this syntax is that the
 code inside the function can use syntax and built-in functions that would work with
-a concrete type. This is not the case when I use the empty interface to write generic
+a concrete type. This is not the case when you use the empty interface to write generic
 code.
 
-I need a way to tell the compiler that I won’t be declaring type T explicitly, but it
+There needs to be a way to tell the compiler that you won’t be declaring type T explicitly, but it
 has to be determined by the compiler at compile time. The new syntax uses square
 brackets for this. The brackets define a list of generic type identifiers that represent
-types specific to the function that need to be determined at compile time. It’s how I
+types specific to the function that need to be determined at compile time. It’s how you
 tell the compiler that types with these names won’t be declared before the program
 is compiled. These types need to be figured out at compile time.
 
-Note: I can have multiple type identifiers defined inside the brackets though the
+Note: You can have multiple type identifiers defined inside the brackets though the
 current example is only using one. Ex. [T, S, R any]
 
-I can name these type identifiers anything I want to help with the readability of the
-code. In this case, I’m using the capital letter T to describe that a slice of some type
-T (to be determined at compile time) will be passed in. I like the use of single
+You can name these type identifiers anything you want to help with the readability of the
+code. In this case, the code is using the capital letter T to describe that a slice of some type
+T (to be determined at compile time) will be passed in. It's an idiom to use a single
 capitalized letters when it comes to collections and it’s also a convention that goes
 back to older programming languages like C++ and Java.
 
@@ -74,7 +74,7 @@ the type information at the call site.
     floats := []float64{1.7, 2.2, 3.14}
     print(floats)
 
-This code shows how I can call the generic print functions without the need to pass
+This code shows how you can call the generic print functions without the need to pass
 the type information explicitly. At the function call site, the compiler is able to
 identify the type to use for T and construct a concrete version of the function to
 support slices of that type. The compiler has the ability to infer the type with the
