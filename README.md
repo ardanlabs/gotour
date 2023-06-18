@@ -19,11 +19,8 @@ https://www.ardanlabs.com/training
 * [Experience](https://github.com/ardanlabs/gotraining#our-experience)
 * [Teachers](https://github.com/ardanlabs/gotraining#our-teachers)
 * [More About Go](https://github.com/ardanlabs/gotraining#more-about-go)
-* [Minimal Qualified Student](https://github.com/ardanlabs/gotraining#minimal-qualified-student)
 * [Important Reading](https://github.com/ardanlabs/gotraining#important-reading)
-* [Before You Come To Class](https://github.com/ardanlabs/gotraining#before-you-come-to-class)
-* [Twitter Reactions](https://github.com/ardanlabs/gotraining#twitter)
-* [Testimonials](https://github.com/ardanlabs/gotraining#testimonials)
+* [Joining Slack](https://github.com/ardanlabs/gotraining#joining-the-go-slack-community)
 
 ## Purchase Video / Book
 
@@ -139,7 +136,7 @@ The material has been designed to be taught in a classroom environment. The code
 
 Please check out this page of [important reading](https://github.com/ardanlabs/gotraining/blob/master/reading/README.md). You will find articles and videos around mechanical sympathy, data-oriented design, Go runtime and optimizations and articles about the history of computing.
 
-### Joining the Go Slack Community
+## Joining the Go Slack Community
 
 We use a slack channel to share links, code, and examples during the training.  This is free.  This is also the same slack community you will use after training to ask for help and interact with may Go experts around the world in the community.
 
