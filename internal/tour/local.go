@@ -28,14 +28,22 @@ const (
 )
 
 var (
-	httpListen  *string
-	openBrowser *bool
-	httpAddr    string
+	httpListen      *string
+	openBrowser     *bool
+	webSocketOrigin *string
+	webSocketScheme *string
+
+	httpAddr string
+	scheme   string
+	origin   string
 )
 
 func Main() {
+
 	httpListen = flag.String("http", "127.0.0.1:3999", "host:port to listen on")
 	openBrowser = flag.Bool("openbrowser", true, "open browser automatically")
+	webSocketOrigin = flag.String("origin", "", "host:port used for web socket origin")
+	webSocketScheme = flag.String("scheme", "", "http or https, used for web socket origin scheme")
 
 	flag.Parse()
 
@@ -49,6 +57,27 @@ func Main() {
 	if host != "127.0.0.1" && host != "localhost" {
 		log.Print(localhostWarning)
 	}
+
+	// Used for when deploying to Cloud Run. The ENV var is set by Cloud Run as to the port to listen on.
+	envPort := os.Getenv("PORT")
+	if envPort != "" {
+		port = envPort
+	}
+
+	// If origin scheme is specified we use that instead of http.
+	scheme = "http"
+
+	if *webSocketScheme != "" {
+		scheme = *webSocketScheme
+	}
+
+	// If origin is specified we use that instead of host:port we are listening on.
+	origin = host + ":" + port
+
+	if *webSocketOrigin != "" {
+		origin = *webSocketOrigin
+	}
+
 	httpAddr = host + ":" + port
 
 	if err := initTour(http.DefaultServeMux, "SocketTransport"); err != nil {
@@ -62,14 +91,15 @@ func Main() {
 	http.Handle("/robots.txt", fs)
 	http.Handle("/images/", fs)
 
-	origin := &url.URL{Scheme: "http", Host: host + ":" + port}
-	http.Handle(socketPath, socket.NewHandler(origin))
+	// Specifies the origin scheme and host for web socket. For deployment they are different than running locally.
+	originURL := &url.URL{Scheme: scheme, Host: origin}
+	http.Handle(socketPath, socket.NewHandler(originURL))
 
 	h := webtest.HandlerWithCheck(http.DefaultServeMux, "/_readycheck",
 		os.DirFS("."), "tour/testdata/*.txt")
 
 	go func() {
-		url := "http://" + httpAddr
+		url := "http://" + host + ":" + port
 		if waitServer(url) && *openBrowser && startBrowser(url) {
 			log.Printf("A browser window should open. If not, please visit %s", url)
 		} else {
@@ -169,7 +199,14 @@ func startBrowser(url string) bool {
 var prepContent = func(r io.Reader) io.Reader { return r }
 
 // socketAddr returns the WebSocket handler address.
-var socketAddr = func() string { return "ws://" + httpAddr + socketPath }
+var socketAddr = func() string {
+
+	if scheme == "https" {
+		return "wss://" + origin + socketPath
+	}
+
+	return "ws://tour.ardanlabs.com:443" + socketPath
+}
 
 // analyticsHTML is optional analytics HTML to insert at the beginning of <head>.
 var analyticsHTML template.HTML
