@@ -1,0 +1,24 @@
+steps:
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/tour:$COMMIT_SHA'
+  - '.'
+# Push the image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/tour:$COMMIT_SHA']
+# Deploy container image tour to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - 'gotour'
+  - '--image'
+  - 'gcr.io/$PROJECT_ID/tour:$COMMIT_SHA'
+  - '--region'
+  - 'us-central1'
+  - '--platform'
+  - 'managed'
