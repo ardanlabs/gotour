@@ -61,7 +61,28 @@ value('tableOfContents', [{
         'context',
         'channels',
     ]
+},{
+    'id': 'generics',
+    'title': 'Generics',
+    'description': `
+        <p>This material covers all the generics aspects of the language. Generics is about providing the ability to write concrete polymorphic functions with the support of type parameter lists.</p>
+       `,
+    'lessons': [
+        'generics-functions',
+        'generics-underlying-types',
+        'generics-struct-types',
+        'generics-behavior-constraints',
+        'generics-type-constraints',
+        'generics-multi-type-params',
+        'generics-slice-constraints',
+        'generics-channels',
+        'generics-swapping',
+    ]
 }]).
+// 
+// 'generics-hash-table',
+// 'generics-pointer-methods',
+// 'generics-io',
 // translation
 value('translation', {
     'off': 'off',
