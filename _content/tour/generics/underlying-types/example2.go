@@ -23,6 +23,7 @@ func (v vectorInterface) last() (interface{}, error) {
 	if len(v) == 0 {
 		return nil, errors.New("empty")
 	}
+
 	return v[len(v)-1], nil
 }
 

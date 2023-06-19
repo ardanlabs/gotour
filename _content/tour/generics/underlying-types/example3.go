@@ -20,9 +20,11 @@ type vector[T any] []T
 
 func (v vector[T]) last() (T, error) {
 	var zero T
+
 	if len(v) == 0 {
 		return zero, errors.New("empty")
 	}
+
 	return v[len(v)-1], nil
 }
 

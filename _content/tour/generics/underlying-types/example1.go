@@ -22,6 +22,7 @@ func (v vectorInt) last() (int, error) {
 	if len(v) == 0 {
 		return 0, errors.New("empty")
 	}
+
 	return v[len(v)-1], nil
 }
 
@@ -33,6 +34,7 @@ func (v vectorString) last() (string, error) {
 	if len(v) == 0 {
 		return "", errors.New("empty")
 	}
+
 	return v[len(v)-1], nil
 }
 

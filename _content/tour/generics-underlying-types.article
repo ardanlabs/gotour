@@ -20,11 +20,14 @@ You can declare a generic type using an underlying type.
 What if you wanted to declare my own generic type using an underlying type?
 
     type vector[T any] []T
+
     func (v vector[T]) last() (T, error) {
         var zero T
+        
         if len(v) == 0 {
             return zero, errors.New("empty")
         }
+        
         return v[len(v)-1], nil
     }
 
@@ -39,26 +42,44 @@ value of that same type T.
 
     func main() {
         fmt.Print("vector[int] : ")
-        vGenInt := vector{10, -1}
-        i, err = vGenInt.last()
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
         if i < 0 {
             fmt.Print("negative integer: ")
         }
-        fmt.Printf("value: %d error: %v\n", i, err)
-        
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
         fmt.Print("vector[string] : ")
-        vGenStr := vector{"A", "B", string([]byte{0xff})}
-        s, err = vGenStr.last()
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
         if !utf8.ValidString(s) {
             fmt.Print("non-valid string: ")
         }
-        fmt.Printf("value: %q error: %v\n", s, err)
+
+        fmt.Printf("value: %q\n", s)
     }
 
 Output:
 
-    vector[int] : negative integer: value: -1 error: <nil>
-    vector[string] : non-valid string: value: "\xff" error: <nil>
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
 
 This is how to construct a value of type vector with an underlying type of int when I
 will set values in the vector at construction. An important aspect of this code is the
@@ -80,11 +101,14 @@ There is an aspect of the spec that focuses on the construction of a generic typ
 its zero value state.
 
     type vector[T any] []T
+    
     func (v vector[T]) last() (T, error) {
         var zero T
+        
         if len(v) == 0 {
             return zero, errors.New("empty")
         }
+        
         return v[len(v)-1], nil
     }
 
@@ -98,10 +122,12 @@ The other option is to use the built-in function new and dereference the returne
 pointer within the return statement.
 
     type vector[T any] []T
-        func (v vector[T]) last() (T, error) {
+    
+    func (v vector[T]) last() (T, error) {
         if len(v) == 0 {
             return *new(T), errors.New("empty")
         }
+        
         return v[len(v)-1], nil
     }
 
