@@ -85,6 +85,7 @@ value('tableOfContents', [{
         <p>TODO - DESCRIPTION.</p>
        `,
     'lessons': [
+        'algorithms-bits-seven'
     ]
 }]).
 // translation
