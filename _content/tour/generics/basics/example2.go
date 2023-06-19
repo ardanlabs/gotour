@@ -15,16 +15,19 @@ import (
 
 func printAssert(v interface{}) {
 	fmt.Print("Assert: ")
+
 	switch list := v.(type) {
 	case []int:
 		for _, num := range list {
 			fmt.Print(num, " ")
 		}
+
 	case []string:
 		for _, str := range list {
 			fmt.Print(str, " ")
 		}
 	}
+
 	fmt.Print("\n")
 }
 

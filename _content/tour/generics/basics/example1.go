@@ -14,17 +14,21 @@ import (
 
 func printNumbers(numbers []int) {
 	fmt.Print("Numbers: ")
+
 	for _, num := range numbers {
 		fmt.Print(num, " ")
 	}
+
 	fmt.Print("\n")
 }
 
 func printStrings(strings []string) {
 	fmt.Print("Strings: ")
+
 	for _, str := range strings {
 		fmt.Print(str, " ")
 	}
+
 	fmt.Print("\n")
 }
 

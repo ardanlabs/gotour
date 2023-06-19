@@ -16,13 +16,16 @@ import (
 
 func printReflect(v interface{}) {
 	fmt.Print("Reflect: ")
+
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Slice {
 		return
 	}
+
 	for i := 0; i < val.Len(); i++ {
 		fmt.Print(val.Index(i).Interface(), " ")
 	}
+
 	fmt.Print("\n")
 }
 

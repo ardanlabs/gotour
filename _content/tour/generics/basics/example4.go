@@ -23,9 +23,11 @@ import (
 
 func print[T any](slice []T) {
 	fmt.Print("Generic: ")
+
 	for _, v := range slice {
 		fmt.Print(v, " ")
 	}
+
 	fmt.Print("\n")
 }
 
