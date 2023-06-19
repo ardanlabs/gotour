@@ -1,3 +1,28 @@
+package main
+
+import (
+	"fmt"
+	"iseven"
+)
+
+func main() {
+
+	fmt.Println(8, ":", iseven.IsEven(8))
+	fmt.Println(15, ":", iseven.IsEven(15))
+	fmt.Println(4, ":", iseven.IsEven(4))
+}
+
+
+-- go.mod --
+
+module      "play.ground"
+
+replace (
+
+    "iseven"    => ./iseven
+)
+
+-- iseven/iseven.go --
 package iseven
 
 // IsEven checks is an integer is even.
