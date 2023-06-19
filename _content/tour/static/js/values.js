@@ -78,6 +78,14 @@ value('tableOfContents', [{
         'generics-channels',
         'generics-hash-table',
     ]
+},{
+    'id': 'algorithms',
+    'title': 'Algorithms',
+    'description': `
+        <p>TODO - DESCRIPTION.</p>
+       `,
+    'lessons': [
+    ]
 }]).
 // translation
 value('translation', {
