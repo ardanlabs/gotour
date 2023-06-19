@@ -15,13 +15,13 @@ import (
 // with a key of type string and a value of some type T.
 type keymap[T any] map[string]T
 
-// Declare a method named set that accepts a key of type string and a value
+// Implement a method named set that accepts a key of type string and a value
 // of type T.
 func (km keymap[T]) set(k string, v T) {
 	km[k] = v
 }
 
-// Declare a method named get that accepts a key of type string and return
+// Implement a method named get that accepts a key of type string and return
 // a value of type T and true or false if the key is found.
 func (km keymap[T]) get(k string) (T, bool) {
 	var zero T

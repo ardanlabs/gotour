@@ -9,7 +9,7 @@ package main
 
 // Add imports.
 
-// Declare the generic function named marshal that can accept any value
+// Implement the generic function named marshal that can accept any value
 // of type T and marshal that value into JSON.
 
 // Declare a struct type named User with two fields, Name and Age.

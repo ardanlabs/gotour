@@ -10,10 +10,10 @@ package main
 // Declare a generic type named keymap that uses an underlying type of map
 // with a key of type string and a value of some type T.
 
-// Declare a method named set that accepts a key of type string and a value
+// Implement a method named set that accepts a key of type string and a value
 // of type T.
 
-// Declare a method named get that accepts a key of type string and return
+// Implement a method named get that accepts a key of type string and return
 // a value of type T and true or false if the key is found.
 
 func main() {

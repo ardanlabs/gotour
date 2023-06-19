@@ -58,14 +58,19 @@ func main() {
 		{name: "Bill", email: "bill@ardanlabs.com"},
 		{name: "Ale", email: "ale@whatever.com"},
 	}
+
 	s1 := stringifyUsers(users)
+
+	fmt.Println("users:", s1)
+
+	// -------------------------------------------------------------------------
 
 	customers := []customer{
 		{name: "Google", email: "you@google.com"},
 		{name: "MSFT", email: "you@msft.com"},
 	}
+
 	s2 := stringifyCustomers(customers)
 
-	fmt.Println("users Con:", s1)
-	fmt.Println("cust Con:", s2)
+	fmt.Println("customers:", s2)
 }

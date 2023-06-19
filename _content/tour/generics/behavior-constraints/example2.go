@@ -62,14 +62,19 @@ func main() {
 		{name: "Bill", email: "bill@ardanlabs.com"},
 		{name: "Ale", email: "ale@whatever.com"},
 	}
+
 	s1 := stringifyAssert(users)
+
+	fmt.Println("users:", s1)
+
+	// -------------------------------------------------------------------------
 
 	customers := []customer{
 		{name: "Google", email: "you@google.com"},
 		{name: "MSFT", email: "you@msft.com"},
 	}
+
 	s2 := stringifyAssert(customers)
 
-	fmt.Println("users Int:", s1)
-	fmt.Println("cust Int:", s2)
+	fmt.Println("customers:", s2)
 }

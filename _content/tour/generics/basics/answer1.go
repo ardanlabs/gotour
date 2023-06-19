@@ -12,7 +12,7 @@ import (
 	"fmt"
 )
 
-// Declare the generic function named marshal that can accept any value
+// Implement the generic function named marshal that can accept any value
 // of type T and marshal that value into JSON.
 func marshal[T any](v T) ([]byte, error) {
 	data, err := json.Marshal(v)
