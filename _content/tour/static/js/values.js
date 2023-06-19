@@ -36,10 +36,10 @@ value('tableOfContents', [{
         'exporting',
     ]
 }, {
-    'id': 'software-design',
-    'title': 'Software Design',
+    'id': 'composition-interfaces',
+    'title': 'Composition and Interfaces',
     'description': `
-        <p>This material covers the essential things you need to know about designing software in Go.</p>
+        <p>This material covers the practical things you need to know about composition and interfaces.</p>
         `,
     'lessons': [
         'composition-grouping',
