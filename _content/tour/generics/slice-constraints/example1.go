@@ -1,10 +1,15 @@
+//go:build OMIT
+// +build OMIT
+
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Sample program to show how to define slice based constraints.
 package main
 
 import (
 	"fmt"
 )
-
-// =============================================================================
 
 // operateFunc defines a function type that takes a value of some type T and
 // returns a value of the same type T (to be determined later).
@@ -15,7 +20,7 @@ import (
 type operateFunc[T any] func(t T) T
 
 type Slice[T any] interface {
-	~ []T
+	~[]T
 }
 
 // When it's important that the slice being passed in is exactly the same

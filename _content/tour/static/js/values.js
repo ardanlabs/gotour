@@ -68,7 +68,7 @@ value('tableOfContents', [{
         <p>This material covers all the generics aspects of the language. Generics is about providing the ability to write concrete polymorphic functions with the support of type parameter lists.</p>
        `,
     'lessons': [
-        'generics-functions',
+        'generics-basics',
         'generics-underlying-types',
         'generics-struct-types',
         'generics-behavior-constraints',

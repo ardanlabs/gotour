@@ -1,6 +1,13 @@
+//go:build OMIT
+// +build OMIT
+
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
 // This code is provided by Matt Layher (@mdlayher)
 // https://mdlayher.com/blog/go-generics-draft-design-building-a-hashtable/#a-generic-hashtable
 
+// Sample program to show how to write a generic hash table.
 package main
 
 import (
@@ -71,12 +78,12 @@ func main() {
 		h.Write([]byte(key))
 		return int(h.Sum32()) % buckets
 	}
-	table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+	table1 := New[ /*key*/ string /*value*/, int](buckets, hashFunc1)
 
 	hashFunc2 := func(key int, buckets int) int {
 		return key % buckets
 	}
-	table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+	table2 := New[ /*key*/ int /*value*/, string](buckets, hashFunc2)
 
 	words := []string{"foo", "bar", "baz"}
 	for i, word := range words {

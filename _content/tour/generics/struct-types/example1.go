@@ -1,10 +1,15 @@
+//go:build OMIT
+// +build OMIT
+
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Sample program to show how to declare a generic type using a struct type.
 package main
 
 import (
 	"fmt"
 )
-
-// =============================================================================
 
 // This code defines two user defined types that implement a linked list. The
 // node type contains data of some type T (to be determined later) and points
@@ -38,8 +43,6 @@ func (l *list[T]) add(data T) *node[T] {
 	l.last = &n
 	return &n
 }
-
-// =============================================================================
 
 // This user type represents the data to be stored into the linked list.
 

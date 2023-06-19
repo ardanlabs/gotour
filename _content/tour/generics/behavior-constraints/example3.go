@@ -4,29 +4,35 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to implement a stringify function that is
-// specific to each of the concrete types implemented above. In each case,
-// the stringify function returns a slice of strings. These function use
-// the String method against the individual user or customer value.
+// Sample program to show how to implement a reflection solution which allows
+// a slice of any type to be provided and stringified. This is a generic
+// function thanks to the reflect package. Notice the call to the String
+// method via relfection.
 package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
-func stringifyUsers(users []user) []string {
-	ret := make([]string, 0, len(users))
-	for _, user := range users {
-		ret = append(ret, user.String())
+func stringifyReflect(v interface{}) []string {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Slice {
+		return nil
 	}
-	return ret
-}
 
-func stringifyCustomers(customers []customer) []string {
-	ret := make([]string, 0, len(customers))
-	for _, customer := range customers {
-		ret = append(ret, customer.String())
+	ret := make([]string, 0, val.Len())
+
+	for i := 0; i < val.Len(); i++ {
+		m := val.Index(i).MethodByName("String")
+		if !m.IsValid() {
+			return nil
+		}
+
+		data := m.Call(nil)
+		ret = append(ret, data[0].String())
 	}
+
 	return ret
 }
 
@@ -58,14 +64,14 @@ func main() {
 		{name: "Bill", email: "bill@ardanlabs.com"},
 		{name: "Ale", email: "ale@whatever.com"},
 	}
-	s1 := stringifyUsers(users)
+	s1 := stringifyReflect(users)
 
 	customers := []customer{
 		{name: "Google", email: "you@google.com"},
 		{name: "MSFT", email: "you@msft.com"},
 	}
-	s2 := stringifyCustomers(customers)
+	s2 := stringifyReflect(customers)
 
-	fmt.Println("users Con:", s1)
-	fmt.Println("cust Con:", s2)
+	fmt.Println("users Ref:", s1)
+	fmt.Println("cust Ref:", s2)
 }

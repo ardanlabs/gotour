@@ -1,3 +1,13 @@
+//go:build OMIT
+// +build OMIT
+
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Sample program to show how to declare two user defined types based on an
+// underlying concrete type. Each type implements a method named last that
+// returns the value stored at the highest index position in the vector or an
+// error when the vector is empty.
 package main
 
 import (
@@ -5,12 +15,6 @@ import (
 	"fmt"
 	"unicode/utf8"
 )
-
-// =============================================================================
-
-// This code defines two user defined types based on an underlying concrete type.
-// Each type implements a method named last that returns the value stored at the
-// highest index position in the vector or an error when the vector is empty.
 
 type vectorInt []int
 
@@ -20,6 +24,8 @@ func (v vectorInt) last() (int, error) {
 	}
 	return v[len(v)-1], nil
 }
+
+// =============================================================================
 
 type vectorString []string
 
@@ -32,90 +38,38 @@ func (v vectorString) last() (string, error) {
 
 // =============================================================================
 
-// This user defined type is based on the empty interface so any value can be
-// added into the vector. Since the last function is using the empty interface
-// for the return, users will need to perform type assertions to get
-// back to the concrete value being stored inside the interface.
-
-type vectorInterface []interface{}
-
-func (v vectorInterface) last() (interface{}, error) {
-	if len(v) == 0 {
-		return nil, errors.New("empty")
-	}
-	return v[len(v)-1], nil
-}
-
-// =============================================================================
-
-// This is a generics version of the user defined type. It represents a slice of
-// some type T (to be determined later). The last method is declared with a 
-// value receiver based on a vector of the same type T and returns a value
-// of that same type T as well.
-
-type vector[T any] []T
-
-func (v vector[T]) last() (T, error) {
-	var zero T
-	if len(v) == 0 {
-		return zero, errors.New("empty")
-	}
-	return v[len(v)-1], nil
-}
-
-// =============================================================================
-
 func main() {
 	fmt.Print("vectorInt : ")
+
 	vInt := vectorInt{10, -1}
+
 	i, err := vInt.last()
+	if err != nil {
+		fmt.Print("ERROR:", err)
+		return
+	}
+
 	if i < 0 {
 		fmt.Print("negative integer: ")
 	}
-	fmt.Printf("value: %d error: %v\n", i, err)
+
+	fmt.Printf("value: %d\n", i)
+
+	// -------------------------------------------------------------------------
 
 	fmt.Print("vectorString : ")
+
 	vStr := vectorString{"A", "B", string([]byte{0xff})}
+
 	s, err := vStr.last()
+	if err != nil {
+		fmt.Print("ERROR:", err)
+		return
+	}
+
 	if !utf8.ValidString(s) {
 		fmt.Print("non-valid string: ")
 	}
-	fmt.Printf("value: %q error: %v\n", s, err)
 
-	// =========================================================================
-
-	fmt.Print("vectorInterface : ")
-	vItf := vectorInterface{10, "A", 20, "B", 3.14}
-	itf, err := vItf.last()
-	switch v := itf.(type) {
-	case int:
-		if v < 0 {
-			fmt.Print("negative integer: ")
-		}
-	case string:
-		if !utf8.ValidString(v) {
-			fmt.Print("non-valid string: ")
-		}
-	default:
-		fmt.Printf("unknown type %T: ", v)
-	}
-	fmt.Printf("value: %v error: %v\n", itf, err)
-
-	// =========================================================================
-
-	fmt.Print("vector[int] : ")
-	vGenInt := vector[int]{10, -1}
-	i, err = vGenInt.last()
-	if i < 0 {
-		fmt.Print("negative integer: ")
-	}
-	fmt.Printf("value: %d error: %v\n", i, err)
-
-	fmt.Print("vector[string] : ")
-	vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
-	s, err = vGenStr.last()
-	if !utf8.ValidString(s) {
-		fmt.Print("non-valid string: ")
-	}
-	fmt.Printf("value: %q error: %v\n", s, err)
+	fmt.Printf("value: %q\n", s)
 }
