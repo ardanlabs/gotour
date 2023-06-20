@@ -1,12 +1,19 @@
+//go:build OMIT
+// +build OMIT
+
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 // Package queue implements of a circular queue.
-package queue
+package main
 
 import (
 	"errors"
 )
+
+func main() {
+
+}
 
 // Data represents what is being stored on the queue.
 type Data struct {

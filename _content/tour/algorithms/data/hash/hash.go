@@ -1,10 +1,17 @@
+//go:build OMIT
+// +build OMIT
+
 // Package hash implements a hash table.
-package hash
+package main
 
 import (
 	"fmt"
 	"hash/maphash"
 )
+
+func main() {
+
+}
 
 const numBuckets = 256
 
