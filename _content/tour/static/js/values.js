@@ -87,6 +87,7 @@ value('tableOfContents', [{
     'lessons': [
         'algorithms-bits-seven',
         'algorithms-data',
+        'algorithms-fun',
     ]
 }]).
 // translation
