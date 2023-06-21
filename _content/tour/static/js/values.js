@@ -88,6 +88,13 @@ value('tableOfContents', [{
         'algorithms-bits-seven',
         'algorithms-data',
         'algorithms-fun',
+        'algorithms-md5',
+        'algorithms-numbers',
+        'algorithms-searches',
+        'algorithms-simulations',
+        'algorithms-slices',
+        'algorithms-sorting',
+        'algorithms-strings',
     ]
 }]).
 // translation
