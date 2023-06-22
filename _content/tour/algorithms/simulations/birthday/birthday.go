@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // Package main simulate the "Birthday problem".
 // See https://en.wikipedia.org/wiki/Birthday_problem for a description of the problem.
 package main

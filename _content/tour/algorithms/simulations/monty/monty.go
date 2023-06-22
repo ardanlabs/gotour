@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // Simulation of "Monty Hall problem"
 // https://en.wikipedia.org/wiki/Monty_Hall_problem
 package main

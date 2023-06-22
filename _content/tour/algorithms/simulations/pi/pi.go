@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // Calculate the value of π using simulation.
 // See https://medium.com/cantors-paradise/estimating-%CF%80-using-monte-carlo-simulations-3459a84b5ef9
 package main

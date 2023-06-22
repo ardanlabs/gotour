@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // Package main simulate two-sice rolls.
 package main
 

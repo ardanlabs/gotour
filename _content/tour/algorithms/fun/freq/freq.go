@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // Package freq provides support for find the frequency in which a rune
 // is found in a collection of text documents.
 package main

@@ -1,3 +1,6 @@
+//go:build OMIT
+// +build OMIT
+
 // This is a simple example put together to help a friend with the
 // idea of not over-engineering a pubsub pattern. This is entirely
 // production ready but more of a prototype and concept.
