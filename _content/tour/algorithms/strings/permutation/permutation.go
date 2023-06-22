@@ -1,8 +1,12 @@
-package permutation
+package main
 
 import (
 	"sort"
 )
+
+func main() {
+
+}
 
 // RuneSlice a custom type of a slice of runes.
 type RuneSlice []rune
