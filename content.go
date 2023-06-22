@@ -12,7 +12,7 @@ import (
 
 //go:embed _content/favicon.ico
 //go:embed _content/robots.txt
-//go:embed _content/images/go-logo-white.svg
+//go:embed _content/images/ardan-logo-dark.svg
 //go:embed _content/images/favicon-gopher.svg
 //go:embed _content/images/favicon-gopher-plain.png
 //go:embed _content/js/playground.js
