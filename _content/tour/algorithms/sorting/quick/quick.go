@@ -1,10 +1,9 @@
-// Package quicksort implementation of Quick sort algorithm in Go.
-package quicksort
+package main
 
-// quickSort is an in-place sorting algorithm. It takes a random list of numbers,
-// and uses the `recursive` process to divides it into partitions then sorts those.
-// - Time complexity O(nlog n)
-// - Space complexity O(log n)
+func main() {
+
+}
+
 func quickSort(randomList []int, leftIdx, rightIdx int) []int {
 	switch {
 	case leftIdx > rightIdx:

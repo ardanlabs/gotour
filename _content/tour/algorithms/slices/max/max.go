@@ -1,6 +1,10 @@
-package max
+package main
 
 import "fmt"
+
+func main() {
+
+}
 
 // Max returns the maximum integer in the slice.
 func Max(n []int) (int, error) {

@@ -1,10 +1,8 @@
-// Package insertionsort implement of Insertion Sort algorithm in Go.
-package insertionsort
+package main
 
-// insertionSort takes a random list of numbers and uses the
-// `iterative` process to sort it and return the sorted list.
-// - Time Complexity O(n^2)
-// - Auxiliary Space: O(1)
+func main() {
+
+}
 func insertionSort(randomList []int) []int {
 
 	// Loop through the list until it is sorted.

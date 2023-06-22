@@ -1,6 +1,10 @@
-package min
+package main
 
 import "fmt"
+
+func main() {
+
+}
 
 // Min returns the minimum integer in the slice.
 func Min(n []int) (int, error) {

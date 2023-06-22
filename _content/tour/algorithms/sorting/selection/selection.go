@@ -1,8 +1,9 @@
-// Package selectionsort implement of Selection Sort algorithm in Go.
-package selectionsort
+package main
 
-// selectionSortIterative takes a random list of numbers and uses the
-// `iterative` process to sort it and return the sorted list.
+func main() {
+
+}
+
 func selectionSortIterative(randomList []int) []int {
 
 	// Loop through the list until it is sorted.
