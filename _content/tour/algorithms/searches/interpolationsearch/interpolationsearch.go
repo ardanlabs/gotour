@@ -1,5 +1,8 @@
-// Package interpolationsearch provides an example of an interpolation search implementation.
-package interpolationsearch
+package main
+
+func main() {
+
+}
 
 // interpolationSearchIterative this algorithm is improved the binarysearch with
 // the `iterative` method, for finding the middle index, it has another position.

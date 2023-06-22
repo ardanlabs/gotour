@@ -1,5 +1,8 @@
-// Package linearsearch provides an example of a linear search implementation.
-package linearsearch
+package main
+
+func main() {
+
+}
 
 // linearSearchIterative takes a sorted/random list of numbers
 // and uses the `iterative` process to check index by index to

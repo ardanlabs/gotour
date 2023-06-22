@@ -1,9 +1,12 @@
-// Package jumpsearch provides an example of a jump search implementation.
-package jumpsearch
+package main
 
 import (
 	"math"
 )
+
+func main() {
+
+}
 
 // jumpSearch takes a sorted list of numbers and uses the
 // `binarysearch` and `linearsearch` algorithms to find the target.

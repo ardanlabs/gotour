@@ -1,7 +1,10 @@
-// Package binarysearch provides an example of a binary search implementation.
-package binarysearch
+package main
 
 import "fmt"
+
+func main() {
+
+}
 
 // binarySearchIterative takes a sorted list of numbers and uses the
 // `iterative` process to find the target. The function returns the

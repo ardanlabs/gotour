@@ -3,12 +3,56 @@ TODO - Simulations
 
 * Simulations
 
+This section contains code that uses simulations to solve various problems.
+
 ** Birthday
 
-** Cataon
+The [[https://en.wikipedia.org/wiki/Birthday_problem][birthday problem]] asks what is the probability that in a group of people, at least two people will have the same birthday?
 
-** Monty
+We're going to run a simulation where in each round we sample `n` (23 in our case) and for each round we check if we have at least two people with the same birthday.
 
-** Pi
+At the end we divide the number of times we saw duplicate birthdays with the total number of rounds to get probability.
 
-** Sick
+.play algorithms/simulations/birthday/birthday.go
+
+** Catan Tiles
+
+In the game of [[https://en.wikipedia.org/wiki/Catan][Catan]], you gain resources when a roll of two dice match a number of a tile on the board. At the beginning of the game, you place your settlements next to tiles with the idea of selecting titles that have a higher probability of being matched.
+
+For each value of two-dice roll (2-12) we'll count how many times it came up in a simulation of `n` rounds.
+At the end we'll divide the count we got for each number with the total number of runs to get probabilities.
+
+Note: that Catan does not have tiles with the number 7 on them.
+
+.play algorithms/simulations/catan/catan.go
+
+** Monty Hall
+
+The [[https://en.wikipedia.org/wiki/Monty_Hall_problem][Monty Hall problem]] states:
+
+Suppose you're on a game show, and you're given the choice of three doors: Behind one door is a car; behind the others, goats. You pick a door, say No. 1, and the host, who knows what's behind the doors, opens another door, say No. 3, which has a goat. He then says to you, "Do you want to pick door No. 2?" Is it to your advantage to switch your choice?
+
+We'll run a simulation where we pick random door with a car and random door for the player. Then calculate how many times the "stay" strategy won the game and how many times the "switch" strategy won.
+
+.play algorithms/simulations/monty/monty.go
+
+** Calculating Pi
+
+.image /tour/static/img/algos-circle.png
+
+We're using a circle with radius of 1. This means the circle area is `π*r^2` = π.
+Looking at the top right square, it has an area of `1*1=1`, and the circle area inside this square is `π/4`.
+
+We're sampling random points inside this square and calculating the ratio of points that fell inside the circle from the total number of points. This ratio is the area of the circle the is inside the square - `π/4`.
+
+To calculate π we'll multiply the ratio of points falling inside the upper right circle area by 4.
+
+.play algorithms/simulations/pi/pi.go
+
+** Sick or Not
+
+The following question is taken from Nassim Taleb's [[https://www.amazon.com/Fooled-Randomness-Hidden-Markets-Incerto/dp/0812975219][Fooled By Randomness]] book which I highly recommend.
+
+The test of a disease presents a rate of 5% false positives. The disease strikes 1/1000 of the population. People are tested at random, regardless of whether they are suspected of having the disease. A patient’s test is positive. What is the probability of the patient being stricken with the disease?
+
+.play algorithms/simulations/sick/sick.go
