@@ -1,9 +1,13 @@
-package vlq
+package main
 
 import (
 	"math"
 	"math/bits"
 )
+
+func main() {
+
+}
 
 // DecodeVarint takes a variable length VLQ based integer and
 // decodes it into a 32 bit integer.

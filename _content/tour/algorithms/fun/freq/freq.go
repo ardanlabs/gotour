@@ -1,11 +1,15 @@
 // Package freq provides support for find the frequency in which a rune
 // is found in a collection of text documents.
-package freq
+package main
 
 import (
 	"runtime"
 	"sync"
 )
+
+func main() {
+
+}
 
 // Sequential uses a sequential algorithm.
 func Sequential(text []string) map[rune]int {
