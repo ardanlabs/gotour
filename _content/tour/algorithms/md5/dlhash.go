@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+func main() {
+	url := "https://storage.googleapis.com/gcp-public-data-landsat/LC08/01/044/034/LC08_L1GT_044034_20130330_20170310_01_T2/LC08_L1GT_044034_20130330_20170310_01_T2_B2.TIF"
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	fmt.Println(urlSig(ctx, url))
+}
+
 func urlSig(ctx context.Context, url string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodHead, url, nil)
 	if err != nil {
@@ -48,12 +56,4 @@ func urlSig(ctx context.Context, url string) (string, error) {
 
 	// Convert hash to "eec1fa5ce8077d7030e194eb5989c937" format.
 	return fmt.Sprintf("%x", hash), nil
-}
-
-func main() {
-	url := "https://storage.googleapis.com/gcp-public-data-landsat/LC08/01/044/034/LC08_L1GT_044034_20130330_20170310_01_T2/LC08_L1GT_044034_20130330_20170310_01_T2_B2.TIF"
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	fmt.Println(urlSig(ctx, url))
 }
