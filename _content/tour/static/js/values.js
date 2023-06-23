@@ -87,13 +87,13 @@ value('tableOfContents', [{
     'lessons': [
         'algorithms-bits-seven',
         'algorithms-strings',
+        'algorithms-numbers',
+        'algorithms-slices',
         'algorithms-data',
         'algorithms-sorting',
         'algorithms-md5',
-        'algorithms-numbers',
         'algorithms-searches',
         'algorithms-simulations',
-        'algorithms-slices',
         'algorithms-fun',
     ]
 }]).
