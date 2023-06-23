@@ -27,11 +27,11 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("queued:", name)
+		fmt.Println("queue:", name)
 	}
 
 	f := func(d *Data) error {
-		fmt.Println("Name:", d.Name)
+		fmt.Println("enqueue:", d.Name)
 		return nil
 	}
 

@@ -14,16 +14,19 @@ This sample program implements a basic hash table.
 
 *Diagram*
 
+    With a hash map, data is indexed by bucket and then position
+    inside the bucket.
+
     hashKey(key) ──────────────┐
                                │
-                               V
+                               ▽
      ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
-     │    │     │     │     │     │     │     │     │  <── bucket
+     │    │     │     │     │     │     │     │     │  ◁── bucket
      └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
              │                 │
-             V                 V
+             ▽                 ▽
        ┌─────────────┐   ┌─────────────┐
-       │ key │ value │   │ key │ value │  <── entry
+       │ key │ value │   │ key │ value │  ◁── entry
        ├─────────────┤   ├─────────────┤
        │ key │ value │   │ key │ value │
        ├─────────────┤   └─────────────┘
@@ -36,7 +39,7 @@ This sample program implements a basic hash table.
 
 .play algorithms/data/hash/hash.go
 
-* List
+* Linked List
 
 This sample program implements a basic double linked list.
 
@@ -44,10 +47,13 @@ This sample program implements a basic double linked list.
 
 *Diagram*
 
+    With a linked list, values are tied together in different
+    order through the use of pointers.
+
     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
-    │ Val │ <─> │ Val │ <─> │ Val │ <─> │ Val │ <─> │ Val │
+    │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │
     └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
-       ^                                               ^
+       △                                               △
        │                                               │
        ────────────────────        ─────────────────────
                           │        │
@@ -60,7 +66,19 @@ This sample program implements a basic double linked list.
 
 * Queue
 
-Implementing a Queue with Go
+This sample program implements a basic queue.
+
+- See more at [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]]
+
+*Diagram*
+
+    With a queue, the first value in is the first value out.
+
+               ┌──────────────────────────────────────────┐
+    ┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+    │ Val │ ─▷ │ │ Val │ ─▷ │ Val │ ─▷ │ Val │ ─▷ │ Val │ │ ─▷ │ Val │
+    └─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
+               └──────────────────────────────────────────┘
 
 .play algorithms/data/queue/queue.go
 
