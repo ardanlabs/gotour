@@ -4,7 +4,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Package queue implements of a circular queue.
+// A sample that program implements a basic circular queue.
 package main
 
 import (
@@ -23,14 +23,17 @@ func main() {
 
 	for i := 0; i < items; i++ {
 		name := fmt.Sprintf("Name%d", i)
-		if err := q.Enqueue(&Data{Name: name}); err != nil {
+		if err := q.Enqueue(Data{Name: name}); err != nil {
 			fmt.Println(err)
 			return
 		}
+
 		fmt.Println("queue:", name)
 	}
 
-	f := func(d *Data) error {
+	fmt.Println("------------------")
+
+	f := func(d Data) error {
 		fmt.Println("enqueue:", d.Name)
 		return nil
 	}
@@ -46,7 +49,7 @@ type Data struct {
 // Queue represents a list of data.
 type Queue struct {
 	Count int
-	data  []*Data
+	data  []Data
 	front int
 	end   int
 }
@@ -60,14 +63,14 @@ func New(cap int) (*Queue, error) {
 	q := Queue{
 		front: 0,
 		end:   0,
-		data:  make([]*Data, cap),
+		data:  make([]Data, cap),
 	}
 	return &q, nil
 }
 
 // Enqueue inserts data into the queue if there
 // is available capacity.
-func (q *Queue) Enqueue(data *Data) error {
+func (q *Queue) Enqueue(data Data) error {
 
 	// If the front of the queue is right behind the end or
 	// if the front is at the end of the capacity and the end
@@ -101,17 +104,17 @@ func (q *Queue) Enqueue(data *Data) error {
 }
 
 // Dequeue removes data into the queue if data exists.
-func (q *Queue) Dequeue() (*Data, error) {
+func (q *Queue) Dequeue() (Data, error) {
 
 	// If the front and end are the same, the
 	// queue is empty
 	//  EF - (Empty)
 	// [  ][ ][ ]
 	if q.front == q.end {
-		return nil, errors.New("queue is empty")
+		return Data{}, errors.New("queue is empty")
 	}
 
-	var data *Data
+	var data Data
 	switch {
 	case q.end == len(q.data):
 
@@ -135,7 +138,7 @@ func (q *Queue) Dequeue() (*Data, error) {
 
 // Operate accepts a function that takes data and calls
 // the specified function for every piece of data found.
-func (q *Queue) Operate(f func(d *Data) error) error {
+func (q *Queue) Operate(f func(d Data) error) error {
 	end := q.end
 	for {
 		if end == q.front {
