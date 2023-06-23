@@ -9,10 +9,33 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 func main() {
+	const items = 5
 
+	q, err := New(items)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for i := 0; i < items; i++ {
+		name := fmt.Sprintf("Name%d", i)
+		if err := q.Enqueue(&Data{Name: name}); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("queued:", name)
+	}
+
+	f := func(d *Data) error {
+		fmt.Println("Name:", d.Name)
+		return nil
+	}
+
+	q.Operate(f)
 }
 
 // Data represents what is being stored on the queue.
