@@ -4,7 +4,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Package list implements of a doubly link list in Go.
+// This sample that program implements a basic double linked list.
 package main
 
 import (
@@ -13,8 +13,27 @@ import (
 )
 
 func main() {
+	var l List
 
+	const nodes = 5
+	for i := 0; i < nodes; i++ {
+		data := fmt.Sprintf("Node%d", i)
+		l.Add(data)
+	}
+
+	f := func(n *Node) error {
+		fmt.Println("Data:", n.Data)
+		return nil
+	}
+
+	l.Operate(f)
+
+	fmt.Println("------------------")
+
+	l.OperateReverse(f)
 }
+
+// =============================================================================
 
 // Node represents the data being stored.
 type Node struct {
@@ -50,19 +69,13 @@ func (l *List) Add(data string) *Node {
 		return &n
 	}
 
-	// Fix the fact that the last node does not point back to the NEW node.
+	// Fix the fact that the last node does not point back to
+	// the NEW node.
 	l.last.next = &n
 
-	//              First                                       Last           l.last.next
-	//                V                                           V                    V
-	// nil <- Prev.[Node0].Next <-> Prev.[Node1].Next <-> Prev.[Node2].Next <-> Prev.[NEW].Next -> nil
-
-	// Fix the fact the Last pointer is not pointing to the true end of the list.
+	// Fix the fact the Last pointer is not pointing to the true
+	// end of the list.
 	l.last = &n
-
-	//              First                                       Last                 Last
-	//                V                                           V  ----> MOVE ---->  V
-	// nil <- Prev.[Node0].Next <-> Prev.[Node1].Next <-> Prev.[Node2].Next <-> Prev.[NEW].Next -> nil
 
 	return &n
 }
@@ -87,19 +100,13 @@ func (l *List) AddFront(data string) *Node {
 		return &n
 	}
 
-	// Fix the fact that the first node does not point back to the NEW node.
+	// Fix the fact that the first node does not point back to
+	// the NEW node.
 	l.first.prev = &n
 
-	//      l.first.prev                First                                       Last
-	//               V                    V                                           V
-	// nil <- Prev.[NEW].Next <-> Prev.[Node2].Next <-> Prev.[Node1].Next <-> Prev.[Node0].Next -> nil
-
-	// Fix the fact the First pointer is not pointing to the true beginning of the list.
+	// Fix the fact the First pointer is not pointing to the true
+	// beginning of the list.
 	l.first = &n
-
-	//             First                First                                       Last
-	//               V  <----> MOVE <---- V                                           V
-	// nil <- Prev.[NEW].Next <-> Prev.[Node2].Next <-> Prev.[Node1].Next <-> Prev.[Node0].Next -> nil
 
 	return &n
 }

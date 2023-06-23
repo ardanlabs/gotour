@@ -82,7 +82,7 @@ value('tableOfContents', [{
     'id': 'algorithms',
     'title': 'Algorithms',
     'description': `
-        <p>TODO - DESCRIPTION.</p>
+        <p>This material provides Go code implementing a common and fun set of algorithms.</p>
        `,
     'lessons': [
         'algorithms-bits-seven',

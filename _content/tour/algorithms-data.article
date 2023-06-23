@@ -1,27 +1,32 @@
 Data
-This section covers algorithms on data manipulation
+This section provides data struct examples.
 
-* Data
+* Hash Table
 
-TODO - Intro
+This sample program that implements a basic hash table.
 
-** Hash Table
+- hashKey(key) returns a number between 0 to len(buckets)-1
 
-Hash table
+- We use a slice of entries as a bucket to handles cases where two or more keys
+  are hashed to the same bucket
 
-        hashKey(key) ────────┐
-                             │
-                             ↓
-    ┌────┬─────┬─────┬────┬─────┬─────┬─────┬─────┐
-    │    │     │     │    │     │     │     │     │  ←── bucket
-    └────┴─────┴─────┴────┴─────┴─────┴─────┴─────┘
-             │               │
-             ↓               ↓
-       ┌─────────────┐  ┌─────────────┐
-       │ key │ value │  │ key │ value │  ←── entry
-       ├─────────────┤  ├─────────────┤
-       │ key │ value │  │ key │ value │
-       ├─────────────┤  └─────────────┘
+- See more at [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
+
+*Diagram*
+
+    hashKey(key) ──────────────┐
+                               │
+                               V
+     ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+     │    │     │     │     │     │     │     │     │  <── bucket
+     └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+             │                 │
+             V                 V
+       ┌─────────────┐   ┌─────────────┐
+       │ key │ value │   │ key │ value │  <── entry
+       ├─────────────┤   ├─────────────┤
+       │ key │ value │   │ key │ value │
+       ├─────────────┤   └─────────────┘
        │ key │ value │
        ├─────────────┤
        │ key │ value │
@@ -29,33 +34,43 @@ Hash table
        │ key │ value │
        └─────────────┘
 
-
-- hashKey(key) returns a number between 0 to len(buckets)-1
-- We use a slice of entries as a bucket to handles cases where two or more keys
-  are hashed to the same bucket
-- See more at [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
-
 .play algorithms/data/hash/hash.go
 
-** List
+* List
 
-Double linked list with Go
+This sample that program implements a basic double linked list.
+
+- See more at [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
+
+*Diagram*
+
+    ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
+    │ Val │ <─> │ Val │ <─> │ Val │ <─> │ Val │ <─> │ Val │
+    └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
+       ^                                               ^
+       │                                               │
+       ────────────────────        ─────────────────────
+                          │        │
+                          │        │
+                       ┌───────────────┐
+                       │ First │  Last │
+                       └───────────────┘
 
 .play algorithms/data/list/list.go
 
-** Queue
+* Queue
 
 Implementing a Queue with Go
 
 .play algorithms/data/queue/queue.go
 
-** Stack
+* Stack
 
 Implementing a Stack with Go
 
 .play algorithms/data/stack/stack.go
 
-** Tree
+* Tree
 
 Implementing a binary tree with Go
 

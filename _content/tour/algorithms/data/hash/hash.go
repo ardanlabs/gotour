@@ -1,7 +1,10 @@
 //go:build OMIT
 // +build OMIT
 
-// Package hash implements a hash table.
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// This sample that program implements a basic hash table.
 package main
 
 import (
@@ -10,8 +13,50 @@ import (
 )
 
 func main() {
+	h := New()
 
+	k1, v1 := "key1", 1
+	k2, v2 := "key2", 2
+	h.Store(k1, v1)
+	h.Store(k2, v2)
+
+	v, err := h.Retrieve(k1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("key:", k1, "value:", v)
+
+	v1b := 11
+	h.Store(k1, v1b)
+
+	v, err = h.Retrieve(k1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("key:", k1, "value:", v)
+
+	if err := h.Delete(k1); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	v, err = h.Retrieve(k1)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fn := func(key string, value int) bool {
+		fmt.Println("key:", key, "value:", value)
+		return true
+	}
+	h.Do(fn)
 }
+
+// =============================================================================
 
 const numBuckets = 256
 

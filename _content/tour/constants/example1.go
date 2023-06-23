@@ -8,6 +8,8 @@
 // implementation in Go.
 package main
 
+import "fmt"
+
 func main() {
 
 	// Constants live within the compiler.
@@ -31,15 +33,19 @@ func main() {
 
 	// Variable answer will of type float64.
 	var answer = 3 * 0.333 // KindFloat(3) * KindFloat(0.333)
+	fmt.Println(answer)
 
 	// Constant third will be of kind floating point.
 	const third = 1 / 3.0 // KindFloat(1) / KindFloat(3.0)
+	fmt.Println(third)
 
 	// Constant zero will be of kind integer.
 	const zero = 1 / 3 // KindInt(1) / KindInt(3)
+	fmt.Println(zero)
 
 	// This is an example of constant arithmetic between typed and
 	// untyped constants. Must have like types to perform math.
 	const one int8 = 1
 	const two = 2 * one // int8(2) * int8(1)
+	fmt.Println(two)
 }
