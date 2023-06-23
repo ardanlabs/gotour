@@ -6,12 +6,56 @@
 package main
 
 import (
+	"log"
 	"runtime"
 	"sync"
 )
 
 func main() {
+	sentence := buildText(`The quick brown fox jumps over the lazy dog Stay hungry. Stay
+	foolish Keep going. Be all in Boldness be my friend Screw it, let’s do it My
+	life is my message Leave no stone unturned Dream big. Pray bigger`)
 
+	// Sequential
+	seq_result := Sequential(sentence)
+	log.Println("Sequantial Output:", seq_result)
+
+	// =============================================================================
+	// Concurrent Bounded
+
+	con_bounded := ConcurrentBounded(sentence)
+	log.Println("Concurrent Bounded Output:", con_bounded)
+
+	// =============================================================================
+	// Concurrent Bounded Channel
+	con_bounded_channel := ConcurrentBoundedChannel(sentence)
+	log.Println("Concurrent Bounded Output:", con_bounded_channel)
+
+	// =============================================================================
+	//Concurrent Unlimited
+	con_bounded_unlmtd := ConcurrentUnlimited(sentence)
+	log.Println("Concurrent Bounded Output:", con_bounded_unlmtd)
+}
+
+func buildText(sentence string) []string {
+	const n = 100
+
+	var out = map[rune]int{
+		'T': 1, 'q': 1, 'p': 2, '’': 1, 'i': 11, 'b': 4, 'w': 2, 'j': 1, 'B': 2,
+		'L': 1, 'e': 20, 'v': 2, 'l': 7, ',': 1, 'h': 4, 'u': 5, 'f': 4, 's': 9,
+		'g': 8, 'D': 1, 'P': 1, ' ': 37, 'z': 1, 'd': 5, '.': 3, 'c': 2, 'r': 9,
+		'o': 11, 'm': 5, '\n': 2, 'x': 1, 'y': 8, 'S': 3, 'K': 1, 'k': 1, 'n': 10,
+		't': 8, 'a': 8, 'M': 1,
+	}
+
+	var s []string
+	for i := 0; i < n; i++ {
+		s = append(s, sentence)
+	}
+	for k, v := range out {
+		out[k] = v * n
+	}
+	return s
 }
 
 // Sequential uses a sequential algorithm.
