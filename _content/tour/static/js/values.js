@@ -86,15 +86,15 @@ value('tableOfContents', [{
        `,
     'lessons': [
         'algorithms-bits-seven',
+        'algorithms-strings',
         'algorithms-data',
-        'algorithms-fun',
+        'algorithms-sorting',
         'algorithms-md5',
         'algorithms-numbers',
         'algorithms-searches',
         'algorithms-simulations',
         'algorithms-slices',
-        'algorithms-sorting',
-        'algorithms-strings',
+        'algorithms-fun',
     ]
 }]).
 // translation
