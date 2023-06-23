@@ -1,14 +1,35 @@
 //go:build OMIT
 // +build OMIT
 
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// This sample program shows you how to determine if a string is a
+// palindrome or not.
 package main
 
-func main() {
+import "fmt"
 
+func main() {
+	tt := []string{"", "G", "bob", "otto", "汉字汉", "test"}
+
+	for _, input := range tt {
+		success := IsPalindrome(input)
+
+		switch success {
+		case true:
+			fmt.Printf("%q is a palindrome\n", input)
+
+		case false:
+			fmt.Printf("%q is NOT a palindrome\n", input)
+		}
+	}
 }
 
-// Is checks if a string is a Palindrome.
-func Is(input string) bool {
+// =============================================================================
+
+// IsPalindrome checks if a string is a Palindrome.
+func IsPalindrome(input string) bool {
 
 	// If the input string is empty or as a length of 1 return true.
 	if input == "" || len(input) == 1 {

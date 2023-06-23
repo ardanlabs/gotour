@@ -1,14 +1,33 @@
 //go:build OMIT
 // +build OMIT
 
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// This sample program shows you how to determine if an integer is a
+// palindrome or not.
 package main
 
-func main() {
+import "fmt"
 
+func main() {
+	tt := []int{-1, 1, 9, 10, 1001, 125}
+
+	for _, input := range tt {
+		success := IsPalindrome(input)
+
+		switch success {
+		case true:
+			fmt.Printf("%d is a palindrome\n", input)
+
+		case false:
+			fmt.Printf("%d is NOT a palindrome\n", input)
+		}
+	}
 }
 
-// Is checks if a integer is a Palindrome.
-func Is(input int) bool {
+// IsPalindrome checks if a integer is a Palindrome.
+func IsPalindrome(input int) bool {
 
 	// A negative integer is not a palindrome.
 	if input < 0 {
