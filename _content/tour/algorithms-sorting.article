@@ -93,6 +93,9 @@ in two phases.
     new list which will contain the final sort. Then move the largest
     number we find once again to the front of the list.
 
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Starting Array
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
     ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── After First Iteration
     │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── Move 73 out and 71 to front
     └────┘└────┘└────┘└────┘ | └────┘
@@ -111,22 +114,72 @@ in two phases.
 
 .play algorithms/sorting/heap.go
 
-* Quick
+* Quick Sort
 
-Package quicksort implementation of Quick sort algorithm in Go.
-package quicksort
+The sample program implements a function that performs quick sort
+against a set of integers.
 
-quickSort is an in-place sorting algorithm. It takes a random list of numbers,
-and uses the `recursive` process to divides it into partitions then sorts those.
+- See more at [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
 
-.play algorithms/sorting/quick/quick.go
+*Diagram*
 
-* Selection
+    Quicksort is a divide-and-conquer algorithm. It works by selecting a
+    'pivot' element from the array and partitioning the other elements
+    into two sub-arrays, according to whether they are less than or greater
+    than the pivot. 
 
-Package selectionsort implement of Selection Sort algorithm in Go.
-package selectionsort
+    -------------------------------------------------------------------
+    Example 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Pivot Value 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sort Elements 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── First Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
 
-selectionSortIterative takes a random list of numbers and uses the
-`iterative` process to sort it and return the sorted list.
+    Last Two elements are sorted, focus on first three.
 
-.play algorithms/sorting/selection/selection.go
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Pivot Value 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Example 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Pivot Value 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sort Elements 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── First Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+    First element is sorted, focus on the last four.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pivot Value 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Second Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+     First two elements are sorted, focus on the last three.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Pivot Value 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Third Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+    First three elements are sorted, focus on the last two.
+
+    ┌────┐┌────┐ ◁── Pivot Value 59
+    │ 73 ││ 59 │ ◁── Third Sort Complete
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

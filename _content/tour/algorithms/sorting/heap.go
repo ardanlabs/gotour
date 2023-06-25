@@ -1,6 +1,10 @@
 //go:build OMIT
 // +build OMIT
 
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// This sample program shows you how to write a heap sort.
 package main
 
 import (
@@ -16,14 +20,14 @@ func main() {
 	fmt.Println("Sequential:", numbers)
 }
 
-func heapSort(list []int) []int {
+func heapSort(numbers []int) []int {
 
 	// Split the list in half and work the front half of the list, moving
 	// the largest value we find to the front of the list and then the
 	// second largest.
 
-	for index := (len(list) / 2) - 1; index >= 0; index-- {
-		list = moveLargest(list, len(list), index)
+	for index := (len(numbers) / 2) - 1; index >= 0; index-- {
+		numbers = moveLargest(numbers, len(numbers), index)
 	}
 
 	// Take the list and start moving numbers out and into a new sorted
@@ -31,19 +35,19 @@ func heapSort(list []int) []int {
 	// new list which will contain the final sort. Then move the largest
 	// number we find once again to the front of the list.
 
-	size := len(list)
+	size := len(numbers)
 	for index := size - 1; index >= 1; index-- {
-		list[0], list[index] = list[index], list[0]
+		numbers[0], numbers[index] = numbers[index], numbers[0]
 		size--
-		list = moveLargest(list, size, 0)
+		numbers = moveLargest(numbers, size, 0)
 	}
 
-	return list
+	return numbers
 }
 
 // moveLargest starts at the index positions specified in the list and attempts
 // to move the largest number it can find to that position in the list.
-func moveLargest(list []int, size int, index int) []int {
+func moveLargest(numbers []int, size int, index int) []int {
 
 	// Calculate the index deviation so numbers in the list can be
 	// compared and swapped if needed.
@@ -60,14 +64,14 @@ func moveLargest(list []int, size int, index int) []int {
 	// Check if the value at the first deviation index is greater than
 	// the value at the current largest index. If so, save that
 	// index position.
-	if cmpIdx1 < size && list[cmpIdx1] > list[largestValueIdx] {
+	if cmpIdx1 < size && numbers[cmpIdx1] > numbers[largestValueIdx] {
 		largestValueIdx = cmpIdx1
 	}
 
 	// Check the second deviation index is within bounds and is greater
 	// than the value at the current largest index. If so, save that
 	// index position.
-	if cmpIdx2 < size && list[cmpIdx2] > list[largestValueIdx] {
+	if cmpIdx2 < size && numbers[cmpIdx2] > numbers[largestValueIdx] {
 		largestValueIdx = cmpIdx2
 	}
 
@@ -75,11 +79,11 @@ func moveLargest(list []int, size int, index int) []int {
 	// those numbers and then recurse to find more numbers to swap from that
 	// point in the list.
 	if largestValueIdx != index {
-		list[index], list[largestValueIdx] = list[largestValueIdx], list[index]
-		list = moveLargest(list, size, largestValueIdx)
+		numbers[index], numbers[largestValueIdx] = numbers[largestValueIdx], numbers[index]
+		numbers = moveLargest(numbers, size, largestValueIdx)
 	}
 
-	return list
+	return numbers
 }
 
 func generateList(totalNumbers int) []int {
