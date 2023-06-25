@@ -3,49 +3,13 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 func main() {
 
-}
-
-// binarySearchIterative takes a sorted list of numbers and uses the
-// `iterative` process to find the target. The function returns the
-// index postion of where the target is found.
-// - the worst case of this algorithm is O(logn)
-// - the best case of this algorithm is O(1)
-func binarySearchIterative(sortedList []int, target int) (int, error) {
-	var leftIdx int
-	rightIdx := len(sortedList) - 1
-
-	// Loop until we find the target or searched the list.
-	for leftIdx <= rightIdx {
-
-		// Calculate the middle index of the list.
-		mid := (leftIdx + rightIdx) / 2
-
-		// Capture the value to check.
-		value := sortedList[mid]
-
-		switch {
-
-		// Check if we found the target.
-		case value == target:
-			return mid, nil
-
-		// If the value is greater than the target, cut the list
-		// by moving the rightIdx into the list.
-		case value > target:
-			rightIdx = mid - 1
-
-		// If the value is less than the target, cut the list
-		// by moving the leftIdx into the list.
-		case value < target:
-			leftIdx = mid + 1
-		}
-	}
-
-	return -1, fmt.Errorf("target not found")
 }
 
 // binarySearchRecursive takes the list of the sorted numbers and check it
@@ -78,4 +42,14 @@ func binarySearchRecursive(sortedList []int, target int, leftIdx int, rightIdx i
 	}
 
 	return -1, fmt.Errorf("target not found")
+}
+
+func generateList(totalNumbers int) []int {
+	numbers := make([]int, totalNumbers)
+
+	for i := 0; i < totalNumbers; i++ {
+		numbers[i] = rand.Intn(totalNumbers * 20)
+	}
+
+	return numbers
 }
