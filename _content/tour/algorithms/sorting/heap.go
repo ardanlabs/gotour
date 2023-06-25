@@ -3,41 +3,34 @@
 
 package main
 
-func main() {
+import (
+	"fmt"
+	"math/rand"
+)
 
+func main() {
+	numbers := generateList(10)
+	fmt.Println("Before:", numbers)
+
+	heapSort(numbers)
+	fmt.Println("Sequential:", numbers)
 }
 
-// HeapSort takes a random list of numbers and returns the sorted list.
-func HeapSort(list []int) []int {
+func heapSort(list []int) []int {
 
-	// Work the front half of the list, moving the largest value we find
-	// to the front of the list with each call to move.
-	//
-	// start: [1 7 7 3     | 1 6 1 4]
-	//  move: [1 7 7 <4>   | 1 6 1 <3>]  index: 3  swap:   [3]=3 < [7]=4
-	//  move: [1 7 7 4     | 1 6 1 3]    index: 2  noswap: [2]=7 > [5]=6 && [6]=1
-	//  move: [1 7 7 4     | 1 6 1 3]    index: 1  noswap: [1]=7 > [3]=4 && [4]=1
-	//  move: [<7> <1> 7 4 | 1 6 1 3]    index: 0  swap:   [0]=1 < [1]=7
-	//        [7 <4> 7 <1> | 1 6 1 3]    index: 1  swap:   [1]=1 < [3]=4
-	//        [7 4 7 <3>   | 1 6 1 <1>]  index: 3  swap:   [3]=1 < [7]=3
-	// end:   [7 4 7 3     | 1 6 1 1]
+	// Split the list in half and work the front half of the list, moving
+	// the largest value we find to the front of the list and then the
+	// second largest.
+
 	for index := (len(list) / 2) - 1; index >= 0; index-- {
 		list = moveLargest(list, len(list), index)
 	}
 
-	// We move the number from the left most index to the right and
-	// then cut the size of the list. After we move a number from left
-	// to right, we must move the largest number we find once again to the
-	// front of the list.
-	//
-	// start: [7 4 7 3 1 6 1 1]
-	//  move: [7 4 <6> 3 1 <1> 1]           [7]
-	//  move: [<6> 4 <1> 3 1 1]           [7 7]
-	//  move: [<4> <3> 1 1 1]           [6 7 7]
-	//  move: [<3> 1 1 1]             [4 6 7 7]
-	//  move: [1 1 1]               [3 4 6 7 7]
-	//  move: [1 1]               [1 3 4 6 7 7]
-	//  done:                 [1 1 1 3 4 6 7 7]
+	// Take the list and start moving numbers out and into a new sorted
+	// list. Take the number in the first position and remove it to the
+	// new list which will contain the final sort. Then move the largest
+	// number we find once again to the front of the list.
+
 	size := len(list)
 	for index := size - 1; index >= 1; index-- {
 		list[0], list[index] = list[index], list[0]
@@ -87,4 +80,14 @@ func moveLargest(list []int, size int, index int) []int {
 	}
 
 	return list
+}
+
+func generateList(totalNumbers int) []int {
+	numbers := make([]int, totalNumbers)
+
+	for i := 0; i < totalNumbers; i++ {
+		numbers[i] = rand.Intn(totalNumbers * 20)
+	}
+
+	return numbers
 }

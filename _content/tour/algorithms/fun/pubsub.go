@@ -9,8 +9,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
 	"sync"
 	"time"
 )
@@ -31,8 +29,15 @@ func main() {
 	time.Sleep(time.Second)
 	clients.Add("2")
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
+	ch := make(chan int, 1)
+
+	go func() {
+
+		time.Sleep(10 * time.Second)
+		log.Println("Sending exit")
+		ch <- 0
+	}()
+
 	<-ch
 	log.Println("shutting down")
 }
