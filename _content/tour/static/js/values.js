@@ -78,7 +78,24 @@ value('tableOfContents', [{
         'generics-channels',
         'generics-hash-table',
     ]
+},{
+    'id': 'algorithms',
+    'title': 'Algorithms',
+    'description': `
+        <p>This material provides Go code implementing a common and fun set of algorithms.</p>
+       `,
+    'lessons': [
+        'algorithms-bits-seven',
+        'algorithms-strings',
+        'algorithms-numbers',
+        'algorithms-slices',
+        'algorithms-sorting',
+        'algorithms-data',
+    ]
 }]).
+// 'algorithms-searches',
+// 'algorithms-fun',
+// 'algorithms-simulations',
 // translation
 value('translation', {
     'off': 'off',
