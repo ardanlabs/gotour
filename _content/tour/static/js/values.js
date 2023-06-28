@@ -92,9 +92,9 @@ value('tableOfContents', [{
         'algorithms-slices',
         'algorithms-sorting',
         'algorithms-data',
+        'algorithms-searches',
     ]
 }]).
-// 'algorithms-searches',
 // 'algorithms-fun',
 // 'algorithms-simulations',
 // translation

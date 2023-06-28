@@ -1,6 +1,11 @@
 //go:build OMIT
 // +build OMIT
 
+// All material is licensed under the Apache License Version 2.0, January 2004
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// This sample program shows you how to write a binary search using a
+// recursive approach.
 package main
 
 import (
@@ -9,12 +14,21 @@ import (
 )
 
 func main() {
+	numbers := []int{4, 42, 80, 83, 121, 137, 169, 182, 185, 180}
+	find := rand.Intn(10)
 
+	fmt.Println("Numbers:", numbers)
+	fmt.Println("Find.  :", numbers[find])
+
+	idx, err := binarySearchRecursive(numbers, numbers[find], 0, len(numbers))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Found  : Idx", idx)
 }
 
-// binarySearchRecursive takes the list of the sorted numbers and check it
-// with `recursive` process to find the value and return the index of array or
-// return the error if the value not found.
 func binarySearchRecursive(sortedList []int, target int, leftIdx int, rightIdx int) (int, error) {
 
 	// Calculate the middle index of the list.
