@@ -4,12 +4,36 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"math/bits"
 )
 
 func main() {
+	inputs := [][]byte{
+		[]byte{0x7F},
+		[]byte{0x81, 0x00},
+		[]byte{0xC0, 0x00},
+		[]byte{0xFF, 0x7F},
+		[]byte{0x81, 0x80, 0x00},
+		[]byte{0xFF, 0xFF, 0x7F},
+		[]byte{0x81, 0x80, 0x80, 0x00},
+		[]byte{0xC0, 0x80, 0x80, 0x00},
+		[]byte{0xFF, 0xFF, 0xFF, 0x7F},
+		[]byte{0x82, 0x00},
+		[]byte{0x81, 0x10},
+	}
 
+	for _, input := range inputs {
+		decoded, err := DecodeVarint(input)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		encoded := EncodeVarint(decoded)
+		fmt.Printf("input 0x%x, decoded: %d, encoded: 0x%x\n", input, decoded, encoded)
+	}
 }
 
 // DecodeVarint takes a variable length VLQ based integer and

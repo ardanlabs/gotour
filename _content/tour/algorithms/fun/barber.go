@@ -4,72 +4,31 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Program creates customers for the simulation of the sleeping barber problem
-// implemented in the shop package.
+// This sample program shows you how to implement the sleeping barber
+// problem.
 package main
 
 import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"os"
-	"os/signal"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
-// EnterCustomer is called to create a customer to be serviced. If
-// the shop is closed the function returns an error. If the shop is open,
-// a goroutine is created to handle the customers concurrently.
-func (s *Shop) EnterCustomer(name string) error {
-	if atomic.LoadInt32(&s.open) == 0 {
-		return ErrShopClosed
-	}
-
-	s.wgEnter.Add(1)
-	go func() {
-		defer s.wgEnter.Done()
-		select {
-		case s.chairs <- customer{name: name}:
-		default:
-			fmt.Printf("No chair for customer %q\n", name)
-		}
-	}()
-
-	return nil
-}
-
 func main() {
-	const maxChairs = 10
-	s := Open(maxChairs)
+	const maxChairs = 3
 
-	// Create a goroutine that is constantly, but inconsistently, generating
-	// customers who are entering the shop.
-	go func() {
-		var id int64
-		for {
-			time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
-			name := fmt.Sprintf("cust-%d", atomic.AddInt64(&id, 1))
-			if err := s.EnterCustomer(name); err != nil {
-				fmt.Printf("Customer %q told %q\n", name, err)
-				if err == ErrShopClosed {
-					break
-				}
-			}
-		}
-	}()
+	shop := OpenShop(maxChairs)
+	defer shop.Close()
 
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt)
-	<-sigChan
-
-	fmt.Println("Shutting down shop")
-	s.Close()
+	// Close the shop in 50 milliseconds.
+	t := time.NewTimer(50 * time.Millisecond)
+	<-t.C
 }
 
-// All material is licensed under the Apache License Version 2.0, January 2004
-// http://www.apache.org/licenses/LICENSE-2.0
+// =============================================================================
 
 var (
 	// ErrShopClosed is returned when the shop is closed.
@@ -89,26 +48,47 @@ type customer struct {
 // be closed for business.
 type Shop struct {
 	open    int32          // Determines if the shop is open for business.
-	chairs  chan customer  // The set of chairs in the shop.
+	chairs  chan customer  // The set of chairs customers wait in.
 	wgClose sync.WaitGroup // Provides support for closing the shop.
-	wgEnter sync.WaitGroup // Tracks customers entering the shop.
 }
 
-// Open creates a new shop for business and gets the barber working.
-func Open(maxChairs int) *Shop {
+// OpenShop creates a new shop for business and gets the barber working.
+func OpenShop(maxChairs int) *Shop {
+	fmt.Println("Opening the shop")
+
 	s := Shop{
 		chairs: make(chan customer, maxChairs),
 	}
 	atomic.StoreInt32(&s.open, 1)
 
-	// Get the barber working.
+	// This is the barber and they will service customers.
+
 	s.wgClose.Add(1)
 	go func() {
 		defer s.wgClose.Done()
+
+		fmt.Println("Barber ready to work")
+
 		for cust := range s.chairs {
-			fmt.Printf("Barber servicing customer %q\n", cust.name)
-			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
-			fmt.Printf("Barber finished  customer %q\n", cust.name)
+			s.serviceCustomer(cust)
+		}
+	}()
+
+	// Start creating customers who enter the shop.
+
+	go func() {
+		var id int64
+
+		for {
+			// Wait some random time for the next customer to enter.
+			time.Sleep(time.Duration(rand.Intn(75)) * time.Millisecond)
+
+			name := fmt.Sprintf("cust-%d", atomic.AddInt64(&id, 1))
+			if err := s.newCustomer(name); err != nil {
+				if err == ErrShopClosed {
+					break
+				}
+			}
 		}
 	}()
 
@@ -118,14 +98,46 @@ func Open(maxChairs int) *Shop {
 // Close prevents any new customers from entering the shop and waits for
 // the barber to finish all existing customers.
 func (s *Shop) Close() {
+	fmt.Println("Closing the shop")
+	defer fmt.Println("Shop closed")
 
 	// Mark the shop closed.
 	atomic.StoreInt32(&s.open, 0)
 
-	// Wait for an new customers just entering to be handled.
-	s.wgEnter.Wait()
-
 	// Wait for the barber to finish with the existing customers.
 	close(s.chairs)
 	s.wgClose.Wait()
+}
+
+// =============================================================================
+
+func (s *Shop) serviceCustomer(cust customer) {
+	fmt.Printf("Barber servicing customer %q\n", cust.name)
+
+	time.Sleep(time.Duration(rand.Intn(50)) * time.Millisecond)
+
+	fmt.Printf("Barber finished customer %q\n", cust.name)
+
+	if len(s.chairs) == 0 && atomic.LoadInt32(&s.open) == 1 {
+		fmt.Println("Barber taking a nap")
+	}
+}
+
+func (s *Shop) newCustomer(name string) error {
+	if atomic.LoadInt32(&s.open) == 0 {
+		fmt.Printf("Customer %q leaves, shop closed\n", name)
+		return ErrShopClosed
+	}
+
+	fmt.Printf("Customer %q entered shop\n", name)
+
+	select {
+	case s.chairs <- customer{name: name}:
+		fmt.Printf("Customer %q takes a seat and waits\n", name)
+
+	default:
+		fmt.Printf("Customer %q leaves, no seat\n", name)
+	}
+
+	return nil
 }

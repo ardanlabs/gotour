@@ -1,7 +1,7 @@
-Fun
-This section contains a set fun code challenges that showcase some of the capabilities offered by Golang.
+Fun Problems
+This section contains a set fun code challenges that showcase some of the capabilities offered by Go.
 
-* Barber Shop
+* Sleeping Barber Problem
 
 This sample program implements the sleeping barber problem.
 
@@ -13,44 +13,42 @@ barber chair and takes a nap. An arriving customer must wake the barber.
 Subsequent arriving customers take a waiting chair if any are empty or
 leave if all chairs are full.
 
-Customers looking for a chair should run on their own goroutine.
+*Output:*
 
-** Task
-
-Change function `EnterCustomer` so a customer can wait for a specified amount
-of time for a chair to open up.
+    Opening the shop
+    Barber ready to work
+    Customer "cust-1" entered shop
+    Customer "cust-1" takes a seat and waits
+    Barber servicing customer "cust-1"
+    Barber finished customer "cust-1"
+    Barber taking a nap
+    Customer "cust-2" entered shop
+    Customer "cust-2" takes a seat and waits
+    Barber servicing customer "cust-2"
+    Customer "cust-3" entered shop
+    Customer "cust-3" takes a seat and waits
+    Barber finished customer "cust-2"
+    Barber servicing customer "cust-3"
+    Customer "cust-4" entered shop
+    Customer "cust-4" takes a seat and waits
+    Closing the shop
+    Barber finished customer "cust-3"
+    Barber servicing customer "cust-4"
+    Barber finished customer "cust-4"
+    Shop closed
 
 .play algorithms/fun/barber.go
 
 * Frequency
 
-This sample program different algorithms that can be implemented to determine the frequency of a word within a string.
+This sample programs shows you how to implement a function that can find
+the frequency of a given rune that is used in a specified sentence.
 
-- See more at [[https://scalar.usc.edu/works/using-nvivo-an-unofficial-and-unauthorized-primer/word-frequency-count-query][https://scalar.usc.edu/works/using-nvivo-an-unofficial-and-unauthorized-primer/word-frequency-count-query]]
+- Sequential: A linear algorithm to perform a rune count.
+- Concurrent: A concurrent algorithm to perform a rune count.
 
-Four approaches are implemented in the program to determine the frequency of a word:
-
-- Sequential: A synchronous approach to determining word count.
-- Concurrent Bounded: Calculate word count within the pre-determined Goroutine thread count.
-- Concurrent Bounded Channel: Leveraging channels to communicate word cound calculated by dispatched by Goroutines.
-- Concurrent Unlimited: Calculate word count without taking into consideration the number of pre-allocated Goroutines for a specified program.
-
-.play algorithms/fun/freq.go
-
-* Publish/Subscribe
-
-This sample program showcases how Go can be leveraged to publish and subsrcube to consume messages.
-
-- See more at [[https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern][https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern]]
-
-This is a simple example put together to help a friend with the
-idea of not over-engineering a pubsub pattern. This is not entirely
-production ready but more of a prototype and concept.
-
-This program will continually keep sending messages and self-destruct after 10 seconss.
-
-.play algorithms/fun/pubsub.go
-
+.play algorithms/fun/freq_sequential.go
+.play algorithms/fun/freq_concurrent.go
 
 *  Variable Length Quantity encoding/decoding.
 
@@ -85,11 +83,6 @@ length quantities that they translate to:
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-Resources:
-
-[[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity
-]]
-
 A variable-length quantity (VLQ) is a universal code that uses an arbitrary
 number of binary octets (eight-bit bytes) to represent an arbitrarily large
 integer. It was defined for use in the standard MIDI file format[1] to save
@@ -104,8 +97,6 @@ to mark continuation of bytes. See the example below.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-[[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
-
 Lets say I want to represent the number 3435 in VLQ. 3435 in
 binary is 110101101011. We can not fit this in a byte. So we will
 chop it up from the end in 7-bit blocks.
@@ -117,17 +108,21 @@ chop it up from the end in 7-bit blocks.
 Now we prepend all but the last with a 1-bit to indicate that an octet
 follows and prepend a 0-bit to the last, signalling the final octet.
 
-    Octet	8	7	6	5	4	3	2	1
-    #1		0	1	1	0	1	0	1	1
-    #2		1	0	0	1	1	0	1	0
+    Octet   8	7	6	5	4	3	2	1
+    #1      0	1	1	0	1	0	1	1
+    #2      1	0	0	1	1	0	1	0
 
 Finally we concatenate them, most significant octet first, into
 
 Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
 
-For an excellent implementation of this algorithm look here:
+*Extra* *Resources:*
 
-[[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
+- [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
+- [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
+*For* *an* *excellent* *implementation* *of* *this* *algorithm* *look* *here:*
+
+- [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
 .play algorithms/fun/vlq.go
