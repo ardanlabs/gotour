@@ -4,42 +4,54 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to grow a slice using the built-in function append
-// and how append grows the capacity of the underlying array.
+// Sample program to show how to takes slices of slices to create different
+// views of and make changes to the underlying array.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare a nil slice of strings.
-	var data []string
+	// Create a slice with a length of 5 elements and a capacity of 8.
+	slice1 := make([]string, 5, 8)
+	slice1[0] = "Apple"
+	slice1[1] = "Orange"
+	slice1[2] = "Banana"
+	slice1[3] = "Grape"
+	slice1[4] = "Plum"
 
-	// Capture the capacity of the slice.
-	lastCap := cap(data)
+	inspectSlice(slice1)
 
-	// Append ~100k strings to the slice.
-	for record := 1; record <= 1e5; record++ {
+	// Take a slice of slice1. We want just indexes 2 and 3.
+	// Parameters are [starting_index : (starting_index + length)]
+	slice2 := slice1[2:4]
+	inspectSlice(slice2)
 
-		// Use the built-in function append to add to the slice.
-		value := fmt.Sprintf("Rec: %d", record)
-		data = append(data, value)
+	fmt.Println("*************************")
 
-		// When the capacity of the slice changes, display the changes.
-		if lastCap != cap(data) {
+	// Change the value of the index 0 of slice2.
+	slice2[0] = "CHANGED"
 
-			// Calculate the percent of change.
-			capChg := float64(cap(data)-lastCap) / float64(lastCap) * 100
+	// Display the change across all existing slices.
+	inspectSlice(slice1)
+	inspectSlice(slice2)
 
-			// Save the new values for capacity.
-			lastCap = cap(data)
+	fmt.Println("*************************")
 
-			// Display the results.
-			fmt.Printf("Addr[%p]\tIndex[%d]\t\tCap[%d - %2.f%%]\n",
-				&data[0],
-				record,
-				cap(data),
-				capChg)
-		}
+	// Make a new slice big enough to hold elements of slice 1 and copy the
+	// values over using the builtin copy function.
+	slice3 := make([]string, len(slice1))
+	copy(slice3, slice1)
+	inspectSlice(slice3)
+}
+
+// inspectSlice exposes the slice header for review.
+func inspectSlice(slice []string) {
+	fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+	for i, s := range slice {
+		fmt.Printf("[%d] %p %s\n",
+			i,
+			&slice[i],
+			s)
 	}
 }
