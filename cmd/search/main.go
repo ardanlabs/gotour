@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/blevesearch/bleve/v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/search/highlight/highlighter/ansi"
 )
 
 func main() {
 	// Path where you want to store the index.
 	indexFolderPath := "x_indexes/" + time.Now().Format("150405")
 
-	// TODO: reuse the latest created index mapping.
 	// Create a new index mapping.
 	indexMapping := bleve.NewIndexMapping()
 
@@ -23,6 +24,11 @@ func main() {
 		panic(err)
 	}
 	defer index.Close()
+
+	// index, err := bleve.Open("x_indexes/132446")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// -------------------------------------------------------------------------
 
@@ -38,19 +44,21 @@ func main() {
 	// -------------------------------------------------------------------------
 
 	// User input for the search query.
-	var searchQuery string
-	fmt.Print("Enter search query: ")
-	if _, err := fmt.Scanln(&searchQuery); err != nil {
-		panic(err)
-	}
+	// var searchQuery string
+	// fmt.Print("Enter search query: ")
+	// if _, err := fmt.Scanln(&searchQuery); err != nil {
+	// 	panic(err)
+	// }
 
 	// -------------------------------------------------------------------------
 
 	// Create a query based on the user's search input.
-	query := bleve.NewQueryStringQuery(searchQuery)
+	query := bleve.NewMatchPhraseQuery("sorting")
 
 	// Create a search request with the query.
 	search := bleve.NewSearchRequest(query)
+
+	search.Highlight = bleve.NewHighlightWithStyle(ansi.Name)
 
 	// Perform the search on the bleve index.
 	searchResults, err := index.Search(search)
@@ -62,6 +70,7 @@ func main() {
 	for _, hit := range searchResults.Hits {
 		// TODO: Investigate the other fields on the results.
 		fmt.Printf("Document ID: %s\n", hit.ID)
+		fmt.Println(hit.Fragments["Content"])
 	}
 
 	fmt.Printf("Total hits: %d\n", searchResults.Total)
@@ -95,8 +104,16 @@ func indexFiles(index bleve.Index, folderPath string) error {
 			// doc := document.NewDocument(docID)
 			// doc.AddField(document.NewTextField("content", []uint64{}, htmlContent))
 
+			doc := struct {
+				ID      string
+				Content string
+			}{
+				ID:      docID,
+				Content: string(htmlContent),
+			}
+
 			// Index the document in the Bleve index.
-			err = index.Index(docID, string(htmlContent))
+			err = index.Index(docID, doc)
 			if err != nil {
 				return err
 			}

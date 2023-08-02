@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/blevesearch/bleve/v2"
 	"html/template"
 	"io"
 	"io/fs"
@@ -32,7 +33,7 @@ var (
 var contentTour = website.TourOnly()
 
 // initTour loads tour.article and the relevant HTML templates from root.
-func initTour(mux *http.ServeMux, transport string) error {
+func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	// Make sure playground is enabled before rendering.
 	present.PlayEnabled = true
 
@@ -45,6 +46,11 @@ func initTour(mux *http.ServeMux, transport string) error {
 	// Init lessons.
 	if err := initLessons(tmpl); err != nil {
 		return fmt.Errorf("init lessons: %v", err)
+	}
+
+	// Init bleve index.
+	if err := initIndex(index, tmpl); err != nil {
+		return fmt.Errorf("init index: %v", err)
 	}
 
 	// Init UI.
@@ -65,6 +71,7 @@ func initTour(mux *http.ServeMux, transport string) error {
 
 	mux.HandleFunc("/tour/", rootHandler)
 	mux.HandleFunc("/tour/lesson/", lessonHandler)
+	mux.HandleFunc("/tour/bleve/", bleveHandler)
 	mux.Handle("/tour/static/", http.FileServer(http.FS(contentTour)))
 
 	return initScript(mux, socketAddr(), transport)
@@ -88,6 +95,39 @@ func initLessons(tmpl *template.Template) error {
 		name := strings.TrimSuffix(f.Name(), ".article")
 		lessons[name] = content
 	}
+	return nil
+}
+
+func initIndex(index bleve.Index, tmpl *template.Template) error {
+	files, err := fs.ReadDir(contentTour, "tour")
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		if path.Ext(f.Name()) != ".article" {
+			continue
+		}
+		content, err := parseLesson(f.Name(), tmpl)
+		if err != nil {
+			return fmt.Errorf("parsing %v: %v", f.Name(), err)
+		}
+		name := strings.TrimSuffix(f.Name(), ".article")
+
+		doc := struct {
+			ID      string
+			Content string
+		}{
+			ID:      name,
+			Content: string(content),
+		}
+
+		err = index.Index(doc.ID, doc)
+		if err != nil {
+			return fmt.Errorf("indexing file %s: %w", doc.ID, err)
+		}
+	}
+
 	return nil
 }
 

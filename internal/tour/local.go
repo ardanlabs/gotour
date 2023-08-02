@@ -5,6 +5,7 @@
 package tour
 
 import (
+	"encoding/json"
 	"flag"
 	"html/template"
 	"io"
@@ -21,6 +22,7 @@ import (
 
 	"github.com/ardanlabs/gotour/internal/socket"
 	"github.com/ardanlabs/gotour/internal/webtest"
+	"github.com/blevesearch/bleve/v2"
 )
 
 const (
@@ -36,6 +38,8 @@ var (
 	httpAddr string
 	scheme   string
 	origin   string
+
+	index bleve.Index
 )
 
 func Main() {
@@ -46,6 +50,18 @@ func Main() {
 	webSocketScheme = flag.String("scheme", "", "http or https, used for web socket origin scheme")
 
 	flag.Parse()
+
+	// -------------------------------------------------------------------------
+	// Create a new index mapping.
+
+	var err error
+	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
+	// -------------------------------------------------------------------------
 
 	host, port, err := net.SplitHostPort(*httpListen)
 	if err != nil {
@@ -80,7 +96,7 @@ func Main() {
 
 	httpAddr = host + ":" + port
 
-	if err := initTour(http.DefaultServeMux, "SocketTransport"); err != nil {
+	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
 		log.Fatal(err)
 	}
 
@@ -146,6 +162,40 @@ func lessonHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			log.Println(err)
 		}
+	}
+}
+
+// lessonHandler handler the HTTP requests for lessons.
+func bleveHandler(w http.ResponseWriter, r *http.Request) {
+	qs := r.URL.Query().Get("search")
+
+	// Create a query based on the user's search input.
+	query := bleve.NewMatchPhraseQuery(qs)
+
+	// Create a search request with the query.
+	search := bleve.NewSearchRequest(query)
+
+	// Perform the search on the bleve index.
+	searchResults, err := index.Search(search)
+	if err != nil {
+		log.Println(err)
+	}
+
+	docIDs := make([]string, len(searchResults.Hits))
+	for i, hit := range searchResults.Hits {
+		docIDs[i] = hit.ID
+	}
+
+	data, err := json.Marshal(docIDs)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
