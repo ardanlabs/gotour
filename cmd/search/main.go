@@ -6,20 +6,17 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/highlight/highlighter/ansi"
 )
 
 func main() {
-	// Path where you want to store the index.
-	indexFolderPath := "x_indexes/" + time.Now().Format("150405")
 
 	// Create a new index mapping.
 	indexMapping := bleve.NewIndexMapping()
 
-	index, err := bleve.New(indexFolderPath, indexMapping)
+	index, err := bleve.NewMemOnly(indexMapping)
 	if err != nil {
 		panic(err)
 	}
@@ -71,6 +68,7 @@ func main() {
 		// TODO: Investigate the other fields on the results.
 		fmt.Printf("Document ID: %s\n", hit.ID)
 		fmt.Println(hit.Fragments["Content"])
+		fmt.Println(hit.Fields)
 	}
 
 	fmt.Printf("Total hits: %d\n", searchResults.Total)

@@ -188,6 +188,33 @@ directive('horizontalSlide', ['editor',
     }
 ]).
 
+directive('searchButton', ['i18n', function(i18n) {
+    var speed = 250;
+    return {
+        restrict: 'A',
+        templateUrl: '/tour/static/partials/search-button.html',
+        link: function(scope, elm, attrs) {
+            scope.tocMessage = i18n.l('toc');
+            elm.on('click', function() {
+                var toc = $(attrs.searchButton);
+                // hide all non active lessons before displaying the toc.
+                var visible = toc.css('display') != 'none';
+                if (!visible) {
+                    toc.find('.toc-lesson:not(.active) .toc-page').hide();
+                    toc.find('.toc-lesson.active .toc-page').show();
+                }
+                toc.toggle('slide', {
+                    direction: 'right'
+                }, speed);
+
+                // if fullscreen hide the rest of the content when showing the atoc.
+                var fullScreen = toc.width() == $(window).width();
+                if (fullScreen) $('#editor-container')[visible ? 'show' : 'hide']();
+            });
+        }
+    };
+}]).
+
 directive('tableOfContentsButton', ['i18n', function(i18n) {
     var speed = 250;
     return {
