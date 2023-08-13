@@ -26,8 +26,7 @@ can maintain any state or behavior.
 - *Example* *3:* Type As Context
 - *Example* *4:* Behavior As Context   
 - *Example* *5:* Find The Bug
-- *Example* *6:* Wrapping Errors With pkg/errors   
-- *Example* *7:* Wrapping Errors With stdlib
+- *Example* *6:* Wrapping Errors With stdlib
 
 .play error-handling/example1.go
 .play error-handling/example2.go
@@ -35,7 +34,6 @@ can maintain any state or behavior.
 .play error-handling/example4.go
 .play error-handling/example5.go
 .play error-handling/example6.go
-.play error-handling/example7.go
 
 ** Error Handling Basics
 
@@ -339,34 +337,36 @@ be wrapped in context so the function that eventually handles it, can properly d
         State int
     }
 
-    func (c *AppError) Error() string {
-        return fmt.Sprintf("App Error, State: %d", c.State)
+    func (ae *AppError) Error() string {
+        return fmt.Sprintf("App Error, State: %d", ae.State)
     }
 
-    func Cause(err error) error {
-        root := err
-        for {
-            if err = errors.Unwrap(root); err == nil {
-                return root
-            }
-            root = err
+    func IsAppError(err error) bool {
+        var ae *AppError
+        return errors.As(err, &ae)
+    }
+
+    func GetAppError(err error) *AppError {
+        var ae *AppError
+        if !errors.As(err, &ae) {
+            return nil
         }
+        return ae
     }
 
     func main() {
         if err := firstCall(10); err != nil {
-            var ap *AppError
-            if errors.As(err, &ap) {
-                fmt.Println("As says it is an AppError")
+
+            // Check if the error is an AppError.
+            if IsAppError(err) {
+                ae := GetAppError(err)
+                fmt.Printf("Is AppError, State: %d\n", ae.State)
             }
 
-            switch v := Cause(err).(type) {
-            case *AppError:
-                fmt.Println("Custom App Error:", v.State)
-            default:
-                fmt.Println("Default Error")
-            }
-        
+            fmt.Print("\n********************************\n\n")
+
+            // Display the error using the implementation of
+            // the error interface.
             fmt.Printf("%v\n", err)
         }
     }
@@ -384,9 +384,11 @@ be wrapped in context so the function that eventually handles it, can properly d
 
 Output:
 
-    As says it is an AppError
-    Custom App Error: 99
-    secondCall(10): App Error, State: 99
+    Is AppError, State: 99
+
+    ********************************
+
+    secondCall(10) : App Error, State: 99
 
 ** Notes
 
