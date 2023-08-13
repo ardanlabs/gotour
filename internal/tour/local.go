@@ -5,7 +5,6 @@
 package tour
 
 import (
-	"encoding/json"
 	"flag"
 	"html/template"
 	"io"
@@ -181,15 +180,20 @@ func bleveHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
+	// TODO: We have two options, return the whole content, or only the
+	//  lesson and the pages and filter in the UI.
+
 	docIDs := make([]string, len(searchResults.Hits))
 	for i, hit := range searchResults.Hits {
 		docIDs[i] = hit.ID
 	}
 
-	data, err := json.Marshal(docIDs)
-	if err != nil {
-		log.Println(err)
-	}
+	// data, err := json.Marshal(docIDs)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	data, _ := lessons["algorithms-bits-seven"]
 
 	w.Header().Set("Content-Type", "application/json")
 

@@ -10,7 +10,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/blevesearch/bleve/v2"
 	"html/template"
 	"io"
 	"io/fs"
@@ -19,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/blevesearch/bleve/v2"
 
 	website "github.com/ardanlabs/gotour"
 	"golang.org/x/tools/present"
@@ -88,12 +89,20 @@ func initLessons(tmpl *template.Template) error {
 		if path.Ext(f.Name()) != ".article" {
 			continue
 		}
-		content, err := parseLesson(f.Name(), tmpl)
+
+		lsn, err := parseLesson(f.Name(), tmpl)
 		if err != nil {
 			return fmt.Errorf("parsing %v: %v", f.Name(), err)
 		}
+
 		name := strings.TrimSuffix(f.Name(), ".article")
-		lessons[name] = content
+
+		w := new(bytes.Buffer)
+		if err := json.NewEncoder(w).Encode(lsn); err != nil {
+			return fmt.Errorf("encode lesson: %v", err)
+		}
+
+		lessons[name] = w.Bytes()
 	}
 	return nil
 }
@@ -108,23 +117,29 @@ func initIndex(index bleve.Index, tmpl *template.Template) error {
 		if path.Ext(f.Name()) != ".article" {
 			continue
 		}
-		content, err := parseLesson(f.Name(), tmpl)
+
+		lsn, err := parseLesson(f.Name(), tmpl)
 		if err != nil {
 			return fmt.Errorf("parsing %v: %v", f.Name(), err)
 		}
+
 		name := strings.TrimSuffix(f.Name(), ".article")
 
-		doc := struct {
-			ID      string
-			Content string
-		}{
-			ID:      name,
-			Content: string(content),
-		}
+		for i, p := range lsn.Pages {
+			docID := fmt.Sprintf("%s.%d", name, i)
 
-		err = index.Index(doc.ID, doc)
-		if err != nil {
-			return fmt.Errorf("indexing file %s: %w", doc.ID, err)
+			doc := struct {
+				ID      string
+				Content string
+			}{
+				ID:      docID,
+				Content: p.Content,
+			}
+
+			err = index.Index(doc.ID, doc)
+			if err != nil {
+				return fmt.Errorf("indexing content %s: %w", doc.ID, err)
+			}
 		}
 	}
 
@@ -154,10 +169,10 @@ type lesson struct {
 
 // parseLesson parses and returns a lesson content given its path
 // relative to root ('/'-separated) and the template to render it.
-func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
+func parseLesson(path string, tmpl *template.Template) (lesson, error) {
 	f, err := contentTour.Open("tour/" + path)
 	if err != nil {
-		return nil, err
+		return lesson{}, err
 	}
 	defer f.Close()
 	ctx := &present.Context{
@@ -167,20 +182,20 @@ func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
 	}
 	doc, err := ctx.Parse(prepContent(f), path, 0)
 	if err != nil {
-		return nil, err
+		return lesson{}, err
 	}
 
-	lesson := lesson{
+	lsn := lesson{
 		doc.Title,
 		doc.Subtitle,
 		make([]page, len(doc.Sections)),
 	}
 
 	for i, sec := range doc.Sections {
-		p := &lesson.Pages[i]
+		p := &lsn.Pages[i]
 		w := new(bytes.Buffer)
 		if err := sec.Render(w, tmpl); err != nil {
-			return nil, fmt.Errorf("render section: %v", err)
+			return lesson{}, fmt.Errorf("render section: %v", err)
 		}
 		p.Title = sec.Title
 		p.Content = w.String()
@@ -195,11 +210,7 @@ func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
 		}
 	}
 
-	w := new(bytes.Buffer)
-	if err := json.NewEncoder(w).Encode(lesson); err != nil {
-		return nil, fmt.Errorf("encode lesson: %v", err)
-	}
-	return w.Bytes(), nil
+	return lsn, nil
 }
 
 // findPlayCode returns a slide with all the Code elements in the given
