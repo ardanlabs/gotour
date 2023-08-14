@@ -5,7 +5,10 @@
 package tour
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
@@ -16,6 +19,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,7 +56,7 @@ func Main() {
 	flag.Parse()
 
 	// -------------------------------------------------------------------------
-	// Create a new index mapping.
+	// Create a new memory-only index mapping.
 
 	var err error
 	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
@@ -180,27 +185,75 @@ func bleveHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	// TODO: We have two options, return the whole content, or only the
-	//  lesson and the pages and filter in the UI.
+	// -------------------------------------------------------------------------
 
 	docIDs := make([]string, len(searchResults.Hits))
 	for i, hit := range searchResults.Hits {
 		docIDs[i] = hit.ID
 	}
+	sort.Strings(docIDs)
 
-	// data, err := json.Marshal(docIDs)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	if _, err := fmt.Fprint(w, "{"); err != nil {
+		log.Print(err)
+	}
 
-	data, _ := lessons["algorithms-bits-seven"]
+	// -------------------------------------------------------------------------
+
+	resultLessons := make(map[string]lesson)
+
+	for _, doc := range docIDs {
+		lessonIDAndPage := strings.Split(doc, ".")
+		if _, exists := resultLessons[lessonIDAndPage[0]]; exists {
+			continue
+		}
+
+		dbLesson, _ := db[lessonIDAndPage[0]]
+
+		l := lesson{
+			Title:       dbLesson.Title,
+			Description: dbLesson.Description,
+			Pages:       []page{},
+		}
+
+		// Find and populate the pages.
+		for _, xdoc := range docIDs {
+			xlessonIDAndPage := strings.Split(xdoc, ".")
+
+			if lessonIDAndPage[0] != xlessonIDAndPage[0] {
+				continue
+			}
+
+			pageNumber, _ := strconv.Atoi(xlessonIDAndPage[1])
+
+			l.Pages = append(l.Pages, dbLesson.Pages[pageNumber])
+		}
+
+		resultLessons[lessonIDAndPage[0]] = l
+	}
+
+	// -------------------------------------------------------------------------
+
+	nLessons := len(resultLessons)
+	for k, v := range resultLessons {
+		b := new(bytes.Buffer)
+		if err := json.NewEncoder(b).Encode(v); err != nil {
+			log.Printf("encode lesson: %v", err)
+		}
+
+		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
+			log.Print(err)
+		}
+		nLessons--
+		if nLessons != 0 {
+			if _, err := fmt.Fprint(w, ","); err != nil {
+				log.Print(err)
+			}
+		}
+	}
+
+	fmt.Fprint(w, "}")
 
 	w.Header().Set("Content-Type", "application/json")
-
-	_, err = w.Write(data)
-	if err != nil {
-		log.Println(err)
-	}
 }
 
 const localhostWarning = `

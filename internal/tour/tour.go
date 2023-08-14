@@ -28,6 +28,7 @@ import (
 var (
 	uiContent      []byte
 	lessons        = make(map[string][]byte)
+	db             = make(map[string]lesson)
 	lessonNotFound = fmt.Errorf("lesson not found")
 )
 
@@ -103,6 +104,7 @@ func initLessons(tmpl *template.Template) error {
 		}
 
 		lessons[name] = w.Bytes()
+		db[name] = lsn
 	}
 	return nil
 }

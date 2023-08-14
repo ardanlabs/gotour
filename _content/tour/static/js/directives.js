@@ -189,31 +189,72 @@ directive('horizontalSlide', ['editor',
 ]).
 
 directive('searchButton', ['i18n', function(i18n) {
-    var speed = 250;
+    const speed = 250;
     return {
         restrict: 'A',
         templateUrl: '/tour/static/partials/search-button.html',
         link: function(scope, elm, attrs) {
             scope.tocMessage = i18n.l('toc');
             elm.on('click', function() {
-                var toc = $(attrs.searchButton);
+                const search = $(attrs.searchButton);
+
                 // hide all non active lessons before displaying the toc.
-                var visible = toc.css('display') != 'none';
+                const visible = search.css('display') !== 'none';
                 if (!visible) {
-                    toc.find('.toc-lesson:not(.active) .toc-page').hide();
-                    toc.find('.toc-lesson.active .toc-page').show();
+                    search.find('.toc-lesson:not(.active) .toc-page').hide();
+                    search.find('.toc-lesson.active .toc-page').show();
                 }
-                toc.toggle('slide', {
+
+                search.toggle('slide', {
                     direction: 'right'
                 }, speed);
 
                 // if fullscreen hide the rest of the content when showing the atoc.
-                var fullScreen = toc.width() == $(window).width();
+                const fullScreen = search.width() === $(window).width();
                 if (fullScreen) $('#editor-container')[visible ? 'show' : 'hide']();
             });
         }
     };
 }]).
+
+// side bar with dynamic table of contents
+directive('searchContents', ['$routeParams', 'toc',
+    function($routeParams, toc) {
+        const speed = 250;
+        return {
+            restrict: 'A',
+            templateUrl: '/tour/static/partials/search.html',
+            link: function(scope, elm) {
+                scope.toc = toc;
+                scope.params = $routeParams;
+
+                scope.toggleLesson = function(id) {
+                    var l = $('#toc-l-' + id + ' .toc-page');
+                    l[l.css('display') == 'none' ? 'slideDown' : 'slideUp']();
+                };
+
+                scope.$watch(function() {
+                    return scope.params.lessonId + scope.params.lessonId;
+                }, function() {
+                    $('.toc-lesson:not(#toc-l-' + scope.params.lessonId + ') .toc-page').slideUp(speed);
+                });
+
+
+
+                scope.hideTOC = function(fullScreenOnly) {
+                    var fullScreen = elm.find('.search').width() == $(window).width();
+                    if (fullScreenOnly && !fullScreen) {
+                        return;
+                    }
+                    $('.toc').toggle('slide', {
+                        direction: 'right'
+                    }, speed);
+                    $('#editor-container').show();
+                };
+            }
+        };
+    }
+]).
 
 directive('tableOfContentsButton', ['i18n', function(i18n) {
     var speed = 250;

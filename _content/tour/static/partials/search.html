@@ -1,0 +1,18 @@
+<div class="search" ng-controller="TOCController">
+    <div class="search-input-container">
+        <input type="text" ng-model="searchTerm" placeholder="Type your search" class="search-input">
+        <button ng-click="performSearch()" class="search-button">Search</button>
+    </div>
+    <ul>
+        <li ng-repeat="result in searchResults" class="search-lesson" id="search-l-{{l}}" ng-class="{active: true}">
+
+            <span>{{result.Title}}</span>
+            <ul>
+                <li ng-repeat="p in result.Pages" class="search-page" ng-class="{active: true}">
+                    <a href="/tour/{{result.Key}}/{{$index+1}}" ng-click="hideTOC(true)">{{p.Title}}</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <div class="click-catcher" ng-click="hideTOC(false)"></div>
+</div>

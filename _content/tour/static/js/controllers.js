@@ -115,4 +115,39 @@ controller('EditorCtrl', ['$scope', '$routeParams', '$location', 'toc', 'i18n', 
             file().Content = file().OrigContent;
         };
     }
-]);
+])
+
+.controller('TOCController', ['$scope', '$http', function($scope, $http) {
+    $scope.searchTerm = '';
+    $scope.searchResults = [];
+
+    $scope.performSearch = function() {
+        if ($scope.searchTerm) {
+            $http.get('/tour/bleve/', { params: { search: $scope.searchTerm } })
+                .success(function(response) {
+
+                    for (const key in response) {
+                        if (response.hasOwnProperty(key)) {
+                            console.log("Key:", key);
+                            console.log("Value:", response[key]);
+                            console.log("==============================");
+                        }
+
+                        response[key].Key = key
+                    }
+
+                    // Update searchResults with the data from the backend
+                    $scope.searchResults = response;
+                    console.log($scope.searchResults);
+                })
+                .error(function(error) {
+                    console.error('Error during search request:', error);
+                });
+        } else {
+            // Clear search results if search term is empty
+            $scope.searchResults = [];
+        }
+    };
+
+    // Rest of your controller logic
+}]);
