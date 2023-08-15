@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	github.com/blevesearch/bleve/v2 v2.3.9
-	golang.org/x/net v0.11.0
-	golang.org/x/sys v0.9.0
-	golang.org/x/tools v0.10.0
+	golang.org/x/net v0.14.0
+	golang.org/x/sys v0.11.0
+	golang.org/x/tools v0.12.0
 )
 
 require (
@@ -32,7 +32,7 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/json-iterator/go v0.0.0-20171115153421-f7279a603ede // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
-	github.com/yuin/goldmark v1.5.4 // indirect
+	github.com/yuin/goldmark v1.5.5 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
-	golang.org/x/mod v0.11.0 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 )

@@ -4,7 +4,8 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// go get honnef.co/go/structlayout/cmd/...
+// https://github.com/dominikh/go-tools#installation
+// go install honnef.co/go/tools/cmd/...@2023.1.3
 
 // Alignment is about placing fields on address alignment boundaries
 // for more efficient reads and writes to memory.
@@ -64,7 +65,6 @@ type ebp64 struct {
 }
 
 func main() {
-
 	var nbp nbp
 	size := unsafe.Sizeof(nbp)
 	fmt.Printf("nbp  : SizeOf[%d][%p %p %p]\n", size, &nbp.a, &nbp.b, &nbp.c)

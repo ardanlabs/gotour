@@ -50,16 +50,6 @@ func Main() {
 	flag.Parse()
 
 	// -------------------------------------------------------------------------
-	// Create a new memory-only index mapping.
-
-	var err error
-	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
-
-	// -------------------------------------------------------------------------
 
 	host, port, err := net.SplitHostPort(*httpListen)
 	if err != nil {
@@ -93,6 +83,16 @@ func Main() {
 	}
 
 	httpAddr = host + ":" + port
+
+	// -------------------------------------------------------------------------
+
+	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
+	// -------------------------------------------------------------------------
 
 	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
 		log.Fatal(err)
