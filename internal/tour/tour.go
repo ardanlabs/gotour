@@ -116,45 +116,13 @@ func initLessons(tmpl *template.Template) error {
 
 // initIndex todo ...
 func initIndex(index bleve.Index) error {
-	// files, err := fs.ReadDir(contentTour, "tour")
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// for _, f := range files {
-	// 	if path.Ext(f.Name()) != ".article" {
-	// 		continue
-	// 	}
-	//
-	// 	lsn, err := parseLesson(f.Name(), tmpl)
-	// 	if err != nil {
-	// 		return fmt.Errorf("parsing %v: %v", f.Name(), err)
-	// 	}
-	//
-	// 	name := strings.TrimSuffix(f.Name(), ".article")
-	//
-	// 	for i, p := range lsn.Pages {
-	// 		docID := fmt.Sprintf("%s.%d", name, i)
-	//
-	// 		doc := struct {
-	// 			ID      string
-	// 			Content string
-	// 		}{
-	// 			ID:      docID,
-	// 			Content: p.Content,
-	// 		}
-	//
-	// 		err = index.Index(doc.ID, doc)
-	// 		if err != nil {
-	// 			return fmt.Errorf("indexing content %s: %w", doc.ID, err)
-	// 		}
-	// 	}
-	// }
-
-	// TODO: I found a bug in this code related to the index value.
-
 	for k, lsn := range lessons {
 		for i, p := range lsn.Pages {
+
+			// We do not index the exercises pages.
+			if p.Title == "Exercises" {
+				continue
+			}
 
 			// The id of the content represents the lessonID (the name of the file)
 			// and the integer after the ".", presents the page number.

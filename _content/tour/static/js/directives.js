@@ -225,31 +225,10 @@ directive('searchContents', ['$routeParams', 'toc',
             restrict: 'A',
             templateUrl: '/tour/static/partials/search.html',
             link: function(scope, elm) {
-                scope.toc = toc;
-                scope.params = $routeParams;
-
-                scope.toggleLesson = function(id) {
-                    var l = $('#toc-l-' + id + ' .toc-page');
-                    l[l.css('display') == 'none' ? 'slideDown' : 'slideUp']();
-                };
-
-                scope.$watch(function() {
-                    return scope.params.lessonId + scope.params.lessonId;
-                }, function() {
-                    $('.toc-lesson:not(#toc-l-' + scope.params.lessonId + ') .toc-page').slideUp(speed);
-                });
-
-
-
-                scope.hideTOC = function(fullScreenOnly) {
-                    var fullScreen = elm.find('.search').width() == $(window).width();
-                    if (fullScreenOnly && !fullScreen) {
-                        return;
-                    }
-                    $('.toc').toggle('slide', {
+                scope.hideTOC = function() {
+                    $('.search').toggle('slide', {
                         direction: 'right'
                     }, speed);
-                    $('#editor-container').show();
                 };
             }
         };
