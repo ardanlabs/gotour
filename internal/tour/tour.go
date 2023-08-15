@@ -13,28 +13,28 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/blevesearch/bleve/v2"
-
 	website "github.com/ardanlabs/gotour"
+	"github.com/blevesearch/bleve/v2"
 	"golang.org/x/tools/present"
 )
 
 var (
 	uiContent      []byte
-	lessons        = make(map[string][]byte)
-	db             = make(map[string]lesson)
+	lessons        = make(map[string]lesson)
 	lessonNotFound = fmt.Errorf("lesson not found")
 )
 
 var contentTour = website.TourOnly()
 
-// initTour loads tour.article and the relevant HTML templates from root.
+// initTour loads tour.article, relevant HTML templates from root, and
+// initialize the bleve index.
 func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	// Make sure playground is enabled before rendering.
 	present.PlayEnabled = true
@@ -51,7 +51,8 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	}
 
 	// Init bleve index.
-	if err := initIndex(index, tmpl); err != nil {
+	// NOTE: make sure the lessons were initialized.
+	if err := initIndex(index); err != nil {
 		return fmt.Errorf("init index: %v", err)
 	}
 
@@ -103,44 +104,68 @@ func initLessons(tmpl *template.Template) error {
 			return fmt.Errorf("encode lesson: %v", err)
 		}
 
-		lessons[name] = w.Bytes()
-		db[name] = lsn
+		// lessons[name] = w.Bytes()
+		lessons[name] = lsn
 	}
 	return nil
 }
 
-func initIndex(index bleve.Index, tmpl *template.Template) error {
-	files, err := fs.ReadDir(contentTour, "tour")
-	if err != nil {
-		return err
-	}
+// initIndex todo ...
+func initIndex(index bleve.Index) error {
+	// files, err := fs.ReadDir(contentTour, "tour")
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// for _, f := range files {
+	// 	if path.Ext(f.Name()) != ".article" {
+	// 		continue
+	// 	}
+	//
+	// 	lsn, err := parseLesson(f.Name(), tmpl)
+	// 	if err != nil {
+	// 		return fmt.Errorf("parsing %v: %v", f.Name(), err)
+	// 	}
+	//
+	// 	name := strings.TrimSuffix(f.Name(), ".article")
+	//
+	// 	for i, p := range lsn.Pages {
+	// 		docID := fmt.Sprintf("%s.%d", name, i)
+	//
+	// 		doc := struct {
+	// 			ID      string
+	// 			Content string
+	// 		}{
+	// 			ID:      docID,
+	// 			Content: p.Content,
+	// 		}
+	//
+	// 		err = index.Index(doc.ID, doc)
+	// 		if err != nil {
+	// 			return fmt.Errorf("indexing content %s: %w", doc.ID, err)
+	// 		}
+	// 	}
+	// }
 
-	for _, f := range files {
-		if path.Ext(f.Name()) != ".article" {
-			continue
-		}
+	// TODO: I found a bug in this code related to the index value.
 
-		lsn, err := parseLesson(f.Name(), tmpl)
-		if err != nil {
-			return fmt.Errorf("parsing %v: %v", f.Name(), err)
-		}
-
-		name := strings.TrimSuffix(f.Name(), ".article")
-
+	for k, lsn := range lessons {
 		for i, p := range lsn.Pages {
-			docID := fmt.Sprintf("%s.%d", name, i)
+			// The id of the content represents the lessonID (the name of the file)
+			// and the integer after the ".", presents the page number.
+			// Example: interfaces.0
+			id := fmt.Sprintf("%s.%d", k, i)
 
-			doc := struct {
+			data := struct {
 				ID      string
 				Content string
 			}{
-				ID:      docID,
+				ID:      id,
 				Content: p.Content,
 			}
 
-			err = index.Index(doc.ID, doc)
-			if err != nil {
-				return fmt.Errorf("indexing content %s: %w", doc.ID, err)
+			if err := index.Index(id, data); err != nil {
+				return fmt.Errorf("indexing content %s: %w", data.ID, err)
 			}
 		}
 	}
@@ -244,7 +269,13 @@ func writeLesson(name string, w io.Writer) error {
 	if !ok {
 		return lessonNotFound
 	}
-	_, err := w.Write(l)
+
+	b := new(bytes.Buffer)
+	if err := json.NewEncoder(b).Encode(l); err != nil {
+		log.Printf("encode lesson: %v", err)
+	}
+
+	_, err := w.Write(b.Bytes())
 	return err
 }
 
@@ -254,7 +285,12 @@ func writeAllLessons(w io.Writer) error {
 	}
 	nLessons := len(lessons)
 	for k, v := range lessons {
-		if _, err := fmt.Fprintf(w, "%q:%s", k, v); err != nil {
+		b := new(bytes.Buffer)
+		if err := json.NewEncoder(b).Encode(v); err != nil {
+			log.Printf("encode lesson: %v", err)
+		}
+
+		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
 			return err
 		}
 		nLessons--
@@ -264,6 +300,34 @@ func writeAllLessons(w io.Writer) error {
 			}
 		}
 	}
+	_, err := fmt.Fprint(w, "}")
+	return err
+}
+
+func writeLessons(l map[string]lesson, w io.Writer) error {
+	if _, err := fmt.Fprint(w, "{"); err != nil {
+		return err
+	}
+
+	nLessons := len(l)
+	for k, v := range l {
+		b := new(bytes.Buffer)
+		if err := json.NewEncoder(b).Encode(v); err != nil {
+			log.Printf("encode lesson: %v", err)
+		}
+
+		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
+			return err
+		}
+
+		nLessons--
+		if nLessons != 0 {
+			if _, err := fmt.Fprint(w, ","); err != nil {
+				return err
+			}
+		}
+	}
+
 	_, err := fmt.Fprint(w, "}")
 	return err
 }

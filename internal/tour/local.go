@@ -5,10 +5,7 @@
 package tour
 
 import (
-	"bytes"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
@@ -19,9 +16,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"sort"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ardanlabs/gotour/internal/socket"
@@ -144,116 +138,6 @@ func must(fsys fs.FS, err error) fs.FS {
 		panic(err)
 	}
 	return fsys
-}
-
-// rootHandler returns a handler for all tfhe requests except the ones for lessons.
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" {
-		http.Redirect(w, r, "/tour/", http.StatusFound)
-		return
-	}
-	if err := renderUI(w); err != nil {
-		log.Println(err)
-	}
-}
-
-// lessonHandler handler the HTTP requests for lessons.
-func lessonHandler(w http.ResponseWriter, r *http.Request) {
-	lesson := strings.TrimPrefix(r.URL.Path, "/tour/lesson/")
-	if err := writeLesson(lesson, w); err != nil {
-		if err == lessonNotFound {
-			http.NotFound(w, r)
-		} else {
-			log.Println(err)
-		}
-	}
-}
-
-// lessonHandler handler the HTTP requests for lessons.
-func bleveHandler(w http.ResponseWriter, r *http.Request) {
-	qs := r.URL.Query().Get("search")
-
-	// Create a query based on the user's search input.
-	query := bleve.NewMatchPhraseQuery(qs)
-
-	// Create a search request with the query.
-	search := bleve.NewSearchRequest(query)
-
-	// Perform the search on the bleve index.
-	searchResults, err := index.Search(search)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// -------------------------------------------------------------------------
-
-	docIDs := make([]string, len(searchResults.Hits))
-	for i, hit := range searchResults.Hits {
-		docIDs[i] = hit.ID
-	}
-	sort.Strings(docIDs)
-
-	if _, err := fmt.Fprint(w, "{"); err != nil {
-		log.Print(err)
-	}
-
-	// -------------------------------------------------------------------------
-
-	resultLessons := make(map[string]lesson)
-
-	for _, doc := range docIDs {
-		lessonIDAndPage := strings.Split(doc, ".")
-		if _, exists := resultLessons[lessonIDAndPage[0]]; exists {
-			continue
-		}
-
-		dbLesson, _ := db[lessonIDAndPage[0]]
-
-		l := lesson{
-			Title:       dbLesson.Title,
-			Description: dbLesson.Description,
-			Pages:       []page{},
-		}
-
-		// Find and populate the pages.
-		for _, xdoc := range docIDs {
-			xlessonIDAndPage := strings.Split(xdoc, ".")
-
-			if lessonIDAndPage[0] != xlessonIDAndPage[0] {
-				continue
-			}
-
-			pageNumber, _ := strconv.Atoi(xlessonIDAndPage[1])
-
-			l.Pages = append(l.Pages, dbLesson.Pages[pageNumber])
-		}
-
-		resultLessons[lessonIDAndPage[0]] = l
-	}
-
-	// -------------------------------------------------------------------------
-
-	nLessons := len(resultLessons)
-	for k, v := range resultLessons {
-		b := new(bytes.Buffer)
-		if err := json.NewEncoder(b).Encode(v); err != nil {
-			log.Printf("encode lesson: %v", err)
-		}
-
-		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
-			log.Print(err)
-		}
-		nLessons--
-		if nLessons != 0 {
-			if _, err := fmt.Fprint(w, ","); err != nil {
-				log.Print(err)
-			}
-		}
-	}
-
-	fmt.Fprint(w, "}")
-
-	w.Header().Set("Content-Type", "application/json")
 }
 
 const localhostWarning = `
