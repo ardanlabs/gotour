@@ -22,7 +22,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func lessonHandler(w http.ResponseWriter, r *http.Request) {
 	lesson := strings.TrimPrefix(r.URL.Path, "/tour/lesson/")
 	if err := writeLesson(lesson, w); err != nil {
-		if err == lessonNotFound {
+		if err == ErrLessonNotFound {
 			http.NotFound(w, r)
 		} else {
 			log.Println(err)

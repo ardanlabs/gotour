@@ -28,16 +28,18 @@ import (
 )
 
 var (
-	uiContent      []byte
-	lessons        = make(map[string]lesson)
-	lessonNotFound = fmt.Errorf("lesson not found")
+	uiContent []byte
+	lessons   = make(map[string]lesson)
 )
+
+var ErrLessonNotFound = fmt.Errorf("lesson not found")
 
 var contentTour = website.TourOnly()
 
 // initTour loads tour.article, relevant HTML templates from root, and
 // initialize the bleve index.
 func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
+
 	// Make sure playground is enabled before rendering.
 	present.PlayEnabled = true
 
@@ -153,6 +155,7 @@ func initIndex(index bleve.Index) error {
 
 	for k, lsn := range lessons {
 		for i, p := range lsn.Pages {
+
 			// The id of the content represents the lessonID (the name of the file)
 			// and the integer after the ".", presents the page number.
 			// Example: interfaces.0
@@ -269,7 +272,7 @@ func writeLesson(name string, w io.Writer) error {
 	}
 	l, ok := lessons[name]
 	if !ok {
-		return lessonNotFound
+		return ErrLessonNotFound
 	}
 
 	b := new(bytes.Buffer)
@@ -428,7 +431,7 @@ func bleveSearch(index bleve.Index, matchPhrase string) (map[string]lesson, erro
 		}
 
 		// Search for the lesson in the lessons.
-		lsn, _ := lessons[lessonIDAndPage[0]]
+		lsn := lessons[lessonIDAndPage[0]]
 
 		// -----------------------------------------------------------------------
 
