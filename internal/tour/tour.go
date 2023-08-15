@@ -17,6 +17,8 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -388,4 +390,79 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 	})
 
 	return nil
+}
+
+// bleveSearch todo...
+func bleveSearch(index bleve.Index, matchPhrase string) (map[string]lesson, error) {
+	// Create a query based on the user's search input.
+	query := bleve.NewMatchPhraseQuery(matchPhrase)
+
+	// Create a search request with the query.
+	search := bleve.NewSearchRequest(query)
+
+	// Perform the search on the bleve index.
+	searchResults, err := index.Search(search)
+	if err != nil {
+		return nil, err
+	}
+
+	// -------------------------------------------------------------------------
+
+	hitsIDs := make([]string, len(searchResults.Hits))
+	for i, hit := range searchResults.Hits {
+		hitsIDs[i] = hit.ID
+	}
+	sort.Strings(hitsIDs)
+
+	// -------------------------------------------------------------------------
+
+	result := make(map[string]lesson)
+
+	for _, hit := range hitsIDs {
+		lessonIDAndPage := strings.Split(hit, ".")
+
+		// If the lessonID exists in the result, that means we already added
+		// the pages. We can move to the next lesson ID.
+		if _, exists := result[lessonIDAndPage[0]]; exists {
+			continue
+		}
+
+		// Search for the lesson in the lessons.
+		lsn, _ := lessons[lessonIDAndPage[0]]
+
+		// -----------------------------------------------------------------------
+
+		var pages []page
+
+		// Iterate through the hits to find each page of a lesson and adds it
+		// to the lesson in the right order.
+		for _, h := range hitsIDs {
+			hLessonIDAndPage := strings.Split(h, ".")
+
+			// Check if the lessonID of the pages loop is the lessonID of the
+			// lessons (parent) loop. If not, continue the loop.
+			if lessonIDAndPage[0] != hLessonIDAndPage[0] {
+				continue
+			}
+
+			pageNumber, err := strconv.Atoi(hLessonIDAndPage[1])
+			if err != nil {
+				return nil, err
+			}
+
+			pages = append(pages, lsn.Pages[pageNumber])
+		}
+
+		// -----------------------------------------------------------------------
+
+		l := lesson{
+			Title:       lsn.Title,
+			Description: lsn.Description,
+			Pages:       pages,
+		}
+
+		result[lessonIDAndPage[0]] = l
+	}
+
+	return result, nil
 }
