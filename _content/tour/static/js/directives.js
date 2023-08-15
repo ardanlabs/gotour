@@ -194,16 +194,9 @@ directive('searchButton', ['i18n', function(i18n) {
         restrict: 'A',
         templateUrl: '/tour/static/partials/search-button.html',
         link: function(scope, elm, attrs) {
-            scope.tocMessage = i18n.l('toc');
+            scope.searchMessage = i18n.l('search');
             elm.on('click', function() {
                 const search = $(attrs.searchButton);
-
-                // hide all non active lessons before displaying the toc.
-                const visible = search.css('display') !== 'none';
-                if (!visible) {
-                    search.find('.toc-lesson:not(.active) .toc-page').hide();
-                    search.find('.toc-lesson.active .toc-page').show();
-                }
 
                 search.toggle('slide', {
                     direction: 'right'
@@ -218,22 +211,12 @@ directive('searchButton', ['i18n', function(i18n) {
 }]).
 
 // side bar with dynamic table of contents
-directive('searchContents', ['$routeParams', 'toc',
-    function($routeParams, toc) {
-        const speed = 250;
-        return {
-            restrict: 'A',
-            templateUrl: '/tour/static/partials/search.html',
-            link: function(scope, elm) {
-                scope.hideTOC = function() {
-                    $('.search').toggle('slide', {
-                        direction: 'right'
-                    }, speed);
-                };
-            }
-        };
-    }
-]).
+directive('searchContents', function() {
+    return {
+        restrict: 'A',
+        templateUrl: '/tour/static/partials/search.html'
+    };
+}).
 
 directive('tableOfContentsButton', ['i18n', function(i18n) {
     var speed = 250;
