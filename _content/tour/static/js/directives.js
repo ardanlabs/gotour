@@ -212,9 +212,18 @@ directive('searchButton', ['i18n', function(i18n) {
 
 // side bar with dynamic table of contents
 directive('searchContents', function() {
+    const speed = 250;
     return {
         restrict: 'A',
-        templateUrl: '/tour/static/partials/search.html'
+        templateUrl: '/tour/static/partials/search.html',
+        link: function(scope, elm) {
+            scope.hideTOC = function() {
+                $('.search').toggle('slide', {
+                    direction: 'right'
+                }, speed);
+                $('#editor-container').show();
+            };
+        }
     };
 }).
 

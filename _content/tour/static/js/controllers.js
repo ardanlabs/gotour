@@ -122,29 +122,22 @@ controller('EditorCtrl', ['$scope', '$routeParams', '$location', 'toc', 'i18n', 
     $scope.searchResults = [];
 
     $scope.performSearch = function() {
-        if ($scope.searchTerm) {
+        if ($scope.searchTerm && $scope.searchTerm.length >= 3) {
             $http.get('/tour/bleve/', { params: { search: $scope.searchTerm } })
                 .success(function(response) {
                     for (const key in response) {
                         response[key].Key = key
                     }
 
-                    // Update searchResults with the data from the backend
+                    // Update searchResults with the data from the backend.
                     $scope.searchResults = response;
                 })
                 .error(function(error) {
                     console.error('Error during search request:', error);
                 });
         } else {
-            // Clear search results if search term is empty
+            // Clear search results if search term is empty.
             $scope.searchResults = [];
         }
-    };
-
-    const speed = 250;
-    $scope.hideTOC = function() {
-        $('.search').toggle('slide', {
-            direction: 'right'
-        }, speed);
     };
 }]);
