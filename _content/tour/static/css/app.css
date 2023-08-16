@@ -522,7 +522,7 @@ a#run, a#kill {
     -ms-user-select: none;
     user-select: none;
 }
-.click-catcher {
+.click-catcher, .click-catcher-search {
     position: fixed;
     z-index: -100;
     top: 0;
@@ -575,7 +575,7 @@ a#run, a#kill {
     .toc ul {
         width: 100%;
     }
-    .click-catcher {
+    .click-catcher, .click-catcher-search {
         display: none;
     }
 }
@@ -595,4 +595,100 @@ background-color: transparent;
 }
 ::-webkit-progress-value {
 background-color: #B22C00;
+}
+
+/* Table of search contents */
+.search {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    font-size: 1.3em;
+    top: 48px;
+    bottom: 0;
+    right: 0;
+    width: 500px;
+    background: #f1f1f1;
+    color: black;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    border-left: 4px solid #f1f1f1;
+    border-bottom: 4px solid #f1f1f1;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.search * {
+    margin: 0;
+    padding: 0;
+    font-size: 0.95em;
+    display: block;
+}
+.search span, .search a {
+    padding: 4px;
+}
+.search-module {
+    color: #e3430e;
+    background: #f1f1f1;
+}
+.search-lesson {
+    background: #fafafa;
+    color: #333;
+    margin: 1px 0;
+    cursor: pointer;
+}
+.search-page {
+    background: #fff;
+    color: #333;
+    padding-left: 4px;
+    display: list-item;
+}
+.search-lesson.active .search-page {
+    display: list-item;
+}
+.search-page.active {
+    color: #e3430e;
+    font-weight: bold;
+}
+@media (max-width: 600px) {
+    .search {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        border: none;
+    }
+    .search ul {
+        width: 100%;
+    }
+    .click-catcher, .click-catcher-search {
+        display: none;
+    }
+}
+
+/* Style the form to be 100% width based on the parent div */
+.search-form {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 3px;
+}
+
+.search-input-container {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    box-sizing: border-box;
 }

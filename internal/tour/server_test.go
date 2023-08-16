@@ -10,12 +10,21 @@ import (
 	"testing"
 
 	"github.com/ardanlabs/gotour/internal/webtest"
+	"github.com/blevesearch/bleve/v2"
 )
 
 func TestWeb(t *testing.T) {
-	if err := initTour(http.DefaultServeMux, "SocketTransport"); err != nil {
+	var err error
+	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
 		log.Fatal(err)
 	}
+	defer index.Close()
+
+	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/", rootHandler)
 	webtest.TestHandler(t, "testdata/*.txt", http.DefaultServeMux)
 }

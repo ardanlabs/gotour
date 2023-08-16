@@ -16,11 +16,11 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/ardanlabs/gotour/internal/socket"
 	"github.com/ardanlabs/gotour/internal/webtest"
+	"github.com/blevesearch/bleve/v2"
 )
 
 const (
@@ -36,6 +36,8 @@ var (
 	httpAddr string
 	scheme   string
 	origin   string
+
+	index bleve.Index
 )
 
 func Main() {
@@ -46,6 +48,8 @@ func Main() {
 	webSocketScheme = flag.String("scheme", "", "http or https, used for web socket origin scheme")
 
 	flag.Parse()
+
+	// -------------------------------------------------------------------------
 
 	host, port, err := net.SplitHostPort(*httpListen)
 	if err != nil {
@@ -80,7 +84,17 @@ func Main() {
 
 	httpAddr = host + ":" + port
 
-	if err := initTour(http.DefaultServeMux, "SocketTransport"); err != nil {
+	// -------------------------------------------------------------------------
+
+	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
+	// -------------------------------------------------------------------------
+
+	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
 		log.Fatal(err)
 	}
 
@@ -124,29 +138,6 @@ func must(fsys fs.FS, err error) fs.FS {
 		panic(err)
 	}
 	return fsys
-}
-
-// rootHandler returns a handler for all tfhe requests except the ones for lessons.
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" {
-		http.Redirect(w, r, "/tour/", http.StatusFound)
-		return
-	}
-	if err := renderUI(w); err != nil {
-		log.Println(err)
-	}
-}
-
-// lessonHandler handler the HTTP requests for lessons.
-func lessonHandler(w http.ResponseWriter, r *http.Request) {
-	lesson := strings.TrimPrefix(r.URL.Path, "/tour/lesson/")
-	if err := writeLesson(lesson, w); err != nil {
-		if err == lessonNotFound {
-			http.NotFound(w, r)
-		} else {
-			log.Println(err)
-		}
-	}
 }
 
 const localhostWarning = `

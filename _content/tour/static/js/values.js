@@ -114,6 +114,7 @@ value('translation', {
     'waiting': 'Waiting for remote server...',
     'errcomm': 'Error communicating with remote server.',
     'submit-feedback': 'Send feedback about this page',
+    'search': 'Search for content',
 
     // GitHub issue template: update repo and messaging when translating.
     'github-repo': 'github.com/ardanlabs/gotour',
