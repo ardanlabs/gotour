@@ -130,8 +130,8 @@ func indexLessonsInto(index bleve.Index) error {
 // indexLessonInto indexes the pages of a lesson into the provided bleve index.
 func indexLessonInto(index bleve.Index, lessonName string, lsn lesson) error {
 	for pageNum, page := range lsn.Pages {
-		// Skip indexing "Exercises" pages.
-		if page.Title == "Exercises" {
+		// Skip indexing "Exercise" pages.
+		if strings.Contains(page.Title, "Exercise") {
 			continue
 		}
 
