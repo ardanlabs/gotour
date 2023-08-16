@@ -117,7 +117,7 @@ controller('EditorCtrl', ['$scope', '$routeParams', '$location', 'toc', 'i18n', 
     }
 ])
 
-.controller('TOCController', ['$scope', '$http', function($scope, $http) {
+.controller('SearchController', ['$scope', '$http', function($scope, $http) {
     $scope.searchTerm = '';
     $scope.searchResults = [];
 

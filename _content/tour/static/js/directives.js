@@ -217,10 +217,16 @@ directive('searchContents', function() {
         restrict: 'A',
         templateUrl: '/tour/static/partials/search.html',
         link: function(scope, elm) {
-            scope.hideTOC = function() {
+            scope.hideSearch = function(fullScreenOnly) {
+                const fullScreen = elm.find('.search').width() == $(window).width();
+                if (fullScreenOnly && !fullScreen) {
+                    return;
+                }
+
                 $('.search').toggle('slide', {
                     direction: 'right'
                 }, speed);
+
                 $('#editor-container').show();
             };
         }
