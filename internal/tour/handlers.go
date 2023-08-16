@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// rootHandler returns a handler for all tfhe requests except the ones for lessons.
+// rootHandler returns a handler for all the requests except the ones for lessons.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, "/tour/", http.StatusFound)
@@ -30,10 +30,12 @@ func lessonHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// bleveHandler todo ...
+// bleveHandler handler the HTTP requests for search.
 func bleveHandler(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query().Get("search")
 	qs = strings.Trim(qs, " ")
+
+	// -------------------------------------------------------------------------
 
 	if qs == "" {
 		if _, err := fmt.Fprint(w, "{"); err != nil {

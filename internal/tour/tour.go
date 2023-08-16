@@ -54,10 +54,10 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 		return fmt.Errorf("init lessons: %v", err)
 	}
 
-	// Init bleve index.
+	// Index lessons into the bleve index.
 	// NOTE: make sure the lessons were initialized.
-	if err := initIndex(index); err != nil {
-		return fmt.Errorf("init index: %v", err)
+	if err := indexLessonsInto(index); err != nil {
+		return fmt.Errorf("indexing lessons: %v", err)
 	}
 
 	// Init UI.
@@ -114,35 +114,41 @@ func initLessons(tmpl *template.Template) error {
 	return nil
 }
 
-// initIndex todo ...
-func initIndex(index bleve.Index) error {
-	for k, lsn := range lessons {
-		for i, p := range lsn.Pages {
-
-			// We do not index the exercises pages.
-			if p.Title == "Exercises" {
-				continue
-			}
-
-			// The id of the content represents the lessonID (the name of the file)
-			// and the integer after the ".", presents the page number.
-			// Example: interfaces.0
-			id := fmt.Sprintf("%s.%d", k, i)
-
-			data := struct {
-				ID      string
-				Content string
-			}{
-				ID:      id,
-				Content: p.Content,
-			}
-
-			if err := index.Index(id, data); err != nil {
-				return fmt.Errorf("indexing content %s: %w", data.ID, err)
-			}
+// indexLessonsInto initializes the provided bleve index with content from lessons.
+// It iterates through each lesson's pages, excluding "Exercises" pages,
+// and indexes the content using a formatted ID that combines the lesson
+// name and page number. The content is structured as an ID-Content pair.
+func indexLessonsInto(index bleve.Index) error {
+	for lessonName, lsn := range lessons {
+		if err := indexLessonInto(index, lessonName, lsn); err != nil {
+			return fmt.Errorf("failed to index lesson %s: %w", lessonName, err)
 		}
 	}
+	return nil
+}
 
+// indexLessonInto indexes the pages of a lesson into the provided bleve index.
+func indexLessonInto(index bleve.Index, lessonName string, lsn lesson) error {
+	for pageNum, page := range lsn.Pages {
+		// Skip indexing "Exercises" pages.
+		if page.Title == "Exercises" {
+			continue
+		}
+
+		contentID := fmt.Sprintf("%s.%d", lessonName, pageNum)
+
+		data := struct {
+			ID      string
+			Content string
+		}{
+			ID:      contentID,
+			Content: page.Content,
+		}
+
+		if err := index.Index(contentID, data); err != nil {
+			return fmt.Errorf("failed to index content %s: %w", contentID, err)
+		}
+	}
 	return nil
 }
 
@@ -363,7 +369,10 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 	return nil
 }
 
-// bleveSearch todo...
+// bleveSearch performs a search on the provided bleve index using the given
+// match phrase.
+// It creates a query based on the match phrase, performs the search, and
+// organizes the search results into a map of lessons and their relevant pages.
 func bleveSearch(index bleve.Index, matchPhrase string) (map[string]lesson, error) {
 	// Create a query based on the user's search input.
 	query := bleve.NewMatchPhraseQuery(matchPhrase)

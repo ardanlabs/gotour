@@ -210,7 +210,7 @@ directive('searchButton', ['i18n', function(i18n) {
     };
 }]).
 
-// side bar with dynamic table of contents
+// side bar with dynamic search result content.
 directive('searchContents', function() {
     const speed = 250;
     return {
