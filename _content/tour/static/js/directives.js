@@ -217,12 +217,7 @@ directive('searchContents', function() {
         restrict: 'A',
         templateUrl: '/tour/static/partials/search.html',
         link: function(scope, elm) {
-            scope.hideSearch = function(fullScreenOnly) {
-                const fullScreen = elm.find('.search').width() == $(window).width();
-                if (fullScreenOnly && !fullScreen) {
-                    return;
-                }
-
+            scope.hideSearch = function() {
                 $('.search').toggle('slide', {
                     direction: 'right'
                 }, speed);
@@ -282,11 +277,7 @@ directive('tableOfContents', ['$routeParams', 'toc',
                     $('.toc-lesson:not(#toc-l-' + scope.params.lessonId + ') .toc-page').slideUp(speed);
                 });
 
-                scope.hideTOC = function(fullScreenOnly) {
-                    var fullScreen = elm.find('.toc').width() == $(window).width();
-                    if (fullScreenOnly && !fullScreen) {
-                        return;
-                    }
+                scope.hideTOC = function() {
                     $('.toc').toggle('slide', {
                         direction: 'right'
                     }, speed);
