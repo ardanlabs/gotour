@@ -13,26 +13,33 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"path"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	website "github.com/ardanlabs/gotour"
+	"github.com/blevesearch/bleve/v2"
 	"golang.org/x/tools/present"
 )
 
 var (
-	uiContent      []byte
-	lessons        = make(map[string][]byte)
-	lessonNotFound = fmt.Errorf("lesson not found")
+	uiContent []byte
+	lessons   = make(map[string]lesson)
 )
+
+var ErrLessonNotFound = fmt.Errorf("lesson not found")
 
 var contentTour = website.TourOnly()
 
-// initTour loads tour.article and the relevant HTML templates from root.
-func initTour(mux *http.ServeMux, transport string) error {
+// initTour loads tour.article, relevant HTML templates from root, and
+// initialize the bleve index.
+func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
+
 	// Make sure playground is enabled before rendering.
 	present.PlayEnabled = true
 
@@ -45,6 +52,12 @@ func initTour(mux *http.ServeMux, transport string) error {
 	// Init lessons.
 	if err := initLessons(tmpl); err != nil {
 		return fmt.Errorf("init lessons: %v", err)
+	}
+
+	// Index lessons into the bleve index.
+	// NOTE: make sure the lessons were initialized.
+	if err := indexLessonsInto(index); err != nil {
+		return fmt.Errorf("indexing lessons: %v", err)
 	}
 
 	// Init UI.
@@ -65,6 +78,7 @@ func initTour(mux *http.ServeMux, transport string) error {
 
 	mux.HandleFunc("/tour/", rootHandler)
 	mux.HandleFunc("/tour/lesson/", lessonHandler)
+	mux.HandleFunc("/tour/bleve/", bleveHandler)
 	mux.Handle("/tour/static/", http.FileServer(http.FS(contentTour)))
 
 	return initScript(mux, socketAddr(), transport)
@@ -81,12 +95,59 @@ func initLessons(tmpl *template.Template) error {
 		if path.Ext(f.Name()) != ".article" {
 			continue
 		}
-		content, err := parseLesson(f.Name(), tmpl)
+
+		lsn, err := parseLesson(f.Name(), tmpl)
 		if err != nil {
 			return fmt.Errorf("parsing %v: %v", f.Name(), err)
 		}
+
 		name := strings.TrimSuffix(f.Name(), ".article")
-		lessons[name] = content
+
+		w := new(bytes.Buffer)
+		if err := json.NewEncoder(w).Encode(lsn); err != nil {
+			return fmt.Errorf("encode lesson: %v", err)
+		}
+
+		// lessons[name] = w.Bytes()
+		lessons[name] = lsn
+	}
+	return nil
+}
+
+// indexLessonsInto initializes the provided bleve index with content from lessons.
+// It iterates through each lesson's pages, excluding "Exercises" pages,
+// and indexes the content using a formatted ID that combines the lesson
+// name and page number. The content is structured as an ID-Content pair.
+func indexLessonsInto(index bleve.Index) error {
+	for lessonName, lsn := range lessons {
+		if err := indexLessonInto(index, lessonName, lsn); err != nil {
+			return fmt.Errorf("failed to index lesson %s: %w", lessonName, err)
+		}
+	}
+	return nil
+}
+
+// indexLessonInto indexes the pages of a lesson into the provided bleve index.
+func indexLessonInto(index bleve.Index, lessonName string, lsn lesson) error {
+	for pageNum, page := range lsn.Pages {
+		// Skip indexing "Exercise" pages.
+		if strings.Contains(page.Title, "Exercise") {
+			continue
+		}
+
+		contentID := fmt.Sprintf("%s.%d", lessonName, pageNum)
+
+		data := struct {
+			ID      string
+			Content string
+		}{
+			ID:      contentID,
+			Content: page.Content,
+		}
+
+		if err := index.Index(contentID, data); err != nil {
+			return fmt.Errorf("failed to index content %s: %w", contentID, err)
+		}
 	}
 	return nil
 }
@@ -114,10 +175,10 @@ type lesson struct {
 
 // parseLesson parses and returns a lesson content given its path
 // relative to root ('/'-separated) and the template to render it.
-func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
+func parseLesson(path string, tmpl *template.Template) (lesson, error) {
 	f, err := contentTour.Open("tour/" + path)
 	if err != nil {
-		return nil, err
+		return lesson{}, err
 	}
 	defer f.Close()
 	ctx := &present.Context{
@@ -127,20 +188,20 @@ func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
 	}
 	doc, err := ctx.Parse(prepContent(f), path, 0)
 	if err != nil {
-		return nil, err
+		return lesson{}, err
 	}
 
-	lesson := lesson{
+	lsn := lesson{
 		doc.Title,
 		doc.Subtitle,
 		make([]page, len(doc.Sections)),
 	}
 
 	for i, sec := range doc.Sections {
-		p := &lesson.Pages[i]
+		p := &lsn.Pages[i]
 		w := new(bytes.Buffer)
 		if err := sec.Render(w, tmpl); err != nil {
-			return nil, fmt.Errorf("render section: %v", err)
+			return lesson{}, fmt.Errorf("render section: %v", err)
 		}
 		p.Title = sec.Title
 		p.Content = w.String()
@@ -155,11 +216,7 @@ func parseLesson(path string, tmpl *template.Template) ([]byte, error) {
 		}
 	}
 
-	w := new(bytes.Buffer)
-	if err := json.NewEncoder(w).Encode(lesson); err != nil {
-		return nil, fmt.Errorf("encode lesson: %v", err)
-	}
-	return w.Bytes(), nil
+	return lsn, nil
 }
 
 // findPlayCode returns a slide with all the Code elements in the given
@@ -189,9 +246,15 @@ func writeLesson(name string, w io.Writer) error {
 	}
 	l, ok := lessons[name]
 	if !ok {
-		return lessonNotFound
+		return ErrLessonNotFound
 	}
-	_, err := w.Write(l)
+
+	b := new(bytes.Buffer)
+	if err := json.NewEncoder(b).Encode(l); err != nil {
+		log.Printf("encode lesson: %v", err)
+	}
+
+	_, err := w.Write(b.Bytes())
 	return err
 }
 
@@ -201,7 +264,12 @@ func writeAllLessons(w io.Writer) error {
 	}
 	nLessons := len(lessons)
 	for k, v := range lessons {
-		if _, err := fmt.Fprintf(w, "%q:%s", k, v); err != nil {
+		b := new(bytes.Buffer)
+		if err := json.NewEncoder(b).Encode(v); err != nil {
+			log.Printf("encode lesson: %v", err)
+		}
+
+		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
 			return err
 		}
 		nLessons--
@@ -211,6 +279,34 @@ func writeAllLessons(w io.Writer) error {
 			}
 		}
 	}
+	_, err := fmt.Fprint(w, "}")
+	return err
+}
+
+func writeLessons(l map[string]lesson, w io.Writer) error {
+	if _, err := fmt.Fprint(w, "{"); err != nil {
+		return err
+	}
+
+	nLessons := len(l)
+	for k, v := range l {
+		b := new(bytes.Buffer)
+		if err := json.NewEncoder(b).Encode(v); err != nil {
+			log.Printf("encode lesson: %v", err)
+		}
+
+		if _, err := fmt.Fprintf(w, "%q:%s", k, b.Bytes()); err != nil {
+			return err
+		}
+
+		nLessons--
+		if nLessons != 0 {
+			if _, err := fmt.Fprint(w, ","); err != nil {
+				return err
+			}
+		}
+	}
+
 	_, err := fmt.Fprint(w, "}")
 	return err
 }
@@ -271,4 +367,82 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 	})
 
 	return nil
+}
+
+// bleveSearch performs a search on the provided bleve index using the given
+// match phrase.
+// It creates a query based on the match phrase, performs the search, and
+// organizes the search results into a map of lessons and their relevant pages.
+func bleveSearch(index bleve.Index, matchPhrase string) (map[string]lesson, error) {
+	// Create a query based on the user's search input.
+	query := bleve.NewMatchPhraseQuery(matchPhrase)
+
+	// Create a search request with the query.
+	search := bleve.NewSearchRequest(query)
+
+	// Perform the search on the bleve index.
+	searchResults, err := index.Search(search)
+	if err != nil {
+		return nil, err
+	}
+
+	// -------------------------------------------------------------------------
+
+	hitsIDs := make([]string, len(searchResults.Hits))
+	for i, hit := range searchResults.Hits {
+		hitsIDs[i] = hit.ID
+	}
+	sort.Strings(hitsIDs)
+
+	// -------------------------------------------------------------------------
+
+	result := make(map[string]lesson)
+
+	for _, hit := range hitsIDs {
+		lessonIDAndPage := strings.Split(hit, ".")
+
+		// If the lessonID exists in the result, that means we already added
+		// the pages. We can move to the next lesson ID.
+		if _, exists := result[lessonIDAndPage[0]]; exists {
+			continue
+		}
+
+		// Search for the lesson in the lessons.
+		lsn := lessons[lessonIDAndPage[0]]
+
+		// -----------------------------------------------------------------------
+
+		var pages []page
+
+		// Iterate through the hits to find each page of a lesson and adds it
+		// to the lesson in the right order.
+		for _, h := range hitsIDs {
+			hLessonIDAndPage := strings.Split(h, ".")
+
+			// Check if the lessonID of the pages loop is the lessonID of the
+			// lessons (parent) loop. If not, continue the loop.
+			if lessonIDAndPage[0] != hLessonIDAndPage[0] {
+				continue
+			}
+
+			pageNumber, err := strconv.Atoi(hLessonIDAndPage[1])
+			if err != nil {
+				return nil, err
+			}
+
+			pages = append(pages, lsn.Pages[pageNumber])
+		}
+
+		// -----------------------------------------------------------------------
+
+		l := lesson{
+			Title:       lsn.Title,
+			Description: lsn.Description,
+			Pages:       pages,
+		}
+
+		result[lessonIDAndPage[0]] = l
+	}
+
+	return result, nil
 }

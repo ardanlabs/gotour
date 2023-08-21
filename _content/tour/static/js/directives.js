@@ -188,6 +188,46 @@ directive('horizontalSlide', ['editor',
     }
 ]).
 
+directive('searchButton', ['i18n', function(i18n) {
+    const speed = 250;
+    return {
+        restrict: 'A',
+        templateUrl: '/tour/static/partials/search-button.html',
+        link: function(scope, elm, attrs) {
+            scope.searchMessage = i18n.l('search');
+            elm.on('click', function() {
+                const search = $(attrs.searchButton);
+
+                search.toggle('slide', {
+                    direction: 'right'
+                }, speed);
+
+                // if fullscreen hide the rest of the content when showing the atoc.
+                const fullScreen = search.width() === $(window).width();
+                if (fullScreen) $('#editor-container')[visible ? 'show' : 'hide']();
+            });
+        }
+    };
+}]).
+
+// side bar with dynamic search result content.
+directive('searchContents', function() {
+    const speed = 250;
+    return {
+        restrict: 'A',
+        templateUrl: '/tour/static/partials/search.html',
+        link: function(scope, elm) {
+            scope.hideSearch = function() {
+                $('.search').toggle('slide', {
+                    direction: 'right'
+                }, speed);
+
+                $('#editor-container').show();
+            };
+        }
+    };
+}).
+
 directive('tableOfContentsButton', ['i18n', function(i18n) {
     var speed = 250;
     return {
@@ -237,11 +277,7 @@ directive('tableOfContents', ['$routeParams', 'toc',
                     $('.toc-lesson:not(#toc-l-' + scope.params.lessonId + ') .toc-page').slideUp(speed);
                 });
 
-                scope.hideTOC = function(fullScreenOnly) {
-                    var fullScreen = elm.find('.toc').width() == $(window).width();
-                    if (fullScreenOnly && !fullScreen) {
-                        return;
-                    }
+                scope.hideTOC = function() {
                     $('.toc').toggle('slide', {
                         direction: 'right'
                     }, speed);
