@@ -1,6 +1,6 @@
 module github.com/ardanlabs/gotour
 
-go 1.20
+go 1.21
 
 require (
 	golang.org/x/net v0.14.0
@@ -9,6 +9,6 @@ require (
 )
 
 require (
-	github.com/yuin/goldmark v1.5.5 // indirect
+	github.com/yuin/goldmark v1.5.6 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 )

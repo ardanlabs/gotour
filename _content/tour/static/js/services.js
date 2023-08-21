@@ -61,7 +61,7 @@ factory('run', ['$window', 'editor',
                 code += '\n' +
                     '-- go.mod --\n' +
                     'module example\n\n' +
-                    'go 1.20\n' +
+                    'go 1.21\n' +
                     '-- go.sum --\n';
             }
 
