@@ -54,21 +54,22 @@ func createUserV2() *user {
 /*
 // See escape analysis and inlining decisions.
 
-$ go build -gcflags -m=2
-# github.com/ardanlabs/gotraining/topics/go/language/pointers/example4
-./example4.go:24:6: cannot inline createUserV1: marked go:noinline
-./example4.go:38:6: cannot inline createUserV2: marked go:noinline
-./example4.go:14:6: cannot inline main: function too complex: cost 132 exceeds budget 80
-./example4.go:39:2: u escapes to heap:
-./example4.go:39:2:   flow: ~r0 = &u:
-./example4.go:39:2:     from &u (address-of) at ./example4.go:46:9
-./example4.go:39:2:     from return &u (return) at ./example4.go:46:2
-./example4.go:39:2: moved to heap: u
+# https://github.com/ardanlabs/gotour/blob/main/_content/tour/pointers/example4.go
+$ go build -gcflags -m=2 -tags OMIT example4.go
+# command-line-arguments
+./example4.go:28:6: cannot inline createUserV1: marked go:noinline
+./example4.go:43:6: cannot inline createUserV2: marked go:noinline
+./example4.go:17:6: cannot inline main: function too complex: cost 132 exceeds budget 80
+./example4.go:44:2: u escapes to heap:
+./example4.go:44:2:   flow: ~r0 = &u:
+./example4.go:44:2:     from &u (address-of) at ./example4.go:51:9
+./example4.go:44:2:     from return &u (return) at ./example4.go:51:2
+./example4.go:44:2: moved to heap: u
 
 // See the intermediate representation phase before
 // generating the actual arch-specific assembly.
 
-$ go build -gcflags -S
+$ go build -gcflags -S example4.go
 CALL	"".createUserV1(SB)
 	0x0026 00038 MOVQ	(SP), AX
 	0x002a 00042 MOVQ	8(SP), CX
@@ -82,7 +83,7 @@ CALL	"".createUserV1(SB)
 
 // See bounds checking decisions.
 
-go build -gcflags="-d=ssa/check_bce/debug=1"
+$ go build -gcflags="-d=ssa/check_bce/debug=1"
 
 // See the actual machine representation by using
 // the disasembler.
