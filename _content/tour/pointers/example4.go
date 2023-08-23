@@ -83,7 +83,7 @@ CALL	"".createUserV1(SB)
 
 // See bounds checking decisions.
 
-$ go build -gcflags="-d=ssa/check_bce/debug=1"
+$ go build -gcflags="-d=ssa/check_bce/debug=1" example4.go
 
 // See the actual machine representation by using
 // the disasembler.
