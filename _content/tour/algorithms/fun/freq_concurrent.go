@@ -1,7 +1,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample concurrenct program shows you how to implement a function
+// This sample concurrent program shows you how to implement a function
 // that can find the frequency a given rune is used in a specified sentence.
 package main
 

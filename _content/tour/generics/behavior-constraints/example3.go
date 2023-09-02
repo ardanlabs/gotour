@@ -7,7 +7,7 @@
 // Sample program to show how to implement a reflection solution which allows
 // a slice of any type to be provided and stringified. This is a generic
 // function thanks to the reflect package. Notice the call to the String
-// method via relfection.
+// method via reflection.
 package main
 
 import (

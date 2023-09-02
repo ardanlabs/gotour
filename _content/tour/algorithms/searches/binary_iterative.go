@@ -4,7 +4,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a binary search using a
+// This sample program shows you how to write a binary search using an
 // iterative approach.
 package main
 

@@ -98,7 +98,7 @@ func (t *Tree) Find(key int) (Data, error) {
 	return t.root.find(key)
 }
 
-// Delete removes the key from the tree and keeps it balaned.
+// Delete removes the key from the tree and keeps it balanced.
 func (t *Tree) Delete(key int) error {
 	if t.root == nil {
 		return errors.New("cannot delete from an empty tree")
