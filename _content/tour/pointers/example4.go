@@ -85,7 +85,7 @@ CALL	"".createUserV1(SB)
 go build -gcflags="-d=ssa/check_bce/debug=1"
 
 // See the actual machine representation by using
-// the disasembler.
+// the disassembler.
 
 $ go tool objdump -s main.main example4
 TEXT main.main(SB) github.com/ardanlabs/gotraining/topics/go/language/pointers/example4/example4.go

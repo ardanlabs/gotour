@@ -4,7 +4,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare a contraint not based on behavior but
+// Sample program to show how to declare a constraint not based on behavior but
 // based on the type of data that is acceptable. This type of constrain is
 // important when functions (like Add) need to perform operations (like +)
 // that are not supported by all types.

@@ -24,7 +24,7 @@ type Slice[T any] interface {
 }
 
 // When it's important that the slice being passed in is exactly the same
-// as the slice being returned, use a slice contraint. This ensures that the
+// as the slice being returned, use a slice constraint. This ensures that the
 // result slice S is the same as the incoming slice S.
 
 func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
@@ -64,7 +64,7 @@ func operate2[T any](slice []T, fn operateFunc[T]) []T {
 // value in the underlying integer slice and returns that new Numbers value.
 //
 // Line 73 is commented out because the compiler is smart enough to infer the
-// types for S and T. The commented code shows the types being infered.
+// types for S and T. The commented code shows the types being inferred.
 //
 // operate2 is not used in the example.
 

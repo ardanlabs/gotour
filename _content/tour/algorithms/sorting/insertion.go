@@ -31,7 +31,7 @@ func insertionSort(numbers []int) {
 	for i := 1; i < n; i++ {
 		j := i
 
-		// For the given starting i index postion, look
+		// For the given starting i index position, look
 		// for smaller values to move left down the numbers list.
 
 		for j > 0 {
