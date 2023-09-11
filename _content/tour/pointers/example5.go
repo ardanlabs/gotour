@@ -14,14 +14,14 @@ const size = 1
 // main is the entry point for the application.
 func main() {
 	s := "HELLO"
-	stackCopy(&s, 0, [size]int{})
+	stackCopy(0, &s, [size]int{})
 }
 
 // stackCopy recursively runs increasing the size
 // of the stack.
 //
 //go:noinline
-func stackCopy(s *string, c int, a [size]int) {
+func stackCopy(c int, s *string, a [size]int) {
 	println(c, s, *s)
 
 	c++
@@ -29,5 +29,5 @@ func stackCopy(s *string, c int, a [size]int) {
 		return
 	}
 
-	stackCopy(s, c, a)
+	stackCopy(c, s, a)
 }
