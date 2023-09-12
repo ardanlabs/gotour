@@ -52,11 +52,7 @@ function setInitialTheme() {
         const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
         const prefersLightScheme = window.matchMedia("(prefers-color-scheme: light)").matches;
 
-        if (prefersDarkScheme) {
-            initialTheme = 'dark';
-        } else if (prefersLightScheme) {
-            initialTheme = 'light';
-        }
+        initialTheme = prefersDarkScheme ? 'dark' : prefersLightScheme ? 'light' : 'auto';
     }
 
     setThemeAttribute(initialTheme);
