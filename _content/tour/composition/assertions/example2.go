@@ -10,7 +10,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"time"
 )
 
 // car represents something you drive.
@@ -30,9 +29,6 @@ func (cloud) String() string {
 }
 
 func main() {
-
-	// Seed the number random generator.
-	rand.Seed(time.Now().UnixNano())
 
 	// Create a slice of the Stringer interface values.
 	mvs := []fmt.Stringer{

@@ -24,11 +24,6 @@ var rwMutex sync.RWMutex
 // Number of reads occurring at ay given time.
 var readCount int64
 
-// init is called prior to main.
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func main() {
 
 	// wg is used to manage concurrency.

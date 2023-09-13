@@ -12,16 +12,11 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
-	"time"
 )
 
 const (
 	goroutines = 100
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 

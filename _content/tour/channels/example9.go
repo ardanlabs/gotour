@@ -10,13 +10,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

@@ -8,15 +8,10 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"runtime"
 	"sync"
 	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 	boundedWorkPooling()

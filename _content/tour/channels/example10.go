@@ -8,14 +8,8 @@ package main
 
 import (
 	"context"
-	"math/rand"
 	"net/http"
-	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 	stop := make(chan struct{})
