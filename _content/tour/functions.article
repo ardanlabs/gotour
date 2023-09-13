@@ -6,7 +6,10 @@ Functions are at the core of the language and they provide a mechanism to group 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Functions are at the core of the language and they provide a mechanism to group and organize our code to separate and distinct pieces of functionality. They can be used to provide an API to the packages we write and are a core component to concurrency.
+Functions are at the core of the language and they provide a mechanism to group
+and organize our code to separate and distinct pieces of functionality. They can
+be used to provide an API to the packages we write and are a core component to
+concurrency.
 
 ** Code Review
 
@@ -22,49 +25,55 @@ Functions are at the core of the language and they provide a mechanism to group 
 .play functions/example4.go
 .play functions/example5.go
 
-Functions are a fundamental building block of programs and are used to encapsulate and organize code for better modularity and reusability. Functions are blocks of code that perform a specific task or a set of related tasks. Here's an overview of functions in Go:
+Functions are a fundamental building block of programs and are used to encapsulate
+and organize code for better modularity and reusability. Functions are blocks of code
+that perform a specific task or a set of related tasks. Here's an overview of
+functions in Go:
 
-** Function Declaration:
-   To declare a function in Go, you use the `func` keyword followed by the function name, a list of parameters enclosed in parentheses, and an optional return type. The general syntax is:
+** Function Declaration
 
-   ```go
+To declare a function in Go, you use the `func` keyword followed by the
+function name, a list of parameters enclosed in parentheses, and an optional
+return type. The general syntax is:
+
    func functionName(parameter1 type, parameter2 type, ...) return_type {
        // Function body
    }
-   ```
 
-   For example:
+For example:
 
-   ```go
    func add(x int, y int) int {
        return x + y
    }
-   ```
 
-** Parameters:
-   Functions can take zero or more parameters, which are the values passed to the function when it is called. Each parameter consists of a name and a type. In the example above, `add` takes two integer parameters, `x` and `y`.
+** Parameters and Return Values
 
-** Return Values:
-   Functions can return zero or one value (or none, in which case you can omit the return type). The `return` statement is used to specify the value to be returned. In the example above, `add` returns an integer.
+Functions can take zero or more parameters, which are the values passed to the
+function when it is called. Each parameter consists of a name and a type. In
+the example above, `add` takes two integer parameters, `x` and `y`.
 
-** Multiple Return Values:
-   Go allows functions to return multiple values. This is useful in cases where you want to return more than one result from a function. For example:
+Functions can return zero or one value (or none, in which case you can omit the
+return type). The `return` statement is used to specify the value to be returned.
+In the example above, `add` returns an integer.
 
-   ```go
+Go allows functions to return multiple values. This is useful in cases where you
+want to return more than one result from a function. For example:
+
    func divide(x, y float64) (float64, error) {
        if y == 0 {
            return 0, errors.New("division by zero")
        }
        return x / y, nil
    }
-   ```
 
-   In this example, the `divide` function returns both a floating-point result and an error (if the division by zero occurs).
+In this example, the `divide` function returns both a floating-point result and
+an error (if the division by zero occurs).
 
-** Named Return Values:
-   Go allows you to specify names for the return values in a function's signature. Named return values are automatically initialized and can be used as regular variables within the function. They are particularly useful when dealing with complex functions or error handling. For example:
+Go allows you to specify names for the return values in a function's signature.
+Named return values are automatically initialized and can be used as regular
+variables within the function. They are particularly useful when dealing with
+complex functions or error handling. For example:
 
-   ```go
    func divide(x, y float64) (result float64, err error) {
        if y == 0 {
            err = errors.New("division by zero")
@@ -73,20 +82,22 @@ Functions are a fundamental building block of programs and are used to encapsula
        result = x / y
        return
    }
-   ```
 
-** Function Calls:
-   To call a function in Go, you use the function name followed by a list of arguments enclosed in parentheses. If the function has multiple return values, you can capture them in variables. For example:
+** Function Calls
 
-   ```go
-   sum := add(3, 5)           // Call the add function and assign its result to sum
+To call a function in Go, you use the function name followed by a list of arguments
+enclosed in parentheses. If the function has multiple return values, you can capture
+them in variables. For example:
+
+   sum := add(3, 5)            // Call the add function and assign its result to sum
    result, err := divide(8, 2) // Call the divide function and capture both result and error
-   ```
 
-** Function Variadic Parameters:
-   Go supports variadic functions, which allow you to pass a variable number of arguments to a function. To define a variadic parameter, you use an ellipsis (`...`) followed by the parameter type. For example:
+** Function Variadic Parameters
 
-   ```go
+ Go supports variadic functions, which allow you to pass a variable number of
+ arguments to a function. To define a variadic parameter, you use an ellipsis
+ (`...`) followed by the parameter type. For example:
+
    func calculateSum(nums ...int) int {
        sum := 0
        for _, num := range nums {
@@ -94,42 +105,49 @@ Functions are a fundamental building block of programs and are used to encapsula
        }
        return sum
    }
-   ```
 
-   You can call this function with any number of integers.
+You can call this function with any number of integers.
 
-** Anonymous Functions (Closures):
-   Go supports anonymous functions, also known as closures. These are functions without a name, and they can be assigned to variables and used as arguments to other functions. Closures are often used in Go for tasks like defining inline functions or for concurrent programming using goroutines.
+** Anonymous Functions
 
-   ```go
+Go supports anonymous functions, also known as closures. These are functions
+without a name, and they can be assigned to variables and used as arguments to
+other functions. Closures are often used in Go for tasks like defining inline
+functions or for concurrent programming using goroutines.
+
    add := func(x, y int) int {
        return x + y
    }
 
    result := add(3, 5)
-   ```
 
-** Function as a Type:
-   In Go, functions can also be used as types. This allows you to define functions that take other functions as arguments or return them as results. It's a powerful feature for implementing higher-order functions and callbacks.
+** Function as a Type
 
-   ```go
+In Go, functions can also be used as types. This allows you to define functions
+that take other functions as arguments or return them as results. It's a powerful
+feature for implementing higher-order functions and callbacks.
+
    type MathFunc func(int, int) int
 
    func operate(x, y int, op MathFunc) int {
        return op(x, y)
    }
-   ```
 
-   You can then pass functions as arguments to `operate`.
+You can then pass functions as arguments to `operate`.
 
-** Defer and Panic:
-    Go provides two special built-in functions called `defer` and `panic` for handling exceptional situations and resource management. `defer` is used to schedule a function call to be executed just before the function returns, while `panic` is used to trigger a run-time error and unwind the stack.
+** Defer and Panic
+
+Go provides two special built-in functions called `defer` and `panic` for handling
+exceptional situations and resource management. `defer` is used to schedule a function
+call to be executed just before the function returns, while `panic` is used to
+trigger a run-time error and unwind the stack.
 
 	"The panic built-in function stops normal execution of the current goroutine. When a function F calls panic, normal execution of F stops immediately. Any functions whose execution was deferred by F are run in the usual way, and then F returns to its caller. To the caller G, the invocation of F then behaves like a call to panic, terminating G's execution and running any deferred functions. This continues until all functions in the executing goroutine have stopped, in reverse order. At that point, the program is terminated with a non-zero exit code. This termination sequence is called panicking and can be controlled by the built-in function recover."
 	[func panic](https://pkg.go.dev/builtin#panic)
 
-Functions in Go play a central role in structuring code and promoting clean, maintainable, and efficient software. Understanding how to declare, define, and use functions is crucial for writing effective Go programs.
-
+Functions in Go play a central role in structuring code and promoting clean,
+maintainable, and efficient software. Understanding how to declare, define, and
+use functions is crucial for writing effective Go programs.
 
 ** Notes
 
