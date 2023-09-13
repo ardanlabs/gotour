@@ -1,5 +1,4 @@
 //go:build OMIT
-// +build OMIT
 
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -36,45 +35,17 @@ func IsPalindrome(input string) bool {
 		return true
 	}
 
-	// Create a reverse string from input string.
-	rev := reverseString(input)
-
-	// Check if input and rev strings are equal.
-	if input == rev {
-		return true
-	}
-
-	return false
-}
-
-// reverseString takes the specified string and reverses it.
-func reverseString(str string) string {
-
 	// Convert the input string into slice of runes for processing.
 	// A rune represent a code point in the UTF-8 character set.
-	runes := []rune(str)
+	runes := []rune(input)
 
-	// Create an index that will traverse the collection of
-	// runes from the beginning to the end.
-	var beg int
-
-	// Create an index that will traverse the collection of
-	// runes from the end to the beginning.
-	end := len(runes) - 1
-
-	// Keep swapping runes until the two indexes meet in the middle.
-	for beg < end {
-
-		// Swap the position of these two rune’s.
-		r := runes[beg]
-		runes[beg] = runes[end]
-		runes[end] = r
-
-		// Move the indexes closer to each other
-		// working towards the middle of the collection.
-		beg = beg + 1
-		end = end - 1
+	// Run over runes forward and backward comparing runes.
+	// If runes[i] != runes[len(runes)-i-1] then it's not a palindrome.
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		if runes[i] != runes[j] {
+			return false
+		}
 	}
 
-	return string(runes)
+	return true
 }

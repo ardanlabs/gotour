@@ -1,5 +1,4 @@
 //go:build OMIT
-// +build OMIT
 
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -11,16 +10,10 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
-	"time"
 )
 
 // numbers maintains a set of random numbers.
 var numbers []int
-
-// init is called prior to main.
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 

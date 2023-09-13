@@ -1,5 +1,4 @@
 //go:build OMIT
-// +build OMIT
 
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -24,11 +23,6 @@ var rwMutex sync.RWMutex
 
 // Number of reads occurring at ay given time.
 var readCount int64
-
-// init is called prior to main.
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 

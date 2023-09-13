@@ -153,15 +153,14 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
-	"unicode/utf8"
 )
 
 // HandlerWithCheck returns an http.Handler that responds to each request
@@ -245,7 +244,7 @@ func test(t *testing.T, glob string, do func(*case_) error) {
 	}
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
-			data, err := ioutil.ReadFile(file)
+			data, err := os.ReadFile(file)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -302,56 +301,6 @@ func (c *case_) runHandler(h http.Handler) error {
 	}
 	h.ServeHTTP(w, r)
 	return c.check(w.Result(), w.Body.String())
-}
-
-// runServer runs a test case against the server at address addr.
-func (c *case_) runServer(addr string) error {
-	baseURL := ""
-	if strings.HasPrefix(addr, "http://") || strings.HasPrefix(addr, "https://") {
-		// addr is a base URL
-		if !strings.HasSuffix(addr, "/") {
-			addr += "/"
-		}
-		baseURL = addr
-	} else {
-		// addr is an HTTP proxy
-		baseURL = "http://" + addr + "/"
-	}
-
-	// Build full URL for request.
-	u := c.url
-	if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
-		u = strings.TrimSuffix(baseURL, "/")
-		if !strings.HasPrefix(c.url, "/") {
-			u += "/"
-		}
-		u += c.url
-	}
-	req, err := c.newRequest(u)
-
-	if err != nil {
-		return fmt.Errorf("%s:%d: %s %s: %s", c.file, c.line, c.method, c.url, err)
-	}
-	tr := &http.Transport{}
-	if !strings.HasPrefix(u, baseURL) {
-		// If u does not begin with baseURL, then we're in the proxy case
-		// and we try to tunnel the network activity through the proxy's address.
-		proxyURL, err := url.Parse(baseURL)
-		if err != nil {
-			return fmt.Errorf("invalid addr: %v", err)
-		}
-		tr.Proxy = func(*http.Request) (*url.URL, error) { return proxyURL, nil }
-	}
-	resp, err := tr.RoundTrip(req)
-	if err != nil {
-		return fmt.Errorf("%s:%d: %s %s: %s", c.file, c.line, c.method, c.url, err)
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		return fmt.Errorf("%s:%d: %s %s: reading body: %s", c.file, c.line, c.method, c.url, err)
-	}
-	return c.check(resp, string(body))
 }
 
 // newRequest creates a new request for the case c,
@@ -654,16 +603,6 @@ func parseScript(file, text string) (*script, error) {
 func cut(s, sep string) (before, after string, ok bool) {
 	if i := strings.Index(s, sep); i >= 0 {
 		return s[:i], s[i+len(sep):], true
-	}
-	return s, "", false
-}
-
-// cutAny returns the result of cutting s around the first instance of
-// any code point from any.
-func cutAny(s, any string) (before, after string, ok bool) {
-	if i := strings.IndexAny(s, any); i >= 0 {
-		_, size := utf8.DecodeRuneInString(s[i:])
-		return s[:i], s[i+size:], true
 	}
 	return s, "", false
 }

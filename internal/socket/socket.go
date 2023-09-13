@@ -20,7 +20,6 @@ import (
 	"go/parser"
 	"go/token"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -54,7 +53,7 @@ const (
 // It is used for both sending output messages and receiving commands, as
 // distinguished by the Kind field.
 type Message struct {
-	Id      string // client-provided unique id for the process
+	ID      string `json:"Id"` // client-provided unique id for the process
 	Kind    string // in: "run", "kill" out: "stdout", "stderr", "end"
 	Body    string
 	Options *Options `json:",omitempty"`
@@ -135,10 +134,10 @@ func socketHandler(c *websocket.Conn) {
 			switch m.Kind {
 			case "run":
 				log.Println("running snippet from:", c.Request().RemoteAddr)
-				proc[m.Id].Kill()
-				proc[m.Id] = startProcess(m.Id, m.Body, out, m.Options)
+				proc[m.ID].Kill()
+				proc[m.ID] = startProcess(m.ID, m.Body, out, m.Options)
 			case "kill":
-				proc[m.Id].Kill()
+				proc[m.ID].Kill()
 			}
 		case err := <-errc:
 			if err != io.EOF {
@@ -173,7 +172,7 @@ func startProcess(id, body string, dest chan<- *Message, opt *Options) *process 
 	go func() {
 		defer close(done)
 		for m := range buffer(limiter(out, p), time.After) {
-			m.Id = id
+			m.ID = id
 			dest <- m
 		}
 	}()
@@ -323,23 +322,6 @@ func shebang(body string) (path string, args []string) {
 	return fs[0], fs
 }
 
-// startProcess starts a given program given its path and passing the given body
-// to the command standard input.
-func (p *process) startProcess(path string, args []string, body string) error {
-	cmd := &exec.Cmd{
-		Path:   path,
-		Args:   args,
-		Stdin:  strings.NewReader(body),
-		Stdout: &messageWriter{kind: "stdout", out: p.out},
-		Stderr: &messageWriter{kind: "stderr", out: p.out},
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	p.run = cmd
-	return nil
-}
-
 // start builds and starts the given program, sending its output to p.out,
 // and stores the running *exec.Cmd in the run field.
 func (p *process) start(body string, opt *Options) error {
@@ -348,7 +330,7 @@ func (p *process) start(body string, opt *Options) error {
 	// (rather than the go tool process).
 	// This makes Kill work.
 
-	path, err := ioutil.TempDir("", "present-")
+	path, err := os.MkdirTemp("", "present-")
 	if err != nil {
 		return err
 	}
@@ -378,7 +360,7 @@ func (p *process) start(body string, opt *Options) error {
 				return err
 			}
 		}
-		err = ioutil.WriteFile(filepath.Join(path, f.Name), f.Data, 0666)
+		err = os.WriteFile(filepath.Join(path, f.Name), f.Data, 0666)
 		if err != nil {
 			return err
 		}

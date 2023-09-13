@@ -1,5 +1,4 @@
 //go:build OMIT
-// +build OMIT
 
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -11,7 +10,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"time"
 )
 
 // car represents something you drive.
@@ -31,9 +29,6 @@ func (cloud) String() string {
 }
 
 func main() {
-
-	// Seed the number random generator.
-	rand.Seed(time.Now().UnixNano())
 
 	// Create a slice of the Stringer interface values.
 	mvs := []fmt.Stringer{
