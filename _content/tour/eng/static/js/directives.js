@@ -192,7 +192,7 @@ directive('searchButton', ['i18n', function(i18n) {
     const speed = 250;
     return {
         restrict: 'A',
-        templateUrl: '/tour/static/partials/search-button.html',
+        templateUrl: '/tour/eng/static/partials/search-button.html',
         link: function(scope, elm, attrs) {
             scope.searchMessage = i18n.l('search');
             elm.on('click', function() {
@@ -215,7 +215,7 @@ directive('searchContents', function() {
     const speed = 250;
     return {
         restrict: 'A',
-        templateUrl: '/tour/static/partials/search.html',
+        templateUrl: '/tour/eng/static/partials/search.html',
         link: function(scope, elm) {
             scope.hideSearch = function() {
                 $('.search').toggle('slide', {
@@ -232,7 +232,7 @@ directive('tableOfContentsButton', ['i18n', function(i18n) {
     var speed = 250;
     return {
         restrict: 'A',
-        templateUrl: '/tour/static/partials/toc-button.html',
+        templateUrl: '/tour/eng/static/partials/toc-button.html',
         link: function(scope, elm, attrs) {
             scope.tocMessage = i18n.l('toc');
             elm.on('click', function() {
@@ -261,7 +261,7 @@ directive('tableOfContents', ['$routeParams', 'toc',
         var speed = 250;
         return {
             restrict: 'A',
-            templateUrl: '/tour/static/partials/toc.html',
+            templateUrl: '/tour/eng/static/partials/toc.html',
             link: function(scope, elm) {
                 scope.toc = toc;
                 scope.params = $routeParams;
@@ -291,14 +291,14 @@ directive('tableOfContents', ['$routeParams', 'toc',
 directive('feedbackButton', ['i18n', function(i18n) {
     return {
         restrict: 'A',
-        templateUrl: '/tour/static/partials/feedback-button.html',
+        templateUrl: '/tour/eng/static/partials/feedback-button.html',
         link: function(scope, elm, attrs) {
             scope.feedbackMessage = i18n.l('submit-feedback');
 
             elm.on('click', function() {
-                var context = window.location.pathname === '/tour/list'
-                    ? '/tour/list'
-                    : '/tour/' + scope.params.lessonId + '/' + scope.params.pageNumber;
+                var context = window.location.pathname === '/tour/eng/list'
+                    ? '/tour/eng/list'
+                    : '/tour/eng/' + scope.params.lessonId + '/' + scope.params.pageNumber;
 	        context = window.location.protocol + '//' + window.location.host + context;
                 var title = i18n.l('issue-title');
                 var body = i18n.l('context') + ': '+ context + '\n\n'+ i18n.l('issue-message');

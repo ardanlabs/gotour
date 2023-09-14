@@ -10,20 +10,23 @@ config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $routeProvider.
         when('/tour/', {
-            redirectTo: '/tour/list'
+            redirectTo: '/tour/eng/list'
         }).
-        when('/tour/list', {
-            templateUrl: '/tour/static/partials/list.html',
+        when('/tour/eng/', {
+            redirectTo: '/tour/eng/list'
         }).
-        when('/tour/:lessonId/:pageNumber', {
-            templateUrl: '/tour/static/partials/editor.html',
+        when('/tour/eng/list', {
+            templateUrl: '/tour/eng/static/partials/list.html',
+        }).
+        when('/tour/eng/:lessonId/:pageNumber', {
+            templateUrl: '/tour/eng/static/partials/editor.html',
             controller: 'EditorCtrl'
         }).
-        when('/tour/:lessonId', {
-            redirectTo: '/tour/:lessonId/1'
+        when('/tour/eng/:lessonId', {
+            redirectTo: '/tour/eng/:lessonId/1'
         }).
         otherwise({
-            redirectTo: '/tour/'
+            redirectTo: '/tour/eng/list'
         });
 
         $locationProvider.html5Mode(true).hashPrefix('!');
@@ -38,15 +41,18 @@ run(function($rootScope, $location, mapping) {
         if (url.pathname != '/tour/' || url.hash == '') {
             return;
         }
+        if (url.pathname != '/tour/eng/' || url.hash == '') {
+            return;
+        }
         $location.hash('');
         var m = mapping[url.hash];
         if (m === undefined) {
             console.log('unknown url, redirecting home');
-            $location.path('/tour/list');
+            $location.path('/tour/eng/list');
             return;
         } 
       
-        $location.path('/tour' + m);
+        $location.path('/tour/eng' + m);
     });
 });
 

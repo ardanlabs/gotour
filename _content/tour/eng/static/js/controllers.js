@@ -54,12 +54,12 @@ controller('EditorCtrl', ['$scope', '$routeParams', '$location', 'toc', 'i18n', 
             } else {
                 l = (page < 1) ? toc.prevLesson(l) : toc.nextLesson(l);
                 if (l === '') { // If there's no previous or next
-                    $location.path('/tour/list');
+                    $location.path('/tour/eng/list');
                     return;
                 }
                 page = (page < 1) ? lessons[l].Pages.length : 1;
             }
-            $location.path('/tour/' + l + '/' + page);
+            $location.path('/tour/eng/' + l + '/' + page);
             $scope.openFile($scope.curFile);
             analytics.trackView();
         };
@@ -123,7 +123,7 @@ controller('EditorCtrl', ['$scope', '$routeParams', '$location', 'toc', 'i18n', 
 
     $scope.performSearch = function() {
         if ($scope.searchTerm && $scope.searchTerm.length >= 3) {
-            $http.get('/tour/bleve/', { params: { search: $scope.searchTerm } })
+            $http.get('/tour/eng/bleve/', { params: { search: $scope.searchTerm } })
                 .success(function(response) {
                     for (const key in response) {
                         response[key].Key = key

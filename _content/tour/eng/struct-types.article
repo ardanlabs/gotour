@@ -109,7 +109,7 @@ A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all togethe
 and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
 is a padding byte sitting between the flag and counter fields for the reason of alignment.
 
-.image /tour/static/img/f1.png
+.image /tour/eng/static/img/f1.png
 
 The idea of alignment is to allow the hardware to read memory more efficiently
 by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
@@ -145,7 +145,7 @@ must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
 address that is a multiple of 2. This requires the counter field to start at address
 0xc000100022. This creates a 1-byte gap between the flag and counter fields.
 
-.image /tour/static/img/f2.png
+.image /tour/eng/static/img/f2.png
 
 The `flag2` field is a bool and can fall at the next address 0xc000100024. The
 final field is pi and requires 4 bytes of allocation so it needs to fall on a
@@ -173,7 +173,7 @@ After the reordering of the fields, the struct value only requires 8 bytes of
 allocation and not 12 bytes. Since all the fields allow the struct value to fall
 on a 4-byte alignment, no extra padding bytes are necessary.
 
-.image /tour/static/img/f3.png
+.image /tour/eng/static/img/f3.png
 
 ** Assigning Values
 

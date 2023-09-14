@@ -10,7 +10,7 @@ import (
 // rootHandler returns a handler for all the requests except the ones for lessons.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
-		http.Redirect(w, r, "/tour/", http.StatusFound)
+		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 		return
 	}
 	if err := renderUI(w); err != nil {
@@ -20,7 +20,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 // lessonHandler handler the HTTP requests for lessons.
 func lessonHandler(w http.ResponseWriter, r *http.Request) {
-	lesson := strings.TrimPrefix(r.URL.Path, "/tour/lesson/")
+	lesson := strings.TrimPrefix(r.URL.Path, "/tour/eng/lesson/")
 	if err := writeLesson(lesson, w); err != nil {
 		if err == ErrLessonNotFound {
 			http.NotFound(w, r)

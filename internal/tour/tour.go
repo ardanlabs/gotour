@@ -44,7 +44,7 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	present.PlayEnabled = true
 
 	// Set up templates.
-	tmpl, err := present.Template().ParseFS(contentTour, "tour/template/action.tmpl")
+	tmpl, err := present.Template().ParseFS(contentTour, "tour/eng/template/action.tmpl")
 	if err != nil {
 		return fmt.Errorf("parse templates: %v", err)
 	}
@@ -61,7 +61,7 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	}
 
 	// Init UI.
-	ui, err := template.ParseFS(contentTour, "tour/template/index.tmpl")
+	ui, err := template.ParseFS(contentTour, "tour/eng/template/index.tmpl")
 	if err != nil {
 		return fmt.Errorf("parse index.tmpl: %v", err)
 	}
@@ -76,10 +76,10 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 	}
 	uiContent = buf.Bytes()
 
-	mux.HandleFunc("/tour/", rootHandler)
-	mux.HandleFunc("/tour/lesson/", lessonHandler)
-	mux.HandleFunc("/tour/bleve/", bleveHandler)
-	mux.Handle("/tour/static/", http.FileServer(http.FS(contentTour)))
+	mux.HandleFunc("/tour/eng/", rootHandler)
+	mux.HandleFunc("/tour/eng/lesson/", lessonHandler)
+	mux.HandleFunc("/tour/eng/bleve/", bleveHandler)
+	mux.Handle("/tour/eng/static/", http.FileServer(http.FS(contentTour)))
 
 	return initScript(mux, socketAddr(), transport)
 }
@@ -87,7 +87,7 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index) error {
 // initLessons finds all the lessons in the content directory, renders them,
 // using the given template and saves the content in the lessons map.
 func initLessons(tmpl *template.Template) error {
-	files, err := fs.ReadDir(contentTour, "tour")
+	files, err := fs.ReadDir(contentTour, "tour/eng")
 	if err != nil {
 		return err
 	}
@@ -176,14 +176,14 @@ type lesson struct {
 // parseLesson parses and returns a lesson content given its path
 // relative to root ('/'-separated) and the template to render it.
 func parseLesson(path string, tmpl *template.Template) (lesson, error) {
-	f, err := contentTour.Open("tour/" + path)
+	f, err := contentTour.Open("tour/eng/" + path)
 	if err != nil {
 		return lesson{}, err
 	}
 	defer f.Close()
 	ctx := &present.Context{
 		ReadFile: func(filename string) ([]byte, error) {
-			return fs.ReadFile(contentTour, "tour/"+filepath.ToSlash(filename))
+			return fs.ReadFile(contentTour, "tour/eng/"+filepath.ToSlash(filename))
 		},
 	}
 	doc, err := ctx.Parse(prepContent(f), path, 0)
@@ -328,7 +328,7 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 
 	// Keep this list in dependency order
 	files := []string{
-		"../js/playground.js",
+		"../../js/playground.js",
 		"static/lib/jquery.min.js",
 		"static/lib/jquery-ui.min.js",
 		"static/lib/angular.min.js",
@@ -343,14 +343,14 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 	}
 
 	for _, file := range files {
-		f, err := fs.ReadFile(contentTour, path.Clean("tour/"+file))
+		f, err := fs.ReadFile(contentTour, path.Clean("tour/eng/"+file))
 		if err != nil {
 			return err
 		}
 		b.Write(f)
 	}
 
-	f, err := fs.ReadFile(contentTour, "tour/static/js/page.js")
+	f, err := fs.ReadFile(contentTour, "tour/eng/static/js/page.js")
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func initScript(mux *http.ServeMux, socketAddr, transport string) error {
 	s = strings.ReplaceAll(s, "{{.Transport}}", transport)
 	b.WriteString(s)
 
-	mux.HandleFunc("/tour/script.js", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/tour/eng/script.js", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/javascript")
 		// Set expiration time in one week.
 		w.Header().Set("Cache-control", "max-age=604800")

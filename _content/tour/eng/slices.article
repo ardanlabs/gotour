@@ -10,7 +10,7 @@ Slices are an incredibly important data structure in Go. They form the basis for
 how we manage and manipulate data in a flexible, performant, and dynamic way. It's
 very beneficial for all Go programmers to learn how slices work, and how to use them.
 
-.image /tour/static/img/sl1.png
+.image /tour/eng/static/img/sl1.png
 
 ** Code Review 
 
@@ -170,7 +170,7 @@ since the mutation is being performed on the function’s own copy of the data i
 Append always maintains a contiguous block of memory for the slice’s backing array,
 even after growth. This is important for the hardware.
 
-.image /tour/static/img/sl2.png
+.image /tour/eng/static/img/sl2.png
 
 Every time the append function is called, the function checks if the length and
 capacity of the slice is the same or not. If it’s the same, it means there is no
@@ -178,7 +178,7 @@ more room in the backing array for the new value. In this case, append creates a
 new backing array (doubling or growing by 25%) and then copies the values from the
 old array into the new one. Then the new value can be appended.
 
-.image /tour/static/img/sl3.png
+.image /tour/eng/static/img/sl3.png
 
 If it’s not the same, it means that there is an extra element of capacity existing
 for the append. An element is taken from capacity and added to the length of the
@@ -211,7 +211,7 @@ at index 2 and 3 (C and D) of the original slice’s backing array. The length o
 slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
 3 elements from that pointer position.
 
-.image /tour/static/img/sl4.png
+.image /tour/eng/static/img/sl4.png
 
 A better way to think about slicing is to focus on the length using this notation
 [a:a+len]  index a through a plus the length. This will reduce errors in
@@ -282,7 +282,7 @@ Output:
 You always have to be aware when you are modifying a value at an index position if
 the backing array is being shared with another slice.
 
-.image /tour/static/img/sl5.png
+.image /tour/eng/static/img/sl5.png
 
 What if you use the built-in function append instead?
 
@@ -310,7 +310,7 @@ bringing in more length from capacity for slice2 has caused the value at address
 0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
 part of its length.
 
-.image /tour/static/img/sl6.png
+.image /tour/eng/static/img/sl6.png
 
 One way to avert the side effect is to use a three index slice when constructing
 slice2 so the length and capacity is the same at 2.
@@ -359,7 +359,7 @@ Output:
 
 Notice after the call to append, slice2 has a new backing array.
 
-.image /tour/static/img/sl7.png
+.image /tour/eng/static/img/sl7.png
 
 This can be seen by comparing the addresses of each slice. In this case, the
 mutation against slice2 didn’t cause a side effect against slice1.
@@ -421,7 +421,7 @@ A slice is used to maintain a collection of users. Then a pointer is set to the
 first user and used to update likes. The output shows that using the pointer is
 working.
 
-.image /tour/static/img/sl8.png
+.image /tour/eng/static/img/sl8.png
 
 Then a new user is appended to the collection and the pointer is used again to
 add a like to the first user. 
@@ -445,7 +445,7 @@ However, since the append function replaced the backing array with a new one,
 the pointer is updating the old backing array and the likes are lost. The output
 shows the likes for the first user did not increase.
 
-.image /tour/static/img/sl9.png
+.image /tour/eng/static/img/sl9.png
 
 You have to be careful to know if a slice is going to be used in an append operation
 during the course of a running program. How you share the slice needs to be
@@ -471,7 +471,7 @@ minimize heap allocations.
 The code is performing a linear traversal by creating slice values that read
 different sections of the byte array from beginning to end.
 
-.image /tour/static/img/sl10.png
+.image /tour/eng/static/img/sl10.png
 
 All the data in this code stays on the stack. No extra copies of the data inside
 the byte slice are copied.

@@ -29,7 +29,7 @@ func main() {
 	flag.StringVar(
 		&filePath,
 		"file_path",
-		"./_content/tour/pointers.article",
+		"./_content/tour/eng/pointers.article",
 		"Path to Markdown file",
 	)
 
