@@ -21,7 +21,13 @@ func TestWeb(t *testing.T) {
 	}
 	defer index.Close()
 
-	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
+	rusIndex, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
+	if err := initTour(http.DefaultServeMux, "SocketTransport", index, rusIndex); err != nil {
 		log.Fatal(err)
 	}
 

@@ -85,7 +85,7 @@ setThemeButtons();
 function setLanguageSelectorChange() {
     const languageSelector = document.getElementById('languageSelector');
     languageSelector.addEventListener('change', (event) => {
-        window.location.href = `/tour/${event.target.value}/list`;
+        window.location.href = `/tour/${event.target.value}/`;
         document.cookie = "language-preference=" + event.target.value + ";path=/;max-age=31536000;";
     });
 }

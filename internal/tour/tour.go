@@ -134,7 +134,7 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index, rusIndex 
 	// -------------------------------------------------------------------------
 	// TODO: uncomment this when Russian content is ready.
 
-	// mux.HandleFunc("/tour/rus/", rootRusHandler)
+	// mux.HandleFunc("/tour/rus/", rootHandler)
 	// mux.HandleFunc("/tour/rus/lesson/", lessonRusHandler)
 	// mux.HandleFunc("/tour/rus/bleve/", bleveRusHandler)
 	// mux.Handle("/tour/rus/static/", http.FileServer(http.FS(contentTour)))

@@ -21,47 +21,27 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// If the language preference cookie was found, redirect based on its value.
-	if langPref == "rus" {
-		http.Redirect(w, r, "/tour/rus", http.StatusFound)
-		return
-	}
-
 	if r.URL.Path == "/" {
+		if langPref != "" {
+			http.Redirect(w, r, "/tour/"+langPref+"/", http.StatusFound)
+			return
+		}
+
+		// Defaults to English version.
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 		return
 	}
-	if err := renderUI(w); err != nil {
-		log.Println(err)
-	}
-}
 
-// rootRusHandler returns a handler for all the requests except the ones for lessons.
-func rootRusHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the cookies from the request
-	cookies := r.Cookies()
-	var langPref string
-
-	// Iterate through the cookies to find the language preference cookie.
-	for _, cookie := range cookies {
-		if cookie.Name == "language-preference" {
-			langPref = cookie.Value
-			break
+	if r.URL.Path == "/tour/eng/" {
+		if err := renderUI(w); err != nil {
+			log.Println(err)
 		}
 	}
 
-	// If the language preference cookie was found, redirect based on its value.
-	if langPref == "eng" {
-		http.Redirect(w, r, "/tour/eng", http.StatusFound)
-		return
-	}
-
-	if r.URL.Path == "/" {
-		http.Redirect(w, r, "/tour/rus/", http.StatusFound)
-		return
-	}
-	if err := renderRusUI(w); err != nil {
-		log.Println(err)
+	if r.URL.Path == "/tour/rus/" {
+		if err := renderRusUI(w); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
