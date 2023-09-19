@@ -1,0 +1,188 @@
+Sort Operations
+This section provides examples that perform sorting operations.
+
+* Bubble Sort
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+The sample program implements a function that performs bubble sort
+against a set of integers.
+
+- See more at [[https://en.wikipedia.org/wiki/Bubble_sort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagram*
+
+    Bubble sort is a simple sorting algorithm that repeatedly steps through the
+    input list element by element, comparing the current element with the one
+    after it, swapping their values if needed.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Starting Array
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── After First Iteration
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── After Second Iteration / Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Insertion Sort
+
+The sample program implements a function that performs insertion sort
+against a set of integers.
+
+- See more at [[https://en.wikipedia.org/wiki/Insertion_sort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagram*
+
+    Insertion sort iterates the same number of times as the array
+    length minus one. For an array of 5 numbers, the sort will iterate
+    4 times. Starting at index 1, the sort moves that number to the
+    left placing it in a sorted position.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Move [1]=30 to the left
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── After First Iteration
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Move [2]=05 to the left
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── After Second Iteration
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁── Move [3]=25 to the left
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── After Third Iteration
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁── Move [4]=15 to the left
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── After Forth Iteration
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Heap Sort
+
+The sample program implements a function that performs heap sort
+against a set of integers.
+
+- See more at [[https://en.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagram*
+
+Heap sort divides its input into a sorted and an unsorted array. The
+algorithm iteratively shrinks the unsorted region by extracting the largest
+element from it and inserting it into the sorted array. The algorithm runs
+in two phases.
+
+    Phase I  
+    Split the list in half and work the front half of the list, moving
+    the largest value we find to the front of the list and then the
+    second largest.
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁── Check [1]=16 < [4]=73 : Swap
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── After First Iteration
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁── Check [0]=63 < [3]=71 : Swap
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── After Second Iteration
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁── Phase I Complete
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Phase II  
+    Take the list and start moving numbers out and into a new sorted
+    list. Take the number in the first position and remove it to the
+    new list which will contain the final sort. Then move the largest
+    number we find once again to the front of the list.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Starting Array
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── After First Iteration
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── Move 73 out and 71 to front
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁── After Second Iteration
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁── Move 71 out and 63 to front
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── After Third Iteration
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁── Move 63 out and 40 to front
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── After Forth Iteration
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁── Move 40 out and 16 to front
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── After Fifth Iteration
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁── Move 16 out / Sorted
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Quick Sort
+
+The sample program implements a function that performs quick sort
+against a set of integers.
+
+- See more at [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagram*
+
+    Quicksort is a divide-and-conquer algorithm. It works by selecting a
+    'pivot' element from the array and partitioning the other elements
+    into two sub-arrays, according to whether they are less than or greater
+    than the pivot. 
+
+    -------------------------------------------------------------------
+    Example 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Pivot Value 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sort Elements 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── First Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+    Last Two elements are sorted, focus on first three.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Pivot Value 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Example 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Starting Array
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Pivot Value 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sort Elements 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── First Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+    First element is sorted, focus on the last four.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pivot Value 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Second Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+     First two elements are sorted, focus on the last three.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Pivot Value 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Third Sort Complete
+    └────┘└────┘└────┘└────┘└────┘
+
+    First three elements are sorted, focus on the last two.
+
+    ┌────┐┌────┐ ◁── Pivot Value 59
+    │ 73 ││ 59 │ ◁── Third Sort Complete
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Sorted
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

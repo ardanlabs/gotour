@@ -1,0 +1,180 @@
+Constants
+One of the more unique features of Go is how the language implements constants.
+
+* Constants
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+One of the more unique features of Go is how the language implements constants.
+The rules for constants in the language specification are unique to Go. They provide
+the flexibility Go needs to make the code we write readable and intuitive while still
+maintaining type safety.
+
+Constants can be typed or untyped. When a constant is untyped, it’s considered to
+be of a kind. Constants of a kind can be implicitly converted by the compiler. This
+all happens at compile time and not at runtime.
+
+** Code Review
+
+- *Example* *1:* Declare and initialize constants		
+- *Example* *2:* Parallel type system (Kind) (missing)
+- *Example* *3:* iota			
+- *Example* *4:* Implicit conversion
+
+.play constants/example1.go
+.play constants/example2.go
+.play constants/example3.go
+.play constants/example4.go
+
+    const ui = 12345     // kind: integer
+    const uf = 3.141592  // kind: floating-point
+
+Untyped numeric constants have a precision of 256 bits as stated by the specification.
+They are based on a kind.
+
+    const ti int     = 12345     // type: int
+    const tf float64 = 3.141592  // type: float64
+
+Typed constants still use the constant type system, but their precision is restricted.
+
+    const myUint8 uint8 = 1000 // Compiler Error: constant 1000 overflows uint8
+
+This doesn't work because the number 1000 is too large to store in an uint8.
+
+    var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
+
+Constant arithmetic supports the use of different kinds of constants. Kind Promotion
+is used to handle these different scenarios. All of this happens implicitly. The answer
+variable in this example will be of type float64 and represent 0.999 at a precision
+of 64 bits.
+
+    const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
+
+The third constant will be of kind float and represent 1/3 at a precision of 256 bits.
+
+    const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
+
+The zero constant will be of kind integer and set to 0 since integer division has
+no remainder.
+
+    const one int8 = 1
+    const two = 2 * one  // int8(2) * int8(1)
+
+This is an example of constant arithmetic between typed and untyped constants.
+In this case, a constant of a type promotes over a constant of a kind. The two
+constant will be of type int8 and set to 2.
+
+    const maxInt = 9223372036854775807
+
+This is the max integer value for a 64 bit integer.
+
+    const bigger = 9223372036854775808543522345
+
+The bigger constant is a much larger value than a 64 bit integer, but it can be
+stored in a constant of kind int since constants of kind int are not limited to
+64 bits of precision.
+
+    const bigger int64 = 9223372036854775808543522345
+
+Compiler Error:
+
+    constant 9223372036854775808543522345 overflows int64
+
+However, if bigger was a constant of type int64, this would not compile.
+
+** IOTA
+
+IOTA provides support for setting successive integer constants. It’s possible the
+name comes from the integer function ⍳ from the programming language APL. In APL,
+the ⍳ function (represented with the ninth letter of the Greek alphabet, iota) is
+used to create a zero-based array of consecutive, ascending integers of a specified
+length.
+
+    const (
+        A1 = iota  // 0 : Start at 0
+        B1 = iota  // 1 : Increment by 1
+        C1 = iota  // 2 : Increment by 1
+    )
+    fmt.Println(A1, B1, C1)
+
+Output:
+
+    0 1 2
+
+The iota keyword works within a constant block and starts with the value of 0. Then
+for each successive constant declared in the block, iota increments by 1.
+
+    const (
+        A2 = iota  // 0 : Start at 0
+        B2         // 1 : Increment by 1
+        C2         // 2 : Increment by 1
+    )
+    fmt.Println(A2, B2, C2)
+
+Output:
+
+    0 1 2
+
+You don’t need to repeat the use of the iota keyword. The successive nature of the
+integer constants are assumed once applied.
+
+    const (
+        A3 = iota + 1  // 1 : 0 + 1
+        B3             // 2 : 1 + 1
+        C3             // 3 : 2 + 1
+    )
+    fmt.Println(A3, B3, C3)
+
+Output:
+
+    1 2 3
+
+If you didn’t want to apply a mathematical pattern, you can perform some math and the
+math is reapplied with an increasing value of iota.
+
+    const (
+        Ldate= 1 << iota  //  1 : Shift 1 to the left 0.  0000 0001
+        Ltime             //  2 : Shift 1 to the left 1.  0000 0010
+        Lmicroseconds     //  4 : Shift 1 to the left 2.  0000 0100
+        Llongfile         //  8 : Shift 1 to the left 3.  0000 1000
+        Lshortfile        // 16 : Shift 1 to the left 4.  0001 0000
+        LUTC              // 32 : Shift 1 to the left 5.  0010 0000
+    )
+
+    fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
+
+Output:
+
+    1 2 4 8 16 32
+
+You can use this feature like the Log package does for setting flags. In this case, bit
+operations are being applied with increasing values of iota to calculate flag values.
+
+** Notes
+
+- Constants are not variables.
+- They exist only at compilation.
+- Untyped constants can be implicitly converted where typed constants and variables can't.
+- Think of untyped constants as having a Kind, not a Type.
+- Learn about explicit and implicit conversions.
+- See the power of constants and their use in the standard library.
+
+** Extra Reading
+
+- [[https://golang.org/ref/spec#Constants][Constants specification]]    
+- [[https://blog.golang.org/constants][Constants]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
+		
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare an untyped and typed constant and display their values.
+
+*Part* *B:* Divide two literal constants into a typed variable and display the value.
+
+.play constants/exercise1.go
+.play constants/answer1.go

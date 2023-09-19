@@ -35,13 +35,26 @@ var (
 	httpAddr string
 	scheme   string
 	origin   string
-
-	index    bleve.Index
-	rusIndex bleve.Index
 )
 
-func Main() {
+// prepContent for the local tour simply returns the content as-is.
+var prepContent = func(r io.Reader) io.Reader { return r }
 
+// socketAddr returns the WebSocket handler address.
+var socketAddr = func() string {
+	if scheme == "https" {
+		return "wss://" + origin + socketPath
+	}
+
+	return "ws://tour.ardanlabs.com:443" + socketPath
+}
+
+// analyticsHTML is optional analytics HTML to insert at the beginning of <head>.
+var analyticsHTML template.HTML
+
+// =============================================================================
+
+func Main() {
 	httpListen = flag.String("http", "127.0.0.1:3999", "host:port to listen on")
 	openBrowser = flag.Bool("openbrowser", true, "open browser automatically")
 	webSocketOrigin = flag.String("origin", "", "host:port used for web socket origin")
@@ -85,26 +98,20 @@ func Main() {
 	httpAddr = host + ":" + port
 
 	// -------------------------------------------------------------------------
+	// Add Language Content
 
-	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
-
-	rusIndex, err = bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
+	engUIContent := addLanguage("tour/eng/")
+	rusUIContent := addLanguage("tour/rus/")
 
 	// -------------------------------------------------------------------------
+	// Start Web Service
 
-	if err := initTour(http.DefaultServeMux, "SocketTransport", index, rusIndex); err != nil {
-		log.Fatal(err)
+	r := root{
+		engContent: engUIContent,
+		rusContent: rusUIContent,
 	}
 
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/", r.rootHandler)
 	http.HandleFunc("/_/fmt", fmtHandler)
 	fs := http.FileServer(http.FS(contentTour))
 	http.Handle("/favicon.ico", fs)
@@ -130,6 +137,59 @@ func Main() {
 	log.Fatal(http.ListenAndServe(httpAddr, &logging{h}))
 }
 
+func addLanguage(route string) []byte {
+	index, err := bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
+	routes := routes{
+		index: index,
+		route: route,
+	}
+
+	if err := initTour(http.DefaultServeMux, "SocketTransport", &routes); err != nil {
+		log.Fatal(err)
+	}
+
+	return routes.uiContent
+}
+
+// waitServer waits some time for the http Server to start
+// serving url. The return value reports whether it starts.
+func waitServer(url string) bool {
+	tries := 20
+	for tries > 0 {
+		resp, err := http.Get(url)
+		if err == nil {
+			resp.Body.Close()
+			return true
+		}
+		time.Sleep(100 * time.Millisecond)
+		tries--
+	}
+	return false
+}
+
+// startBrowser tries to open the URL in a browser, and returns
+// whether it succeed.
+func startBrowser(url string) bool {
+	var args []string
+	switch runtime.GOOS {
+	case "darwin":
+		args = []string{"open"}
+	case "windows":
+		args = []string{"cmd", "/c", "start"}
+	default:
+		args = []string{"xdg-open"}
+	}
+	cmd := exec.Command(args[0], append(args[1:], url)...)
+	return cmd.Start() == nil
+}
+
+// =============================================================================
+
 type logging struct {
 	h http.Handler
 }
@@ -151,52 +211,3 @@ If you don't understand this message, hit Control-C to terminate this process.
 
 WARNING!  WARNING!  WARNING!
 `
-
-// waitServer waits some time for the http Server to start
-// serving url. The return value reports whether it starts.
-func waitServer(url string) bool {
-	tries := 20
-	for tries > 0 {
-		resp, err := http.Get(url)
-		if err == nil {
-			resp.Body.Close()
-			return true
-		}
-		time.Sleep(100 * time.Millisecond)
-		tries--
-	}
-	return false
-}
-
-// startBrowser tries to open the URL in a browser, and returns
-// whether it succeed.
-func startBrowser(url string) bool {
-	// try to start the browser
-	var args []string
-	switch runtime.GOOS {
-	case "darwin":
-		args = []string{"open"}
-	case "windows":
-		args = []string{"cmd", "/c", "start"}
-	default:
-		args = []string{"xdg-open"}
-	}
-	cmd := exec.Command(args[0], append(args[1:], url)...)
-	return cmd.Start() == nil
-}
-
-// prepContent for the local tour simply returns the content as-is.
-var prepContent = func(r io.Reader) io.Reader { return r }
-
-// socketAddr returns the WebSocket handler address.
-var socketAddr = func() string {
-
-	if scheme == "https" {
-		return "wss://" + origin + socketPath
-	}
-
-	return "ws://tour.ardanlabs.com:443" + socketPath
-}
-
-// analyticsHTML is optional analytics HTML to insert at the beginning of <head>.
-var analyticsHTML template.HTML
