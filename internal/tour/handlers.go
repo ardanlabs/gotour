@@ -98,14 +98,12 @@ func (rou *routes) Lessons() map[string]lesson {
 }
 
 func (rou *routes) RootHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("**************  USING ROUTE ROOT HANDLER")
 	if err := renderUI(w, rou.uiContent); err != nil {
 		log.Println(err)
 	}
 }
 
 func (rou *routes) LessonHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("**************  USING ROUTE LESSON HANDLER")
 	lesson := strings.TrimPrefix(r.URL.Path, rou.route+"lesson/")
 	if err := writeLesson(lesson, w, rou.lessons); err != nil {
 		if err == ErrLessonNotFound {

@@ -111,10 +111,10 @@ func initTour(mux *http.ServeMux, transport string, h handler) error {
 	// -------------------------------------------------------------------------
 	// Set language specific routes.
 
-	mux.HandleFunc(h.Route(), h.RootHandler)
-	mux.HandleFunc(h.Route()+"lesson/", h.LessonHandler)
-	mux.HandleFunc(h.Route()+"bleve/", h.BleveHandler)
-	mux.Handle(h.Route()+"static/", http.FileServer(http.FS(contentTour)))
+	mux.HandleFunc("/"+h.Route(), h.RootHandler)
+	mux.HandleFunc("/"+h.Route()+"lesson/", h.LessonHandler)
+	mux.HandleFunc("/"+h.Route()+"bleve/", h.BleveHandler)
+	mux.Handle("/"+h.Route()+"static/", http.FileServer(http.FS(contentTour)))
 
 	// -------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ func initScript(mux *http.ServeMux, socketAddr, transport string, route string) 
 	s = strings.ReplaceAll(s, "{{.Transport}}", transport)
 	b.WriteString(s)
 
-	mux.HandleFunc(route+"script.js", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/"+route+"script.js", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/javascript")
 		// Set expiration time in one week.
 		w.Header().Set("Cache-control", "max-age=604800")
@@ -265,7 +265,7 @@ func findPlayCode(e present.Elem) []*present.Code {
 	return r
 }
 
-// writeRusLesson writes the tour content to the provided Writer.
+// writeLesson writes the tour content to the provided Writer.
 func writeLesson(name string, w io.Writer, lessons map[string]lesson) error {
 	if len(name) == 0 {
 		return writeAllLessons(w, lessons)
