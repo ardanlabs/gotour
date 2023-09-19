@@ -59,6 +59,68 @@ type lesson struct {
 	Pages       []page
 }
 
+// initTour loads tour.article, relevant HTML templates from root, and
+// initialize the bleve index.
+func initTour(mux *http.ServeMux, transport string, h handler) error {
+
+	// Make sure playground is enabled before rendering.
+	present.PlayEnabled = true
+
+	// -------------------------------------------------------------------------
+	// Content
+
+	// Set up templates.
+	tmpl, err := present.Template().ParseFS(contentTour, h.Route()+"template/action.tmpl")
+	if err != nil {
+		return fmt.Errorf("parse %s templates: %v", h.Route(), err)
+	}
+
+	// Init lessons.
+	location := h.Route()[:len(h.Route())-1] // Remove the leading /
+	files, err := fs.ReadDir(contentTour, location)
+	if err != nil {
+		return err
+	}
+	if err := initLessons(tmpl, files, h); err != nil {
+		return fmt.Errorf("init %s lessons: %v", h.Route(), err)
+	}
+
+	// Index lessons into the bleve index.
+	if err := indexLessons(h.Index(), h.Lessons()); err != nil {
+		return fmt.Errorf("indexing %s lessons: %v", h.Route(), err)
+	}
+
+	// -------------------------------------------------------------------------
+	// Init UI
+
+	ui, err := template.ParseFS(contentTour, h.Route()+"template/index.tmpl")
+	if err != nil {
+		return fmt.Errorf("parse %s index.tmpl: %v", h.Route(), err)
+	}
+	buf := new(bytes.Buffer)
+
+	data := struct {
+		AnalyticsHTML template.HTML
+	}{analyticsHTML}
+
+	if err := ui.Execute(buf, data); err != nil {
+		return fmt.Errorf("render %s UI: %v", h.Route(), err)
+	}
+	h.SetUIContent(buf.Bytes())
+
+	// -------------------------------------------------------------------------
+	// Set language specific routes.
+
+	mux.HandleFunc(h.Route(), h.RootHandler)
+	mux.HandleFunc(h.Route()+"lesson/", h.LessonHandler)
+	mux.HandleFunc(h.Route()+"bleve/", h.BleveHandler)
+	mux.Handle(h.Route()+"static/", http.FileServer(http.FS(contentTour)))
+
+	// -------------------------------------------------------------------------
+
+	return initScript(mux, socketAddr(), transport, h.Route())
+}
+
 // initScript concatenates all the javascript files needed to render
 // the tour UI and serves the result on /script.js.
 func initScript(mux *http.ServeMux, socketAddr, transport string, route string) error {
@@ -106,69 +168,6 @@ func initScript(mux *http.ServeMux, socketAddr, transport string, route string) 
 	})
 
 	return nil
-}
-
-// initTour loads tour.article, relevant HTML templates from root, and
-// initialize the bleve index.
-func initTour(mux *http.ServeMux, transport string, h handler) error {
-
-	// Make sure playground is enabled before rendering.
-	present.PlayEnabled = true
-
-	// -------------------------------------------------------------------------
-	// Content
-
-	// Set up templates.
-	tmpl, err := present.Template().ParseFS(contentTour, h.Route()+"template/action.tmpl")
-	if err != nil {
-		return fmt.Errorf("parse %s templates: %v", h.Route(), err)
-	}
-
-	// Init lessons.
-	location := h.Route()[:len(h.Route())-1] // Remove the leading /
-	files, err := fs.ReadDir(contentTour, location)
-	if err != nil {
-		return err
-	}
-	if err := initLessons(tmpl, files, h); err != nil {
-		return fmt.Errorf("init %s lessons: %v", h.Route(), err)
-	}
-
-	// Index lessons into the bleve index.
-	// NOTE: make sure the lessons were initialized.
-	if err := indexLessons(h.Index(), h.Lessons()); err != nil {
-		return fmt.Errorf("indexing %s lessons: %v", h.Route(), err)
-	}
-
-	// -------------------------------------------------------------------------
-	// Init UI
-
-	ui, err := template.ParseFS(contentTour, h.Route()+"template/index.tmpl")
-	if err != nil {
-		return fmt.Errorf("parse %s index.tmpl: %v", h.Route(), err)
-	}
-	buf := new(bytes.Buffer)
-
-	data := struct {
-		AnalyticsHTML template.HTML
-	}{analyticsHTML}
-
-	if err := ui.Execute(buf, data); err != nil {
-		return fmt.Errorf("render %s UI: %v", h.Route(), err)
-	}
-	h.SetUIContent(buf.Bytes())
-
-	// -------------------------------------------------------------------------
-	// Set language specific routes.
-
-	mux.HandleFunc(h.Route(), h.RootHandler)
-	mux.HandleFunc(h.Route()+"lesson/", h.LessonHandler)
-	mux.HandleFunc(h.Route()+"bleve/", h.BleveHandler)
-	mux.Handle(h.Route()+"static/", http.FileServer(http.FS(contentTour)))
-
-	// -------------------------------------------------------------------------
-
-	return initScript(mux, socketAddr(), transport, h.Route())
 }
 
 // initEngLessons finds all the lessons in the content directory, renders them,

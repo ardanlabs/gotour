@@ -44,15 +44,15 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Path {
-	case "/tour/rus/":
-		log.Println("render russian tour")
-		if err := renderUI(w, rot.rusContent); err != nil {
+	case "/tour/eng/":
+		log.Println("render english tour")
+		if err := renderUI(w, rot.engContent); err != nil {
 			log.Println(err)
 		}
 
-	default:
-		log.Println("render english tour")
-		if err := renderUI(w, rot.engContent); err != nil {
+	case "/tour/rus/":
+		log.Println("render russian tour")
+		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
 		}
 	}
@@ -105,6 +105,7 @@ func (rou *routes) RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rou *routes) LessonHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("**************  USING ROUTE LESSON HANDLER")
 	lesson := strings.TrimPrefix(r.URL.Path, rou.route+"lesson/")
 	if err := writeLesson(lesson, w, rou.lessons); err != nil {
 		if err == ErrLessonNotFound {
