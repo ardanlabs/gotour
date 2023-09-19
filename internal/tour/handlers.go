@@ -104,7 +104,7 @@ func (rou *routes) RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rou *routes) LessonHandler(w http.ResponseWriter, r *http.Request) {
-	lesson := strings.TrimPrefix(r.URL.Path, rou.route+"lesson/")
+	lesson := strings.TrimPrefix(r.URL.Path, "/"+rou.route+"lesson/")
 	if err := writeLesson(lesson, w, rou.lessons); err != nil {
 		if err == ErrLessonNotFound {
 			http.NotFound(w, r)
