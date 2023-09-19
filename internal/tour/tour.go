@@ -68,22 +68,24 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index, rusIndex 
 	// -------------------------------------------------------------------------
 	// Russian content.
 
-	// Set up rus templates.
-	tmpl, err = present.Template().ParseFS(contentTour, "tour/rus/template/action.tmpl")
-	if err != nil {
-		return fmt.Errorf("parse rus templates: %v", err)
-	}
+	// TODO: uncomment this when Russian content is ready.
 
-	// Init lessons.
-	if err := initRusLessons(tmpl); err != nil {
-		return fmt.Errorf("init rus lessons: %v", err)
-	}
-
-	// Index lessons into the bleve index.
-	// NOTE: make sure the lessons were initialized.
-	if err := indexRusLessonsInto(rusIndex); err != nil {
-		return fmt.Errorf("indexing russian lessons: %v", err)
-	}
+	// // Set up rus templates.
+	// tmpl, err = present.Template().ParseFS(contentTour, "tour/rus/template/action.tmpl")
+	// if err != nil {
+	// 	return fmt.Errorf("parse rus templates: %v", err)
+	// }
+	//
+	// // Init lessons.
+	// if err := initRusLessons(tmpl); err != nil {
+	// 	return fmt.Errorf("init rus lessons: %v", err)
+	// }
+	//
+	// // Index lessons into the bleve index.
+	// // NOTE: make sure the lessons were initialized.
+	// if err := indexRusLessonsInto(rusIndex); err != nil {
+	// 	return fmt.Errorf("indexing russian lessons: %v", err)
+	// }
 
 	// -------------------------------------------------------------------------
 	// Init UI.
@@ -104,20 +106,23 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index, rusIndex 
 
 	// -------------------------------------------------------------------------
 	// Init Rus UI.
-	ui, err = template.ParseFS(contentTour, "tour/rus/template/index.tmpl")
-	if err != nil {
-		return fmt.Errorf("parse index.tmpl: %v", err)
-	}
-	buf = new(bytes.Buffer)
 
-	data = struct {
-		AnalyticsHTML template.HTML
-	}{analyticsHTML}
+	// TODO: uncomment this when Russian content is ready.
 
-	if err := ui.Execute(buf, data); err != nil {
-		return fmt.Errorf("render rus UI: %v", err)
-	}
-	uiRusContent = buf.Bytes()
+	// ui, err = template.ParseFS(contentTour, "tour/rus/template/index.tmpl")
+	// if err != nil {
+	// 	return fmt.Errorf("parse index.tmpl: %v", err)
+	// }
+	// buf = new(bytes.Buffer)
+	//
+	// data = struct {
+	// 	AnalyticsHTML template.HTML
+	// }{analyticsHTML}
+	//
+	// if err := ui.Execute(buf, data); err != nil {
+	// 	return fmt.Errorf("render rus UI: %v", err)
+	// }
+	// uiRusContent = buf.Bytes()
 
 	// -------------------------------------------------------------------------
 
@@ -127,15 +132,16 @@ func initTour(mux *http.ServeMux, transport string, index bleve.Index, rusIndex 
 	mux.Handle("/tour/eng/static/", http.FileServer(http.FS(contentTour)))
 
 	// -------------------------------------------------------------------------
+	// TODO: uncomment this when Russian content is ready.
 
-	mux.HandleFunc("/tour/rus/", rootRusHandler)
-	mux.HandleFunc("/tour/rus/lesson/", lessonRusHandler)
-	mux.HandleFunc("/tour/rus/bleve/", bleveRusHandler)
-	mux.Handle("/tour/rus/static/", http.FileServer(http.FS(contentTour)))
-
-	if err := initRusScript(mux, socketAddr(), transport); err != nil {
-		return fmt.Errorf("init rus script: %v", err)
-	}
+	// mux.HandleFunc("/tour/rus/", rootRusHandler)
+	// mux.HandleFunc("/tour/rus/lesson/", lessonRusHandler)
+	// mux.HandleFunc("/tour/rus/bleve/", bleveRusHandler)
+	// mux.Handle("/tour/rus/static/", http.FileServer(http.FS(contentTour)))
+	//
+	// if err := initRusScript(mux, socketAddr(), transport); err != nil {
+	// 	return fmt.Errorf("init rus script: %v", err)
+	// }
 
 	// -------------------------------------------------------------------------
 
