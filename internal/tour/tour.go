@@ -1,3 +1,22 @@
+/*
+	When adding a new language follow these instructions.
+
+	## GO
+	internal/tour/handlers.go:46 : Add the new language to the switch/case.
+	internal/tour/local.go:103   : Add a new call to addLanguage.
+
+	## _content
+	Make a copy of the eng folder under _content/tour. Use the 3 letter abbrv
+	for the new language.
+
+	## _content/tour/lng/static
+	You must replace all entries for `tour/eng` to `tour/newlng`
+
+	## _content/tour/lng/template/index.tmpl
+	You must add the new language to the dropdown. You must do this for each
+	language folder.
+*/
+
 package tour
 
 import (
