@@ -36,7 +36,8 @@ var (
 	scheme   string
 	origin   string
 
-	index bleve.Index
+	index    bleve.Index
+	rusIndex bleve.Index
 )
 
 func Main() {
@@ -91,9 +92,15 @@ func Main() {
 	}
 	defer index.Close()
 
+	rusIndex, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+
 	// -------------------------------------------------------------------------
 
-	if err := initTour(http.DefaultServeMux, "SocketTransport", index); err != nil {
+	if err := initTour(http.DefaultServeMux, "SocketTransport", index, rusIndex); err != nil {
 		log.Fatal(err)
 	}
 

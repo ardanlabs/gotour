@@ -81,3 +81,28 @@ function setThemeButtons() {
 }
 
 setThemeButtons();
+
+function setLanguageSelectorChange() {
+    const languageSelector = document.getElementById('languageSelector');
+    languageSelector.addEventListener('change', (event) => {
+        window.location.href = `/tour/${event.target.value}/list`;
+        document.cookie = "language-preference=" + event.target.value + ";path=/;max-age=31536000;";
+    });
+}
+
+function setLanguageOptionBasedOnUrl() {
+    const languageSelector = document.getElementById('languageSelector');
+    const currentUrl = window.location.pathname;
+
+    for (let option of languageSelector.options) {
+        if (currentUrl.includes(option.value)) {
+            option.selected = true;
+            break;
+        }
+    }
+}
+
+window.onload = function() {
+    setLanguageOptionBasedOnUrl();
+    setLanguageSelectorChange();
+};
