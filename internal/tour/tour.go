@@ -12,6 +12,13 @@
 	## _content/tour/lng/static
 	You must replace all entries for `tour/eng` to `tour/newlng`
 
+	## _content/tour/lng/static/js/page.js (function: replaceLanguageInUrl)
+	You must add the new language code in the regex. You must do this for each
+	language folder.
+
+	## _content/tour/lng/static/js/values.js
+	You must replace the table of contents with the new translated content.
+
 	## _content/tour/lng/template/index.tmpl
 	You must add the new language to the dropdown. You must do this for each
 	language folder.
