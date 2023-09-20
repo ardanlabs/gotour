@@ -99,12 +99,9 @@ func Main() {
 
 	// -------------------------------------------------------------------------
 	// Add Language Content
-	index, err := bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
-	engUIContent := addLanguage("tour/eng/", index)
+
+	engUIContent, engIndex := addLanguage("tour/eng/")
+	defer engIndex.Close()
 
 	// -------------------------------------------------------------------------
 	// Start Web Service
@@ -139,7 +136,12 @@ func Main() {
 	log.Fatal(http.ListenAndServe(httpAddr, &logging{h}))
 }
 
-func addLanguage(route string, index bleve.Index) []byte {
+func addLanguage(route string) ([]byte, bleve.Index) {
+	index, err := bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	routes := routes{
 		index: index,
 		route: route,
@@ -149,7 +151,7 @@ func addLanguage(route string, index bleve.Index) []byte {
 		log.Fatal(err)
 	}
 
-	return routes.uiContent
+	return routes.uiContent, index
 }
 
 // waitServer waits some time for the http Server to start

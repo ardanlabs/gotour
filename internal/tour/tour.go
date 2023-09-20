@@ -4,9 +4,7 @@
 	## GO Files
 	- internal/tour/handlers.go:13 : Add a field for the new language in the respective data structure.
 	- internal/tour/handlers.go:46 : Incorporate the new language into the switch/case statement to handle its routing properly.
-	- internal/tour/local.go:101   : Instantiate a new search index to index the new language content for searching.
 	- internal/tour/local.go:101   : Register the new language by adding a new call to addLanguage function.
-	- internal/tour/local.go:112   : Assign the translated content to the new field corresponding to the new language.
 
 	## _content Folder
 	1. Create a new language folder:
@@ -23,7 +21,7 @@
 	   - _content/tour/[new_lang_code]/template/index.tmpl: Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
 
 	## Testing
-	After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
+	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
 */
 
 package tour
