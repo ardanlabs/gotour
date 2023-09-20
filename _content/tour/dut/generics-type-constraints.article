@@ -1,0 +1,123 @@
+Type As Constraint
+This is a new concept in Go where a constraint can be based on a set of concrete types.
+
+* Generics - Type As Constraint
+
+This is a new concept in Go where a constraint can be based on a set of concrete types.
+This only works for generics.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Type based constraint
+- *Example* *2*: Predeclared type constraint "comparable"
+- *Example* *3*: Mix type and behavior constraints
+
+.play generics/type-constraints/example1.go
+.play generics/type-constraints/example2.go
+.play generics/type-constraints/example3.go
+
+** Explained
+
+Generic functions create a new type of constraint that can’t be resolved by declaring
+a method set of behavior.
+
+    func Add[T ???](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Here is a generic function that wants to accept two values of some type T, add them
+together, and then return the sum back to the caller. This is an interesting problem
+because the compiler needs to constrain the call to the function for only values that
+can be used in an add operation. Currently there is no mechanic for declaring this
+kind of constraint.
+
+The decision was to continue to use the interface to declare the constraint and add
+something new.
+
+    type addOnly interface {
+        string | int | int8 | int16 | int32 | int64 | float64
+    }
+
+You can declare an interface that defines a set of types that form the constraint. Then
+apply this interface to the generic function.
+
+    func Add[T addOnly](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Now the compiler can validate that the set of types is compliant with the operations
+the function needs to perform against values of those types. When the interface is
+using the built-in types, the interfaces are reusable across packages. When the list
+of types represent user-defined types from the package, You must remember these
+generic functions are bound to the packages types and nothing more.
+
+Interfaces declared with a set of types can’t be used in a traditional polymorphic
+function. This wouldn’t make sense anyway, but it’s something that doesn’t feel like
+Go in the sense that this change to the interface is not orthogonal.
+
+One idea is to have pre-declared identifiers for common operation constraints.
+
+    func index[T comparable](list []T, find T) int {
+        for i, v := range list {
+            if v == find {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+The comparable constraint is declared by the language and applies a constraint that
+types must be capable of being used in a comparison statement. In this example,
+both v and find are variables of type T and are being compared. There is an idea
+that a package in the standard library could provide a common set of constraints as
+well.
+
+There is no restriction on an interface being declared with both a set of types and a
+method set of behavior.
+
+    type matcher[T any] interface {
+        type person, food
+        match(v T) bool
+    }
+        
+    func match[T matcher[T]](list []T, find T) int {
+        for i, v := range list {
+            if v.match(find) {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+A generic interface is declared where T is the type of value to be passed into a
+method named match. The interface also constrains its use to only values of userdefined
+type person and food.
+
+When you look at the match function, there isn’t an obvious need to restrict the
+function to just the person and food types. If this is the case, the match function
+should be a traditional polymorphic function, not a generic function. If there was a
+good reason, a generic function can be used to apply this type of constraint.
+
+As a side note, not sure this functionality is necessary or makes sense. This is
+something the community will need to figure out over time.
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Implement a generic function named copyfy that is constrained to only making
+copies of slices of type string or int.
+
+.play generics/type-constraints/exercise1.go 
+.play generics/type-constraints/answer1.go
