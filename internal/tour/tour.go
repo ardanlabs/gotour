@@ -1,27 +1,28 @@
 /*
-	When adding a new language follow these instructions.
+	When adding a new language to the system, please follow the instructions below carefully:
 
-	## GO
-	internal/tour/handlers.go:46 : Add the new language to the switch/case.
-	internal/tour/local.go:103   : Add a new call to addLanguage.
+	## GO Files
+	- internal/tour/handlers.go:13 : Add a field for the new language in the respective data structure.
+	- internal/tour/handlers.go:46 : Incorporate the new language into the switch/case statement to handle its routing properly.
+	- internal/tour/local.go:103   : Register the new language by adding a new call to addLanguage function.
+	- internal/tour/local.go:112   : Assign the translated content to the new field corresponding to the new language.
 
-	## _content
-	Make a copy of the eng folder under _content/tour. Use the 3 letter abbrv
-	for the new language.
+	## _content Folder
+	1. Create a new language folder:
+     - Make a copy of the "eng" folder under "_content/tour". Use three-letter code for the new language as the folder name (e.g., "esp" for Spanish).
 
-	## _content/tour/lng/static
-	You must replace all entries for `tour/eng` to `tour/newlng`
+	2. Adjust Static Content:
+	   - _content/tour/[new_lang_code]/static: Replace all entries containing `tour/eng` with `tour/[new_lang_code]`.
 
-	## _content/tour/lng/static/js/page.js (function: replaceLanguageInUrl)
-	You must add the new language code in the regex. You must do this for each
-	language folder.
+	3. Update JavaScript Functions:
+	   - _content/tour/[new_lang_code]/static/js/page.js (function: replaceLanguageInUrl): Add the new language code to the regex. Repeat this step in each language folder.
+	   - _content/tour/[new_lang_code]/static/js/values.js: Replace the table of contents with the translated content for the new language.
 
-	## _content/tour/lng/static/js/values.js
-	You must replace the table of contents with the new translated content.
+	4. Modify Template:
+	   - _content/tour/[new_lang_code]/template/index.tmpl: Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
 
-	## _content/tour/lng/template/index.tmpl
-	You must add the new language to the dropdown. You must do this for each
-	language folder.
+	## Testing
+	After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
 */
 
 package tour
