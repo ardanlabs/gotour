@@ -99,9 +99,19 @@ func Main() {
 
 	// -------------------------------------------------------------------------
 	// Add Language Content
+	index, err := bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+	engUIContent := addLanguage("tour/eng/", index)
 
-	engUIContent := addLanguage("tour/eng/")
-	rusUIContent := addLanguage("tour/rus/")
+	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer index.Close()
+	rusUIContent := addLanguage("tour/rus/", index)
 
 	// -------------------------------------------------------------------------
 	// Start Web Service
@@ -137,13 +147,7 @@ func Main() {
 	log.Fatal(http.ListenAndServe(httpAddr, &logging{h}))
 }
 
-func addLanguage(route string) []byte {
-	index, err := bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
-
+func addLanguage(route string, index bleve.Index) []byte {
 	routes := routes{
 		index: index,
 		route: route,

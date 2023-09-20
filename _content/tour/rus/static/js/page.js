@@ -82,14 +82,22 @@ function setThemeButtons() {
 
 setThemeButtons();
 
+// setLanguageSelectorChange initializes the language selector change event.
+// It updates the URL and cookie based on the selected language.
 function setLanguageSelectorChange() {
     const languageSelector = document.getElementById('languageSelector');
     languageSelector.addEventListener('change', (event) => {
-        window.location.href = `/tour/${event.target.value}/`;
-        document.cookie = "language-preference=" + event.target.value + ";path=/;max-age=31536000;";
+        const currentUrl = window.location.pathname;
+        const newLanguage = event.target.value;
+        const newURL = replaceLanguageInUrl(currentUrl, newLanguage);
+
+        window.location.href = newURL;
+        document.cookie = `language-preference=${newLanguage};path=/;max-age=31536000;`;
     });
 }
 
+// setLanguageOptionBasedOnUrl sets the selected option of the language selector
+// based on the language segment in the current URL path.
 function setLanguageOptionBasedOnUrl() {
     const languageSelector = document.getElementById('languageSelector');
     const currentUrl = window.location.pathname;
@@ -100,6 +108,12 @@ function setLanguageOptionBasedOnUrl() {
             break;
         }
     }
+}
+
+// replaceLanguageInUrl takes a URL and a new language as arguments,
+// and returns a new URL with the language segment replaced by the new language.
+function replaceLanguageInUrl(url, newLanguage) {
+    return url.replace(/(\/tour\/)(eng|rus)(\/)/, `$1${newLanguage}$3`);
 }
 
 window.onload = function() {
