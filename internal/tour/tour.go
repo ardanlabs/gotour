@@ -2,9 +2,10 @@
 	When adding a new language to the system, please follow the instructions below carefully:
 
 	## GO Files
-	- internal/tour/handlers.go:13 : Add a field for the new language in the respective data structure.
+	- internal/tour/handlers.go:13 : Add a field for the new language ui content.
 	- internal/tour/handlers.go:46 : Incorporate the new language into the switch/case statement to handle its routing properly.
 	- internal/tour/local.go:101   : Register the new language by adding a new call to addLanguage function.
+	- internal/tour/local.go:109   : Add the ui content to the root struct.
 
 	## _content Folder
 	1. Create a new language folder:
