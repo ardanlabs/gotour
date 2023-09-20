@@ -19,7 +19,9 @@
 	   - _content/tour/[new_lang_code]/static/js/values.js: Replace the table of contents with the translated content for the new language.
 
 	4. Modify Template:
-	   - _content/tour/[new_lang_code]/template/index.tmpl: Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
+	   - _content/tour/[new_lang_code]/template/*.tmpl        : Replace all entries containing `tour/eng` with `tour/[new_lang_code]`.
+	   - _content/tour/[new_lang_code]/template/index.tmpl:42 : Translate the title to the new language.
+	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
 
 	## Testing
 	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
