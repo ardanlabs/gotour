@@ -106,19 +106,11 @@ func Main() {
 	defer index.Close()
 	engUIContent := addLanguage("tour/eng/", index)
 
-	index, err = bleve.NewMemOnly(bleve.NewIndexMapping())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
-	rusUIContent := addLanguage("tour/rus/", index)
-
 	// -------------------------------------------------------------------------
 	// Start Web Service
 
 	r := root{
 		engContent: engUIContent,
-		rusContent: rusUIContent,
 	}
 
 	http.HandleFunc("/", r.rootHandler)
