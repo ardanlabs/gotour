@@ -1,0 +1,406 @@
+Interfaces
+Interfaces give programs structure and encourage design by composition. 
+
+* Interfaces
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Interfaces give programs structure and encourage design by composition. They enable
+and enforce clean divisions between components. The standardization of interfaces
+can set clear and consistent expectations. Decoupling means reducing the dependencies
+between components and the types they use. This leads to correctness, quality and
+maintainability.
+
+** Code Review 
+
+- *Example* *1:* Repetitive Code That Needs Polymorphism
+- *Example* *2:* Polymorphism
+- *Example* *3:* Method Sets
+- *Example* *4:* Address Of Value
+- *Example* *5:* Storage By Value
+- *Example* *6:* Type Assertions
+- *Example* *7:* Conditional Type Assertions
+- *Example* *8:* The Empty Interface and Type Switches
+- *Example* *9:* Storing Values
+
+.play interfaces/example1.go
+.play interfaces/example2.go
+.play interfaces/example3.go
+.play interfaces/example4.go
+.play interfaces/example5.go
+.play interfaces/example6.go
+.play interfaces/example7.go
+.play interfaces/example8.go
+.play interfaces/example9.go
+
+** Interface Semantics
+
+Interfaces allow you to group concrete data together by what the data can do.
+It’s about focusing on what data can do and not what the data is. Interfaces
+also help my code decouple itself from change by asking for concrete data based
+on what it can do. It’s not limited to one type of data.
+
+You must do my best to understand what data changes are coming and use interfaces
+to decouple my program from that change. Interfaces should describe behavior and
+not state. They should be verbs and not nouns.
+
+Generalized interfaces that focus on behavior are best. Interfaces with more than
+one method have more than one reason to change. Interfaces that are based on nouns,
+tend to be less reusable, are more susceptible to change, and defeat the purpose
+of the interface. Uncertainty about change is not a license to guess but a directive
+to STOP and learn more. You must distinguish between code that defends against
+fraud vs protects against accidents.
+
+Use an interface when:
+
+- Users of the API need to provide an implementation detail.
+- API’s have multiple implementations they need to maintain internally.
+- Parts of the API that can change have been identified and require decoupling.
+
+Don't use an interface:
+    
+- For the sake of using an interface.
+- To generalize an algorithm.
+- When users can declare their own interfaces.
+- If it's not clear how the interface makes the code better.
+
+** Interfaces Are Valueless
+
+The first important thing to understand is that an interface type declares a valueless type.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+Type reader is not a struct type, but an interface type. Its declaration is not
+based on state, but behavior. Interface types declare a method-set of behavior
+that concrete data must exhibit in order to satisfy the interface. There is nothing
+\concrete about interface types, therefore they are valueless.
+
+    var r reader
+
+Because they are valueless, the construction of a variable (like r) is odd because
+in our programming model, r does not exist, it’s valueless. There is nothing about
+r itself that you can manipulate or transform. This is a critical concept to understand.
+I’m never working with interface values, only concrete values. An interface has a
+compiler representation (internal type), but from our programming model, interfaces
+are valueless.
+
+** Implementing Interfaces
+
+Go is a language that is about convention over configuration. When it comes to a
+concrete type implementing an interface, there is no exception.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type file struct {
+        name string
+    }
+
+    func (file) read(b []byte) (int, error) {
+        s := "<rss><channel><title>Going Go</title></channel></rss>"
+        copy(b, s)
+        return len(s), nil
+    }
+
+The code declares a type named file and then declares a method named read. Because
+of these two declarations, you can say the following:
+
+"The concrete type file now implements the reader interface using value semantics"
+
+Every word said is important. In Go, all you have to do is declare the full method-set
+of behavior defined by an interface to implement that interface. In this case, that is
+what I’ve done since the reader interface only declares a single act of behavior named read.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type pipe struct {
+        name string
+    }
+
+    func (pipe) read(b []byte) (int, error) {
+        s := `{name: "Bill", title: "developer"}`
+        copy(b, s)
+        return len(s), nil
+    }
+
+This code declares a type named pipe and then declares a method name read. Because
+of these two declarations, you can say the following:
+
+"The concrete type pipe now implements the reader interface using value semantics"
+
+Now you have two concrete types implementing the reader interface. Two concrete types
+each with their unique implementation. One type is reading file systems and the other
+networks.
+
+** Polymorphism
+
+Polymorphism means that a piece of code changes its behavior depending on the concrete
+data it’s operating on. This was said by Tom Kurtz, who is the inventor of BASIC. This
+is the definition we will use moving forward.
+
+    // retrieve can read any device and process the data.
+    func retrieve(r reader) error {
+        data := make([]byte, 100)
+
+        len, err := r.read(data)
+        if err != nil {
+            return err
+        }
+
+        fmt.Println(string(data[:len]))
+        return nil
+    }
+
+Take a look at the type of data this function accepts. It wants a value of type reader.
+That’s impossible since reader is an interface and interfaces are valueless types.
+It can’t be asking for a reader value, they don’t exist.
+
+If the function is not asking for a reader value then what is the function asking
+for? It is asking for the only thing it can ask for, concrete data. 
+
+The function retrieve is a polymorphic function because it’s asking for concrete
+data not based on what the data is (concrete type), but based on what the data can
+do (interface type).
+
+    f := file{"data.json"}
+    p := pipe{"cfg_service"}
+
+    retrieve(f)
+    retrieve(p)
+
+You can construct two concrete values, one of type file and one of type pipe. Then
+you can pass a copy of each value to the polymorphic function. This is because each
+of these values implement the full method set of behavior defined by the reader interface.
+
+When the concrete file value is passed into retrieve, the value is stored inside a
+two word internal type representing the interface value.
+
+.image /tour/eng/static/img/i1.png
+
+The second word of the interface value points to the value being stored. In this
+case, it’s a copy of the file value since value semantics are at play. The first
+word points to a special data structure that is called the iTable.
+
+The iTable serves 2 purposes:
+
+- It describes the type of value being stored. In my case, it’s a file value.
+- It provides function pointers to the concrete implementations of the method set for the type of value being stored.
+
+When the read call is made against the interface value, an iTable lookup is performed
+to find the concrete implementation of the read method associated with the type.
+Then the method call is made against the value being stored in the second word.
+
+You can say retrieve is a polymorphic function because the concrete value pipe can be
+passed into retrieve and now the call to read against the interface value changes
+its behavior. This time that call to read is reading a network instead of reading
+a file.
+
+** Method Set Rules
+
+Implementing an interface using pointer semantics applies some constraints on
+interface compliance.
+
+    type notifier interface {
+        notify()
+    }
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(u)
+    }
+
+The notifier interface is implemented by the user type using pointer semantics.
+When value semantics are used to make the polymorphic call, the following compiler
+message is produced.
+
+    "cannot use u (type user) as type notifier in argument to sendNotification:
+    user does not implement notifier (notify method has pointer receiver)"
+
+This is because there is a special set of rules in the specification about method
+sets. These rules define what methods are attached to values and pointers of a type.
+They are in place to maintain the highest level of integrity in my program.
+
+These are the rules defined in the specification:
+
+- For any value of type T, only those methods implemented with a value receiver for that type belong to the method set of that value.
+- For any address of type T, all methods implemented for that type belong to the method set of that value.
+      
+In other words, when working with an address (pointer), all methods implemented are
+attached and available to be called. When working with a value, only those methods
+implemented with value receivers are attached and available to be called.
+
+In the previous lesson about methods, you were able to call a method against a
+concrete piece of data regardless of the data semantics declared by the receiver.
+This is because the compiler can adjust to make the call. In this case, a value is
+being stored inside an interface and the methods must exist. No adjustments can
+be made.
+
+The question now becomes: Why can't methods implemented with pointer receivers be
+attached to values of type T? What is the integrity issue here?
+
+One reason is because you can’t guarantee that every value of type T is addressable.
+If a value doesn’t have an address, it can’t be shared.
+
+    type duration int
+
+    func (d *duration) notify() {
+            fmt.Println("Sending Notification in", *d)
+    }
+
+    func main() {
+        duration(42).notify()
+    }
+
+Compiler Error:
+
+    cannot call pointer method on duration(42)
+    cannot take the address of duration(42)
+
+In this example, the value of 42 is a constant of kind int. Even though the value
+is converted into a value of type duration, it’s not being stored inside a variable.
+This means the value is never on the stack or heap. There isn’t an address. Constants
+only live at compile time.
+
+The second reason is the bigger reason. The compiler is telling you that you are not
+allowed to use value semantics if you have chosen to use pointer semantics. In other
+words, you are being forced to share the value with the interface since it’s not
+safe to make a copy of a value that a pointer points to. If you chose to implement
+the method with pointer semantics, you are stating that a value of this type isn’t
+safe to be copied.
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(&u)
+    }
+
+To fix the compiler message, you must use pointer semantics on the call to the
+polymorphic function and share u. The answer is not to change the method to use
+value semantics.
+
+** Slice of Interface
+
+When you declare a slice of an interface type, I’m capable of grouping different
+concrete values together based on what they can do. This is why Go doesn’t need
+the concept of sub-typing. It’s not about a common DNA, it’s about a common behavior.
+
+    type printer interface {
+        print()
+    }
+
+    type canon struct {
+        name string
+    }
+
+    func (c canon) print() {
+        fmt.Printf("Printer Name: %s\n", c.name)
+    }
+
+    type epson struct {
+        name string
+    }
+
+    func (e *epson) print() {
+        fmt.Printf("Printer Name: %s\n", e.name)
+    }
+
+    func main() {
+        c := canon{"PIXMA TR4520"}
+        e := epson{"WorkForce Pro WF-3720"}
+
+        printers := []printer{
+            c,
+            &e,
+        }
+        c.name = "PROGRAF PRO-1000"
+        e.name = "Home XP-4100"
+
+        for _, p := range printers {
+            p.print()
+        }
+    }
+
+Output:
+
+    Printer Name: PIXMA TR4520
+    Printer Name: Home XP-4100
+
+The code shows how a slice of the interface type printer allows me to create a
+collection of different concrete printer types. Iterating over the collection and
+leveraging polymorphism since the call to p.print changes its behavior depending
+on the concrete value the code is operating against.
+
+The example also shows how the choice of data semantics changes the behavior of the
+program. When storing the data using value semantics, the change to the original
+value is not seen. This is because a copy is stored inside the interface. When
+pointer semantics are used, any changes to the original value are seen.
+
+** Notes
+
+- The method set for a value, only includes methods implemented with a value receiver.
+- The method set for a pointer, includes methods implemented with both pointer and value receivers.
+- Methods declared with a pointer receiver, only implement the interface with pointer values.
+- Methods declared with a value receiver, implement the interface with both a value and pointer receiver.
+- The rules of method sets apply to interface types.
+- Interfaces are reference types, don't share with a pointer.
+- This is how we create polymorphic behavior in go.
+
+** Quotes
+
+"Polymorphism means that you write a certain program and it behaves differently depending on the data that it operates on." - Tom Kurtz (inventor of BASIC)
+
+"The empty interface says nothing." - Rob Pike
+
+"Design is the art of arranging code to work today, and be changeable forever." - Sandi Metz
+
+"A proper abstraction decouples the code so that every change doesn’t echo throughout the entire code base." - Ronna Steinburg
+
+** Extra Reading
+
+- [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]    
+- [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/interface-pollution/][Interface Pollution]] - JBD    
+- [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraction Considered Harmful]] - Tyler Treat    
+- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy    
+- [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum  
+- [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Engineering Innovation - Why Constraints Are Critical]] - André Eriksson (MUST WATCH)
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare an interface named speaker with a method named speak. Declare a
+struct named english that represents a person who speaks english and declare a struct
+named chinese for someone who speaks chinese. Implement the speaker interface for each
+struct using a value receiver and these literal strings "Hello World" and "你好世界".
+Declare a variable of type speaker and assign the address of a value of type english
+and call the method. Do it again for a value of type chinese.
+
+*Part* *B:* Add a new function named sayHello that accepts a value of type speaker.
+Implement that function to call the speak method on the interface value. Then create
+ new values of each type and use the function.
+
+.play interfaces/exercise1.go
+.play interfaces/answer1.go
