@@ -1,0 +1,402 @@
+Decoupling
+Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+
+* Decoupling
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+The best way to take advantage of embedding is through the compositional design
+pattern. It's the key for maintaining stability in your software by having the
+ability to adapt to the data and transformation changes that are coming.
+
+** Code Review
+
+- *Example* *1:* Struct Composition
+- *Example* *2:* Decoupling With Interface
+- *Example* *3:* Interface Composition
+- *Example* *4:* Decoupling With Interface Composition
+- *Example* *5:* Remove Interface Pollution
+- *Example* *6:* More Precise API
+
+.play composition/decoupling/example1.go
+.play composition/decoupling/example2.go
+.play composition/decoupling/example3.go
+.play composition/decoupling/example4.go
+.play composition/decoupling/example5.go
+.play composition/decoupling/example6.go
+
+** Decoupling Mechanics
+
+The idea is to compose larger types from smaller types and focus on the composition
+of behavior.
+
+    type Xenia struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Xenia) Pull(d *Data) error {
+        switch rand.Intn(10) {
+        case 1, 9:
+            return io.EOF
+        case 5:
+            return errors.New("Error reading data from Xenia")
+        default:
+            d.Line = "Data"
+            fmt.Println("In:", d.Line)
+            return nil
+        }
+    }
+
+The Xenia type represents a system that you need to pull data from. The implementation
+is not important. What is important is that the method Pull can succeed, fail, or
+not have any data to pull.
+
+    type Pillar struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Pillar) Store(d *Data) error {
+        fmt.Println("Out:", d.Line)
+        return nil
+    }
+
+The Pillar type represents a system that you need to store data into. What is
+important again is that the method Store can succeed or fail.
+
+These two types represent a primitive layer of code that provides the base behavior
+required to solve the business problem of pulling data out of Xenia and storing
+that data into Pillar.
+
+    func Pull(x *Xenia, data []Data) (int, error) {
+        for i := range data {
+            if err := x.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(p *Pillar, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+The next layer of code is represented by these two functions, Pull and Store. They
+build on the primitive layer of code by accepting a collection of data values to
+pull or store in the respective systems. These functions focus on the concrete types
+of Xenia and Pillar since those are the systems the program needs to work with at
+this time.
+
+    func Copy(sys *System, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(&sys.Xenia, data)
+            if i > 0 {
+                if _, err := Store(&sys.Pillar, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+The Copy function builds on top of the Pull and Store functions to move all the
+data that is pending for each run. If you notice the first parameter to Copy, it’s
+a type called System.
+
+    type System struct {
+        Xenia
+        Pillar
+    }
+
+The initial idea of the System type is to compose a system that knows how to Pull
+and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+
+    func main() {
+        sys := System{
+            Xenia: Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Pillar: Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Finally, the main function can be written to construct a Xenia and Pillar within
+the composition of a System. Then the System can be passed to the Copy function
+and data can begin to flow between the two systems.
+
+With all this code, you now have my first draft of a concrete solution to a concrete
+problem.
+
+** Decoupling With Interfaces
+
+The next step is to understand what could change in the program. In this case, what
+can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
+be Alice and Bob. With this knowledge, you want to decouple the existing concrete
+solution from this change. To do that, you want to change the concrete functions to
+be polymorphic functions.
+
+    func Pull(p Puller, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(s Storer, data []Data) (int, error) {
+        for i := range data {
+            if err := s.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+Currently, the Pull function accepts a Xenia value and the Store function accepts
+a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
+important is a concrete value that knows how to Pull and Store. You can change these
+concrete functions to be polymorphic by asking for data based on what it can do
+instead of what it is.
+
+    type Puller interface {
+        Pull(d *Data) error
+    }
+
+    type Storer interface {
+        Store(d *Data) error
+    }
+
+These two interfaces describe what concrete data must do and it’s these types that
+are replaced in the declaration of the Pull and Store functions. Now these functions
+are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
+Storer, they can be passed into the functions.
+
+You am not done yet. The Copy function needs to be polymorphic as well.
+
+    func Copy(ps PullStorer, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(ps, data)
+            if i > 0 {
+                if _, err := Store(ps, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+The Copy function is no longer asking for a System value, but any concrete value
+that knows how to both Pull and Store.
+
+    type PullStorer interface {
+        Puller
+        Storer
+    }
+
+The PullStorer interface is declared through the use of composition. It’s composed
+of the Puller and Storer interfaces. Work towards composing larger interfaces
+from smaller ones.
+
+Notice how the PullStorer variable is now being passed into the Pull and Store
+functions. How is this possible when the type information is different?
+
+    // func Pull(p Puller, data []Data) (int, error) {
+    i, err := Pull(ps, data)
+
+    // func Store(s Storer, data []Data) (int, error) {
+    if _, err := Store(ps, data[:i]); err != nil {
+
+You always need to remember, you am never passing an interface value around my program
+since they don’t exist and are valueless. you can only pass concrete data. So the
+concrete data stored inside of the interface ps variable is what’s being passed
+to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
+know how to Pull and Store?
+
+.image /tour/eng/static/img/comp1.png
+
+Since a System is composed from a Xenia and Pillar, System implements the PullStorer
+interface. With these changes, you can now create new concrete types that implement
+the PullStorer interface.
+
+    type System1 struct {
+        Xenia
+        Pillar
+    }
+
+    type System2 struct {
+        Alice
+        Bob
+    }
+
+    type System3 struct {
+        Xenia
+        Bob
+    }
+
+    type System4 struct {
+        Alice
+        Pillar
+    }
+
+When you think about this more, declaring different System types for all the possible
+combinations is not realistic. This will work, but the maintenance nightmare requires
+a better solution.
+
+** Interface Composition
+
+What if you decided to compose my concrete system type from two interface types?
+
+    type System struct {
+        Puller
+        Storer
+    }
+
+This is an interesting solution. This would allow the application to inject the
+concrete Puller or Storer into the system at application startup. 
+
+    func main() {
+        sys := System{
+            Puller: &Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Storer: &Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+This one system type implements the PullStorer interface for all possible
+combinations of concrete types.
+
+.image /tour/eng/static/img/comp2.png
+
+With this change, the application is fully decoupled from changes to a new system
+that may come online over time.
+
+** Precision Review
+
+The next question to ask is, are the polymorphic functions as precise as they
+otherwise could be? This is a part of the engineering process that can’t be skipped.
+The answer is no, two changes can be made.
+
+    func Copy(sys *System, batch int) error {
+
+The Copy function doesn’t need to be polymorphic anymore since there will only be a
+single System type. The PullStorer interface type can be removed from the program.
+Remember, you moved the polymorphism inside the type when you used composition with the
+interface types.
+
+    func Copy(p Puller, s Storer, batch int) error {
+
+This is another change that can be made to the Copy function. This change makes the
+function more precise and polymorphic again. Now the function is asking for exactly
+what it needs based on what the concrete data can do.
+
+.image /tour/eng/static/img/comp3.png
+
+With that change the System struct type can be removed from the program as well.
+
+    func main() {
+        x := Xenia{
+            Host:    "localhost:8000",
+            Timeout: time.Second,
+        }
+
+        p := Pillar{
+            Host:    "localhost:9000",
+            Timeout: time.Second,
+        }
+
+        if err := Copy(&x, &p, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+By removing the PullStorer and System types, the program simplifies. The main
+function can focus on constructing the concrete Puller and Storer values necessary
+for that moving data. The type system and APIs are more precise.
+This idea of precision comes from Edsger W. Dijkstra
+
+"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+
+** Notes
+
+- This is much more than the mechanics of type embedding.
+- Declare types and implement workflows with composition in mind.
+- Understand the problem you are trying to solve first. This means understanding the data.
+- The goal is to reduce and minimize cascading changes across your software.
+- Interfaces provide the highest form of composition.
+- Don't group types by a common DNA but by a common behavior.
+- Everyone can work together when we focus on what we do and not what we are.
+
+** Quotes
+
+"A good API is not just easy to use but also hard to misuse." - JBD
+
+"You can always embed, but you cannot decompose big interfaces once they are out there. Keep interfaces small." - JBD
+
+"Don't design with interfaces, discover them." - Rob Pike
+
+"Duplication is far cheaper than the wrong abstraction. - Sandi Metz
+
+** Design Guidelines
+
+Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+
+** Extra Reading
+
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
+- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Using the template, declare a set of concrete types that implement the set of predefined
+interface types. Then create values of these types and use them to complete a set of
+predefined tasks.
+
+.play composition/decoupling/exercise1.go
+.play composition/decoupling/answer1.go
