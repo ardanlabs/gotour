@@ -12,6 +12,7 @@ import (
 
 type root struct {
 	engContent []byte
+	indContent []byte
 }
 
 // rootHandler returns a handler for all the requests except the ones for lessons.
@@ -46,6 +47,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "/tour/eng/":
 		log.Println("render english tour")
 		if err := renderUI(w, rot.engContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/ind/":
+		log.Println("render indonesian tour")
+		if err := renderUI(w, rot.indContent); err != nil {
 			log.Println(err)
 		}
 	}

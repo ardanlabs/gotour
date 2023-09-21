@@ -1,0 +1,107 @@
+Behavior As Constraint
+Every generic type requires a constraint to be declared so the compiler knows what concrete type substitutions it can accept or reject at compile time.
+
+* Generics - Behavior As Constraint
+
+Every generic type requires a constraint to be declared so the compiler knows what
+concrete type substitutions it can accept or reject at compile time. This is required
+even if there is no real constraint on what the generic type can be, hence the
+predeclared constraint identifier any.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Concrete stringify function
+- *Example* *2*: Type assertion stringify function
+- *Example* *3*: Interface stringify function
+- *Example* *4*: Generic stringify function
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Explained
+
+Interesting enough, the concept of a constraint already exists in the language.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+The code defines a concrete type named User and implements a method named
+String that returns the user’s name. Then an interface type is declared named
+Stringer, which declares one act of behavior String, which returns a string. Thanks
+to the method declared for User, you can say that the concrete type User implements
+the Stringer interface using value semantics.
+
+The Concrete function is just that, a function that accepts concrete data based on
+what it is. The Polymorphic is just that as well, a function that accepts concrete data
+based on what it can do. This is the primary difference between a concrete and
+polymorphic function. One is limited to one type of data, the other isn’t. However,
+there is a constraint on what concrete data can be passed into the polymorphic
+function.
+
+The Stringer interface defines that constraint by declaring a method set of behavior
+that concrete data must be able to exhibit. When applied as the input type, the
+compiler can guarantee the behavioral constraint is met every time the function is
+called.
+
+There are generic functions that will require the same type of behavioral constraint.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Here is the generic function stringify. It accepts a slice of some type T and returns a
+slice of string values that contain a stringified version of each value from the input
+collection. The key to making this function work is the method call to String against
+each value of type T.
+
+The problem is that the compiler needs to know and verify that values of type T do
+have a method named String. When the generic type T is declared, the fmt.Stringer
+interface is provided as the constraint. The compiler now knows to check any type
+substitution and data being passed into the function for this method set of behavior.
+
+This is excellent because the interface is being used again for the same purpose and
+the language doesn’t need a new keyword.
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Implement a generic function named marshal that can marshal JSON but only
+accepts values that implement the json.Marshaler interface.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go
