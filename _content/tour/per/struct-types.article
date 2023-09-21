@@ -1,35 +1,30 @@
-Struct Types
-Struct types are a way of creating complex types that group fields of data together.
+ساختار (Struct)
+ساختار (Struct) مجموعه ای از فیلد ها با تایپ های مختلف را درخود نگه می دارد.
 
-* Struct Types
+* ساختار (Struct)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-Struct types are a way of creating complex types that group fields of data together.
-They are a great way of organizing and sharing the different aspects of the data
-your program consumes.
+انواع ساختاری (Struct types) یک روش برای ایجاد انواع پیچیده هستند که فیلدهای داده را با هم گروه‌بندی می‌کنند. آنها راه عالی‌ای برای سازماندهی و به اشتراک‌گذاری جنبه‌های مختلف داده‌هایی که برنامه شما مصرف می‌کند هستند.
 
-A computer architecture’s potential performance is determined predominantly by its
-word length (the number of bits that can be processed per access) and, more importantly,
-memory size, or the number of words that it can access.
+کارایی پتانسیلی معماری کامپیوتر به طور عمده توسط طول کلمه (تعداد بیت‌های قابل پردازش در هر دسترسی) و، به ویژه، اندازه حافظه یا تعداد کلماتی که می‌توان به آن دسترسی پیدا کرد، تعیین می‌شود.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Declare, create and initialize struct types.
-- *Example* *2:* Anonymous struct types.
-- *Example* *3:* Named vs Unnamed types. 
-- *Example* *4:* Struct type alignments
+- *مثال* *1:*  اعلام، ایجاد و مقداردهی انواع ساختاری
+- *مثال* *2:* انواع ساختاری ناشناس
+- *مثال* *3:* انواع نام‌دار در مقابل انواع بی‌نام
+- *مثال* *4:* ترازبندی انواع ساختاری
 
 .play struct-types/example1.go
 .play struct-types/example2.go
 .play struct-types/example3.go
 .play struct-types/example4.go
 
-** Struct and Construction Mechanics
+** Struct و Construction مکانزیم
 
-This declaration represents a concrete user-defined type as a composite of
-different fields and types.
+این اعلام یک نوع تعریف‌شده توسط کاربر به عنوان یک ترکیب از فیلدها و انواع مختلف را نمایان می‌کند.
 
     type example struct {
         flag    bool
@@ -37,7 +32,7 @@ different fields and types.
         pi      float32
     }
 
-Declare a variable of type example and initialize it to its zero value state.
+یک متغیر از نوع مثال (example) اعلام کنید و آن را به حالت مقدار صفری مقداردهی اولیه کنید.
 
     var e1 example
 
@@ -47,8 +42,7 @@ Output:
     
     {flag:false counter:0 pi:0}
 
-Declare a variable of type example not set to its zero value state by using literal
-construction syntax.
+یک متغیر از نوع مثال (example) را با استفاده از نحوه ساخت از مقدار ابتدایی آن (صفر) مستثنی کرده و مقداردهی اولیه کنید.
 
     e2 := example{
         flag:    true,
@@ -60,14 +54,13 @@ construction syntax.
     fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+خروجی:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-Declare a variable of an unnamed literal type set to its non-zero value state
-using literal construction syntax.
+یک متغیر از یک نوع معنون ناشناس اعلام کنید و آن را به حالت مقدار غیر صفری مقداردهی اولیه کنید با استفاده از نحوه ساخت از مقدار ابتدایی.
 
     e3 := struct {
         flag    bool
@@ -83,21 +76,19 @@ using literal construction syntax.
     fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+خروجی:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-The idea of literal construction is just that, to construct something literally
-without a name.
+ایده‌ی ساخت از مقدار ابتدایی دقیقا همین است، به معنای ساخت چیزی به صورت واقعی بدون نام.
 
-You should use var for zero value and the short variable declaration operator with
-the { } syntax for non-zero value construction.
+برای مقدار صفر از var استفاده کنید و برای ساخت مقدار غیر صفر از اپراتور تعریف متغیر کوتاه به همراه نحو { } استفاده کنید.
 
-** Padding and Alignment
+** پدینگ و ترازبندی (Padding and Aligment)
 
-How much memory is allocated for a value of type example?
+مقدار حافظه مختصر یک نوع مثال چقدر است؟
 
     type example struct {
         flag    bool
@@ -105,17 +96,13 @@ How much memory is allocated for a value of type example?
         pi      float32
     }
 
-A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
-and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
-is a padding byte sitting between the flag and counter fields for the reason of alignment.
+یک متغیر bool 1 بایت، int16 2 بایت و float32 4 بایت حافظه اشغال می‌کند. اگر این مقادیر را با هم جمع کنید، مجموعاً 7 بایت خواهید داشت. با این حال، پاسخ واقعی 8 بایت است. چرا؟ چون بین فیلدهای پرچم و شمارنده یک بایت پدینگ وجود دارد به عنوان یک روش ترازبندی.
 
 .image /tour/eng/static/img/f1.png
 
-The idea of alignment is to allow the hardware to read memory more efficiently
-by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+ایده ترازبندی این است که به سخت‌افزار امکان خواندن حافظه به صورت کارآمد‌تر با قرار دادن حافظه در مرزهای خاص ترازبندی اجازه دهد. کامپایلر از مکانیزم‌های مرز ترازبندی مراقبت می‌کند، بنابراین شما نیازی به انجام کارهای مربوط به ترازبندی ندارید.
 
-Depending on the size of a particular field and its placement in the struct, Go
-determines the padding you need.
+بسته به اندازه یک فیلد خاص و مکان آن در ساختار، Go پدینگ مورد نیاز شما را تعیین می‌کند.
 
     type example2 struct {
         flag    bool
@@ -124,8 +111,7 @@ determines the padding you need.
         pi      float32
     }
 
-In this example, I’ve added a new field called `flag2` between the counter and pi
-fields. This causes more padding inside the struct.
+در این مثال، یک فیلد جدید به نام `flag2` بین فیلدهای شمارنده و pi اضافه کرده‌ام. این باعث می‌شود که در داخل ساختار (struct) بیشترین پدینگ (padding) ایجاد شود.
 
     type example2 struct {
         flag    bool     // 0xc000100020 <- Starting Address
@@ -138,29 +124,15 @@ fields. This causes more padding inside the struct.
         pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
-This is how the alignment and padding play out if a value of type example2 starts
-at address 0xc000100020. The flag field represents the starting address and is
-only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
-must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
-address that is a multiple of 2. This requires the counter field to start at address
-0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+این نشان‌دهنده نحوه عملکرد ترازبندی و پدینگ است اگر یک مقدار از نوع example2 از آدرس 0xc000100020 شروع شود. فیلد پرچم (flag) نشان‌دهنده آدرس شروع است و فقط 1 بایت اندازه دارد. از آنجایی که فیلد شمارنده (counter) نیاز به اختصاص 2 بایت حافظه دارد، باید در حافظه در تراز 2 بایتی قرار گیرد، به این معنی که باید در یک آدرس که ضریب 2 باشد قرار گیرد. این باعث می‌شود که فیلد شمارنده از آدرس 0xc000100022 شروع شود. این ایجاد یک فاصله 1 بایتی بین فیلدهای پرچم و شمارنده دارد.
 
 .image /tour/eng/static/img/f2.png
 
-The `flag2` field is a bool and can fall at the next address 0xc000100024. The
-final field is pi and requires 4 bytes of allocation so it needs to fall on a
-4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
-means 3 more padding bytes are needed to maintain a proper alignment. This results
-in a value of type example2 requiring 12 bytes of total memory allocation.
+فیلد `flag2` یک متغیر بول است و می‌تواند در آدرس بعدی 0xc000100024 قرار گیرد. فیلد نهایی، pi، نیاز به اختصاص 4 بایت حافظه دارد، بنابراین باید در یک تراز 4 بایتی قرار گیرد. آدرس بعدی برای یک مقدار 4 بایتی در 0xc000100028 قرار دارد. این به معنی نیاز به 3 بایت پدینگ دیگر برای حفظ تراز صحیح است. این منجر به این می‌شود که یک مقدار از نوع example2 نیاز به 12 بایت از حافظه اختصاصی کلی داشته باشد.
 
-The largest field in a struct represents the alignment boundary for the entire
-struct. In this case, the largest field is 4 bytes so the starting address for this
-struct value must be a multiple of 4. You can see the address 0xc000100020 is a
-multiple of 4.
+بزرگترین فیلد در یک struct تراز مرز تراز برای کل struct را نمایش می‌دهد. در این مورد، بزرگترین فیلد 4 بایت است، بنابراین آدرس شروع برای این مقدار struct باید ضریبی از 4 باشد. می‌توانید ببینید که آدرس 0xc000100020 ضریبی از 4 است.
 
-If you need to minimize the amount of padding bytes, you must lay out the fields from
-highest allocation to lowest allocation. This will push any necessary padding bytes
-down to the bottom of the struct and reduce the total number of padding bytes necessary.
+اگر نیاز دارید که حداقل تعداد بایت‌های پدینگ را کاهش دهید، باید فیلدها را از حجم بالاتر به حجم کمتر بچینید. این کار باعث می‌شود که هر بایت پدینگ مورد نیاز به پایین‌ترین قسمت struct فشرده شود و تعداد کلی بایت‌های پدینگ مورد نیاز کاهش یابد.
 
     type example struct {
         pi      float32  // 0xc000100020 <- Starting Address
@@ -169,35 +141,28 @@ down to the bottom of the struct and reduce the total number of padding bytes ne
         flag2   bool     // 0xc000100027 <- 1 byte alignment
     }
 
-After the reordering of the fields, the struct value only requires 8 bytes of
-allocation and not 12 bytes. Since all the fields allow the struct value to fall
-on a 4-byte alignment, no extra padding bytes are necessary.
+بعد از بازترتیب دهی مجدد فیلدها، مقدار struct فقط به 8 بایت از حافظه اختصاصی نیاز دارد و نه 12 بایت. از آنجا که تمامی فیلدها اجازه می‌دهند مقدار struct بر روی یک تراز 4 بایتی قرار گیرد، هیچ بایت پدینگ اضافی مورد نیاز نیست.
 
 .image /tour/eng/static/img/f3.png
 
-** Assigning Values
+** تخصیص مقادیر
 
-If you have two different named types that are identical in structure, you can't assign
-a value of one to the other.
+اگر دو نوع نامگذاری شده متفاوت که در ساختار یکسانی هستند را داشته باشید، نمی‌توانید مقدار یکی را به دیگری اختصاص دهید.
 
-For example, if the types example1 and example2 are declared using the same exact
-declaration and we initialize two variables.
+به عنوان مثال، اگر انواع example1 و example2 با استفاده از همان تعریف دقیق اعلام شوند و متغیرهایی را مقداردهی اولیه کنیم.
 
     var ex1 example1
     var ex2 example2
 
-You can’t assign these two variables to each other since they are of different named
-types. The fact that they are identical in structure is irrelevant. 
+شما نمی‌توانید این دو متغیر را به یکدیگر اختصاص دهید چرا که آن‌ها از نوع‌های نامگذاری شده متفاوتی هستند. حقیقت این است که شباهت در ساختار آن‌ها اهمیتی ندارد.
 
-    ex1 = ex2  // Not allowed, compiler error
+    ex1 = ex2  // اجازه نمیده, خطای کامپایلر
 
-To perform this assignment, you would have to use conversion syntax and since they
-are identical in structure, the compiler will allow this.
+برای انجام این اختصاص، شما باید از نحو تبدیل (conversion) استفاده کنید و از آنجا که در ساختار یکسان هستند، کامپایلر اجازه این عمل را می‌دهد.
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2)  // اجازه داده میشه, بدون خطای کامپایلر
 
-However, if ex2 was changed to be declared as an unnamed type using the same exact
-declaration as ex1, no conversion syntax would be required.
+با این حال، اگر ex2 به عنوان یک نوع بدون نام با استفاده از همان تعریف دقیق ex1 اعلام شود، نیازی به نحو تبدیل (conversion) نخواهد بود.
 
     var ex2 struct {
         flag    bool
@@ -207,20 +172,19 @@ declaration as ex1, no conversion syntax would be required.
 
     ex1 = ex2  // Allowed, NO need for conversion syntax
 
-The compiler will allow this assignment without the need for conversion.
+کامپایلر به انجام این اختصاص بدون نیاز به تبدیل اجازه می‌دهد.
 
-** Notes
+** نکات
 
-- We can use the struct literal form to initialize a value from a struct type.
-- The dot (.) operator allows us to access individual field values.
-- We can create anonymous structs.
+- ما می‌توانیم از فرم لیترال struct برای مقداردهی از یک نوع struct استفاده کنیم.
+- اپراتور نقطه (.) به ما امکان دسترسی به مقادیر فیلد‌های فردی را می‌دهد.
+- ما می‌توانیم struct‌های ناشناس ایجاد کنیم.
 
-** Quotes
+** نقل قول ها
 
-"Implicit conversion of types is the Halloween special of coding. Whoever thought
-of them deserves their own special hell." - Martin Thompson
+"تبدیل ضمنی انواع معادل عید هالووین برنامه‌نویسی است. هر کسی که به این فکر افتاده است، به جهنم ویژه خودش لایق است." - مارتین تامسون
 
-** Extra Reading
+** خواندن اضافی
 
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
@@ -228,18 +192,15 @@ of them deserves their own special hell." - Martin Thompson
 - [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
 - [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به عنوان نقطه شروع برای انجام تمرینات استفاده کنید. یک راه حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Declare a struct type to maintain information about a user (name,
-email and age). Create a value of this type, initialize with values and display
-each field.
+*بخش* *A:* یک نوع struct برای نگه‌داری اطلاعات یک کاربر (نام، ایمیل و سن) اعلام کنید. یک مقدار از این نوع ایجاد کرده، با مقادیر مقداردهی اولیه کنید و هر فیلد را نمایش دهید.
 
-*Part* *B:* Declare and initialize an anonymous struct type with the same three
-fields. Display the value.
+*بخش* *B:* یک نوع struct بدون نام اعلام کنید و با سه فیلد مشابه مقداردهی اولیه کنید. مقدار را نمایش دهید.
 
 .play struct-types/exercise1.go
 .play struct-types/answer1.go
