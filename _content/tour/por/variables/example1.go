@@ -3,17 +3,17 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// The playground is actually a 64-bit env with 32-bit pointers
-// The os/arch combo is named nacl/amd64p32
+// O playground é na verdade um ambiente de 64-bit com ponteiros de 32-bit.
+// O combo os/arch é chamado de nacl/amd64p32
 
-// Sample program to show how to declare variables.
+// Exemplo de programa para mostrar como declarar variáveis.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare variables that are set to their zero value.
+	// Declare variáveis com seu zero value.
 	var a int
 	var b string
 	var c float64
@@ -24,8 +24,8 @@ func main() {
 	fmt.Printf("var c float64 \t %T [%v]\n", c, c)
 	fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-	// Declare variables and initialize.
-	// Using the short variable declaration operator.
+	// Declare variáveis e inicialize.
+	// Usando o operador de declaração de variável curto.
 	aa := 10
 	bb := "hello"
 	cc := 3.14159
@@ -36,7 +36,7 @@ func main() {
 	fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
 	fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-	// Specify type and perform a conversion.
+	// Especifique o tipo e realize uma conversão.
 	aaa := int32(10)
 
 	fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
@@ -44,7 +44,7 @@ func main() {
 
 /*
 	Zero Values:
-	Type Initialized Value
+	Tipo Valor Inicializado
 	Boolean false
 	Integer 0
 	Floating Point 0
