@@ -18,9 +18,9 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'language-mechanics',
-    'title': 'Language Mechanics',
+    'title': 'مکانزیم زبان',
     'description': `
-        <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
+        <p>این متریال تمام نکات نحوه نوشتن، اصطلاحات، پیاده‌سازی، و مشخصات زبان را پوشش می‌دهد. بعد از اتمام این مواد، شما مکانیک‌های زبان و همدلی‌های مکانیکی آن با سخت‌افزار و سیستم عامل را خواهید فهمید.</p>
         `,
     'lessons': [
         'variables',
