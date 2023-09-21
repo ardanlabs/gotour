@@ -1,0 +1,114 @@
+Basics
+Learn how to write a basic generic print function.
+
+* Generics - Basics
+
+Learn how to write a basic generic print function.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Concrete implementation of print
+- *Example* *2*: Type Assertion implementation of print
+- *Example* *3*: Reflection implementation of print
+- *Example* *4*: Generic implementation of print
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Explained
+
+If you want to write a single print function that can output a slice of any given type
+and not use reflection, you can use the new generics syntax.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+This is an implementation of a single print function that can output a slice of any
+given type using the new generics syntax. What’s nice about this syntax is that the
+code inside the function can use syntax and built-in functions that would work with
+a concrete type. This is not the case when you use the empty interface to write generic
+code.
+
+There needs to be a way to tell the compiler that you won’t be declaring type T explicitly, but it
+has to be determined by the compiler at compile time. The new syntax uses square
+brackets for this. The brackets define a list of generic type identifiers that represent
+types specific to the function that need to be determined at compile time. It’s how you
+tell the compiler that types with these names won’t be declared before the program
+is compiled. These types need to be figured out at compile time.
+
+Note: You can have multiple type identifiers defined inside the brackets though the
+current example is only using one. Ex. [T, S, R any]
+
+You can name these type identifiers anything you want to help with the readability of the
+code. In this case, the code is using the capital letter T to describe that a slice of some type
+T (to be determined at compile time) will be passed in. It's an idiom to use a single
+capitalized letters when it comes to collections and it’s also a convention that goes
+back to older programming languages like C++ and Java.
+
+There is the use of the word any inside the brackets as well. This represents a
+constraint on what type T can be. The compiler requires that all generic types have
+a well defined constraint. The any constraint is predeclared by the compiler and
+states there are no constraints on what type T can be.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+This is how to make calls to the generic print function where the type information
+for T is explicitly provided at the call site. The syntax emulates the idea that the
+function declaration func name[T any](slice []T) defines two sets of parameters.
+The first set is the type that maps to the corresponding type identifiers, and the
+second is the data that maps to the corresponding input variables.
+
+Luckily, the compiler can infer the type and eliminate the need to explicitly pass in
+the type information at the call site.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+This code shows how you can call the generic print functions without the need to pass
+the type information explicitly. At the function call site, the compiler is able to
+identify the type to use for T and construct a concrete version of the function to
+support slices of that type. The compiler has the ability to infer the type with the
+information it has at the call site from the data being passed in.
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Implement a generic function named marshal that can accept any value and
+marshal that value into JSON, returning the JSON and an error. Declare
+a struct type named User with two fields, Name and Age. Then construct a
+value of the User type and pass the value to the generic marshal function.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

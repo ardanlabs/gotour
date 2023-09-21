@@ -1,0 +1,179 @@
+Maps
+A map is a data structure that provides support for storing and accessing data based on a key.
+
+* Maps
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+A map is a data structure that provides support for storing and accessing data
+based on a key. It uses a hash map and bucket system that maintains a contiguous
+block of memory underneath.
+
+** Code Review
+
+- *Example* *1:* Declare, write, read, and delete
+- *Example* *2:* Absent keys
+- *Example* *3:* Map key restrictions
+- *Example* *4:* Map literals and range
+- *Example* *5:* Sorting maps by key
+- *Example* *6:* Taking an element's address
+- *Example* *7:* Maps are Reference Types
+
+.play maps/example1.go
+.play maps/example2.go
+.play maps/example3.go
+.play maps/example4.go
+.play maps/example5.go
+.play maps/example6.go
+.play maps/example7.go
+
+** Declaring And Constructing Maps
+
+Declaring and constructing a map can be done in several ways.
+
+    type user struct {
+        name     string
+        username string
+    }
+
+    // Construct a map set to its zero value,
+    // that can store user values based on a key of type string.
+    // Trying to use this map will result in a runtime error (panic).
+    var users map[string]user
+
+    // Construct a map initialized using make,
+    // that can store user values based on a key of type string.
+    users := make(map[string]user)
+
+    // Construct a map initialized using empty literal construction,
+    // that can store user values based on a key of type string.
+    users := map[string]user{}
+
+A map set to its zero value is not usable and will result in your program panicking.
+The use of the built-in function make and literal construction constructs a map
+ready for use.
+
+    func main() {
+        users := make(map[string]user)
+
+        users["Roy"] = user{"Rob", "Roy"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Output:
+
+    Roy {Rob Roy}
+    Ford {Henry Ford}
+    Mouse {Mickey Mouse}
+    Jackson {Michael Jackson}
+
+If the built-in function make is used to construct a map, then the assignment operator
+can be used to add and update values in the map. The order of how keys/values are
+returned when ranging over a map is undefined by the spec and up to the compiler to
+implement. 
+
+    func main() {
+        users := map[string]user{
+            "Roy":     {"Rob", "Roy"},
+            "Ford":    {"Henry", "Ford"},
+            "Mouse":   {"Mickey", "Mouse"},
+            "Jackson": {"Michael", "Jackson"},
+        }
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Output:
+
+    Ford {Henry Ford}
+    Jackson {Michael Jackson}
+    Roy {Rob Roy}
+    Mouse {Mickey Mouse}
+
+In this case, the output was returned in a different order from how they are
+listed in the construction. The current algorithm for 1.16 will return the results
+in a random order once the number of values reaches a certain limit. Once again,
+this is a compiler implementation that is allowed to change. You can’t depend on it.
+
+** Lookups and Deleting Map Keys
+
+Once data is stored inside of a map, to extract any data a key lookup is required.
+
+    user1, exists1 := users["Bill"]
+    user2, exists2 := users["Ford"]
+
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
+
+Output:
+
+    Bill: false { }
+    Ford: true {Henry Ford}
+
+To perform a key lookup, square brackets are used with the map variable. Two
+values can be returned from a map lookup, the value and a boolean that represents
+if the value was found or not. If you don’t need to know this, you can leave the
+"exists" variable out.
+
+When a key is not found in the map, the operation returns a value of the map type
+set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
+zero value to determine if a key exists in the map or not since zero value may be
+valid and what was actually stored for the key.
+
+    delete(users, "Roy")
+
+There is a built-in function named delete that allows for the deletion of data
+from the map based on a key.
+
+** Key Map Restrictions
+
+Not all types can be used as a key.
+
+    type slice []user
+    Users := make(map[slice]user)
+
+Compiler Error:
+
+    invalid map key type users
+
+A slice is a good example of a type that can’t be used as a key. Only values that
+can be run through the hash function are eligible. A good way to recognize types
+that can be a key is if the type can be used in a comparison operation. You can’t
+compare two slice values.
+
+** Notes
+
+- Maps provide a way to store and retrieve key/value pairs.
+- Reading an absent key returns the zero value for the map's value type.
+- Iterating over a map is always random.
+- The map key must be a value that is comparable.
+- Elements in a map are not addressable.
+- Maps are a reference type.
+
+** Links
+
+- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Declare and make a map of integer values with a string as the key. Populate the
+map with five values and iterate over the map to display the key/value pairs.
+
+.play maps/exercise1.go
+.play maps/answer1.go
