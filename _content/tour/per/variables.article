@@ -1,72 +1,62 @@
-Variables
-Variables are at the heart of the language and provide the ability to read from and write to memory.
+متغیرها
+متغیرها قلب زبان های برنامه نویسی هستن که کار خواندن و نوشتن مقادیر در حافظه را انجام می دهند.
 
-* Variables
+* متغیرها
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-Variables are at the heart of the language and provide the ability to read from
-and write to memory. In Go, access to memory is type safe. This means the compiler
-takes type seriously and will not allow us to use variables outside the scope of
-how they are declared.
+متغیر ها قلب زبان های برنامه نویسی هستن که کار خواندن و نوشتن مقادیر در حافظه را انجام می دهند. در زبان گو دسترسی به حافظه یک تایپ امن است.
+منظورمان این است که کامپایل خیلی جدی اجازه نمی دهد متغیر را خارج از scope تعریف کنید.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1*: Sample program that shows how to declare variables.
+- *مثال* *1*: یک برنامه ساده که متغیر را تعریف کرده است.
 
 .play variables/example1.go
 
-** Built-in Types
-Types provide integrity and readability by asking 2 questions:
+** تایپ های داخلی (Built-in)
+تایپ ها خوانایی و یکپارچگی را فراهم میکند:
 
-- What is the amount of memory to allocate? (e.g. 1, 2, 4, 8 bytes)
-- What does that memory represent? (e.g. int, uint, bool,..)
+- مقدار حافظه برای تخصیص چقدر است? (e.g. 1, 2, 4, 8 bytes)
+- حافطه چه چیزی را نشان می دهد? (e.g. int, uint, bool,..)
 
-Types can be specific to a precision such as int32 or int64:
+تایپ ها می توانند in64 یا int32 باشند:
 
-- uint8 represents an unsigned integer with 1 byte of allocation
-- int32 represents a signed integer with 4 bytes of allocation. When you declare a type
-using a non-precision based type (unit, int) the size of the value is based on the
-architecture being used to build the program:
+- uint8 یک نوع عدد unsigned با تخصیص ۱ بایت از حافظه می باشد
+- int32 یک نوع عدد signed با مصرف ۴ بایت از حافظه می باشد. زمانیکه شما تایپ (uint, int) تعریف میکنید بسته به معماری سیستم عامل حافظه تخصیص می یابد:
 
-- 32 bit arch: int represents a signed int at 4 bytes of memory allocation
-- 64 bit arch: int represents a signed int at 8 bytes of memory allocation
+- معماری 32 بیتی: یک int از نوع signed که ۴ بایت حافظه به آن تخصیص می یابد.
+- معماری 64 بیتی: یک int از نوع signed که ۸ بایت از حافظه به آن تخصیص  می یابد.
 
-** Word Size
+** اندازه کلمه
 
-The word size represents the amount of memory allocation required to store integers
-and pointers for a given architecture. For example:
+کلمه اندازه نشان دهنده مقدار تخصیص حافظه مورد نیاز برای ذخیره اعداد صحیح است
+و اشاره گر برای یک معماری معین. مثلا:
 
-- 32 bit arch: word size is 4 bytes of memory allocation
-- 64 bit arch: word size is 8 bytes of memory allocation
+- معماری 32 بیتی: اندازه کلمه 4 بایت تخصیص حافظه است
+- معماری 64 بیتی: اندازه کلمه 8 بایت تخصیص حافظه است
 
-This is important because Go has internal data structures (maps, channels, slices,
-interfaces, and functions) that store integers and pointers. The size of these data
-structures will be based on the architecture being used to build the program.
+این مهم است زیرا Go دارای ساختارهای داده داخلی (maps, channels, slices, interfaces, functions) دارد که اعداد صحیح و اشاره‌گرها را ذخیره می‌کنند.
+ اندازه این ساختارهای داده بر اساس معماری استفاده شده برای ساخت برنامه تعیین می‌شود.
 
-In Go, the amount of memory allocated for a value of type int, a pointer, or a word
-will always be the same on the same architecture.
+در Go، مقدار حافظه اختصاص داده شده برای یک مقدار از نوع int، یک اشاره‌گر یا یک کلمه همیشه بر روی همان معماری یکسان خواهد بود.
 
-** Zero Value Concept
-Every single value you construct in Go is initialized at least to its zero value state
-unless you specify the initialization value at construction. The zero value is the setting
-of every bit in every byte to zero.
+** مفهوم مقدار صفرم
+هر مقداری که در Go ایجاد می‌کنید حداقل به حالت مقدار صفر خود مقداردهی اولیه می‌شود مگر اینکه مقدار مقداردهی اولیه را در زمان ایجاد مشخص کنید. مقدار صفر به معنای تنظیم هر بیت در هر بایت به صفر است.
 
-This is done for data integrity and it’s not free. It takes time to push electrons
-through the machine to reset those bits, but you should always take integrity over
-performance.
+این کار برای اطمینان از اصالت داده انجام می‌شود و به صورت رایگان نیست. زمانی طول می‌کشد تا الکترون‌ها از طریق دستگاه حرکت کنند تا بیت‌ها را مجدداً تنظیم کنند، اما همیشه باید اصالت را از عملکرد بالاتر در نظر بگیرید.
 
-    Type               Zero Value
+    مقدار صفرم                تایپ
     Boolean            false
     Integer            0
     Float              0
     Complex            0i
-    String             "" (empty)
+    String             "" (خالی)
     Pointer            nil
 
-** Declare and Initialize
-The keyword var can be used to construct values to their zero value state for all types.
+** تعریف و راه اندازی
+کلمه کلیدی var می‌تواند برای ایجاد مقادیر به حالت مقدار صفر برای تمام انواع مورد استفاده قرار گیرد.
 
     var a int
     var b string
@@ -78,24 +68,22 @@ The keyword var can be used to construct values to their zero value state for al
     fmt.Printf("var c float64 \t %T [%v]\n", c, c)
     fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-Output:
+خروجی:
 
     var a int    	int [0]
     var b string 	string []
     var c float64	float64 [0]
     var d bool   	bool [false]
 
-Strings use the UTF8 character set, but are really just a collection of bytes.
+رشته‌ها از مجموعه‌ای از بایت‌ها استفاده می‌کنند که مجموعه کاراکترهای UTF8 را نمایان می‌کنند.
 
-A string is a two-word internal data structure in Go:
+یک رشته (string) در Go یک ساختار داده داخلی دو کلمه‌ای است که شامل موارد زیر است:
 
-- The first word represents a pointer to a backing array of bytes
-- The second word represents the length or the number of bytes in the backing array
-- If the string is set to its zero value state, then the first word is nil and the
-second word is 0.
+- کلمه اول یک اشاره به آرایه پشتیبان از بایت‌هاست.
+- کلمه دوم طول یا تعداد بایت‌ها در آرایه پشتیبان را نمایان می‌کند.
+- اگر رشته به حالت مقدار صفر خود تنظیم شود، آنگاه کلمه اول نال (nil) و کلمه دوم صفر (0) خواهد بود.
 
-Using the short variable declaration operator, you can declare, construct, and
-initialize a value all at the same time.
+با استفاده از اپراتور تعریف متغیر کوتاه، شما می‌توانید به صورت همزمان یک مقدار تعریف کنید، بسازید و مقداردهی اولیه کنید.
 
     aa := 10       // int [10]
     bb := "hello"  // string [hello]
@@ -107,41 +95,36 @@ initialize a value all at the same time.
     fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
     fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-Output:
+خروجی:
 
     aa := 10         int [10]
     bb := "hello"    string [hello]
     cc := 3.14159    float64 [3.14159]
     dd := true       bool [true]
 
-** Conversion vs Casting
+** Conversion در مقابل Casting
 
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a
-set of bytes to a different representation, the bytes need to be copied to a new
-memory location for the new representation.
+زبان گو چیزی به نام casting ندارد. به جای اینکه کامپایلر را به نقشه‌بردن یک مجموعه بایت به نمایشگر دیگری دعوت کنید، بایت‌ها باید به یک مکان حافظه جدید برای نمایشگر جدید کپی شوند.
 
     aaa := int32(10)
     fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
 
-    Output:
+    خروجی:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if you need to perform
-an actual casting operation. You should really avoid that and be honest with yourself
-why you are considering using it. Performing a conversion provides the highest level
-of integrity for these types of operations.
+Go واقعاً یک بسته در کتابخانه استاندارد به نام unsafe دارد اگر نیاز به انجام یک عملیات تبدیل واقعی دارید. واقعاً باید از استفاده از آن اجتناب کنید و به خودتان صادق باشید که چرا در نظر دارید از آن استفاده کنید. انجام یک تبدیل برای این نوع عملیات‌ها بالاترین سطح اصالت را فراهم می‌کند.
 
-** Notes
+** نکات
 
-- The purpose of all programs and all parts of those programs is to transform data from one form to the other.
-- Code primarily allocates, reads and writes to memory.
-- Understanding type is crucial to writing good code and understanding code.
-- If you don't understand the data, you don't understand the problem.
-- You understand the problem better by understanding the data.
-- When variables are being declared to their zero value, use the keyword var.
-- When variables are being declared and initialized, use the short variable declaration operator.
+- هدف تمامی برنامه‌ها و تمامی بخش‌های آن برنامه‌ها، تبدیل داده از یک فرم به فرم دیگر است.
+- کد اصولاً حافظه را تخصیص می‌دهد، از حافظه می‌خواند و به حافظه می‌نویسد.
+- درک نوع (تایپ) برای نوشتن کد خوب و درک کد بسیار حیاتی است.
+- اگر داده را نفهمیدید، مسئله را نمی‌فهمیدید.
+- با درک داده، مسئله را بهتر می‌فهمید.
+- زمانی که متغیرها به حالت مقدار صفر خود تعریف می‌شوند، از کلمه کلیدی var استفاده کنید.
+- زمانی که متغیرها تعریف و مقداردهی اولیه می‌شوند، از اپراتور تعریف متغیر کوتاه استفاده کنید.
 
-** Extra Reading
+** خواندن موارد بیشتر
 
 - [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
 - [[https://golang.org/doc/effective_go.html#variables][Variables]]    
@@ -149,18 +132,17 @@ of integrity for these types of operations.
 - [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
 - [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از قالب به عنوان نقطه شروع برای انجام تمرینات استفاده کنید. یک راه‌حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Declare three variables that are initialized to their zero value and
-three declared with a literal value. Declare variables of type string, int and bool.
-Display the values of those variables.
+*بخش* *A:* سه متغیر را اعلام کنید که به مقدار صفر خود مقداردهی شوند و
+سه متغیر دیگر را با مقدار ابتدایی اعلام کنید. متغیرهایی از نوع string، int و bool اعلام کنید.
+مقادیر این متغیرها را نمایش دهید.
 
-*Part* *B:* Declare a new variable of type float32 and initialize the variable by
-converting the literal value of Pi (3.14).
+*بخش* *B:* یک متغیر جدید از نوع float32 اعلام کنید و متغیر را با تبدیل مقدار ابتدایی عدد Pi (3.14) مقداردهی اولیه کنید.
 
 .play variables/exercise1.go
 .play variables/answer1.go
