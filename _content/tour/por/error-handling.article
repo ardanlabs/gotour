@@ -1,0 +1,449 @@
+Error Handling
+Error handling is critical for making your programs reliable, trustworthy and respectful to those who depend on them. 
+
+* Error Handling Design
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Integrity matters and it’s a big part of the engineering process. At the heart of
+integrity is error handling. When it comes to Go, error handling is not an exception
+to be handled later or somewhere else in the code. It’s a part of the main path and
+needs to be a main focus.
+
+Developers have the responsibility to return enough context about any error so a
+user can make an informed decision about how to proceed. Handling an error is
+about three things: logging the error, not propagating the error any further, and
+determining if the Goroutine/program needs to be terminated.
+
+In Go, errors are just values so they can be anything you need them to be. They
+can maintain any state or behavior.
+
+** Code Review
+
+- *Example* *1:* Default Error Values
+- *Example* *2:* Error Variables
+- *Example* *3:* Type As Context
+- *Example* *4:* Behavior As Context   
+- *Example* *5:* Find The Bug
+- *Example* *6:* Wrapping Errors With stdlib
+
+.play error-handling/example1.go
+.play error-handling/example2.go
+.play error-handling/example3.go
+.play error-handling/example4.go
+.play error-handling/example5.go
+.play error-handling/example6.go
+
+** Error Handling Basics
+
+The error interface is built into the language. 
+
+    // http://golang.org/pkg/builtin/#error
+    type error interface {
+        Error() string
+    }
+
+This is why it appears to be an unexported identifier. Any concrete value that
+implements this interface can be used as an error value.
+
+One important aspect of Go is that error handling is done in a decoupled state
+through this interface. A key reason for this is because error handling is an
+aspect of my application that is more susceptible to change and improvement.
+This interface is the type Go applications must use as the return type for error
+handling.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    type errorString struct {
+        s string
+    }
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func (e *errorString) Error() string {
+        return e.s
+    }
+
+This is the most commonly used error value in Go programs. It’s declared in the
+errors package from the standard library. Notice how the type is unexported and
+it has one unexported field which is a string. You can also see how pointer semantics
+are used to implement the error interface. This means only addresses to values
+of this type can be shared and stored inside the interface. The method just returned
+the error string.
+
+It’s important to remember, the implementation of the Error method serves the
+purpose of implementing the interface and for logging. If any user needs to parse
+the string returned from this method, You have failed to provide the user the
+right amount of context to make an informed decision.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func New(text string) error {
+        return &errorString{text}
+    }
+
+The New function is how an error using the concrete type errorString is constructed.
+Notice how the function returns the error using the error interface. Also notice
+how pointer semantics are being used. 
+
+    func main() {
+        if err := webCall(); err != nil {
+            fmt.Println(err)
+            return
+        }
+        fmt.Println("Life is good")
+    }
+
+    func webCall() error {
+        return New("bad request")
+    }
+
+Context is everything with errors. Each error must provide enough context to allow
+the caller to make an informed decision about the state of the goroutine/application.
+In this example, the webCall function returns an error with the message Bad Request.
+In the main function, a call is made to webCall and then a check is made to see
+if an error has occurred with the call.
+
+    if err := webCall(); err != nil {
+        fmt.Println(err)
+        return
+    }
+
+The key to the check is err != nil. What this condition is asking is, is there a
+concrete value stored inside the err interface value. When the interface value is
+storing a concrete value, there is an error. In this case, the context is literally
+just the fact that a concrete value exists, it’s not important what the concrete
+value is.
+
+What if it’s important to know what error value exists inside the err interface
+variable? Then error variables are a good option.
+
+    var (
+        ErrBadRequest = errors.New("Bad Request")
+        ErrPageMoved = errors.New("Page Moved")
+    )
+
+Error variables provide a mechanic to identify what specific error is being returned.
+They have an idiom of starting with the prefix Err and are based on the concrete type
+errorString from the errors package.
+
+    func webCall(b bool) error {
+        if b {
+            return ErrBadRequest
+        }
+        return ErrPageMoved
+    }
+
+In this new version of webCall, the function returns one or the other error variable.
+This allows the caller to determine which error took place.
+
+    func main() {
+        if err := webCall(true); err != nil {
+            switch err {
+            case ErrBadRequest:
+                fmt.Println("Bad Request Occurred")
+                return
+
+            case ErrPageMoved:
+                fmt.Println("The Page moved")
+                return
+
+            default:
+                fmt.Println(err)
+                return
+            }
+        }
+
+        fmt.Println("Life is good")
+    }
+
+In the application after the call to webCall is made, a check can be performed to
+see if there is a concrete value stored inside the err interface variable. If there
+is, then a switch statement is used to determine which error it was by comparing err
+to the different error variables.
+
+In this case, the context of the error is based on which error variable was returned.
+What if an error variable is not enough context? What if some special state needs
+to be checked, like with networking errors? In these cases, a custom concrete error
+type is the answer.
+
+    type UnmarshalTypeError struct {
+        Value string
+        Type  reflect.Type
+    }
+
+    func (e *UnmarshalTypeError) Error() string {
+        return "json: cannot unmarshal " + e.Value +
+            " into Go value of type " + e.Type.String()
+    }
+
+This is a custom concrete error type implemented in the json package. Notice the
+name has a suffix of Error in the naming of the type. Also notice the use of
+pointer semantics for the implementation of the error interface. Once again the
+implementation is for logging and should display information about all the fields
+being captured.
+
+    type InvalidUnmarshalError struct {
+        Type reflect.Type
+    }
+
+    func (e *InvalidUnmarshalError) Error() string {
+        if e.Type == nil {
+            return "json: Unmarshal(nil)"
+        }
+        if e.Type.Kind() != reflect.Ptr {
+            return "json: Unmarshal(non-pointer " + e.Type.String() + ")"
+        }
+        return "json: Unmarshal(nil " + e.Type.String() + ")"
+    }
+
+This is a second custom concrete error type found in the json package. The implementation
+of the Error method is a bit more complex, but once again just for logging and
+using pointer semantics.
+
+    func Unmarshal(data []byte, v interface{}) error {
+        rv := reflect.ValueOf(v)
+        if rv.Kind() != reflect.Ptr || rv.IsNil() {
+            return &InvalidUnmarshalError{reflect.TypeOf(v)}
+        }
+        return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
+    }
+
+Here is a portion of the Unmarshal function. Notice how it constructs the concrete
+error values in the return, passing them back to the caller through the error interface.
+Pointer semantic construction is being used because pointer semantics were used in
+the declaration of the Error method.
+
+The context of the error here is more about the type of error stored inside the
+error interface. There needs to be a way to determine that.
+
+    func main() {
+        var u user
+        err := Unmarshal([]byte(`{"name":"bill"}`), u)
+        if err != nil {
+            switch e := err.(type) {
+            case *UnmarshalTypeError:
+                fmt.Printf("UnmarshalTypeError: Value[%s] Type[%v]\n",
+                    e.Value, e.Type)
+            case *InvalidUnmarshalError:
+                fmt.Printf("InvalidUnmarshalError: Type[%v]\n", e.Type)
+            default:
+                fmt.Println(err)
+            }
+            return
+        }
+        fmt.Println("Name:", u.Name)
+    }
+
+A generic type assertion within the scope of the switch statement is how you can
+write code to test what type of value is being stored inside the err interface value.
+Type is the context here and now you can test and take action with access to all
+the states of the error.
+
+However, this poses one problem. I’m no longer decoupled from the concrete error
+value. This means if the concrete error value is changed, my code can break. The
+beautiful part of using an interface for error handling is being decoupled from
+breaking changes.
+
+If the concrete error value has a method set, then you can use an interface for
+the type check. As an example, the net package has many concrete error types that
+implement different methods. One common method is called Temporary. This method
+allows the user to test if the networking error is critical or just something
+that can recover on its own.
+
+    type temporary interface {
+        Temporary() bool
+    }
+
+    func (c *client) BehaviorAsContext() {
+        for {
+            line, err := c.reader.ReadString('\n')
+            if err != nil {
+                switch e := err.(type) {
+                case temporary:
+                    if !e.Temporary() {
+                        log.Println("Temporary: Client leaving chat")
+                        return
+                    }
+                default:
+                    if err == io.EOF {
+                        log.Println("EOF: Client leaving chat")
+                        return
+                    }
+                    log.Println("read-routine", err)
+                }
+            }
+            fmt.Println(line)
+        }
+    }
+
+In this code, the call to ReadString could fail with an error from the net package.
+In this case, an interface is declared that represents the common behavior a given
+concrete error value could implement. Then with a generic type assertion, you test
+if that behavior exists and you can call into it. The best part, you stay in a
+decoupled state with my error handling.
+
+** Always Use The Error Interface
+
+One mistake Go developers can make is when they use the concrete error type and
+not the error interface for the return type for handling errors. If you were to
+do this, bad things could happen.
+
+    type customError struct{}
+
+    func (c *customError) Error() string {
+        return "Find the bug."
+    }
+
+    func fail() ([]byte, *customError) {
+        return nil, nil
+    }
+
+    func main() {
+        var err error
+        if _, err = fail(); err != nil {
+            log.Fatal("Why did this fail?")
+        }
+        log.Println("No Error")
+    }
+
+Output:
+    
+    Why did this fail?
+
+Why does this code think there is an error when the fail function returns nil for
+the error? It’s because the fail function is using the concrete error type and not
+the error interface. In this case, there is a nil pointer of type customError stored
+inside the err variable. That is not the same as a nil interface value of type error.
+
+** Handling Errors
+
+Handling errors is more of a macro level engineering conversation. In my world, error
+handling means the error stops with the function handling the error, the error is
+logged with full context, and the error is checked for its severity. Based on the
+severity and ability to recover, a decision to recover, move on, or shutdown is made.
+
+One problem is that not all functions can handle an error. One reason could be because
+not all functions are allowed to log. What happens when an error is being passed back
+up the call stack and can’t be handled by the function receiving it? An error needs to
+be wrapped in context so the function that eventually handles it, can properly do so.
+
+    package main
+
+    import (
+        "errors"
+        "fmt"
+    )
+
+    type AppError struct {
+        State int
+    }
+
+    func (ae *AppError) Error() string {
+        return fmt.Sprintf("App Error, State: %d", ae.State)
+    }
+
+    func IsAppError(err error) bool {
+        var ae *AppError
+        return errors.As(err, &ae)
+    }
+
+    func GetAppError(err error) *AppError {
+        var ae *AppError
+        if !errors.As(err, &ae) {
+            return nil
+        }
+        return ae
+    }
+
+    func main() {
+        if err := firstCall(10); err != nil {
+
+            // Check if the error is an AppError.
+            if IsAppError(err) {
+                ae := GetAppError(err)
+                fmt.Printf("Is AppError, State: %d\n", ae.State)
+            }
+
+            fmt.Print("\n********************************\n\n")
+
+            // Display the error using the implementation of
+            // the error interface.
+            fmt.Printf("%v\n", err)
+        }
+    }
+
+    func firstCall(i int) error {
+        if err := secondCall(i); err != nil {
+            return fmt.Errorf("secondCall(%d) : %w", i, err)
+        }
+        return nil
+    }
+
+    func secondCall(i int) error {
+        return &AppError{99}
+    }
+
+Output:
+
+    Is AppError, State: 99
+
+    ********************************
+
+    secondCall(10) : App Error, State: 99
+
+** Notes
+
+- Use the default error value for static and simple formatted messages.
+- Create and return error variables to help the caller identify specific errors.
+- Create custom error types when the context of the error is more complex.
+- Error Values in Go aren't special, they are just values like any other, and so you have the entire language at your disposal.
+
+** Quotes
+
+"Systems cannot be developed assuming that human beings will be able to write millions
+of lines of code without making mistakes, and debugging alone is not an efficient way
+to develop reliable systems." - Al Aho (inventor of AWK)
+
+** Extra Reading
+
+- [[https://go.dev/blog/error-handling-and-go][Error handling and Go]]
+- [[https://go.dev/blog/go1.13-errors][Working with Errors in Go 1.13]]
+- [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Error Handling In Go, Part I]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/11/error-handling-in-go-part-ii.html][Error Handling In Go, Part II]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/05/design-philosophy-on-logging.html][Design Philosophy On Logging]] - William Kennedy    
+- [[https://clipperhouse.com/bugs-are-a-failure-of-prediction/][Bugs are a failure of prediction]] - Matt Sherman    
+- [[https://dave.cheney.net/2014/12/24/inspecting-errors][Inspecting errors]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully][Don’t just check errors, handle them gracefully]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package][Stack traces and the errors package]] - Dave Cheney    
+- [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Error handling in Upspin]] - Rob Pike    
+- [[https://rauljordan.com/why-go-error-handling-is-awesome/][Why Go's Error Handling is Awesome]] - Raul Jordan
+   
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Create two error variables, one called ErrInvalidValue and the other called
+ErrAmountTooLarge. Provide the static message for each variable. Then write a
+function called checkAmount that accepts a float64 type value and returns an
+error value. Check the value for zero and if it is, return the ErrInvalidValue.
+Check the value for greater than $1,000 and if it is, return the ErrAmountTooLarge.
+Write a main function to call the checkAmount function and check the return error
+value. Display a proper message to the screen.
+
+.play error-handling/exercise1.go
+.play error-handling/answer1.go
+
+** Exercise 2
+
+Create a custom error type called appError that contains three fields, err error,
+message string and code int. Implement the error interface providing your own message
+using these three fields. Implement a second method named temporary that returns
+false when the value of the code field is 9. Write a function called checkFlag that
+accepts a bool value. If the value is false, return a pointer of your custom error
+type initialized as you like. If the value is true, return a default error. Write a
+main function to call the checkFlag function and check the error using the temporary
+interface.
+
+.play error-handling/exercise2.go
+.play error-handling/answer2.go
