@@ -1,0 +1,182 @@
+Functions
+Functions are at the core of the language and they provide a mechanism to group and organize our code to separate and distinct pieces of functionality.
+
+* Functions
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Functions are at the core of the language and they provide a mechanism to group
+and organize our code to separate and distinct pieces of functionality. They can
+be used to provide an API to the packages we write and are a core component to
+concurrency.
+
+Functions in Go play a central role in structuring code and promoting clean,
+maintainable, and efficient software. Understanding how to declare, define, and
+use functions is crucial for writing effective Go programs.
+
+** Code Review
+
+- *Example* *1:* Return multiple values
+- *Example* *2:* Blank identifier
+- *Example* *3:* Redeclarations
+- *Example* *4:* Anonymous Functions/Closures
+- *Example* *5:* Recover panics
+
+.play functions/example1.go
+.play functions/example2.go
+.play functions/example3.go
+.play functions/example4.go
+.play functions/example5.go
+
+Functions are a fundamental building block of programs and are used to encapsulate
+and organize code for better modularity and reusability. Functions are blocks of code
+that perform a specific task or a set of related tasks. Here's an overview of
+functions in Go:
+
+** Function Declaration
+
+To declare a function in Go, you use the `func` keyword followed by the
+function name, a list of parameters enclosed in parentheses, and an optional
+return type. The general syntax is:
+
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Function body
+   }
+
+For example:
+
+   func add(x int, y int) int {
+       return x + y
+   }
+
+** Parameters and Return Values
+
+Functions can take zero or more parameters, which are the values passed to the
+function when it is called. Each parameter consists of a name and a type. In
+the example above, `add` takes two integer parameters, `x` and `y`.
+
+Functions can return zero or one value (or none, in which case you can omit the
+return type). The `return` statement is used to specify the value to be returned.
+In the example above, `add` returns an integer.
+
+Go allows functions to return multiple values. This is useful in cases where you
+want to return more than one result from a function. For example:
+
+   func divide(x, y float64) (float64, error) {
+       if y == 0 {
+           return 0, errors.New("division by zero")
+       }
+       return x / y, nil
+   }
+
+In this example, the `divide` function returns both a floating-point result and
+an error (if the division by zero occurs).
+
+Go allows you to specify names for the return values in a function's signature.
+Named return values are automatically initialized and can be used as regular
+variables within the function. They are particularly useful when dealing with
+complex functions or error handling. For example:
+
+   func divide(x, y float64) (result float64, err error) {
+       if y == 0 {
+           err = errors.New("division by zero")
+           return
+       }
+       result = x / y
+       return
+   }
+
+** Function Calls
+
+To call a function in Go, you use the function name followed by a list of arguments
+enclosed in parentheses. If the function has multiple return values, you can capture
+them in variables. For example:
+
+   sum := add(3, 5)            // Call the add function and assign its result to sum
+   result, err := divide(8, 2) // Call the divide function and capture both result and error
+
+** Function Variadic Parameters
+
+Go supports variadic functions, which allow you to pass a variable number of
+arguments to a function. To define a variadic parameter, you use an ellipsis
+(`...`) followed by the parameter type. For example:
+
+   func calculateSum(nums ...int) int {
+       sum := 0
+       for _, num := range nums {
+           sum += num
+       }
+       return sum
+   }
+
+You can call this function with any number of integers.
+
+** Anonymous Functions
+
+Go supports anonymous functions, also known as closures. These are functions
+without a name, and they can be assigned to variables and used as arguments to
+other functions. Closures are often used in Go for tasks like defining inline
+functions or for concurrent programming using goroutines.
+
+   add := func(x, y int) int {
+       return x + y
+   }
+
+   result := add(3, 5)
+
+** Function as a Type
+
+In Go, functions can also be used as types. This allows you to define functions
+that take other functions as arguments or return them as results. It's a powerful
+feature for implementing higher-order functions and callbacks.
+
+   type MathFunc func(int, int) int
+
+   func operate(x, y int, op MathFunc) int {
+       return op(x, y)
+   }
+
+You can then pass functions as arguments to `operate`.
+
+** Defer and Panic
+
+Go provides two special built-in functions called `defer` and `panic` for handling
+exceptional situations and resource management. `defer` is used to schedule a function
+call to be executed just before the function returns, while `panic` is used to
+trigger a run-time error and unwind the stack.
+
+** Notes
+
+- Functions can return multiple values and most return an error value.
+- The error value should always be checked as part of the programming logic.
+- The blank identifier can be used to ignore return values.
+- Syntax: func, receiver, identifier, [parameter(s)], [return(s)], code block.
+- Variadic parameters, variadic arguments, and unfurling a slice.
+- Functions are a type: you can use functions as parameters, arguments, & returns.
+- Defer is used to schedule a function call in another function.
+- Panic triggers a run-time error and unwinds the stack.
+- Named returns are less readable and are not idiomatic
+
+** Extra Reading
+
+- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible
+solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare a struct type to maintain information about a user. Declare a
+function that creates value of and returns pointers of this type and an error
+value. Call this function from main and display the value.
+
+*Part* *B:* Make a second call to your function but this time ignore the value
+and just test the error value.
+
+.play functions/exercise1.go		
+.play functions/answer1.go

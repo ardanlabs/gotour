@@ -1,0 +1,162 @@
+Underlying Types
+You can declare a generic type using an underlying type.
+
+* Generics - Underlying Types
+
+You can declare a generic type using an underlying type.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Concrete vector type
+- *Example* *2*: Interface vector type
+- *Example* *3*: Generic vector type
+
+.play generics/underlying-types/example1.go
+.play generics/underlying-types/example2.go
+.play generics/underlying-types/example3.go
+
+** Explained
+
+What if you wanted to declare my own generic type using an underlying type?
+
+    type vector[T any] []T
+
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+This example shows a generic vector type that restricts the construction of a vector
+to a single type of data. The use of square brackets declares that type T is a generic
+type to be determined at compile time. The use of the constraint "any" describes
+there is no constraint on what type T can become.
+
+The last method is declared with a value receiver of type vector[T] to represent a
+value of type vector with an underlying slice of some type T. The method returns a
+value of that same type T.
+
+    func main() {
+        fmt.Print("vector[int] : ")
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if i < 0 {
+            fmt.Print("negative integer: ")
+        }
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
+        fmt.Print("vector[string] : ")
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if !utf8.ValidString(s) {
+            fmt.Print("non-valid string: ")
+        }
+
+        fmt.Printf("value: %q\n", s)
+    }
+
+Output:
+
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
+
+This is how to construct a value of type vector with an underlying type of int when I
+will set values in the vector at construction. An important aspect of this code is the
+construction calls.
+
+    // Zero Value Construction
+    var vGenInt vector[int]
+    var vGenStr vector[string]
+    
+    // Non-Zero Value Construction
+    vGenInt := vector{10, -1}
+    vGenStr := vector{"A", "B", string([]byte{0xff})}
+
+When it comes to constructing these generic types to their zero value, it’s not
+possible for the compiler to infer the type. However, in cases where there is
+initialization during construction, the compiler can infer the type.
+
+There is an aspect of the spec that focuses on the construction of a generic type to
+its zero value state.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+You need to focus on the method declaration for the last method and how the method
+returns a value of the generic type T. On the first return is a situation where you need
+to return the zero value for type T. The current implementation provides two solutions to write
+this code. The first solution you see already. A variable named zero is constructed to
+its zero value state of type T and then that variable is used for the return.
+
+The other option is to use the built-in function new and dereference the returned
+pointer within the return statement.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        if len(v) == 0 {
+            return *new(T), errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+This version of the last method is using the built-in function new for zero value
+construction and dereferencing of the returned pointer to satisfy return type T.
+
+Note: You might think why not use T{} to perform zero value construction? The
+problem is this syntax does not work with all types, such as the scalar types (int,
+string, bool). So it’s not an option.
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Declare a generic type named keymap that uses an underlying type of map
+with a key of type string and a value of some type T. Declare a method
+named set that accepts a key of type string and a value of type T. Declare
+a method named get that accepts a key of type string and return a value of
+type T and true or false if the key is found. Then write a main function
+that uses the methods.
+
+.play generics/underlying-types/exercise1.go 
+.play generics/underlying-types/answer1.go
