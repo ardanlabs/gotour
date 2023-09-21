@@ -1,0 +1,178 @@
+Channels
+Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+
+* Generics - Channels
+
+Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Work Function
+- *Example* *2*: Pooling
+
+.play generics/channels/example1.go
+.play generics/channels/example2.go
+
+** Explained
+
+This would require declaring channels and functions using generic types.
+
+    type workFn[Result any] func(context.Context) Result
+
+In this example, a type is declared that represents a function which accepts a context
+and returns a value of generic type Result. This function declaration describes a
+function that implements the concurrent work that will be performed and the result
+of that work.
+
+    func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
+        ch := make(chan Result, 1)
+        
+        go func() {
+            ch <- work(ctx)
+            fmt.Println("doWork : work complete")
+        }()
+        
+        return ch
+    }
+
+Now write a function named doWork that executes the specified work function
+concurrently and returns a channel so the caller can receive the result of the work
+performed by the work function. A generic type named Result is declared to
+represent the return type for the work function and the type for the channel.
+
+In the implementation of the doWork function, a buffered channel of one is
+constructed of generic type Result. That’s the channel returned to the caller to
+receive the result of the concurrent work. In the middle of the function, a goroutine
+is constructed to execute the work function concurrently. Once the work function
+returns, the return argument is sent back to the caller through the channel.
+
+To test the use of the doWork function, build a small program.
+
+    func main() {
+        duration := 100 * time.Millisecond
+        
+        ctx, cancel := context.WithTimeout(context.Background(), duration)
+        defer cancel()
+        
+        dwf := func(ctx context.Context) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return "work complete"
+        }
+
+        result := doWork(ctx, dwf)
+        
+        select {
+            case v := <-result:
+                fmt.Println("main:", v)
+            case <-ctx.Done():
+                fmt.Println("main: timeout")
+        }
+    }
+
+Output:
+
+    doWork : work complete
+    main: work complete
+
+The program starts by declaring a context that will timeout in 100 milliseconds.
+Then a work function is declared that waits for up to 200 milliseconds before
+returning the string, "work complete". With the context and the work function in
+place, a call to doWork is made and a channel of type string is returned and
+assigned to the variable result.
+
+The compiler is able to determine the concrete type to use for the generic type
+Result by inspecting the return type of the literal work function that is passed into
+the doWork function. This is brilliant because it means you didn’t have to pass the type
+in on the call to doWork.
+
+With the channel of type string assigned to the variable result, a select case is used
+to wait for the result to be returned on time, or for the timeout to occur. The
+doWork function can be used to perform this concurrent work for any concrete type
+required.
+
+This same idea could be applied to a pool of goroutines that could execute work on
+a generic input and return a generic result.
+
+type workFn[Input any, Result any] func(input Input) Result
+
+In this example, change the function type to accept a generic input and return a
+generic result.
+
+    func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
+        var wg sync.WaitGroup
+        wg.Add(size)
+        
+        ch := make(chan Input)
+        
+        for i := 0; i < size; i++ {
+            go func() {
+                defer wg.Done()
+                for input := range ch {
+                    result := work(input)
+                    fmt.Println("pollWork :", result)
+                }
+            }()
+        }
+        
+        cancel := func() {
+            close(ch)
+            wg.Wait()
+        }
+
+        return ch, cancel
+    }
+
+In the poolWork function, the same two generic types are declared to represent the
+input and return type for the work function. A WaitGroup is constructed to manage
+the lifecycle of the Goroutines in the pool. Then a channel is constructed of the
+generic Input type. This channel is used by the Goroutines in the pool to receive the
+input data for the work function.
+
+Then the pool of Goroutines are created with each Goroutine waiting in a receive
+operation using a for-range loop against the channel. Finally, a cancel function is
+constructed to allow the caller to shutdown the pool and wait for all the Goroutines
+to signal they have terminated.
+
+To test the use of the poolWork function, built a second small program.
+
+    func main() {
+        size := runtime.GOMAXPROCS(0)
+        
+        pwf := func(input int) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return fmt.Sprintf("%d : received", input)
+        }
+
+        ch, cancel := poolWork(size, pwf)
+        defer cancel()
+        
+        for i := 0; i < 4; i++ {
+            ch <- i
+        }
+    }
+
+Output:
+
+    pollWork : 3 : received
+    pollWork : 2 : received
+    pollWork : 1 : received
+    pollWork : 0 : received
+
+The size of the pool is calculated based on the number of Goroutines that can run in
+parallel. Then a work function is constructed to sleep for a random amount of time
+and then return a string that represents the input.
+
+With that in place, the poolWork function is executed and the channel and cancel
+function returned. The cancel function is deferred and a loop is constructed to send
+4 values into the pool. The output will be different each time you run the program
+since this work is happening concurrently.
+
+These little examples provide some insight into how a concurrent package could be
+implemented.
