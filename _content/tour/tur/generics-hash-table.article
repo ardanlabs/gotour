@@ -1,0 +1,349 @@
+Hash Tables
+A hash table is a classic example of a container type that can take real advantage of generics.
+
+* Generics - Hash Tables
+
+A hash table is a classic example of a container type that can take real advantage of
+generics. This implementation was coded by Matt Layher (@mdlayer) in a blog post
+he wrote. It's a great example of what is possible with generics.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Hash Table
+
+.play generics/hash-table/example1.go
+
+** Explained
+
+This code is a bit more complex than what you have so far. It’s what you can
+expect to see from real world implementations. Throughout this section, you will
+see two views of the code. One before and after applying the new syntax for
+generics.
+
+    type hashFunc func(key K, buckets int) int
+
+This type declares a hash function signature that is used by the hash table to
+calculate a bucket position for data storage and retrieval. The user must implement
+and provide this function when constructing a hash table. The function accepts a
+key and the number of buckets it can choose from. Since you want this system to be
+generic in terms of the types used for the key and value, you declare a parameter
+named key with a type of the single capital letter K.
+
+Next, you can apply the generics syntax to make K an actual generic type.
+
+    type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
+
+After the type name, add the square brackets with the generic type K and a
+constraint of comparable. Since values of the key type need to be used in a
+compare operation, Documenting this now makes sense, even if the
+implementation of the hash function doesn’t require it. Consistency is everything in
+terms of readability, comprehension, and maintainability over time.
+
+This type represents a key/value pair of data that will be stored by the hash table.
+
+    type keyValuePair struct {
+        Key K
+        Value V
+    }
+
+The job of this type is to hold the actual data with the corresponding key. Next the
+code declares a key field of type K, and a value field of type V.
+
+Now you can apply the generics syntax to make K and V an actual generic type.
+
+    type keyValuePair[K comparable, V any] struct { <-- CHANGED
+        Key K
+        Value V
+    }
+
+After the type name, add the square brackets with the generic types K and V. In
+this declaration, K represents the key as before and V represents a value, which can
+be anything.
+
+This type represents a hash table that manages a hash function and a set of
+buckets for key/value data storage.
+
+    type Table struct {
+        hashFunc hashFunc
+        buckets int
+        data [][]keyValuePair
+    }
+
+The Table type has three fields, a hash function, the number of buckets, and the
+data which is represented as a slice of a slice of key/value pairs. The outer slice
+represents buckets and the inner slice represents key/value pairs that are stored
+inside a bucket.
+
+Now apply the generics syntax to declare the key and value generic types and
+apply them to the field declarations.
+
+    type Table[K comparable, V any] struct { <-- CHANGED
+        hashFunc hashFunc[K] <-- CHANGED
+        buckets int
+        data [][]keyValuePair[K, V] <-- CHANGED
+    }
+
+After the type name, add the square brackets with the generic types K and V. The
+hashFunc type declaration requires information about the concrete type to use for
+the key. The keyValuePair type declaration requires information about the concrete
+type for the key and value.
+
+This is a factory function that can construct a Table for use.
+
+    func New(
+        buckets int,
+        hf hashFunc
+    ) *Table {
+        
+        return &Table{
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair, buckets),
+        }
+    }
+
+The factory function accepts the number of buckets to manage and a hash function
+for selecting a bucket for data storage and lookup. When a Table value is
+constructed, the number of buckets is used to construct the slice, setting the length
+of the outer slice to the number of buckets that will be used.
+
+Now apply the generics syntax to declare the key and value generic types and
+apply them to the types that need to be constructed.
+
+    func New[K comparable, V any]( <-- CHANGED
+        buckets int,
+        hf hashFunc[K],            <-- CHANGED
+    ) *Table[K, V] {               <-- CHANGED
+        
+        return &Table[K, V]{       <-- CHANGED
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair[K, V], buckets), <-- CHANGED
+        }
+    }
+
+After the type name, add the square brackets and the generic types K and V. Then
+K is applied to the hf input parameter to complete the hashFunc type declaration.
+The K and V types are applied to the Table type being constructed and returned.
+Finally, the initialization of the data field requires K and V to be applied to the
+construction syntax for the keyValuePair type.
+
+This is a method that can insert values into the hash table based on a specified key.
+
+    type Table[K comparable, V any] struct {
+        hashFunc hashFunc[K]
+        buckets int
+        table [][]keyValuePair[K, V]
+    }
+
+    func (t *Table) Insert(key K, value V) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+
+        kvp := keyValuePair{
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+The Insert method is declared to accept a key and value of the same generic types
+that are declared with the Table type. The first step of inserting is to identify the
+bucket to use for storage. That is performed by calling the hash function with the
+specified key. The hash function returns an integer value that represents the bucket
+to use.
+
+Then the function checks to see if the specified key has already been used to store
+a value in the selected bucket. This is performed by ranging over the existing set of
+key/value pairs in the bucket. If the key already exists, the value for that key is
+updated. If the key is not found, then a new key/value pair value is constructed,
+initialized, and appended to the slice for the selected bucket.
+
+Now apply the generics syntax to declare the key and value generic types and
+apply them to the types that need to be constructed.
+
+    func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+    
+        kvp := keyValuePair[K, V]{                 <-- CHANGED
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+After the type name in the receiver, add the square brackets and the generic
+types K and V. The only other change is to apply K and V to the construction syntax
+of the keyValuePair type.
+
+This is a method that can retrieve values from the hash table based on a specified
+key.
+
+    func (t *Table) Retrieve(key K) (V, bool) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+The Retrieve method is declared to accept a key and return a copy of the value
+stored for that key. The first step of retrieving is to identify the bucket that was
+used for storage. That is performed by calling the hash function with the specified
+key. The hash function returns an integer value that represents the bucket to look
+at.
+
+Then the function iterates over the collection of key/value pairs stored inside the
+bucket, looking for the specified key one by one. If the key is found, a copy of the
+value is returned and true is provided to the caller. If the key is not found, zero
+value is returned and false is provided to the caller.
+
+Now apply the generics syntax to declare the key and value generic types and
+apply them to the types that need to be constructed.
+
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+After the type name in the receiver, add the square brackets and the generic
+types K and V. No other code changes are required.
+
+This is a small program to test the hash table implementation.
+
+    func main() {
+        const buckets = 8
+        . . .
+    }
+
+Start with a constant that defines the number of buckets to use in the hash table.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        hashFunc1 := func(key string, buckets int) int {
+            h := fnv.New32()
+            h.Write([]byte(key))
+            return int(h.Sum32()) % buckets
+        }
+
+        . . .
+    }
+
+Next, declare a hash function that declares a string for the key. The
+implementation uses the fnv package from the standard library which implements
+the FNV-1 and FNV-1a, non-cryptographic hash functions created by Glenn Fowler,
+Landon Curt Noll, and Phong Vo. FNV stands for the Fowler-Noll-Vo hash function.
+
+The modulus operation with the buckets value forces the final value to fall within
+the range for the number of buckets.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+        
+        . . .
+    }
+
+Next, construct a hash table, explicitly stating that the key will be of type string
+and the value of type int. There is nothing in the input parameters that can help the
+compiler infer this information.
+
+To show the nature of the hash table being generic, defined a second hash
+function and table.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        hashFunc2 := func(key int, buckets int) int {
+            return key % buckets
+        }
+
+        table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+    
+        . . .
+    }
+
+This hash function declares an integer for the key and performs a simple modulus
+operation with the bucket value against the key. Then a new table is constructed
+where the key is specified to be an integer and the value a string. The reverse of
+the first table.
+
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        words := []string{"foo", "bar", "baz"}
+        for i, word := range words {
+            table1.Insert(word, i)
+            table2.Insert(i, word)
+        }
+    
+        for i, s := range append(words, "nope!") {
+            v1, ok1 := table1.Retrieve(s)
+            fmt.Printf("t1.Rtr(%v) = (%v, %v)\n", s, v1, ok1)
+            
+            v2, ok2 := table2.Retrieve(i)
+            fmt.Printf("t2.Rtr(%v) = (%v, %v)\n", i, v2, ok2)
+        }
+    }
+
+Output:
+
+    t1.Rtr(foo) = (0, true)
+    t2.Rtr(0) = (foo, true)
+    t1.Rtr(bar) = (1, true)
+    t2.Rtr(1) = (bar, true)
+    t1.Rtr(baz) = (2, true)
+    t2.Rtr(2) = (baz, true)
+    t1.Rtr(nope!) = (0, false)
+    t2.Rtr(3) = (, false)
+
+Finally write some code to store and retrieve values from the two respective
+tables.

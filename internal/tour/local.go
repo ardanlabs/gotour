@@ -103,11 +103,15 @@ func Main() {
 	engUIContent, engIndex := addLanguage("tour/eng/")
 	defer engIndex.Close()
 
+	turUIContent, turIndex := addLanguage("tour/tur/")
+	defer turIndex.Close()
+
 	// -------------------------------------------------------------------------
 	// Start Web Service
 
 	r := root{
 		engContent: engUIContent,
+		turContent: turUIContent,
 	}
 
 	http.HandleFunc("/", r.rootHandler)
