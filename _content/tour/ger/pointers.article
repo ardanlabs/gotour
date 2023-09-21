@@ -1,0 +1,338 @@
+Pointers
+Pointers serve the purpose of sharing values across program boundaries.
+
+* Pointers
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Pointers serve the purpose of sharing values across program boundaries. There are
+several types of program boundaries. The most common one is between function calls.
+There is also a boundary between Goroutines which you have notes for later.
+
+** Code Review
+
+- *Example* *1:* Pass by Value
+- *Example* *2:* Sharing Data I
+- *Example* *3:* Sharing Data II
+- *Example* *4:* Escape Analysis
+- *Example* *5:* Stack Grow
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
+lightweight application level threads with many of the same semantics as operating
+system threads. Their job is to manage the physical execution of a distinct set of
+instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+
+Each Goroutine is given its own block of memory called a stack. Each stack starts
+out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+
+.image /tour/eng/static/img/p1.png
+
+Every time a function is called, a block of stack space is taken to help the Goroutine
+execute the instructions associated with that function. Each individual block of memory
+is called a frame.
+
+The size of a frame for a given function is calculated at compile time. No value
+can be constructed on the stack unless the compiler knows the size of that value at
+compile time. If the compiler doesn’t know the size of a value at compile time, the
+value has to be constructed on the heap.
+ 
+Stacks are self cleaning and zero value helps with the initialization of the stack.
+Every time you make a function call, and a frame of memory is blocked out, the memory
+for that frame is initialized, which is how the stack is self cleaning. On a function
+return, the memory for the frame is left alone since it’s unknown if that memory
+will be needed again. It would be inefficient to initialize memory on returns.
+
+*Pass* *By* *Value*
+
+All data is moved around the program by value. This means as data is being passed
+across program boundaries, each function or Goroutine is given its own copy of the
+data. There are two types of data you will work with, the value itself (int,
+string, user) or the value's address. Addresses are data that need to be copied
+and stored across program boundaries.
+
+The following code attempts to explain this more.
+
+    func main() {
+
+        // Declare variable of type int with a value of 10.
+        count := 10
+
+        // To get the address of a value, use the & operator.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "value of" count (what’s in the box)
+        // to the increment1 function.
+        increment1(count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count will not change after the function call.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "address of" count (where is the box)
+        // to the increment2 function. This is still considered a pass by
+        // value and not a pass by reference because addresses are values.
+        increment2(&count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count has changed after the function call.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1 declares the function to accept its own copy of
+    // and integer value.
+    func increment1(inc int) {
+
+        // Increment the local copy of the caller’s int value.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2 declares the function to accept its own copy of
+    // an address that points to an integer value.
+    // Pointer variables are literal types and are declared using *.
+    func increment2(inc *int) {
+
+        // Increment the caller’s int value through the pointer.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+Output:
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** Notes
+
+- Use pointers to share data.
+- Values in Go are always pass by value.
+- "Value of", what's in the box. "Address of" ( & ), where is the box.
+- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+
+** Escape Analysis
+
+The algorithm the compiler uses to determine if a value should be constructed
+on the stack or heap is called "escape analysis". The name of the algorithm makes
+it sound like values are constructed on the stack first and then escape (or move)
+to the heap when necessary. This is NOT the case. The construction of a value only
+happens once, and the escape analysis algorithm decides where that will be (stack
+or heap). Only construction on the heap is called an allocation in Go.
+
+Understanding escape analysis is about understanding value ownership. The idea is,
+when a value is constructed within the scope of a function, then that function
+owns the value. From there ask the question, does the value being constructed still
+have to exist when the owning function returns? If the answer is no, the value can
+be constructed on the stack. If the answer is yes, the value must be constructed on
+the heap.
+
+Note: The ownership rule is a good base rule for identifying code that causes
+allocations. However, you must appreciate that escape analysis has flaws that can
+result in non-obvious allocations. Also, the algorithm takes opportunities to
+leverage compiler optimizations to save on allocations.
+
+    // user represents a user in the system.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+The stayOnStack function is using value semantics to return a user value back to
+the caller. In other words, the caller gets their own copy of the user value being
+constructed.
+
+When the stayOnStack function is called and returns, the user value it constructs
+no longer needs to exist, since the caller is getting their own copy. Therefore,
+the construction of the user value inside of stayOnStack can happen on the stack.
+No allocation.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+The escapeToHeap function is using pointer semantics to return a user value back
+to the caller. In other words, the caller gets shared access (an address) to the
+user value being constructed.
+
+When the escapeToHeap function is called and returns, the user value it constructs
+does still need to exist, since the caller is getting shared access to the value.
+Therefore, the construction of the user value inside of escapeToHeap can’t happen
+on the stack, it must happen on the heap. Yes allocation.
+
+Think about what would happen if the user value in the last example was constructed
+on the stack when using pointer semantics on the return.
+
+.image /tour/eng/static/img/p2.png
+
+The caller would get a copy of a stack address from the frame below and integrity
+would be lost. Once control goes back to the calling function, the memory on the
+stack where the user value exists is reusable again. The moment the calling function
+makes another function call, a new frame is sliced and the memory will be overridden,
+destroying the shared value.
+
+This is why you think about the stack being self cleaning. Zero value initialization
+helps every stack frame that you need to be cleaned without the use of GC. The stack
+is self cleaning since a frame is taken and initialized for the execution of each
+function call. The stack is cleaned during function calls and not on returns because
+the compiler doesn't know if that memory on the stack will ever be needed again.
+
+Escape analysis decides if a value is constructed on the stack (the default) or the
+heap (the escape). With the stayOnStack function, I’m passing a copy of the value
+back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
+function, I’m passing a copy of the value’s address back to the caller (sharing up
+the stack) so it’s not safe to keep the value on the stack.
+
+There are lots of little details related to the escape analysis, so to learn more
+read the post in chapter 14 titled, Escape Analysis Mechanics.
+
+Note: As of version 1.17, Go changed the ABI (application binary interface) to
+implement a new way of passing function input and output arguments using registers
+instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
+the 64-bit x86 architectures. This means that some function arguments won’t be
+copied on the stack, but some may depending on the viability of using registers.
+This doesn’t change any of the semantics described in this chapter.
+
+** Notes
+
+- When a value could be referenced after the function that constructs the value returns.
+- When the compiler determines a value is too large to fit on the stack.
+- When the compiler doesn’t know the size of a value at compile time.
+- When a value is decoupled through the use of function or interface values.
+
+** Garbage Collection Semantics
+
+Once a value is constructed on the heap, the Garbage Collector (GC) has to get
+involved. The most important part of the GC is the pacing algorithm. It determines
+the frequency/pace that the GC has to run in order to maintain the smallest heap
+possible in conjunction with the best application throughput.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** Stack vs Heap
+
+"The stack is for data that needs to persist only for the lifetime of the function
+that constructs it, and is reclaimed without any cost when the function exits. The
+heap is for data that needs to persist after the function that constructs it exits,
+and is reclaimed by a sometimes costly garbage collection." - Ayan George
+
+** Stack Growth
+
+The size of each frame for every function is calculated at compile time. This means,
+if the compiler doesn’t know the size of a value at compile time, the value must be
+constructed on the heap. An example of this is using the built-in function make to
+construct a slice whose size is based on a variable.
+
+    b := make([]byte, size) // Backing array allocates on the heap.
+
+Go uses a contiguous stack implementation to determine how stacks grow and shrink.
+One alternative Go could have used is a segmented stack implementation, which is
+used by some operating systems.
+
+Every function call comes with a little preamble that asks, "Is there enough stack
+space for this new frame?". If yes, then no problem and the frame is taken and
+initialized. If not, then a new larger stack must be constructed and the memory on
+the existing stack must be copied over to the new one. This requires changes to
+pointers that reference memory on the stack. The benefits of contiguous memory and
+linear traversals with modern hardware is the tradeoff for the cost of the copy.
+
+Because of the use of contiguous stacks, no Goroutine can have a pointer to some
+other Goroutine’s stack. There would be too much overhead for the runtime to keep
+track of every pointer to every stack and readjust those pointers to the new location.
+
+** Extra Reading
+
+**Pointer* *Mechanics*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+
+*Stacks*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+
+*Escape* *Analysis* *and* *Inlining*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+
+*Garbage* *Collection*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+
+*Static* *Single* *Assignment* *Optimizations*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare and initialize a variable of type int with the value of 20.
+Display the "address of" and "value of" the variable.
+
+*Part* *B:* Declare and initialize a pointer variable of type int that points to
+the last variable you just created. Display the "address of" , "value of" and the
+"value that the pointer points to".
+
+** Exercise 2
+
+Declare a struct type and create a value of this type. Declare a function that
+can change the value of some field in this struct type. Display the value before
+and after the call to your function.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go

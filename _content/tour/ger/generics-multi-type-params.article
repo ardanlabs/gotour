@@ -1,0 +1,36 @@
+Multi-Type Parameters
+You're not restricted to using just one generic type at a time.
+
+* Generics - Multi-Type Parameters
+
+You're not restricted to using just one generic type at a time.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Print function
+
+.play generics/multi-type-params/example1.go
+
+** Explained
+
+    func Print[L any, V fmt.Stringer](labels []L, vals []V) {
+        for i, v := range vals {
+            fmt.Println(labels[i], v.String())
+        }
+    }
+
+The Print function accepts a collection of some type L and a collection of some type
+V. Type L can be anything, but type V is constrained to values that know how to
+String. The collection of some type V is iterated over and printed with the
+corresponding label from the collection of type L.
+
+The name of the generic type can be anything. The naming convention for generic
+types is something that needs to be better defined for best practices. For now, try
+to stick to single letter capital letters when it works for readability.
