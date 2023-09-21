@@ -1,22 +1,20 @@
-Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+اشاره‌گرها (Pointers)
+اشاره‌گرها (Pointers) هدف به اشتراک‌گذاری مقادیر در مرزهای برنامه را دارند.
 
-* Pointers
+* اشاره‌گرها (Pointers)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+اشاره‌گرها (Pointers) هدف به اشتراک‌گذاری مقادیر در مرزهای برنامه را دارند. انواع مختلفی از مرزهای برنامه وجود دارد. معمول‌ترین مرز بین فراخوانی‌های تابعی است. همچنین یک مرز بین Goroutine ها وجود دارد که برای آن دفترچه‌های یادداشت دارید.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *مثال* *1:* انتقال با مقدار
+- *مثال* *2:* اشتراک‌گذاری داده I
+- *مثال* *3:* اشتراک‌گذاری داده II
+- *مثال* *4:* تجزیه و تحلیل خروج
+- *مثال* *5:* رشد استک
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,40 +22,24 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+هنگامی که یک برنامه Go شروع می‌شود، Go runtime یک Goroutine ایجاد می‌کند. Goroutine‌ها نخ‌های سطح برنامه سبک با بسیاری از همان مفاهیم نخ‌های سیستم عاملی هستند. وظیفه آن‌ها مدیریت اجرای فیزیکی یک مجموعه متمایز از دستورات است. هر برنامه Go حداقل یک Goroutine دارد که به آن Goroutine اصلی می‌گویید.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+هر Goroutine دارای یک بلوک حافظه به نام استک است. هر استک ابتدا به عنوان یک تخصیص 2048 بایت (2k) شروع می‌شود. این بسیار کوچک است، اما استک‌ها می‌توانند با گذر زمان به اندازه بزرگ شدن.
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+هر بار که یک تابع صدا زده میشود، یک بلوکی از فضای استک برای کمک به اجرای دستورات مربوط به آن تابع گوروتین برداشت میشود. هر بلوک حافظه فردی، یک قابلیت سازگاری میباشد.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
- 
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+سایز یک قاب برای یک تابع خاص در زمان کامپایل محاسبه میشود. هیچ مقداری نمیتواند بر روی استک ساخته شود مگر اینکه کامپایلر سایز آن مقدار را در زمان کامپایل بداند. اگر کامپایلر سایز یک مقدار را در زمان کامپایل نداند، مقدار باید در هیپ ساخته شود.
+
+استک ها خودتمیزکننده هستند و مقدار صفر در کمک به مقداردهی اولیه استک کمک میکند.
+هر بار که یک تابع صدا زده میشود و یک بلاک از حافظه برای آن بلاک خارج میشود، حافظه برای آن بلاک مقداردهی اولیه میشود، که همین است که استک خودتمیزکننده است. هنگام یک بازگشت تابع، حافظه فریم تنها به حال خود برده میشود زیرا نامعلوم است که آیا حافظه مورد نیاز دوباره استفاده خواهد شد یا خیر. مقداردهی اولیه حافظه در بازگشت نیازمندانه خواهد بود.
 
 *Pass* *By* *Value*
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+همه داده‌ها به صورت مقادیری در برنامه جابجا می‌شوند. این به این معناست که در حین عبور داده از مرزهای برنامه، هر تابع یا گوروتین نسخه اختصاصی از داده را در اختیار می‌گیرد. دو نوع داده وجود دارد که با آن‌ها کار خواهید کرد، خود مقدار (عدد صحیح، رشته، کاربر) یا آدرس مقدار. آدرس‌ها داده‌هایی هستند که باید در مرزهای برنامه کپی شده و ذخیره شود.
 
-The following code attempts to explain this more.
+این قطعه کد سعی می‌کند توضیح این موضوع را بدهد.
 
     func main() {
 
@@ -109,7 +91,7 @@ The following code attempts to explain this more.
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+خروجی:
 
     count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
     inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
@@ -117,33 +99,20 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** نکات
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- استفاده از اشاره‌گرها برای به اشتراک گذاری داده استفاده میشود.
+- مقادیر در گو همواره به صورت pass by value هستند.
+- "مقدار"، چه درون جعبه است. "آدرس" ( & )، جعبه کجاست.
+- عملگر ( * ) یک متغیر اشاره‌گر را تعریف میکند و "مقداری که اشاره‌گر به آن اشاره میکند".
 
-** Escape Analysis
+** تجزیه و تحلیل فرار
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+الگوریتمی که کامپایلر برای تشخیص این کاربرد مقدارها روی استک یا هیپ استفاده میکند، "تجزیه و تحلیل فرار" نامیده میشود. نام این الگوریتم باعث میشود به نظر برسد که مقدارها در ابتدا روی استک ساخته شده و سپس فرار میکنند (یا منتقل میشوند) به هیپ در صورت نیاز. اما این مطلب صحیح نیست. یک مقدار تنها یک بار ساخته میشود و الگوریتم تجزیه و تحلیل فرار تصمیم میگیرد که آن مقدار کجا ساخته شود (استک یا هیپ). تنها ساختن مقدار در هیپ در گو، یک اختصاص می‌باشد.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
+متوجه شدن از تجزیه و تحلیل فرار به معنای درک مالکیت مقدار است. ایده این است که وقتی یک مقدار در محدوده یک تابع ساخته میشود، آن تابع مالک مقدار است. از آنجا، سوال را درباره این پرسیده میکنیم که آیا مقداری که در حال ساخت است، باید هنوز هم وجود داشته باشد وقتی که تابع مالک برمیگردد؟ اگر پاسخ منفی باشد، مقدار میتواند از روی استک ساخته شود. اگر پاسخ مثبت باشد، مقدار باید در هیپ ساخته شود.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+توجه: قاعده مالکیت یک قاعده پایه برای شناسایی کدهایی است که باعث ایجاد اختصاص میشوند. با این حال، باید توجه داشت که تجزیه و تحلیل فرار خرابی‌هایی در خود دارد که ممکن است منجر به اختصاص‌های غیر قابل تشخیص شود. همچنین، این الگوریتم فرصت‌هایی را از طریق بهینه‌سازی‌های کامپایلر می‌گیرد تا تعداد اختصاص‌ها را کاهش دهد.
 
     // user represents a user in the system.
     type user struct {
@@ -160,14 +129,9 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+تابع stayOnStack با استفاده از سمانتیک مقدار، مقدار کاربر را به تماس گیرنده برگرداند. به عبارت دیگر، تماس گیرنده یک نسخه جدید از مقدار کاربر را دریافت می‌کند که در حال ساخت است.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+زمانی که تابع stayOnStack فراخوانی شده و برگشت داده می‌شود، مقدار کاربر که در حال ساخت است برای وجود ندارد، زیرا تماس گیرنده نسخه خود را دریافت کرده است. بنابراین، ساخت مقدار کاربر در داخل تابع stayOnStack می‌تواند در استک انجام شود. هیچ تخصیصی انجام نمی‌شود.
 
     type user struct {
         name  string
@@ -183,96 +147,54 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+تابع escapeToHeap از معنای اشاره‌گرها (pointer semantics) برای بازگرداندن یک مقدار کاربر به تماس‌گیرنده استفاده می‌کند. به عبارت دیگر، تماس‌گیرنده دسترسی به اشتراک (یک آدرس) به مقدار کاربر در حال ساخت را دریافت می‌کند.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+زمانی که تابع escapeToHeap فراخوانی می‌شود و بازگشت می‌دهد، مقدار کاربری که ایجاد می‌کند همچنان باید وجود داشته باشد، زیرا تماس‌گیرنده دسترسی به اشتراک به مقدار در حال ساخت دارد. بنابراین، ساخت مقدار کاربر در داخل تابع escapeToHeap نمی‌تواند در استک انجام شود، بلکه باید در هیپ انجام شود. بله، تخصیص حافظه.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+فکر کنید چه اتفاقی می‌افتد اگر مقدار کاربر در مثال اخیر در استک ساخته شود هنگام استفاده از معنای اشاره‌گرها در بازگردانی.
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+تماس‌گیرنده یک کپی از آدرس استک از قسمت پایین‌تری به اشتراک می‌گیرد و سلامتی از بین می‌رود. یک‌بار که کنترل به تابع تماس‌گیرنده برگشت داده می‌شود، حافظه استک که مقدار کاربر در آن وجود دارد دوباره قابل استفاده است. لحظه‌ای که تابع تماس‌گیرنده یک تماس دیگر به تابع انجام می‌دهد، یک فریم جدید برش داده می‌شود و حافظه بازنویسی می‌شود و مقدار به اشتراک‌گذاری شده را از بین می‌برد.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+در نتیجه، بهتر است درباره استک به عنوان یک محیط خودپاک‌سازی فکر کنید. مقدار ابتدایی صفر به تمیز کردن هر فریم استک کمک می‌کند که نیاز دارید تا بدون استفاده از GC تمیز شود. استک به عنوان یک محیط خودپاک‌سازی در نظر گرفته می‌شود زیرا برای اجرای هر تماس تابع یک فریم گرفته و مقدار ابتدایی تنظیم می‌شود. استک در طول تماس‌های تابع تمیز می‌شود و نه در زمان بازگشت، زیرا کامپایلر نمی‌داند آیا حافظه در استک در آینده نیاز خواهد شد یا نه.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+تحلیل گریز تصمیم می‌گیرد که آیا یک مقدار باید در استک (مقدار پیش‌فرض) یا در هیپ (گریز) ایجاد شود. با تابع stayOnStack، من یک کپی از مقدار را به تماس‌گیرنده باز می‌گردانم، بنابراین ایمن است که مقدار را در استک نگه داریم. با تابع escapeToHeap، من یک کپی از آدرس مقدار را به تماس‌گیرنده (با به اشتراک‌گذاری در استک) باز می‌گردانم، بنابراین ایمن نیست که مقدار را در استک نگه داریم.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+تعداد زیادی جزئیات کوچک مرتبط با تحلیل گریز وجود دارد، بنابراین برای یادگیری بیشتر مقاله‌ای را در فصل 14 با عنوان "مکانیک‌های تحلیل گریز" بخوانید.
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+توجه: از نسخه 1.17 به بعد، Go ABI (رابط باینری برنامه) را تغییر داده و یک روش جدید برای انتقال آرگومان‌های ورودی و خروجی توابع با استفاده از رجیسترها به جای حافظه در استک پیاده‌سازی کرده است. این ویژگی برای سیستم‌های Linux، MacOS و Windows در معماری 64 بیتی x86 فعال شده است. این به این معناست که برخی از آرگومان‌های توابع در استک کپی نخواهند شد، اما برخی از آنها ممکن است به توجیه استفاده از رجیسترها بستگی داشته باشد. این تغییری در معنا و رفتار توصیف شده در این فصل ایجاد نمی‌کند.
 
-** Notes
+** نکات
 
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- زمانی که مقدار ممکن است بعد از بازگشت تابعی که مقدار را ایجاد می‌کند، مورد ارجاع قرار گیرد.
+- زمانی که کامپایلر تشخیص می‌دهد که یک مقدار بیش از حد بزرگ است تا در استک جا بیافتد.
+- زمانی که کامپایلر اندازه‌ی یک مقدار را در زمان کامپایل نمی‌داند.
+- زمانی که یک مقدار از طریق استفاده از مقادیر تابعی یا رابطی از یکدیگر جدا می‌شود.
 
-** Garbage Collection Semantics
+** معنای مدیریت زباله
 
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+هنگامی که یک مقدار در هیپ ایجاد می‌شود، مجمع زباله (GC) باید درگیر شود. بخش مهم‌ترین GC الگوریتم تنظیم سرعت است. این الگوریتم تعیین می‌کند که میزان و سرعتی که GC باید اجرا شود را تا حفظ کوچکترین هیپ ممکن به همراه بهترین توانایی برنامه تعیین می‌کند.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
-** Stack vs Heap
+** تفاوت استک و هیپ
 
-"The stack is for data that needs to persist only for the lifetime of the function
-that constructs it, and is reclaimed without any cost when the function exits. The
-heap is for data that needs to persist after the function that constructs it exits,
-and is reclaimed by a sometimes costly garbage collection." - Ayan George
+"استک برای داده‌هایی استفاده می‌شود که فقط برای مدت زمان اجرای تابعی که آن را ایجاد می‌کند نیاز دارند و بدون هیچ هزینه‌ای با خروج از تابع بازیابی می‌شوند. هیپ برای داده‌هایی استفاده می‌شود که باید پس از خروج از تابعی که آن را ایجاد کرده استفاده شوند و به وسیله مجمع زباله‌ای گاهاً هزینه‌بر برگشت داده می‌شوند." - آیان جورج
 
-** Stack Growth
+** رشد استک
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+اندازه هر قاب برای هر تابع در زمان کامپایل محاسبه می‌شود. این بدان معناست که اگر کامپایلر اندازه‌ی یک مقدار را در زمان کامپایل نداند، مقدار باید در هیپ ایجاد شود. یک مثال از این موضوع استفاده از تابع داخلی make برای ایجاد یک تاییده است که اندازه آن بر اساس یک متغیر است.
 
     b := make([]byte, size) // Backing array allocates on the heap.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go از یک پیاده‌سازی ادامه‌دار برای تعیین نحوه رشد و کوچک‌شدن استک استفاده می‌کند. یکی از جایگزین‌هایی که Go می‌توانست استفاده کند، یک پیاده‌سازی استک تقسیم‌شده است که توسط برخی سیستم‌عامل‌ها استفاده می‌شود.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
+هر فراخوانی تابع با یک آغازنامه کوچک همراه است که می‌پرسد: "آیا فضای کافی برای این قاب جدید وجود دارد؟". اگر بله باشد، هیچ مشکلی وجود ندارد و قاب گرفته شده و مقداردهی اولیه می‌شود. اگر نه باشد، باید یک استک بزرگتر جدید ایجاد شود و حافظه در استک موجود باید به استک جدید کپی شود. این نیاز به تغییر اشاره‌گرهایی دارد که به حافظه در استک اشاره دارند. مزایای حافظه ادامه‌دار و عبورهای خطی با سخت‌افزارهای مدرن، مقابله با هزینه کپی است.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+به دلیل استفاده از استک‌های ادامه‌دار، هیچ Goroutine‌ای نمی‌تواند اشاره‌گری به استک Goroutine دیگری داشته باشد. این به اندازه‌ی کافی هزینه دار است که اجرایی باید همه اشاره‌گرها به هر استک و تنظیم مجدد این اشاره‌گرها به مکان جدید را پیگیری کند.
 
-** Extra Reading
+** خواندن موارد بیشتر
 
 **Pointer* *Mechanics*
 
@@ -313,24 +235,22 @@ track of every pointer to every stack and readjust those pointers to the new loc
 - [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
 - [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به عنوان نقطه شروعی برای انجام تمرین‌ها استفاده کنید. یک پاسخ ممکن نیز ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*بخش* *A:* تعریف و مقداردهی اولیه یک متغیر از نوع int با مقدار 20 را انجام دهید.
+آدرس و مقدار متغیر را نمایش دهید.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*بخش* *B:*  و مقداردهی اولیه یک متغیر اشاره‌گر از نوع int که به آخرین متغیری که تازه ایجاد کرده‌اید اشاره می‌کند. آدرس، مقدار و مقداری که اشاره‌گر به آن اشاره می‌کند را نمایش دهید.
 
-** Exercise 2
+** تمرین 2
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+تعریف یک نوع ساختاری (struct) و ایجاد یک مقدار از این نوع. تعریف یک تابع که می‌تواند مقدار یک فیلد در این نوع ساختاری را تغییر دهد. نمایش مقدار قبل و بعد از فراخوانی تابع.
+
+با این توضیحات، شما می‌توانید کد مورد نظر خود را بنویسید و از تابع برای تغییر مقدار فیلد استفاده کنید.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go
