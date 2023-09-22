@@ -1,0 +1,143 @@
+Struct Types
+You can declare a generic type using a struct type.
+
+* Generics - Struct Types
+
+You can declare a generic type using a struct type.
+
+** Video
+
+Watch the talk I gave about Generics which walks you through all the
+examples in this section of the Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Linked List
+
+.play generics/struct-types/example1.go
+
+** Explained
+
+What if you wanted to declare your own generic type using a struct type?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+This struct type is declared to represent a node for the linked list. Each node
+contains an individual piece of data that is stored and managed by the list. The use
+of square brackets declares that type T is a generic type to be determined at
+compile time. The use of the constraint "any" describes there is no constraint on
+what type T can become.
+
+With type T declared, the Data field can now be defined as a field of some type T to
+be determined later. The next and prev fields need to point to a node of that same
+type T. These are the pointers to the next and previous node in the linked list,
+respectively. To make this connection, the fields are declared as pointers to a node
+that is bound to type T through the use of the square brackets.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+The second struct type is named list and represents a collection of nodes by
+pointing to the first and last node in a list. These fields need to point to a node of
+some type T, just like the next and prev fields from the node type.
+
+Once again, the identifier T is defined as a generic type (to be determined later)
+that can be substituted for "any" concrete type. Then the first and last fields are
+declared as pointers to a node of some type T using the square bracket syntax.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+This is an implementation of a method named add for the list type. No formal generic type
+list declaration is required (as with functions) since the method is bound to the list through
+the receiver. The add method’s receiver is declared as a pointer to a list of some type T and
+the return is declared as a pointer to a node of the same type T.
+
+The code after the construction of a node will always be the same, regardless of
+what type of data is being stored in the list since that is just pointer manipulation.
+It’s only the construction of a new node that is affected by the type of data that will
+be managed. Thanks to generics, the construction of a node can be bound to type T
+which gets substituted later at compile time.
+
+Without generics, this entire method would need to be duplicated since the
+construction of a node would need to be hard coded to a known, declared type prior
+to compilation. Since the amount of code (for the entire list implementation) that
+needs to change for different data types is very small, being able to declare a node
+and list to manage data of some type T reduces the cost of code duplication and
+maintenance.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Store values of type user into the list.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Store pointers of type user into the list.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Output:
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+Here is a small application. A type named user is declared and then a list is
+constructed to its zero value state to manage values of type user. A second list is
+then constructed to its zero value state and this list manages pointers to values of
+type user. The only difference between these two lists is one manages values of
+type user and the other pointers of type user.
+
+Since type user is explicitly specified during the construction of the list type, the add
+method in turn accepts values of type user. Since a pointer of type user is explicitly
+specified during the construction of the list type, the add method accepts pointers of
+type user.
+
+You can see in the output of the program, the Data field for the nodes in the respective
+lists match the data semantic used in the construction.
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+Declare a generic type named stack that uses a struct with a single
+field named data declared as a slice of some type T. Declare a method
+named push that accepts a value of some type T and appends the value to
+the slice. Declare a method named pop that returns the latest value of
+some type T that was appended to the slice and an error. Then write a main
+function that uses the methods.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go
