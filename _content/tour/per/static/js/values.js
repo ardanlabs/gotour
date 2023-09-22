@@ -38,9 +38,9 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'composition-interfaces',
-    'title': 'Composition and Interfaces',
+    'title': 'Composition اینترفیس و',
     'description': `
-        <p>This material covers the practical things you need to know about composition and interfaces.</p>
+        <p>این مطلب شامل مسائل عملیاتی است که باید درباره ترکیب اینترفیس ها و Composition مختلف آنها بدانید.</p>
         `,
     'lessons': [
         'composition-grouping',
@@ -52,9 +52,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'concurrency',
-    'title': 'Concurrency',
+    'title': 'همزمانی',
     'description': `
-        <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
+        <p>این مطلب تمام جنبه های همروندی زبان را پوشش می دهد. پس از خواندن این مطلب، شما مکانیزم های همروندی زبان و همچنین همدردی های مکانیکی که زبان در ارتباط با سخت افزار و سیستم عامل در زمینه همروندی دارد را درک خواهید کرد.</p>
        `,
     'lessons': [
         'goroutines',
@@ -64,9 +64,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'generics',
-    'title': 'Generics',
+    'title': 'جنریک ها',
     'description': `
-        <p>This material covers all the generics aspects of the language. Generics is about providing the ability to write concrete polymorphic functions with the support of type parameter lists.</p>
+        <p>این مطلب تمام جنبه های جنریک زبان را پوشش می دهد. جنریک ها در مورد ارائه قابلیت نوشتن توابع پلی مورفیک محکم با پشتیبانی از لیست پارامترهای نوع است.</p>
        `,
     'lessons': [
         'generics-basics',
@@ -81,9 +81,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'algorithms',
-    'title': 'Algorithms',
+    'title': 'الگوریتم ها',
     'description': `
-        <p>This material provides Go code implementing a common and fun set of algorithms.</p>
+        <p>این مطلب کد Go را ارائه می دهد که یک مجموعه معمول و جذاب از الگوریتم ها را پیاده سازی می کند.</p>
        `,
     'lessons': [
         'algorithms-bits-seven',
