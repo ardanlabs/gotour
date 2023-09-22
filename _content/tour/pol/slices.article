@@ -1,0 +1,513 @@
+Slices
+Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
+
+* Slices
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Slices are an incredibly important data structure in Go. They form the basis for
+how we manage and manipulate data in a flexible, performant, and dynamic way. It's
+very beneficial for all Go programmers to learn how slices work, and how to use them.
+
+.image /tour/eng/static/img/sl1.png
+
+** Code Review 
+
+- *Example* *1:* Declare and Length
+- *Example* *2:* Reference Types
+- *Example* *3:* Appending slices
+- *Example* *4:* Taking slices of slices
+- *Example* *5:* Slices and References
+- *Example* *6:* Strings and slices
+- *Example* *7:* Variadic functions
+- *Example* *8:* Range mechanics
+- *Example* *9:* Efficient Traversals
+- *Example* *10:* Three index slicing
+
+.play slices/example1.go
+.play slices/example2.go
+.play slices/example3.go
+.play slices/example4.go
+.play slices/example5.go
+.play slices/example6.go
+.play slices/example7.go
+.play slices/example8.go
+.play slices/example9.go 
+.play slices/example10.go
+
+** Slice Construction
+
+Constructing a slice can be done in several ways.
+
+    // Slice of string set to its zero value state.
+    var slice []string
+
+    // Slice of string set to its empty state.
+    slice := []string{}
+
+    // Slice of string set with a length and capacity of 5.
+    slice := make([]string, 5)
+
+    // Slice of string set with a length of 5 and capacity of 8.
+    slice := make([]string, 5, 8)
+
+    // Slice of string set with values with a length and capacity of 5.
+    slice := []string{"A", "B", "C", "D", "E"}
+
+You can see the built-in function make allows me to pre-allocate both length and
+capacity for the backing array. If the compiler knows the size at compile time,
+the backing array could be constructed on the stack.
+
+** Slice Length vs Capacity
+
+The length of a slice represents the number of elements that can be read and
+written to. The capacity represents the total number of elements that exist
+in the backing array from that pointer position.
+
+Because of syntactic sugar, slices look and feel like an array.
+
+    slice := make([]string, 5)
+    slice[0] = "Apple"
+    slice[1] = "Orange"
+    slice[2] = "Banana"
+    slice[3] = "Grape"
+    slice[4] = "Plum"
+
+You can tell the difference between slice and array construction since an array
+has a known size at compile time and slices necessarily don’t.
+
+If you try to access an element beyond the slice’s length, you will get a runtime error.
+
+    slice := make([]string, 5)
+    slice[5] = "Raspberry"
+
+Compiler Error:
+
+    Error: panic: runtime error: index out of range slice[5] = "Runtime error"
+
+In this example, the length of the slice is 5 and I’m attempting to access the
+6th element, which does not exist.
+
+** Data Semantic Guideline For Slices
+
+As a guideline, if the data I’m working with is a slice, then use value semantics
+to move the data around my program. This includes declaring fields on a type. 
+
+    func Foo(data []byte) []byte
+
+    type Foo struct {
+        X []int
+        Y []string
+        Z []bool
+    }
+
+This goes for all of Go’s internal data structures (slices, maps, channels, interfaces, and functions).
+
+One reason to switch to pointer semantics is if you need to share the slice for a
+decoding or unmarshaling operation. Using pointers for these types of operations
+are ok, but document this if it’s not obvious.
+
+** Contiguous Memory Layout
+
+The idea behind the slice is to have an array, which is the most efficient data
+structure as it relates to the hardware. However, you still need the ability to be
+dynamic and efficient with the amount of data you need at runtime and future growth.
+
+    func main() {
+        slice := make([]string, 5, 8)
+        slice[0] = "Apple"
+        slice[1] = "Orange"
+        slice[2] = "Banana"
+        slice[3] = "Grape"
+        slice[4] = "Plum"
+
+        inspectSlice(slice)
+    }
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i := range slice {
+            fmt.Printf("[%d] %p %s\n", i, &slice[i], slice[i])
+        }
+    }
+
+Output:
+
+    Length[5] Capacity[8]
+    [0] 0xc00007e000 Apple
+    [1] 0xc00007e010 Orange
+    [2] 0xc00007e020 Banana
+    [3] 0xc00007e030 Grape
+    [4] 0xc00007e040 Plum
+
+The inspectSlice function shows how a slice does have a contiguous backing array
+with a predictable stride. It also shows how a slice has a length and capacity
+which may be different. Notice how the print function only iterates over the
+length of a slice.
+
+** Appending With Slices
+
+The language provides a built-in function called append to add values to an
+existing slice.
+
+    var data []string
+
+    for record := 1; record <= 102400; record++ {
+        data = append(data, fmt.Sprintf("Rec: %d", record))
+    }
+
+The append function works with a slice even when the slice is initialized to its
+zero value state. The API design of append is what’s interesting because it uses
+value semantic mutation. Append gets its own copy of a slice value, it mutates its
+own copy, then it returns a copy back to the caller.
+
+Why is the API designed this way? This is because the idiom is to use value semantics
+to move a slice value around a program. This must still be respected even with a
+mutation operation. Plus, value semantic mutation is the safest way to perform mutation
+since the mutation is being performed on the function’s own copy of the data in isolation.
+
+Append always maintains a contiguous block of memory for the slice’s backing array,
+even after growth. This is important for the hardware.
+
+.image /tour/eng/static/img/sl2.png
+
+Every time the append function is called, the function checks if the length and
+capacity of the slice is the same or not. If it’s the same, it means there is no
+more room in the backing array for the new value. In this case, append creates a
+new backing array (doubling or growing by 25%) and then copies the values from the
+old array into the new one. Then the new value can be appended.
+
+.image /tour/eng/static/img/sl3.png
+
+If it’s not the same, it means that there is an extra element of capacity existing
+for the append. An element is taken from capacity and added to the length of the
+slice. This makes an append operation very efficient.
+
+When the backing array has 1024 elements of capacity or less, new backing arrays
+are constructed by doubling the size of the existing array. Once the backing array
+grows past 1024 elements, growth happens at 25%. 
+
+*NOTE:* *How* *the* *append* *function* *grows* *the* *capacity* *of* *the*
+*backing* *array* *has* *changed* *since* *Go* *1.18.*
+
+- [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
+
+** Slicing Slices
+
+Slices provide the ability to avoid extra copies and heap allocations of the backing
+array when needing to isolate certain elements of the backing array for different
+operations.
+
+The slicing syntax represents the list notation [a:b) which means, include
+elements from index a through b, but not including b.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+
+The variable slice2 is a new slice value that is now sharing the same backing
+array that slice1 is using. However, slice2 only allows you to access the elements
+at index 2 and 3 (C and D) of the original slice’s backing array. The length of
+slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
+3 elements from that pointer position.
+
+.image /tour/eng/static/img/sl4.png
+
+A better way to think about slicing is to focus on the length using this notation
+[a:a+len]  index a through a plus the length. This will reduce errors in
+calculating new slices.
+
+Using this inspect function.
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i, s := range slice {
+            fmt.Printf("[%d] %p %s\n",
+                i,
+                &slice[i],
+                s)
+        }
+    }
+
+You can see this in action.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
+    [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
+
+Notice how the two different slices are sharing the same backing array. You can
+see this by comparing addresses.
+
+The nice thing here is there are no allocations. The compiler knows the size of
+the backing array for slice1 at compile time. Passing a copy of the slice value
+down into the inspectSlice function keeps everything on the stack.
+
+** Mutations To The Backing Array
+
+When you use slice2 to change the value of the string at index 0, any slice value
+that is sharing the same backing array (where the address for that index is part
+of that slice’s length) will see the change.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2[0] = "CHANGED"
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 CHANGED
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 CHANGED
+    [1] 0xc00007e030 D
+
+You always have to be aware when you are modifying a value at an index position if
+the backing array is being shared with another slice.
+
+.image /tour/eng/static/img/sl5.png
+
+What if you use the built-in function append instead?
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 CHANGED
+    Length[3] Capacity[3]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+    [2] 0xc00007e040 CHANGED
+
+The append function creates the same side effect, but it’s hidden. In this case,
+bringing in more length from capacity for slice2 has caused the value at address
+0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
+part of its length.
+
+.image /tour/eng/static/img/sl6.png
+
+One way to avert the side effect is to use a three index slice when constructing
+slice2 so the length and capacity is the same at 2.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[2]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+
+The syntax for a three index slice is [a:b:c] when b and c should be the same
+since [a-b] sets the length and [a-c] sets the capacity. Now the length and
+capacity of slice2 is the same.
+
+Now you use the built-in function append again like before.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[3] Capacity[4]
+    [0] 0xc000016080 C
+    [1] 0xc000016090 D
+    [2] 0xc0000160a0 CHANGED
+
+Notice after the call to append, slice2 has a new backing array.
+
+.image /tour/eng/static/img/sl7.png
+
+This can be seen by comparing the addresses of each slice. In this case, the
+mutation against slice2 didn’t cause a side effect against slice1.
+
+** Copying Slices Manually
+
+There is a built-in function named copy that will allow for the shallow copying
+of slices. Since a string has a backing array of bytes that are immutable, it
+can be used as a source but never a destination.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice3 := make([]string, len(slice1))
+    copy(slice3, slice1)
+
+    inspectSlice(slice1)
+    inspectSlice(slice3)
+
+Output:
+
+    Length[5] Capacity[5]
+    [0] 0xc00005c050 A
+    [1] 0xc00005c060 B
+    [2] 0xc00005c070 C
+    [3] 0xc00005c080 D
+    [4] 0xc00005c090 E
+    Length[5] Capacity[5]
+    [0] 0xc00005c0a0 A
+    [1] 0xc00005c0b0 B
+    [2] 0xc00005c0c0 C
+    [3] 0xc00005c0d0 D
+    [4] 0xc00005c0e0 E
+
+As long as the destination slice has the proper type and length, the built-in
+function copy can perform a shallow copy.
+
+** Slices Use Pointer Semantic Mutation
+
+It’s important to remember that even though you use value semantics to move a slice
+around the program, when reading and writing a slice, You are using pointer semantics.
+Sharing individual elements of a slice with different parts of my program can
+cause unwanted side effects.
+
+    // Construct a slice of 1 user, set a pointer to that user,
+    // use the pointer to update likes.
+
+    users := make([]user, 1)
+    ptrUsr0 := &users[0]
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Output:
+
+    User: 0 Likes: 1
+
+A slice is used to maintain a collection of users. Then a pointer is set to the
+first user and used to update likes. The output shows that using the pointer is
+working.
+
+.image /tour/eng/static/img/sl8.png
+
+Then a new user is appended to the collection and the pointer is used again to
+add a like to the first user. 
+
+    // Append a new user to the collection. Use the pointer again
+    // to update likes.
+
+    users = append(users, user{})
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Output:
+
+    User: 0 Likes: 1
+    User: 1 Likes: 0
+
+However, since the append function replaced the backing array with a new one,
+the pointer is updating the old backing array and the likes are lost. The output
+shows the likes for the first user did not increase.
+
+.image /tour/eng/static/img/sl9.png
+
+You have to be careful to know if a slice is going to be used in an append operation
+during the course of a running program. How you share the slice needs to be
+considered. Sharing individual indexes may not be the best idea. Sharing an
+entire slice value may not work either when appending is in operation. Probably
+using a slice as a field in a struct, and sharing the struct value is a better
+way to go.
+
+** Linear Traversal Efficiency
+The beauty of a slice is its ability to allow for performing linear traversals
+that are mechanically sympathetic while sharing data using value semantics to
+minimize heap allocations.
+
+    x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
+
+    a := x[0]
+    b := binary.LittleEndian.Uint16(x[1:3])
+    c := binary.LittleEndian.Uint16(x[3:5])
+    d := binary.LittleEndian.Uint32(x[5:9])
+
+    println(a, b, c, d)
+
+The code is performing a linear traversal by creating slice values that read
+different sections of the byte array from beginning to end.
+
+.image /tour/eng/static/img/sl10.png
+
+All the data in this code stays on the stack. No extra copies of the data inside
+the byte slice are copied.
+
+** Notes
+
+- Slices are like dynamic arrays with special and built-in functionality.
+- There is a difference between a slices length and capacity and they each service a purpose.
+- Slices allow for multiple "views" of the same underlying array.
+- Slices can grow through the use of the built-in function append.
+
+** Extra Reading
+
+- [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
+- [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
+- [[https://blog.golang.org/slices][Arrays, slices (and strings): The mechanics of 'append']] - Rob Pike        
+- [[https://www.ardanlabs.com/blog/2013/08/understanding-slices-in-go-programming.html][Understanding Slices in Go Programming]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/08/collections-of-unknown-length-in-go.html][Collections Of Unknown Length in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html][Iterating Over Slices In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/slices-of-slices-of-slices-in-go.html][Slices of Slices of Slices in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/12/three-index-slices-in-go-12.html][Three-Index Slices in Go 1.2]] - William Kennedy    
+- [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
+- [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
+			 
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
+to the slice. Iterate over the slice and display each value.
+
+*Part* *B:* Declare a slice of five strings and initialize the slice with string
+literal values. Display all the elements. Take a slice of index one and two and
+display the index position and value of each element in the new slice.
+
+.play slices/exercise1.go		  
+.play slices/answer1.go
