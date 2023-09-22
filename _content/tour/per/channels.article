@@ -1,29 +1,25 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
+کانال‌ها
+کانال‌ها به Goroutine‌ها اجازه می‌دهند تا از طریق استفاده از معنای سیگنالینگ با یکدیگر ارتباط برقرار کنند.
 
-* Channels
+* کانال ها
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+مهم است که کانال را نه به عنوان یک ساختار داده، بلکه به عنوان یک مکانیزم برای سیگنالینگ در نظر بگیرید. این مطابق با این ایده است که شما از یک کانال ارسال و دریافت می‌کنید، نه خواندن و نوشتن. اگر مشکلی که پیش روی شماست نمی‌تواند با سیگنالینگ حل شود، اگر کلمه سیگنالینگ از دهان شما بیرون نمی‌آید، باید استفاده از کانال‌ها را زیر سوال ببرید.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Wait for result
-- *Example* *2:* Fan out
-- *Example* *3:* Wait for task
-- *Example* *4:* Pooling
-- *Example* *5:* Fan out semaphore
-- *Example* *6:* Bounded work pooling
-- *Example* *7:* Drop
-- *Example* *8:* Cancellation
-- *Example* *9:* Retry timeout
-- *Example* *10:* Channel cancellation
+- *مثال* *1:* Wait for result
+- *مثال* *2:* Fan out
+- *مثال* *3:* Wait for task
+- *مثال* *4:* Pooling
+- *مثال* *5:* Fan out semaphore
+- *مثال* *6:* Bounded work pooling
+- *مثال* *7:* Drop
+- *مثال* *8:* Cancellation
+- *مثال* *9:* Retry timeout
+- *مثال* *10:* Channel cancellation
 
 .play channels/example1.go
 .play channels/example2.go
@@ -36,100 +32,60 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** مکانیزم های کانال
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+هزینه داشتن ضمانت در سطح سیگنالینگ تاخیر ناشناخته است. فرستنده نمی داند چقدر باید منتظر بماند تا گیرنده سیگنال را بپذیرد. مجبور شدن به انتظار برای گیرنده، تاخیر مسدودکننده ایجاد می کند. در این مورد، مقادیر ناشناخته تاخیر مسدودکننده. فرستنده باید برای مدت زمان نامعلومی منتظر بماند تا گیرنده برای دریافت سیگنال در دسترس قرار گیرد.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+انتظار برای گیرنده به معنای مکانیکی، عملیات دریافت قبل از ارسال اتفاق می افتد. با کانال ها، دریافت نانو ثانیه قبل اتفاق می افتد، اما قبل از آن است. این بدان معنی است که گیرنده سیگنال را می گیرد و سپس دور می شود و به فرستنده اجازه می دهد تا با ضمانت پیش برود.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+چه اتفاقی می‌افتد اگر فرآیند نتواند برای مدت زمان نامعلومی منتظر بماند؟ اگر آن نوع تاخیر کار نکند چه می شود؟ سپس ضمانت نمی تواند در سطح سیگنالینگ باشد، باید خارج از آن باشد. مکانیک پشت این کار این است که ارسال اکنون قبل از دریافت اتفاق می افتد. فرستنده می تواند سیگنال را بدون نیاز به در دسترس بودن گیرنده انجام دهد. بنابراین فرستنده می تواند دور شود و منتظر نماند. در نهایت، امیدوارید، گیرنده ظاهر شود و سیگنال را دریافت کند.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+این کاهش هزینه تاخیر در ارسال است، اما عدم اطمینان در مورد دریافت سیگنال ها و در نتیجه دانستن اینکه آیا در بالادست گیرنده ها مشکلی وجود دارد یا خیر، ایجاد می کند. این می تواند باعث شود فرآیند کاری را بپذیرد که هرگز شروع یا تمام نشده است. در نهایت، می تواند باعث فشار پس زمینه عظیم و خرابی سیستم ها شود.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+دومین چیزی که باید روی آن تمرکز کنید این است که آیا برای ارسال سیگنال نیاز به ارسال داده دارید؟ اگر سیگنال نیاز به انتقال داده داشته باشد، سیگنالینگ 1 به 1 بین Goroutines است. اگر Goroutine جدیدی نیز نیاز به دریافت سیگنال داشته باشد، باید سیگنال دوم ارسال شود.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+اگر نیازی به انتقال داده با سیگنال نیست، سیگنال می تواند 1 به 1 یا 1 به چند بین Goroutines باشد. سیگنالینگ بدون داده در درجه اول برای لغو یا خاموشی استفاده می شود. این کار با بستن کانال انجام می شود.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+سومین چیزی که باید روی آن تمرکز کنید وضعیت کانال است. یک کانال می تواند در یکی از 3 حالت باشد.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+یک کانال می تواند در حالت nil با ساختن کانال به حالت مقدار صفر آن باشد. ارسال و دریافت در برابر کانال ها در این حالت مسدود می شود. این برای موقعیت هایی مناسب است که می خواهید توقف های کوتاه مدت کار را پیاده سازی کنید.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+یک کانال می تواند در حالت باز با استفاده از تابع make داخلی باشد. ارسال و دریافت در برابر کانال ها در این حالت تحت شرایط زیر کار می کند:
 
-*Unbuffered* *Channels:*
+کانال های بدون بافر:
+ضمانت ها در سطح سیگنالینگ با دریافت قبل از ارسال. ارسال و دریافت Goroutines باید در یک مکان و زمان مشابه برای پردازش سیگنال گرد هم آیند.
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+کانال های بافر شده:
+ضمانت ها خارج از سطح سیگنالینگ با ارسال قبل از دریافت. اگر بافر پر نباشد، ارسال ها می توانند کامل شوند در غیر این صورت مسدود می شوند. اگر بافر خالی نباشد، دریافت ها می توانند کامل شوند در غیر این صورت مسدود می شوند.
+یک کانال می تواند در حالت بسته با استفاده از تابع close داخلی باشد. برای آزاد کردن حافظه نیازی به بستن کانال ندارید، این برای تغییر وضعیت است. ارسال در کانال بسته باعث وحشت می شود، اما دریافت در کانال بسته بلافاصله بازگشت می کند.
 
-*Buffered* *Channels:*
+با تمام این اطلاعات، می توانید بر روی الگوهای کانال تمرکز کنید. تمرکز بر روی سیگنالینگ مهم است. ایده این است که آیا بر اساس نگرانی های تاخیر به ضمانت در سطح سیگنالینگ نیاز دارید یا خیر. اگر بر اساس مدیریت لغوها یا عدم آن، به انتقال داده با سیگنال نیاز دارید یا خیر. می خواهید نحو را به این معناشناسی تبدیل کنید.
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+** راهنماهای طراحی
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+- اطلاعات بیشتر در [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+** دیاگرام ها
 
-** Design Guidelines
+*ضمانت* *تحویل*
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
-
-** Diagrams
-
-*Guarantee* *Of* *Delivery*
-
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+ضمانت تحویل بر اساس یک سوال است: «آیا به ضمانتی نیاز دارم که سیگنال ارسال شده توسط یک goroutine خاص دریافت شده باشد؟»
 
 .image /tour/eng/static/img/guarantee_of_delivery.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*سیگانلینگ* *با* *یا* *بدون* *داده*
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+زمانی که می‌خواهید با داده سیگنال ارسال کنید، سه گزینه پیکربندی کانال وجود دارد که می‌توانید بسته به نوع ضمانتی که نیاز دارید انتخاب کنید.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+سیگنالینگ بدون داده هدف اصلی لغو را برآورده می کند. این امکان را برای یک goroutine فراهم می کند تا به goroutine دیگری سیگنال دهد تا کاری را که انجام می دهد لغو کند و ادامه دهد. لغو را می توان با استفاده از کانال های بدون بافر و بافر شده پیاده سازی کرد.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*حالت*
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+رفتار یک کانال به طور مستقیم تحت تأثیر وضعیت فعلی آن است. وضعیت یک کانال می تواند `nil`, `open` یا `closed` باشد.
 
 .image /tour/eng/static/img/state.png
 
@@ -144,58 +100,50 @@ state of a channel can be `nil`, `open` or `closed`.
 
 ** Buffer Bloat - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+مراقب استفاده از بافرهای بزرگ با ایده کاهش تاخیر باشید.
 
-- Large buffers prevent timely notification of back pressure.
-- They defeat your ability to reduce back pressure in a timely matter.
-- They can increase latency not reduce it.
-- Use buffered channels to provide a way of maintaining continuity.
-- Don't use them just for performance.
-- Use them to handle well defined bursts of data.
-- Use them to deal with speed of light issues between handoffs.
+- بافرهای بزرگ از اطلاع رسانی به موقع فشار پس زمینه جلوگیری می کنند.
+- آنها توانایی شما را برای کاهش به موقع فشار پس زمینه از بین می برند.
+- آنها می توانند تاخیر را افزایش دهند و آن را کاهش ندهند.
+- از کانال های بافر شده برای حفظ پیوستگی استفاده کنید.
+- از آنها فقط برای عملکرد استفاده نکنید.
+- از آنها برای رسیدگی به انفجارهای داده به خوبی تعریف شده استفاده کنید.
+- از آنها برای مقابله با مسائل سرعت نور بین انتقالات استفاده کنید.
 
-*Videos*
+*ویدئوها*
 
 - [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به عنوان نقطه شروع برای تکمیل تمرین ها استفاده کنید. یک راه حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-Write a program where two goroutines pass an integer back and forth ten times.
-Display when each goroutine receives the integer. Increment the integer with each
-pass. Once the integer equals ten, terminate the program cleanly.
+یک برنامه بنویسید که در آن دو goroutine ده بار یک عدد صحیح را به جلو و عقب منتقل می کنند. نمایش زمانی که هر goroutine عدد صحیح را دریافت می کند. عدد صحیح را با هر پاس افزایش دهید. هنگامی که عدد صحیح برابر با ده شد، برنامه را به طور کامل خاتمه دهید.
 
 .play channels/exercise1.go 
 .play channels/answer1.go
 
-** Exercise 2
+** تمرین 2
 
-Write a program that uses a fan out pattern to generate 100 random numbers concurrently.
-Have each goroutine generate a single random number and return that number to the main
-goroutine over a buffered channel. Set the size of the buffer channel so no send ever
-blocks. Don't allocate more buffers than you need. Have the main goroutine display each
-random number it receives and then terminate the program.
+یک برنامه بنویسید که از الگوی fan out برای تولید 100 عدد تصادفی به طور همزمان استفاده می کند.
+هر goroutine را طوری تنظیم کنید که یک عدد تصادفی تولید کند و آن عدد را از طریق یک کانال بافر شده به goroutine اصلی برگرداند. اندازه کانال بافر را طوری تنظیم کنید که هیچ ارسال هرگز مسدود نشود. بیش از آنچه نیاز دارید بافر اختصاص ندهید. goroutine اصلی را طوری تنظیم کنید که هر عدد تصادفی را که دریافت می کند نمایش دهد و سپس برنامه را خاتمه دهد.
 
 .play channels/exercise2.go 
 .play channels/answer2.go
 
-** Exercise 3
+** تمرین 3
 
-Write a program that generates up to 100 random numbers concurrently. Do not send
-all 100 values so the number of sends/receives is unknown.
+یک برنامه بنویسید که تا 100 عدد تصادفی را به طور همزمان تولید می کند. همه 100 مقدار را ارسال نکنید تا تعداد ارسال/دریافت ها نامشخص باشد.
 
 .play channels/exercise3.go 
 .play channels/answer3.go
  
-** Exercise 4
+** تمرین 4
 
-Write a program that generates up to 100 random numbers concurrently using a worker
-pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have
-been collected.
+یک برنامه بنویسید که تا 100 عدد تصادفی را به طور همزمان با استفاده از یک worker pool تولید می کند. مقادیر زوج را رد کنید. به کارگران دستور دهید که با جمع آوری 100 عدد فرد خاموش شوند.
 
 .play channels/exercise4.go 
 .play channels/answer4.go
