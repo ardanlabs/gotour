@@ -3,29 +3,29 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare três variáveis que são inicializadas com seu zero value e três
-// declaradas com um valor literal. Declare variáveis do tipo string, int e
-// bool. Exiba os valores dessas variáveis.
+// Declare three variables that are initialized to their zero value and three
+// declared with a literal value. Declare variables of type string, int and
+// bool. Display the values of those variables.
 //
-// Declare uma nova variável do tipo float32 e inicialize a variável
-// convertendo o valor literal de Pi (3.14).
+// Declare a new variable of type float32 and initialize the variable by
+// converting the literal value of Pi (3.14).
 package main
 
-// Adicione os imports
+// Add imports
 
-// main é o ponto de entrada da aplicação.
+// main is the entry point for the application.
 func main() {
 
-	// Declare variáveis com seu zero value.
+	// Declare variables that are set to their zero value.
 
-	// Exiba o valor dessas variáveis.
+	// Display the value of those variables.
 
-	// Declare variáveis e inicialize.
-	// Usando o operador de declaração de variável curto.
+	// Declare variables and initialize.
+	// Using the short variable declaration operator.
 
-	// Exiba o valor dessas variáveis.
+	// Display the value of those variables.
 
-	// Faça uma conversão de tipo.
+	// Perform a type conversion.
 
-	// Exiba o valor dessa variável.
+	// Display the value of that variable.
 }
