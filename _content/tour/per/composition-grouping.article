@@ -1,55 +1,47 @@
-Grouping With Types
-It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+گروه‌بندی با نوع‌ها
+مهم است به یاد داشته باشیم که در Go، مفاهیم زیرنوع‌بندی یا زیرکلاس‌بندی در واقع وجود ندارند و این الگوهای طراحی باید اجتناب شود.
 
-* Grouping With Types
+* گروه‌بندی با نوع‌ها
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+مهم است به یاد داشته باشیم که در Go، مفاهیم زیرنوع‌بندی یا زیرکلاس‌بندی واقعاً وجود ندارند و این الگوهای طراحی باید اجتناب شود.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Grouping By State
-- *Example* *2:* Grouping By Behavior
+- *مثال* *1:* گروه‌بندی بر اساس وضعیت
+- *مثال* *2:* گروه‌بندی بر اساس رفتار
 
 .play composition/grouping/example1.go
 .play composition/grouping/example2.go
 
-** Grouping Different Types of Data
+** گروه‌بندی انواع مختلف داده‌ها
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+مهم است به یاد داشته باشیم که در Go، مفاهیم زیرنوع‌بندی یا زیرکلاس‌بندی واقعاً وجود ندارند و این الگوهای طراحی باید اجتناب شود.
 
-The following is an anti-pattern you shouldn’t follow or implement.
+مورد زیر الگوی ضد-الگویی است که نباید دنبال کرده یا پیاده‌سازی کنید.
 
     type Animal struct {
         Name string
         IsMammal bool
     }
 
-The Animal type is being declared as a base type that tries to define data that is
-common to all animals. You also attempt to provide some common behavior to an
-animal as well.
+نوع Animal به عنوان یک نوع پایه اعلام شده است که سعی در تعریف داده‌هایی دارد که مشترک برای تمام حیوانات هستند. همچنین سعی می‌کنید برخی از رفتارهای مشترک را نیز برای یک حیوان فراهم کنید.
 
     func (a *Animal) Speak() {
         fmt.Println("UGH!",
         "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Most animals have the ability to speak in one way or the other. However, trying to
-apply this common behavior to just an animal doesn’t make any sense. At this
-point, You have no idea what sound this animal makes, so you write UGH.
+بیشتر حیوانات قابلیت صحبت کردن به یک شکل یا شکل دیگر را دارند. با این حال، سعی در اعمال این رفتار مشترک فقط بر روی یک حیوان هیچ معنایی ندارد. در این نقطه، شما هیچ اطلاعاتی در مورد صدایی که این حیوان تولید می‌کند ندارید، بنابراین UGH را می‌نویسید.
 
     type Dog struct {
         Animal
         PackFactor int
     }
 
-Now the real problems begin. I’m attempting to use embedding to make a Dog
-everything an Animal is plus more. On the surface this will seem to work, but there
-will be problems. With that being said, a Dog does have a specific way they speak.
+حالا مشکلات واقعی آغاز می‌شوند. من سعی می‌کنم با استفاده از تعبیه (embedding)، یک سگ همه چیزی که یک حیوان است و همچنین بیشتر از آن باشد. به نظر می‌رسد در ابتدا این روش کار می‌کند، اما مشکلاتی وجود خواهد داشت. با این حال، یک سگ یک روش خاص برای صحبت کردن دارد.
 
     func (d *Dog) Speak() {
         fmt.Println("Woof!",
@@ -58,16 +50,14 @@ will be problems. With that being said, a Dog does have a specific way they spea
             "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Woof. This is
-specific to how a dog speaks.
+در پیاده‌سازی روش Speak، شما می‌توانید UGH را با Woof جایگزین کنید. این مربوط به نحوه صحبت کردن سگ است.
 
     type Cat struct {
         Animal
         ClimbFactor int
     }
 
-If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
-Using embedding, a Cat is everything an Animal is plus more.
+اگر قرار است یک سگ داشته باشم که یک حیوان را نمایندگی کند، آنگاه باید یک گربه هم داشته باشم. با استفاده از تعبیه، یک گربه همه چیزی است که یک حیوان هست و همچنین بیشتر از آن.
 
     func (c *Cat) Speak() {
         fmt.Println("Meow!",
@@ -76,12 +66,9 @@ Using embedding, a Cat is everything an Animal is plus more.
             "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Meow. This
-is specific to how a cat speaks.
+در پیاده‌سازی روش Speak، شما می‌توانید UGH را با Meow جایگزین کنید. این مربوط به نحوه صحبت کردن یک گربه است.
 
-Everything seems fine and it looks like embedding is providing the same
-functionality as inheritance does in other languages. Then you try to go ahead and
-group dogs and cats by the fact they have a common DNA of being an Animal.
+همه چیز به نظر می‌رسد خوب است و به نظر می‌رسد تعبیه (embedding) همان قابلیت‌های وراثت را که در زبان‌های دیگر دارد، ارائه می‌دهد. سپس شما سعی می‌کنید به جلو بروید و سگ‌ها و گربه‌ها را بر اساس واقعیتی که یک DNA مشترک به عنوان یک حیوان دارند، گروه‌بندی کنید.
 
     animals := []Animal{
         Dog{
@@ -105,25 +92,17 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
         animal.Speak()
     }
 
-When you try to do this, the compiler complains that a Dog and Cat are not an Animal
-and this is true. Embedding isn’t the same as inheritance and this is the pattern I
-need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
-can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+وقتی سعی می‌کنید این کار را انجام دهید، کامپایلر اعتراض می‌کند که یک سگ و یک گربه حیوان نیستند و این درست است. تعبیه (embedding) همان وراثت نیست و این الگویی است که باید از آن دوری کنم. یک سگ یک سگ است، یک گربه یک گربه است و یک حیوان یک حیوان است. نمی‌توانم سگ‌ها و گربه‌ها را به عنوان حیوانات منتقل کنم زیرا آن‌ها حیوان نیستند.
 
-This kind of mechanic is also not very flexible. It requires configuration by the
-developer and unless you have access to the code, you can’t make configuration changes
-over time.
+این نوع مکانیک همچنین بسیار انعطاف‌پذیر نیست. آن نیاز به پیکربندی توسط توسعه‌دهنده دارد و مگر اینکه به کد دسترسی داشته باشید، نمی‌توانید تغییرات پیکربندی را در طول زمان اعمال کنید.
 
-If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
-this in Go? It’s not about grouping through common DNA, it’s about grouping
-through common behavior. Behavior is the key.
+اگر این روش نباشد که می‌توانیم مجموعه‌ای از سگ‌ها و گربه‌ها را بسازیم، در Go چگونه این کار را انجام دهیم؟ این مورد مربوط به گروه‌بندی از طریق رفتار مشترک است نه از طریق DNA مشترک. رفتار کلید است.
 
     type Speaker interface {
         Speak()
     }
 
-If you use an interface, then you can define the common method set of behavior that I
-want to group different types of data against.
+اگر از یک رابطه (interface) استفاده کنید، می‌توانید مجموعه‌ی متدهای مشترک رفتاری که می‌خواهید انواع مختلف داده را بر اساس آن گروه‌بندی کنید، تعریف کنید.
 
     speakers := []Speaker{
         &Dog{
@@ -146,11 +125,9 @@ want to group different types of data against.
         speaker.Speak()
     }
 
-In the new code, you can now group Dogs and Cats together based on their common
-set of behavior, which is the fact that Dogs and Cats can speak.
+در کد جدید، اکنون می‌توانید سگ‌ها و گربه‌ها را بر اساس مجموعه‌ی مشترک رفتاری‌شان، که صحبت کردن است، گروه‌بندی کنید.
 
-In fact, the Animal type is really type pollution because declaring a type just to
-share a set of common states is a smell and should be avoided.
+در واقع، نوع Animal واقعاً آلودگی نوع (type pollution) است زیرا اعلام یک نوع فقط برای به اشتراک گذاشتن مجموعه‌ای از وضعیت‌های مشترک، نقصی است و باید اجتناب شود.
 
     type Dog struct {
         Name string
@@ -164,65 +141,43 @@ share a set of common states is a smell and should be avoided.
         ClimbFactor int
     }
 
-In this particular case, you would rather see the Animal type removed and the fields
-copied and pasted into the Dog and Cat types. Later you will have notes about better
-patterns that eliminate these scenarios from happening.
+در این مورد خاص، ترجیح می‌دهید نوع Animal حذف شود و فیلدها در نوع‌های Dog و Cat کپی و الصق شوند. بعدها نکاتی درباره الگوهای بهتری که این سناریوها را از بین می‌برند، بررسی خواهید کرد.
 
-Here are the code smells from the original code:
+این‌ها هستند نقاط ضعف کد اصلی:
 
-- The Animal type provides an abstraction layer of reusable state.
-- The program never needs to create or solely use a value of Animal type.
-- The implementation of the Speak method for the Animal type is generalized.
-- The Speak method for the Animal type is never going to be called.
+- نوع Animal یک لایه انتزاعی از وضعیت قابل استفاده مجدد فراهم می‌کند.
+- برنامه هرگز نیاز به ایجاد یا استفاده انحصاری از مقدار نوع Animal ندارد.
+- پیاده‌سازی روش Speak برای نوع Animal به صورت عمومی است.
+- روش Speak برای نوع Animal هرگز فراخوانی نخواهد شد.
 
-Guidelines around declaring types:
+دستورالعمل‌های مربوط به اعلام نوع:
 
-- Declare types that represent something new or unique.
-- Don't create aliases just for readability.
-- Validate that a value of any type is created or used on its own.
-- Embed types not because you need the state, but because we need the behavior.
-- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
-- Question types that are aliases or abstractions for an existing type.
-- Question types whose sole purpose is to share a common set of states.
+- نوع‌ها را برای نمایانگر چیزی جدید یا منحصربه‌فرد تعریف کنید.
+- فقط برای خوانایی، نوع‌های مستعار ایجاد نکنید.
+- تأیید کنید که مقدار هر نوع به تنهایی ایجاد یا استفاده می‌شود.
+- نوع‌ها را تعبیه نکنید فقط به این دلیل که به وضعیت نیاز داریم، بلکه به این دلیل که به رفتار نیاز داریم.
+- اگر درباره رفتار فکر نمی‌کنید، خود را در طراحی قفل کرده‌اید که نمی‌توانید در آینده بدون تغییرات کد پیوسته رشد کنید.
+- نوع‌هایی که مستعارها یا انتزاعاتی برای یک نوع موجود هستند، مورد سؤال قرار دهید.
+- نوع‌هایی که هدف اصلی آن‌ها به اشتراک گذاشتن مجموعه‌ای از وضعیت‌های مشترک است، مورد سؤال قرار دهید.
 
-** Don’t Design With Interfaces
+** با رابطه‌ها طراحی نکنید
 
-Unfortunately, too many developers attempt to solve problems in the abstract first.
-They focus on interfaces right away and this leads to interface pollution. As a
-developer, you exist in one of two modes: a programmer and then an engineer.
+متأسفانه، بسیاری از توسعه‌دهندگان تلاش می‌کنند ابتدا مسائل را به صورت انتزاعی حل کنند. آن‌ها بلافاصله بر روی رابطه‌ها تمرکز می‌کنند و این باعث آلودگی رابطه می‌شود. به عنوان یک توسعه‌دهنده، شما در یکی از دو حالت وجود دارید: برنامه‌نویس و سپس مهندس.
 
-When you are programming, you are focused on getting a piece of code to work. Trying
-to solve the problem and break down walls. Prove that my initial ideas work. That is
-all you care about. This programming should be done in the concrete and is never
-production ready.
+وقتی برنامه‌نویسی می‌کنید، تمرکزتان بر روی کار کردن یک قطعه کد است. تلاش برای حل مسئله و شکستن موانع. اثبات اینکه ادر این مورد خاص، بهتر است نوع Animal حذف شود و فیلدها در نوع‌های Dog و Cat کپی و الصق شوند. در ادامه، یادداشت‌هایی درباره الگوهای بهتری که این سناریوها را از بین می‌برند، خواهید داشت.
 
-Once you have a prototype of code that solves the problem, you need to switch to
-engineering mode. You need to focus on how to write the code at a micro-level for
-data semantics and readability, then at a macro-level for mental models and
-maintainability. You also need to focus on errors and failure states.
+وقتی شما در حال برنامه‌نویسی هستید، تمرکزتان بر روی کار کردن یک قطعه کد است. تلاش برای حل مسئله و شکستن موانع. اثبات اینکه ایده‌های اولیه من جواب می‌دهد. همین چیزی است که مهم است. این برنامه‌نویسی باید در قالبی محکم انجام شود و هرگز آماده استفاده تولیدی نیست.
 
-This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
-abstraction, and for testability. Abstracting is only one of a few refactors that need
-to be performed. This works best when you start with a piece of concrete code and
-then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
-are absolutely necessary.
+وقتی یک پروتوتایپ از کدی که مسئله را حل می‌کند دارید، باید به حالت مهندسی تغییر کنید. باید بر روی نحوه نوشتن کد در سطح میکرو برای معناشناسی داده و خوانایی، و سپس در سطح ماکرو برای مدلهای ذهنی و قابلیت ادامه کار تمرکز کنید. همچنین باید بر روی خطاها و وضعیت‌های شکست تمرکز کنید.
 
-Every problem you solve with code is a data problem requiring me to write data
-transformations. If you don’t understand the data, you don’t understand the problem. If you
-don’t understand the problem, you can’t write any code. Starting with a concrete
-solution that is based on the concrete data structures is critical. As Rob Pike said,
+این کار در یک چرخه بازطراحی انجام می‌شود. بازطراحی برای خوانایی، کارآیی، انتزاع و قابلیت آزمون. انتزاع فقط یکی از چندین بازطراحی است که باید انجام شود. این کار بهترین نتیجه را زمانی می‌دهد که با یک قطعه کد محکم شروع کنید و سپس رابطه‌هایی که نیاز دارید را کشف کنید. انتزاع را اعمال نکنید مگر اینکه به طور مطلق ضروری باشد.
 
-"Data dominates. If you've chosen the right data structures and organized things
-well, the algorithms will almost always be self-evident". - Rob Pike
+هر مسئله‌ای که با کد حل می‌کنید، یک مسئله داده است که نیازمند نوشتن تبدیلات داده است. اگر داده را نفهمیدید، مسئله را نفهمیدید. اگر مسئله را نفهمیدید، نمی‌توانید هیچ کدی بنویسید. شروع با یک راه‌حل محکم که بر اساس ساختارهای داده محکم است، بسیار حائز اهمیت است. همانطور که راب پایک گفت:
 
-When is abstraction necessary? When you see a place in the code where the data
-could change and you want to minimize the cascading code effects that would result. I
-might use abstraction to help make code testable, but you should try to avoid this if
-possible. The best testable functions are functions that take raw data in and send
-raw data out. It shouldn’t matter where the data is coming from or going.
+"داده حاکم است. اگر ساختارهای داده صحیح را انتخاب و سازماندهی کنید، الگوریتم‌ها تقریباً همیشه روشن خواهند بود." - راب پایک
 
-In the end, start with a concrete solution to every problem. Even if the bulk of that
-is just programming. Then discover the interfaces that are absolutely required for
-the code today.
+کی انتزاع ضروری است؟ زمانی که در کد یک نقطه را مشاهده می‌کنید که داده ممکن است تغییر کند و می‌خواهید اثرات کد پیوسته که نتیجه آن خواهد بود را کمینه کنید. ممکن است از انتزاع برای کمک به قابلیت آزمون کردن کد استفاده کنم، اما اگر امکان دارد باید سعی کنید از آن پرهیز کنید. بهترین توابع قابل آزمون، توابعی هستند که داده‌های خام را دریافت کرده و داده‌های خام را ارسال می‌کنند. اهمیتی ندارد که داده از کجا می‌آید یا به کجا می‌رود.
 
-"Don’t design with interfaces, discover them". - Rob Pike
+در پایان، با یک راه‌حل محکم برای هر مسئله شروع کنید. حتی اگر بخش عمده‌ای از آن فقط برنامه‌نویسی باشد. سپس رابط‌هایی را کشف کنید که برای کد امروز به طور مطلق لازم هستند.
+
+"با رابط‌ها طراحی نکنید، آن‌ها را کشف کنید." - راب پایک
