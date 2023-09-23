@@ -1,23 +1,21 @@
-Decoupling
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+جداسازی (Decoupling)
+ترکیب به‌علاوه مکانیک جاسازی نوع را فراتر از مکانیک جاسازی نوع می‌برد و بیش از یک پارادایم است.
 
-* Decoupling
+* جداسازی (Decoupling)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-The best way to take advantage of embedding is through the compositional design
-pattern. It's the key for maintaining stability in your software by having the
-ability to adapt to the data and transformation changes that are coming.
+روش بهتر برای بهره‌برداری از جاسازی نوع از طریق الگوی طراحی ترکیبی است. این کلید برای حفظ پایداری در نرم‌افزار شما است، با داشتن قابلیت سازگاری با تغییرات داده و تبدیلاتی که در پیش رو هستند.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Struct Composition
-- *Example* *2:* Decoupling With Interface
-- *Example* *3:* Interface Composition
-- *Example* *4:* Decoupling With Interface Composition
-- *Example* *5:* Remove Interface Pollution
-- *Example* *6:* More Precise API
+- *مثال* *1:* ترکیب ساختار
+- *مثال* *2:* جداسازی با اینترفیس
+- *مثال* *3:* ترکیب اینترفیس
+- *مثال* *4:* جداسازی با ترکیب اینترفیس
+- *مثال* *5:* حذف آلودگی اینترفیس
+- *مثال* *6:* دقیق‌تر API
 
 .play composition/decoupling/example1.go
 .play composition/decoupling/example2.go
@@ -26,10 +24,9 @@ ability to adapt to the data and transformation changes that are coming.
 .play composition/decoupling/example5.go
 .play composition/decoupling/example6.go
 
-** Decoupling Mechanics
+**مکانیک‌های جداسازی
 
-The idea is to compose larger types from smaller types and focus on the composition
-of behavior.
+ایده این است که از نوع‌های کوچک‌تر تا نوع‌های بزرگتر ترکیب شود و بر روی ترکیب رفتار متمرکز شود.
 
     type Xenia struct {
         Host    string
@@ -49,9 +46,7 @@ of behavior.
         }
     }
 
-The Xenia type represents a system that you need to pull data from. The implementation
-is not important. What is important is that the method Pull can succeed, fail, or
-not have any data to pull.
+نوع Xenia یک سیستم را نمایش می‌دهد که نیاز است داده‌ها را از آن بخوانید. پیاده‌سازی مهم نیست. آنچه مهم است این است که متد Pull ممکن است موفق، ناموفق یا هیچ داده‌ای برای خواندن نداشته باشد.
 
     type Pillar struct {
         Host    string
@@ -63,12 +58,9 @@ not have any data to pull.
         return nil
     }
 
-The Pillar type represents a system that you need to store data into. What is
-important again is that the method Store can succeed or fail.
+نوع Pillar یک سیستم را نمایش می‌دهد که نیاز است داده‌ها را در آن ذخیره کنید. مهمترین نکته در اینجا این است که متد Store ممکن است موفق یا ناموفق باشد.
 
-These two types represent a primitive layer of code that provides the base behavior
-required to solve the business problem of pulling data out of Xenia and storing
-that data into Pillar.
+این دو نوع نشان دهنده یک لایه ابتدایی از کد هستند که رفتار پایه مورد نیاز برای حل مشکلات تجاری خواندن داده‌ها از Xenia و ذخیره آن‌ها در Pillar را فراهم می‌کنند.
 
     func Pull(x *Xenia, data []Data) (int, error) {
         for i := range data {
@@ -90,11 +82,7 @@ that data into Pillar.
         return len(data), nil
     }
 
-The next layer of code is represented by these two functions, Pull and Store. They
-build on the primitive layer of code by accepting a collection of data values to
-pull or store in the respective systems. These functions focus on the concrete types
-of Xenia and Pillar since those are the systems the program needs to work with at
-this time.
+لایه بعدی از کد توسط این دو تابع، Pull و Store، نمایش داده می‌شود. آن‌ها بر روی لایه ابتدایی کد ساخته می‌شوند با دریافت یک مجموعه از مقادیر داده برای خواندن یا ذخیره کردن در سیستم‌های مربوطه. این توابع بر روی انواع مشخص Xenia و Pillar تمرکز می‌کنند زیرا این سیستم‌ها همان سیستم‌هایی هستند که برنامه در حال حاضر نیاز دارد با آن‌ها کار کند.
 
     func Copy(sys *System, batch int) error {
         data := make([]Data, batch)
@@ -113,17 +101,14 @@ this time.
         }
     }
 
-The Copy function builds on top of the Pull and Store functions to move all the
-data that is pending for each run. If you notice the first parameter to Copy, it’s
-a type called System.
+تابع Copy بر روی توابع Pull و Store ساخته می‌شود تا تمام داده‌های در انتظار برای هر اجرا را منتقل کند. اگر توجه کنید، پارامتر اول تابع Copy نوعی به نام System است.
 
     type System struct {
         Xenia
         Pillar
     }
 
-The initial idea of the System type is to compose a system that knows how to Pull
-and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+ایده اولیه نوع System این است که یک سیستم را ترکیب کند که بداند چگونه باید Pull و Store کند. در این حالت، توانایی Pull و Store را از Xenia و Pillar ترکیب می‌کند.
 
     func main() {
         sys := System{
@@ -142,20 +127,13 @@ and Store. In this case, composing the ability to Pull and Store from Xenia and 
         }
     }
 
-Finally, the main function can be written to construct a Xenia and Pillar within
-the composition of a System. Then the System can be passed to the Copy function
-and data can begin to flow between the two systems.
+سرانجام، تابع اصلی می‌تواند به گونه‌ای نوشته شود که یک Xenia و Pillar را در ترکیب یک System ایجاد کند. سپس System می‌تواند به تابع Copy ارسال شود و جریان داده بین دو سیستم آغاز شود.
 
-With all this code, you now have my first draft of a concrete solution to a concrete
-problem.
+با این کلیه کد، حالا یک پیشنویس اولیه از یک راه‌حل قابل اجرا برای یک مسئله خاص دارید.
 
-** Decoupling With Interfaces
+**جداسازی با رابطه‌ها
 
-The next step is to understand what could change in the program. In this case, what
-can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
-be Alice and Bob. With this knowledge, you want to decouple the existing concrete
-solution from this change. To do that, you want to change the concrete functions to
-be polymorphic functions.
+مرحله بعد این است که بفهمید چه چیزی در برنامه قابل تغییر است. در این حالت، سیستم‌های خود بتوانند تغییر کنند. امروز Xenia و Pillar هستند، اما فردا ممکن است Alice و Bob باشند. با این دانش، می‌خواهید راه‌حل موجود را از این تغییر جدا کنید. برای این کار، می‌خواهید توابع موجود را به توابع چندریختی (polymorphic) تغییر دهید.
 
     func Pull(p Puller, data []Data) (int, error) {
         for i := range data {
@@ -177,11 +155,7 @@ be polymorphic functions.
         return len(data), nil
     }
 
-Currently, the Pull function accepts a Xenia value and the Store function accepts
-a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
-important is a concrete value that knows how to Pull and Store. You can change these
-concrete functions to be polymorphic by asking for data based on what it can do
-instead of what it is.
+در حال حاضر، تابع Pull یک مقدار Xenia را می‌پذیرد و تابع Store یک مقدار Pillar را می‌پذیرد. در پایان، مهم نبود Xenia و Pillar، آنچه مهم است یک مقدار قطعی است که بداند چگونه باید Pull و Store کند. شما می‌توانید این توابع قطعی را به توابع چندریختی تغییر دهید با درخواست داده بر اساس آنچه می‌تواند انجام دهد به جای آنچه است.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,12 +165,9 @@ instead of what it is.
         Store(d *Data) error
     }
 
-These two interfaces describe what concrete data must do and it’s these types that
-are replaced in the declaration of the Pull and Store functions. Now these functions
-are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
-Storer, they can be passed into the functions.
+این دو رابط توصیف می‌کنند که داده قطعی چه کارهایی باید انجام دهد و این انواع هستند که در تعریف توابع Pull و Store جایگزین می‌شوند. حالا این توابع چندریختی هستند. هنگامی که Alice و Bob به عنوان یک Puller و یک Storer تعریف و پیاده‌سازی می‌شوند، می‌توانند به توابع منتقل شوند.
 
-You am not done yet. The Copy function needs to be polymorphic as well.
+هنوز کار تمام نشده است. تابع Copy نیز باید چندریختی باشد.
 
     func Copy(ps PullStorer, batch int) error {
         data := make([]Data, batch)
@@ -215,20 +186,16 @@ You am not done yet. The Copy function needs to be polymorphic as well.
         }
     }
 
-The Copy function is no longer asking for a System value, but any concrete value
-that knows how to both Pull and Store.
+تابع Copy دیگر درخواستی برای یک مقدار System نمی‌کند، بلکه هر مقدار قطعی است که بداند چگونه هم Pull و هم Store کند.
 
     type PullStorer interface {
         Puller
         Storer
     }
 
-The PullStorer interface is declared through the use of composition. It’s composed
-of the Puller and Storer interfaces. Work towards composing larger interfaces
-from smaller ones.
+رابط PullStorer از طریق ترکیب تعریف می‌شود. این رابط از رابط‌های Puller و Storer تشکیل شده است. کار به سمت ترکیب رابط‌های بزرگتر از رابط‌های کوچکتر پیش می‌رود.
 
-Notice how the PullStorer variable is now being passed into the Pull and Store
-functions. How is this possible when the type information is different?
+توجه کنید که متغیر PullStorer در حال حاضر به توابع Pull و Store منتقل می‌شود. چگونه این امکان وجود دارد وقتی که اطلاعات نوع متفاوت است؟
 
     // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
@@ -236,17 +203,11 @@ functions. How is this possible when the type information is different?
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-You always need to remember, you am never passing an interface value around my program
-since they don’t exist and are valueless. you can only pass concrete data. So the
-concrete data stored inside of the interface ps variable is what’s being passed
-to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
-know how to Pull and Store?
+شما همیشه باید به خاطر داشته باشید که شما هرگز یک مقدار رابط را در سراسر برنامه خود منتقل نمی‌کنید، زیرا آن‌ها وجود ندارند و بی‌ارزش هستند. شما تنها می‌توانید داده‌های قطعی را منتقل کنید. بنابراین، داده قطعی ذخیره شده در داخل متغیر رابط ps است که به توابع Pull و Store منتقل می‌شود. آیا درست نیست که مقدار قطعی ذخیره شده در داخل ps باید بداند چگونه باید Pull و Store کند؟
 
 .image /tour/eng/static/img/comp1.png
 
-Since a System is composed from a Xenia and Pillar, System implements the PullStorer
-interface. With these changes, you can now create new concrete types that implement
-the PullStorer interface.
+از آنجایی که یک System از Xenia و Pillar تشکیل می‌شود، System رابط PullStorer را پیاده‌سازی می‌کند. با این تغییرات، شما می‌توانید اکنون انواع قطعی جدیدی را ایجاد کنید که رابط PullStorer را پیاده‌سازی می‌کنند.
 
     type System1 struct {
         Xenia
@@ -268,13 +229,11 @@ the PullStorer interface.
         Pillar
     }
 
-When you think about this more, declaring different System types for all the possible
-combinations is not realistic. This will work, but the maintenance nightmare requires
-a better solution.
+وقتی بیشتر درباره این مسئله فکر می‌کنید، تعریف انواع System مختلف برای تمام ترکیب‌های ممکن عملی نیست. این روش کار خواهد کرد، اما مشکلات نگهداری آن نیاز به یک راه‌حل بهتر دارد.
 
-** Interface Composition
+** ترکیب رابطه‌ها
 
-What if you decided to compose my concrete system type from two interface types?
+چه اتفاقی می‌افتد اگر تصمیم بگیرید نوع سیستم قطعی خود را از دو نوع رابطه ترکیب کنید؟
 
     type System struct {
         Puller
@@ -301,36 +260,28 @@ concrete Puller or Storer into the system at application startup.
         }
     }
 
-This one system type implements the PullStorer interface for all possible
-combinations of concrete types.
+این یک راه‌حل جالب است. این به اپلیکیشن اجازه می‌دهد که در زمان راه‌اندازی اپلیکیشن، Puller یا Storer قطعی را به سیستم درج کند.
 
 .image /tour/eng/static/img/comp2.png
 
-With this change, the application is fully decoupled from changes to a new system
-that may come online over time.
+با این تغییر، اپلیکیشن به طور کامل از تغییرات سیستم جدیدی که ممکن است در طول زمان رخ دهد، جدا شده است.
 
-** Precision Review
+** بازبینی دقیق
 
-The next question to ask is, are the polymorphic functions as precise as they
-otherwise could be? This is a part of the engineering process that can’t be skipped.
-The answer is no, two changes can be made.
+سوال بعدی که باید پرسید، آیا توابع چندریختی به طور دقیق همانند آنچه که ممکن است باشند، هستند؟ این بخشی از فرآیند مهندسی است که نمی‌توان آن را نادیده گرفت. پاسخ خیر است، دو تغییر می‌تواند انجام شود.
 
     func Copy(sys *System, batch int) error {
 
-The Copy function doesn’t need to be polymorphic anymore since there will only be a
-single System type. The PullStorer interface type can be removed from the program.
-Remember, you moved the polymorphism inside the type when you used composition with the
-interface types.
+تابع Copy دیگر نیازی به چندریختی ندارد زیرا تنها یک نوع سیستم وجود خواهد داشت. نوع رابط PullStorer می‌تواند از برنامه حذف شود. به یاد داشته باشید که شما چندریختی را در داخل نوع قرار دادید وقتی از ترکیب با انواع رابطه استفاده کردید.
 
     func Copy(p Puller, s Storer, batch int) error {
 
-This is another change that can be made to the Copy function. This change makes the
-function more precise and polymorphic again. Now the function is asking for exactly
-what it needs based on what the concrete data can do.
+این تغییر دیگری است که می‌توان در تابع Copy انجام داد. این تغییر باعث می‌شود تابع دوباره دقیقتر و چندریختی شود. حالا تابع دقیقاً آنچه را که نیاز دارد بر اساس اینکه داده قطعی چه کارهایی می‌تواند انجام دهد، درخواست می‌کند.
 
 .image /tour/eng/static/img/comp3.png
 
-With that change the System struct type can be removed from the program as well.
+با این تغییر، نوع ساختار System همچنین می‌تواند از برنامه حذف شود.
+
 
     func main() {
         x := Xenia{
@@ -348,38 +299,36 @@ With that change the System struct type can be removed from the program as well.
         }
     }
 
-By removing the PullStorer and System types, the program simplifies. The main
-function can focus on constructing the concrete Puller and Storer values necessary
-for that moving data. The type system and APIs are more precise.
-This idea of precision comes from Edsger W. Dijkstra
+با حذف انواع PullStorer و System، برنامه ساده‌تر می‌شود. تابع اصلی می‌تواند تمرکز خود را بر روی ساخت داده‌های قطعی Puller و Storer مورد نیاز برای جابجایی داده داشته باشد. سیستم نوع و رابط‌های برنامه‌نویسی دقیق‌تر هستند.
+این ایده از دقت و وضوح از Edsger W. Dijkstra می‌آید:
 
-"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+"هدف از انتزاع، نه عدم وضوح است، بلکه ایجاد یک سطح معنایی جدید است که در آن می‌توان به طور کاملاً دقیق عمل کرد." - Edsger W. Dijkstra
 
-** Notes
+** یادداشت‌ها
 
-- This is much more than the mechanics of type embedding.
-- Declare types and implement workflows with composition in mind.
-- Understand the problem you are trying to solve first. This means understanding the data.
-- The goal is to reduce and minimize cascading changes across your software.
-- Interfaces provide the highest form of composition.
-- Don't group types by a common DNA but by a common behavior.
-- Everyone can work together when we focus on what we do and not what we are.
+- این بسیار بیشتر از مکانیک تعبیه‌گری نوع است.
+- انواع را اعلام کرده و با ترکیب در ذهن جریان‌های کاری را پیاده‌سازی کنید.
+- ابتدا مسئله‌ای که سعی در حل آن دارید را درک کنید. این به معنای درک داده‌ها است.
+- هدف از کاهش و کمینه‌سازی تغییرات پیوسته در نرم‌افزار شما است.
+- رابط‌ها بالاترین سطح ترکیب را فراهم می‌کنند.
+- نوع‌ها را بر اساس رفتار مشترک، نه بر اساس یک DNA مشترک، گروه‌بندی کنید.
+- همه می‌توانند با همکاری کردن تمرکز خود را بر روی آنچه که انجام می‌دهیم و نه بر روی آنچه که هستیم، قرار دهند.
 
-** Quotes
+** نقل قول‌ها
 
-"A good API is not just easy to use but also hard to misuse." - JBD
+"یک رابط برنامه‌نویسی خوب، نه فقط آسان در استفاده است، بلکه همچنین سخت در سوءاستفاده است." - JBD
 
-"You can always embed, but you cannot decompose big interfaces once they are out there. Keep interfaces small." - JBD
+"همیشه می‌توانید تعبیه کنید، اما نمی‌توانید رابط‌های بزرگ را پس از ایجاد آن‌ها تجزیه کنید. رابط‌ها را کوچک نگه دارید." - JBD
 
-"Don't design with interfaces, discover them." - Rob Pike
+"با طراحی با رابط‌ها، آن‌ها را کشف کنید." - Rob Pike
 
-"Duplication is far cheaper than the wrong abstraction. - Sandi Metz
+"تکرار، همیشه ارزانتر از اشتباه در تعبیه است." - Sandi Metz
 
-** Design Guidelines
+** راهنمایی‌های طراحی
 
 Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
 
-** Extra Reading
+** خواند بیشتر
 
 - [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
 - [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
@@ -388,15 +337,13 @@ Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/
 - [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
 - [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از قالب به عنوان نقطه شروع برای تکمیل تمرینات استفاده کنید. یک حل ممکن فراهم شده است.
 
-** Exercise 1
+** تمرین 1
 
-Using the template, declare a set of concrete types that implement the set of predefined
-interface types. Then create values of these types and use them to complete a set of
-predefined tasks.
+با استفاده از قالب، مجموعه‌ای از انواع قطعی را که مجموعه‌ای از انواع رابطهای پیش‌تعریف شده را پیاده‌سازی می‌کنند، اعلام کنید. سپس مقادیر این انواع را ایجاد کرده و از آن‌ها برای تکمیل مجموعه‌ای از وظایف پیش‌تعریف شده استفاده کنید.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go
