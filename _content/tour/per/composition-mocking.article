@@ -1,16 +1,14 @@
 Mocking
-Since the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+از آنجا که کامپایلر می‌تواند تجزیه و تحلیل کد استاتیک را انجام دهد تا بفهمد آیا یک مقدار محکم یک رابط را پیاده‌سازی می‌کند یا خیر، توسعه‌دهنده‌ای که نوع محکم را اعلام می‌کند نیازی به ارائه رابط‌ها هم ندارد.
 
 * Mocking
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-The best way to take advantage of embedding is through the compositional design
-pattern. The idea is to compose larger types from smaller types and focus on the
-composition of behavior.
+بهترین راه برای بهره‌برداری از تعبیه‌سازی، از طریق الگوی طراحی ترکیبی است. ایده این است که از اجزای کوچکتر، انواع بزرگ‌تری را تشکیل داده و بر ترکیب رفتار تمرکز کنید.
 
-** Code Review
+** بررسی کد
 
 - *Example* *1:* Mocking
 
@@ -18,11 +16,7 @@ composition of behavior.
 
 ** Interface Ownership
 
-One thing that is different about Go from other languages is the idea of convention
-over configuration. This really shows itself with how Go handles interface compliance.
-Because the compiler can perform static code analysis to determine if a concrete value
-implements an interface, the developer declaring the concrete type doesn’t need to
-provide interfaces as well.
+یکی از ویژگی‌های متفاوت Go نسبت به زبان‌های دیگر، ایده توافق بر تنظیم است. این واقعاً در روش Go برای مطابقت با رابط‌ها نشان داده می‌شود. به دلیل اینکه کامپایلر می‌تواند تجزیه و تحلیل کد استاتیک را انجام دهد تا بفهمد آیا یک مقدار محکم یک رابط را پیاده‌سازی می‌کند یا خیر، توسعه‌دهنده‌ای که نوع محکم را اعلام می‌کند نیازی به ارائه رابط‌ها هم ندارد.
 
     package pubsub
 
@@ -46,13 +40,9 @@ provide interfaces as well.
         return nil
     }
 
-You've just implemented a new API that provides a concrete implementation for publish
-and subscribe. There are no interfaces being provided because this API does not
-need one. This is a single concrete implementation.
+شما به تازگی یک API جدید پیاده‌سازی کرده‌اید که یک پیاده‌سازی محکم برای عملیات انتشار و مشترک‌سازی فراهم می‌کند. هیچ رابطی ارائه نشده است زیرا این API به یک رابط نیاز ندارد. این یک پیاده‌سازی محکم واحد است.
 
-What if the application developer wanting to use this new API needs an interface
-because they have the need to mock this implementation during tests? In Go, that
-developer can declare the interface and the compiler can identify the compliance.
+اما اگر توسعه‌دهنده برنامه که می‌خواهد از این API جدید استفاده کند، به دلیل نیاز به تقلید این پیاده‌سازی در زمان آزمون‌ها، نیاز به یک رابط داشته باشد؟ در Go، این توسعه‌دهنده می‌تواند رابط را اعلام کند و کامپایلر مطابقت آن را شناسایی کند.
 
     package main
 
@@ -73,11 +63,7 @@ developer can declare the interface and the compiler can identify the compliance
         return nil
     }
 
-This code in the main package is declaring an interface. This interface represents
-the API that the application is using from the pubsub package. The developer has
-implemented their own pubsub implementation for testing. The key here is that this
-application developer doesn’t use any concrete implementation directly, but decouples
-themselves through their own interface.
+این کد در بسته‌ی اصلی یک رابط را اعلام می‌کند. این رابط نماینده‌ی API است که برنامه از بسته‌ی pubsub استفاده می‌کند. توسعه‌دهنده، یک پیاده‌سازی خود برای pubsub را برای آزمون پیاده‌سازی کرده است. کلید این است که توسعه‌دهنده برنامه به طور مستقیم از هیچ پیاده‌سازی محکمی استفاده نمی‌کند، بلکه از طریق رابط خود، خود را از آن جدا می‌کند.
 
     func main() {
         pubs := []publisher{
@@ -91,7 +77,4 @@ themselves through their own interface.
         }
     }
 
-To provide an example, the main function constructs a collection that is initialized
-with the pubsub implementation and the mock implementation. The publisher interface
-allows this. Then a for range loop is implemented to show how the application code
-is abstracted from any concrete implementation.
+برای ارائه یک مثال، تابع اصلی یک مجموعه را ساختاردهی می‌کند که با پیاده‌سازی pubsub و پیاده‌سازی موک شروع می‌شود. رابط publisher این کار را ممکن می‌سازد. سپس یک حلقه for range پیاده‌سازی می‌شود تا نشان دهد چگونه کد برنامه از هر نوع پیاده‌سازی محکمی جدا شده است.
