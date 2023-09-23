@@ -1,52 +1,38 @@
 Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+آلودگی رابط از واقعیت ناشی می‌شود که افراد نرم‌افزار را با طراحی رابط‌ها تعریف می‌کنند به جای آنکه آن‌ها را کشف کنند.
 
 * Interface Pollution
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+آلودگی رابط از واقعیت ناشی می‌شود که افراد نرم‌افزار را با طراحی رابط‌ها تعریف می‌کنند به جای آنکه آن‌ها را کشف کنند.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *مثال* *1:* ایجاد Interface Pollution
+- *مثال* *2:* حذف Interface Pollution
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
 ** Interface Pollution
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+آلودگی رابط از واقعیت ناشی می‌شود که افراد نرم‌افزار را با طراحی رابط‌ها تعریف می‌کنند به جای آنکه آن‌ها را کشف کنند. ابتدا باید یک راه حل محکم برای مشکل طراحی کنید. سپس، اگر لازم باشد، می‌توانید کشف کنید که برنامه در کجا نیاز به چندریختی است.
 
-These are things I’ve heard from other developers.
+این‌ها چیزهایی است که از دیگر توسعه‌دهندگان شنیده‌ام:
 
-"I’m using interfaces because we have to use interfaces".
+"من از رابط‌ها استفاده می‌کنم چون مجبور هستیم از رابط‌ها استفاده کنیم."
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+نه، ما مجبور نیستیم از رابط‌ها استفاده کنیم. ما زمانی از رابط‌ها استفاده می‌کنیم که عملی و معقول باشد. استفاده از رابط‌ها هزینه‌هایی دارد: سطح میانی و اختصاصی که هنگام ذخیره مقادیر محکم در داخل آن‌ها ایجاد می‌شود. مگر اینکه هزینهٔ اختصاص ارزشی داشته باشد که با جدا کردن از هم به دست می‌آورم، نباید از رابط‌ها استفاده کنید.
 
-"I need to be able to test my code so I need to use interfaces".
+"من نیاز دارم که بتوانم کد خود را تست کنم، بنابراین باید از رابط‌ها استفاده کنم".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+نه. ابتدا باید API خود را برای کاربر طراحی کنید، نه برای تست. اگر API قابل تست نباشد، باید سوال بپرسید که آیا قابل استفاده است یا خیر. همچنین، لایه‌های مختلفی از API‌ها وجود دارند. API‌های پایین‌تر سطح که به صورت ناصرفاً برای بیان تست‌پذیری تمرکز می‌کنند می‌توانند و باید تمرکز کنند. اما API‌های بالاتر سطح که به صورت عمومی قابل دسترس هستند، باید بر روی قابلیت استفاده تمرکز کنند.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+توابعی که داده‌های خام را دریافت کرده و داده‌های خام را برمی‌گردانند، قابل تست بودن بیشتری دارند. از تحویل داده جدا کنید و تبدیل داده را از محلی که داده از آن جا می‌آید و به آن جا می‌رود جدا کنید. این یک تمرین بازآرایی است که باید در طول چرخهٔ توسعهٔ کد انجام دهید.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+در زیر، یک مثال ارائه شده است که با استفاده نادرست از یک رابط، آلودگی رابط ایجاد می‌کند که در واقع نیازمندی به آن وجود ندارد.
 
     type Server interface {
         Start() error
@@ -54,33 +40,28 @@ interface when one is not needed.
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+رابط `Server` یک قرارداد برای سرورهای TCP تعریف می‌کند. مشکل در اینجا این است که من نیازی به یک قرارداد ندارم، شما نیاز به یک پیاده‌سازی دارید. همچنین، احتمالاً تنها یک پیاده‌سازی وجود خواهد داشت، به خصوص از آنجا که شما خودتان آن را پیاده‌سازی می‌کنید. شما نیازی ندارید که شخص دیگری این را برای شما پیاده‌سازی کند.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+علاوه بر این، این رابط بر اساس اسم و نه فعل است. انواع محکم اسم هستند زیرا مشکل واقعی را نمایندگی می‌کنند. رابط‌ها رفتار را توصیف می‌کنند و "سرور" رفتار نیست.
 
-Here are some ways to identify interface pollution:
+در زیر چند راه برای شناسایی آلودگی رابط آمده است:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- یک بسته یک رابط را تعریف می‌کند که با کل API از نوع محکم خود تطبیق دارد.
+- رابط‌ها صادر می‌شوند، اما انواع محکمی که رابط را پیاده‌سازی می‌کنند، صادر نمی‌شوند.
+- تابع کارخانه برای نوع محکم، مقدار رابط را با مقدار نوع محکم غیرصادرشده داخل آن برمی‌گرداند.
+- رابط قابل حذف است و هیچ تغییری برای کاربر API ایجاد نمی‌کند.
+- رابط قادر به جدا کردن API از تغییر نیست.
 
-Guidelines around interface pollution:
+راهنمایی‌های مرتبط با آلودگی رابط:
 
-Use an interface:
+استفاده از یک رابط:
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+- زمانی که کاربران API نیاز به ارائه جزئیات پیاده‌سازی دارند.
+- زمانی که API‌ها دارای چندین پیاده‌سازی هستند که نیاز به نگهداری دارند.
+- زمانی که بخش‌هایی از API که ممکن است تغییر کنند، شناسایی شده‌اند و نیاز به جداسازی دارند.
 
-Question an interface:
+سوال برای یک رابط:
 
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- زمانی که هدف اصلی آن فقط تولید API قابل تست است (ابتدا API قابل استفاده را بنویسید).
+- زمانی که پشتیبانی از API برای جدا شدن از تغییر را فراهم نمی‌کند.
+- زمانی که واضح نیست که چگونه رابط کد را بهبود می‌بخشد.
