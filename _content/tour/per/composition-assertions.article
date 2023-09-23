@@ -1,32 +1,26 @@
-Type Conversions And Assertions
-Learn how type conversations and assertions work.
+نوع تبدیل و تأییدها
+یاد بگیرید که تبدیل‌ها و تأییدها نوع چگونه کار می‌کنند.
 
-* Type Conversions And Assertions
+* نوع تبدیل و تأییدها
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+تبدیل نوع به دادهٔ یک نوع، امکان می‌دهد تا به نوع دیگری تبدیل شود. تأیید نوع به شما امکان می‌دهد تا بپرسید که آیا یک مقدار از نوع دادهٔ داده شده درون یک رابطه ذخیره شده است یا خیر.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *مثال* *1:* تبدیل‌های اینترفیس
+- *مثال* *2:* تأییدهای نوع زمان اجرا
+- *مثال* *3:* تغییرات رفتار
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implicit Interface Conversions
+**تبدیل‌های ضمنی رابط
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+همانطور که در مثال گذشته دیدید، یک مقدار رابط از یک نوع می‌تواند برای نوع دیگری از رابطه ارسال شود، اگر مقدار محتوای ذخیره شده درون رابط هر دو رفتار را پیاده‌سازی کند. این می‌تواند به عنوان یک تبدیل ضمنی رابط در نظر گرفته شود، اما بهتر است دربارهٔ اینکه چگونه دادهٔ محتوا در حالت مجزا از طریق رابطها جابجا می‌شود، فکر کنیم.
 
     type Mover interface {
         Move()
@@ -42,7 +36,7 @@ decoupled state.
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+با توجه به این سه رابطه، جایی که MoveLocker ترکیبی از Mover و Locker است.
 
     type bike struct{}
 
@@ -58,61 +52,46 @@ Given these three interfaces, where MoveLocker is the composition of Mover and L
         fmt.Println("Unlocking the bike")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+و با توجه به این نوع محسوب‌شده bike که همه سه رابطه را پیاده‌سازی می‌کند، شما چه کارهایی می‌توانید انجام دهید؟
 
     var ml MoveLocker
     var m Mover
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+شما می‌توانید یک مقدار از نوع MoveLocker و Mover را به حالت مقدار صفر خود بسازید. این مقادیر رابطه ای هستند که واقعاً بی‌ارزش هستند.
 
     ml = bike{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+سپس شما می‌توانید یک مقدار از نوع bike را به حالت مقدار صفر خود بسازید و یک کپی از آن را به متغیر MoveLocker با نام ml اختصاص دهید. این امکان وجود دارد زیرا یک bike همه سه رفتار را پیاده‌سازی می‌کند و کامپایلر می‌تواند ببیند که پیاده‌سازی موجود است.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+سپس شما می‌توانید متغیر MoveLocker با نام ml را به متغیر Mover با نام m اختصاص دهید. این امکان وجود دارد زیرا من مقدار رابطه ml را نمی‌دهم، بلکه مقدار محتوای واقعی که در داخل ml ذخیره شده است و یک مقدار bike است را اختصاص می‌دهم. کامپایلر می‌داند که هر مقدار واقعی که در داخل ml ذخیره شده است باید همچنین رابطه Mover را پیاده‌سازی کند.
 
-This assignment however is not valid. 
+با این حال، این اختصاص معتبر نیست.
 
     ml = m
 
-Output:
+خروجی:
 
-    cannot use m (type Mover) as type MoveLocker in assignment:
-        Mover does not implement MoveLocker (missing Lock method)
+    نمی‌توانید از m (نوع Mover) به عنوان نوع MoveLocker در اختصاص استفاده کنید:
+        Mover پیاده‌سازی MoveLocker را انجام نمی‌دهد (متد Lock وجود ندارد)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+نمی‌توانید متغیر Mover با نام m را به متغیر MoveLocker با نام ml اختصاص دهید زیرا کامپایلر تنها می‌تواند تضمین کند که مقدار واقعی که در داخل m ذخیره شده است، می‌داند چگونه حرکت کند. در زمان کامپایل، این مشخص نیست که آیا مقدار واقعی همچنین می‌داند چگونه قفل کند و باز کند.
 
-** Type Assertion Mechanics
+** مکانیک تأیید نوع
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+یک تأیید نوع به شما اجازه می‌دهد تا در زمان اجرا سوالی را مطرح کنید، آیا یک مقدار از نوع داده شده درون یک رابطه ذخیره شده است. شما این را با استفاده از نحو m.(bike) مشاهده می‌کنید. 
 
     b := m.(bike)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+در این حالت، شما در زمان اجرای کد سؤال می‌کنید که آیا یک مقدار bike درون مقدار m ذخیره شده است یا خیر. اگر چنین باشد، متغیر b یک کپی از مقدار bike ذخیره شده را دریافت می‌کند. سپس این کپی می‌تواند درون متغیر رابطه ml کپی شود.
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+اگر چیزی درون مقدار رابطه ذخیره نشده باشد، آنگاه برنامه به خطا می‌افتد. اگر شما مطمئن هستید که باید یک مقدار bike درون ذخیره شده باشد، این رفتار مطلوب است. اما اگر احتمال وجود نداشتن یک مقدار bike وجود داشته باشد و این معتبر باشد، آنگاه شما نیاز به فرم دوم تأیید نوع دارید.
 
     b, ok := m.(bike)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+در این فرم، اگر مقدار ok برابر با true باشد، یک مقدار bike درون رابطه ذخیره شده است. اگر مقدار ok برابر با false باشد، بدین معنی است که مقدار bike ذخیره نشده است و برنامه به خطا نمی‌افتد. با این حال، متغیر b همچنان از نوع bike است، اما به حالت مقدار صفر خود تنظیم می‌شود.
 
     func main() {
         mvs := []fmt.Stringer{
@@ -132,9 +111,4 @@ is still of type bike, but it is set to its zero value state.
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+با فرض اینکه برنامه دو نوع به نام Car و Cloud را تعریف کند که هر دو آنها رابطه fmt.Stringer را پیاده‌سازی می‌کنند، شما می‌توانید یک مجموعه بسازید که به شما امکان ذخیره کردن مقداری از نوع Car و Cloud را می‌دهد. سپس به طور تصادفی و 10 بار، یک عدد از 0 تا 1 را انتخاب کرده و با استفاده از تأیید نوع، می‌توانید ببینید که آیا مقدار در آن شاخه تصادفی شامل یک مقدار Cloud است یا خیر. از آنجایی که احتمال دارد که این مقدار از نوع Cloud نباشد، فرم دوم تأیید نوع در اینجا بسیار حیاتی است.
