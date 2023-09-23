@@ -1,21 +1,19 @@
-Exporting
-Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. 
+صادرات (Exporting)
+صادرات امکان تعیین می‌دهد که آیا یک شناسه (identifier) به کد خارج از پکیجی که در آن تعریف شده است، دسترسی دارد یا خیر.
+* صادرات (Exporting)
 
-* Exporting
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+صادرات (Exporting) امکان تعیین می‌دهد که آیا یک شناسه (identifier) به کد خارج از پکیجی که در آن تعریف شده است، دسترسی دارد یا خیر.
 
-Exporting provides the ability to declare if an identifier is accessible to code
-outside of the package it’s declared in. 
+** بررسی کد
 
-** Code Review
-
-- *Example* *1:* Declare and access exported identifiers
-- *Example* *2:* Declare unexported identifiers and restrictions
-- *Example* *3:* Access values of unexported identifiers
-- *Example* *4:* Unexported struct type fields
-- *Example* *5:* Unexported embedded types
+- *مثال* *1:* تعریف و دسترسی به شناسه‌های صادر شده
+- *مثال* *2:* تعریف شناسه‌های غیرصادر شده و محدودیت‌ها
+- *مثال* *3:* دسترسی به مقادیر شناسه‌های غیرصادر شده
+- *مثال* *4:* فیلدهای نوع ساختار غیرصادر شده
+- *مثال* *5:*  embedded types غیرصادر شده
 
 .play exporting/example1.go
 .play exporting/example2.go
@@ -23,27 +21,21 @@ outside of the package it’s declared in.
 .play exporting/example4.go
 .play exporting/example5.go
 
-** Exporting Mechanics
+** مکانیک صادرات
 
-A package is the basic unit of compiled code in Go. It represents a physical compiled
-unit of code, usually as a compiled library on the host operating system. Exporting
-determines access to identifiers across package boundaries.
+یک پکیج (package) واحد اصلی کد کامپایل شده در Go است. این یک واحد فیزیکی از کد کامپایل شده را نمایان می‌کند، معمولاً به عنوان یک کتابخانه کامپایل شده در سیستم عامل میزبان. صادرات تعیین می‌کند که آیا به شناسه‌ها دسترسی از مرزهای پکیج ممکن است یا نه.
 
     package counters
 
     type AlertCounter int
 
-In this case, since a capital letter is being used to name the type AlterCounter,
-the type is exported and can be referenced directly by code outside of the
-counters package.
+در این مورد، از یک حروف بزرگ برای نام‌گذاری نوع AlterCounter استفاده می‌شود، بنابراین این نوع صادر شده است و می‌توان به صورت مستقیم توسط کد خارج از پکیج counters ارجاع داد.
 
     package counters
 
     type alertCounter int
 
-Now that you changed the type’s name to start with a lowercase letter, the type is
-unexported. This means only code inside the counters package can reference this
-type directly.
+اکنون که نام نوع را به شروع با حرف کوچک تغییر داده‌اید، نوع به حالت غیرصادر (unexported) تغییر کرده است. این به این معناست که تنها کد درون پکیج counters می‌تواند به این نوع به صورت مستقیم ارجاع دهد.
 
     package counters
 
@@ -53,9 +45,7 @@ type directly.
         return alertCounter(value)
     }
 
-Even though the code above is legal syntax and will compile, there is no value in it.
-Returning a value of an unexported type is confusing since the caller (who will
-probably exist in a different package) can’t reference the type name directly.
+هرچند کد بالا از نظر سینتکس صحیح است و کامپایل می شود، اما ارزشی ندارد. بازگرداندن مقدار از یک نوع داده غیرقابل مشاهده گیج کننده است زیرا فراخواننده (که احتمالاً در یک پکیج دیگر وجود دارد) نمی تواند به طور مستقیم به نام نوع داده اشاره کند.
 
     package main
 
@@ -70,12 +60,7 @@ probably exist in a different package) can’t reference the type name directly.
         fmt.Printf("Counter: %d\n", counter)
     }
 
-In this case, the main function in package main calls the counters.New function
-successfully and the compiler can declare and construct a variable of the unexported
-type. This doesn't mean you should do this nor does it mean your're getting any real
-protections for this. This should be avoided, and if New will return a value, it
-should be of an exported type.
-
+در این مورد، تابع اصلی در پکیج main با موفقیت تابع counters.New را فراخوانی می کند و کامپایلر می تواند یک متغیر از نوع داده غیرقابل مشاهده را اعلام و ایجاد کند. این بدان معنا نیست که شما باید این کار را انجام دهید و نه اینکه برای این کار محافظت واقعی دریافت می کنید. این باید اجتناب شود، و اگر New مقداری را برمی گرداند، باید از نوع داده قابل مشاهده باشد.
     package users
 
     type User struct {
@@ -85,11 +70,7 @@ should be of an exported type.
         password string
     }
 
-When it comes to fields in a struct, the first letter declares if the field is
-accessible to code outside of the package it’s declared in. In this case, Name
-and ID are accessible, but password is not. It’s an idiom to separate exported
-and unexported fields in this manner if this is reasonable or practical to do.
-Normally all fields would be one or the other.
+وقتی صحبت از فیلدها در یک struct می شود، حرف اول مشخص می کند که آیا فیلد برای کدی در خارج از پکیجی که در آن اعلام شده است قابل دسترسی است یا خیر. در این مورد، Name و ID قابل دسترسی هستند، اما password خیر. این یک عرف است که فیلدهای قابل مشاهده و غیرقابل مشاهده را به این روش جدا کنید، اگر این کار منطقی یا عملی باشد. به طور معمول، همه فیلدها یکی یا دیگری هستند.
 
     package users
 
@@ -103,43 +84,30 @@ Normally all fields would be one or the other.
         user
     }
 
-In this scenario, even though the user type is unexported, it has two exported
-fields. This means that when the user type is embedded in the exported Manager
-type, the user fields promote and are accessible. It’s common to have types that
-are unexported with exported fields because the reflection package can only operate
-on exported fields. Marshallers won’t work otherwise.
+در این سناریو، اگرچه نوع کاربر غیرقابل مشاهده است، اما دو فیلد قابل مشاهده دارد. این بدان معناست که زمانی که نوع کاربر در نوع صادر شده Manager جاسازی می شود، فیلدهای کاربر ارتقا می یابند و قابل دسترسی هستند. داشتن انواع غیرقابل مشاهده با فیلدهای قابل مشاهده رایج است زیرا بسته بازتابی تنها می تواند روی فیلدهای قابل مشاهده عمل کند. در غیر این صورت، Marshallers کار نمی کند.
 
-The example creates a bad situation where code outside of package users can construct
-a Manager, but since the embedded type user is unexported, the fields for those type
-can be initialized. This creates partial construction problems that will lead to bugs.
-You need to be consistent with exporting and unexporting.
+این مثال یک موقعیت بد ایجاد می کند که در آن کدی در خارج از بسته users می تواند یک Manager بسازد، اما از آنجایی که نوع جاسازی شده user غیرقابل مشاهده است، فیلدهای آن نوع را نمی توان مقداردهی کرد. این مشکلات ساخت جزئی ایجاد می کند که منجر به اشکالات می شود. شما باید در صادر کردن و عدم صدور سازگار باشید.
 
-** Notes
+** نکات
 
-- Code in go is compiled into packages and then linked together.
-- Identifiers are exported (or remain unexported) based on letter-case.
-- We import packages to access exported identifiers.
-- Any package can use a value of an unexported type, but this is annoying to use.
+- کد در Go در پکیج ها کامپایل می شود و سپس به هم متصل می شود.
+- شناسه ها بر اساس حروف بزرگ و کوچک بودن صادر می شوند (یا صادر نمی شوند).
+- ما پکیج ها را برای دسترسی به شناسه های صادر شده وارد می کنیم.
+- هر پکیجی می تواند از مقدار یک نوع داده غیرقابل مشاهده استفاده کند، اما استفاده از آن آزاردهنده است.
 
-** Extra Reading
+** خواندن بیشتر
 
 [[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
 
-* Exercises
+* تمرین‌ها
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به‌عنوان نقطه شروع برای تکمیل تمرین‌ها استفاده کنید. یک راه حل احتمالی ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Create a package named toy with a single exported struct type named Toy.
-Add the exported fields Name and Weight. Then add two unexported fields named onHand
-and sold. Declare a factory function called New to create values of type toy and accept
-parameters for the exported fields. Then declare methods that return and update values
-for the unexported fields.
+*بخش* *A:*  یک پکیج به نام toy با یک نوع struct صادر شده به نام Toy ایجاد کنید. فیلدهای صادر شده Name و Weight را اضافه کنید. سپس دو فیلد غیرقابل مشاهده به نام‌های onHand و sold اضافه کنید. یک تابع کارخانه به نام New برای ایجاد مقادیر از نوع toy و پذیرفتن پارامترهایی برای فیلدهای صادر شده اعلام کنید. سپس متدهایی را اعلام کنید که مقادیر فیلدهای غیرقابل مشاهده را برمی‌گردانند و به‌روزرسانی می‌کنند.
 
-*Part* *B:* Create a program that imports the toy package. Use the New function to
-create a value of type toy. Then use the methods to set the counts and display the
-field values of that toy value.
+*بخش* *B:* یک برنامه ایجاد کنید که پکیج toy را وارد کند. از تابع New برای ایجاد یک مقدار از نوع toy استفاده کنید. سپس از متدها برای تنظیم شمارنده‌ها و نمایش مقادیر فیلدهای آن مقدار toy استفاده کنید.
 
 .play exporting/exercise1.go
 .play exporting/answer1.go
