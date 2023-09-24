@@ -1,26 +1,21 @@
-Constants
-One of the more unique features of Go is how the language implements constants.
+ثابت‌ها (constant)
+یکی از ویژگی‌های منحصربه‌فرد Go، نحوه‌ی اجرای زبان برای ثوابت است.
 
-* Constants
+* ثابت ها
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-One of the more unique features of Go is how the language implements constants.
-The rules for constants in the language specification are unique to Go. They provide
-the flexibility Go needs to make the code we write readable and intuitive while still
-maintaining type safety.
+یکی از ویژگی‌های منحصر به فرد Go، نحوه پیاده‌سازی ثوابت در زبان است. قوانین برای ثوابت در مشخصات زبان، به Go ویژگی‌های خاصی ارائه می‌دهند. این قوانین امکان ایجاد انعطاف‌پذیری برای Go را فراهم می‌کنند تا کدی که می‌نویسیم قابل خواندن و شفاف باشد در حالی که از نظر ایمنی نوع هم همچنان حفظ شود.
 
-Constants can be typed or untyped. When a constant is untyped, it’s considered to
-be of a kind. Constants of a kind can be implicitly converted by the compiler. This
-all happens at compile time and not at runtime.
+ثوابت می‌توانند دارای نوع (typed) یا بی‌نوع (untyped) باشند. وقتی یک ثابت بی‌نوع باشد، به عنوان نوعی خاص محسوب می‌شود. ثوابتی که دارای نوع هستند، ممکن است توسط کامپایلر به صورت ضمنی تبدیل شوند. این همه در زمان کامپایل و نه در زمان اجرا رخ می‌دهد.
 
-** Code Review
+** بررسی کد
 
-- *Example* *1:* Declare and initialize constants		
-- *Example* *2:* Parallel type system (Kind) (missing)
-- *Example* *3:* iota			
-- *Example* *4:* Implicit conversion
+- *مثال* *1:* تعریف و مقداردهی ثابت ها		
+- *مثال* *2:* سیستم نوع موازی (Kind) (گم شده است)
+- *مثال* *3:* iota			
+- *مثال* *4:* تبدیل ضمنی
 
 .play constants/example1.go
 .play constants/example2.go
@@ -30,66 +25,53 @@ all happens at compile time and not at runtime.
     const ui = 12345     // kind: integer
     const uf = 3.141592  // kind: floating-point
 
-Untyped numeric constants have a precision of 256 bits as stated by the specification.
-They are based on a kind.
+ثوابت عددی بی‌نوع دقت 256 بیتی دارند که توسط مشخصات مشخص شده است. آنها بر اساس نوعی (kind) مبتنی هستند.
 
     const ti int     = 12345     // type: int
     const tf float64 = 3.141592  // type: float64
 
-Typed constants still use the constant type system, but their precision is restricted.
+ثوابت دارای نوع هنوز از سیستم نوع ثابت استفاده می‌کنند، اما دقت آنها محدود شده است.
 
     const myUint8 uint8 = 1000 // Compiler Error: constant 1000 overflows uint8
 
-This doesn't work because the number 1000 is too large to store in an uint8.
+این کار کار نمی‌کند زیرا عدد 1000 بزرگ‌تر از حداکثر مقدار قابل ذخیره‌سازی در یک uint8 است.
 
     var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
 
-Constant arithmetic supports the use of different kinds of constants. Kind Promotion
-is used to handle these different scenarios. All of this happens implicitly. The answer
-variable in this example will be of type float64 and represent 0.999 at a precision
-of 64 bits.
+حساب‌های ثابت پشتیبانی می‌کند از استفاده از انواع مختلف ثوابت. ترفیع نوع (Kind Promotion) برای مدیریت این حالت‌های مختلف استفاده می‌شود. همه این‌ها به صورت ضمنی رخ می‌دهد. متغیر پاسخ در این مثال از نوع float64 خواهد بود و مقدار 0.999 را با دقت 64 بیتی نمایان می‌کند.
 
     const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
 
-The third constant will be of kind float and represent 1/3 at a precision of 256 bits.
+ثابت سوم از نوع float خواهد بود و مقدار 1/3 را با دقت 256 بیتی نمایان می‌کند.
 
     const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
 
-The zero constant will be of kind integer and set to 0 since integer division has
-no remainder.
+ثابت صفر از نوع integer خواهد بود و به مقدار 0 تنظیم می‌شود زیرا تقسیم integer هیچ باقی‌مانده‌ای ندارد.
 
     const one int8 = 1
     const two = 2 * one  // int8(2) * int8(1)
 
-This is an example of constant arithmetic between typed and untyped constants.
-In this case, a constant of a type promotes over a constant of a kind. The two
-constant will be of type int8 and set to 2.
+این یک مثال از حساب‌های ثابت بین ثوابت دارای نوع و ثوابت بی‌نوع است. در این مورد، یک ثابت از نوع به نوع دیگری ترفیع می‌یابد. دو ثابت از نوع int8 خواهند بود و به مقدار 2 تنظیم می‌شوند.
 
     const maxInt = 9223372036854775807
 
-This is the max integer value for a 64 bit integer.
+این بیشترین مقدار ممکن برای یک عدد صحیح 64 بیتی است.
 
     const bigger = 9223372036854775808543522345
 
-The bigger constant is a much larger value than a 64 bit integer, but it can be
-stored in a constant of kind int since constants of kind int are not limited to
-64 bits of precision.
+ثابت بزرگتر، مقداری بسیار بزرگتر از یک عدد صحیح 64 بیتی است، اما می‌تواند در یک ثابت نوع int ذخیره شود زیرا ثوابت نوع int به 64 بیت دقت محدود نیستند.
 
     const bigger int64 = 9223372036854775808543522345
 
-Compiler Error:
+خطای کامپایلر:
 
     constant 9223372036854775808543522345 overflows int64
 
-However, if bigger was a constant of type int64, this would not compile.
+اما اگر ثابت bigger از نوع int64 باشد، این کد کامپایل نخواهد شد.
 
 ** IOTA
 
-IOTA provides support for setting successive integer constants. It’s possible the
-name comes from the integer function ⍳ from the programming language APL. In APL,
-the ⍳ function (represented with the ninth letter of the Greek alphabet, iota) is
-used to create a zero-based array of consecutive, ascending integers of a specified
-length.
+IOTA امکان تنظیم ثوابت متوالی صحیح را فراهم می‌کند. ممکن است نام آن از تابع صحیح ⍳ از زبان برنامه‌نویسی APL آمده باشد. در APL، تابع ⍳ (که با حرف نهم الفبای یونانی، iota، نمایان می‌شود) برای ایجاد آرایه‌ای با مبنای صفر از اعداد صحیح متوالی و صعودی با طول مشخص استفاده می‌شود.
 
     const (
         A1 = iota  // 0 : Start at 0
@@ -98,12 +80,11 @@ length.
     )
     fmt.Println(A1, B1, C1)
 
-Output:
+خروجی:
 
     0 1 2
 
-The iota keyword works within a constant block and starts with the value of 0. Then
-for each successive constant declared in the block, iota increments by 1.
+کلمه کلیدی iota در محدوده‌ی ثابت (constant block) کار می‌کند و با مقدار 0 شروع می‌شود. سپس برای هر ثابت متوالی که در محدوده اعلام شده در بلاک، iota یک واحد افزایش می‌یابد.
 
     const (
         A2 = iota  // 0 : Start at 0
@@ -112,12 +93,11 @@ for each successive constant declared in the block, iota increments by 1.
     )
     fmt.Println(A2, B2, C2)
 
-Output:
+خروجی:
 
     0 1 2
 
-You don’t need to repeat the use of the iota keyword. The successive nature of the
-integer constants are assumed once applied.
+شما نیازی به تکرار استفاده از کلمه کلیدی iota ندارید. طبیعت متوالی ثوابت صحیح پس از استفاده یک بار فرض می‌شود.
 
     const (
         A3 = iota + 1  // 1 : 0 + 1
@@ -126,12 +106,11 @@ integer constants are assumed once applied.
     )
     fmt.Println(A3, B3, C3)
 
-Output:
+خروجی:
 
     1 2 3
 
-If you didn’t want to apply a mathematical pattern, you can perform some math and the
-math is reapplied with an increasing value of iota.
+اگر نمی‌خواستید یک الگوی ریاضی اعمال کنید، می‌توانید محاسباتی انجام دهید و محاسبات با افزایش مقدار iota مجدداً اعمال می‌شود.
 
     const (
         Ldate= 1 << iota  //  1 : Shift 1 to the left 0.  0000 0001
@@ -144,37 +123,36 @@ math is reapplied with an increasing value of iota.
 
     fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
 
-Output:
+خروجی:
 
     1 2 4 8 16 32
 
-You can use this feature like the Log package does for setting flags. In this case, bit
-operations are being applied with increasing values of iota to calculate flag values.
+شما می‌توانید از این ویژگی به مانند بسته‌ی Log برای تنظیم پرچم‌ها (flags) استفاده کنید. در این مورد، عملیات بیتی با افزایش مقادیر iota برای محاسبه مقادیر پرچم انجام می‌شود.
 
-** Notes
+** یادداشت‌ها
 
-- Constants are not variables.
-- They exist only at compilation.
-- Untyped constants can be implicitly converted where typed constants and variables can't.
-- Think of untyped constants as having a Kind, not a Type.
-- Learn about explicit and implicit conversions.
-- See the power of constants and their use in the standard library.
+- ثوابت (constants) متغیرها نیستند.
+- آنها تنها در زمان کامپایل وجود دارند.
+- ثوابت بی‌نوع می‌توانند به صورت ضمنی تبدیل شوند، در حالی که ثوابت و متغیرهای دارای نوع نمی‌توانند.
+- ثوابت بی‌نوع را به عنوان داشتن نوع، نه داشتن نوع (Kind) در نظر بگیرید.
+- در مورد تبدیل‌های صریح و ضمنی آشنا شوید.
+- قدرت ثوابت و کاربرد آنها در کتابخانه استاندارد را بیاموزید.
 
-** Extra Reading
+ ** خواندن اضافی
 
 - [[https://golang.org/ref/spec#Constants][Constants specification]]    
 - [[https://blog.golang.org/constants][Constants]] - Rob Pike    
 - [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
 		
-* Exercises
+* تمرین‌ها
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به عنوان نقطه شروع برای انجام تمرین‌ها استفاده کنید. یک راه حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Declare an untyped and typed constant and display their values.
+*بخش* *الف:* یک ثابت بی‌نوع و یک ثابت دارای نوع تعریف کرده و مقادیر آنها را نمایش دهید.
 
-*Part* *B:* Divide two literal constants into a typed variable and display the value.
+*بخش* *ب:* دو ثابت حرفی (literal constants) را به یک متغیر دارای نوع تقسیم کنید و مقدار آن را نمایش دهید.
 
 .play constants/exercise1.go
 .play constants/answer1.go
