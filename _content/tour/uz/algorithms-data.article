@@ -1,0 +1,166 @@
+Ma'lumotlar tuzilmasi
+Ushbu bo'limda ma'lumotlar tuzilmasiga misollar keltirilgan.
+
+    Hash table
+
+<!---->
+
+    [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Video ko'ring]]
+    Moliyaviy yordam kerak bo'lsa, bizning [[https://www.ardanlabs.com/scholarship/][Stipendiya shaklini]] to'ldiring
+
+Ushbu namunada dastur asosiy hash table qanday ishlashi tushuntiriladi.
+
+    hashKey(kalit) 0 dan len(savatchalar)-1 gacha bo'lgan sonni qaytaradi
+    Bir nechta kalitlar bitta savatchaga hash lash  mumkin bo'lgan holatlarni amalga oshirish uchun slice (dinamic array) dan foydalanamiz
+    Ko'proq ma'lumot uchun [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
+
+Diagramma
+
+
+Hash table da, ma'lumotlar savat va keyin savat ichidagi 
+holat bo'yicha indekslanadi.
+
+kalit so'zlar :
+   key  : kalit
+   value : qiymat
+   slice : dinamic array
+
+hashKey(key) ──────────────┐
+                           │
+                           ▽
+ ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+ │    │     │     │     │     │     │     │     │  ◁── savat
+ └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+         │                 │  
+         ▽                 ▽
+   ┌─────────────┐   ┌─────────────┐
+   │ key │ value │   │ key │ value │  ◁── slice  
+   ├─────────────┤   ├─────────────┤
+   │ key │ value │   │ key │ value │
+   ├─────────────┤   └─────────────┘
+   │ key │ value │ 
+   ├─────────────┤
+   │ key │ value │
+   ├─────────────┤
+   │ key │ value │
+   └─────────────┘
+
+.play algorithms/data/hash_map.go
+
+    Linked List 
+
+Ushbu namunada dastur double (ikki tomonlama) Linked list ga misol ko'rsatilgan 
+
+    Ko'proq ma'lumot uchun [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
+
+Diagramma
+
+
+Linked list da qiymatlar ko'rsatkichlar yordamida 
+turli tartibda bog'langan.
+
+kalit so'zlar :
+  Val : qiymat
+
+
+┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
+│ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │
+└─────┘     └─────┘     └─────┘     └─────┘     └─────┘
+   △                                               △
+   │                                               │  
+   ────────────────────        ─────────────────────
+                      │        │
+                      │        │
+                   ┌──────────────────┐
+                   │ Birinchi │ Oxirgi│
+                   └──────────────────┘
+
+.play algorithms/data/list.go
+
+    Queue (navbat)
+
+Ushbu namunada  circular(aylana) queue ga misol ko'rsatilgan.
+
+    Ko'proq ma'lumot uchun [[https://janobmusayev.medium.com/stek-va-navbat-6a0af4296cfe)][https://janobmusayev.medium.com/stek-va-navbat-6a0af4296cfe)]]
+
+Diagramma
+
+Kalit so'zlar :
+
+
+06 : tartib raqami
+
+           Birinchi kirgan birinchi chiqadi.
+
+           ┌──────────────────────────────────────────┐
+┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+│ V06 │ ─▷ │ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ │ ─▷ │ V01 │ 
+└─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
+           └──────────────────────────────────────────┘
+
+.play algorithms/data/queue_circular.go
+
+    Stack
+
+Ushbu namunada Stack uchun misol keltirilgan.
+
+    Ko'proq ma'lumot uchun [[https://janobmusayev.medium.com/stek-va-navbat-6a0af4296cfe][https://janobmusayev.medium.com/stek-va-navbat-6a0af4296cfe]]
+
+Diagramma
+
+
+Stack , birinchi kirgan oxirgi chiqadi.
+
+Kalit so'zlar :
+
+01 , 02 : tartib raqami
+
+       ┌─────┐
+       │ V05 │
+       └─────┘
+          │
+          ▽          ┌─────┐
+    ┌───────────┐ ─▷ │ V04 │
+    │  ┌─────┐  │    └─────┘
+    │  │ V03 │  │
+    │  └─────┘  │
+    │  ┌─────┐  │
+    │  │ V02 │  │
+    │  └─────┘  │
+    │  ┌─────┐  │
+    │  │ V01 │  │
+    │  └─────┘  │
+    └───────────┘
+
+.play algorithms/data/stack.go
+
+    Binary Tree
+
+Ushbu namunada Binary Tree uchun misol keltirilgan.
+
+    Ko'proq ma'lumot uchun [[https://www.youtube.com/watch?v=WqrbIUggEXQ][https://www.youtube.com/watch?v=WqrbIUggEXQ]]
+
+Diagramma
+
+Binary Tree da, ma'lumotlar daraxtning chap yoki o'ng 
+tomoniga indekslanadi. Har bir tugun qo'shilishi bilan daraxt 
+muvozanatlanadi. 
+
+  0     1     2     3     4     5     6    ◁─ Qo'shish tartibi  
+┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
+│ 65 ││ 45 ││ 35 ││ 75 ││ 85 ││ 78 ││ 95 │
+└────┘└────┘└────┘└────┘└────┘└────┘└────┘
+
+               ┌────┐
+               │ 75 │                      ◁─ Oxirgi daraxt
+               └────┘
+             /        \
+       ┌────┐          ┌────┐
+       │ 45 │          │ 85 │
+       └────┘          └────┘  
+       /    \          /    \
+   ┌────┐  ┌────┐  ┌────┐  ┌────┐
+   │ 35 │  │ 65 │  │ 78 │  │ 95 │
+   └────┘  └────┘  └────┘  └────┘
+
+.play algorithms/data/tree_binary.go
