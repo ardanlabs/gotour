@@ -1,29 +1,31 @@
 Slices
 Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
 
+Slices sind eine unglaublich wichtige Datenstruktur in Go. Sie sind die Basis für einen flexiblen, performanten und dynamischen Umgang mit Datenkontrolle und Datenmanipulation. Es ist von unschöpfbarem Wert für alle Go Programmierer den Umgang mit Slices zu erlernen und anzuwenden.
+
 * Slices
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schau das Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Slices are an incredibly important data structure in Go. They form the basis for
-how we manage and manipulate data in a flexible, performant, and dynamic way. It's
-very beneficial for all Go programmers to learn how slices work, and how to use them.
+
+Slices sind eine unglaublich wichtige Datenstruktur in Go. Sie sind die Basis für einen flexiblen, performanten und dynamischen Umgang mit Datenkontrolle und Datenmanipulation. Es ist von unschöpfbarem Wert für alle Go Programmierer den Umgang mit Slices zu erlernen und anzuwenden.
+
 
 .image /tour/eng/static/img/sl1.png
 
 ** Code Review 
 
-- *Example* *1:* Declare and Length
-- *Example* *2:* Reference Types
-- *Example* *3:* Appending slices
-- *Example* *4:* Taking slices of slices
-- *Example* *5:* Slices and References
-- *Example* *6:* Strings and slices
-- *Example* *7:* Variadic functions
-- *Example* *8:* Range mechanics
-- *Example* *9:* Efficient Traversals
-- *Example* *10:* Three index slicing
+- *Example* *1:* Deklaration und Länge
+- *Example* *2:* Reference Typen
+- *Example* *3:* Slices erweitern
+- *Example* *4:* Slices von slices nehmen
+- *Example* *5:* Slices und Referenzen 
+- *Example* *6:* Strings und slices
+- *Example* *7:* Variadic Funktionen
+- *Example* *8:* Range Mechanismen 
+- *Example* *9:* Effiziente Traversierung 
+- *Example* *10:* Drei Index Slices
 
 .play slices/example1.go
 .play slices/example2.go
@@ -36,36 +38,35 @@ very beneficial for all Go programmers to learn how slices work, and how to use 
 .play slices/example9.go 
 .play slices/example10.go
 
-** Slice Construction
+** Slice Konstruktion 
 
-Constructing a slice can be done in several ways.
+Ein Slice kann auf verschiedene Arten kreiert werden.
 
-    // Slice of string set to its zero value state.
+    // Slice von string mit zero value initialisiert
     var slice []string
 
-    // Slice of string set to its empty state.
+    // Slice von string leer initialisiert
     slice := []string{}
 
-    // Slice of string set with a length and capacity of 5.
+    // Slice von string mit einer Länge und Kapazität von 5
     slice := make([]string, 5)
 
-    // Slice of string set with a length of 5 and capacity of 8.
+    // Slice von string mit einer Länge von 5 und einer Kapazität von 8
     slice := make([]string, 5, 8)
 
-    // Slice of string set with values with a length and capacity of 5.
+    // Slice von string mit Werten initialisiert mit einer Länge und einer Kapazität von 5
     slice := []string{"A", "B", "C", "D", "E"}
 
-You can see the built-in function make allows me to pre-allocate both length and
-capacity for the backing array. If the compiler knows the size at compile time,
-the backing array could be constructed on the stack.
 
-** Slice Length vs Capacity
+Wie Du sehen kannst, kann man die built-in Funktion make benutzen um Länge und Kapazität des backing Array Vorzuallozieren.
+Wenn der Compiler die Grösse zu compile time kennt, kann das backing Array auf dem Stack konstruiert werden.
 
-The length of a slice represents the number of elements that can be read and
-written to. The capacity represents the total number of elements that exist
-in the backing array from that pointer position.
+** Slice Länge vs Kapazität
 
-Because of syntactic sugar, slices look and feel like an array.
+Die Lönge eines slice representiert die Anzahl Elemente die in ein slice gelesen bzw. geschrieben werden können.
+Die Kapazität representiert die Anzahl Elemente die im korrespondierenden backing array von der Pointer Position aus.
+
+Aufgrund von syntactic sugar, sehen slices aus wie arrays.
 
     slice := make([]string, 5)
     slice[0] = "Apple"
@@ -74,10 +75,10 @@ Because of syntactic sugar, slices look and feel like an array.
     slice[3] = "Grape"
     slice[4] = "Plum"
 
-You can tell the difference between slice and array construction since an array
-has a known size at compile time and slices necessarily don’t.
+Der Unterschied zwischen einem Slice und einem Array ist, dass die Grösse des Arrays schon zu compile-time bekannt ist, 
+während dies auf die Grösse des Slice nicht unbedingt zutriffe.
 
-If you try to access an element beyond the slice’s length, you will get a runtime error.
+Wenn Du versuchst auf ein Element ausserhalb der Länge des Slice zuzugrifen gibt es einen runtime error.
 
     slice := make([]string, 5)
     slice[5] = "Raspberry"
@@ -86,13 +87,12 @@ Compiler Error:
 
     Error: panic: runtime error: index out of range slice[5] = "Runtime error"
 
-In this example, the length of the slice is 5 and I’m attempting to access the
-6th element, which does not exist.
+In diesem Beispiel ist die Länge des Slice 5 und Ich versuche auf das 6te Element zuzugriefen, welches nicht existiert.
 
-** Data Semantic Guideline For Slices
+** Daten Semantaik Guideline für Slices
 
-As a guideline, if the data I’m working with is a slice, then use value semantics
-to move the data around my program. This includes declaring fields on a type. 
+Als Guideline zählt: Wenn die Daten mit denen ich arbeite ein slice sind, brauche ich value semantics um die Daten innerhalb des Programms zu bewegen.
+Dies zählt auch für das Deklarieren von Feldern eines Typen.
 
     func Foo(data []byte) []byte
 
@@ -102,17 +102,15 @@ to move the data around my program. This includes declaring fields on a type.
         Z []bool
     }
 
-This goes for all of Go’s internal data structures (slices, maps, channels, interfaces, and functions).
+Dies zählt für alle internen Daten Strukturen von Go (slices, maps, channels, interfaces and functions)
 
-One reason to switch to pointer semantics is if you need to share the slice for a
-decoding or unmarshaling operation. Using pointers for these types of operations
-are ok, but document this if it’s not obvious.
+Ein Grund um auf pointer semantic zu wechseln ist wenn der slice für Dekodierungs- oder Unmarshaling-Operationen geshared werden muss.
+Für solche Operationen ist es okay pointers zu verwenden, es sollte aber dokumentiert werden, wenn es nicht offensichtlich ist.
 
 ** Contiguous Memory Layout
 
-The idea behind the slice is to have an array, which is the most efficient data
-structure as it relates to the hardware. However, you still need the ability to be
-dynamic and efficient with the amount of data you need at runtime and future growth.
+Die Idee hinter einem Slice ist ein Array zu haben, denn das Array is die effizienteste Datenstruktur die direkt der Hardware zugeordnet werden kann.
+Gleichzeitig brauchen wir aber die Möglichkeit um dynamisch und effizient eine Vergrösserung der Anzahl Daten die wir zu runtime brauchen zu machen. 
 
     func main() {
         slice := make([]string, 5, 8)
