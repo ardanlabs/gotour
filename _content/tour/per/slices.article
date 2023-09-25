@@ -1,29 +1,28 @@
-Slices
-Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
+slice ها
 
-* Slices
+slice ها یک ساختار داده بسیار مهم در Go هستند. آنها اساس مدیریت و دستکاری داده ها به روشی انعطاف پذیر، کارآمد و پویا را تشکیل می دهند. برای همه برنامه نویسان Go بسیار مفید است که بدانند slice ها چگونه کار می کنند و چگونه از آنها استفاده کنند.
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+* slice ها
 
-Slices are an incredibly important data structure in Go. They form the basis for
-how we manage and manipulate data in a flexible, performant, and dynamic way. It's
-very beneficial for all Go programmers to learn how slices work, and how to use them.
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+slice ها یک ساختار داده بسیار مهم در Go هستند. آنها اساس مدیریت و دستکاری داده ها به روشی انعطاف پذیر، کارآمد و پویا را تشکیل می دهند. برای همه برنامه نویسان Go بسیار مفید است که بدانند برش ها چگونه کار می کنند و چگونه می توان از آنها استفاده کرد.
 
 .image /tour/eng/static/img/sl1.png
 
-** Code Review 
+** بررسی کد 
 
-- *Example* *1:* Declare and Length
-- *Example* *2:* Reference Types
-- *Example* *3:* Appending slices
-- *Example* *4:* Taking slices of slices
-- *Example* *5:* Slices and References
-- *Example* *6:* Strings and slices
-- *Example* *7:* Variadic functions
-- *Example* *8:* Range mechanics
-- *Example* *9:* Efficient Traversals
-- *Example* *10:* Three index slicing
+- *مثال* *1:* اعلام و طول
+- *مثال* *2:* اتواع ارجاع
+- *مثال* *3:* اضافه کردن slice ها
+- *مثال* *4:* گرفتن slice از slice ها
+- *مثال* *5:* slice ها و ارجاع‌ ها
+- *مثال* *6:* رسته ها و slice ها
+- *مثال* *7:* توابع متغیر
+- *مثال* *8:* مکانیک‌ های محدوده
+- *مثال* *9:* پیمایش های کارآمد
+- *مثال* *10:* سه شاخص slice کردن
 
 .play slices/example1.go
 .play slices/example2.go
@@ -36,9 +35,9 @@ very beneficial for all Go programmers to learn how slices work, and how to use 
 .play slices/example9.go 
 .play slices/example10.go
 
-** Slice Construction
+** Slice سازنده
 
-Constructing a slice can be done in several ways.
+ایجاد slice را می توان به چند طریق انجام داد.
 
     // Slice of string set to its zero value state.
     var slice []string
@@ -55,17 +54,13 @@ Constructing a slice can be done in several ways.
     // Slice of string set with values with a length and capacity of 5.
     slice := []string{"A", "B", "C", "D", "E"}
 
-You can see the built-in function make allows me to pre-allocate both length and
-capacity for the backing array. If the compiler knows the size at compile time,
-the backing array could be constructed on the stack.
+می توانید ببینید که تابع داخلی make به من اجازه می دهد تا طول و ظرفیت آرایه پشتیبان برش را پیش اختصاص دهم. اگر کامپایلر اندازه slice را در زمان کامپایل بداند، آرایه پشتیبان می تواند روی پشته ساخته شود.
 
-** Slice Length vs Capacity
+** Slice طول در مقابل ظرفیت
 
-The length of a slice represents the number of elements that can be read and
-written to. The capacity represents the total number of elements that exist
-in the backing array from that pointer position.
+طول یک slice نشان دهنده تعداد عناصر قابل خواندن و نوشتن است. ظرفیت نشان دهنده تعداد کل عناصر موجود در آرایه پشتیبان از آن موقعیت اشاره گر است.
 
-Because of syntactic sugar, slices look and feel like an array.
+به دلیل وجود syntactic sugar، slice ها مانند آرایه به نظر می رسند و احساس می شوند.
 
     slice := make([]string, 5)
     slice[0] = "Apple"
@@ -74,25 +69,22 @@ Because of syntactic sugar, slices look and feel like an array.
     slice[3] = "Grape"
     slice[4] = "Plum"
 
-You can tell the difference between slice and array construction since an array
-has a known size at compile time and slices necessarily don’t.
+می توانید تفاوت بین ساخت slice و آرایه را بگویید، زیرا یک آرایه در زمان کامپایل اندازه شناخته شده ای دارد و slice ها لزوماً اینگونه نیستند.
 
-If you try to access an element beyond the slice’s length, you will get a runtime error.
+اگر سعی کنید به عنصری فراتر از طول slice دسترسی پیدا کنید، با خطای زمان اجرا مواجه خواهید شد.
 
     slice := make([]string, 5)
     slice[5] = "Raspberry"
 
-Compiler Error:
+خطای کامپایلر:
 
     Error: panic: runtime error: index out of range slice[5] = "Runtime error"
 
-In this example, the length of the slice is 5 and I’m attempting to access the
-6th element, which does not exist.
+در این مثال، طول slice 5 است و من سعی می کنم به عنصر ششم دسترسی پیدا کنم، که وجود ندارد.
 
 ** Data Semantic Guideline For Slices
 
-As a guideline, if the data I’m working with is a slice, then use value semantics
-to move the data around my program. This includes declaring fields on a type. 
+به عنوان یک راهنما، اگر داده‌ای که با آن کار می‌کنم یک آرایه است، بهتر است که از دستورات معنای مقداری (Value Semantics) برای جابه‌جایی داده در برنامه‌ام استفاده کنم. این شامل تعریف فیلدها در یک نوع (Type) نیز می‌شود.
 
     func Foo(data []byte) []byte
 
@@ -102,17 +94,13 @@ to move the data around my program. This includes declaring fields on a type.
         Z []bool
     }
 
-This goes for all of Go’s internal data structures (slices, maps, channels, interfaces, and functions).
+این قاعده برای تمامی ساختارهای داده داخلی Go اعمال می‌شود (آرایه‌ها، maps، کانال‌ها، اینترفیس ها و توابع).
 
-One reason to switch to pointer semantics is if you need to share the slice for a
-decoding or unmarshaling operation. Using pointers for these types of operations
-are ok, but document this if it’s not obvious.
+یکی از دلایلی که برای استفاده از معنای اشاره‌گری (Pointer Semantics) ممکن است نیاز به به اشتراک‌گذاری آرایه برای یک عملیات رمزگشایی یا بازنگاری (decoding or unmarshaling) داشته باشید. استفاده از اشاره‌گرها برای این نوع عملیاتها مجاز است، اما اگر این موضوع برای دیگران واضح نباشد، آن را در مستندات توضیح دهید.
 
-** Contiguous Memory Layout
+** چیدمان حافظه متوالی
 
-The idea behind the slice is to have an array, which is the most efficient data
-structure as it relates to the hardware. However, you still need the ability to be
-dynamic and efficient with the amount of data you need at runtime and future growth.
+ایده پشت تعریف آرایه این است که یک آرایه داشته باشیم که به عنوان کارا‌ترین ساختار داده ارتباط دارد با سخت‌افزار. با این حال، هنوز نیاز به امکان انعطاف‌پذیری و کارا بودن با حجم داده مورد نیاز در زمان اجرا و رشد آینده دارید.
 
     func main() {
         slice := make([]string, 5, 8)
@@ -132,7 +120,7 @@ dynamic and efficient with the amount of data you need at runtime and future gro
         }
     }
 
-Output:
+خروجی:
 
     Length[5] Capacity[8]
     [0] 0xc00007e000 Apple
@@ -141,15 +129,11 @@ Output:
     [3] 0xc00007e030 Grape
     [4] 0xc00007e040 Plum
 
-The inspectSlice function shows how a slice does have a contiguous backing array
-with a predictable stride. It also shows how a slice has a length and capacity
-which may be different. Notice how the print function only iterates over the
-length of a slice.
+تابع inspectSlice نشان می‌دهد که یک تیکه (slice) دارای یک آرایه پشتیبان متوالی با یک گام پیش‌بینی‌پذیر است. همچنین نشان می‌دهد که یک تیکه دارای طول و ظرفیتی است که ممکن است متفاوت باشد. توجه کنید که تابع چاپ فقط در طول تیکه حرکت می‌کند.
 
-** Appending With Slices
+** افزودن با استفاده از slice ها
 
-The language provides a built-in function called append to add values to an
-existing slice.
+زبان یک تابع داخلی به نام append ارائه می‌دهد تا ارزش‌ها را به یک تیکه موجود اضافه کند.
 
     var data []string
 
@@ -157,67 +141,42 @@ existing slice.
         data = append(data, fmt.Sprintf("Rec: %d", record))
     }
 
-The append function works with a slice even when the slice is initialized to its
-zero value state. The API design of append is what’s interesting because it uses
-value semantic mutation. Append gets its own copy of a slice value, it mutates its
-own copy, then it returns a copy back to the caller.
+تابع append حتی زمانی که تیکه به حالت مقدار صفری خود مقداردهی اولیه شده باشد، با یک تیکه کار می‌کند. طراحی واسط برنامه‌نویسی (API) تابع append جالب است چرا که از تغییرات معنای مقداری استفاده می‌کند. تابع append یک نسخه از مقدار تیکه را به دست می‌آورد، مقدار تیکه خودش را تغییر می‌دهد، سپس یک نسخه از مقدار تیکه را به تماس‌گیرنده باز می‌گرداند.
 
-Why is the API designed this way? This is because the idiom is to use value semantics
-to move a slice value around a program. This must still be respected even with a
-mutation operation. Plus, value semantic mutation is the safest way to perform mutation
-since the mutation is being performed on the function’s own copy of the data in isolation.
+چرا API به این شکل طراحی شده است؟ این به این دلیل است که الگو به کار برده شده است که از معنای مقداری برای جابه‌جایی مقدار تیکه در سراسر برنامه استفاده شود. این الگو حتی در عملیات تغییر هم باید رعایت شود. به علاوه، تغییر معنای مقداری روش ایمن‌تری برای انجام تغییر است، زیرا تغییر در نسخهٔ تابع در جدایی از داده انجام می‌شود.
 
-Append always maintains a contiguous block of memory for the slice’s backing array,
-even after growth. This is important for the hardware.
+تابع append همیشه یک بلوک متوالی از حافظه برای آرایه پشتیبان تیکه حفظ می‌کند، حتی پس از افزایش. این برای سخت‌افزار اهمیت دارد.
 
 .image /tour/eng/static/img/sl2.png
 
-Every time the append function is called, the function checks if the length and
-capacity of the slice is the same or not. If it’s the same, it means there is no
-more room in the backing array for the new value. In this case, append creates a
-new backing array (doubling or growing by 25%) and then copies the values from the
-old array into the new one. Then the new value can be appended.
+هر بار که تابع append فراخوانی می‌شود، تابع بررسی می‌کند که آیا طول و ظرفیت تیکه یکسان است یا خیر. اگر یکسان باشند، به این معناست که در آرایه پشتیبان برای مقدار جدید جا نمانده است. در این صورت، append یک آرایه پشتیبان جدید ایجاد می‌کند (با دو برابر شدن یا افزایش 25٪) و سپس مقادیر را از آرایه قدیمی به آرایه جدید کپی می‌کند. سپس مقدار جدید می‌تواند به آن اضافه شود.
 
 .image /tour/eng/static/img/sl3.png
 
-If it’s not the same, it means that there is an extra element of capacity existing
-for the append. An element is taken from capacity and added to the length of the
-slice. This makes an append operation very efficient.
+اگر طول و ظرفیت یکسان نباشد، به این معناست که یک عنصر اضافی از ظرفیت برای append وجود دارد. یک عنصر از ظرفیت گرفته شده و به طول تیکه اضافه می‌شود. این باعث می‌شود که عملیات append بسیار کارا باشد.
 
-When the backing array has 1024 elements of capacity or less, new backing arrays
-are constructed by doubling the size of the existing array. Once the backing array
-grows past 1024 elements, growth happens at 25%. 
+زمانی که آرایه پشتیبان دارای ظرفیت 1024 عنصر یا کمتر باشد، آرایه‌های پشتیبان جدید با دو برابر شدن اندازه آرایه موجود ساخته می‌شوند. یک‌باری که آرایه پشتیبان بیش از 1024 عنصر رشد کند، رشد با نرخ 25٪ انجام می‌شود.
 
-*NOTE:* *How* *the* *append* *function* *grows* *the* *capacity* *of* *the*
-*backing* *array* *has* *changed* *since* *Go* *1.18.*
+*توجه:* *نحوه* *افزایش* *ظرفیت* *آرایه* *پشتیبان* *تابع* *append* *تغییر کرده است از نسخه Go 1.18 به بعد.
 
 - [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
 
-** Slicing Slices
+** برش slice ها
 
-Slices provide the ability to avoid extra copies and heap allocations of the backing
-array when needing to isolate certain elements of the backing array for different
-operations.
+تیکه‌ها (Slices) امکان اجتناب از کپی‌های اضافی و اختصاص حافظه در پشتیبانی‌کننده‌ی آرایه را فراهم می‌کنند هنگامی که نیاز به جداسازی عناصر مشخصی از آرایه پشتیبان برای عملیات‌های مختلف دارید.
 
-The slicing syntax represents the list notation [a:b) which means, include
-elements from index a through b, but not including b.
+نحوه برش تیکه با نمادگذاری لیست [a:b) نمایش داده می‌شود که به این معناست که عناصر از فهرست a تا b را شامل می‌شود، اما عنصر b شامل نمی‌شود.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
 
-The variable slice2 is a new slice value that is now sharing the same backing
-array that slice1 is using. However, slice2 only allows you to access the elements
-at index 2 and 3 (C and D) of the original slice’s backing array. The length of
-slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
-3 elements from that pointer position.
+متغیر تیکه (slice2) یک مقدار تیکه جدید است که اکنون از همان آرایه پشتیبانی کننده‌ای استفاده می‌کند که تیکه اول (slice1) از آن استفاده می‌کند. با این حال، تیکه دوم (slice2) فقط به شما اجازه می‌دهد تا به عناصر در شاخص‌های 2 و 3 (C و D) از آرایه پشتیبانی کننده‌ی تیکه اصلی دسترسی داشته باشید. طول تیکه دوم (slice2) برابر با 2 است و نه 5 که در تیکه اول (slice1) است، و ظرفیت آن نیز برابر با 3 است چرا که اکنون از این موقعیت نقطه به 3 عنصر دیگر دسترسی داریم.
 
 .image /tour/eng/static/img/sl4.png
 
-A better way to think about slicing is to focus on the length using this notation
-[a:a+len]  index a through a plus the length. This will reduce errors in
-calculating new slices.
+یک راه بهتر برای در نظر گرفتن برش، تمرکز بر روی طول با استفاده از این نمادگذاری است: [a:a+len] که به معنای از شاخص a تا a به علاوه طول است. این کار به کاهش خطاها در محاسبه تیکه‌های جدید کمک خواهد کرد.
 
-Using this inspect function.
+استفاده از این تابع inspect.
 
     func inspectSlice(slice []string) {
         fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
@@ -229,14 +188,14 @@ Using this inspect function.
         }
     }
 
-You can see this in action.
+شما می‌توانید این را در عمل مشاهده کنید.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -248,18 +207,13 @@ Output:
     [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
     [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
 
-Notice how the two different slices are sharing the same backing array. You can
-see this by comparing addresses.
+توجه کنید که دو تیکه متفاوت از همان آرایه پشتیبانی‌کننده به اشتراک گذاشته می‌شوند. این را می‌توانید با مقایسه آدرس‌ها مشاهده کنید.
 
-The nice thing here is there are no allocations. The compiler knows the size of
-the backing array for slice1 at compile time. Passing a copy of the slice value
-down into the inspectSlice function keeps everything on the stack.
+نکته جالب اینجا این است که هیچ اختصاصی انجام نمی‌شود. کامپایلر در زمان کامپایل اندازه آرایه پشتیبانی‌کننده برای تیکه اول (slice1) را می‌شناسد. انتقال یک نسخه از مقدار تیکه به تابع inspectSlice باعث می‌شود که همه چیز روی پشته (stack) باقی بماند.
 
-** Mutations To The Backing Array
+** تغییرات در آرایه پشتیبان
 
-When you use slice2 to change the value of the string at index 0, any slice value
-that is sharing the same backing array (where the address for that index is part
-of that slice’s length) will see the change.
+زمانی که از تیکه دوم (slice2) برای تغییر مقدار رشته در شاخص 0 استفاده می‌کنید، هر مقدار تیکه‌ای که از همان آرایه پشتیبان به اشتراک گذاشته می‌شود (که آدرس این شاخص جزء طول تیکه است) تغییر را مشاهده خواهد کرد.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -267,7 +221,7 @@ of that slice’s length) will see the change.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -279,12 +233,11 @@ Output:
     [0] 0xc00007e020 CHANGED
     [1] 0xc00007e030 D
 
-You always have to be aware when you are modifying a value at an index position if
-the backing array is being shared with another slice.
+همیشه باید موازنه کنید که زمانی که یک مقدار در یک موقعیت شاخص تغییر می‌دهید، آیا آرایه پشتیبان با یک تیکه دیگر به اشتراک گذاشته شده است یا نه.
 
 .image /tour/eng/static/img/sl5.png
 
-What if you use the built-in function append instead?
+اگر از تابع داخلی append استفاده کنید چه اتفاقی می‌افتد؟
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -292,7 +245,7 @@ What if you use the built-in function append instead?
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -305,22 +258,18 @@ Output:
     [1] 0xc00007e030 D
     [2] 0xc00007e040 CHANGED
 
-The append function creates the same side effect, but it’s hidden. In this case,
-bringing in more length from capacity for slice2 has caused the value at address
-0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
-part of its length.
+تابع append اثر جانبی مشابهی ایجاد می‌کند، اما این اثر جانبی پنهان است. در این مورد، اضافه کردن طول بیشتر از ظرفیت به تیکه دوم (slice2) باعث تغییر مقدار در آدرس 0xc00007e040 شده است. متأسفانه، تیکه اول (slice1) این آدرس را از قبل به عنوان بخشی از طول خود داشت.
 
 .image /tour/eng/static/img/sl6.png
 
-One way to avert the side effect is to use a three index slice when constructing
-slice2 so the length and capacity is the same at 2.
+یک راه برای پیشگیری از اثر جانبی این است که در ساخت تیکه دوم (slice2) از تیکه با سه شاخص استفاده کنید تا طول و ظرفیت آن به 2 برسد.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -332,11 +281,9 @@ Output:
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
-The syntax for a three index slice is [a:b:c] when b and c should be the same
-since [a-b] sets the length and [a-c] sets the capacity. Now the length and
-capacity of slice2 is the same.
+نحوهٔ نمادگذاری برای تیکه با سه شاخص به صورت [a:b:c] است، که b و c باید یکسان باشند، زیرا [a-b] طول را تعیین می‌کند و [a-c] ظرفیت را تنظیم می‌کند. حالا طول و ظرفیت تیکه دوم (slice2) یکسان است.
 
-Now you use the built-in function append again like before.
+حالا می‌توانید دوباره از تابع داخلی append استفاده کنید، همانند قبل.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
@@ -344,7 +291,7 @@ Now you use the built-in function append again like before.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -357,18 +304,15 @@ Output:
     [1] 0xc000016090 D
     [2] 0xc0000160a0 CHANGED
 
-Notice after the call to append, slice2 has a new backing array.
+توجه کنید که پس از فراخوانی تابع append، تیکه دوم (slice2) دارای یک آرایه پشتیبان جدید است.
 
 .image /tour/eng/static/img/sl7.png
 
-This can be seen by comparing the addresses of each slice. In this case, the
-mutation against slice2 didn’t cause a side effect against slice1.
+این می‌تواند با مقایسه آدرس‌های هر تیکه مشاهده شود. در این مورد، تغییر در تیکه دوم (slice2) اثر جانبی روی تیکه اول (slice1) ایجاد نکرد.
 
-** Copying Slices Manually
+** کپی کردن تیکه‌ها به صورت دستی
 
-There is a built-in function named copy that will allow for the shallow copying
-of slices. Since a string has a backing array of bytes that are immutable, it
-can be used as a source but never a destination.
+یک تابع داخلی به نام copy وجود دارد که اجازهٔ کپی سطحی تیکه‌ها را می‌دهد. از آنجایی که یک رشته دارای یک آرایه پشتیبان از بایت‌ها است که تغییرناپذیر هستند، می‌تواند به عنوان یک منبع مورد استفاده قرار گیرد، اما هرگز به عنوان مقصد نه.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice3 := make([]string, len(slice1))
@@ -377,7 +321,7 @@ can be used as a source but never a destination.
     inspectSlice(slice1)
     inspectSlice(slice3)
 
-Output:
+خروجی:
 
     Length[5] Capacity[5]
     [0] 0xc00005c050 A
@@ -392,15 +336,11 @@ Output:
     [3] 0xc00005c0d0 D
     [4] 0xc00005c0e0 E
 
-As long as the destination slice has the proper type and length, the built-in
-function copy can perform a shallow copy.
+تا زمانی که تیکه مقصد دارای نوع و طول مناسب باشد، تابع داخلی copy قادر به انجام یک کپی سطحی خواهد بود.
 
-** Slices Use Pointer Semantic Mutation
+** تیکه‌ها از تغییر معنای اشاره‌گری استفاده می‌کنند
 
-It’s important to remember that even though you use value semantics to move a slice
-around the program, when reading and writing a slice, You are using pointer semantics.
-Sharing individual elements of a slice with different parts of my program can
-cause unwanted side effects.
+مهم است به یاد داشته باشید که حتی اگر از معنای مقداری برای جابه‌جایی تیکه در برنامه استفاده کنید، زمانی که یک تیکه را می‌خوانید و می‌نویسید، از تغییر معنای اشاره‌گری استفاده می‌کنید. به اشتراک گذاری عناصر تیکه با بخش‌های مختلف برنامه ممکن است اثرات جانبی ناخواسته‌ای ایجاد کند.
 
     // Construct a slice of 1 user, set a pointer to that user,
     // use the pointer to update likes.
@@ -413,18 +353,15 @@ cause unwanted side effects.
         fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
-Output:
+خروجی:
 
     User: 0 Likes: 1
 
-A slice is used to maintain a collection of users. Then a pointer is set to the
-first user and used to update likes. The output shows that using the pointer is
-working.
+یک تیکه برای نگهداری مجموعه‌ای از کاربران استفاده می‌شود. سپس یک اشاره‌گر به اولین کاربر تنظیم می‌شود و برای به‌روزرسانی تعداد پسندیدن‌ها (likes) استفاده می‌شود. خروجی نشان می‌دهد که استفاده از اشاره‌گر کار می‌کند.
 
 .image /tour/eng/static/img/sl8.png
 
-Then a new user is appended to the collection and the pointer is used again to
-add a like to the first user. 
+سپس یک کاربر جدید به مجموعه اضافه می‌شود و دوباره از اشاره‌گر برای افزودن پسندیدن به اولین کاربر استفاده می‌شود.
 
     // Append a new user to the collection. Use the pointer again
     // to update likes.
@@ -436,28 +373,19 @@ add a like to the first user.
         fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
-Output:
+خروجی:
 
     User: 0 Likes: 1
     User: 1 Likes: 0
 
-However, since the append function replaced the backing array with a new one,
-the pointer is updating the old backing array and the likes are lost. The output
-shows the likes for the first user did not increase.
+با این حال، از آنجایی که تابع append آرایه پشتیبانی را با یک آرایه جدید جایگزین کرد، اشاره‌گر در حال به‌روزرسانی آرایه پشتیبان قدیمی است و تعداد پسندیدن‌ها از دست رفته است. خروجی نشان می‌دهد که تعداد پسندیدن‌ها برای اولین کاربر افزایش نیافت.
 
 .image /tour/eng/static/img/sl9.png
 
-You have to be careful to know if a slice is going to be used in an append operation
-during the course of a running program. How you share the slice needs to be
-considered. Sharing individual indexes may not be the best idea. Sharing an
-entire slice value may not work either when appending is in operation. Probably
-using a slice as a field in a struct, and sharing the struct value is a better
-way to go.
+شما باید مواظب باشید که بدانید آیا یک تیکه در طول اجرای برنامه به یک عملیات append اضافه می‌شود یا نه. نحوه به اشتراک گذاری تیکه باید مورد نظر قرار گیرد. به اشتراک گذاری اندیس‌های فردی ممکن است بهترین ایده نباشد. به اشتراک گذاری کل مقدار تیکه همچنین ممکن است در هنگام انجام عملیات append کار نکند. احتمالاً استفاده از تیکه به عنوان یک فیلد در یک ساختار (struct) و به اشتراک گذاری مقدار ساختار راه بهتری برای انجام کار است.
 
-** Linear Traversal Efficiency
-The beauty of a slice is its ability to allow for performing linear traversals
-that are mechanically sympathetic while sharing data using value semantics to
-minimize heap allocations.
+** کارایی گذر خطی
+زیبایی یک تیکه در این است که امکان انجام گذر خطی که به صورت مکانیکی با اشتراک‌گذاری داده با استفاده از معنای مقداری برای کاهش تخصیص حافظه در Heap (صفحه اصلی حافظه) را فراهم می‌کند.
 
     x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
@@ -468,22 +396,20 @@ minimize heap allocations.
 
     println(a, b, c, d)
 
-The code is performing a linear traversal by creating slice values that read
-different sections of the byte array from beginning to end.
+این کد با ایجاد مقادیر تیکه، از ابتدا تا انتها بخوانید، یک گذر خطی انجام می‌دهد که بخش‌های مختلفی از آرایه بایت را می‌خواند.
 
 .image /tour/eng/static/img/sl10.png
 
-All the data in this code stays on the stack. No extra copies of the data inside
-the byte slice are copied.
+تمام داده‌ها در این کد روی پشته (stack) باقی می‌مانند. هیچ کپی اضافی از داده‌های داخل تیکه بایت ایجاد نمی‌شود.
 
-** Notes
+** یادداشت‌ها
 
-- Slices are like dynamic arrays with special and built-in functionality.
-- There is a difference between a slices length and capacity and they each service a purpose.
-- Slices allow for multiple "views" of the same underlying array.
-- Slices can grow through the use of the built-in function append.
+- تیکه‌ها مانند آرایه‌های پویا با عملکرد و ویژگی‌های داخلی ویژه هستند.
+- تفاوتی بین طول و ظرفیت تیکه‌ها وجود دارد و هر کدام وظیفه‌های خاص خود را دارند.
+- تیکه‌ها اجازه مشاهده‌های متعددی از همان آرایه پایه را می‌دهند.
+- تیکه‌ها از طریق استفاده از تابع داخلی append قابل افزایش هستند.
 
-** Extra Reading
+ ** خواندن اضافی
 
 - [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
 - [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
@@ -496,18 +422,15 @@ the byte slice are copied.
 - [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
 - [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
 			 
-* Exercises
+* تمرینات
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از قالب به عنوان نقطه شروع برای انجام تمرینات استفاده کنید. یک راه حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
-to the slice. Iterate over the slice and display each value.
+*قسمت* *A:* یک تیکه خالی از اعداد صحیح اعلام کنید. یک حلقه ایجاد کنید که 10 مقدار را به تیکه اضافه کند. بر روی تیکه حرکت کنید و هر مقدار را نمایش دهید.
 
-*Part* *B:* Declare a slice of five strings and initialize the slice with string
-literal values. Display all the elements. Take a slice of index one and two and
-display the index position and value of each element in the new slice.
+*قسمت* *B:* یک تیکه از پنج رشته اعلام کرده و تیکه را با مقادیر رشته‌های ثابت مقداردهی اولیه کنید. تمام عناصر را نمایش دهید. یک تیکه از شاخص یک و دو ایجاد کرده و شاخص موقعیت و مقدار هر عنصر در تیکه جدید را نمایش دهید.
 
 .play slices/exercise1.go		  
 .play slices/answer1.go
