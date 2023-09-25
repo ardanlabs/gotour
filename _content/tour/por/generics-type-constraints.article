@@ -1,68 +1,66 @@
-Type As Constraint
-This is a new concept in Go where a constraint can be based on a set of concrete types.
+Tipo Como Restrição(Constraint)
+Este é um novo conceito em Go onde uma restrição pode ser baseada em um conjunto de tipos concretos.
 
-* Generics - Type As Constraint
+* Genéricos - Tipo Como Restrição
 
-This is a new concept in Go where a constraint can be based on a set of concrete types.
-This only works for generics.
+Este é um novo conceito em Go onde uma restrição pode ser baseada em um conjunto de tipos concretos.
+Isso só funciona para genéricos.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Assista à palestra que dei sobre Genéricos que o guiará através de todos os
+exemplos nesta seção do Tour.
 
 .html generics-video.html
 
-** Code Review
+** Revisão de Código
 
-- *Example* *1*: Type based constraint
-- *Example* *2*: Predeclared type constraint "comparable"
-- *Example* *3*: Mix type and behavior constraints
+- *Exemplo* *1*: Restrição baseada em tipo
+- *Exemplo* *2*: Restrição de tipo predefinido "comparable" (comparável)
+- *Exemplo* *3*: Mistura de restrições de tipo e comportamento
 
 .play generics/type-constraints/example1.go
 .play generics/type-constraints/example2.go
 .play generics/type-constraints/example3.go
 
-** Explained
+** Explicativo
 
-Generic functions create a new type of constraint that can’t be resolved by declaring
-a method set of behavior.
+Funções genéricas criam um novo tipo de restrição que não pode ser resolvida declarando
+um conjunto de métodos de comportamento.
 
     func Add[T ???](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Here is a generic function that wants to accept two values of some type T, add them
-together, and then return the sum back to the caller. This is an interesting problem
-because the compiler needs to constrain the call to the function for only values that
-can be used in an add operation. Currently there is no mechanic for declaring this
-kind of constraint.
+Aqui está uma função genérica que deseja aceitar dois valores de algum tipo T, somá-los
+e então retornar a soma para quem chamou. Este é um problema interessante porque o compilador 
+precisa restringir a chamada à função apenas para valores que podem ser usados em uma operação de adição. 
+Atualmente não há um mecanismo para declarar este tipo de restrição.
 
-The decision was to continue to use the interface to declare the constraint and add
-something new.
+A decisão foi continuar a usar a interface para declarar a restrição e adicionar algo novo.
 
     type addOnly interface {
         string | int | int8 | int16 | int32 | int64 | float64
     }
 
-You can declare an interface that defines a set of types that form the constraint. Then
-apply this interface to the generic function.
+Você pode declarar uma interface que define um conjunto de tipos que formam a restrição. Para então
+aplicar esta interface à função genérica.
 
     func Add[T addOnly](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Now the compiler can validate that the set of types is compliant with the operations
-the function needs to perform against values of those types. When the interface is
-using the built-in types, the interfaces are reusable across packages. When the list
-of types represent user-defined types from the package, You must remember these
-generic functions are bound to the packages types and nothing more.
+Agora o compilador pode validar que o conjunto de tipos é compatível com as operações
+que a função precisa realizar com valores daqueles tipos. Quando a interface é
+usando os tipos embutidos, as interfaces são reutilizáveis entre pacotes. Quando a lista
+de tipos representa tipos definidos pelo usuário do pacote, você deve lembrar que essas
+funções genéricas são limitadas aos tipos de pacotes e nada mais.
 
-Interfaces declared with a set of types can’t be used in a traditional polymorphic
-function. This wouldn’t make sense anyway, but it’s something that doesn’t feel like
-Go in the sense that this change to the interface is not orthogonal.
+Interfaces declaradas com um conjunto de tipos não podem ser usadas em uma função polimórfica
+tradicional. Isso não faria sentido de qualquer maneira, mas é algo que não parece
+Go no sentido de que esta mudança na interface não é ortogonal.
 
-One idea is to have pre-declared identifiers for common operation constraints.
+Uma ideia é ter identificadores pré-declarados para restrições de operações comuns.
 
     func index[T comparable](list []T, find T) int {
         for i, v := range list {
@@ -74,14 +72,13 @@ One idea is to have pre-declared identifiers for common operation constraints.
         return -1
     }
 
-The comparable constraint is declared by the language and applies a constraint that
-types must be capable of being used in a comparison statement. In this example,
-both v and find are variables of type T and are being compared. There is an idea
-that a package in the standard library could provide a common set of constraints as
-well.
+A restrição comparável é declarada pela linguagem e aplica uma restrição que
+os tipos devem ser capazes de serem usados em uma declaração de comparação. Neste exemplo,
+tanto v quanto find são variáveis do tipo T e estão sendo comparadas. Há uma ideia
+que um pacote na biblioteca padrão poderia fornecer um conjunto comum de restrições também.
 
-There is no restriction on an interface being declared with both a set of types and a
-method set of behavior.
+Não existem restrições para declarar uma interface que contenha tanto um conjunto de tipos 
+quanto um conjunto de métodos que definem comportamentos.
 
     type matcher[T any] interface {
         type person, food
@@ -98,26 +95,26 @@ method set of behavior.
         return -1
     }
 
-A generic interface is declared where T is the type of value to be passed into a
-method named match. The interface also constrains its use to only values of userdefined
-type person and food.
+Uma interface genérica é declarada onde T é o tipo de valor a ser passado para um
+método chamado match. A interface também restringe seu uso apenas a valores de tipo definido pelo usuário
+person e food.
 
-When you look at the match function, there isn’t an obvious need to restrict the
-function to just the person and food types. If this is the case, the match function
-should be a traditional polymorphic function, not a generic function. If there was a
-good reason, a generic function can be used to apply this type of constraint.
+Quando você olha para a função match, não há uma necessidade óbvia de restringir a
+função apenas aos tipos person e food. Se este for o caso, a função match
+deveria ser uma função polimórfica tradicional, não uma função genérica. Se houvesse um
+bom motivo, uma função genérica pode ser usada para aplicar este tipo de restrição.
 
-As a side note, not sure this functionality is necessary or makes sense. This is
-something the community will need to figure out over time.
+Como uma observação à parte, não tenho certeza se essa funcionalidade é necessária ou faz sentido. 
+Isso é algo que a comunidade precisará descobrir com o tempo.
 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o template como um ponto de partida para completar os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Implement a generic function named copyfy that is constrained to only making
-copies of slices of type string or int.
+Implemente uma função genérica chamada copyfy que é restrita apenas a fazer
+cópias de slices do tipo string ou int.
 
 .play generics/type-constraints/exercise1.go 
 .play generics/type-constraints/answer1.go
