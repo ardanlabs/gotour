@@ -1,24 +1,24 @@
 Maps
-A map is a data structure that provides support for storing and accessing data based on a key.
+O `map` é uma estrutura de dados que suporta armazenamento e acesso aos dados utilizando uma chave.
 
 * Maps
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
 
-A map is a data structure that provides support for storing and accessing data
-based on a key. It uses a hash map and bucket system that maintains a contiguous
-block of memory underneath.
 
-** Code Review
+O `map` é uma estrutura de dados que suporta armazenamento e acesso aos dados utilizando uma chave. 
+Ele utiliza um `hash map` e o `bucket system` que mantém um bloco contínuo de memória subjacente.
 
-- *Example* *1:* Declare, write, read, and delete
-- *Example* *2:* Absent keys
-- *Example* *3:* Map key restrictions
-- *Example* *4:* Map literals and range
-- *Example* *5:* Sorting maps by key
-- *Example* *6:* Taking an element's address
-- *Example* *7:* Maps are Reference Types
+** Revisão de Código
+
+- *Exemplo* *1:* Declare, escreva, leia e delete
+- *Exemplo* *2:* Chaves ausentes
+- *Exemplo* *3:* Restrição de chave em Maps
+- *Exemplo* *4:* `Map` literal e intervalos
+- *Exemplo* *5:* Ordenando `maps` por chave
+- *Exemplo* *6:* Retornando o endereço de um elemento
+- *Exemplo* *7:* `Maps` são do tipo Referencia
 
 .play maps/example1.go
 .play maps/example2.go
@@ -28,31 +28,30 @@ block of memory underneath.
 .play maps/example6.go
 .play maps/example7.go
 
-** Declaring And Constructing Maps
+** Declarando e Construindo `Maps`
 
-Declaring and constructing a map can be done in several ways.
+Declaração e construção de `maps` podem ser feitas de várias maneiras.
 
     type user struct {
         name     string
         username string
     }
 
-    // Construct a map set to its zero value,
-    // that can store user values based on a key of type string.
-    // Trying to use this map will result in a runtime error (panic).
+    // Construa um `map` e atribua o seu valor como zero,
+    // esse `map` pode armazenar tipo `user` por valor com uma chave do tipo `string`.
+    // Tentar usar esse `map` resultara em um erro de execução (`panic`)
     var users map[string]user
 
-    // Construct a map initialized using make,
-    // that can store user values based on a key of type string.
+    // Construa e inicialize um `map` utilizando a função `make`,
+    // esse `map` pode armazenar tipo `user` por valor com uma chave do tipo `string`.
     users := make(map[string]user)
 
-    // Construct a map initialized using empty literal construction,
-    // that can store user values based on a key of type string.
+    // Construa e inicialize um `map` utilizando o construtor literal vazio ,
+    // esse `map` pode armazenar tipo `user` por valor com uma chave do tipo `string`.
     users := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking.
-The use of the built-in function make and literal construction constructs a map
-ready for use.
+Um `map` inicializado para o valor zero não é utilizável e resultará em seu programa terminando por erro.
+O uso da função interna `make` e construção literal gera um `map` pronto para o uso.
 
     func main() {
         users := make(map[string]user)
@@ -67,17 +66,16 @@ ready for use.
         }
     }
 
-Output:
+Resultado:
 
     Roy {Rob Roy}
     Ford {Henry Ford}
     Mouse {Mickey Mouse}
     Jackson {Michael Jackson}
 
-If the built-in function make is used to construct a map, then the assignment operator
-can be used to add and update values in the map. The order of how keys/values are
-returned when ranging over a map is undefined by the spec and up to the compiler to
-implement. 
+Se a função interna `make` é usada para construir um `map`, então o operador de atribuição 
+pode ser usado para adicionar e atualizar valores no `map`. A ordem em que as chaves/valores são retornados
+ao iterar sobre um `map` não é definida pela especificação e fica a cargo do compilador para implementar. 
 
     func main() {
         users := map[string]user{
@@ -92,21 +90,21 @@ implement.
         }
     }
 
-Output:
+Resultado:
 
     Ford {Henry Ford}
     Jackson {Michael Jackson}
     Roy {Rob Roy}
     Mouse {Mickey Mouse}
 
-In this case, the output was returned in a different order from how they are
-listed in the construction. The current algorithm for 1.16 will return the results
-in a random order once the number of values reaches a certain limit. Once again,
-this is a compiler implementation that is allowed to change. You can’t depend on it.
+Nesse caso, o resultado foi retornado em uma ordem diferente da listada no construtor.
+O algoritmo utilizado pela versão 1.16 retorna os resultados em uma sequencia randômica 
+uma vez que os valores atinjam um certo limite. Novamente, essa é a implementação do compilador
+ e ela pode mudar. Você não pode depender dela.   
 
-** Lookups and Deleting Map Keys
+** Busca e Deleção de Chaves de `Maps`
 
-Once data is stored inside of a map, to extract any data a key lookup is required.
+Uma vez que o dado é armazenado dentro de um `map`, para extrair qualquer dado uma chave de busca é necessária.
 
     user1, exists1 := users["Bill"]
     user2, exists2 := users["Ford"]
@@ -114,50 +112,49 @@ Once data is stored inside of a map, to extract any data a key lookup is require
     fmt.Println("Bill:", exists1, user1)
     fmt.Println("Ford:", exists2, user2)
 
-Output:
+Resultado:
 
     Bill: false { }
     Ford: true {Henry Ford}
 
-To perform a key lookup, square brackets are used with the map variable. Two
-values can be returned from a map lookup, the value and a boolean that represents
-if the value was found or not. If you don’t need to know this, you can leave the
-"exists" variable out.
+Para executar uma busca por chave, colchetes são usados com a variável do tipo `map`.
+Dois valores podem ser retornados pela busca do `map`, o valor e um booleano que representa se o valor foi encontrado ou não.
+Se você não precisa disso agora, então você pode não utilizar a variável `exists`. 
 
-When a key is not found in the map, the operation returns a value of the map type
-set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
-zero value to determine if a key exists in the map or not since zero value may be
-valid and what was actually stored for the key.
+Quando a chave não é encontrada no `map`, a operação retorna o valor do tipo do `map` 
+com o seu valor zerado. Você pode ver isso na busca usando "Bill" como chave. 
+Não use o valor zerado para determinar se a chave existe ou não no `map`, uma vez que o 
+valor zerado pode ser um valor válido que foi adicionado para uma chave. 
+
 
     delete(users, "Roy")
 
-There is a built-in function named delete that allows for the deletion of data
-from the map based on a key.
+Existe uma função interna chamada `delete` que permite apagar registro de um `map` baseado em uma chave.
 
-** Key Map Restrictions
+** Restrições de Chaves em `Maps`
 
-Not all types can be used as a key.
+Nem todos os tipos podem ser usados como chave.
 
     type slice []user
     Users := make(map[slice]user)
 
-Compiler Error:
+Erro de compilação:
 
     invalid map key type users
 
-A slice is a good example of a type that can’t be used as a key. Only values that
-can be run through the hash function are eligible. A good way to recognize types
-that can be a key is if the type can be used in a comparison operation. You can’t
-compare two slice values.
+A `slice` é um ótimo exemplo de tipo que não pode ser usado como uma chave. Somente
+valores que podem ser passados para a função `hash` são elegíveis. Uma boa forma de reconhecer
+tipos que podem ser utilizados como chave é se o tipo pode ser usado em uma operação de comparação.
+O valor de duas `slices` não podem ser comparados. 
 
-** Notes
+** Notas
 
-- Maps provide a way to store and retrieve key/value pairs.
-- Reading an absent key returns the zero value for the map's value type.
-- Iterating over a map is always random.
-- The map key must be a value that is comparable.
-- Elements in a map are not addressable.
-- Maps are a reference type.
+- `Maps` fornecem uma maneira de armazenar e recuperar pares chave/valor.
+- Lendo uma chave ausente, retorna o valor zero para o tipo de valor do map.
+- Iterar sobre um `map` é sempre de aleatório.
+- A chave de um `map` tem que ser um valor que possa ser comparado.
+- Elementos de um `map` não podem ser endereçados.
+- `Maps` são um tipo por referencia. 
 
 ** Links
 
@@ -166,14 +163,14 @@ compare two slice values.
 - [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
 - [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o template como um ponto de partida para completar os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Declare and make a map of integer values with a string as the key. Populate the
-map with five values and iterate over the map to display the key/value pairs.
+Declare e faça um `map` de valores inteiros tendo string como chave. 
+Preencha o `map` com cinco valores e itere sobre o `map` para mostrar os pares chave/valor.
 
 .play maps/exercise1.go
 .play maps/answer1.go
