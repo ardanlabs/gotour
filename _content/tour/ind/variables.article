@@ -101,9 +101,7 @@ mengatur ulang bit-bit tersebut, tetapi Anda seharusnya selalu mengutamakan inte
     String             "" (empty)
     Pointer            nil
 
-** Declare and Initialize
 ** Mendeklarasikan dan Menginisialisasi
-The keyword var can be used to construct values to their zero value state for all types.
 Kata kunci `var` dapat digunakan untuk membuat nilai menjadi keadaan nilai nol (zero value) untuk semua jenis tipe data.
 
     var a int
@@ -123,21 +121,13 @@ Keluaran:
     var c float64	float64 [0]
     var d bool   	bool [false]
 
-Strings use the UTF8 character set, but are really just a collection of bytes.
 String menggunakan set karakter UTF8, tetapi sebenarnya hanya kumpulan bytes.
 
-A string is a two-word internal data structure in Go:
-Sebuah string adalah struktur data internal berukuran dua kata (two-word) dalam Go:
-- The first word represents a pointer to a backing array of bytes
+Sebuah string adalah struktur berukuran dua kata (two-word) secara internal dalam Go:
 - Kata pertama mewakili sebuah pointer ke sebuah kumpulan byte
-- The second word represents the length or the number of bytes in the backing array
 - Kata kedua mewakili panjang atau jumlah byte dari kumpulan byte tersebut.
-- If the string is set to its zero value state, then the first word is nil and the
-second word is 0.
 - Jika string diatur ke keadaan nilai nolnya, maka kata pertama adalah `nil` dan kata kedua adalah 0.
 
-Using the short variable declaration operator, you can declare, construct, and
-initialize a value all at the same time.
 Dengan menggunakan operator deklarasi variabel singkat, Anda dapat mendeklarasikan, membuat, dan menginisialisasi
 sebuah nilai sekaligus.
 
@@ -158,11 +148,7 @@ Keluaran:
     cc := 3.14159    float64 [3.14159]
     dd := true       bool [true]
 
-** Conversion vs Casting
 ** Konversi vs Casting
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a
-set of bytes to a different representation, the bytes need to be copied to a new
-memory location for the new representation.
 Go tidak memiliki casting, tetapi hanya konversi. Alih-alih memberi tahu kompilator untuk memetakan satu set byte
 ke representasi yang berbeda, byte-byte tersebut perlu disalin ke lokasi memori baru untuk representasi yang baru.
 
@@ -172,15 +158,10 @@ ke representasi yang berbeda, byte-byte tersebut perlu disalin ke lokasi memori 
     Output:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if you need to perform
-an actual casting operation. You should really avoid that and be honest with yourself
-why you are considering using it. Performing a conversion provides the highest level
-of integrity for these types of operations.
-Go memang memiliki sebuah paket dalam perpustakaan standarnya yang disebut "unsafe"
-jika Anda memerlukan melakukan operasi casting yang sebenarnya.
+Go memang memiliki sebuah paket (kumpulan kode) dalam perpustakaan standarnya yang disebut "unsafe"
+jika Anda memerlukan operasi casting yang sebenarnya.
 Namun, sebaiknya Anda menghindarinya dan bertanya kenapa anda mempertimbangkannya.
-Melakukan konversi memberikan tingkat integritas tertinggi untuk jenis operasi semacam ini,
-sementara penggunaan "unsafe" dapat memperkenalkan risiko dan ketidakamanan dalam kode Anda.
+Melakukan konversi memberikan tingkat integritas yang tinggi untuk jenis operasi semacam ini.
 
 ** Catatan
 
