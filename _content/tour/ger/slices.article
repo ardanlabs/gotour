@@ -161,29 +161,27 @@ Mutationsvorgang eingehalten werden. Außerdem ist die wertesemantische Mutation
 da die Mutation an der eigenen, isolierten Kopie der Daten der Funktion durchgeführt wird.
 
 Append behält immer einen zusammenhängenden Speicherblock für das Backing-Array des Slice bei,
-auch nach dem Wachstum. Dies ist wichtig für die Hardware.
+auch nach der Vergrösserung. Dies ist wichtig für die Hardware.
 
 
 .image /tour/eng/static/img/sl2.png
 
-Every time the append function is called, the function checks if the length and
-capacity of the slice is the same or not. If it’s the same, it means there is no
-more room in the backing array for the new value. In this case, append creates a
-new backing array (doubling or growing by 25%) and then copies the values from the
-old array into the new one. Then the new value can be appended.
+Jedesmal wenn die appen Funktion aufgerufen wird, überprüft die Funktion ob die Grösse und Kapazität des slice 
+dieselbe ist. Wenn ja heisst das, es gibt keinen Platz mehr im backing array für den neuen Wert.
+In diesem Fall, append kreiert ein neues backing array (verdoppelt oder wächst um 25%) und kopiert dann die Werte des alten Array
+in das Neue. Dann kann der neue Wert hinzugefügt werden.
 
 .image /tour/eng/static/img/sl3.png
 
-If it’s not the same, it means that there is an extra element of capacity existing
-for the append. An element is taken from capacity and added to the length of the
-slice. This makes an append operation very efficient.
+Wenn nein heisst das, es gibt noch Kapazität für den append. Ein Element wird von der Kapazität weggenommen und
+zur Grösse des slice hinzugefügt. Dies macht die append Operation effizient.
 
-When the backing array has 1024 elements of capacity or less, new backing arrays
-are constructed by doubling the size of the existing array. Once the backing array
-grows past 1024 elements, growth happens at 25%. 
+Wenn das backing array 1024 Kapazitätselemente oder weniger hat, werden neue backing arrays konstruiert indem die
+Grösse des existierenden Arrays verdoppelt wird. Wenn das backing Array grösser als 1024 Elemente anwächst, vergrössert 
+sich die Grösse um 25%.
 
-*NOTE:* *How* *the* *append* *function* *grows* *the* *capacity* *of* *the*
-*backing* *array* *has* *changed* *since* *Go* *1.18.*
+*Beachte:* *Wie* *die* *append* *Funktion* *die* *Kapaziätat* *des backing array anwachsen lässt*
+*hat seit* *Go* *1.18. geändert*
 
 - [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
 
