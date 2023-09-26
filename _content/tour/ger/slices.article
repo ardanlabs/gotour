@@ -1,5 +1,4 @@
 Slices
-Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
 
 Slices sind eine unglaublich wichtige Datenstruktur in Go. Sie sind die Basis für einen flexiblen, performanten und dynamischen Umgang mit Datenkontrolle und Datenmanipulation. Es ist von unschöpfbarem Wert für alle Go Programmierer den Umgang mit Slices zu erlernen und anzuwenden.
 
@@ -63,7 +62,7 @@ Wenn der Compiler die Grösse zu compile time kennt, kann das backing Array auf 
 
 ** Slice Länge vs Kapazität
 
-Die Lönge eines slice representiert die Anzahl Elemente die in ein slice gelesen bzw. geschrieben werden können.
+Die Länge eines slice representiert die Anzahl Elemente die in ein slice gelesen bzw. geschrieben werden können.
 Die Kapazität representiert die Anzahl Elemente die im korrespondierenden backing array von der Pointer Position aus.
 
 Aufgrund von syntactic sugar, sehen slices aus wie arrays.
@@ -139,34 +138,31 @@ Output:
     [3] 0xc00007e030 Grape
     [4] 0xc00007e040 Plum
 
-The inspectSlice function shows how a slice does have a contiguous backing array
-with a predictable stride. It also shows how a slice has a length and capacity
-which may be different. Notice how the print function only iterates over the
-length of a slice.
+Die Funktion inspectSlice zeigt, dass ein Slice ein zusammenhängendes Backing Array hat
+mit einer vorhersehbaren Schrittweite hat. Sie zeigt auch, dass ein Slice eine Länge und Kapazität hat
+die unterschiedlich sein können. Die Funktion print iteriert nur über die Länge eines Slice.
 
-** Appending With Slices
+** Anhängen mit Slices 
 
-The language provides a built-in function called append to add values to an
-existing slice.
+Die Sparche hat eine built-in Funktion namens append um Werte zu einem bestehenden Slice hinzuzufügen.
 
     var data []string
 
     for record := 1; record <= 102400; record++ {
         data = append(data, fmt.Sprintf("Rec: %d", record))
     }
+Die Funktion "Anhängen" funktioniert mit einem Slice auch dann, wenn das Slice mit dem Wert Null initialisiert ist.
+Nullwert-Zustand initialisiert ist. Das API-Design von append ist interessant, weil es die
+wertesemantische Mutation verwendet. Append erhält seine eigene Kopie eines Slice-Wertes, verändert seineeigene Kopie und gibt dann eine Kopie an den Aufrufer zurück.
 
-The append function works with a slice even when the slice is initialized to its
-zero value state. The API design of append is what’s interesting because it uses
-value semantic mutation. Append gets its own copy of a slice value, it mutates its
-own copy, then it returns a copy back to the caller.
+Warum ist die API auf diese Weise konzipiert? Weil es üblich ist, die Wertesemantik zu verwenden
+um einen Slice-Wert in einem Programm zu bewegen. Dies muss auch bei einer
+Mutationsvorgang eingehalten werden. Außerdem ist die wertesemantische Mutation der sicherste Weg, eine Mutation durchzuführen
+da die Mutation an der eigenen, isolierten Kopie der Daten der Funktion durchgeführt wird.
 
-Why is the API designed this way? This is because the idiom is to use value semantics
-to move a slice value around a program. This must still be respected even with a
-mutation operation. Plus, value semantic mutation is the safest way to perform mutation
-since the mutation is being performed on the function’s own copy of the data in isolation.
+Append behält immer einen zusammenhängenden Speicherblock für das Backing-Array des Slice bei,
+auch nach dem Wachstum. Dies ist wichtig für die Hardware.
 
-Append always maintains a contiguous block of memory for the slice’s backing array,
-even after growth. This is important for the hardware.
 
 .image /tour/eng/static/img/sl2.png
 
