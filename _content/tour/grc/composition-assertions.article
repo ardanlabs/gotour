@@ -1,0 +1,140 @@
+Type Conversions And Assertions
+Learn how type conversations and assertions work.
+
+* Type Conversions And Assertions
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+A type conversion allows the data of one type to convert to another type. A type
+assertion allows you to ask the question if there a value of the given type stored
+inside an interface.
+
+** Code Review
+
+- *Example* *1:* Interface Conversions
+- *Example* *2:* Runtime Type Assertions
+- *Example* *3:* Behavior Changes
+
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+** Implicit Interface Conversions
+
+As you saw in the last example, An interface value of one type can be passed for a
+different interface type if the concrete value stored inside the interface implements
+both behaviors. This could be considered an implicit interface conversion, but it’s
+better to think about how concrete data is being moved through interfaces in a
+decoupled state.
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+And given this concrete type bike that implements all three interfaces. What can you do?
+
+    var ml MoveLocker
+    var m Mover
+
+You can construct a value of type MoveLocker and Mover to its zero value state.
+These are interface values that are truly valueless. 
+
+    ml = bike{}
+
+Then you can construct a value of type bike to its zero value state and assign a
+copy to the MoveLocker variable ml. This is possible because a bike implements
+all three behaviors, and the compiler can see that the implementation exists.
+
+    m = ml
+
+You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
+because I’m not assigning the interface value ml but the concrete value stored inside
+of ml which is a bike value. The compiler knows that any concrete value stored inside
+of ml must also implement the Mover interface.
+
+This assignment however is not valid. 
+
+    ml = m
+
+Output:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+You can’t assign the Mover variable m back to the MoverLocker variable ml because the
+compiler can only guarantee that the concrete value stored inside of m knows how to Move.
+It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+
+** Type Assertion Mechanics
+
+A type assertion allows you at runtime to ask a question, is there a value of the
+given type stored inside an interface. You see that with the m.(bike) syntax. 
+
+    b := m.(bike)
+    ml = b
+
+In this case, you am asking if there is a bike value stored inside of m at the moment
+the code is executed. If there is, then the variable b is given a copy of the bike
+value stored. Then the copy can be copied inside of the ml interface variable.
+
+If there isn’t a bike value stored inside of the interface value, then the program panics.
+you want this if there absolutely should have been a bike value stored. What if there is a
+chance there isn’t and that is valid? Then you need the second form of the type assertion.
+
+    b, ok := m.(bike)
+
+In this form, if ok is true, there is a bike value stored inside of the interface. If
+ok is false, then there isn’t and the program does not panic. The variable b however
+is still of type bike, but it is set to its zero value state.
+
+    func main() {
+        mvs := []fmt.Stringer{
+            Car{},
+            Cloud{},
+        }
+
+        for i := 0; i < 10; i++ {
+            rn := rand.Intn(2)
+
+            if v, is := mvs[rn].(Cloud); is {
+                fmt.Println("Got Lucky:", v)
+                continue
+            }
+
+            fmt.Println("Got Unlucky")
+        }
+    }
+
+Assuming the program does declare two types named Car and Cloud that each implement
+the fmt.Stringer interface, you can construct a collection that allows you to store a
+value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
+and perform a type assertion to see if the value at that random index contains a
+Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
+assertion is critical here.
