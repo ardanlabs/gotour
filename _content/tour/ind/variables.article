@@ -1,63 +1,63 @@
-Variables
-Variables are at the heart of the language and provide the ability to read from and write to memory.
+Variabel
+Variabel adalah inti dari bahasa pemrograman dan memberikan kemampuan membaca dan menulis ke memori.
 
-* Variables
+* Variabel
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Variables are at the heart of the language and provide the ability to read from
-and write to memory. In Go, access to memory is type safe. This means the compiler
-takes type seriously and will not allow us to use variables outside the scope of
-how they are declared.
+Variabel adalah inti dari bahasa pemrograman serta memberikan kemampuan untuk membaca dan menulis ke memori.
+Dalam bahasa pemrograman Go, akses ke memori bersifat "type safe". Ini berarti kompilator (compiler) sangat
+memperhatikan tipe data dan tidak mengizinkan kita untuk menggunakan variable di luar tipe data yang telah di deklasarikan
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1*: Sample program that shows how to declare variables.
+- *Contoh* *1*: Contoh program yang menunjukkan cara mendeklarasikan variabel
 
 .play variables/example1.go
 
-** Built-in Types
-Types provide integrity and readability by asking 2 questions:
+** Tipe Data Bawaan
+Tipe data memberikan integritas dan kemudahaan pembacaan dengan menananyakan 2 pertanyaan:
 
-- What is the amount of memory to allocate? (e.g. 1, 2, 4, 8 bytes)
-- What does that memory represent? (e.g. int, uint, bool,..)
+- Berapa banyak memory yang harus disediakan? (contoh: 1, 2, 4, 8 bytes)
+- Apa yang mewakili memori tersebut? (contoh: tipe data int, uint, bool dan sebagainya)
 
-Types can be specific to a precision such as int32 or int64:
+Tipe data dapat spesifik hingga tingkat presisi tertentu, seperti int32 atau int64:
 
-- uint8 represents an unsigned integer with 1 byte of allocation
-- int32 represents a signed integer with 4 bytes of allocation. When you declare a type
-using a non-precision based type (unit, int) the size of the value is based on the
-architecture being used to build the program:
+- uint8 mewakili bilangan bulat (tanpa tanda positif atau negatif) dengan alokasi 1 byte.
+- int32 mewakili bilangan bulat bertanda (positif atau negatif) dengan alokasi 4 byte.
+Ketika anda mendeklarasikan tipe data tanpa presisi (uint atau int),
+ukuran memori bergantung pada arsitektur yang digunakan untuk membangun program tersebut:
 
-- 32 bit arch: int represents a signed int at 4 bytes of memory allocation
-- 64 bit arch: int represents a signed int at 8 bytes of memory allocation
+- Pada arsitektur 32 bit: tipe data int mewakili bilangan bulat bertanda dengan alokasi memori sebesar 4 byte.
+- Pada arsitektur 64 bit: tipe data int mewakili bilangan bulat bertanda dengan alokasi memori sebesar 8 byte.
 
-** Word Size
+** Satuan Word
 
-The word size represents the amount of memory allocation required to store integers
-and pointers for a given architecture. For example:
+Satuan word mewakili jumlah alokasi memori yang diperlukan
+untuk menyimpan bilangan bulat (integers) dan pointer pada suatu arsitektur tertentu.
+Sebagai contoh:
 
-- 32 bit arch: word size is 4 bytes of memory allocation
-- 64 bit arch: word size is 8 bytes of memory allocation
+- Pada arsitektur 32 bit: satuan word mewakili 4 bytes dari alokasi memori
+- Pada arsitektur 64 bit: satuan word mewakili 8 bytes dari alokasi memori
 
-This is important because Go has internal data structures (maps, channels, slices,
-interfaces, and functions) that store integers and pointers. The size of these data
-structures will be based on the architecture being used to build the program.
+Hal ini penting karena bahasa pemrograman Go memiliki struktur data internal (maps, channel, slices, interface, dan functions)
+yang menyimpan bilangan bulat dan pointer. Ukuran dari struktur data ini akan bergantung pada arsitektur
+yang digunakan untuk membuat program.
 
-In Go, the amount of memory allocated for a value of type int, a pointer, or a word
-will always be the same on the same architecture.
+Dalam bahasa pemrograman Go, jumlah memori yang dialokasikan untuk nilai tipe int, pointer, atau suatu kata
+akan selalu sama pada arsitektur yang sama.
 
-** Zero Value Concept
-Every single value you construct in Go is initialized at least to its zero value state
-unless you specify the initialization value at construction. The zero value is the setting
-of every bit in every byte to zero.
+** Konsep Nilai Nol
+Setiap nilai yang Anda buat dalam bahasa pemrograman Go diinisialisasi setidaknya ke keadaan nilai nolnya,
+kecuali Anda menentukan nilai inisial saat pembuatannya.
+Nilai nol adalah pengaturan dari setiap bit dalam setiap byte menjadi nol.
 
-This is done for data integrity and it’s not free. It takes time to push electrons
-through the machine to reset those bits, but you should always take integrity over
-performance.
+Ini dilakukan untuk menjaga integritas data dan ini tidak sembarangan.
+Memerlukan waktu untuk menggerakkan elektron dalam komputer untuk
+mengatur ulang bit-bit tersebut, tetapi Anda seharusnya selalu mengutamakan integritas daripada kinerja.
 
-    Type               Zero Value
+    Tipe data           Nilai Nol
     Boolean            false
     Integer            0
     Float              0
@@ -65,8 +65,8 @@ performance.
     String             "" (empty)
     Pointer            nil
 
-** Declare and Initialize
-The keyword var can be used to construct values to their zero value state for all types.
+** Mendeklarasikan dan Menginisialisasi
+Kata kunci var dapat digunakan untuk membuat nilai menjadi keadaan nilai nol (zero value) untuk semua jenis tipe data.
 
     var a int
     var b string
@@ -78,24 +78,23 @@ The keyword var can be used to construct values to their zero value state for al
     fmt.Printf("var c float64 \t %T [%v]\n", c, c)
     fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-Output:
+Keluaran:
 
     var a int    	int [0]
     var b string 	string []
     var c float64	float64 [0]
     var d bool   	bool [false]
 
-Strings use the UTF8 character set, but are really just a collection of bytes.
+String menggunakan set karakter UTF8, tetapi sebenarnya hanya kumpulan bytes.
 
-A string is a two-word internal data structure in Go:
+Sebuah string adalah struktur berukuran dua satuan word secara internal dalam Go:
 
-- The first word represents a pointer to a backing array of bytes
-- The second word represents the length or the number of bytes in the backing array
-- If the string is set to its zero value state, then the first word is nil and the
-second word is 0.
+- Satuan word pertama mewakili sebuah pointer ke sebuah kumpulan byte
+- Satuan word kedua mewakili panjang atau jumlah byte dari kumpulan byte tersebut.
+- Jika string diatur ke keadaan nilai nolnya, maka satuan word pertama adalah nil dan yang kedua adalah 0.
 
-Using the short variable declaration operator, you can declare, construct, and
-initialize a value all at the same time.
+Dengan menggunakan operator deklarasi variabel singkat, Anda dapat mendeklarasikan, membuat, dan menginisialisasi
+sebuah nilai sekaligus.
 
     aa := 10       // int [10]
     bb := "hello"  // string [hello]
@@ -107,18 +106,16 @@ initialize a value all at the same time.
     fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
     fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-Output:
+Keluaran:
 
     aa := 10         int [10]
     bb := "hello"    string [hello]
     cc := 3.14159    float64 [3.14159]
     dd := true       bool [true]
 
-** Conversion vs Casting
-
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a
-set of bytes to a different representation, the bytes need to be copied to a new
-memory location for the new representation.
+** Konversi vs Casting
+Go tidak memiliki casting, tetapi hanya konversi. Alih-alih memberi tahu kompilator(compiler) untuk memetakan satu set byte
+ke representasi yang berbeda, byte-byte tersebut perlu disalin ke lokasi memori baru untuk representasi yang baru.
 
     aaa := int32(10)
     fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
@@ -126,41 +123,40 @@ memory location for the new representation.
     Output:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if you need to perform
-an actual casting operation. You should really avoid that and be honest with yourself
-why you are considering using it. Performing a conversion provides the highest level
-of integrity for these types of operations.
+Go memang memiliki sebuah paket (kumpulan kode) dalam perpustakaan standarnya yang disebut "unsafe"
+jika Anda memerlukan operasi casting yang sebenarnya.
+Namun, sebaiknya Anda menghindarinya dan bertanya kenapa anda mempertimbangkannya.
+Melakukan konversi memberikan tingkat integritas yang tinggi untuk jenis operasi semacam ini.
 
-** Notes
+** Catatan
 
-- The purpose of all programs and all parts of those programs is to transform data from one form to the other.
-- Code primarily allocates, reads and writes to memory.
-- Understanding type is crucial to writing good code and understanding code.
-- If you don't understand the data, you don't understand the problem.
-- You understand the problem better by understanding the data.
-- When variables are being declared to their zero value, use the keyword var.
-- When variables are being declared and initialized, use the short variable declaration operator.
+- Tujuan dari semua program dan semua bagian dari program tersebut adalah untuk mengubah data dari satu bentuk ke bentuk lain.
+- Kode pada dasarnya mengalokasikan, membaca, dan menulis ke memori.
+- Memahami tipe data adalah kunci untuk menulis dan memahami kode dengan baik.
+- Jika Anda tidak memahami data, Anda tidak memahami masalahnya.
+- Anda memahami masalah dengan lebih baik dengan memahami data.
+- Ketika variabel dideklarasikan ke nilai nol (zero value) mereka, gunakan kata kunci var.
+- Ketika variabel dideklarasikan dan diinisialisasi, gunakan operator deklarasi variabel singkat.
 
-** Extra Reading
+** Bacaan Tambahan
 
-- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
-- [[https://golang.org/doc/effective_go.html#variables][Variables]]    
-- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
-- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
-- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
+- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]
+- [[https://golang.org/doc/effective_go.html#variables][Variables]]
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
+** Latihan 1
 
-** Exercise 1
+*Bagian* *A:* Deklarasikan tiga variabel yang diinisialisasi dengan nilai nol dan
+tiga lainnya dideklarasikan dengan nilai literal. Deklarasikan variabel dengan tipe data string, int, dan bool.
+Tampilkan nilai dari variabel-variabel tersebut.
 
-*Part* *A:* Declare three variables that are initialized to their zero value and
-three declared with a literal value. Declare variables of type string, int and bool.
-Display the values of those variables.
-
-*Part* *B:* Declare a new variable of type float32 and initialize the variable by
-converting the literal value of Pi (3.14).
+*Bagian* *B:* Deklarasikan sebuah variabel baru dengan tipe float32 dan inisialisasikan variabel tersebut
+dengan mengonversi nilai dari Pi (3.14).
 
 .play variables/exercise1.go
 .play variables/answer1.go
