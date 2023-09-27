@@ -12,11 +12,11 @@
 
 ** Ανασκόπηση Κώδικα
 
-- *Παράδειγμα* *1:* Pass by Value
-- *Παράδειγμα* *2:* Sharing Data I
-- *Παράδειγμα* *3:* Sharing Data II
-- *Παράδειγμα* *4:* Escape Analysis
-- *Παράδειγμα* *5:* Stack Grow
+- *Παράδειγμα* *1:* Περνώντας Παραμέτρους ως Τιμές
+- *Παράδειγμα* *2:* Κοινή Χρήση Δεδομένων I
+- *Παράδειγμα* *3:* Κοινή Χρήση Δεδομένων II
+- *Παράδειγμα* *4:* Ανάλυση Διαφυγής
+- *Παράδειγμα* *5:* Μεγέθυνση Στοίβας
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,84 +24,84 @@
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+Όταν ένα πρόγραμμα γραμμένο στην Go ξεκινά, το εκτελέσιμο (runtime) της Go δημιουργεί μια Goroutine. Οι Goroutines είναι
+ελαφριά νήματα εκτέλεσης λειτουργιών (threads) επιπέδου εφαρμογής που φέρουν την ίδια σημασιολογία ως επί το πλείστον με την λειτουργία 
+των νημάτων εκτέλεσης λειτουργιών (threads) του συστήματος. Η δουλειά τους είναι ο έλεγχος της εκτέλεσης ενός διακριτού συνόλου
+οδηγιών. Κάθε πρόγραμμα της Go έχει τουλάχιστον 1 Goroutine την οποία αποκαλούμε ως την κύρια (main) Goroutine.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Κάθε Goroutine αποκτά το δικό της τμήμα μνήμης που ονομάζεται στοίβα. Κάθε στοίβα ξεκινάει 
+σαν μια δεύσμευση μνήμης 2048 byte (2k). Είναι πολύ μικρή αρχικά, αλλά οι στοίβες μπορούν να μεγαλώσουν με το πέρας του χρόνου.
 
 .image /tour/grc/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Κάθε φορά που καλείται μια συνάρτηση, δεσμεύεται ένα τμήμα διαθέσιμου χώρου για την στοίβα προκειμένου να επιτρέψει στην Goroutine
+να εκτελέσει τις οδηγίες που σχετίζονται με αυτή την συνάρτηση. Κάθε ξεχωριστό τμήμα της μνήμης 
+αποκαλείται πλαίσιο μνήμης.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
+Το μέγεθος του πλαισίου μνήμης για μια συνάρτηση υπολογίζεται στο στάδιο της μεταγλώττισης. Καμία τιμή
+δεν μπορεί να σημιουργηθεί στην στοίβα αν ο μεταγλωτιστής δεν γνωρίζει το μέγεθος αυτής της τιμής κατά το 
+στάδιο της μεταγλώττισης. Αν ο μεταγλωττιστής δεν γνωρίζει το μέγεθος της τιμής στο στάδιο της μεταγλώττισης, η
+τιμή πρέπει να δημιουργηθεί στον σωρό (heap).
  
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Οι στοίβες εκκαθαρίζονται αυτόματα και η μηδενικές τιμές μεταβλητών συμβάλλουν στον ορισμό αρχικής τιμής της στοίβας.
+Κάθε φορά που καλεί κανείς μια συνάρτηση και σχηματίζεται ένα πλαίσιο μνήμης, η μνήμη
+για αυτό το πλαίσιο λαμβάνει αρχική τιμή, κάτι που είναι ο τρόπος με τον οποίο η στοίβα εκκαθαρίζεται αυτόματα. Όταν μια συνάρτηση 
+επιστρέφει, η μνήμη για το συγκεκριμένο πλαίσιο μνήμης αφήνεται στην ησυχία του, καθώς δεν είναι γνωστό αν η συγκεκριμένη μνήμη
+θα χρειαστεί ξανά. Θα ήταν αναποτελεσματικό να λαμβάνει αρχική τιμή η μνήμη μετά την επιστροφή των συναρτήσεων.
 
-*Pass* *By* *Value*
+*Περνώντας* *Παραμέτρους* *ως* *Τιμές* 
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+Όλα τα δεδομένα μετακινούνται μέσα στο πρόγραμμα ως τιμές. Αυτό σημαίνει ότι καθώς τα δεδομένα διασχίζουν 
+τα όρια του προγράμματος, η κάθε συνάρτηση ή η κάθε Goroutine αποκτά το δικό της αντίγραφο των
+δεδομένων. Υπάρχουν δύο είδη δεδομένων που κανείς μπορεί να δουλέψει, η τιμή αυτή καθ' ευατή (int,
+string, user) ή η διεύθυνση της τιμής στην μνήμη. Οι διευθύνσεις μνήμης είναι δεδομένα που χρειάζεται να αντιγραφούν 
+και να αποθηκευτούν διασχίζοντας τα όρια ενός προγράμματος.
 
-The following code attempts to explain this more.
+Ο ακόλουθος κώδικας προσπαθεί να εξηγήσει τα παραπάνω περισσότερο.
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
+        // Δημιουργία μεταβλητής ακέραιου τύπου με τιμή 10.
         count := 10
 
-        // To get the address of a value, use the & operator.
+        // Προκειμένου να πάρει κανείς την διεύθυνση μνήμης μιας τιμής, μπορεί να χρησιμοποιήσει τον τελεστή &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // Περνώντας ένα αντίγραφο της "τιμής της" count (αυτό που βρίσκεται μέσα στο κουτί)
+        // στην συνάρτηση increment1.
         increment1(count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        // Τυπώνοντας την "τιμή της" και την "διεύθυνση της" παραμέτρου count.
+        // Η τιμή της count δεν θα αλλάξει μετά την κλήση της συνάρτησης.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
+        // Περνώντας ένα αντίγραφο της "διεύθυνσης της" count (που βρίσκεται το κουτί)
+        // στην συνάρτηση increment2. Αυτό θεωρείται πάλι ότι περνάει 
+        // την παράμετρο ως τιμή και όχι ότι την περνάει ως αναφορά (pass by reference) καθώς οι διευθύνσεις είναι τιμές.
         increment2(&count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        // Τυπώνοντας την "τιμή της" και την "διεύθυνση της" παραμέτρου count.
+        // Η τιμή της count έχει αλλάξει μετά την κλήση της συνάρτησης.
         println(
             "count:\tValue Of[", 
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // Η increment1 ορίζει την συνάρτηση να δέχεται το δικό της αντίγραφο μιας
+    // ακέραιας τιμής.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Αυξάνοντας το τοπικό αντίγραφο της int τιμής του καλούντος.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // Η increment2 ορίζει την συνάρτηση να δέχεται το δικό τηα αντίγραφο μιας
+    // διεύθυνσης που δείχνει σε ακέραια τιμή.
+    // Οι μεταβλητές διεύθυνσης μνήμης είναι ρητή τύποι και ορίζονται με την χρήση του τελεστή *.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // Αυξάνοντας την int τιμή του καλούντος μέσω της διεύθυνσης μνήμης.
         *inc++
         println(
             "inc2:\tValue Of[", 
@@ -109,7 +109,7 @@ The following code attempts to explain this more.
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+Αποτέλεσμα:
 
     count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
     inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
@@ -117,33 +117,33 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** Σημειώσεις 
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- Κανείς χρησιμοποιεί διευθύνσεις μνήμης προκειμένου να μπορεί να μοιράζεται τα δεδομένα.
+- Οι τιμές στην Go πάντα διαθέτονται προκειμένου να περάσουν ως παράμετροι σε συναρτήσεις ως τιμές (pass by value).
+- "Η τιμή της", τι βρίσκεται δηλαδή μέσα στο κουτί. "Η διεύθυνση της" ( & ), που βρίσκεται δηλαδή το κουτί.
+- Ο τελεστής ( * ) ορίζει μια μεταβλητή διεύθυνσης μνήμης και "Η τιμή την οποία η διεύθυνση μνήμης υποδεικνύει".
 
-** Escape Analysis
+** Ανάλυση Διαφυγής
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+Ο αλγόριθμος που χρησιμοποιεί ο μεταγλωτιστής προκειμένου να διαπιστώσει αν μια τιμή πρέπει να δημιουργηθεί 
+στην στοίβα ή στον σωρό ονομάζεται "ανάλυση διαφυγής". Η ονομασία του αλγορίθμου το
+παρουσιάζει σαν οι τιμές να δημιουργούνται πρώτα στην στοίβα και στην συνέχεια διαφεύγουν (ή μετακινούνται)
+στον σωρό όταν αυτό κριθεί αναγκαίο. ΔΕΝ είναι έτσι όμως. Η δημιουργία μιας τιμής συμβαίνει μόνο
+μια φορά, και ο αλγόριθμος ανάλυσης διαφυγής αποφασίζει που θα συμβεί αυτό (στοίβα 
+ή σωρός). Μόνο η δημιουργια στον σωρό αποκαλείται καταμερισμός μνήμης (allocation) στην Go.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
+Η κατανόηση της ανάλυσης διαφυγής αφορά την κατανόηση της ιδιοκτησίας των τιμών. Η ιδέα είναι,
+όταν μια τιμή δημιουργείται εντός του πλαισίου αναφοράς μιας συνάρτησης, τότε η συνάρτηση αυτή 
+κατέχει την ιδιοκτησία της τιμής. Από εκεί κανείς χρειάζεται να ρωτήσει αν η τιμή πρέπει να 
+συνεχίσει να υπάρχει όταν η συνάρτησ στη οποία ανήκει επιστρέψει; Αν η απάντησ είναι όχι, τότε η τιμή μπορεί 
+να δημιουργηθεί στην στοίβα. Αν η απάντηση είναι ναι, τότε η τιμή πρέπει να δημηουργηθεί 
+στον σωρό.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Σημείωση: Ο κανόνας της ιδιοκτησίας είναι ένα ς καλός βασικός κανόνας για να αναγνωρίζει κανείς εκείνο τον κώδικα
+που προκαλεί καταμερισμό μνήμης. Ομως, κανείς πρεπει αν συνειδητοποιήσει ότι η ανάλυση διαφυγής έχει μειωνεκτήματα τα οποία μπορούν 
+να οδηγήσουν σε μη προφανείς καταμερισμούς μνήμης. Επίσης, ο αλγόριθμος χρησιμοποιεί κάθε ευκαιρία προκειμένου
+να χρησιμοποιήσει βελτιστοποιήσεις του μεταγλωτιστή προκειμένου να εξοικονομήσει καταμερισμούς μνήμης.
 
     // user represents a user in the system.
     type user struct {
@@ -160,14 +160,14 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+Η συνάρτηση stayOnStack χρησιμοποιεί σημειολογία τιμών προκειμένου να επιστρέψει μια τιμή user στον
+καλούντα. Με άλλα λόγια, ο καλών αποκτά ένα αντίγραφο της τιμής user που 
+δημιουργείται.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+Οταν η συνάρτηση stayOnStack καλείται και επιστρέφει, η τιμή user που δημιουργεί
+δεν χρειάζεται πια να υπάρχει, καθώς ο καλών αποκτά το δικό του αντίγραφο. Επομένως,
+η δημουργία της τιμής user εντός της stayOnStack μπορεί να συμβεί στην στοίβα.
+Δεν πραγματοποιείται κανένας καταμερισμός μνήμης.
 
     type user struct {
         name  string
@@ -183,49 +183,50 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+Η συνάρτηση escapeToHeap χρησιμοποιεί σημασιολογία δείκτη διευθύνσεων προκειμένου να επιστρέψει μια τιμή user πίσω
+στον καλώντα. Με άλλα λόγια, ο καλώντας αποκτάει κοινή πρόσβαση (μια διεύθυνση) στην 
+τιμή user που δημιουργείται.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+Οταν η συνάρτηση escapeToHeap καλείται και επιστρέφει, η τιμή user που δημιουργεί
+χρειάζεται να συνεχίζει να υπάρχει, καθώς ο καλώντας έχει κοινή πρόσβαση στην τιμή.
+Επομένως, η δημιουργία της τιμής user μέσα στην escapeToHeap δεν μπορεί να συμβεί
+στην στοίβα, πρέπει να συμβεί στον σωρό. Πραγματοποιείται καταμερισμός μνήμης.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Αναλογιζόμενος κανείς τι θα συνέβαινε αν η τιμή user του τελευταίου παραδείγματος δημιουργούνταν 
+στην στοίβα ενώ την ίδια στιγμή χρησιμοποούνταν σημασιολογία δείκτων διευθύνσεων για την επιστροφή,
+προκύπτουν τα ακόλουθα.
 
 .image /tour/grc/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+Ο καλώντας θα έπαιρνε ένα αντίγραφο της διεύθυνσης στοίβας από το επόμενο πλαίσιο μνήμης και η ακεραιότητα
+των δεδομένων θα χανόταν. Οταν ο έλεγχος επιστρέφει στην καλούσα συνάρτηση, η μνήμη στη
+στοίβα όπου βρίσκεται η τιμή user καθίσταται ξανά διαθέσιμη για χρήση. Την στιγμή που η καλούσα συνάρτηση 
+πραγματοποιεί κλήση άλλης συνάρτησης, ένα νέο πλαίσιο μνήμης διανέμεται και η μνήμη ακυρώνεται,
+καταστρέφοντας έτσι την κοινή τιμή.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+Γι' αυτό κανείς σκέφτεται την στοίβα ως κάτι που ανανεώνεται. Η ανάθεση της μηδενικής τιμής
+βοηθάει κάθε πλαίσιο μνήμης της στοίβας που χρειάζεται κανείς να εκκαθαρίζεται χωρίς την χρήση του συλλέκτη σουπιδιών (GC). Η στοίβα
+εκκαθαρίζει τον εαυτό της καθώς ένα πλαίσιο μνήμης λαμβάνεται και παίρνει αρχική τιμή για την εκτέλεση κάθε 
+κλήσης συνάρτησης. Η στοίβα εκκαθαρίζεται κατά την διάρκεια κλήσεων συναρτήσεων και όχι όταν επιστρέφουν επειδή
+ο μεταγλωτιστής δεν γνωρίζει αν η μνήμη στην στοίβα θα χρειαστεί ξανά.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+Η ανάλυση διαφθγής αποφασίζει αν μια τιμή δημιουργείται στην στοίβα (το default) ή αν 
+δημιουργείται στον σωρό (η διαφυγή). Με την συνάρτηση stayOnStack, μεταφέρεται έαν αντίγραφο της τιμής 
+στον καλώντα, επομένως είανι ασφαλές να παραμείνει η τιμή στην στοίβα. Με την συνάρτηση escapeToHeap, 
+ο καλώντας λαμβάνει ένα αντίγραφο της διεύθυνσης της τιμής (γίνεται δηλαδή διαμοιρασμός της 
+στοίβας) επομένως δεν είναι ασφαλές να παραμείνει η τιμή στην στοίβα.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+Υπάρχουν πολλές μικρές λεπτομέρειες που σχετίζονται με την ανάλυση διαφυγής, επομένως για να μάθει κανείες περισσότερα
+μπορεί να διαβάσει την ανάρτηση στο κεφάλαιο 14 με τίτλο, Μηχανισοί της Ανάλυσης Διαφυγής.
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Σημείωση: Από την έκδοση 1.17, η Go άλλαξε το ABI (application binary interface) προκειμένου να 
+υλοποιήσει ένα νέο τρόπο για να περνάει κανείς τιμές εισόδου και εξόδου κάνοντας χρήση καταχωρητών (registers)
+αντί για την μνήμη στην στοίβα. Αυτό είναι ενεργοποιημένο για το Linux, το MacOS, και τα Windows για την
+αρχιτεκτονική 64-bit x86. Αυτό σημαίνει ότι ορισμένες τιμές εισόδου μιας συνάρητηση δεν θα 
+αντιγράφονται στην στοίβα, αλλά ορισμένες μπορεί κάτι που εξαρτάται από την πρακτική εφαρμογή της χρήσης των καταχωρητών.
+Κάτι τέτοιο δεν αλλάζει τίποτα από την σημασιολογία που περιγράφεται σε αυτό το κεφάλαιο.
 
-** Notes
+** Σημειώσεις
 
 - When a value could be referenced after the function that constructs the value returns.
 - When the compiler determines a value is too large to fit on the stack.
