@@ -1,31 +1,29 @@
-Embedding
-Embedding types provide the final piece of sharing and reusing state and behavior between types.
+واردکردن (Embedding)
+نوع‌های واردکردن، قسمت نهایی از اشتراک و بازاستفاده از وضعیت و رفتار بین انواع را فراهم می‌کنند.
 
-* Embedding
+* واردکردن (Embedding)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
 
-Embedding types provide the final piece of sharing and reusing state and behavior
-between types. Through the use of inner type promotion, an inner type's fields and
-methods can be directly accessed by references of the outer type.
 
-** Code Review
+انواع واردکردن (Embedding types) قسمت نهایی از به اشتراک گذاشتن و بازاستفاده از وضعیت و رفتار بین انواع را فراهم می‌کنند. از طریق استفاده از ارتقاء داخلی از نوع داخلی، می‌توان به طور مستقیم به فیلدها و متدهای نوع داخلی توسط مراجعه‌های نوع خارجی دسترسی داشت.
 
-- *Example* *1:* Declaring Fields			   
-- *Example* *2:* Embedding types
-- *Example* *3:* Embedded types and interfaces
-- *Example* *4:* Outer and inner type interface implementations
+** مرور کد
+
+- *مثال* *1:* تعریف فیلدها		   
+- *مثال* *2:*  انواع واردکردن
+- *مثال* *3:* انواع واردکرده و اینترفیس ها
+- *مثال* *4:* اجرای اینترفیس های نوع خارجی و داخلی
 	
 .play embedding/example1.go
 .play embedding/example2.go
 .play embedding/example3.go		   
 .play embedding/example4.go
 
-** Embedding Mechanics
+** مکانیک‌های واردکردن
 
-This first example does not show embedding, just the declaration of two struct
-types working together as a field from one type to the other.
+این مثال اول واردکردن را نشان نمی‌دهد، فقط تعریف دو نوع ساختاری است که به عنوان یک فیلد از یک نوع به نوع دیگر کار می‌کنند.
 
     type user struct {
         name  string
@@ -37,7 +35,7 @@ types working together as a field from one type to the other.
         level  string
     }
 
-This is embedding.
+این واردکردن است.
 
     type user struct {
         name  string
@@ -49,8 +47,7 @@ This is embedding.
         level  string
     }
 
-The person field is removed and just the type name is left. You can also embed a
-type using pointer semantics.
+فیلد شخص حذف شده و فقط نام نوع باقی مانده است. همچنین می‌توانید از نحوه‌های اشاره‌گری برای واردکردن یک نوع استفاده کنید.
 
     type user struct {
         name  string
@@ -62,13 +59,9 @@ type using pointer semantics.
         level  string
     }
 
-In this case, a pointer of the type is embedded. In either case, accessing the
-embedded value is done through the use of the type’s name.
+در این مورد، یک اشاره‌گر از نوع وارد شده است. در هر دو مورد، دسترسی به مقدار واردشده از طریق استفاده از نام نوع انجام می‌شود.
 
-The best way to think about embedding is to view the user type as an inner type and
-admin as an outer type. It’s this inner/outer type relationship that is magical
-because with embedding, everything related to the inner type (both fields and methods)
-can be promoted up to the outer type. 
+بهترین راه برای درک واردکردن این است که نوع کاربر را به عنوان یک نوع داخلی و admin را به عنوان یک نوع خارجی در نظر بگیرید. این رابطه نوع داخلی/خارجی دقیقاً آن چیزی است که جادویی است، زیرا با واردکردن، همه چیز مرتبط با نوع داخلی (هم فیلدها و هم متدها) می‌توانند به نوع خارجی ارتقاء یابند.
 
     type user struct {
         name  string
@@ -99,18 +92,14 @@ can be promoted up to the outer type.
         ad.notify() // Outer type promotion
     }
 
-Output:
+خروجی:
 
-    Sending user email To john smith<john@yahoo.com>
-    Sending user email To john smith<john@yahoo.com>
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
 
-Once you add a method named notify for the user type and then a small main function.
-You can see the output is the same whether you call the notify method through the inner
-pointer value directly or through the outer type value. The notify method declared for
-the user type is accessible directly by the admin type value.
+هنگامی که یک متد با نام notify به نوع کاربر اضافه می‌کنید و سپس یک تابع اصلی کوچک ایجاد می‌کنید، می‌بینید که خروجی یکسان است، بگیرید که متد notify را از طریق مقدار اشاره‌گر داخلی مستقیماً فراخوانی کنید یا از طریق مقدار نوع خارجی. متد notify که برای نوع کاربر اعلام شده است، به طور مستقیم توسط مقدار نوع admin قابل دسترسی است.
 
-Though this looks like inheritance, you must be careful. This is not about reusing
-state, but about promoting behavior.
+اگرچه این مانند ارث‌بری به نظر می‌رسد، باید مراقب باشید. این موضوع درباره بازاستفاده از وضعیت نیست، بلکه درباره ارتقاء رفتار است.
 
     type notifier interface {
         notify()
@@ -120,12 +109,9 @@ state, but about promoting behavior.
         n.notify()
     }
 
-Now you add an interface and a polymorphic function that accepts any concrete value
-that implements the full method set of behavior defined by the notifier interface.
-Which is just a method named notify.
+اکنون شما یک رابط و یک تابع چندشکلی اضافه می‌کنید که هر مقدار محسوسی را که مجموعه کامل متدهای رفتار تعریف شده توسط رابط notifier پیاده‌سازی کند، قبول می‌کند. که فقط یک متد به نام notify است.
 
-Because of embedding and promotion, values of type admin now implement the notifier
-interface.
+به دلیل واردکردن و ارتقاء، مقادیر نوع admin اکنون رابط notifier را پیاده‌سازی می‌کنند.
 
     func main() {
         ad := admin{
@@ -139,12 +125,11 @@ interface.
         sendNotification(&ad)
     }
 
-Output:
+خروجی:
 
-    Sending user email To john smith<john@yahoo.com>
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
 
-You can send the address of the admin value into the polymorphic function since
-embedding promotes the notify behavior up to the admin type.
+شما می‌توانید آدرس مقدار admin را به تابع چندشکلی بفرستید، چرا که واردکردن رفتار notify را تا نوع admin ارتقاء می‌دهد.
 
     type admin struct {
         *user  // Pointer Semantic Embedding
@@ -157,8 +142,7 @@ embedding promotes the notify behavior up to the admin type.
             a.email)
     }
 
-When the outer type implements a method already implemented by the inner type,
-the promotion doesn’t take place.
+زمانی که نوع خارجی یک متد را که قبلاً توسط نوع داخلی پیاده‌سازی شده است، پیاده‌سازی می‌کند، ارتقاء انجام نمی‌شود.
 
     func main() {
         ad := admin{
@@ -172,33 +156,32 @@ the promotion doesn’t take place.
         sendNotification(&ad)
     }
 
-Output:
-    
-    Sending admin email To john smith<john@yahoo.com>
+خروجی:
 
-You can see the outer type’s method is now being executed.
+    ارسال ایمیل ادمین به john smith <john@yahoo.com>
 
-** Notes
+می‌بینید که متد نوع خارجی اکنون اجرا می‌شود.
 
-- Embedding types allow us to share state or behavior between types.
-- The inner type never loses its identity.
-- This is not inheritance.
-- Through promotion, inner type fields and methods can be accessed through the outer type.
-- The outer type can override the inner type's behavior.
+** یادداشت‌ها
 
-** Extra Reading
+- انواع واردکردن به ما اجازه می‌دهند تا وضعیت یا رفتار را بین انواع به اشتراک بگذاریم.
+- نوع داخلی هیچ‌گاه هویت خود را از دست نمی‌دهد.
+- این ارث‌بری نیست.
+- از طریق ارتقاء، فیلدها و متدهای نوع داخلی از طریق نوع خارجی قابل دسترسی هستند.
+- نوع خارجی می‌تواند رفتار نوع داخلی را نادیده بگیرد.
+
+** مطالعه اضافی
 
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
 - [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
 
-* Exercises
+* تمرین‌ها
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+از الگو به عنوان نقطه شروع برای انجام تمرین‌ها استفاده کنید. یک راه‌حل ممکن ارائه شده است.
 
-** Exercise 1
+** تمرین 1
 
-Edit the code from the template. Add a new type CachingFeed which embeds Feed and
-overrides the Fetch method.
+کد را از الگو ویرایش کنید. یک نوع جدید به نام CachingFeed اضافه کنید که Feed را به عنوان یک نوع داخلی شامل می‌شود و متد Fetch را تغییر می‌دهد.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go
