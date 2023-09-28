@@ -1,0 +1,408 @@
+Context پکیج
+بسته‌ی context نوع Context را تعریف می‌کند که مهلت‌ها، سیگنال‌های لغو و مقادیر دیگر مربوط به درخواست را از طریق مرزهای API و بین پروسه‌ها منتقل می‌کند.
+
+* Context پکیج
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+بسته‌ی context نوع Context را تعریف می‌کند که مهلت‌ها، سیگنال‌های لغو و سایر مقادیر مربوط به درخواست را از طریق مرزهای API و بین پروسه‌ها منتقل می‌کند.
+
+** بررسی کد
+
+"مقادیر Context برای داده‌های مربوط به درخواستی هستند که از طریق برنامه‌ها در یک سیستم توزیع شده عبور می‌کنند.
+
+- *مثال* *1:* Store / Retrieve Values
+- *مثال* *2:* WithCancel
+- *مثال* *3:* WithDeadline
+- *مثال* *4:* WithTimeout
+- *مثال* *5:* Request/Response
+- *مثال* *6:* Cancellation
+
+.play context/example1.go
+.play context/example2.go
+.play context/example3.go
+.play context/example4.go
+.play context/example5.go
+.play context/example6.go
+
+** مفهوم‌شناسی Context
+
+زبان برنامه‌نویسی Go دارای کلمه‌کلیدی داخلی go برای ایجاد گوروتین‌ها است، اما کلمات کلیدی یا پشتیبانی مستقیم برای پایان دادن به گوروتین‌ها ندارد. در یک سرویس واقعی، قابلیت تایم‌اوت و پایان دادن به گوروتین‌ها برای حفظ سلامت و عملکرد یک سرویس بسیار حیاتی است. هیچ درخواست یا وظیفه‌ای نمی‌تواند بی‌پایان اجرا شود، بنابراین تشخیص دادن و مدیریت تاخیر مسئولیت هر برنامه‌نویسی است.
+
+یک راه‌حل ارائه شده توسط تیم Go برای حل این مشکل بسته‌ی Context است. این بسته توسط سمیر آجمانی در کنفرانس Gotham Go در سال ۲۰۱۴ نوشته و معرفی شد. او همچنین یک مقاله برای وبلاگ Go نوشت.
+
+اسلاید دیک: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
+
+مقاله وبلاگ: [[https://blog.golang.org/context][https://blog.golang.org/context]]
+
+با استفاده از این اعمال کرده و مکالمات با سمیر در طول سال‌ها، یک مجموعه از مفهوم‌شناسی‌ها پدید آمده است.
+
+*ایجاد* *Context* *های* *درخواست* *ورودی* *به* *سرور*
+
+زمان ایجاد یک Context همیشه در ابتدای ممکن‌ترین زمان در پردازش یک درخواست یا وظیفه است. کار با Context در ابتدای چرخه توسعه شما را مجبور به طراحی APIها به عنوان اولین پارامتر به عنوان Context می‌کند. حتی اگر مطمئن نیستید که یک تابع به 100٪ نیاز به یک Context دارد، از حذف Context از چند تابع آسان‌تر است تا سعی در افزودن Context بعداً.
+
+    75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
+    76 // pair, this makes for really easy, convenient routing.
+    77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
+    ...
+    85     // The function to execute for each request.
+    86     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
+    87         ctx, span := trace.StartSpan(r.Context(), "internal.platform.web")
+    88         defer span.End()
+    ...
+    106    // Add this handler for the specified verb and route.
+    107    a.TreeMux.Handle(verb, path, h)
+    108 }
+
+در اینجا کدی از پروژه‌ی سرویسی را مشاهده می‌کنید که در آموزش‌های Ardan Labs تدریس می‌شود. در خط ۸۶، یک تابع دستگیره تعریف شده که به همه‌ی مسیرها به عنوان در خط ۱۰۷ نشان داده شده متصل می‌شود. این تابع آغاز پردازش هر درخواست ورودی را آغاز می‌کند. در خط ۸۷، یک span برای درخواست ایجاد می‌شود که به عنوان پارامتر اول یک Context را می‌پذیرد. این اولین بار است که در کد سرویس به یک Context نیاز داریم.
+
+آنچه که در اینجا بسیار عالی است این است که مقدار http.Request در حالت پیش‌فرض یک Context را در خود دارد. این قابلیت از نسخه ۱.۷ Go به کد اضافه شده است. این به این معناست که کد نیاز به ایجاد دستی یک Context در سطح بالا ندارد. اگر از نسخه ۱.۸ Go استفاده می‌کردیم، در آن صورت قبل از فراخوانی StartSpan نیاز به ایجاد یک Context خالی با استفاده از تابع context.Background داشتیم.
+
+    https://golang.org/pkg/context/#Background
+
+    87         ctx := context.Background()
+    88         ctx, span := trace.StartSpan(ctx, "internal.platform.web")
+    89         defer span.End()
+
+این است که چگونه کد در نسخه ۱.۸ Go باید به نظر برسد. همانطور که در مستندات بسته توضیح داده شده است:
+
+Background یک Context خالی با غیر-nil برمی‌گرداند. هیچگاه لغو نمی‌شود، مقادیری ندارد و مهلتی ندارد. به طور معمول توسط تابع اصلی، مقدماتی و تست‌ها و به عنوان Context سطح بالا برای درخواست‌های ورودی استفاده می‌شود.
+
+در Go، استفاده از نام متغیر ctx برای همه‌ی مقادیر Context یک الگوی عادتی است. از آنجا که یک Context یک رابط است، از علائم نشانگر می‌تواند استفاده نشود.
+
+    https://golang.org/pkg/context/#Context
+
+    type Context interface {
+        Deadline() (deadline time.Time, ok bool)
+        Done() <-chan struct{}
+        Err() error
+        Value(key interface{}) interface{}
+    }
+
+هر تابعی که یک Context را می‌پذیرد، باید یک نسخه خودتان از مقدار رابط را دریافت کند.
+
+*تماس* *های* *خروجی* *به* *سرورها* *باید* *یک* *Context* *بپذیرند*
+
+اندیشه پشت این مفهوم این است که تماس‌های سطح بالاتر باید به تماس‌های سطح پایین‌تر بگویند چقدر طول می‌کشد که آنها مایل به انتظار باشند. مثال بزرگی از این موضوع در بسته‌ی http و تغییرات نسخه ۱.۷ اعمال شده در متد Do برای رعایت تایم‌اوت در یک درخواست است.
+
+    01 package main
+    02 
+    03 import (
+    04     "context"
+    05     "io"
+    06     "log"
+    07     "net/http"
+    08     "os"
+    09     "time"
+    10 )
+    11 
+    12 func main() {
+    13
+    14     // Create a new request.
+    15     req, err := http.NewRequest("GET", "https://www.ardanlabs.com/blog/post/index.xml", nil)
+    16     if err != nil {
+    17         log.Println("ERROR:", err)
+    18         return
+    19     }
+    20
+    21     // Create a context with a timeout of 50 milliseconds.
+    22     ctx, cancel := context.WithTimeout(req.Context(), 50*time.Millisecond)
+    23     defer cancel()
+    24
+    25     // Bind the new context into the request.
+    26     req = req.WithContext(ctx)
+    27
+    28     // Make the web call and return any error. Do will handle the
+    29     // context level timeout.
+    30     resp, err := http.DefaultClient.Do(req)
+    31     if err != nil {
+    32       log.Println("ERROR:", err)
+    33       return
+    34     }
+    35
+    36     // Close the response body on the return.
+    37     defer resp.Body.Close()
+    38
+    39     // Write the response to stdout.
+    40     io.Copy(os.Stdout, resp.Body)
+    41 }
+
+این برنامه یک درخواست برای دریافت خوراک وبلاگ Ardan با تایم‌اوت ۵۰ میلی‌ثانیه صادر می‌کند. در خطوط ۱۵-۱۹، درخواست برای انجام تماس GET به URL ارائه‌شده ایجاد می‌شود. در خطوط ۲۲-۲۳، یک Context با تایم‌اوت ۵۰ میلی‌ثانیه ایجاد می‌شود. یک API جدیدی که در نسخه ۱.۷ به Request اضافه شد، متد WithContext است. این متد اجازه می‌دهد تا فیلد Context مقدار Request به‌روز شود. در خط ۲۶، دقیقاً همین کار توسط کد انجام می‌شود.
+
+در خط ۳۰، درخواست واقعی با استفاده از متد Do از مقدار DefaultClient بسته‌ی http صورت می‌گیرد. متد Do از مقدار تایم‌اوت ۵۰ میلی‌ثانیه که در داخل Context در Request تنظیم شده است، پیروی می‌کند. آنچه که در اینجا مشاهده می‌کنید، کد (تابع سطح بالا) به متد Do (تابع سطح پایین) می‌گوید چقدر مایل به انتظار برای انجام عملیات Do هستیم.
+
+*هیچوقت* *یک* *Context* *یک* *داخل* *struct* *نگه* *ندارید*
+
+به جای اینکه Context را به طور ضمنی در هر تابعی که نیاز دارد به آن منتقل کنید. در واقعیت، هر تابعی که عملیات I/O را انجام می‌دهد، باید یک مقدار Context را به عنوان پارامتر اول خود قبول کند و تایم‌اوت یا مهلتی که توسط فراخواننده تنظیم شده را رعایت کند. در مورد Request، مسائل سازگاری به عقب را در نظر گرفت. بنابراین به جای تغییر APIها، مکانیک نشان‌داده‌شده در بخش آخر اجرا شد.
+
+همیشه استثنائاتی وجود دارد. با این حال، در دامنه این پست و هر API از کتابخانه استاندارد که یک Context می‌پذیرد، الگوی عمومی این است که پارامتر اول مقدار Context را پذیرفته‌شده باشد.
+
+.image /tour/eng/static/img/context_figure1.png
+
+شکل نمونه‌ای از بسته‌ی net را نشان می‌دهد که پارامتر اول هر متد یک Context به عنوان پارامتر اول می‌پذیرد و از الگوی نام متغیر ctx استفاده می‌کند.
+
+*زنجیره* *تماس* *های* *تابع* *بین* *آنها* *باید* *Context* *را* *منتقل* *کند*
+
+این قانون مهمی است زیرا یک Context مبتنی بر درخواست یا وظیفه است. شما می‌خواهید Context و هر تغییری که در طول پردازش درخواست یا وظیفه انجام شود، منتقل و رعایت شود.
+
+    23 // List returns all the existing users in the system.
+    24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    25     ctx, span := trace.StartSpan(ctx, "handlers.User.List")
+    26     defer span.End()
+    27
+    28     users, err := user.List(ctx, u.db)
+    29     if err != nil {
+    30         return err
+    31     }
+    32
+    33     return web.Respond(ctx, w, users, http.StatusOK)
+    34 }
+
+در این لیست، یک تابع دستگیره به نام "List" مشاهده می‌شود که هنگامی که یک کاربر درخواست HTTP را به این نقطه ارسال می‌کند، اجرا می‌شود. این دستگیره به عنوان پارامتر اول یک Context را قبول می‌کند، زیرا قسمتی از درخواست است و عملیات ورودی/خروجی انجام خواهد داد. می‌توانید در خطوط ۲۵، ۲۸ و ۳۳ ببینید که همان مقدار Context به طول پشته تماس منتقل می‌شود.
+
+یک مقدار Context جدید ایجاد نمی‌شود زیرا این تابع به تغییر آن نیاز ندارد. اگر یک مقدار Context در سطح بالا توسط این تابع ایجاد می‌شد، هر اطلاعات موجود در Context از تماس با سطح بالاتر که با این درخواست مرتبط است، از دست می‌رفت. این دقیقاً آن چیزی نیست که شما می‌خواهید.
+
+    33 // List retrieves a list of existing users from the database.
+    34 func List(ctx context.Context, db *sqlx.DB) ([]User, error) {
+    35     ctx, span := trace.StartSpan(ctx, "internal.user.List")
+    36     defer span.End()
+    37
+    38     users := []User{}
+    39     const q = `SELECT * FROM users`
+    40
+    41     if err := db.SelectContext(ctx, &users, q); err != nil {
+    42         return nil, errors.Wrap(err, "selecting users")
+    43     }
+    44
+    45     return users, nil
+    46 }
+
+
+در اینجا اعلامیه‌ی متد List را مشاهده می‌کنید که در خط ۲۸ فراخوانی شده است. همچنان این متد یک Context را به عنوان پارامتر اول خود قبول می‌کند. سپس این مقدار به طول پشته تماس یک بار دیگر در خطوط ۳۵ و ۴۱ منتقل می‌شود. چرا که خط ۴۱ یک تماس به پایگاه داده است، توابع باید به هر مهلتی که در Context از تماس‌کننده‌های بالاتر تنظیم شده است احترام بگذارند.
+
+*جایگزین* *کردن* *یک* *Context* *با* *استفاده* *از* *WithCancel,* *WithDeadline,* *WithTimeout,* *یا* *WithValue*
+
+زیرا هر تابع می‌تواند Context را برای نیازهای خاص خود اضافه یا تغییر دهد، و تغییرات انجام‌شده باید تاثیری بر روی توابعی که قبل از آن فراخوانی شده باشند نداشته باشد، Context از نشانگر مقداری استفاده می‌کند. این به این معناست که هر تغییری در مقدار یک Context، یک مقدار Context جدید ایجاد می‌کند که سپس به جلو منتقل می‌شود.
+
+    01 func main() {
+    02
+    03     // Set a duration.
+    04     duration := 150 * time.Millisecond
+    05
+    06     // Create a context that is both manually cancellable and will signal
+    07     // cancel at the specified duration.
+    08     ctx, cancel := context.WithTimeout(context.Background(), duration)
+    09     defer cancel()
+    10
+    11     // Create a channel to receive a signal that work is done.
+    12     ch := make(chan data, 1)
+    13
+    14     // Ask the goroutine to do some work for us.
+    15     go func() {
+    16
+    17         // Simulate work.
+    18         time.Sleep(50 * time.Millisecond)
+    19
+    20         // Report the work is done.
+    21         ch <- data{"123"}
+    22     }()
+    23
+    24     // Wait for the work to finish. If it takes too long, move on.
+    25     select {
+    26         case d := <-ch:
+    27             fmt.Println("work complete", d)
+    28
+    29         case <-ctx.Done():
+    30             fmt.Println("work cancelled")
+    31     }
+    32 }
+
+این یک برنامه‌ی کوچک است که ماهیت نشانگر مقداری (value semantic) تابع WithTimeout را نشان می‌دهد. در خط ۰۸، فراخوانی تابع WithTimeout یک مقدار Context جدید و یک تابع لغو (cancel) برگرداند. چرا که فراخوانی تابع نیاز به یک Context والد دارد، کد از تابع Background برای ایجاد یک Context خالی در سطح بالا استفاده می‌کند. این همان چیزی است که تابع Background برایش استفاده می‌شود.
+
+به طور پیشرو، مقدار Context توسط تابع WithTimeout ایجاد شده استفاده می‌شود. اگر توابع آتی در زنجیره‌ی تماس نیاز به مهلت زمانی یا مهلت اختصاصی خود دارند، آنها همچنین باید از تابع مناسب With و این مقدار Context جدید به عنوان والد استفاده کنند.
+
+حیاتی است که هر تابع لغوی که توسط یک تابع With برگردانده می‌شود، قبل از اینکه تابع برگردد، اجرا شود. به همین دلیل استفاده از کلمه کلیدی defer همانند آنچه در خط ۲۶ مشاهده می‌کنید، عادت است. عدم انجام این کار منجر به نشتی حافظه در برنامه‌ی شما می‌شود.
+
+*زمانیکه* *یک* *Context* *لغو* *میشود,* *تمام* *Contextهای* *مشتق* *شده* *از* *آن* *هم* *باید* *لغو* *شود*
+
+استفاده از نشانگر مقداری برای API Context به این معناست که هر مقدار Context جدید همه‌چیزی را که در Context والد دارد به همراه تغییرات جدیدی که دارد دارد. این به این معناست که اگر یک Context والد لغو شود، همه‌ی Contextهای فرزندی که از آن Context والد مشتق می‌شوند نیز لغو می‌شوند.
+
+    01 func main() {
+    02
+    03     // Create a Context that can be cancelled.
+    04     ctx, cancel := context.WithCancel(context.Background())
+    05     defer cancel()
+    06
+    07     // Use the Waitgroup for orchestration.
+    08     var wg sync.WaitGroup
+    09     wg.Add(10)
+    10
+    11     // Create ten goroutines that will derive a Context from
+    12     // the one created above.
+    13     for i := 0; i < 10; i++ {
+    14         go func(id int) {
+    15             defer wg.Done()
+    16
+    17             // Derive a new Context for this goroutine from the Context
+    18             // owned by the main function.
+    19             ctx := context.WithValue(ctx, key, id)
+    20
+    21             // Wait until the Context is cancelled.
+    22             <-ctx.Done()
+    23             fmt.Println("Cancelled:", id)
+    24         }(i)
+    25     }
+    26
+    27     // Cancel the Context and any derived Context's as well.
+    28     cancel()
+    29     wg.Wait()
+    30 }
+
+این برنامه یک مقدار Context ایجاد می‌کند که می‌توان آن را در خط ۰۴ لغو کرد. سپس در خطوط ۱۳ تا ۲۵، ده goroutine ایجاد می‌شوند. هر goroutine شناسه منحصر به فرد خود را در داخل مقدار Context خود در خط ۱۹ قرار می‌دهد. فراخوانی WithValue مقدار Context تابع اصلی را به عنوان والد خود دریافت می‌کند. سپس در خط ۲۲، هر goroutine منتظر می‌ماند تا مقدار Context خود لغو شود.
+
+در خط ۲۸، goroutine اصلی مقدار Context خود را لغو می‌کند و سپس در خط ۲۹ منتظر می‌ماند تا همه ده goroutine اعلامیه را دریافت کرده و بعد از آن برنامه را ببندد. هنگامی که تابع لغو فراخوانی می‌شود، همه ده goroutine در خط ۴۱ آزاد می‌شوند و چاپ می‌کنند که لغو شده‌اند. یک فراخوانی برای لغو همه آنها.
+
+این همچنین نشان می‌دهد که مقدار Context همانند می‌تواند به توابعی که در goroutine های مختلف اجرا می‌شوند منتقل شود. یک Context ایمن برای استفاده همزمان توسط چند goroutine است.
+
+توجه داشته باشید که حتی اگر یک تابع این امکان را بدهد، Context nil را منتقل نکنید. اگر نسبت به استفاده از کدام Context مطمئن نیستید، یک Context TODO منتقل کنید. یکی از بخش‌های مورد علاقه‌ام از بسته Context تابع TODO است. من باور دارم که یک برنامه‌نویس همیشه در حال نوشتن کد است. این مطابق با نوشتن نسخه‌های مقاله توسط نویسنده است. شما همیشه همه چیز را نمی‌دانید ولی امیدواراً کافی می‌دانید تا کارها را به جلو ببرید. در پایان، شما همیشه در حال یادگیری، بازبینی و تست در طول راه هستید.
+
+بارها پیش آمده که می‌دانستم نیاز به یک Context دارم اما نمی‌دانستم از کجا باید آن را بگیرم. من مسئول ایجاد Context سطح بالا نبودم، بنابراین استفاده از تابع Background از میان بی‌پایه بود. به یک Context سطح بالای موقت نیاز داشتم تا بفهمم واقعیتاً Context واقعی از کجا می‌آید. در این مواقع باید از تابع TODO به جای تابع Background استفاده کنید.
+
+*از* *مقادیر* *Context* *فقط* *برای* *داده‌های* *مرتبط* *با* *درخواست* *استفاده* *کنید*
+
+از مقدار Context برای انتقال پارامترهای اختیاری به توابع استفاده نکنید. این ممکن است مهمترین معنایی از همه باشد. از مقدار Context برای انتقال داده به تابع استفاده نکنید زمانی که این داده توسط تابع برای اجرای کد خود به صورت موفقیت‌آمیز نیاز دارد. به عبارت دیگر، یک تابع باید قادر به اجرای منطق خود با مقدار Context خالی باشد. در مواردی که یک تابع نیاز به وجود اطلاعات در مقدار Context دارد، اگر این اطلاعات از دست برود، برنامه باید شکست بخورد و به برنامه اعلام کند که باید خاموش شود.
+
+یک مثال کلاسیک از استفاده نادرست از انتقال داده به توابع با استفاده از Context، اتصالات پایگاه داده است. به عنوان یک قاعده عمومی، شما می‌خواهید این ترتیب را در حین انتقال داده در سراسر برنامه‌ی خود دنبال کنید.
+
+- داده را به عنوان پارامتر تابع منتقل کنید: این روش واضح‌ترین روش برای انتقال داده در سراسر برنامه بدون مخفی کردن آن است.
+
+- داده را از طریق دریافت‌کننده (receiver) منتقل کنید: اگر تابعی که به داده نیاز دارد نمی‌تواند امضای خود را تغییر دهد، سپس از یک متد استفاده کرده و داده را از طریق دریافت‌کننده منتقل کنید.
+
+مثال سریع از استفاده از دریافت‌کننده:
+
+دستگیره‌های درخواست (Request handlers) یک مثال کلاسیک از قاعده دوم هستند. از آنجا که یک تابع دستگیره به یک اعلان خاص بسته شده است، امضای دستگیره نمی‌تواند تغییر کند.
+
+    23 // List returns all the existing users in the system.
+    24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    25     ctx, span := trace.StartSpan(ctx, "handlers.User.List")
+    26     defer span.End()
+    27
+    28     users, err := user.List(ctx, u.db)
+    29     if err != nil {
+    30         return err
+    31     }
+    32
+    33     return web.Respond(ctx, w, users, http.StatusOK)
+    34 }
+
+در اینجا شما متد دستگیره List از پروژه سرویس مشاهده می‌کنید. امضای این متدها به آنچه توسط چارچوب وب تعریف شده است بسته شده و نمی‌توان آنها را تغییر داد. با این حال، برای انجام تماس تجاری در خط ۲۸، اتصال پایگاه داده لازم است. این کد اتصال‌پول را نه از مقدار Contextی که منتقل می‌شود، بلکه از دریافت‌کننده (receiver) پیدا می‌کند.
+
+    15 // User represents the User API method handler set.
+    16 type User struct {
+    17     db            *sqlx.DB
+    18     authenticator *auth.Authenticator
+    19
+    20 // ADD OTHER STATE LIKE THE LOGGER AND CONFIG HERE.
+    21 }
+
+شما اعلامیه نوع دریافت‌کننده را مشاهده می‌کنید. هر چیزی که یک دستگیره درخواست نیاز دارد به عنوان فیلدها تعریف شده است. این امکان را فراهم می‌کند تا اطلاعات مخفی نشده و لایه تجاری با مقدار Context خالی کار کند.
+
+    14 // API constructs an http.Handler with all application routes defined.
+    15 func API(shutdown chan os.Signal, log *log.Logger, db *sqlx.DB, authenticator *auth.Authenticator) http.Handler {
+    16
+    ...
+    26     // Register user management and authentication endpoints.
+    27     u := User{
+    28         db:            db,
+    29         authenticator: authenticator,
+    30     }
+    31
+    32     app.Handle("GET", "/v1/users", u.List)
+
+
+این کد یک مقدار کاربر ایجاد می‌کند و سپس متد لیست را به مسیر متصل می‌کند. یک بار دیگر، از آنجا که امضای یک تابع دستگیره قابل تغییر نیست، استفاده از یک دریافت‌کننده و متدها بهترین راه برای انتقال داده بدون پنهان شدن آن است.
+
+*اطلاعات* *اشکال‌زدایی* *یا* *ردیابی* *را* *می‌توان* *با* *امان* *در* *یک* *Context* *منتقل* *کرد*
+
+اطلاعاتی که می‌توان در یک مقدار Context ذخیره کرد و از آن دریافت کرد، اطلاعات اشکال‌زدایی و ردیابی هستند.
+
+    23 // Values represent state for each request.
+    24 type Values struct {
+    25     TraceID    string
+    26     Now        time.Time
+    27     StatusCode int
+    28 }
+
+در اینجا یک اعلامیه از یک نوع آماده شده و در داخل هر مقدار Context ایجاد شده برای یک درخواست جدید ذخیره می‌شود. سه فیلد اطلاعات ردیابی و اشکال‌زدایی برای درخواست فراهم می‌کنند. این اطلاعات به عنوان درخواست پیش می‌رود جمع‌آوری می‌شوند.
+
+    75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
+    76 // pair, this makes for really easy, convenient routing.
+    77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
+    78
+    ...
+    79     // The function to execute for each request.
+    80     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
+    …
+    84     // Set the context with the required values to
+    85     // process the request.
+    86     v := Values{
+    87         TraceID: span.SpanContext().TraceID.String(),
+    88         Now:     time.Now(),
+    89     }
+    90     ctx = context.WithValue(ctx, KeyValues, &v)
+
+مشاهده کنید که نوع Values در خط ۸۶ ساخته می‌شود و سپس در داخل Context در خط ۹۰ ذخیره می‌شود. اکثر این اطلاعات توسط میان‌افزار logging نیاز دارد.
+
+    20 // Create the handler that will be attached in the middleware chain.
+    21 h := func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    ...
+    25     // If the context is missing this value, request the service
+    26     // to be shutdown gracefully.
+    27     v, ok := ctx.Value(web.KeyValues).(*web.Values)
+    28     if !ok {
+    29         return web.NewShutdownError("web value missing from context")
+    30     }
+    ...
+    34     log.Printf("%s : (%d) : %s %s -> %s (%s)",
+    35         v.TraceID, v.StatusCode,
+    36         r.Method, r.URL.Path,
+    37         r.RemoteAddr, time.Since(v.Now),
+    38     )
+
+پیامدهای انتقال اطلاعات از طریق مقدار Context در کد در خط‌های ۲۷ تا ۳۰ نشان داده شده است. کد تلاش می‌کند داده‌های Values را از مقدار Context بازیابی کند و بررسی می‌کند که آیا داده در آنجا وجود دارد یا خیر. اگر داده در دسترس نباشد، یک مشکل از نظر اصولی وجود دارد و سرویس باید تا حد امکان به سرعت تعطیل شود. این کار در کد سرویس انجام می‌شود با ارسال یک مقدار خطا ویژه به بالا از طریق برنامه.
+
+اگر اطلاعات اتصال به پایگاه داده یا اطلاعات کاربر به لایه تجاری خود از طریق یک Context منتقل می‌کنید، دو مشکل دارید:
+
+- شما باید برای اصالت بررسی کنید و نیاز به یک مکانیزم داشته باشید تا سرویس به سرعت تعطیل شود.
+- آزمون و اشکال‌زدایی به مراتب دشوارتر و پیچیده‌تر می‌شود. شما از وضوح و قابلیت خوانایی بهتر در کدتان دور می‌شوید.
+
+** یادداشت‌ها
+
+- درخواست‌های وارد به یک سرور باید یک Context ایجاد کنند.
+- تماس‌های خروجی به سرورها باید یک Context را قبول کنند.
+- زنجیره تماس‌های تابعی بین آن‌ها باید مقدار Context را منتقل کند.
+- یک Context را با استفاده از WithCancel، WithDeadline، WithTimeout یا WithValue جایگزین کنید.
+- هنگامی که یک Context لغو می‌شود، تمامی Contextهای مشتق از آن همچنین لغو می‌شوند.
+- Contextها را در داخل نوع struct نگه‌نداری نکنید؛ به جای آن، به هر تابع که نیاز به آن دارد، به صراحت یک Context را منتقل کنید.
+- حتی اگر یک تابع اجازه دهد، یک Context خالی را منتقل نکنید. اگر مطمئن نیستید کدام Context را باید استفاده کنید، context.TODO را منتقل کنید.
+- از مقادیر Context فقط برای داده‌های مرتبط با درخواست که در فرآیندها و APIها عبور می‌کند، و نه برای انتقال پارامترهای اختیاری به توابع استفاده کنید.
+- همان Context می‌تواند به توابع در حال اجرا در گوروتین‌های مختلف منتقل شود؛ Contextها برای استفاده همزمان توسط چند گوروتین ایمن هستند.
+
+** مطالب اضافی
+
+- [[https://www.ardanlabs.com/blog/2019/09/context-package-semantics-in-go.html][Context Package Semantics In Go]] - William Kennedy  
+- [[https://golang.org/pkg/context][Package context]] - Go Team    
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
+- [[https://rakyll.org/leakingctx/][Using contexts to avoid leaking goroutines]] - JBD    
+
+** تمرین‌ها
+
+از الگو به عنوان نقطه شروع برای تکمیل تمرین‌ها استفاده کنید. یک راه حل ممکن ارائه شده است.
+
+** تمرین 1
+
+از الگو استفاده کنید و دستورات را دنبال کنید. شما قرار است یک دستگیره وب بنویسید که یک تماس مصنوعی به پایگاه داده انجام دهد اما در صورتی که تماس زیادی طول بکشد، براساس یک متن، زمان‌دهی انجام شود. همچنین وضعیت را در متن ذخیره خواهید کرد.
+
+.play context/exercise1.go
+.play context/answer1.go
