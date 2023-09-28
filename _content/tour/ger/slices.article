@@ -187,29 +187,28 @@ sich die Grösse um 25%.
 
 ** Slicing Slices
 
-Slices provide the ability to avoid extra copies and heap allocations of the backing
-array when needing to isolate certain elements of the backing array for different
-operations.
+Slices bieten die Möglichkeit, zusätzliche Kopien und Heap-Zuweisungen des Backing-Arrays zu vermeiden
+Arrays zu vermeiden, wenn bestimmte Elemente des Backing Arrays für verschiedene
+Operationen zu isolieren.
 
-The slicing syntax represents the list notation [a:b) which means, include
-elements from index a through b, but not including b.
-
+Die Slicing-Syntax entspricht der Listennotation [a:b), was bedeutet, dass die
+Elemente von Index a bis b, aber nicht einschließlich b.
+    
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
 
-The variable slice2 is a new slice value that is now sharing the same backing
-array that slice1 is using. However, slice2 only allows you to access the elements
-at index 2 and 3 (C and D) of the original slice’s backing array. The length of
-slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
-3 elements from that pointer position.
+Die Variable slice2 ist ein neuer Slice-Wert, der sich nun das gleiche Backing
+Array, das slice1 verwendet. Allerdings können Sie mit slice2 nur auf die Elemente
+bei den Indizes 2 und 3 (C und D) des Backing-Arrays des ursprünglichen Slice. Die Länge von
+slice2 ist 2 und nicht 5 wie in slice1 und die Kapazität ist 3, da es jetzt
+3 Elemente ab dieser Zeigerposition gibt.
 
 .image /tour/eng/static/img/sl4.png
 
-A better way to think about slicing is to focus on the length using this notation
-[a:a+len]  index a through a plus the length. This will reduce errors in
-calculating new slices.
+Eine bessere Art über slicing nachzudenken ist es sich auf die Grösse wie folgt zu
+konzentrieren [a:a+len]. Dies reduziert Fehler beim Berechnen neuer Slices.
 
-Using this inspect function.
+Indem man diese inspect Funktion benutzt:
 
     func inspectSlice(slice []string) {
         fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
@@ -221,7 +220,7 @@ Using this inspect function.
         }
     }
 
-You can see this in action.
+Hier in Aktion:
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -240,18 +239,19 @@ Output:
     [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
     [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
 
-Notice how the two different slices are sharing the same backing array. You can
-see this by comparing addresses.
 
-The nice thing here is there are no allocations. The compiler knows the size of
-the backing array for slice1 at compile time. Passing a copy of the slice value
-down into the inspectSlice function keeps everything on the stack.
+Beachten Sie, dass sich die beiden verschiedenen Slices dasselbe Backing-Array teilen. Sie können
+dies durch einen Vergleich der Adressen erkennen.
 
-** Mutations To The Backing Array
+Das Schöne daran ist, dass es hier keine Zuweisungen gibt. Der Compiler kennt die Größe des
+des Backing Array für Slice1 zur Kompilierzeit. Die Übergabe einer Kopie des Slice-Wertes
+an die Funktion inspectSlice weitergibt, bleibt alles auf dem Stack.
 
-When you use slice2 to change the value of the string at index 0, any slice value
-that is sharing the same backing array (where the address for that index is part
-of that slice’s length) will see the change.
+** Mutationen am Backing Array
+
+Wenn Sie slice2 verwenden, um den Wert der Zeichenkette bei Index 0 zu ändern, wird jeder Slice-Wert
+der sich dasselbe Backing-Array teilt (wobei die Adresse für diesen Index Teil
+der Länge des Slice ist), wird die Änderung angezeigt.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -271,12 +271,11 @@ Output:
     [0] 0xc00007e020 CHANGED
     [1] 0xc00007e030 D
 
-You always have to be aware when you are modifying a value at an index position if
-the backing array is being shared with another slice.
+Man muss sich immer bewusst sein, ob der slice an dem man per index einen Wert verändert, das backing Array mit einem anderen Slice teilt.
 
 .image /tour/eng/static/img/sl5.png
 
-What if you use the built-in function append instead?
+Was wenn wir stattdessen eine built-in Funktion anwenden?
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -297,10 +296,10 @@ Output:
     [1] 0xc00007e030 D
     [2] 0xc00007e040 CHANGED
 
-The append function creates the same side effect, but it’s hidden. In this case,
-bringing in more length from capacity for slice2 has caused the value at address
-0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
-part of its length.
+Die Funktion "Anhängen" hat denselben Nebeneffekt, der jedoch nicht sichtbar ist. In diesem Fall,
+hat das Einbringen von mehr Länge aus der Kapazität für slice2 dazu geführt, dass der Wert an Adresse
+0xc00007e040 geändert wird. Leider hatte Slice1 diese Adresse bereits als
+Teil seiner Länge.
 
 .image /tour/eng/static/img/sl6.png
 
@@ -324,13 +323,12 @@ Output:
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
-The syntax for a three index slice is [a:b:c] when b and c should be the same
-since [a-b] sets the length and [a-c] sets the capacity. Now the length and
-capacity of slice2 is the same.
+Die Syntax für ein Slice mit drei Indizes ist [a:b:c], wenn b und c gleich sein sollen
+da [a-b] die Länge und [a-c] die Kapazität festlegt. Jetzt sind die Länge und
+Kapazität von slice2 identisch.
 
-Now you use the built-in function append again like before.
+Nun verwenden Sie wieder die eingebaute Funktion append wie zuvor.
 
-    slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
     slice2 = append(slice2, "CHANGED")
     inspectSlice(slice1)
@@ -349,18 +347,18 @@ Output:
     [1] 0xc000016090 D
     [2] 0xc0000160a0 CHANGED
 
-Notice after the call to append, slice2 has a new backing array.
+Beachten Sie, dass slice2 nach dem Aufruf von append ein neues Backing-Array hat.
 
 .image /tour/eng/static/img/sl7.png
 
-This can be seen by comparing the addresses of each slice. In this case, the
-mutation against slice2 didn’t cause a side effect against slice1.
+Dies lässt sich durch einen Vergleich der Adressen der einzelnen Slice erkennen. In diesem Fall hat die
+Mutation gegen Slice2 keine Nebenwirkung gegen Slice1.
 
-** Copying Slices Manually
+** Slices manuell kopieren
 
-There is a built-in function named copy that will allow for the shallow copying
-of slices. Since a string has a backing array of bytes that are immutable, it
-can be used as a source but never a destination.
+Es gibt eine eingebaute Funktion namens copy, die das flache Kopieren von
+von Slices ermöglicht. Da eine Zeichenkette ein Backing-Array von Bytes hat, die unveränderlich sind, kann sie
+kann sie als Quelle verwendet werden, aber niemals als Ziel.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice3 := make([]string, len(slice1))
@@ -384,15 +382,14 @@ Output:
     [3] 0xc00005c0d0 D
     [4] 0xc00005c0e0 E
 
-As long as the destination slice has the proper type and length, the built-in
-function copy can perform a shallow copy.
+Solange das Ziel-Slice den richtigen Typ und die richtige Länge hat, kann die eingebaute
+Funktion copy eine oberflächliche Kopie durchführen.
 
-** Slices Use Pointer Semantic Mutation
-
-It’s important to remember that even though you use value semantics to move a slice
-around the program, when reading and writing a slice, You are using pointer semantics.
-Sharing individual elements of a slice with different parts of my program can
-cause unwanted side effects.
+** Slices benutzen Pointer Semantic Mutation
+Es ist wichtig, sich daran zu erinnern, dass Sie, obwohl Sie die Wertesemantik verwenden, um ein Slice
+im Programm bewegen, verwenden Sie beim Lesen und Schreiben eines Slice die Zeigersemantik.
+Die gemeinsame Nutzung einzelner Elemente eines Slice in verschiedenen Teilen meines Programms kann
+unerwünschte Nebeneffekte verursachen.
 
     // Construct a slice of 1 user, set a pointer to that user,
     // use the pointer to update likes.
@@ -433,23 +430,23 @@ Output:
     User: 0 Likes: 1
     User: 1 Likes: 0
 
-However, since the append function replaced the backing array with a new one,
-the pointer is updating the old backing array and the likes are lost. The output
-shows the likes for the first user did not increase.
+Da jedoch die Append-Funktion das Backing-Array durch ein neues ersetzt hat,
+aktualisiert der Zeiger das alte Backing-Array und die entsprechenden Daten gehen verloren. Die Ausgabe
+zeigt, dass sich die Likes für den ersten Benutzer nicht erhöht haben.
 
 .image /tour/eng/static/img/sl9.png
 
-You have to be careful to know if a slice is going to be used in an append operation
-during the course of a running program. How you share the slice needs to be
-considered. Sharing individual indexes may not be the best idea. Sharing an
-entire slice value may not work either when appending is in operation. Probably
-using a slice as a field in a struct, and sharing the struct value is a better
-way to go.
+Sie müssen darauf achten, dass Sie wissen, ob ein Slice in einer Anfügeoperation
+während eines laufenden Programms verwendet wird. Wie Sie das Slice freigeben, muss
+berücksichtigen. Die gemeinsame Nutzung einzelner Indizes ist möglicherweise nicht die beste Idee. Das Teilen eines
+gesamten Slice-Wertes funktioniert möglicherweise auch nicht, wenn das Anhängen in Betrieb ist. Wahrscheinlich
+ist die Verwendung eines Slice als Feld in einer Struktur und die gemeinsame Nutzung des Strukturwertes der bessere
+Weg zu gehen.
 
-** Linear Traversal Efficiency
-The beauty of a slice is its ability to allow for performing linear traversals
-that are mechanically sympathetic while sharing data using value semantics to
-minimize heap allocations.
+** Lineare Travessier-Effizienz
+Das Schöne an einem Slice ist seine Fähigkeit, lineare Traversals durchzuführen
+die mechanisch sympathisch sind, während die gemeinsame Nutzung von Daten mit Hilfe der Wertesemantik zur
+Heap-Zuweisungen zu minimieren.
 
     x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
@@ -460,20 +457,23 @@ minimize heap allocations.
 
     println(a, b, c, d)
 
-The code is performing a linear traversal by creating slice values that read
-different sections of the byte array from beginning to end.
+
+
+Der Code führt ein lineares Traversal durch, indem er Slice-Werte erzeugt, die
+
+verschiedene Abschnitte des Byte-Arrays von Anfang bis Ende lesen.
+Das Schöne an einem Slice ist seine Fähigkeit, lineare Traversals durchzuführen
 
 .image /tour/eng/static/img/sl10.png
 
-All the data in this code stays on the stack. No extra copies of the data inside
-the byte slice are copied.
+Alle Daten in diesem Code bleiben auf dem Stack. Es werden keine zusätzlichen Kopien der Daten innerhalb
+der Byte-Slice werden kopiert.
 
 ** Notes
-
-- Slices are like dynamic arrays with special and built-in functionality.
-- There is a difference between a slices length and capacity and they each service a purpose.
-- Slices allow for multiple "views" of the same underlying array.
-- Slices can grow through the use of the built-in function append.
+- Slices sind wie dynamische Arrays mit speziellen und eingebauten Funktionen.
+- Es gibt einen Unterschied zwischen der Länge und der Kapazität eines Slices, und beide erfüllen einen bestimmten Zweck.
+- Slices ermöglichen mehrere "Ansichten" desselben zugrunde liegenden Arrays.
+- Slices können durch die Verwendung der eingebauten Funktion append wachsen.
 
 ** Extra Reading
 
@@ -489,17 +489,16 @@ the byte slice are copied.
 - [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
 			 
 * Exercises
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+** Übung 1
 
-** Exercise 1
+*Teil* *A:* Deklarieren Sie eine Nullscheibe von ganzen Zahlen. Erstellen Sie eine Schleife, die 10 Werte
+an die Scheibe anhängt. Iterieren Sie über das Slice und zeigen Sie jeden Wert an.
 
-*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
-to the slice. Iterate over the slice and display each value.
-
-*Part* *B:* Declare a slice of five strings and initialize the slice with string
-literal values. Display all the elements. Take a slice of index one and two and
-display the index position and value of each element in the new slice.
+*Teil* *B:* Deklarieren Sie ein Slice mit fünf Strings und initialisieren Sie das Slice mit String
+literalen Werten. Zeige alle Elemente an. Nimm ein Slice mit Index eins und zwei und
+zeige die Indexposition und den Wert jedes Elements im neuen Slice an.
 
 .play slices/exercise1.go		  
 .play slices/answer1.go
