@@ -1,123 +1,122 @@
-Constants
-One of the more unique features of Go is how the language implements constants.
+Σταθερές
+Ένα από τα περισσότερο μοναδικά χαρακτηριστικά της Go είναι ο τρόπος με τον οποίο η γλώσσα υλοποιεί τις σταθερές.
 
-* Constants
+* Σταθερές 
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Παρακολουθείστε το Video]]
+- Εαν Χρειάζεστε Οικονομική Συνδρομή, Χρησιμοποιείστε το σχετικό [[https://www.ardanlabs.com/scholarship/][Έγγραφο Υποτροφίας]]
 
-One of the more unique features of Go is how the language implements constants.
-The rules for constants in the language specification are unique to Go. They provide
-the flexibility Go needs to make the code we write readable and intuitive while still
-maintaining type safety.
+Ένα από τα πιο μοναδικά χαρακτηριστικά της Go είναι ο τρόπος με τον οποίο η γλώσσα υλοποιεί τις σταθερές.
+Οι κανόνες για τις σταθερές στο έγγραφο προδιαγραφών της γλώσσας είναι μοναδικοί στην Go. Παρέχουν 
+την ευελιξία που χρειάζεται η Go προκειμένου να κάνει τον κώδικα που γράφει κάποιος αναγνώσιμο και εύληπτο ενώ ταυτόχρονα
+να διατηρείται η ασφάλεια που παρέχουν οι τύποι.
 
-Constants can be typed or untyped. When a constant is untyped, it’s considered to
-be of a kind. Constants of a kind can be implicitly converted by the compiler. This
-all happens at compile time and not at runtime.
+Οι σταθερές μπορούν να έχουν τύπο ή να μην έχουν. Όταν μια σταθερά δεν έχει τύπο, θεωρείται ότι 
+είναι ενός είδους. Σταθερές ενός είδους μπορούν να μετατραπούν σιωπηρά από τον μεταγλωττιστή. Όλα 
+αυτά συμβαίνουν στο στάδιο της μεταγλώττισης και όχι στο στάδιο της εκτέλεσης.
 
-** Code Review
+** Ανασκόπιση Κώδικα
 
-- *Example* *1:* Declare and initialize constants		
-- *Example* *2:* Parallel type system (Kind) (missing)
-- *Example* *3:* iota			
-- *Example* *4:* Implicit conversion
+- *Παράδειγμα* *1:* Δηλώσεις και εκώριση αρχικών τιμών σε σταθερές		
+- *Παράδειγμα* *2:* Παράλληλο σύστημα τύπων (Είδη) (δεν υπάρχει)
+- *Παράδειγμα* *3:* iota			
+- *Παράδειγμα* *4:* Σιωπηρή μετατροπή
 
 .play constants/example1.go
 .play constants/example2.go
 .play constants/example3.go
 .play constants/example4.go
 
-    const ui = 12345     // kind: integer
-    const uf = 3.141592  // kind: floating-point
+    const ui = 12345     // είδος: ακέραιος
+    const uf = 3.141592  // είδος: κινητής υποδιαστολής
 
-Untyped numeric constants have a precision of 256 bits as stated by the specification.
-They are based on a kind.
+Οι αριθμητικές σταθερές χωρίς τύπο έχουν ακρίβεια 256 bit, όπως αναφέρεται στις προδιαγραφές.
+Βασίζονται σε ένα είδος.
 
     const ti int     = 12345     // type: int
     const tf float64 = 3.141592  // type: float64
 
-Typed constants still use the constant type system, but their precision is restricted.
+Οι σταθερές με τύπο χρησιμοποιούν και αυτές το σύστημα τύπων των σταθερών, όμως η ακρίβειά τους είναι περιορισμένη.
 
-    const myUint8 uint8 = 1000 // Compiler Error: constant 1000 overflows uint8
-
-This doesn't work because the number 1000 is too large to store in an uint8.
+    const myUint8 uint8 = 1000 // Σφάλμα Μεταγλωττιστή: η σταθερά 1000 υπερχειλίζει έναν uint8
+Αυτό δεν λειτουργεί επειδή ο αριθμός 1000 είναι πολύ μεγάλος προκειμένου να αποθηκευτεί σε έναν uint8.
 
     var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
 
-Constant arithmetic supports the use of different kinds of constants. Kind Promotion
-is used to handle these different scenarios. All of this happens implicitly. The answer
-variable in this example will be of type float64 and represent 0.999 at a precision
-of 64 bits.
+Η αριθμητική σταθερών υποστηρίζει την χρήση διαφορετικών ειδών σταθερών. Η προαγωγή ενός είδους σε άλλο
+χρησιμοποιείται προκειμένου να γίνει η διαχείριση αυτών των διαφορετικών σεναρίων. Όλα αυτά συμβαίνουν σιωπηρά. Η μεταβλητη
+answer σε αυτό το παράδειγμα θα είναι τύπου float64 και θα αναπαριστά την τιμή 0.999 με ακρίβεια 
+64 bit.
 
     const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
 
-The third constant will be of kind float and represent 1/3 at a precision of 256 bits.
+Η σταθερά third θα είναι είδους float και θα αναπαριστά την τιμή 1/3 με ακρίβεια 256 bit.
 
     const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
 
-The zero constant will be of kind integer and set to 0 since integer division has
-no remainder.
+Η σταθερά zero θα είναι είδους ακεραίου και θα ισούται με 0 καθώς η ακέραια διαίρεση δεν
+έχει υπόλοιπο.
 
     const one int8 = 1
     const two = 2 * one  // int8(2) * int8(1)
 
-This is an example of constant arithmetic between typed and untyped constants.
-In this case, a constant of a type promotes over a constant of a kind. The two
-constant will be of type int8 and set to 2.
+Αυτό είναι ένα παράδειγμα αριθμητικής μεταξύ σταθερών για σταθερές με και χωρίς τύπο.
+Σε αυτή την περίπτωση, μια σταθερά ενός τύπου προάγεται αντί μιας σταθεράς είδους. Η σταθερά
+two θα έχει τύπο int8 και τιμή ίση με 2.
 
     const maxInt = 9223372036854775807
 
-This is the max integer value for a 64 bit integer.
+Αυτή είναι η μέγιστη ακέραια τιμή για έναν ακέραιο 64 bit.
 
     const bigger = 9223372036854775808543522345
 
-The bigger constant is a much larger value than a 64 bit integer, but it can be
-stored in a constant of kind int since constants of kind int are not limited to
-64 bits of precision.
+Η σταθερά bigger είναι μια πολύ μεγαλύτερη τιμή από έναν ακέραιο 64 bit, όμως μπορεί να 
+αποθηκευτεί σε μια σταθερά είδους int καθώς οι σταθερές είδους int δεν περιορίζονται σε
+ακρίβεια 64 bit.
 
     const bigger int64 = 9223372036854775808543522345
 
-Compiler Error:
+Σφάλμα μεταγλωττιστή:
 
     constant 9223372036854775808543522345 overflows int64
 
-However, if bigger was a constant of type int64, this would not compile.
+Όμως, αν η σταθερά bigger ήταν μια στεθερά τύπου int64, αυτό δεν θα μεταγλωττιζόταν.
 
 ** IOTA
 
-IOTA provides support for setting successive integer constants. It’s possible the
-name comes from the integer function ⍳ from the programming language APL. In APL,
-the ⍳ function (represented with the ninth letter of the Greek alphabet, iota) is
-used to create a zero-based array of consecutive, ascending integers of a specified
-length.
+Το IOTA προσφέρει υποστήριξη για τον ορισμό διαδοχικών ακέραιων σταθερών. Είναι πιθανόν το
+όνομα να προέρχεται από την ακέραια συνάρτηση ⍳ από την γλώσσα προγραμματισμού APL. Στην APL,
+η συνάρτηση ⍳ (η οποία αντιπροσωπεύεται από το ένατο γράμμα του Ελληνικού αλφάβητου, το γιώτα) 
+χρησιμοποιείται προκειμένου να δημιουργήσει κανείς έναν πίνακα με βάση το μηδέν, διαδοχικών αυξόντων ακεραίων 
+συγκεκριμένου μήκους.
 
     const (
-        A1 = iota  // 0 : Start at 0
-        B1 = iota  // 1 : Increment by 1
-        C1 = iota  // 2 : Increment by 1
+        A1 = iota  // 0 : Ξεκινάει από το 0
+        B1 = iota  // 1 : Αυξάνει κατά 1
+        C1 = iota  // 2 : Αυξάνει κατά 1
     )
     fmt.Println(A1, B1, C1)
 
-Output:
+Αποτέλεσμα:
 
     0 1 2
 
-The iota keyword works within a constant block and starts with the value of 0. Then
-for each successive constant declared in the block, iota increments by 1.
+Η λέξη-κλειδί iota λειτουργεί εντός μιας ενότητας σταθερών και ξεκινάει με την τιμή 0. Μετά,
+για κάθε διαδοχική σταθερά που ορίζεται στην ενότητα, το iota αυξάνει κατά 1.
 
     const (
-        A2 = iota  // 0 : Start at 0
-        B2         // 1 : Increment by 1
-        C2         // 2 : Increment by 1
+        A2 = iota  // 0 : Ξεκινάει από το 0
+        B2         // 1 : Αυξάνει κατά 1
+        C2         // 2 : Αυξάνει κατά 1
     )
     fmt.Println(A2, B2, C2)
 
-Output:
+Αποτέλεσμα:
 
     0 1 2
 
-You don’t need to repeat the use of the iota keyword. The successive nature of the
-integer constants are assumed once applied.
+Δεν χρειάζεται να επαναλαμβάνει κανείς την χρήση της λέξης-κλειδί iota. Η διαδοχική φύση των
+ακέραιων σταθερών εννοείται απο την στιγμή που γίνεται η χρήση της.
 
     const (
         A3 = iota + 1  // 1 : 0 + 1
@@ -126,55 +125,55 @@ integer constants are assumed once applied.
     )
     fmt.Println(A3, B3, C3)
 
-Output:
+Αποτέλεσμα:
 
     1 2 3
 
-If you didn’t want to apply a mathematical pattern, you can perform some math and the
-math is reapplied with an increasing value of iota.
+Αν κανείς δεν θέλει να εφαρμόσει κάποιο μαθηματικό μοτίβο, είναι δυνατόν να πραγματοποιήσει κάποιες πράξεις και 
+οι πράξεις επαναεφαρμόζονται με μια αυξανόμενη τιμή του iota.
 
     const (
-        Ldate= 1 << iota  //  1 : Shift 1 to the left 0.  0000 0001
-        Ltime             //  2 : Shift 1 to the left 1.  0000 0010
-        Lmicroseconds     //  4 : Shift 1 to the left 2.  0000 0100
-        Llongfile         //  8 : Shift 1 to the left 3.  0000 1000
-        Lshortfile        // 16 : Shift 1 to the left 4.  0001 0000
-        LUTC              // 32 : Shift 1 to the left 5.  0010 0000
+        Ldate= 1 << iota  //  1 : Μετατόπισε το 1 αριστερά 0 φορές.  0000 0001
+        Ltime             //  2 : Μετατόπισε το 1 αριστερά 1 φορά.   0000 0010
+        Lmicroseconds     //  4 : Μετατόπισε το 1 αριστερά 2 φορές.  0000 0100
+        Llongfile         //  8 : Μετατόπισε το 1 αριστερά 3 φορές.  0000 1000
+        Lshortfile        // 16 : Μετατόπισε το 1 αριστερά 4 φορές.  0001 0000
+        LUTC              // 32 : Μετατόπισε το 1 αριστερά 5 φορές.  0010 0000
     )
 
     fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
 
-Output:
+Αποτέλεσμα:
 
     1 2 4 8 16 32
 
-You can use this feature like the Log package does for setting flags. In this case, bit
-operations are being applied with increasing values of iota to calculate flag values.
+Μπορεί κανείς να χρησιμποιήσει αυτό το χαρακτηριστικό, ακριβώς όπως το πακέτο Log το χρησιμοποιεί, προκειμένου να ορίζει επισημάνσεις (flags). 
+Σε αυτή την περίπτωση, πράξεις με bit χρησιμοποιούνται με αυξανόμενες τιμές του iota προκειμένου να υπολογιστούν οι τιμές των επισημάνσεων.
 
-** Notes
+** Σημειώσεις
 
-- Constants are not variables.
-- They exist only at compilation.
-- Untyped constants can be implicitly converted where typed constants and variables can't.
-- Think of untyped constants as having a Kind, not a Type.
-- Learn about explicit and implicit conversions.
-- See the power of constants and their use in the standard library.
+- Οι σταθερές δεν είναι μεταβλητές.
+- Υπάρχουν μόνο κατά την μεταγλώττιση.
+- Σταθερές χωρίς τύπο μπορούν να μετατραπούν σιωπηρά ενώ οι σταθερές με τύπο και οι μεταβλητές, δεν μπορούν.
+- Κανείς μπορεί να σκεφτεί τις σταθερές σαν να έχουν Είδος και όχι Τύπο.
+- Χρειάζεται να γνωρίζει κανείς σχετικά με ρητές και σιωπηρές μετατροπές.
+- Η ισχύς των σταθερών και η χρήση τους στη προεγκατεστημένη βιβλιοθήκη είναι εμφανής.
 
-** Extra Reading
+** Πρόσθετα Αναγνώσματα
 
-- [[https://golang.org/ref/spec#Constants][Constants specification]]    
-- [[https://blog.golang.org/constants][Constants]] - Rob Pike    
-- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
+- [[https://golang.org/ref/spec#Constants][Προδιαγραφές Σταθερών]]    
+- [[https://blog.golang.org/constants][Σταθερές]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Εισαγωγή στις Αριθμητικές Σταθερές στην Go]] - William Kennedy    
 		
-* Exercises
+* Ασκήσεις
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Χρησιμοποιήστε το παρόν πρότυπο ως σημείο αναφοράς προκειμένου να ολοκληρώσετε τις ασκήσεις. Σας παρέχεται μια πιθανή λύση.
 
-** Exercise 1
+** Άσκηση 1
 
-*Part* *A:* Declare an untyped and typed constant and display their values.
+*Μέρος* *Α:* Δηλώστε μια σταθερά χωρίς τύπο και μια με τύπο και παρουσιάστε τις τιμές τους.
 
-*Part* *B:* Divide two literal constants into a typed variable and display the value.
+*Μέρος* *Β:* Διαιρέστε δύο ρητές σταθερές σε μια μεταβλητή με τύπο και παρουσιάστε τη τιμή.
 
 .play constants/exercise1.go
 .play constants/answer1.go
