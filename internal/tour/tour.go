@@ -222,8 +222,6 @@ func initLessons(tmpl *template.Template, files []fs.DirEntry, h handler) error 
 		}
 
 		lessons[name] = lsn
-
-		log.Printf("initLessons: %s: %s: %s: %d", h.Route(), name, lsn.Title, len(lsn.Pages))
 	}
 
 	h.SetLessons(lessons)
