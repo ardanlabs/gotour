@@ -1,34 +1,25 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+محدودیت‌های برش
+ممکن است زمانهایی وجود داشته باشد که نیاز به محدود کردن نوع ژنریک به برش (slice) باشد.
 
-* Generics - Slice Constraints
+* ویدیو
 
-There may be times where you need to constrain the generic type to be only a slice.
-
-** Video
-
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+مشاهده می‌کنید که من در مورد ژنریک‌ها چه چیزی ارائه داده‌ام که شما را از طریق تمام مثال‌های این بخش از تور راه می‌دهد.
 
 .html generics-video.html
 
-** Code Review
+** بررسی کد
 
-- *Example* *1*: Operate function
+- *مثال* *1*: تابع عمل
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** توضیح داده شده
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+در اینجا نوع اعداد تعریف شده توسط کاربر، نوع زیرینی دارد که یک برش از اعداد صحیح است.
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+کامپایلر به شما اجازه می‌دهد که متغیرهای مبتنی بر یک برش از اعداد صحیح را به متغیرهایی با نوع Numbers تبدیل کنید. این معمولاً خوب است و آنچه که شما می‌خواهید است. به دلیل این قابلیت، می‌توانید یک تابع ژنریک بنویسید که بتواند روی یک برش عمل کند و نوع زیرین را رعایت کند.
 
     type operateFunc[T any] func(t T) T
 
@@ -41,10 +32,7 @@ slice respecting the underlying type.
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+در اینجا تابع operate یک نوع ژنریک T اعلام می‌کند که می‌تواند هر چیزی باشد. از این نوع برای اعلام یک پارامتر به نام slice استفاده می‌شود که یک برش از همان نوع T را می‌پذیرد. همچنین تابع یک تابع ژنریک از همان نوع T را نیز می‌پذیرد و همچنین یک برش از T را برمی‌گرداند.
 
     type Numbers []int
     
@@ -58,25 +46,21 @@ of T as well.
         return numbers
     }
 
-Output:
+خروجی:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+تابع دابل (Double) یک مقدار از نوع اعداد (Numbers) را قبول کرده و آن مقدار را به تابع عمل (operate) منتقل می‌کند. در این مورد، کامپایلر از نوع زیرین (underlying type) در نوع T بهره می‌برد و مقدار اعداد (Numbers) می‌تواند به تابع منتقل شود. با این حال، چیزی که برگشت داده می‌شود، یک برش از نوع عدد صحیح (int) است که در خروجی دیده می‌شود.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+اگر نیاز دارید که اطمینان حاصل شود تنها مقدار اعداد (Numbers) قابل ارسال است و توسط تابع عمل (operate) برگشت داده می‌شود، می‌توانید تغییرات زیر را انجام دهید.
 
-    type Slice[T any] interface {
-        ~ []T
-    }
+```go
+type Slice[T any] interface {
+    ~ []T
+}
+```
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+این رابط یک محدودیت اعلام می‌کند تا نوع ژنریک را به یک برش واقعی از نوع T محدود کند. استفاده از عنصر تقریبی (~) محدود به تمام انواعی است که نوع زیرین آنها T است. با این رابط، می‌توانید تابع عمل (operate) را تغییر دهید.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -100,9 +84,7 @@ underlying type is T. With this interface, you can change the operate function.
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+حالا تابع عمل (operate) را تغییر دهید تا دو نوع ژنریک اعلام کند. نوع S که یک مقدار برش از نوع T را نمایان می‌کند، و T که یک نوع است که می‌تواند هر چیزی باشد. تابع یک مقدار از نوع S برمی‌گرداند.
 
     type Numbers []int
     
@@ -117,10 +99,8 @@ function returns a value of type S.
         return numbers
     }
 
-Output:
+خروجی:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+در این مورد، وقتی که مقدار اعداد (Numbers) را به تابع عمل (operate) منتقل می‌کنید، برشی که برگشت داده می‌شود از نوع اعداد (Numbers) است. نوع زیرین نادیده گرفته می‌شود و نوع تعریف شده توسط کاربر احترام گذاشته می‌شود.

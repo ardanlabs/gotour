@@ -1,68 +1,51 @@
-Type As Constraint
-This is a new concept in Go where a constraint can be based on a set of concrete types.
+نوع به عنوان محدودیت
+این یک مفهوم جدید در Go است که محدودیت می‌تواند بر اساس یک مجموعه از انواع مشخص باشد.این تنها برای ژنریک‌ها کار می‌کند.
 
-* Generics - Type As Constraint
+* ویدئو
 
-This is a new concept in Go where a constraint can be based on a set of concrete types.
-This only works for generics.
-
-** Video
-
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+تماشای سخنرانی من در مورد ژنریک‌ها که تمام مثال‌ها را در این بخش از تور را مرور می‌کند.
 
 .html generics-video.html
 
-** Code Review
+** مرور کد
 
-- *Example* *1*: Type based constraint
-- *Example* *2*: Predeclared type constraint "comparable"
-- *Example* *3*: Mix type and behavior constraints
+- *مثال* *1*: محدودیت مبتنی بر نوع
+- *مثال* *2*: محدودیت نوع پیش‌تعیین شده "comparable"
+- *مثال* *3*: ترکیب محدودیت‌های نوع و رفتار
 
 .play generics/type-constraints/example1.go
 .play generics/type-constraints/example2.go
 .play generics/type-constraints/example3.go
 
-** Explained
+** توضیح داده شده
 
-Generic functions create a new type of constraint that can’t be resolved by declaring
-a method set of behavior.
+توابع ژنریک یک نوع جدید از محدودیت ایجاد می‌کنند که نمی‌توانند توسط اعلان مجموعه متدهای رفتار حل شوند.
 
     func Add[T ???](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Here is a generic function that wants to accept two values of some type T, add them
-together, and then return the sum back to the caller. This is an interesting problem
-because the compiler needs to constrain the call to the function for only values that
-can be used in an add operation. Currently there is no mechanic for declaring this
-kind of constraint.
+در اینجا یک تابع ژنریک وجود دارد که می‌خواهد دو مقدار از نوع T را بپذیرد، آن‌ها را با یکدیگر جمع کند، و سپس مجموع را به تماس‌گر برگرداند. این یک مشکل جالب است زیرا کامپایلر باید تماس به تابع را برای تنها مقادیری که می‌توانند در یک عمل جمع مورد استفاده قرار گیرند محدود کند. در حال حاضر مکانیکی برای اعلان این نوع محدودیت وجود ندارد.
 
-The decision was to continue to use the interface to declare the constraint and add
-something new.
+تصمیم گرفته شد که از رابطه برای اعلان محدودیت استفاده شود و چیزی جدید اضافه شود.
 
     type addOnly interface {
         string | int | int8 | int16 | int32 | int64 | float64
     }
 
-You can declare an interface that defines a set of types that form the constraint. Then
-apply this interface to the generic function.
+می‌توانید یک رابط اعلان کنید که یک مجموعه از انواع را تشکیل دهد که محدودیت را تشکیل می‌دهند. سپس این رابط را برای تابع ژنریک اعمال کنید.
+
 
     func Add[T addOnly](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Now the compiler can validate that the set of types is compliant with the operations
-the function needs to perform against values of those types. When the interface is
-using the built-in types, the interfaces are reusable across packages. When the list
-of types represent user-defined types from the package, You must remember these
-generic functions are bound to the packages types and nothing more.
 
-Interfaces declared with a set of types can’t be used in a traditional polymorphic
-function. This wouldn’t make sense anyway, but it’s something that doesn’t feel like
-Go in the sense that this change to the interface is not orthogonal.
+حالا کامپایلر می‌تواند تایید کند که مجموعه‌ای از انواع با عملیات‌هایی که تابع برای انجام عملیات‌هایی روی مقادیر این انواع نیاز دارد، سازگار است. وقتی رابط از انواع تعریف شده در خود زبان (built-in) استفاده می‌کند، رابط‌ها قابل استفاده میان بسته‌ها هستند. اما وقتی لیست انواع نمایانگر انواع تعریف شده توسط کاربر از بسته است، باید به یاد داشته باشید که این توابع ژنریک به انواع بسته بندی متصل شده‌اند و چیز دیگری نیستند.
 
-One idea is to have pre-declared identifiers for common operation constraints.
+رابط‌های اعلان شده با مجموعه‌ای از انواع نمی‌توانند در یک تابع چندشکلی سنتی استفاده شوند. این هرچند که منطقی نباشد، اما چیزی نیست که به معنای واقعی Go باشد، به این معنی که این تغییر در رابطهای زبانی همسان نیست.
+
+یکی از ایده‌ها این است که برای محدودیت‌های عملیات مشترک شناخته‌شده، شناسه‌های پیش‌تعیین شده داشته باشیم.
 
     func index[T comparable](list []T, find T) int {
         for i, v := range list {
@@ -74,14 +57,9 @@ One idea is to have pre-declared identifiers for common operation constraints.
         return -1
     }
 
-The comparable constraint is declared by the language and applies a constraint that
-types must be capable of being used in a comparison statement. In this example,
-both v and find are variables of type T and are being compared. There is an idea
-that a package in the standard library could provide a common set of constraints as
-well.
+محدودیت قابل مقایسه توسط زبان اعلان شده است و محدودیتی را اعمال می‌کند که انواع باید قادر باشند که در یک عبارت مقایسه‌ای استفاده شوند. در این مثال، هر دو v و find متغیرهای نوع T هستند و مقایسه می‌شوند. ایده این است که یک بسته در کتابخانه استاندارد می‌تواند مجموعه‌ای مشترک از محدودیت‌ها را ارائه دهد.
 
-There is no restriction on an interface being declared with both a set of types and a
-method set of behavior.
+هیچ محدودیتی برای اعلان یک رابط با همزمان داشتن یک مجموعه از انواع و مجموعه متد‌های رفتار وجود ندارد.
 
     type matcher[T any] interface {
         type person, food
@@ -98,26 +76,15 @@ method set of behavior.
         return -1
     }
 
-A generic interface is declared where T is the type of value to be passed into a
-method named match. The interface also constrains its use to only values of userdefined
-type person and food.
+یک رابط ژنریک اعلان شده که در آن T نوع مقداری است که به یک متد با نام match منتقل می‌شود. این رابط همچنین استفاده از خود را فقط به مقادیر از نوع‌های تعریف شده توسط کاربر محدود می‌کند که شامل نوع‌های person و food می‌شود.
 
-When you look at the match function, there isn’t an obvious need to restrict the
-function to just the person and food types. If this is the case, the match function
-should be a traditional polymorphic function, not a generic function. If there was a
-good reason, a generic function can be used to apply this type of constraint.
+وقتی به تابع match نگاه می‌کنید، نیاز واضحی به محدود کردن تابع به انواع person و food وجود ندارد. اگر این چنین باشد، تابع match باید یک تابع چندشکلی سنتی باشد، نه یک تابع ژنریک. اگر دلیل معقولی وجود داشته باشد، تابع ژنریک می‌تواند برای اعمال این نوع محدودیت استفاده شود.
 
-As a side note, not sure this functionality is necessary or makes sense. This is
-something the community will need to figure out over time.
+یک نکته جانبی، نمی‌دانم که آیا این قابلیت ضروری است یا منطقی است یا خیر. این چیزی است که جامعه در طول زمان باید بفهمد.
 
-* Exercises
+** تمرین 1
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
-
-** Exercise 1
-
-Implement a generic function named copyfy that is constrained to only making
-copies of slices of type string or int.
+یک تابع ژنریک به نام copyfy را پیاده‌سازی کنید که تنها محدود به ایجاد کپی‌ها از آرایه‌های نوع string یا int باشد.
 
 .play generics/type-constraints/exercise1.go 
 .play generics/type-constraints/answer1.go

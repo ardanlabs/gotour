@@ -1,35 +1,33 @@
-Channels
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+کانال‌ها
+بررسی کنید که چگونه تیم Go می‌تواند بسته‌ای از الگوهای همروندی را به کتابخانه استاندارد اضافه کند، با تشکر از generic.
 
-* Generics - Channels
+* ژنریک‌ها - کانال‌ها
 
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
 
-** Video
+بررسی کنید که چگونه تیم Go می‌تواند با تشکر از ژنریک، یک بسته از الگوهای همروندی را به کتابخانه استاندارد اضافه کند.
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+* ویدیو
+
+تماشای سخنرانی من در مورد ژنریک‌ها که شما را از طریق تمام مثال‌ها در این بخش از تور هدایت می‌کند.
 
 .html generics-video.html
 
-** Code Review
+** بررسی کد
 
-- *Example* *1*: Work Function
-- *Example* *2*: Pooling
+- *مثال* *1*: Work Function
+- *مثال* *2*: Pooling
 
 .play generics/channels/example1.go
 .play generics/channels/example2.go
 
-** Explained
+** توضیح داده شده
 
-This would require declaring channels and functions using generic types.
+برای انجام این کار، نیاز به تعریف کانال‌ها و توابع با استفاده از انواع ژنریک داریم.
 
     type workFn[Result any] func(context.Context) Result
 
-In this example, a type is declared that represents a function which accepts a context
-and returns a value of generic type Result. This function declaration describes a
-function that implements the concurrent work that will be performed and the result
-of that work.
+در این مثال، یک نوع تعریف شده است که یک تابع را نمایان می‌کند که یک متغیر context را می‌پذیرد
+و یک مقدار از نوع ژنریک Result بر می‌گرداند. این تعریف تابع یک تابع را توصیف می‌کند که اجرای کار همروند را انجام می‌دهد و نتیجه آن کار را برمی‌گرداند.
 
     func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
         ch := make(chan Result, 1)
@@ -42,18 +40,11 @@ of that work.
         return ch
     }
 
-Now write a function named doWork that executes the specified work function
-concurrently and returns a channel so the caller can receive the result of the work
-performed by the work function. A generic type named Result is declared to
-represent the return type for the work function and the type for the channel.
+اکنون یک تابع به نام doWork بنویسید که تابع کار مشخص شده را به صورت همروند اجرا کرده و یک کانال برگشتی کند تا فراخواننده بتواند نتیجه کار انجام شده توسط تابع کار را دریافت کند. یک نوع ژنریک به نام Result تعریف می‌شود تا نوع بازگشتی برای تابع کار و نوع کانال را نمایان کند.
 
-In the implementation of the doWork function, a buffered channel of one is
-constructed of generic type Result. That’s the channel returned to the caller to
-receive the result of the concurrent work. In the middle of the function, a goroutine
-is constructed to execute the work function concurrently. Once the work function
-returns, the return argument is sent back to the caller through the channel.
+در پیاده‌سازی تابع doWork، یک کانال بافر شده با ظرفیت یک به نوع ژنریک Result ساخته می‌شود. این کانال به فراخواننده برگشت داده می‌شود تا نتیجه کار همروند را دریافت کند. در وسط تابع، یک گوروتین برای اجرای تابع کار همروند ساخته می‌شود. هنگامی که تابع کار بازگشت دهد، آرگومان بازگشتی از طریق کانال به فراخواننده ارسال می‌شود.
 
-To test the use of the doWork function, build a small program.
+برای تست استفاده از تابع doWork، یک برنامه کوچک بسازید.
 
     func main() {
         duration := 100 * time.Millisecond
@@ -81,29 +72,24 @@ Output:
     doWork : work complete
     main: work complete
 
-The program starts by declaring a context that will timeout in 100 milliseconds.
-Then a work function is declared that waits for up to 200 milliseconds before
-returning the string, "work complete". With the context and the work function in
-place, a call to doWork is made and a channel of type string is returned and
-assigned to the variable result.
+خروجی:
 
-The compiler is able to determine the concrete type to use for the generic type
-Result by inspecting the return type of the literal work function that is passed into
-the doWork function. This is brilliant because it means you didn’t have to pass the type
-in on the call to doWork.
+    doWork: کار تکمیل شد
+    main: کار تکمیل شد
 
-With the channel of type string assigned to the variable result, a select case is used
-to wait for the result to be returned on time, or for the timeout to occur. The
-doWork function can be used to perform this concurrent work for any concrete type
-required.
+برنامه با تعریف یک متغیر context آغاز می‌شود که در ۱۰۰ میلی‌ثانیه منقضی می‌شود. سپس یک تابع کار تعریف می‌شود که تا ۲۰۰ میلی‌ثانیه قبل از بازگشت رشته "کار تکمیل شد" منتظر می‌ماند. با داشتن context و تابع کار، یک فراخوانی به تابع doWork انجام می‌شود و یک کانال از نوع string برگشت داده می‌شود و به متغیر نتیجه اختصاص داده می‌شود.
 
-This same idea could be applied to a pool of goroutines that could execute work on
-a generic input and return a generic result.
+کامپایلر قادر است نوع محتوایی را که باید برای نوع ژنریک Result استفاده کند را با بررسی نوع بازگشتی تابع کار لغوشده که به تابع doWork منتقل می‌شود، تشخیص دهد. این بسیار شگفت‌انگیز است زیرا به این معناست که نیازی به انتقال نوع به تماس با doWork نداشته‌اید.
+
+با کانال نوع string که به متغیر نتیجه اختصاص داده شده است، از یک select case برای انتظار بازگشت نتیجه به موقع یا منقضی شدن timeout استفاده می‌شود. تابع doWork می‌تواند برای انجام این کار همروند برای هر نوع محتوایی مورد نیاز استفاده شود.
+
+این ایده می‌تواند به یک مجموعه از گوروتین‌ها که می‌توانند کار را روی ورودی ژنریک انجام دهند و نتیجه‌ای ژنریک را برگردانند، اعمال شود.
+
+نوع تابع کار را در این مثال به گونه‌ای تغییر دهید که ورودی ژنریک را پذیرفته و نتیجه‌ای ژنریک را برگرداند.
 
 type workFn[Input any, Result any] func(input Input) Result
 
-In this example, change the function type to accept a generic input and return a
-generic result.
+در این مثال، نوع تابع را به گونه‌ای تغییر دهید که ورودی ژنریک را پذیرفته و نتیجه‌ای ژنریک را برگرداند.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
         var wg sync.WaitGroup
@@ -129,18 +115,11 @@ generic result.
         return ch, cancel
     }
 
-In the poolWork function, the same two generic types are declared to represent the
-input and return type for the work function. A WaitGroup is constructed to manage
-the lifecycle of the Goroutines in the pool. Then a channel is constructed of the
-generic Input type. This channel is used by the Goroutines in the pool to receive the
-input data for the work function.
+در تابع poolWork، دو نوع ژنریک یکسان برای نمایانگر ورودی و نوع بازگشتی تابع کار تعریف می‌شوند. یک WaitGroup ساخته می‌شود تا مدیریت ژیروتین‌ها در استخر را انجام دهد. سپس یک کانال از نوع ژنریک Input ساخته می‌شود. این کانال توسط ژیروتین‌ها در استخر برای دریافت داده ورودی برای تابع کار استفاده می‌شود.
 
-Then the pool of Goroutines are created with each Goroutine waiting in a receive
-operation using a for-range loop against the channel. Finally, a cancel function is
-constructed to allow the caller to shutdown the pool and wait for all the Goroutines
-to signal they have terminated.
+سپس استخر ژیروتین‌ها با ایجاد هر ژیروتین در عملیات دریافتی با استفاده از حلقه for-range در برابر کانال ایجاد می‌شود. در نهایت، یک تابع کنسل ساخته می‌شود تا به فراخواننده اجازه دهد استخر را خاموش کند و منتظر شود که تمام ژیروتین‌ها اعلام کنند که ترمینال شده‌اند.
 
-To test the use of the poolWork function, built a second small program.
+برای تست استفاده از تابع poolWork، یک برنامه کوچک دیگر بسازید.
 
     func main() {
         size := runtime.GOMAXPROCS(0)
@@ -158,21 +137,15 @@ To test the use of the poolWork function, built a second small program.
         }
     }
 
-Output:
+خروجی:
 
-    pollWork : 3 : received
-    pollWork : 2 : received
-    pollWork : 1 : received
-    pollWork : 0 : received
+    poolWork : 3 : دریافت شد
+    poolWork : 2 : دریافت شد
+    poolWork : 1 : دریافت شد
+    poolWork : 0 : دریافت شد
 
-The size of the pool is calculated based on the number of Goroutines that can run in
-parallel. Then a work function is constructed to sleep for a random amount of time
-and then return a string that represents the input.
+اندازه استخر بر اساس تعداد ژیروتین‌هایی محاسبه می‌شود که می‌توانند به صورت موازی اجرا شوند. سپس یک تابع کار ساخته می‌شود تا به مدت زمان تصادفی بخوابد و سپس یک رشته را که نمایانگر ورودی است برگرداند.
 
-With that in place, the poolWork function is executed and the channel and cancel
-function returned. The cancel function is deferred and a loop is constructed to send
-4 values into the pool. The output will be different each time you run the program
-since this work is happening concurrently.
+با داشتن این تغییرات، تابع poolWork اجرا می‌شود و کانال و تابع کنسل برگردانده می‌شود. تابع کنسل به صورت بازگشتی فراخوانی می‌شود و یک حلقه ساخته می‌شود تا ۴ مقدار به استخر ارسال شود. خروجی هر بار که برنامه اجرا می‌شود متفاوت خواهد بود زیرا این کار به صورت همروند انجام می‌شود.
 
-These little examples provide some insight into how a concurrent package could be
-implemented.
+این مثال‌های کوچک نمونه‌ای از اینکه چگونه یک بسته همروند می‌تواند پیاده‌سازی شود، ارائه می‌دهند.
