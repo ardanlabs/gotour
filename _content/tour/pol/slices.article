@@ -1,29 +1,30 @@
-Slices
-Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
+Slices (pl. "kawałki")
+Slices (pl. "kawałki") są niezwykle ważną strukturą danych w języku Go. Stanowią one podstawę tego, w jaki sposób zarządzamy i manipulujemy danymi w sposób elastyczny, wydajny i dynamiczny. Dla wszystkich programistów Go bardzo istotne jest zrozumienie ich działania i sposobów użycia.
 
 * Slices
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Slices are an incredibly important data structure in Go. They form the basis for
-how we manage and manipulate data in a flexible, performant, and dynamic way. It's
-very beneficial for all Go programmers to learn how slices work, and how to use them.
+Slices (pl. "kawałki") są niezwykle ważną strukturą danych w języku Go. Stanowią one
+podstawę tego, w jaki sposób zarządzamy i manipulujemy danymi w sposób elastyczny,
+wydajny i dynamiczny. Dla wszystkich programistów Go bardzo istotne jest zrozumienie ich
+działania i sposobów użycia.
 
 .image /tour/eng/static/img/sl1.png
 
-** Code Review 
+** Code Review
 
-- *Example* *1:* Declare and Length
-- *Example* *2:* Reference Types
-- *Example* *3:* Appending slices
-- *Example* *4:* Taking slices of slices
-- *Example* *5:* Slices and References
-- *Example* *6:* Strings and slices
-- *Example* *7:* Variadic functions
-- *Example* *8:* Range mechanics
-- *Example* *9:* Efficient Traversals
-- *Example* *10:* Three index slicing
+- *Example* *1:* Deklarowanie i długość
+- *Example* *2:* Typy odwołania
+- *Example* *3:* Dodawanie kawałków
+- *Example* *4:* Wyodrębnianie kawałków z kawałków
+- *Example* *5:* Kawałki i odwołania
+- *Example* *6:* Łańcuchy znaków i kawałki
+- *Example* *7:* Funkcje zmiennych argumentów
+- *Example* *8:* Mechanika działania pętli range
+- *Example* *9:* Efektywne przechodzenie (trawersowanie) danych
+- *Example* *10:* Wycinanie trzech indeksów
 
 .play slices/example1.go
 .play slices/example2.go
@@ -36,36 +37,35 @@ very beneficial for all Go programmers to learn how slices work, and how to use 
 .play slices/example9.go 
 .play slices/example10.go
 
-** Slice Construction
+** Konstrukcja kawałków
 
-Constructing a slice can be done in several ways.
+Konstruowanie kawałka (slice) można wykonać na kilka sposobów.
 
-    // Slice of string set to its zero value state.
+    // Kawałek (slice) typu string ustawiony w swoim stanie zerowym.
     var slice []string
 
-    // Slice of string set to its empty state.
+    // Kawałek (slice) typu string ustawiony w swoim pustym stanie.
     slice := []string{}
 
-    // Slice of string set with a length and capacity of 5.
+    // Kawałek (slice) typu string ustawiony z długością i pojemnością wynoszącą 5.
     slice := make([]string, 5)
 
-    // Slice of string set with a length of 5 and capacity of 8.
+    // Kawałek (slice) typu string ustawiony z długością i pojemnością wynoszącą 8.
     slice := make([]string, 5, 8)
 
-    // Slice of string set with values with a length and capacity of 5.
+    // Kawałek (slice) typu string ustawiony z wartościami, przy długości i pojemności wynoszącej 5.
     slice := []string{"A", "B", "C", "D", "E"}
 
-You can see the built-in function make allows me to pre-allocate both length and
-capacity for the backing array. If the compiler knows the size at compile time,
-the backing array could be constructed on the stack.
+Możesz zauważyć, że wbudowana funkcja `make` pozwala mi na wcześniejszą alokację zarówno długości,
+jak i pojemności dla tablicy bazowej. Jeśli kompilator zna rozmiar w czasie kompilacji, to tablica
+bazowa może być konstruowana na stosie.
 
-** Slice Length vs Capacity
+** Długość kawałka (slice) w porównaniu do pojemności
 
-The length of a slice represents the number of elements that can be read and
-written to. The capacity represents the total number of elements that exist
-in the backing array from that pointer position.
+Długość kawałka (slice) reprezentuje liczbę elementów, które można odczytywać i zapisywać.
+Pojemność (capacity) reprezentuje całkowitą liczbę elementów istniejących w tablicy bazowej od pozycji wskaźnika.
 
-Because of syntactic sugar, slices look and feel like an array.
+Dzięki syntaktycznemu 'cukrowi', kawałki (slices) wyglądają i działają podobnie jak tablice.
 
     slice := make([]string, 5)
     slice[0] = "Apple"
@@ -74,25 +74,25 @@ Because of syntactic sugar, slices look and feel like an array.
     slice[3] = "Grape"
     slice[4] = "Plum"
 
-You can tell the difference between slice and array construction since an array
-has a known size at compile time and slices necessarily don’t.
+Można odróżnić konstrukcję tablicy od konstrukcji kawałka (slice), ponieważ rozmiar tablicy
+jest znany w czasie kompilacji, a kawałka (slice) niekoniecznie.
 
-If you try to access an element beyond the slice’s length, you will get a runtime error.
+Jeśli spróbujesz uzyskać dostęp do elementu poza długością kawałka (slice), otrzymasz błąd wykonania (runtime error).
 
     slice := make([]string, 5)
     slice[5] = "Raspberry"
 
-Compiler Error:
+Błąd kompilacji:
 
     Error: panic: runtime error: index out of range slice[5] = "Runtime error"
 
-In this example, the length of the slice is 5 and I’m attempting to access the
-6th element, which does not exist.
+W tym przykładzie długość kawałka wynosi 5, a próbuję uzyskać dostęp do 6 elementu - który nie istnieje.
 
-** Data Semantic Guideline For Slices
+** Wytyczne semantyczne dotyczące kawałków (slices)
 
-As a guideline, if the data I’m working with is a slice, then use value semantics
-to move the data around my program. This includes declaring fields on a type. 
+Jako wytyczna, jeśli pracuję z danymi w postaci kawałka (slice), to używam
+semantyki wartościowej do przenoszenia danych w moim programie. Obejmuje to
+deklarowanie pól w typie.
 
     func Foo(data []byte) []byte
 
@@ -102,17 +102,17 @@ to move the data around my program. This includes declaring fields on a type.
         Z []bool
     }
 
-This goes for all of Go’s internal data structures (slices, maps, channels, interfaces, and functions).
+To dotyczy wszystkich wewnętrznych struktur danych w języku Go (kawałków, map, kanałów, interfejsów i funkcji).
 
-One reason to switch to pointer semantics is if you need to share the slice for a
-decoding or unmarshaling operation. Using pointers for these types of operations
-are ok, but document this if it’s not obvious.
+Jednym z powodów przejścia do semantyki wskaźnikowej jest potrzeba udostępnienia
+kawałka (slice) dla operacji dekodowania lub odkodowania (unmarshaling). Użycie
+wskaźników do tych rodzajów operacji jest akceptowalne, ale jeśli nie jest to oczywiste,
+należy to udokumentować.
 
-** Contiguous Memory Layout
+** Układ ciągłego dostępu do pamięci
 
-The idea behind the slice is to have an array, which is the most efficient data
-structure as it relates to the hardware. However, you still need the ability to be
-dynamic and efficient with the amount of data you need at runtime and future growth.
+Idea kawałków (slice) polega na posiadaniu tablicy, która jest najbardziej efektywną strukturą danych pod względem sprzętu.
+Jednak nadal potrzebujesz możliwości dynamicznego i efektywnego zarządzania ilością danych w trakcie działania programu oraz przyszłego rozwoju.
 
     func main() {
         slice := make([]string, 5, 8)
@@ -132,7 +132,7 @@ dynamic and efficient with the amount of data you need at runtime and future gro
         }
     }
 
-Output:
+Wynik:
 
     Length[5] Capacity[8]
     [0] 0xc00007e000 Apple
@@ -141,15 +141,15 @@ Output:
     [3] 0xc00007e030 Grape
     [4] 0xc00007e040 Plum
 
-The inspectSlice function shows how a slice does have a contiguous backing array
-with a predictable stride. It also shows how a slice has a length and capacity
-which may be different. Notice how the print function only iterates over the
-length of a slice.
+Funkcja inspectSlice pokazuje, że kawałek (slice) faktycznie ma ciągłą tablicę
+bazową z przewidywalnym krokiem (stride). Pokazuje także, że długość (length)
+i pojemność (capacity) kawałka mogą być różne. Zauważ, że funkcja print
+iteruje tylko przez długość kawałka.
 
-** Appending With Slices
+** Dodawanie elementów do kawałków (slices)
 
-The language provides a built-in function called append to add values to an
-existing slice.
+Język Go dostarcza wbudowaną funkcję o nazwie append, która służy do
+dodawania wartości do istniejącego kawałka (slice).
 
     var data []string
 
@@ -157,67 +157,66 @@ existing slice.
         data = append(data, fmt.Sprintf("Rec: %d", record))
     }
 
-The append function works with a slice even when the slice is initialized to its
-zero value state. The API design of append is what’s interesting because it uses
-value semantic mutation. Append gets its own copy of a slice value, it mutates its
-own copy, then it returns a copy back to the caller.
+Funkcja append działa z kawałkiem (slice) nawet wtedy, gdy kawałek jest zainicjowany
+w swoim stanie zerowym. To, co jest interesujące w projektowaniu interfejsu API funkcji append,
+to sposób, w jaki używa semantyki wartościowej do mutowania danych. Funkcja append
+tworzy swoją własną kopię wartości kawałka, mutuje swoją własną kopię, a następnie
+zwraca kopię zmienioną do wywołującego.
 
-Why is the API designed this way? This is because the idiom is to use value semantics
-to move a slice value around a program. This must still be respected even with a
-mutation operation. Plus, value semantic mutation is the safest way to perform mutation
-since the mutation is being performed on the function’s own copy of the data in isolation.
+Dlaczego interfejs API jest zaprojektowany w ten sposób? To dlatego, że idiomatem w języku
+Go jest używanie semantyki wartościowej do przenoszenia wartości kawałka (slice) w obrębie
+programu. To zasada, która musi być nadal respektowana nawet podczas operacji mutacji.
+Ponadto, mutacja semantyki wartościowej jest najbezpieczniejszym sposobem przeprowadzania
+mutacji, ponieważ mutacja jest wykonywana na kopii danych funkcji w izolacji.
 
-Append always maintains a contiguous block of memory for the slice’s backing array,
-even after growth. This is important for the hardware.
+Funkcja append zawsze zachowuje ciągły blok pamięci dla tablicy bazowej kawałka (slice), nawet
+po jego rozszerzeniu. To jest istotne z punktu widzenia sprzętu.
 
 .image /tour/eng/static/img/sl2.png
 
-Every time the append function is called, the function checks if the length and
-capacity of the slice is the same or not. If it’s the same, it means there is no
-more room in the backing array for the new value. In this case, append creates a
-new backing array (doubling or growing by 25%) and then copies the values from the
-old array into the new one. Then the new value can be appended.
+Za każdym razem, gdy jest wywoływana funkcja append, sprawdza ona, czy długość (length) i pojemność
+(capacity) kawałka (slice) są takie same czy nie. Jeśli są takie same, oznacza to, że w tablicy
+bazowej nie ma już miejsca na nową wartość. W takim przypadku funkcja append tworzy nową tablicę bazową
+(podwajając jej rozmiar lub zwiększając o 25%) i kopiuje wartości ze starej tablicy do nowej.
+Wtedy nowa wartość może być dołączona.
 
 .image /tour/eng/static/img/sl3.png
 
-If it’s not the same, it means that there is an extra element of capacity existing
-for the append. An element is taken from capacity and added to the length of the
-slice. This makes an append operation very efficient.
+Jeśli długość (length) i pojemność (capacity) nie są takie same, oznacza to, że istnieje dodatkowy
+element pojemności dostępny do dołączenia. Element zostaje pobrany z pojemności i dodany do długości
+kawałka (slice). Dzięki temu operacja dołączania (append) jest bardzo wydajna.
 
-When the backing array has 1024 elements of capacity or less, new backing arrays
-are constructed by doubling the size of the existing array. Once the backing array
-grows past 1024 elements, growth happens at 25%. 
+Kiedy tablica bazowa ma 1024 elementy pojemności lub mniej, nowe tablice bazowe są tworzone przez
+podwajanie rozmiaru istniejącej tablicy. Po przekroczeniu 1024 elementów pojemności, wzrost zachodzi o 25%.
 
-*NOTE:* *How* *the* *append* *function* *grows* *the* *capacity* *of* *the*
-*backing* *array* *has* *changed* *since* *Go* *1.18.*
+*NOTE:* *Sposób* *w* *jaki* *funkcja* *append* *zwiększa* *pojemność* *tablicy* *bazowej*
+*zmienił* *się* *od* *wersji* *Go* *1.18.*
 
 - [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
 
-** Slicing Slices
+** Operacje na kawałkach (slices) innych kawałków
 
-Slices provide the ability to avoid extra copies and heap allocations of the backing
-array when needing to isolate certain elements of the backing array for different
-operations.
+Kawałki (slices) pozwalają uniknąć dodatkowych kopii i alokacji na stercie (heap) tablicy
+bazowej, gdy potrzebujemy izolować pewne elementy tablicy bazowej do różnych operacji.
 
-The slicing syntax represents the list notation [a:b) which means, include
-elements from index a through b, but not including b.
+Składnia cięcia (slicing) reprezentuje notację listy [a:b], co oznacza, że zawiera
+elementy od indeksu a do b, ale nie zawiera samego b.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
 
-The variable slice2 is a new slice value that is now sharing the same backing
-array that slice1 is using. However, slice2 only allows you to access the elements
-at index 2 and 3 (C and D) of the original slice’s backing array. The length of
-slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
-3 elements from that pointer position.
+Zmienna slice2 jest nową wartością kawałka (slice), która teraz współdzieli tę samą
+tablicę bazową, co slice1. Jednak slice2 pozwala tylko na dostęp do elementów o indeksie 2 i 3 (C i D)
+oryginalnej tablicy bazowej kawałka. Długość slice2 wynosi 2, a nie 5 jak w przypadku
+slice1, a pojemność wynosi 3, ponieważ od tej pozycji wskaźnika znajduje się teraz 3 elementy.
 
 .image /tour/eng/static/img/sl4.png
 
-A better way to think about slicing is to focus on the length using this notation
-[a:a+len]  index a through a plus the length. This will reduce errors in
-calculating new slices.
+Lepszym sposobem myślenia o cięciu (slicing) jest skupienie się na długości za
+pomocą tej notacji [a:a+len], oznacza ona indeks a do a plus długość. To pomaga
+zmniejszyć błędy przy obliczaniu nowych kawałków (slices).
 
-Using this inspect function.
+Korzystając z tej funkcji inspect.
 
     func inspectSlice(slice []string) {
         fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
@@ -229,14 +228,14 @@ Using this inspect function.
         }
     }
 
-You can see this in action.
+Możesz zobaczyć powyższe założenia w akcji.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -245,21 +244,18 @@ Output:
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
     Length[2] Capacity[3]
-    [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
-    [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
+    [0] 0xc00007e020 C     <-- TO SAMO CO W INDEKSIE 2 W KAWAŁKU 1
+    [1] 0xc00007e030 D     <-- TO SAMO CO W INDEKSIE 3 W KAWAŁKU 1
 
-Notice how the two different slices are sharing the same backing array. You can
-see this by comparing addresses.
+Zauważ, że oba różne kawałki (slices) współdzielą tę samą tablicę bazową. Możesz to zobaczyć, porównując adresy.
 
-The nice thing here is there are no allocations. The compiler knows the size of
-the backing array for slice1 at compile time. Passing a copy of the slice value
-down into the inspectSlice function keeps everything on the stack.
+W tym przypadku nie ma alokacji. Kompilator zna rozmiar tablicy bazowej kawałka (slice1) w czasie kompilacji.
+Przekazywanie kopii wartości kawałka do funkcji inspectSlice utrzymuje wszystko na stosie.
 
-** Mutations To The Backing Array
+** Mutacje w tablicy bazowej
 
-When you use slice2 to change the value of the string at index 0, any slice value
-that is sharing the same backing array (where the address for that index is part
-of that slice’s length) will see the change.
+Kiedy używasz slice2 do zmiany wartości ciągu znaków o indeksie 0, każda wartość kawałka (slice), która
+współdzieli tę samą tablicę bazową (gdzie adres dla tego indeksu jest częścią długości tego kawałka), zobaczy tę zmianę.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -267,7 +263,7 @@ of that slice’s length) will see the change.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -279,12 +275,12 @@ Output:
     [0] 0xc00007e020 CHANGED
     [1] 0xc00007e030 D
 
-You always have to be aware when you are modifying a value at an index position if
-the backing array is being shared with another slice.
+Zawsze musisz być świadomy, kiedy modyfikujesz wartość na pozycji indeksu, jeśli
+tablica bazowa jest współdzielona z innym kawałkiem (slicem).
 
 .image /tour/eng/static/img/sl5.png
 
-What if you use the built-in function append instead?
+Co się stanie, jeśli użyjesz wbudowanej funkcji append?
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -292,7 +288,7 @@ What if you use the built-in function append instead?
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -305,22 +301,21 @@ Output:
     [1] 0xc00007e030 D
     [2] 0xc00007e040 CHANGED
 
-The append function creates the same side effect, but it’s hidden. In this case,
-bringing in more length from capacity for slice2 has caused the value at address
-0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
-part of its length.
+Funkcja append tworzy ten sam efekt uboczny, ale jest on ukryty. W tym przypadku
+zwiększenie długości w slice2 spowodowało zmianę wartości pod adresem 0xc00007e040.
+Niestety slice1 miało już ten adres jako część swojej długości.
 
 .image /tour/eng/static/img/sl6.png
 
-One way to avert the side effect is to use a three index slice when constructing
-slice2 so the length and capacity is the same at 2.
+Jednym ze sposobów uniknięcia efektu ubocznego jest użycie cięcia trójindeksowego
+podczas konstrukcji slice2, aby długość i pojemność wynosiły 2.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -332,11 +327,11 @@ Output:
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
-The syntax for a three index slice is [a:b:c] when b and c should be the same
-since [a-b] sets the length and [a-c] sets the capacity. Now the length and
-capacity of slice2 is the same.
+Składnia dla cięcia trójindeksowego to [a:b:c], gdzie b i c powinny być takie
+same, ponieważ [a-b] ustawia długość, a [a-c] ustawia pojemność. Teraz
+długość i pojemność slice2 są takie same.
 
-Now you use the built-in function append again like before.
+Teraz ponownie możesz używać wbudowanej funkcji append, tak jak wcześniej.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
@@ -344,7 +339,7 @@ Now you use the built-in function append again like before.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -357,18 +352,18 @@ Output:
     [1] 0xc000016090 D
     [2] 0xc0000160a0 CHANGED
 
-Notice after the call to append, slice2 has a new backing array.
+Zauważ, że po wywołaniu funkcji append, slice2 ma nową tablicę bazową.
 
 .image /tour/eng/static/img/sl7.png
 
-This can be seen by comparing the addresses of each slice. In this case, the
-mutation against slice2 didn’t cause a side effect against slice1.
+Można to zauważyć, porównując adresy każdego kawałka. W tym przypadku
+mutacja na slice2 nie spowodowała efektu ubocznego na slice1.
 
-** Copying Slices Manually
+** Kopiowanie kawałków (slices) ręcznie
 
-There is a built-in function named copy that will allow for the shallow copying
-of slices. Since a string has a backing array of bytes that are immutable, it
-can be used as a source but never a destination.
+Istnieje wbudowana funkcja o nazwie copy, która umożliwia płytkie kopiowanie
+kawałków (slices). Ponieważ ciąg znaków ma tablicę bazową bajtów, które są
+niemutowalne, można go użyć jako źródła, ale nigdy jako celu kopiowania.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice3 := make([]string, len(slice1))
@@ -377,7 +372,7 @@ can be used as a source but never a destination.
     inspectSlice(slice1)
     inspectSlice(slice3)
 
-Output:
+Wynik:
 
     Length[5] Capacity[5]
     [0] 0xc00005c050 A
@@ -392,15 +387,13 @@ Output:
     [3] 0xc00005c0d0 D
     [4] 0xc00005c0e0 E
 
-As long as the destination slice has the proper type and length, the built-in
-function copy can perform a shallow copy.
+O ile docelowy kawałek (slice) ma odpowiedni typ i długość, wbudowana funkcja copy może wykonać płytką kopię.
 
-** Slices Use Pointer Semantic Mutation
+** Kawałki (slices) używają semantyki wskaźnikowej
 
-It’s important to remember that even though you use value semantics to move a slice
-around the program, when reading and writing a slice, You are using pointer semantics.
-Sharing individual elements of a slice with different parts of my program can
-cause unwanted side effects.
+Warto pamiętać, że nawet jeśli używasz semantyki wartościowej do przenoszenia kawałka (slice) po
+programie, podczas odczytywania i zapisywania kawałka, korzystasz z semantyki wskaźnikowej. Dzielenie
+poszczególnych elementów kawałka z różnymi częściami programu może powodować niepożądane efekty uboczne.
 
     // Construct a slice of 1 user, set a pointer to that user,
     // use the pointer to update likes.
@@ -413,18 +406,19 @@ cause unwanted side effects.
         fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
-Output:
+Wynik:
 
     User: 0 Likes: 1
 
-A slice is used to maintain a collection of users. Then a pointer is set to the
-first user and used to update likes. The output shows that using the pointer is
-working.
+
+Kawałek (slice) jest używany do przechowywania kolekcji użytkowników. Następnie wskaźnik
+jest ustawiany na pierwszego użytkownika i używany do aktualizacji polubień. Wynik pokazuje,
+że używanie wskaźnika działa.
 
 .image /tour/eng/static/img/sl8.png
 
-Then a new user is appended to the collection and the pointer is used again to
-add a like to the first user. 
+Następnie do kolekcji zostaje dodany nowy użytkownik, a wskaźnik jest
+ponownie używany, aby dodać polubienie do pierwszego użytkownika.
 
     // Append a new user to the collection. Use the pointer again
     // to update likes.
@@ -441,23 +435,21 @@ Output:
     User: 0 Likes: 1
     User: 1 Likes: 0
 
-However, since the append function replaced the backing array with a new one,
-the pointer is updating the old backing array and the likes are lost. The output
-shows the likes for the first user did not increase.
+
+Jednakże, ponieważ funkcja append zastąpiła tablicę bazową nową, wskaźnik aktualizuje starą tablicę bazową,
+a polubienia zostają utracone. Wynik pokazuje, że polubienia dla pierwszego użytkownika nie zostały zwiększone.
 
 .image /tour/eng/static/img/sl9.png
 
-You have to be careful to know if a slice is going to be used in an append operation
-during the course of a running program. How you share the slice needs to be
-considered. Sharing individual indexes may not be the best idea. Sharing an
-entire slice value may not work either when appending is in operation. Probably
-using a slice as a field in a struct, and sharing the struct value is a better
-way to go.
+Trzeba uważać, czy kawałek (slice) będzie używany w operacji append podczas działania programu. Sposób,
+w jaki dzielisz kawałek, musi być uwzględniony. Dzielenie pojedynczych indeksów może nie być najlepszym pomysłem.
+Dzielenie całego kawałka również może nie działać, gdy jest używane append. Prawdopodobnie lepszym rozwiązaniem
+jest używanie kawałka jako pola w strukturze i dzielenie wartości struktury.
 
-** Linear Traversal Efficiency
-The beauty of a slice is its ability to allow for performing linear traversals
-that are mechanically sympathetic while sharing data using value semantics to
-minimize heap allocations.
+** Efektywność przeglądania liniowego
+Piękno kawałka (slice) polega na jego zdolności do wykonywania liniowego trawersowania,
+które wspomaga obsługę i dzielenie danych korzystając z semantyki wartościowej,
+po to aby zminimalizować alokacje na stercie (heap).
 
     x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
@@ -468,22 +460,22 @@ minimize heap allocations.
 
     println(a, b, c, d)
 
-The code is performing a linear traversal by creating slice values that read
-different sections of the byte array from beginning to end.
+Kod wykonuje liniowe trawersowanie, tworząc wartości kawałka (slice), które
+odczytują różne sekcje tablicy bajtów od początku do końca.
 
 .image /tour/eng/static/img/sl10.png
 
-All the data in this code stays on the stack. No extra copies of the data inside
-the byte slice are copied.
+Wszystkie dane w tym kodzie pozostają na stosie. Nie są kopiowane dodatkowe
+kopie danych znajdujących się w kawałku (slice) bajtów.
 
-** Notes
+** Notatki
 
-- Slices are like dynamic arrays with special and built-in functionality.
-- There is a difference between a slices length and capacity and they each service a purpose.
-- Slices allow for multiple "views" of the same underlying array.
-- Slices can grow through the use of the built-in function append.
+- Kawałki (slices) są jak dynamiczne tablice z specjalną, wbudowaną funkcjonalnością.
+- Istnieje różnica między długością a pojemnością kawałka (slice), a każda z nich ma swoje zadanie.
+- Kawałki pozwalają na wielokrotne "widoki" tego samego podstawowego zestawu danych.
+- Kawałki mogą rosnąć dzięki wbudowanej funkcji append.
 
-** Extra Reading
+** Dodatkowe materiały
 
 - [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
 - [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
@@ -496,18 +488,18 @@ the byte slice are copied.
 - [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
 - [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
 			 
-* Exercises
+* Ćwieczenia
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenia 1
 
-*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
-to the slice. Iterate over the slice and display each value.
+*Część* *A:* Zdeklaruj pusty kawałek (slice) liczb całkowitych. Utwórz pętlę,
+która dodaje 10 wartości do kawałka (slice). Następnie przeiteruj przez ten kawałek (slice) i wyświetl każdą z wartości.
 
-*Part* *B:* Declare a slice of five strings and initialize the slice with string
-literal values. Display all the elements. Take a slice of index one and two and
-display the index position and value of each element in the new slice.
+*Część* *B:* Zadeklaruj kawałek (slice) zawierający pięć ciągów znaków i zainicjuj go literałami ciągów znaków.
+Wyświetl wszystkie elementy. Następnie utwórz kawałek (slice) na podstawie indeksów jeden i dwa, a następnie wyświetl pozycję
+indeksu i wartość każdego elementu w nowym kawałku (slice).
 
 .play slices/exercise1.go		  
 .play slices/answer1.go
