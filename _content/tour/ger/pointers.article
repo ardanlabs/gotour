@@ -1,14 +1,14 @@
 Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+Pointers sind da um Werte innerhalb eines Programms zu teilen.
 
 * Pointers
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+Pointers sind da um Werte innerhalb von Grenzen eines Programms zu teilen.
+Es gibt verschiedene Typen von Grenzen innerhalb eines Programmes. Die Üblichste ist zwischen zwei Funktions-Aufrufen.
+Es gibt auch solche Grenzen zwischen Go-Routines (mehr dazu später).
 
 ** Code Review
 
@@ -24,30 +24,24 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+Wenn ein Go Programm aufstartet, erstellt die Go runtime eine Goroutine. 
+Gorotines sind lightweight applikationslevel-technische threads die viel Semantik mit den OS threads teilen.
+Ihr Job ist das Managen der Ausführung eines sets von Instruktionen. Jedes Go Programm hat mindestens 1 Goroutine, diese wird main Goroutine genannt.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Jede Goroutine hat ihren eigenen Memory-Block der stack genannt wird. Jeder stack startet als 2048 byte (2k) Allozierung. Dies ist sehr klein, aber stacks können mit der Zeit wachsen
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Jedesmal wenn eine Funktion aufgerufen wird, wird ein Block vom Stack-Space genommen um der Goroutine beim Ausführen der Funktion zu helfen.
+Die einzelnen Memory-Blocks werden Frames genannt.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
+Die Grösse des Frames für einen Funktionsaufruf wird zu compile time berechnet. Kein Wert kann auf dem Stack 
+erstellt werden ohne dass der Compiler seine Grösse zu compile time kennt. Wenn der Compiler die Grösse zu compile time nicht kennt
+muss der WErt auf dem Heap erstellt werden.
  
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Stacks räumen sich selber auf und die zero-values helfen bei der Initialiserung des Stacks.
+Jedes Mal wenn eine Funktion aufgerufen wird und ein Frame in den Memory geschrieben wird, wird das Frame initialisiert und so ist räumt sich der Stack
+selber auf. Wenn eine Funktion returned, wird der Speicher für das Frame gelassen, da es unklar ist, ob der Memory-Slog nochmals gebraucht wird. Es wäre ineffizient Speicher bei returns zu initialisieren.
 
 *Pass* *By* *Value*
 
