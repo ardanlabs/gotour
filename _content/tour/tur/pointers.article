@@ -1,22 +1,22 @@
-Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+İşaretçiler (Pointers)
+İşaretçiler, program sınırları arasında değer paylaşma amacını taşır.
 
-* Pointers
+* İşaretçiler (Pointers)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+İşaretçiler, program sınırları arasında değer paylaşma amacını taşır. Birkaç türde 
+program sınırı vardır. En yaygın olanı fonksiyon çağrıları arasındaki sınırdır. Ayrıca, 
+Gorutinler arasında bir sınır da bulunmaktadır ki bu konuya daha sonra değineceğiz.
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *Örnek* *1:* Değer ile Geçme
+- *Örnek* *2:* Veri Paylaşımı I
+- *Örnek* *3:* Veri Paylaşımı II
+- *Örnek* *4:* Kaçış Analizi
+- *Örnek* *5:* Yığın Belleği Büyümesi
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,84 +24,86 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+Go programları başladığında, Go runtime bir Gorutin oluşturur. Gorutinler, işletim 
+sistemleri iş parçacıklarıyla aynı semantiğe sahip hafif uygulama seviyesi iş parçacıklarıdır.
+Görevleri, belirli bir talimat kümesinin fiziksel yürütmesini yönetmektir. Her Go programında, 
+main Gorutin olarak adlandırdığınız en az 1 Gorutin bulunur.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Her Gorutin, bir yığın olarak adlandırılan kendi bellek bloğunu alır. Her yığın 
+başlangıçta 2048 byte (2k) tahsis edilmiş bir alandır. Çok küçük olsa da, yığınlar 
+zamanla boyut olarak büyüyebilir.
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Her bir fonksiyon çağrıldığında, o Gorutin'in ilgili fonksiyonla ilişkilendirilmiş 
+talimatları yürütmesine yardımcı olmak için bir yığın alanı bloke edilir. Her bir bellek 
+bloğu bir çerçeve olarak adlandırılır.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
+Belirli bir fonksiyon için bir çerçevenin boyutu derleme zamanında hesaplanır. Bir değerin
+yığında oluşturulabilmesi için, derleyicinin bu değerin boyutunu derleme zamanında 
+bilmesi gerekir. Derleyici bir değerin boyutunu derleme zamanında bilmiyorsa, değer
+yığında oluşturulmalıdır.
  
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Yığınlar kendi kendini temizler ve sıfır değeri, yığının başlatılmasına yardımcı olur.
+Her bir fonksiyon çağrıldığında ve bir bellek çerçevesi bloke edildiğinde, bu çerçeve 
+için bellek başlatılır, bu da yığının nasıl kendi kendini temizlediğini gösterir. Bir fonksiyonun 
+dönüşünde, çerçeve için bellek yalnız bırakılır çünkü bu belleğin tekrar ihtiyaç duyulup 
+duyulmayacağı bilinmez. Belleği döndürmelerde başlatmak verimsiz olurdu.
 
-*Pass* *By* *Value*
+*Değerle* *Geçme*
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+Tüm veri, program boyunca değerle taşınır. Bu, verinin program sınırları arasında 
+geçirilirken, her fonksiyon veya Gorutin'in verinin kendi kopyasını aldığı anlamına 
+gelir. Çalışacağınız iki tür veri vardır, değerin kendisi (int, string, user) veya 
+değerin adresi. Adresler, program sınırları arasında kopyalanıp depolanması gereken 
+verilerdir.
 
-The following code attempts to explain this more.
+Aşağıdaki kod, bunu daha fazla açıklamaya çalışmaktadır.
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
+        // int türünde, değeri 10 olan bir değişkeni tanımla.
         count := 10
 
-        // To get the address of a value, use the & operator.
+        // Bir değerin adresini almak için & operatörünü kullan.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // "count" değişkeninin "değerini" (kutunun içinde ne varsa)
+        // increment1 fonksiyonuna bir kopyasını geçir.
         increment1(count)
-
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        
+        // "value of" ve "address of" yazdır.
+        // Fonksiyon çağrısından sonra count'un değeri değişmeyecek.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
-
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
+        
+        // "count" değişkeninin "address of" (kutu nerede?) 
+        // increment2 fonksiyonuna bir kopyasını geçir.
+        // Bu hala bir değerle geçme ve referansla geçme değil,
+        // çünkü adresler de değerlerdir.
         increment2(&count)
-
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        
+        // "value of" ve "address of" yazdır.
+        // Fonksiyon çağrısından sonra count'un değeri değişti.
         println(
             "count:\tValue Of[", 
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // increment1, kendi kopyasını almak üzere
+    // bir tamsayı değerini kabul eden bir fonksiyonu bildirir.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Çağrılanın tamsayı değerinin yerel kopyasını artır.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // increment2, kendi kopyasını almak üzere
+    // bir tamsayı değerine işaret eden bir adresi kabul eden bir fonksiyonu bildirir.
+    // İşaretçi değişkenleri anlamsal türlerdir ve * kullanılarak bildirilir.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // İşaretçi aracılığıyla çağrılanın tamsayı değerini artır.
         *inc++
         println(
             "inc2:\tValue Of[", 
@@ -109,7 +111,7 @@ The following code attempts to explain this more.
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+Çıktı:
 
     count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
     inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
@@ -117,35 +119,35 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** Notlar
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- Veriyi paylaşmak için işaretçileri kullanın.
+- Go'da değerler her zaman değerle geçilir.
+- "Value of" (Kutunun içinde ne var), "Address of" (&), kutu nerede.
+- ( * ) operatörü bir işaretçi değişkeni bildirir ve "İşaretçinin işaret ettiği değer" anlamına gelir.
 
-** Escape Analysis
+** Kaçış Analizi
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+Derleyicinin bir değerin yığın mı yoksa heap mi üzerinde oluşturulması gerektiğini 
+belirlemek için kullandığı algoritma "kaçış analizi" olarak adlandırılır. Algoritmanın 
+adı, değerlerin önce yığında oluşturulduğunu ve ardından (veya ne zaman) gerektiğinde 
+heap'e "kaçtığını" düşündürebilir. Ancak bu doğru değildir. Bir değerin oluşturulması 
+sadece bir kez gerçekleşir ve kaçış analizi algoritması, bu oluşturmanın nerede 
+gerçekleşeceğine karar verir (yığın veya heap). Yalnızca heap üzerinde oluşturma, 
+Go'da bir tahsis olarak adlandırılır.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
+Kaçış analizini anlamak, değer sahipliğini anlamakla ilgilidir. Fikir şudur: Bir değer 
+bir fonksiyonun kapsamı içinde oluşturulduğunda, o fonksiyon değerin sahibidir. Daha sonra 
+soruyu sorun: Oluşturulan değerin sahibi fonksiyon döndüğünde hala var olmalı mı? Eğer 
+cevap hayırsa, değer yığında oluşturulabilir. Eğer cevap evetse, değer heap üzerinde 
+oluşturulmalıdır.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Not: Sahiplik kuralı, tahsislere neden olan kodları tanımlamak için iyi bir temel 
+kuraldır. Ancak kaçış analizinin, açık olmayan tahsislere neden olan hataları 
+içerebilecek kusurları olduğunu anlamalısınız. Ayrıca, algoritma, tahsisleri azaltmak 
+için derleme optimizasyonlarından yararlanma fırsatlarını kullanır.
 
-    // user represents a user in the system.
+    // user, sistemdeki bir kullanıcıyı temsil eder.
     type user struct {
         name  string
         email string
@@ -160,14 +162,14 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+`stayOnStack` fonksiyonu, çağıranına bir `user` değerini geri döndürmek için değer 
+semantiğini kullanıyor. Diğer bir deyişle, çağırana, oluşturulan `user` değerinin 
+bir kopyasını veriyor.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+`stayOnStack` fonksiyonu çağrıldığında ve döndüğünde, oluşturulan `user` değerinin 
+artık var olması gerekmez, çünkü çağıran kendi kopyasını alıyor. Bu nedenle, `stayOnStack`
+içindeki `user` değerinin oluşturulması yığında gerçekleşebilir. Herhangi bir tahsis 
+yapılmaz.
 
     type user struct {
         name  string
@@ -183,109 +185,108 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+The `escapeToHeap` fonksiyonu, bir `user` değerini çağıranına geri döndürmek için 
+işaretçi semantiğini kullanıyor. Diğer bir deyişle, çağırana, oluşturulan `user` 
+değerine paylaşılan erişim (bir adres) sağlanır.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+`escapeToHeap` fonksiyonu çağrıldığında ve döndüğünde, oluşturulan `user` değeri 
+hala var olmalıdır, çünkü çağırana değere paylaşılan erişim sağlanmıştır. Bu nedenle, 
+`escapeToHeap` içindeki `user` değerinin yığında oluşturulması mümkün değildir, bunun 
+yerine heap'te oluşturulmalıdır. Evet, tahsis.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Eğer son örnekteki `user` değeri, geri dönüşte işaretçi semantiğini kullanarak yığında 
+oluşturulsaydı ne olacağını düşünün.
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+Çağırılan, altındaki çerçeveden bir yığın adresinin bir kopyasını alırdı ve bütünlük 
+kaybolurdu. Kontrol tekrar çağıran fonksiyona geçtiğinde, yığında `user` değerinin 
+bulunduğu bellek tekrar kullanılabilir hale gelirdi. Çağırılan fonksiyon başka bir fonksiyon 
+çağrısı yaparsa, yeni bir çerçeve kesilir ve bellek üzerine yazılır, paylaşılan değer yok olurdu.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+Bu, neden yığının kendi kendini temizlediğini düşündüğünüzü açıklar. Sıfır değer başlatma, 
+GC kullanılmadan her yığın çerçevesinin temizlenmesine yardımcı olur. Yığın, her fonksiyon 
+çağrısının yürütülmesi için bir çerçeve alınır ve başlatılırken temizlenir. Yığın, fonksiyon 
+çağrıları sırasında temizlenir, dönüşlerde değil, çünkü derleyici, yığındaki belleğin 
+tekrar ihtiyaç duyulup duyulmayacağını bilmez.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+Kaçış analizi, bir değerin yığında (varsayılan) mı yoksa heap'te (kaçış) mi oluşturulacağına 
+karar verir. `stayOnStack` fonksiyonuyla, değerin bir kopyasını çağırana geri geçiriyoruz, 
+bu nedenle değeri yığında tutmak güvenlidir. `escapeToHeap` fonksiyonuyla, değerin bir 
+kopyasını çağırana (yığını paylaşarak) geri geçiriyoruz, bu nedenle değeri yığında tutmak 
+güvenli değildir.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+Kaçış analizi ile ilgili birçok küçük ayrıntı bulunmaktadır, bu nedenle daha fazla bilgi edinmek 
+için 14. bölümdeki "Kaçış Analizi Mekanizmaları" başlıklı yazıyı okuyabilirsiniz.
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Not: Sürüm 1.17'den itibaren Go, ABI'yi (uygulama ikili arayüzü) değiştirdi ve Linux, 
+MacOS ve Windows üzerinde 64-bit x86 mimarilerinde bellek üzerinde değil, register'lar 
+kullanarak fonksiyon giriş ve çıkış argümanlarını iletmek için yeni bir yol uyguladı. Bu, 
+bazı fonksiyon argümanlarının yığında kopyalanmayacağı anlamına gelir, ancak register'ları 
+kullanmanın olanaklarına bağlı olarak bazıları kopyalanabilir. Bu, bu bölümde açıklanan 
+semantikleri değiştirmez.
 
-** Notes
+** Notlar
 
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- Bir değer, değeri oluşturan fonksiyonun dönüş yaptıktan sonra referans alınabilirse.
+- Derleyici, bir değerin yığına sığacak kadar büyük olmadığını belirlerse.
+- Derleyici, derleme zamanında bir değerin boyutunu bilmiyorsa.
+- Bir değer, fonksiyon veya arayüz değerleri kullanılarak bağlantısı kesilirse.
 
-** Garbage Collection Semantics
+** Garbage Collection Semantiği
 
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+Bir değer bir kere heap üzerinde oluşturulduğunda, Garbage Collector (GC) devreye 
+girer. GC'nin en önemli kısmı, tempolu algoritmadır. Bu, GC'nin mümkün olan en 
+küçük heap'i sürdürebilmek için en iyi uygulama verimliliği ile birlikte çalıştırılması 
+gereken sıklığı/tempoyu belirler.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
-** Stack vs Heap
+** Yığın vs Heap
 
-"The stack is for data that needs to persist only for the lifetime of the function
-that constructs it, and is reclaimed without any cost when the function exits. The
-heap is for data that needs to persist after the function that constructs it exits,
-and is reclaimed by a sometimes costly garbage collection." - Ayan George
+"Yığın, yalnızca oluşturan fonksiyonun yaşam süresi boyunca kalması gereken veriler 
+içindir ve fonksiyon çıkışında herhangi bir maliyet olmadan geri alınır. Heap, oluşturan 
+fonksiyon çıkışından sonra varlığını sürdürmesi gereken veriler içindir ve bazen maliyetli 
+bir garbage collection tarafından geri alınır." - Ayan George
 
-** Stack Growth
+** Yığın Büyümesi
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+Her fonksiyon için her çerçevenin boyutu derleme zamanında hesaplanır. Bu, derleyici 
+değerin boyutunu derleme zamanında bilmiyorsa, değerin yığına oluşturulması gerektiği 
+anlamına gelir. Buna bir örnek, yerleşik make fonksiyonunu kullanarak boyutu bir değişkene 
+dayalı olarak olan bir dilim oluşturmaktır.
 
-    b := make([]byte, size) // Backing array allocates on the heap.
+    b := make([]byte, size) // Destekleyici dizi heap üzerinde tahsis edilir.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go, yığınların nasıl büyüyüp küçüleceğini belirlemek için bir bitişik yığın uygulaması 
+kullanır. Go'nun kullanabileceği alternatiflerden biri, bazı işletim sistemleri tarafından 
+kullanılan segmentli bir yığın uygulamasıdır.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
+Her fonksiyon çağrısı, "Bu yeni çerçeve için yeterli yığın alanı var mı?" sorusuyla 
+birlikte gelir. Eğer evetse, o zaman sorun yok ve çerçeve alınır ve başlatılır. 
+Eğer hayırsa, o zaman yeni ve daha büyük bir yığın inşa edilmeli ve mevcut yığındaki 
+bellek yeniye kopyalanmalıdır. Bu, yığındaki belleğe referans olan işaretçilerde 
+değişiklik yapmayı gerektirir. Ardışık bellek ve modern donanım ile lineer taramanın 
+avantajları, kopya maliyeti karşılığında yapılan bir takastır.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+Bitişik yığınların kullanımı nedeniyle hiçbir Gorutin'in başka bir Gorutin'in 
+yığınına bir işaretçisi olamaz. Her yığının her işaretçisini takip etmek ve bu işaretçileri 
+yeni konuma yeniden ayarlamak için çalışma zamanı için çok fazla iş yükü olurdu.
 
-** Extra Reading
+** Ek Okuma
 
-**Pointer* *Mechanics*
+**İşaretçi* *Mekaniği*
 
 - [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
 - [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
 
-*Stacks*
+*Yığınlar*
 
 - [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
 
-*Escape* *Analysis* *and* *Inlining*
+*Kaçış* *Analizi* *ve* *İnline* *Etme*
 
 - [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
 - [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
@@ -307,30 +308,30 @@ track of every pointer to every stack and readjust those pointers to the new loc
 - [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
 - [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
 
-*Static* *Single* *Assignment* *Optimizations*
+*Statik* *Tek* *Atama* *Optimizasyonları*
 
 - [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
 - [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
 - [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Olası bir çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*Kısım* *A:* Türü int olan ve değeri 20 olan bir değişkeni bildirin ve başlatın. 
+Değişkenin "adresi"ni ve "değeri"ni görüntüleyin.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*Kısım* *B:* Türü int olan ve önceki oluşturduğunuz değişkeni gösteren bir işaretçi 
+değişkeni bildirin ve başlatın. İşaretçinin "adresi", "değeri" ve işaretçinin 
+işaret ettiği "değer"i görüntüleyin.
 
-** Exercise 2
+** Egzersiz 2
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+Bir yapı türü bildirin ve bu türün bir değerini oluşturun. Bu yapı türündeki 
+bir alanın değerini değiştirebilen bir fonksiyon bildirin. Fonksiyonunuza çağrı yapmadan 
+önce ve sonra değeri görüntüleyin.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go

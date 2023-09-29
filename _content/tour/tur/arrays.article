@@ -1,90 +1,89 @@
-Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Diziler (Arrays)
+Diziler, Go'da ardışık bloklarda sabit boyutta bellek tahsis etmemize olanak tanıyan özel bir veri yapısıdır.
 
-* Arrays
+* Diziler (Arrays)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Diziler, Go'da ardışık bloklarda sabit boyutta bellek tahsis etmemize olanak tanıyan 
+özel bir veri yapısıdır. Dizilerin, nasıl bildirildikleri ve tür olarak nasıl görüldükleriyle 
+ilgili Go'da bazı özel özellikleri vardır.
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+- *Örnek* *1:* Bildirme, başlatma ve döngü
+- *Örnek* *2:* Farklı tür diziler
+- *Örnek* *3:* Ardışık bellek tahsisleri
+- *Örnek* *4:* Aralık mekanikleri
 
 .play arrays/example1.go
 .play arrays/example2.go
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
+** Değerleri Bildirme ve Başlatma
 
-Declare an array of five strings initialized to its zero value state.
+Değerleri sıfır değer durumuna başlatılmış beş string içeren bir dizi bildirin.
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+Bir dizi, birinci öğenin nil'e ve ikinci öğenin 0'a ayarlandığı bir bellek dizisinin 
+bir işaretçisini ve toplam byte sayısını temsil eden değişmeyen, iki kelime veri yapısıdır. 
+Bu dizi sıfır değer durumuna ayarlandığından, her öğe kendi sıfır değer durumuna ayarlanır. 
+Bu, her bir dizinin birinci kelimesinin nil'e ve ikinci kelimesinin 0'a ayarlandığı anlamına gelir.
 
 .image /tour/eng/static/img/a1.png
 
-** String Assignments
+** Dizi Atamaları
 
-What happens when a string is assigned to another string?
+Bir dizi başka bir diziye atanınca ne olur?
 
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Bir dizi başka bir diziye atanırken, iki kelime değeri kopyalanır ve aynı bellek 
+dizisini paylaşan iki farklı dizi değeri elde edilir.
 
 .image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+Bir dizinin kopyalanma maliyeti, dizinin boyutundan bağımsız olarak aynıdır, iki 
+kelime kopya.
 
-** Iterating Over Collections
+** Koleksiyonlar Üzerinde Dolaşma
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Go, koleksiyonlar üzerinde dolaşmak için iki farklı semantik sağlar. Değer semantiği 
+veya işaretçi semantiği kullanabilirsiniz.
 
-    // Value Semantic Iteration
+    // Değer Semantiği İle Dolaşma
     for i, fruit := range strings {
         println(i, fruit)
     }
 
 
-    // Pointer Semantic Iteration
+    // İşaretçi Semantiği İle Dolaşma
     for i := range strings {
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Değer semantiği dolaşma kullanırken iki şey olur. İlk olarak, üzerinde dolaştığınız 
+koleksiyon kopyalanır ve bu kopya üzerinde dolaşılır. Bir dizi durumunda kopya maliyetli 
+olabilir çünkü tüm dizi kopyalanır. Bir dilim durumunda gerçek bir maliyet yoktur çünkü 
+yalnızca iç dilim değeri kopyalanır ve destekleyen dizi değil. İkinci olarak, üzerinde 
+dolaşılan her öğenin bir kopyasını alırsınız.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+İşaretçi semantiği dolaşma kullanırken, orijinal koleksiyon üzerinde dolaşılır ve her 
+öğeye doğrudan erişim sağlanır.
 
-** Value Semantic Iteration
+** Değer Semantiği İle Dolaşma
 
-Given the following code and output.
+Aşağıdaki kod ve çıktı verildiğinde.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
         println(i, fruit)
     }
 
-Output:
+Çıktı:
 
     0 Apple
     1 Orange
@@ -92,33 +91,32 @@ Output:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+strings değişkeni, 5 string içeren bir dizidir. Döngü, koleksiyondaki her string 
+üzerinde döner ve dizinin konumunu ve string değerini görüntüler. Bu değer semantiği 
+dolaşma olduğundan, for range kendi sığ kopyası üzerinde döner ve her döngüde fruit 
+değişkeni her stringin bir kopyasıdır (iki kelimelik veri yapısı).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Fruit değişkeninin değer semantiği kullanılarak print fonksiyonuna iletilme şekline 
+dikkat edin. Print fonksiyonu, string değerinin kendi kopyasını alır. String print 
+fonksiyonuna geçirildiğinde, string değerinin 4 kopyası vardır (dizi, sığ kopya, fruit 
+değişkeni ve print fonksiyonunun kopyası). Bu 4 kopya aynı byte'lık destekleyen diziyi 
+paylaşıyor.
 
 .image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+String değerinin kopyalanması, string değerinin heap'e kaçmasını önlediği 
+için önemlidir. Bu, heap'te üretken olmayan tahsisleri ortadan kaldırır.
 
-** Pointer Semantic Iteration
+** İşaretçi Semantiği İle Dolaşma
 
-Given the following code and output.
+Aşağıdaki kod ve çıktı verildiğinde.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
         println(i, strings[i])
     }
 
-Output:
+Çıktı:
 
     0 Apple
     1 Orange
@@ -126,38 +124,39 @@ Output:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Aynı şekilde, strings değişkeni 5 string içeren bir dizidir. Döngü, koleksiyondaki her bir 
+string üzerinde dolaşır ve indeks konumunu ve string değerini görüntüler. Bu, işaretçi tabanlı 
+bir dolaşma olduğundan, for range doğrudan strings dizisi üzerinde dolaşır ve her döngüde 
+her indeks konumu için string değeri, print çağrısı için doğrudan erişiliyor.
 
-** Different Type Arrays
+** Farklı Tür Diziler
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Aynı türde farklı uzunluktaki dizileri atarken derleyicinin ne tür bir hata 
+verdiğini görmek ilginçtir.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
 
     five = four
 
-Compiler Error:
+Derleyici Hatası:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+Burada 4 ve 5 tam sayı içeren bir dizi sıfır değer durumunda başlatılır. Ardından 
+birbirine atamaya çalışırsınız ve derleyici "cannot use four (type [4]int) as type 
+[5]int in assignment" der. Derleyicinin ne dediği konusunda açık olmak önemlidir. 
+Bir dizi 4 tam sayı içeren ve bir dizi 5 tam sayı içeren farklı türlerde veriyi temsil 
+eder. Bir dizinin boyutu, onun tür bilgilerinin bir parçasıdır. Go'da bir dizinin boyutu 
+derleme zamanında bilinmelidir.
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+Bu konuda net olmak önemlidir. Derleyici, 4 tamsayıdan oluşan bir dizi ile 5 tamsayıdan 
+oluşan bir dizinin farklı türlerde veriyi temsil ettiğini söylüyor. Bir dizinin boyutu, 
+tür bilgisinin bir parçasıdır. Go'da, bir dizinin boyutu derleme zamanında bilinmelidir.
 
-** Contiguous Memory Construction
+** Ardışık Bellek İnşası
 
-You want to prove that an array provides a contiguous layout of memory.
+Bir dizinin bellekte ardışık bir düzen sağladığını kanıtlamak istiyorsunuz.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -166,7 +165,7 @@ You want to prove that an array provides a contiguous layout of memory.
             v, &v, &five[i])
     }
 
-Output:
+Çıktı:
 
     Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
     Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
@@ -174,41 +173,43 @@ Output:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Burada, değerlerle başlatılmış beş string içeren bir dizi bildiriyorsunuz. Daha 
+sonra her string hakkında bilgi görüntülemek için değer semantik dolaşımı kullanın. 
+Çıktı, her biri string değerini, v değişkeninin adresini ve dizideki her öğenin 
+adresini gösterir.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Dizinin nasıl ardışık bir bellek bloğu olduğunu ve bir stringin 64 bit mimaride iki 
+kelime veya 16 byte'lık bir veri yapısı olduğunu görebilirsiniz. Her öğe için adres, 
+16 byte'lık bir adım üzerindedir.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+v değişkeninin her tekrarda aynı adrese sahip olması, v'nin döngü sırasında her string 
+değerinin bir kopyasını içeren string türünde bir yerel değişken olduğunu anlama 
+gücünü artırır.
 
-** CPU Caches
+** CPU Önbellekleri
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+İşlemciler arasında tasarım ve mekanik farklar bulunmaktadır. Bu bölümde, işlemciler ve 
+bunlar arasındaki nispeten benzer anlam üzerine yüzeysel olarak konuşacağız. Bu semantik 
+anlayış, işlemcinin nasıl çalıştığına dair iyi bir zihinsel model ve sağlayabileceğiniz 
+empati için bir temel sunacaktır.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
+İşlemci içindeki her çekirdek, belleğin (L1 ve L2) kendi yerel önbelleğine ve veri 
+ve talimatları depolamak/acces etmek için kullanılan ortak bir belleğe (L3) sahiptir. 
+Her çekirdekteki donanım iplikleri, kendi yerel L1 ve L2 önbelleklerine erişebilir. 
+L3 veya ana bellekten gelen verilerin, erişim için L1 veya L2 önbelleğine kopyalanması 
+gerekmektedir.
 
 .image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Farklı önbelleklerde bulunan verilere erişmenin gecikme maliyeti, en azdan en çoğa 
+değişir: L1 -> L2 -> L3 -> ana bellek. Scott Meyers'ın dediği gibi, 
+"Performans önemliyse, sahip olduğunuz toplam bellek miktarı önbelleğin toplam 
+miktarıdır. Pratikte ana belleğe erişmek çok yavaştır, neredeyse orada olmasa da olur."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Günümüzde performans, verilerin donanım üzerinden nasıl etkili bir şekilde akıp 
+gittiğiyle ilgilidir. Donanımın ihtiyaç duyduğu (herhangi bir anda) her veri, sadece 
+ana bellekte varsa, programlar, verilerin zaten L1 veya L2 önbellekte bulunmasına 
+kıyasla daha yavaş çalışacaktır.
 
     3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
 
@@ -222,36 +223,35 @@ programs will run slower as compared to the data already being present in the L1
     L2 cache reference ........................... 7 ns ................... 84 ins
     Main memory reference ...................... 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
+Bir komutu yürütmek için gereken verilerin her zaman L1 veya L2 önbellekte bulunduğunu 
+garanti eden bir kod nasıl yazılır? İşlemcinin önceden yükleyiciyle mekanik olarak uyumlu 
+bir kod yazmanız gerekiyor. Önceden yükleyici, talimatlar veriyi talep etmeden önce hangi 
+verinin gerekeceğini tahmin etmeye çalışır, böylece veri zaten L1 veya L2 önbellekte bulunur.
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Erişimin nerede gerçekleştiğine bağlı olarak farklı bellek erişim ölçekleri vardır. 
+Kodunuz, belleğin en küçük bellek erişim birimi olarak bir byte'ı okuma/yazma yapabilir. 
+Ancak, önbellek sistemleri açısından bakıldığında, granül 64 byte'tır. Bu 64 byte'lık 
+bellek bloğuna önbellek satırı denir.
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Önceden yükleyici, yürütülen talimatların belleğe yönelik öngörülebilir erişim desenleri 
+oluşturduğunda en iyi şekilde çalışır. Belleğe yönelik öngörülebilir bir erişim deseni 
+oluşturmanın bir yolu, ardışık bir bellek bloğu oluşturmak ve ardından bu belleği lineer 
+bir geçiş yaparak üzerinde dolaşmaktır.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Diziler, tahmin edilebilir erişim desenlerini destekledikleri için donanım için en 
+önemli veri yapılarından biridir. Ancak, Go'daki en önemli veri yapısı dilimdir. Go 
+dilimleri aslında bir dizi kullanırlar.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Bir dizi oluşturduktan sonra, her öğe bir sonraki veya önceki öğeden eşit uzaklıkta 
+olacaktır. Bir dizi üzerinde gezinirken, öngörülebilir bir adımda önbellek hattından 
+geçer gibi bağlı önbellek hatlarıyla önbellek hattında yürümeye başlarsınız. Önbellek, 
+bu öngörülebilir veri erişim desenini algılar ve veriyi işlemciye etkili bir şekilde 
+çeker, bu da veri erişim gecikme maliyetini azaltır.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Büyük bir kare matris belleği ve bu matrisin öğe sayısına eşleşen bir bağlı düğme 
+listesi olduğunu hayal edin. Bağlı liste boyunca bir geçiş yaparsanız ve ardından 
+matrisi her iki yönde (sütun ve satır) geçerseniz, farklı geçişlerin performansı 
+nasıl karşılaştırılır?
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +265,9 @@ the performance of the different traversals compare?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+RowTraverse, tahmin edilebilir bir erişim deseni oluşturduğu için en iyi performansa 
+sahip olacaktır. Cache hatları, veriye ihtiyaç duyulmadan önce bu hattı önbelleğe 
+alabilir ve L1 veya L2 önbelleğine kopyalayabilir.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +281,10 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+ColumnTraverse, her bellek erişiminde OS sayfa sınırlarını aşan bu erişim deseni 
+nedeniyle bir büyüklük düşük performans sergileyecektir. Bu, önbellek hattı 
+önbelleklemesi için tahmin yapmamak ve temelde rasgele erişim belleği haline 
+gelmek anlamına gelir.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,59 +298,57 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Bağlı Liste Gezisi, önbellek hattı eksiklikleri olsa da, daha az TLB (Translation Lookaside Buffer 
+= Çeviri Bakış Penceresi) eksikliği nedeniyle satır gezisinden iki kat daha yavaş olacaktır. 
+Bağlı listede bağlı olan düğmelerin çoğu aynı OS sayfalarının içinde bulunmaktadır.
 
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
     BenchmarkRowTraverse-16         310      11060883 ns/op
 
-** Translation Lookaside Buffer (TLB)
+** Çeviri Bakış Penceresi (Translation Lookaside Buffer (TLB)) Nedir?
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Her çalışan program, OS tarafından sanal belleğin tam bir bellek haritasını alır ve bu 
+çalışan program, tüm fiziksel belleğe sahipmiş gibi düşünür. Ancak fiziksel bellek, 
+tüm çalışan programlarla paylaşılması gereken OS sayfalarına bölünmüş ve herhangi bir 
+çalışan program için sanal bellekte sayfaları eşleme işlemi yapılır. Her OS'nin bir 
+sayfa boyutunu belirleme yeteneğine sahip olmasına rağmen, 4k, 8k, 16k gibi makul 
+ve yaygın boyutlar vardır.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+TLB, işlemci içindeki küçük bir önbellektir ve bir sanal adresi bir OS sayfası 
+içindeki fiziksel bir adrese çevirmenin gecikmesini azaltmaya yardımcı olur. TLB 
+önbelleğine karşı bir eksiklik, büyük gecikmelere neden olabilir çünkü donanım 
+şimdi OS'nin sayfa tablosunu tarayarak sorunlu sanal adres için doğru sayfayı 
+bulmak zorundadır. Program bir sanal makinede çalışıyorsa (örneğin, bulutta), 
+sanal makine sayfa tablosunun taranması gereklidir.
 
-Remember what was said:
+TLB eksikliği hakkında hatırlanması gerekenler:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Bağlı liste, genellikle özellikle önbellek hattı eksiklikleri olsa da, TLB eksiklikleri 
+daha az olduğu için satır geziniminden iki kat daha yavaştır. Bağlı listede bağlı olan 
+düğümlerin büyük bir kısmı aynı işletim sistemi sayfaları içinde bulunmaktadır.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+Bağlı liste, TLB erişimi nedeniyle sütun geziniminden milyonlarca kez daha hızlıdır. 
+Bağlı liste geziniminde önbellek hattı eksiklikleri olmasına rağmen, düğüm grubu için 
+belleğin çoğunluğu aynı sayfaya düşeceğinden, TLB gecikmeleri performansı etkilemez. 
+Bu nedenle, DNA tabanlı uygulamalar gibi büyük miktarda bellek kullanan programlar için, 
+bir veya iki megabyte bellek düzenine sahip bir Linux dağıtımını kullanmak isteyebilirsiniz.
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Tüm bunlar söylendikten sonra, veri odaklı tasarım önemlidir. Verimli bir algoritma 
+yazmak, verinin nasıl erişildiğini hesaba katmalıdır. Unutmayın, bugünün performansı, 
+veriyi işlemciye ne kadar verimli bir şekilde alabileceğinizle ilgilidir.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
 
-** CPU Cache Notes
+** CPU Önbellek Notları
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Ekstra Diyagramlar
 
-*Industry* *Defined* *Latencies*
+*Endüstri* *Tanımlı* *Gecikmeler*
 
     L1 cache reference ......................... 0.5 ns ...................  6 ins
     Branch mispredict ............................ 5 ns ................... 60 ins
@@ -366,13 +365,13 @@ how efficiently you can get data into the processor.
     Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
     Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
-*Cache* *Latencies* *Image*
+*Önbellek* *Gecikmeleri* *Resim*
 
 .image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Ekstra Okuma
 
-*CPU* *Caches* */* *Memory*
+*CPU* *Önbellekleri* */* *Bellek*
 
 - [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
 - [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
@@ -393,6 +392,7 @@ how efficiently you can get data into the processor.
 - [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
 
 *Data-Oriented* *Design*
+*Veri-Odaklı* *Tasarım*
 
 - [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
 - [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
@@ -402,27 +402,26 @@ how efficiently you can get data into the processor.
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
-** Notes
+** Notlar
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
+- Eğer veriyi anlamıyorsan, problemi anlamazsın.
+- Problemi çözmenin maliyetini anlamazsan, problemler hakkında mantıklı düşünemezsin.
+- Donanımı anlamazsan, problemleri çözmenin maliyeti hakkında mantıklı düşünemezsin.
+- Diziler değişmeyen uzunluktaki veri yapılarıdır.
+- Farklı boyuttaki diziler farklı tipler olarak kabul edilir.
+- Bellek, ardışık bir blok olarak ayrılır.
+- Go, mekansal yerel kontrolü size verir.
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Bir olası çözüm
+sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
+Her biri sıfır değeriyle başlatılmış 5 string içeren bir dizi bildirin. İkinci bir dizi 
+bildirin ve bu diziyi metinsel string değerleri ile başlatın. İkinci diziyi birinci diziye 
+atayın ve ilk dizinin sonuçlarını gösterin. Her bir öğenin metin değerini ve adresini gösterin.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go
