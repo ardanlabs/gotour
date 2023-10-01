@@ -1,38 +1,38 @@
 <ul>
-<li>CPU caches works by caching main memory on cache lines.</li>
-<li>Cache lines today are either 32 or 64 bytes wide depending on the hardware.</li>
-<li>Cores do not access main memory directly. They tend to only have access their local caches.</li>
-<li>Both data and instructions are stored in the caches.</li>
-<li>Cache lines are shuffled down L1-&gt;L2-&gt;L3 as new cache lines need to be stored in the caches.</li>
-<li>Hardware likes to traverse data and instructions linearly along cache lines.</li>
-<li><p>Main memory is built on relatively fast cheap memory. Caches are built on very fast expensive memory.</p>
+<li>Οι ταχείες μνήμες της CPU δουλεύουν αποθηκεύοντας από την κύρια μνήμη σε σειρές ταχείας μνήμης.</li>
+<li>Οι σειρές ταχείας μνήμης σήμερα έχουν μήκος είτε 32 ή 64 byte ανάλογα με το υλικό.</li>
+<li>Οι πυρήνες δεν έχουν πρόσβαση στην κύρια μνήμη απευθείας. Συνηθίζεται να έχουν πρόσβαση μόνο στις τοπικές ταχείες μνήμες τους.</li>
+<li>Τόσο τα δεδομένα όσο και οι οδηγίες αποθηεκύονται στις ταχείες μνήμες.</li>
+<li>Οι γραμμές ταχείς μνήμης τοποθετούνται στις L1-&gt;L2-&gt;L3 καθώς νέες σειρές ταχείας μνήμης πρέπει να αποθηκευτούν στις ταχείες μνήμες.</li>
+<li>Το υλικό προτιμά να διατρέχει τα δεδομένα και τις οδηγίες γραμμικά κατά μήκος των σειρών ταχείας μνήμης.</li>
+<li><p>Η κύρια μνήμη κατασκευάζεται από γρήγορη σχετικά φθηνή μνήμη. Οι ταχείες μνήμες κατασκευάζονται από πολύ γρήγορες ακριβές μνήμες.</p>
 </li>
-<li><p>Access to main memory is incredibly slow, we need the cache.</p>
+<li><p>Η πρόσβαση στην κύρια μνήμη είναι εξαιρετικά αργή, γι' ατό τον λόγο χρειάζονται οι ταχείες μνήμες.</p>
 <ul>
-<li>Accessing one byte from main memory will cause an
-entire cache line to be read and cached.</li>
-<li>Writes to one byte in a cache line requires the 
-entire cache line to be written.</li>
+<li>Η πρόσβαση σε ένα byte από την κύρια μνήμη θα προκαλέσει την
+ανάγνωση και αποθήκευση μιας οκλόκληρης σειράς ταχείας μνήμης.</li>
+<li>Οι εγγραφές σε ένα μιας σειράς ταχείας μνήμης απαιτούν την  
+εγγραφή όλοκληρης της σειράς ταχείας μνήμης.</li>
 </ul>
 </li>
-<li><p>Small = Fast</p>
+<li><p>Μικρό = Γρήγορο</p>
 <ul>
-<li>Compact, well localized code that fits in cache is fastest.</li>
-<li>Compact data structures that fit in cache are fastest.</li>
-<li>Traversals touching only cached data is the fastest.</li>
+<li>Συμπαγής, ορθά στοχευμένος στην τοπική διάταξη κώδικας που χωράει στην ταχεία μνήμη είναι γρηγορότερος.</li>
+<li>Συμπαγείς δομές δεδομένων που χωράνε στην ταχεία μνήμη είναι γρηγορότερες.</li>
+<li>Διελέυσεις που επισκέπτονται μόνο δεδομένα αποθηκευμένα στις ταχείες μνήμες είναι γρηγορότερες.</li>
 </ul>
 </li>
-<li><p>Predictable access patterns matter.</p>
+<li><p>Τα προβλέψιμα μοτίβα πρόσβασης είναι σημαντικά.</p>
 <ul>
-<li>Whenever it is practical, you want to employ a linear array traversal.</li>
-<li>Provide regular patterns of memory access.</li>
-<li>Hardware can make better predictions about required memory.</li>
+<li>Όποτε είναι πρακτικό, είναι καλύτερο να υλοποιεί κανείς γραμμικές διελέυσης πίνακα.</li>
+<li>Παροχή κανονικών μοτίβων πρόσβασης μνήμης.</li>
+<li>Το υλικό μπορεί να κάνει καλύτερες προβλέψεις για την απαιτούμενη μνήμη.</li>
 </ul>
 </li>
-<li><p>Cache misses can result in TLB cache misses as well.</p>
+<li><p>Οι αστοχίες της ταχείας μνήμης μπορούν να οδηγήσουν επίσης σε αστοχίες της TLB.</p>
 <ul>
-<li>Cache of translations of a virtual address to a physical address.</li>
-<li>Waiting on the OS to tell us where the memory is.</li>
+<li>Αποθήκευση των αναφορών μιας εικονικής διεύθυνσης σε φυσική διέυθυνση.</li>
+<li>Περιμένοντας το λειτουργικό να μας ενημερώσει που βρίσκεται η μνήμη.</li>
 </ul>
 </li>
 </ul>
