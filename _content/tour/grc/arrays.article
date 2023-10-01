@@ -1,90 +1,91 @@
-Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Πίνακες 
+Οι πίνακες είναι μια ξεχωριστή δομή δεδομένων στην Go που επιτρέπει την εκχώρηση συνεχόμενων τμημάτων μνήμης σταθερού μεγέθους.
 
-* Arrays
+* Πίνακες
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Παρακολουθήστε το Video]]
+- Εαν Χρειάζεστε Οικονομική Συνδρομή, Χρησιμοποιείστε το σχετικό [[https://www.ardanlabs.com/scholarship/][Έγγραφο Υποτροφίας]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Οι πίνακες είναι μια ξεχωριστή δομή δεδομένων στην Go που επιτρέπει την εκχώρηση συνεχόμενων τμημάτων μνήμης 
+σταθερού μεγέθους. Οι πίνακες έχουν κάποια ειδικά χαρακτηριστικά στην Go σεχτικά με το πως δηλώνονται και 
+αντιμετωπίζονται ως τύποι.
 
-** Code Review
+** Επισκόπηση Κώδικα
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+- *Παράδειγμα* *1:* Δήλωση, ανάθεση αρχικής τιμής και διαδοχική προσπέλαση
+- *Παράδειγμα* *2:* Πίνακες διαφορετικού τύπου
+- *Παράδειγμα* *3:* Εκχωρήσεις συνεχούς μνήμης
+- *Παράδειγμα* *4:* Μηχανισμός range 
 
 .play arrays/example1.go
 .play arrays/example2.go
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
+** Δηλώνοντας και Εκχωρώντας Αρχικές Τιμές
 
-Declare an array of five strings initialized to its zero value state.
+Δηλώνοντας ένα πίνακα πέντε συμβολοσειρών που λαμβάνει αρχική κατάσταση την κατάσταση μηδενικής τιμής. 
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+Μια συμβολοσειρά είναι μια αμετάβλητη δομή δεδομένων, δύο λέξεων, που αναπαριστά ένα δείκτη διεύθυνσης 
+σε ένα υποστηρικτικό πίνακα από byte και τον συνολικό αριθμό byte στον υποστηρικτικό πίνακα. Καθώς
+αυτός ο πίνακας παίρνει την κατάσταση μηδενικής τιμής, κάθε στοιχείο παίρνει και αυτό με την σειρά του
+την κατάσταση μηδενικής τιμής. Αυτό σημαίνει ότι κάθε συμβολοσειρά έχει την πρώτη λέξη ίση με nil και την 
+δεύτερη λέξη ίση με το 0.
 
-.image /tour/grc/static/img/a1.png
+.image /tour/eng/static/img/a1.png
 
-** String Assignments
+** Εκχωρήσεις Συμβολοσειρών 
 
-What happens when a string is assigned to another string?
+Τι συμβαίνει όταν μια συμβολοσειρά εκχωρείται σε μια άλλη συμβολοσειρά;
 
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Όταν μια συμβολοσειρά εκχωρείτε σε μια άλλη συμβολοσειρά, αντιγράφεται η τιμή των δύο λέξεων,
+με απατέλεσμα δύο διαφορετικές συμβολοσειρές να μοιράζονται τον ίδιο υποστηρικτικό πίνακα.
 
-.image /tour/grc/static/img/a2.png
+.image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+Το κόστος αντιγραφής μιας συμβολοσειράς είναι το ίδιο ανεξάρτητα από το μέγεθος της συμβολοσειράς, 
+καθώς πρόκειται για αντιγραφή δύο λέξεων.
 
-** Iterating Over Collections
+** Διαδοχική Προσπέλαση Συλλογών
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Η Go παρέχει δύο διαφορετικές σημειολογίες για την διαδοχική προσπέλαση μιας συλλογής. Είναι δυνατόν 
+να γίνει η διαδοχική προσπέλαση με σημειολογία τιμής ή με σημειολογία δείκτη διεύθυνσης μνήμης.
 
-    // Value Semantic Iteration
+    // Διαδοχική Προσπέλαση με Σημειολογία Τιμής
     for i, fruit := range strings {
         println(i, fruit)
     }
 
 
-    // Pointer Semantic Iteration
+    // Διαδοχική Προσπέλαση με Σημειολογία Δείκτη Διεύθυνσης
     for i := range strings {
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Όταν χρησημοποιείται διαδοχική προσπέλαση με σημειολογία τιμής συμβαίνουν δύο πράγματα. 
+Πρώτα η συλλογή αντιγράφεται και η διαδοχική προσπέλαση γινεται στο αντίγραφο. Στην 
+περίτπωση ενός πίνακα, το αντίγραφο μπορεί να κοστίζει να γίνει καθώς πρόκειται για αντιγραφή
+ολόκληρου του πίνακα. Στην περίπτωση ενός δυναμικού πίνακα δεν υπάρχει πραγματικό κόστος καθώς 
+αντιγράφεται μόνο η τιμή του εσωτερικού δυναμικού πίνακα και όχι ο υποστηρικτικός πίνακας. Στην 
+συνέχεια, η διαδοχική προσπέλαση λαμβάνει ένα αντίγραφο κάθε στοιχείου.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+Όταν χρησημοποιείται διαδοχική προσπέλαση με σημειολογία δείκτη διεύθυνσης μνήμης, η διαδοχική
+προσπέλαση γίενται επί της αρχικής συλλογής και η πρόσβαση κάθε στοιχείου της συλλογής γίνεται άμεσα.
 
-** Value Semantic Iteration
+** Διαδοχική Προσπέλαση με Σημειολογία Τιμής 
 
-Given the following code and output.
+Παρουσιάζεται ο ακόλουθος κώδικας και το αποτέλεσμα αυτού.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
         println(i, fruit)
     }
 
-Output:
+Αποτέλεσμα:
 
     0 Apple
     1 Orange
@@ -92,33 +93,33 @@ Output:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+Οι μεταβλητή strings είναι ένας πίνακας 5 συμβολοσειρών. Η διαδοχική προσπέλαση γίνεται
+σε κάθε συμβολοσειρά της συλλογής και παρουσιάζεται ο δείκτης θέσης και η τιμή της συμβολοσειράς. 
+Εφόσον πρόκειται για διαδοχική προσπέλαση με σημειολογία τιμής, το range της for επισκέπτεται το
+δικό της ρηχό αντίγραφο του πίνακα και σε κάθε επανάληψη η μεταβλητή fruit είναι ένα αντίγραφο 
+κάθε συμβολοσειράς (της δομής δεδομένων των δύο λέξεων).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Παρατηρεί κανείς πως η μεταβλητή fruit περνάει στην συνάρτηση εκτύπωσης με την χρήσης σημειολογίας 
+τιμής. Επίσης η συνάρτηση εκτύπωσης λαμβάνει το δικό της αντίγραφο της τιμής της συμβολοσειράς. Εως ότου 
+η συμβολοσειρά έχει περάσει στην συνάρτηση εκτύπωσης, υπάρχουν 4 αντίγραφα της τιμής της συμβολοσειράς
+(πίνακς, ρηχό αντίγραφο, μεταβλητή fruit και το αντίγραφο της συνάρτησης εκτύπωσης). Όλα τα 4 αντίγραφα
+μοιράζονται τον ίδιο υποστηρηκτικό πίνακα από byte. 
 
-.image /tour/grc/static/img/a3.png
+.image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+Κάνοντας αντίγραφα της τιμής της συμβολοσειράς είναι σημαντικό επειδή αποτρέπει την τιμή της συμβολοσειράς
+να διαφύγει στον σωρό. Με αυτό τον τρόπο αποκλείονται αναποτελεσματικές εκχωρήσεις μνήμης στον σωρό.
 
-** Pointer Semantic Iteration
+** Διαδοχική Προσπέλαση με Σημειολογία Δείκτη Διευθύνσεων
 
-Given the following code and output.
+Με βάση τον παρακάτω κώδικα και το αποτέλεσμα από την εκτέλεση του: 
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
         println(i, strings[i])
     }
 
-Output:
+Αποτέλεσμα:
 
     0 Apple
     1 Orange
@@ -126,38 +127,39 @@ Output:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Ακόμα μια φορά, η μεταβλητή strings είναι ένας πίνακας 5 συμβολοσειρών. Η διαδοχική προσπέλαση 
+επισκέφτεται κάθε συμβολοσειρά στην συλλογή και παρουσιάζει τον δείκτη θέσης και την τιμή της συμβολοσειράς.
+Καθώς η διαδοχική προσπέλαση χρησιμοποιεί σημειολογία δείκτη διεύθυσνης, το range της for επισκέπτεται 
+τον πίνακα strings απευθείας και σε κάθε προσπέλαση, η τιμή συμβολοσειράς για κάθε δείκτη τοποθεσίας
+περνάει απευθείας στην κλήση παρουσίασης.
 
-** Different Type Arrays
+** Διαφορετικοί Τύποι Πινάκων
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Είναι ενδιαφέρον να δει κανείς τι σφάλμα παρέχει ο μεταγλωττιστής όταν γίνεται ανάθεση 
+πινάκων ίδιου τύπου αλλά με διαφορετικό μήκος.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
 
     five = four
 
-Compiler Error:
+Σφάλμα Μεταγλωττιστή:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+Εδώ δηλώνονται δύο πίνακες 5 και 4 ακεραίων. Ο πρώτος λαμβάνει ως αρχική κατάσταση την κατάσταση μηδενικής τιμής.
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+Στην συνέχεια γίνεται απόπειρα να ανατεθεί ο δεύτερος στον πρώτο και ο μεταγλωττιστής ενημερώνει, "δεν είναι δυνατόν 
+να χρησιμοποιηθεί ο four (τύπος [4]int) ως τύπος [5]int στην ανάθεση".
 
-** Contiguous Memory Construction
+Είναι σημαντικό να ξεκαθαριστεί τι ακριβώς αναφέρει ο μεταγλωττιστής. Αυτό που αναφέρει είναι ότι 
+ένας πίνακας 4 ακεραίων και ένας πίνακας 5 ακεραίων αναπαριστούν δεδομένα διαφορετικών τύπων.
+Το μέγεθος ενός πίνακα είναι μέρος της πληροφορίας σχετικής με τον τύπο του. Στην Go, το μέγεθος ενός πίνακας
+πρέπει να είναι γνωστό ήδη από το στάδιο της μεταγλώττισης.
 
-You want to prove that an array provides a contiguous layout of memory.
+** Κατασκευή Συνεχόμενων Τμημάτων Μνήμης 
+
+Προκειμένου να αποδειχθεί ότι ένας πίνακας παρέχει μια συνεχόμενη διάταξη μνήμης:
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -166,7 +168,7 @@ You want to prove that an array provides a contiguous layout of memory.
             v, &v, &five[i])
     }
 
-Output:
+Αποτέλεσμα:
 
     Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
     Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
@@ -174,84 +176,84 @@ Output:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Παραπάνω δηλώνεται ένας πίνακας 5 συμβολοσειρών κα λαμβάνει αρχική τιμή κάποιες τιμές.
+Στην συνέχεια χρησιμοποιείται διαδοχική προσπέλαση με σημειολογία τιμής προκειμένου 
+να παρουσιθαστούν πληροφορίες για κάθε συμβολοσειρά. Το αποτέλεσμα δείχνει κάθε ξεχωριστή
+τιμή συμβολοσειράς, την διεύθυνση της μεταβλητής v και την διεύθυνση κάθε στοιχείου στον 
+πίνακα.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Είναι προφανές πως ο πίνακας είναι ένα συνεχόμενο μέρος μνήμης και πως μια συμβολοσειρά 
+είναι μια δομή δεδομένων νε δύο λέξεις ή 16 byte σε αρχιτεκτονική 64 bit. Η διεύθυνση για 
+κάθε στοιχείο απέχει κατά 16 byte.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+Το γεγονός ότι η μεταβλητή v έχει την ίδια διεύθυνση σε κάθε διαδοχική προσπέλαση ενισχύει την 
+κατανόηση ότι η v είναι μια τοπική μεταβλητή τύπου συμβολοσειράς που περιέχει ένα αντίγραφο κάθε 
+τιμής συμβολοσειράς κατά τηην διάρκεια των διαδοχικών προσπέλάσεων.
 
-** CPU Caches
+** Η Cache της CPU
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+Υπάρχουν πολλές μηχανικές διαφορές μεταξύ επεξεργαστών και των σχεδιασμών τους. Σε
+αυτό το μέρος, θα γίνει αναφορά σε υψηλό επίπεδο αφαίρεσης σχετικά με τους επεξεργαστές και
+την σημειολογία που είναι σχετικά ίδια μεταξύ τους. Αυτή η σημειολογική κατανόηση θα παρέχει ένα
+καλό νοητικό υπόδειγμα σχετικά με το πως λειτουργεί ο επεξεργαστής και την συμπάθεια που κανείς μπορεί να προσφέρει.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
+Κάθε πυρήνας εντός του επεξεργαστή έχει την δική του τοπική μνήμη (L1 και L2) και επάρχει  
+και μια κοινή περιοχή μνήμης (L3) η οποία χρησιμοποιείται για να αποθηκεύσει/προσπελάσει δεδομένα και οδηγίες. Τα φυσικά
+νήματα εκτέλεσης σε κάθε πυρήνα μπορούν να προσπελάσουν την τοπική τους L1 και L2 μνήμη. Τα δεδομένα από την L3 ή από την
+κύρια μνήμη πρέπει να αντιγραφούν πρώτα στις L1 και L2 για να μπορούν να προσπελαστούν.
 
-.image /tour/grc/static/img/a4.png
+.image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Το κόστος καθυστέρησης πρόσβασης σε δεδομένα που υπάρχουν σε διαφορετικές περιοχές μνήμης αλλάζει
+από το χαμηλότερο στο υψηλότερο: L1 -> L2 -> L3 -> κύρια μνήμη. Όπως έχει πει ο Scott Meyers, "Αν η απόδοση
+μετράει τότε η συνολική διαθέσιμη μνήμη είναι το συνολικό μέγεθος των τοπικών αποθηκευτικών χώρων. Η κύρια
+μνήμη είναι τόσο αργή στην προσπέλαση ώστε, πρακτικά μιλώντας, είναι σαν να μην υπάρχει."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Η απόδοση σήμερα εξαρτάται από το πόσο αποτελεσματικά διακινούνται τα δεδομένα στο υλικό. Αν κάθε 
+μεμωνομένο κομμάτι δεδομένων που χρειάζεται το υλικό (σε κάθε δεδομένη στιγμή) υπάρχει μόνο στην κύρια μνήμη, τα
+προγράμματα θα τρέχουν πιο αργά συγκριτικά με προγράμματα όπου τα δεδομένα είναι ήδη παρόντα στην L1 ή στην L2.
 
-    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+    3GHz(3 κύκλοι/ns) * 4 οδηγίες ανά κύκλο = 12 οδηγίες ανά ns!
 
-    1 ns ............. 1 ns .............. 12 instructions  (one) 
-    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
-    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
-    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+    1 ns ................................................... 1 ns .............. 12 οδηγίες  (μονάδες) 
+    1 µs ............................................... 1,000 ns .......... 12,000 οδηγίες  (εκατοντάδες)
+    1 ms ........................................... 1,000,000 ns ...... 12,000,000 οδηγίες  (εκατομμύρια)
+    1 s ........................................ 1,000,000,000 ns .. 12,000,000,000 οδηγίες  (δισεκατομμύρια)
 
-    Industry Defined Latencies
-    L1 cache reference ......................... 0.5 ns ...................  6 ins
-    L2 cache reference ........................... 7 ns ................... 84 ins
-    Main memory reference ...................... 100 ns ................. 1200 ins
+    Τιμές Καθυστέρησης από την Βιομηχανία
+    Τιμή αναφοράς L1             ......................... 0.5 ns ...................  6 οδηγίες
+    Τιμή αναφοράς L2             ........................... 7 ns ................... 84 οδηγίες
+    Τιμή αναφοράς Κύριας μνήμης  ......................... 100 ns ................. 1200 οδηγίες
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
+Πως γράφει κανείς κώδικα που εγγυάται ότι τα δεδομένα που είναι απαραίτητα για την 
+εκτέλεση μιας οδηγίας είναι πάντα παρόντα στην L1 η στην L2? Είναι απαραίτητο να γράφει 
+κανείς κώδικα που είναι μηχανικά συμπαθητικός με τον μηχανισμό που εξασφαλίζει στον επεξεργαστή 
+τα δεδομένα. Ο μηχανισμός αυτός προσπαθεί να προβλέψει τι δεδομένα θα χρειαστούν πριν οι οδηγίες
+αναζητήσουν τα δεδομένα ώστε να βρίσκονται ήδη στην μνήμη L1 ή L2. 
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Υπάρχουν διαφορετικοί βαθμοί πιστότητας στην προσπέλαση μνήμης ανάλογα με το που συμβαίνει αυτή
+η προπέλαση. Ο κώδικας μπορεί να διαβάσει/γράψει έαν byte μνήμης ως την μικρότερη δυνατή προσπέλασιμη 
+μονάδα μνήμης. Όμως από την μεριά των συστημάτων αποθήκευσης, η πιστότητα είναι 64 byte. Αυτό το μέρος
+της μνήμης των 64 byte αποκαλείται μια σειρά μνήμης ταχείας προσπέλασης (cache line).
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Ο μηχανισμός που προβλέπει τι δεδομένα θα ψρειαστούν στον επεξεργαστή (prefetcher) δουλεύει πιο αποτελεσματικά
+όταν οι οδηγίες που εκτελούνται δημιουργούν προβλέψιμα μοτίβα προσπέλασης στην μνήμη. Ένας τρόπος για να 
+δημιουργηθεί ένα προβλέψιμο μοτίβο προσπέλασης στην μνήμη είναι η δημιουργία ενός σηνεχόμενου τμήματος μνήμης
+και στην συνέχεια η διαδοχική προσπέλαση αυτής της μνήμης κάνοντας μια γραμμική διέλευση με προβλέψιμο βήμα.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Ο πίνακας είναι η πιο σημαντική δομή δεδομένων στο υλικό επειδή υποστηρίζει προβλέψιμα μοτίβα προσπέλασης. Όμως 
+ο συναμικός πίνακας (slice) είναι η πιο σημαντική δομή δεδομένων στην Go. Οι δυναμικοί πίνακες στην Go χρησιμοποιούν 
+έναν πίνακα από κάτω.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Όταν κανείς κατασκευάσει έναν πίνακα, κάθε στοιχείο του πίνακα βρίσκεται σε ίδια απόσταση από το επόμενο ή
+το προηγούμενο στοιχείο. Καθώς επισκέπτεται διαδοχικά κανείς ένα πίνακα, διατρέχει κάθε σειρά μνήμης (cache line)
+καθώς και κάθε άλλη συνδεδεμένη σειρά μνήμης με προβλέψιμο βήμα. Ο μηχανισμός που εξασφαλίζει δεδομένα στον επεξεργαστή 
+(prefetcher) θα αντιληφθεί αυτό το προβλέψιμο μοτίβο πρόσβασης δεδομένων και θα ξεκινήσει να φέρνει τα δεδομένα στον
+επεξεργαστή, μειώνοντας έτσι τα κόστη από την καθυστέρηση εξαιτίας της ανάγκης πρόσβασης στα δεδομένα.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Φανταστείτε ότι έχετε ένα μεγάλο τετραγωνικό πίνακα μνήμης και μια συνδεδεμένη λίστα τα στοιχεία της οποίας ταιριάζουν σε
+πλήθος με τα στοιχεία του πίνακα. Αν κανείς εκτελέσει μια διέλευση στην συνδεδεμένη λίστα και στην συνέχεια επισκεφθεί τον
+πίνακα και στις δύο κατευθύνσεις (Στηλών και Γράμμών), πως θα σχετίζονται οι δύο διελεύσεις από την άποψη της απόδοσης; 
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +267,9 @@ the performance of the different traversals compare?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+Η προσπέλαση των γραμμών θα έχει την καλύτερη απόδοση επειδή διατρέχει την μνήμη, από την μία σειρά μνήμης 
+στην εμόμενη συνδεδεμένη σειράμνήμης, κάτι που δημιουργεί ένα προβλέψιμο μοτίβο πρόσβασης. Οι σειρές μνήμης μπορούν 
+να αντιγραφούν από τον μηχανισμό παροχής δεδομένων στον επεξεργαστή στην L1 ή στην L2 πριν ακόμα τα δεδομένα χρειαστούν. 
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +283,11 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+Η διέλευση ανά στήλη είναι η χειρότερη κατά μια τάξη μεγέθους επειδή αυτό το μοτίβο πρόσβασης
+διατρέχει τα όρια των σελίδων μνήμης του λειτουργικού σε κάθε προσπέλαση μνήμης που πραγματοποιεί. 
+Αυτός ο τρόπος διέλευσης δεν μπορεί να δημιουργήσει προβλέψιμα μοτίβα για τις σειρές μνήμης τις οποίες
+εκμεταλεύεται ο μηχανισμός τροφοδότησης με δεδομένα του επεξεργαστή και ουσιαστικά η διαδικασία μετατρέπεται
+σε πρόσβαση μνήμης με τυχαίο τρόπο.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,132 +301,134 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Η συνδεδεμένη λίστα είναι δύο φορές πιο αργή από την διέλευση επί των γραμμών κυρίως επειδή υπάρχουν αστοχίες
+στην ανάγνωση των γραμμών μνήμης όμως υπάρχουν και λιγότερες αστοχίες TLB (Translation Lookaside Buffer). Ένα 
+σύνολο των συνδεδεμένων στοιχείων της λίστας υπάρχουν εντός των ίδιων σελίδων μνήμης του λειτουργικού.
 
-    BenchmarkLinkListTraverse-16    128      28738407 ns/op
-    BenchmarkColumnTraverse-16       30     126878630 ns/op
-    BenchmarkRowTraverse-16         310      11060883 ns/op
+    BenchmarkLinkListTraverse-16    128      28738407 ns/λειτουργία
+    BenchmarkColumnTraverse-16       30     126878630 ns/λειτουργία
+    BenchmarkRowTraverse-16         310      11060883 ns/λειτουργία
 
-** Translation Lookaside Buffer (TLB)
+** Ενδιάμεση Μνήμη Μεταφορά Διπλανή ??? Translation Lookaside Buffer (TLB)
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Κάθε πρόγραμμα που εκτελείται αποκτά μια πλήρη απεικόνιση της εικονικής μνήμης από το 
+λειτουργικό και αυτό το πρόγραμμα πιστεύει ότι έχει όλη την φυσική μνήμη στο μηχάνημα. Όμως,
+η φυσική μνήμη χρειάζεται να διαμοιράζεται με όλα τα προγράμματα που εκτελούνται. Το λειτουργικό σύστημα
+μοιράζεται την φυσική μνήμη χωρίζοντας την σε σελίδες και αντιστοιχίζοντας τις σελίδες στην εικονική 
+μνήμη για κάθε πρόγραμμα που εκτελείται. Κάιε λειτουργικό μπορεί να αποφασίσει για το μέγεθος μιας σελίδας,
+όμως 4k, 8k, 16k είναι λογικά και κοινώς αποδεκτά μεγέθη.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+Η TLB είναι μια μικρή μνήμη μέσα στον επεξεργαστή που βοηθάει στον περιορισμό της 
+καθυστέρησης από την μετάφραση μιας εικονικής διεύθυνσης μνήμης σε μια φυσική διεύθυνση 
+μνήμης εντός του πλαισίου μιας σελίδας του λειτουργικού και της σχετικής θέσης εντός της 
+σελίδας. Μια αστοχία στην εσωτερική μνήμη TLB μπορεί να προκαλέσει μεγάλες καθυστερήσεις 
+επειδή τώρα το υλικό πρέπει να περιμένει το λειτουργικό να ελέγξει τον πίνακα των σελίδων 
+που διατηρεί προκειμένου να εντοπίσει την σωστή σελίδα για την συγκεκριμένη εικονική διεύθυνση 
+μνήμης. Αν το πρόγραμμα τρέχει σε ένα εικονικό μηχάνημα (όπως συμβαίνει στο cloud) τότε πρέπει 
+να ελεγχθεί πρώτα ο πίνακας των σελίδων του εικονικού μηχανήματος.
 
-Remember what was said:
+Υπενθύμιση όσων αναφέρθηκαν παραπάνω:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Η συνδεδεμένη λίστα είνα δύο φορές πιο αργή από την διέλευση κατά τις γραμμές κυρίως διότι 
+υπάρχουν κάποιες αστοχίες γραμμών μνήμης cache line misses όμως υπάρχουν λιγότερες αστοχίες TLB (επεξήγηση αργότερα). 
+Η πλειονότητα των στοιχείων της συνδεδεμένης λίστας υπάρχουν εντός των σελίδων μνήμης του λειτουργικού.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+Η συνδεδεμένη λίστα είναι τάξεις μεγέθους γρηγορότερη από την διέλευση κατά στήλες 
+εξατίας της πρόσβασης στην TLB. Ακόμα και με τις αστοχίες στις γραμμές μνήμης που συμβαίνουν 
+στην διέλευση της συνδεδεμένης λίστας, επειδή η πλειονότητα της μνήμης για ένα σύνολο στοιχείων 
+θα βρίσκεται εντός της ίδιας σελίδας μνήμης του λειτουργικού, οι καθυστερήσεις της TLB δεν 
+επηρεάζουν την απόδοση. Γι' αυτό προγράμματα που χρησιμοποιούν μεγάλη ποσόστητα μνήμης, όπως
+εφαρμογές που βασίζονται στην επεξεργασία DNA, κανείς θα προτιμούσε να χρησιμοποιήσει μια διανομή
+Linux που είναι διαμορφωμένη με μεγέθη σελίδας μνήμης του λειτουργικού της τάξης του ενός ή των δύο megabyte.
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Με όλα τα παραπάνω, φαίνεται ότι έχει σημασία ένας σχεδιασμός προσανατολισμένος προς τα δεδομένα. Η συγγραφή ενός 
+αποτελεσματικού αλγόριθμου πρέπει να λάβει υπόψη τον τρόπο πρόσβασης στα δεδομένα. Κανείς οφείλει να θυμάται ότι
+η αποδοτικότητα σήμερα αφορά την αποτελεσματικότητα με την οποία είναι δυνατόν να μεταφερθούν τα δεδομένα στον 
+επεξεργαστή.
 
-- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
-- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][Ταχείες Μνήμες της CPU και Γιατί σε Ενδιαφέρουν (18:50-20:30)]] - Scott Meyers  
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][Ταχείες Μνήμες της CPU και Γιατί σε Ενδιαφέρουν (44:36-45:40)]] - Scott Meyers   
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Απόδοση Μέσω Ορθής Χρήσης της Ταχείας Μνήμης (4:25-5:48)]] - Damian Gryski  
 
-** CPU Cache Notes
+** Σημειώσεις σχετικά με την Ταχεία Μνήμη της CPU
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Πρόσθετα Διαγράμματα
 
-*Industry* *Defined* *Latencies*
+*Υστερήσεις* *Καθορισμένες* *από* *την* *Βιομηχανία*  
 
-    L1 cache reference ......................... 0.5 ns ...................  6 ins
-    Branch mispredict ............................ 5 ns ................... 60 ins
-    L2 cache reference ........................... 7 ns ................... 84 ins
-    Mutex lock/unlock ........................... 25 ns .................. 300 ins
-    Main memory reference ...................... 100 ns ................. 1200 ins           
-    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
-    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
-    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
-    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
-    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
-    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
-    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
-    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
-    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+    Ταχεία μνήμη L1  ......................................... 0.5 ns ...................  6 οδηγίες
+    ΑΣτοχία κλάδου ........................................... 5 ns ..................... 60 οδηγίες
+    Ταχεία μνήμη L2  ......................................... 7 ns ..................... 84 οδηγίες
+    Αμοιβαίος αποκλεισμός κλείδωμα/ξεκλείδωμα ................ 25 ns ................... 300 οδηγίες
+    Κύρια μνήμη .............................................. 100 ns ................. 1200 οδηγίες           
+    Συμπίεση 1K byte με το Zippy ............................. 3,000 ns (3 µs) ......... 36k οδηγίες
+    Αποστολή 2K byte σε δίκτυο 1 Gbps ........................ 20,000 ns (20 µs) .....  240k οδηγίες
+    Τυχαία ανάγνωση SSD ...................................... 150,000 ns (150 µs) .... 1.8M οδηγίες
+    Ανάγνωση 1 MB διαδοχικά από μνήμη  ....................... 250,000 ns (250 µs) ...... 3M οδηγίες
+    Κυκλική διαδρομή εντός datacenter ........................ 500,000 ns (0.5 ms) ...... 6M οδηγίες
+    Ανάγνωση 1 MB διαδοχικά από SSD  ......................... 1,000,000 ns (1 ms) ..... 12M οδηγίες
+    Αναζήτηση σε δίσκο ....................................... 10,000,000 ns (10 ms) .....0M οδηγίες
+    Ανάγνωση 1 MB διαδοχικά από δίσκο ........................ 20,000,000 ns (20 ms) ....40M οδηγίες
+    Αποστολή πακέτου απο Καλιφόρνια->Ολλανδία->Καλιφόρνια .... 150,000,000 ns (150 ms) ...8B οδηγίες
 
-*Cache* *Latencies* *Image*
+*Εικόνα* *Καθυστέρησης* *Ταχείας* *Μνήμης*
 
-.image /tour/grc/static/img/cache_latencies_graph.png
+.image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Πρόσθετα Αναγνώσματα
 
-*CPU* *Caches* */* *Memory*
+*Ταχεία* *Μνήμη* *CPU* */* *Μνήμη*
 
-- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
-- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
-- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
-- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
-- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
-- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
-- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
-- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
-- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
-- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
-- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
-- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
-- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
-- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
-- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
-- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][Ταχείες Μνήμες της CPU και Γιατί σε Ενδιαφέρουν - Video]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][Ταχύρυθμο Μάθημα για το Σύγχρονο Υλικό - Video]] - Cliff Click  
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][Σειρά Βαθειάς Κατανόησης NUMA]] - Frank Denneman    
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][Ταχείες Μνήμες της CPU και Γιατί σε Ενδιαφέρουν]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Απομυθοποιώντας το Σύγχρονο Υλικό για την Απόκτηση 'Μηχανικής Συμπάθειας']] - Martin Thompson  
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][Αυτό που Πρέπει να Γνωρίζει κάθε Προγραμματιστής για την Μνήμη]] - Ulrich Drepper  
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][Πως Λειτουργούν οι Ταχείες Μνήμες της CPU και Γιατί]] - Joel Hruska  
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Σύγχρονοι Μικροεπεξεργαστές Ένας Οδηγός 90 Λεπτών]] - Jason Robert Carey Patterson  
+- [[http://lwn.net/Articles/252125][Μνήμη μέρος 2: Ταχείες Μνήμες της CPU]] - Ulrich Drepper  
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][Το Δωράν Γεύμα δεν Υφίσταται Πια]] - Herb Sutter  
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Υπολογιστές των Data Center: Σύγχρονες Προκλήσεις στον Σχεδιασμό CPU]] - Dick Sites  
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Ο Νόμος του Wirth]] - Wikipedia  
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Εξάλειψη Εσφαλμένου Διαμοιρασμού]] - Herb Sutter  
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][Ο Μύθος της Ram]] - Emil Ernerfeldt  
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Κατανοώντας την Μνήμη Υλικού σχετικά με Ταυτόχρονες Συναλλαγές]] - Gil Gene  
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Αποτελεσματικότητα Μέσω Φιλικής Χρήσης της Ταχείας Μνήμης της CPU (4:25-5:48)]] - Damian Gryski   
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Φτάνοντας Πουθενά Γρηγορότερα]] - Chandler Carruth  
 
-*Data-Oriented* *Design*
+*Σχεδιασμός* *Επικεντρωμένος* *στα* *Δεδομένα*
 
-- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
-- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
-- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
-- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
-- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
-- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
-- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Σχεδιασμός Επικεντρωμένος στα Δεδομένα και η  C++]] - Mike Acton  
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][αποτελεσματικότητα με Αλγόριθμους, Απόδοση με Δομές Δεδομένων]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Δαμάζοντας το Θηρίο της Απόδοσης]] - Klaus Iglberger  
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Παγίδες του OOP]] - Tony Albrecht  
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Γιατί κανείς πρέπει να αποφεύγει τις συνδεδεμένες λίστες]] - Bjarne Stroustrup  
+- [[http://gamesfromwithin.com/data-oriented-design][Σχεδιασμός Προσανατολισμένος στα Δεδομένα (Ή Γιατί Ενδέχεται να Πυροβολεί Κανείς Το Πόδι του Με τον OOP)]] - Noel    
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Ήταν ο αντικειμενοστραφής προγραμματισμός μια αποτυχία;]] - Quora  
 
-** Notes
+** Σημειώσεις
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
+- Αν κανείς δεν κατανοεί τα δεδομένα, δεν κατανοεί ούτε το πρόβλημα.
+- Αν κανείς δεν κατανοεί το κόστος επίλυσης του προβλήματος, δεν μπορεί ούτε να επιχειρηματολογήσει σχετικά με το πρόβλημα.
+- Αν κανείς δεν κατανοεί το υλικό, δεν  μπορεί να επιχειρηματολογήσει σχετικά με το κόστος επίλυσης του προβλήματος.
+- Οι πίνακες είναι δομές δεδομένων σταθερού μήκους που δεν μεταβάλλονται.
+- Πίνακες διαφορετικών μεγεθών θεωρούνται ότι είναι διαφορετικών τύπων.
+- Η μνήμη εκχωρείται σε συνεχόμενα τμήματα.
+- Η Go παρέχει έλεγχο στην χωρική τοπικότητα.
 
-* Exercises
+* Ασκήσεις
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
+Χρησιμοποιείστε το παρόν πρώτυπο ως αφετηρία για να ολοκληρώσετε τις ασκήσεις. Παρέχεται μια πιθανή λύση.
 
-** Exercise 1
+** Άσκηση 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
+Δηλώστε ένα πίνακα 5 συμβολοσειρών με κάθε στοιχείο του πίνακα να λαμβάνει σαν αρχική κατάσταση την κατάσταση 
+μηδενικής τιμής. Δηλώστε ένα δεύτερο πίνακα 5 συμβολοσειρών και δώστε αρχικές τιμές στα στοιχεία του με ρητές 
+τιμές συμβολοσειράς. Εκχωρείστε τον δεύτερο πίνακα στον πρώτο και παρουσιάστε τα αποτελέσματα του πρώτου πίνακα. 
+Παρουσιάστε την τιμή συμβολοσειράς και την διεύθυνση μνήμης κάθε στοιχείου.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go
