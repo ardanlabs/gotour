@@ -254,10 +254,6 @@ mantém tudo na pilha.
 
 ** Mutação do Array Subjacente
 
-When you use slice2 to change the value of the string at index 0, any slice value
-that is sharing the same backing array (where the address for that index is part
-of that slice’s length) will see the change.
-
 Quando você usa slice2 para alterar o valor da `string` no índice 0, qualquer valor do `slice`
 que esteja compartilhando o mesmo `array` subjacente (onde o endereço para aquele índice faz
 parte do comprimento dessa fatia) verá a alteração.
@@ -286,7 +282,7 @@ que as alterações não afetem inesperadamente outras partes do seu código que
 
 .image /tour/eng/static/img/sl5.png
 
-What if you use the built-in function append instead?
+E se você usar a função built-in `append` em vez disso?
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -294,7 +290,7 @@ What if you use the built-in function append instead?
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Resultado:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -307,22 +303,21 @@ Output:
     [1] 0xc00007e030 D
     [2] 0xc00007e040 CHANGED
 
-The append function creates the same side effect, but it’s hidden. In this case,
-bringing in more length from capacity for slice2 has caused the value at address
-0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
-part of its length.
+A função `append` cria o mesmo efeito colateral, entretanto oculto. Neste caso, trazer mais
+comprimento da capacidade para slice2 fez com que o valor no endereço `0xc00007e040`
+fosse alterado. Infelizmente, slice1 já tinha esse endereço como parte do seu comprimento.
 
 .image /tour/eng/static/img/sl6.png
 
-One way to avert the side effect is to use a three index slice when constructing
-slice2 so the length and capacity is the same at 2.
+Uma maneira de evitar o efeito colateral é usar um `slice` de três índices ao construir slice2,
+para que o comprimento e a capacidade sejam iguais a 2.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Resultado:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -334,11 +329,11 @@ Output:
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
-The syntax for a three index slice is [a:b:c] when b and c should be the same
-since [a-b] sets the length and [a-c] sets the capacity. Now the length and
-capacity of slice2 is the same.
+A sintaxe para um `slice` de três índices é [a:b:c], onde b e c devem ser os mesmos,
+já que [a-b] define o comprimento e [a-c] define a capacidade. Agora, o comprimento e a
+capacidade de slice2 são iguais.
 
-Now you use the built-in function append again like before.
+Agora, você pode usar a função embutida append novamente, como antes.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
@@ -346,7 +341,7 @@ Now you use the built-in function append again like before.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Resultado:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -359,18 +354,18 @@ Output:
     [1] 0xc000016090 D
     [2] 0xc0000160a0 CHANGED
 
-Notice after the call to append, slice2 has a new backing array.
+Observe que após a chamada para `append`, slice2 possui um novo `array` subjacente.
 
 .image /tour/eng/static/img/sl7.png
 
-This can be seen by comparing the addresses of each slice. In this case, the
-mutation against slice2 didn’t cause a side effect against slice1.
+Isso pode ser visto ao comparar os endereços de cada `slice`. Neste caso, a mutação
+em slice2 não causou um efeito colateral em slice1.
 
-** Copying Slices Manually
+** Copiando Slices Manualmente
 
-There is a built-in function named copy that will allow for the shallow copying
-of slices. Since a string has a backing array of bytes that are immutable, it
-can be used as a source but never a destination.
+Existe uma função embutida chamada `copy` que permite a cópia superficial de `slices`.
+Como uma `string` possui um `array` subjacente de bytes que são imutáveis, ela pode ser usada
+como uma origem, mas nunca como um destino.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice3 := make([]string, len(slice1))
@@ -379,7 +374,7 @@ can be used as a source but never a destination.
     inspectSlice(slice1)
     inspectSlice(slice3)
 
-Output:
+Resultado:
 
     Length[5] Capacity[5]
     [0] 0xc00005c050 A
@@ -394,15 +389,13 @@ Output:
     [3] 0xc00005c0d0 D
     [4] 0xc00005c0e0 E
 
-As long as the destination slice has the proper type and length, the built-in
-function copy can perform a shallow copy.
+Desde que o `slice` de destino tenha o tipo e o comprimento adequados, a função `built-in` `copy` pode realizar uma cópia rasa.
 
-** Slices Use Pointer Semantic Mutation
+** Slices Usam a Mutação Semântica de Ponteiro
 
-It’s important to remember that even though you use value semantics to move a slice
-around the program, when reading and writing a slice, You are using pointer semantics.
-Sharing individual elements of a slice with different parts of my program can
-cause unwanted side effects.
+É importante lembrar que, mesmo ao usar semântica de valor para mover um `slice` ao redor do programa,
+ao ler e escrever em um `slice`, você está usando semântica de ponteiro. Compartilhar elementos individuais
+de um `slice` com diferentes partes do seu programa pode causar efeitos colaterais indesejados.
 
     // Construct a slice of 1 user, set a pointer to that user,
     // use the pointer to update likes.
@@ -415,18 +408,17 @@ cause unwanted side effects.
         fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
-Output:
+Resultado:
 
     User: 0 Likes: 1
 
-A slice is used to maintain a collection of users. Then a pointer is set to the
-first user and used to update likes. The output shows that using the pointer is
-working.
+Um `slice` é usada para manter uma coleção de usuários. Em seguida, um ponteiro é
+definido para o primeiro usuário e usado para atualizar os "likes". A saída mostra
+que o uso do ponteiro está funcionando.
 
 .image /tour/eng/static/img/sl8.png
 
-Then a new user is appended to the collection and the pointer is used again to
-add a like to the first user. 
+Então, um novo usuário é adicionado à coleção e o ponteiro é usado novamente para adicionar um "like" ao primeiro usuário.
 
     // Append a new user to the collection. Use the pointer again
     // to update likes.
@@ -438,28 +430,27 @@ add a like to the first user.
         fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
-Output:
+Resultado:
 
     User: 0 Likes: 1
     User: 1 Likes: 0
 
-However, since the append function replaced the backing array with a new one,
-the pointer is updating the old backing array and the likes are lost. The output
-shows the likes for the first user did not increase.
+No entanto, como a função `append` substituiu o `array` subjacente por um novo, o ponteiro
+está atualizando o antigo `array` subjacente e os "likes" são perdidos. A saída mostra que
+os "likes" para o primeiro usuário não aumentaram.
 
 .image /tour/eng/static/img/sl9.png
 
-You have to be careful to know if a slice is going to be used in an append operation
-during the course of a running program. How you share the slice needs to be
-considered. Sharing individual indexes may not be the best idea. Sharing an
-entire slice value may not work either when appending is in operation. Probably
-using a slice as a field in a struct, and sharing the struct value is a better
-way to go.
+É importante ter cuidado e saber se um `slice` será usadaoem uma operação de anexação durante
+a execução de um programa. Você precisa considerar como compartilha o `slice`.
+Compartilhar índices individuais pode não ser a melhor ideia. Compartilhar o valor inteiro do `slice`
+também pode não funcionar quando a operação de anexação está em andamento. Provavelmente, usar um `slice`
+como campo em uma estrutura (struct) e compartilhar o valor da estrutura é uma maneira melhor de abordar esse problema.
 
-** Linear Traversal Efficiency
-The beauty of a slice is its ability to allow for performing linear traversals
-that are mechanically sympathetic while sharing data using value semantics to
-minimize heap allocations.
+** Eficiência na Travessia Linear
+
+A beleza de um `slice` está na sua capacidade de permitir a realização de travessias lineares
+que são mecanicamente simpáticas, enquanto compartilha dados usando semântica de valor para minimizar alocações de `heap`.
 
     x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
@@ -470,22 +461,21 @@ minimize heap allocations.
 
     println(a, b, c, d)
 
-The code is performing a linear traversal by creating slice values that read
-different sections of the byte array from beginning to end.
+O código está realizando uma travessia linear criando valores de `slice` que leem
+diferentes seções do array de bytes do início ao fim.
 
 .image /tour/eng/static/img/sl10.png
 
-All the data in this code stays on the stack. No extra copies of the data inside
-the byte slice are copied.
+Todos os dados neste código permanecem na pilha. Não são feitas cópias extras dos dados dentro do `slice` de `bytes`.
 
-** Notes
+** Notas
 
-- Slices are like dynamic arrays with special and built-in functionality.
-- There is a difference between a slices length and capacity and they each service a purpose.
-- Slices allow for multiple "views" of the same underlying array.
-- Slices can grow through the use of the built-in function append.
+- Os `slices` são como `arrays` dinâmicos com funcionalidades especiais e `built-in`.
+- Existe uma diferença entre o comprimento e a capacidade de um `slice`, e cada um deles serve a um propósito.
+- Os `slices` permitem múltiplas "visões" do mesmo `array` subjacente.
+- Os `slices` podem crescer através do uso da função `bulit-in` append.
 
-** Extra Reading
+** Leitura Extra
 
 - [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
 - [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
@@ -498,18 +488,18 @@ the byte slice are copied.
 - [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
 - [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
 			 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o template como ponto de partida para completar os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
-to the slice. Iterate over the slice and display each value.
+*Parte* *A:* Declare um `slice` vazio de inteiros. Crie um `loop` que adiciona 10 valores ao `slice`.
+Itere sobre o `slice` e exiba cada valor.
 
-*Part* *B:* Declare a slice of five strings and initialize the slice with string
-literal values. Display all the elements. Take a slice of index one and two and
-display the index position and value of each element in the new slice.
+*Parte* *B:* Declare um `slice` de cinco `strings` e inicialize o `slice` com valores literais de `string`.
+Exiba todos os elementos. Pegue um `slice` dos índices um e dois e exiba a posição do índice e o
+valor de cada elemento no novo `slice`.
 
 .play slices/exercise1.go		  
 .play slices/answer1.go
