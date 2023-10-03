@@ -10,17 +10,17 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'welcome',
     'title': '',
-    'description': `<p>Este é material para qualquer desenvolvedor de nível intermediário que tenha alguma experiência com outras linguagens de programação e queira aprender Go. Acreditamos que este material é perfeito para quem deseja começar a aprender Go ou deseja uma compreensão mais completa da linguagem e de seus componentes internos.</p>
-    <p><b>A primeira vez que você executa um exemplo, pode levar algum tempo para ser concluído. Isso ocorre porque o serviço turístico pode não estar funcionando. Por favor, aguarde algum tempo para ser concluído.</b></p>
+    'description': `<p>Este material é para qualquer desenvolvedor de nível intermediário que tenha alguma experiência com outras linguagens de programação e quer aprender Go. Acreditamos que este material é perfeito para quem deseja começar a aprender Go ou deseja uma compreensão mais completa da linguagem e de seus componentes internos.</p>
+    <p><b>A primeira vez que você executar um exemplo, pode levar algum tempo para ser concluído. Isso ocorre porque o serviço do tour pode não estar executando. Por favor, aguarde algum tempo para que ele conclua.</b></p>
     `,
     'lessons': [
         'welcome',
     ]
 }, {
     'id': 'language-mechanics',
-    'title': 'Language Mechanics',
+    'title': 'Mecânicas da Linguagem',
     'description': `
-        <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
+        <p>Este material cobre toda a sintaxe da linguagem, idiomas, implementação e especificação da linguagem. Depois de concluir este material, você entenderá a mecânica da linguagem e as simpatias mecânicas que a linguagem tem tanto para o hardware quanto para o sistema operacional.</p>
         `,
     'lessons': [
         'variables',
@@ -38,9 +38,9 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'composition-interfaces',
-    'title': 'Composition and Interfaces',
+    'title': 'Composição e Interfaces',
     'description': `
-        <p>This material covers the practical things you need to know about composition and interfaces.</p>
+        <p>Este material aborda coisas práticas que você precisa saber sobre composição e interfaces.</p>
         `,
     'lessons': [
         'composition-grouping',
@@ -52,9 +52,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'concurrency',
-    'title': 'Concurrency',
+    'title': 'Concorrência',
     'description': `
-        <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
+        <p>Este material aborda todos os aspectos de concorrência da linguagem. Ao concluir este material, você entenderá a mecânica de concorrência da linguagem e as simpatias mecânicas que a linguagem tem tanto para o hardware quanto para o sistema operacional no que se refere à concorrência.</p>
        `,
     'lessons': [
         'goroutines',
@@ -66,7 +66,7 @@ value('tableOfContents', [{
     'id': 'generics',
     'title': 'Generics',
     'description': `
-        <p>This material covers all the generics aspects of the language. Generics is about providing the ability to write concrete polymorphic functions with the support of type parameter lists.</p>
+        <p>Este material aborda todos os aspectos sobre generics na linguagem. Generics é sobre fornecer a capacidade de escrever funções polimórficas concretas com o suporte de listas de parâmetros de tipo.</p>
        `,
     'lessons': [
         'generics-basics',
@@ -81,9 +81,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'algorithms',
-    'title': 'Algorithms',
+    'title': 'Algoritmos',
     'description': `
-        <p>This material provides Go code implementing a common and fun set of algorithms.</p>
+        <p>Este material fornece códigos Go que implementam um conjunto de algoritmos comuns e divertidos.</p>
        `,
     'lessons': [
         'algorithms-bits-seven',
