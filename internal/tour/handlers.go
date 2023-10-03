@@ -12,6 +12,7 @@ import (
 
 type root struct {
 	engContent []byte
+	perContent []byte
 	polContent []byte
 }
 
@@ -32,13 +33,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/" {
 		if langPref != "" {
-			log.Println("redirect to language preference")
 			http.Redirect(w, r, "/tour/"+langPref+"/", http.StatusFound)
 			return
 		}
 
 		// Defaults to English version.
-		log.Println("redirect to english")
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 		return
 	}
@@ -49,11 +48,18 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.engContent); err != nil {
 			log.Println(err)
 		}
+	case "/tour/per/":
+		log.Println("render persian tour")
+		if err := renderUI(w, rot.perContent); err != nil {
+			log.Println(err)
+		}
 	case "/tour/pol/":
 		log.Println("render polish tour")
 		if err := renderUI(w, rot.polContent); err != nil {
 			log.Println(err)
 		}
+	default:
+		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 	}
 }
 

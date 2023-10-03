@@ -173,9 +173,17 @@ function SocketTransport() {
   } else if (window.location.protocol == 'https:') {
     websocket = new WebSocket('wss://' + window.location.host + '/socket');
   }
+    
+  var socketOpen = false;
 
-  websocket.onclose = function() {
+  websocket.onclose = function () {
+    socketOpen = false;
     console.log('websocket connection closed');
+  };
+
+  websocket.onopen = function () {
+      socketOpen = true;
+      console.log('websocket connection open');
   };
 
   websocket.onmessage = function(e) {
@@ -190,7 +198,12 @@ function SocketTransport() {
   };
 
   function send(m) {
+    if (!socketOpen) {
+        console.log("websocket not open");
+        return false;
+    }
     websocket.send(JSON.stringify(m));
+    return true;
   }
 
   return {
@@ -198,7 +211,12 @@ function SocketTransport() {
       var thisID = id + '';
       id++;
       outputs[thisID] = output;
-      send({ Id: thisID, Kind: 'run', Body: body, Options: options });
+      var sent = send({ Id: thisID, Kind: 'run', Body: body, Options: options });
+      if (!sent) {
+        alert("websocket connection issues, will refresh the browser")
+        location.reload()
+        return
+      }
       return {
         Kill: function() {
           send({ Id: thisID, Kind: 'kill' });
