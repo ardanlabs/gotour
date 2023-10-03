@@ -1,30 +1,29 @@
-Underlying Types
-You can declare a generic type using an underlying type.
+Tipos Subjacents
+Você pode declarar um tipo genérico usando um tipo subjacente.
 
 * Generics - Underlying Types
 
-You can declare a generic type using an underlying type.
+Você pode declarar um tipo genérico usando um tipo subjacente.
 
-** Video
+** Vídeo
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Assista à palestra que dei sobre `Generics`, que o guiará por todos os exemplos desta seção do Tour.
 
 .html generics-video.html
 
-** Code Review
+** Revisão de Código
 
-- *Example* *1*: Concrete vector type
-- *Example* *2*: Interface vector type
-- *Example* *3*: Generic vector type
+- *Exemplo* *1*: Tipo de vetor concreto
+- *Exemplo* *2*: Tipo de vetor de interface
+- *Exemplo* *3*: Tipo de vetor genérico
 
 .play generics/underlying-types/example1.go
 .play generics/underlying-types/example2.go
 .play generics/underlying-types/example3.go
 
-** Explained
+** Explicação
 
-What if you wanted to declare my own generic type using an underlying type?
+E se você quisesse declarar seu próprio tipo genérico usando um tipo subjacente?
 
     type vector[T any] []T
 
@@ -38,14 +37,13 @@ What if you wanted to declare my own generic type using an underlying type?
         return v[len(v)-1], nil
     }
 
-This example shows a generic vector type that restricts the construction of a vector
-to a single type of data. The use of square brackets declares that type T is a generic
-type to be determined at compile time. The use of the constraint "any" describes
-there is no constraint on what type T can become.
+Este exemplo mostra um tipo genérico de vetor que restringe a construção de um vetor
+a um único tipo de dado. O uso de colchetes quadrados declara que o tipo T é um tipo genérico
+a ser determinado em tempo de compilação. O uso da restrição `any` descreve que não há restrição 
+sobre o que o tipo T pode se tornar.
 
-The last method is declared with a value receiver of type vector[T] to represent a
-value of type vector with an underlying slice of some type T. The method returns a
-value of that same type T.
+O último método é declarado com um receptor de valor do tipo vetor[T] para representar um valor
+do tipo vetor com uma fatia subjacente de algum tipo T. O método retorna um valor desse mesmo tipo T.
 
     func main() {
         fmt.Print("vector[int] : ")
@@ -83,14 +81,13 @@ value of that same type T.
         fmt.Printf("value: %q\n", s)
     }
 
-Output:
+Resultado:
 
-    vector[int] : negative integer: value: -1
-    vector[string] : non-valid string: value: "\xff"
+    vector[int] : número inteiro negativo: valor: -1
+    vector[string] : sequência de caracteres inválida: valor: "\xff"
 
-This is how to construct a value of type vector with an underlying type of int when I
-will set values in the vector at construction. An important aspect of this code is the
-construction calls.
+Isso é como construir um valor do tipo vector com um tipo subjacente de int quando eu vou
+definir valores no vetor na construção. Um aspecto importante deste código são as chamadas de construção.
 
     // Zero Value Construction
     var vGenInt vector[int]
@@ -100,12 +97,12 @@ construction calls.
     vGenInt := vector{10, -1}
     vGenStr := vector{"A", "B", string([]byte{0xff})}
 
-When it comes to constructing these generic types to their zero value, it’s not
-possible for the compiler to infer the type. However, in cases where there is
-initialization during construction, the compiler can infer the type.
+Quando se trata de construir esses tipos genéricos até o valor zero, não é possível para o
+compilador inferir o tipo. No entanto, em casos em que há inicialização durante a construção,
+o compilador pode inferir o tipo.
 
-There is an aspect of the spec that focuses on the construction of a generic type to
-its zero value state.
+Existe um aspecto da especificação que se concentra na construção de um tipo genérico
+até seu estado de zero value.
 
     type vector[T any] []T
     
@@ -119,14 +116,13 @@ its zero value state.
         return v[len(v)-1], nil
     }
 
-You need to focus on the method declaration for the last method and how the method
-returns a value of the generic type T. On the first return is a situation where you need
-to return the zero value for type T. The current implementation provides two solutions to write
-this code. The first solution you see already. A variable named zero is constructed to
-its zero value state of type T and then that variable is used for the return.
+Você precisa se concentrar na declaração do método para o último método e como o método retorna um valor
+do tipo genérico T. No primeiro retorno, é uma situação em que você precisa retornar o valor zero para o tipo T.
+A implementação atual fornece duas soluções para escrever este código. A primeira solução que você já viu.
+Uma variável chamada "zero" é construída em seu estado de valor zero do tipo T e, em seguida, essa variável
+é usada para o retorno.
 
-The other option is to use the built-in function new and dereference the returned
-pointer within the return statement.
+A outra opção é usar a função built-in `new` e desreferenciar o ponteiro retornado na declaração de retorno.
 
     type vector[T any] []T
     
@@ -138,25 +134,24 @@ pointer within the return statement.
         return v[len(v)-1], nil
     }
 
-This version of the last method is using the built-in function new for zero value
-construction and dereferencing of the returned pointer to satisfy return type T.
+Essa versão do último método está usando a função built-in `new` para a construção
+do `zero value` e a desreferenciação do ponteiro retornado para satisfazer o tipo de retorno T.
 
-Note: You might think why not use T{} to perform zero value construction? The
-problem is this syntax does not work with all types, such as the scalar types (int,
-string, bool). So it’s not an option.
+Observação: Você pode se perguntar por que não usar `T{}` para realizar a construção do `zero value`?
+O problema é que essa sintaxe não funciona com todos os tipos, como os tipos escalares (int, string, bool).
+Portanto, não é uma opção.
 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o template como ponto de partida para concluir os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Declare a generic type named keymap that uses an underlying type of map
-with a key of type string and a value of some type T. Declare a method
-named set that accepts a key of type string and a value of type T. Declare
-a method named get that accepts a key of type string and return a value of
-type T and true or false if the key is found. Then write a main function
-that uses the methods.
+Declare um tipo genérico chamado `keymap` que utiliza um tipo subjacente de `map` com uma chave do
+tipo `string` e um valor de algum tipo `T`. Declare um método chamado `set` que aceita uma chave do tipo
+`string` e um valor do tipo `T`. Declare um método chamado `get` que aceita uma chave do tipo `string` e
+retorna um valor do tipo `T` e `true` ou `false` se a chave for encontrada. Em seguida, escreva uma função
+`main` que utilize os métodos.
 
 .play generics/underlying-types/exercise1.go 
 .play generics/underlying-types/answer1.go
