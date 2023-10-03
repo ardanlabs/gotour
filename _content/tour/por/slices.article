@@ -8,9 +8,7 @@ em Go aprenderem como `Slices` funcionam e como usá-los.
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao Vídeo]]
 - Precisa de Assistência Financeira, Use a Nossa [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
 
-`Slices` são uma estrutura de dados incrivelmente importante em Go. Elas formam a base de como gerenciamos e
-manipulamos dados de forma flexível, eficiente e dinâmica. É muito benéfico para todos os programadores
-em Go aprenderem como `Slices` funcionam e como usá-los.
+`Slices` são uma estrutura de dados incrivelmente importante em Go. Elas formam a base de como gerenciamos e manipulamos dados de forma flexível, eficiente e dinâmica. É muito benéfico para todos os programadores em Go aprenderem como `Slices` funcionam e como usá-los.
 
 .image /tour/eng/static/img/sl1.png
 
@@ -24,7 +22,7 @@ em Go aprenderem como `Slices` funcionam e como usá-los.
 - *Exemplo* *6:* Strings e slices
 - *Exemplo* *7:* Funções Variádicas
 - *Exemplo* *8:* Mecânica do Range
-- *Exemplo* *9:* Traversais Eficientes
+- *Exemplo* *9:* Travessias Eficientes
 - *Exemplo* *10:* Slicing com Três Índices
 
 .play slices/example1.go
@@ -104,11 +102,8 @@ semântica de valor para mover os dados ao redor do meu programa. Isso inclui de
 
 Isso se aplica a todas as estruturas de dados internas do Go (slices, maps, channels, interfaces e functions).
 
-One reason to switch to pointer semantics is if you need to share the slice for a
-decoding or unmarshaling operation. Using pointers for these types of operations
-are ok, but document this if it’s not obvious.
 Uma razão para mudar para a semântica de ponteiro é se você precisar compartilhar o `slice` para uma operação
-de decodificação ou desmarcação. Usar ponteiros para esses tipos de operações é aceitável, mas documente
+de `decoding ou unmarshal`. Usar ponteiros para esses tipos de operações é aceitável, mas documente
 isso se não for óbvio.
 
 ** Layout de Memória Contígua
@@ -150,7 +145,7 @@ Observe como a função print itera apenas sobre o comprimento do `slice`.
 
 ** Anexando Slices
 
-A linguagem fornece uma função built-in chamada append para adicionar valores a un slice existente.
+A linguagem fornece uma função built-in chamada append para adicionar valores a um slice existente.
 
     var data []string
 
@@ -158,17 +153,17 @@ A linguagem fornece uma função built-in chamada append para adicionar valores 
         data = append(data, fmt.Sprintf("Rec: %d", record))
     }
 
-A função `append` funciona com um `slice` mesmo quando o `slice` é inicializad no seu
+A função `append` funciona com um `slice` mesmo quando o `slice` é inicializado no seu
 estado de `zero value`. O design da API do append é interessante porque utiliza a mutação
 semântica de valor. O append obtém sua própria cópia de um valor do `slice`, realiza a mutação
 em sua própria cópia e, em seguida, retorna uma cópia de volta para o chamador.
 
 Por que a API é projetada dessa forma? Isso ocorre porque o idioma é usar semântica de valor para mover
-um valor de fatia ao redor de um programa. Isso deve ser respeitado mesmo com uma operação de mutação.
+um valor de `slice` ao redor de um programa. Isso deve ser respeitado mesmo com uma operação de mutação.
 Além disso, a mutação semântica de valor é a maneira mais segura de realizar a mutação, uma vez que a
 mutação é realizada na própria cópia dos dados da função, isoladamente.
 
-Append sempre mantém um bloco contíguo de memória para o array subjacente da fatia, mesmo após o crescimento.
+Append sempre mantém um bloco contíguo de memória para o array subjacente da `slice`, mesmo após o crescimento.
 Isso é importante para o hardware.
 
 .image /tour/eng/static/img/sl2.png
@@ -188,7 +183,7 @@ Quando o `array` subjacente tem 1024 elementos de capacidade ou menos, novos `ar
 dobrando o tamanho do `array` existente. Uma vez que o `array` subjacente cresce além de 1024 elementos,
 o crescimento ocorre em 25%.
 
-*NOTA:* *A* *forma *a* *função* *append* *aumenta* *a* *capacidade* *do* *array*
+*NOTA:* *A* *forma *que* *função* *append* *aumenta* *a* *capacidade* *do* *array*
 *subjacente* *mudou* *desde* *Go* *1.18.*
 
 - [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
@@ -256,7 +251,7 @@ mantém tudo na pilha.
 
 Quando você usa slice2 para alterar o valor da `string` no índice 0, qualquer valor do `slice`
 que esteja compartilhando o mesmo `array` subjacente (onde o endereço para aquele índice faz
-parte do comprimento dessa fatia) verá a alteração.
+parte do comprimento dessa `slice`) verá a alteração.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -441,7 +436,7 @@ os "likes" para o primeiro usuário não aumentaram.
 
 .image /tour/eng/static/img/sl9.png
 
-É importante ter cuidado e saber se um `slice` será usadaoem uma operação de anexação durante
+É importante ter cuidado e saber se um `slice` será usado em uma operação de anexação durante
 a execução de um programa. Você precisa considerar como compartilha o `slice`.
 Compartilhar índices individuais pode não ser a melhor ideia. Compartilhar o valor inteiro do `slice`
 também pode não funcionar quando a operação de anexação está em andamento. Provavelmente, usar um `slice`
