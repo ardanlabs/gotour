@@ -1,35 +1,35 @@
-Behavior As Constraint
-Every generic type requires a constraint to be declared so the compiler knows what concrete type substitutions it can accept or reject at compile time.
+Comportamento como Restrição
+Cada tipo genérico requer uma restrição a ser declarada para que o compilador saiba quais
+substituições de tipo concretos ele pode aceitar ou rejeitar durante o tempo de compilação.
 
-* Generics - Behavior As Constraint
+* Generics - Comportamento como Restrição
 
-Every generic type requires a constraint to be declared so the compiler knows what
-concrete type substitutions it can accept or reject at compile time. This is required
-even if there is no real constraint on what the generic type can be, hence the
-predeclared constraint identifier any.
+Cada tipo genérico requer uma restrição a ser declarada para que o compilador saiba quais
+substituições de tipo concretos ele pode aceitar ou rejeitar durante o tempo de compilação.
+Isso é necessário mesmo que não haja uma restrição real sobre o que o tipo genérico pode ser,
+daí o identificador de restrição pré-declarado `any`.
 
-** Video
+** Vídeo
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Assista à palestra que dei sobre Generics, que apresenta todos os exemplos desta seção do Tour.
 
 .html generics-video.html
 
-** Code Review
+** Revisão de Código
 
-- *Example* *1*: Concrete stringify function
-- *Example* *2*: Type assertion stringify function
-- *Example* *3*: Interface stringify function
-- *Example* *4*: Generic stringify function
+- *Exemplo* *1*: Função `stringify` concreta
+- *Exemplo* *2*: Função `stringify` com assertiva de tipo
+- *Exemplo* *3*: Função `stringify` com interface
+- *Exemplo* *4*: Função `stringify` genérica
 
 .play generics/behavior-constraints/example1.go
 .play generics/behavior-constraints/example2.go
 .play generics/behavior-constraints/example3.go
 .play generics/behavior-constraints/example4.go
 
-** Explained
+** Explicado
 
-Interesting enough, the concept of a constraint already exists in the language.
+Curiosamente, o conceito de uma restrição já existe na linguagem.
 
     type User struct {
         name string
@@ -51,25 +51,21 @@ Interesting enough, the concept of a constraint already exists in the language.
         s.String()
     }
 
-The code defines a concrete type named User and implements a method named
-String that returns the user’s name. Then an interface type is declared named
-Stringer, which declares one act of behavior String, which returns a string. Thanks
-to the method declared for User, you can say that the concrete type User implements
-the Stringer interface using value semantics.
+O código define um tipo concreto chamado `User` e implementa um método chamado `String` que
+retorna o nome do usuário. Em seguida, é declarado um tipo de interface chamado `Stringer`, \
+que declara um comportamento chamado `String`, que retorna uma `string`. Graças ao método declarado para `User`,
+é possível afirmar que o tipo concreto `User` implementa a interface `Stringer` usando semântica de valor.
 
-The Concrete function is just that, a function that accepts concrete data based on
-what it is. The Polymorphic is just that as well, a function that accepts concrete data
-based on what it can do. This is the primary difference between a concrete and
-polymorphic function. One is limited to one type of data, the other isn’t. However,
-there is a constraint on what concrete data can be passed into the polymorphic
-function.
+A função `Concrete` é exatamente isso, uma função que aceita dados concretos com base no que são.
+A função `Polymorphic` também é assim, uma função que aceita dados concretos com base no que eles podem fazer.
+Esta é a principal diferença entre uma função concreta e uma função polimórfica. Uma está limitada a um tipo de dado,
+enquanto a outra não está. No entanto, existe uma restrição quanto aos dados concretos que podem ser passados para a função polimórfica.
 
-The Stringer interface defines that constraint by declaring a method set of behavior
-that concrete data must be able to exhibit. When applied as the input type, the
-compiler can guarantee the behavioral constraint is met every time the function is
-called.
+A interface `Stringer` define essa restrição ao declarar um conjunto de comportamentos que os dados
+concretos devem ser capazes de exibir. Quando aplicado como o tipo de entrada, o compilador pode garantir
+que a restrição comportamental seja cumprida todas as vezes que a função for chamada.
 
-There are generic functions that will require the same type of behavioral constraint.
+Existem funções genéricas que exigirão o mesmo tipo de restrição comportamental.
 
     func stringify[T fmt.Stringer](slice []T) []string {
         ret := make([]string, 0, len(slice))
@@ -81,27 +77,24 @@ There are generic functions that will require the same type of behavioral constr
         return ret
     }
 
-Here is the generic function stringify. It accepts a slice of some type T and returns a
-slice of string values that contain a stringified version of each value from the input
-collection. The key to making this function work is the method call to String against
-each value of type T.
+Aqui está a função genérica `stringify`. Ela aceita um `slice` de algum tipo T e retorna
+um `slice` de valores de `string` que contém uma versão em formato de `string` de cada valor da coleção
+de entrada. A chave para fazer essa função funcionar é a chamada do método `String` para cada valor do tipo T.
 
-The problem is that the compiler needs to know and verify that values of type T do
-have a method named String. When the generic type T is declared, the fmt.Stringer
-interface is provided as the constraint. The compiler now knows to check any type
-substitution and data being passed into the function for this method set of behavior.
+O problema é que o compilador precisa saber e verificar se os valores do tipo T realmente
+possuem um método chamado `String`. Quando o tipo genérico T é declarado, a interface `fmt.Stringer` é
+fornecida como a restrição. O compilador agora sabe verificar qualquer substituição de tipo e dados
+sendo passados para a função quanto a esse conjunto de métodos de comportamento.
 
-This is excellent because the interface is being used again for the same purpose and
-the language doesn’t need a new keyword.
+Isso é excelente porque a interface está sendo usada novamente para o mesmo propósito, e a linguagem não precisa de uma nova palavra-chave.
 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o template como ponto de partida para completar os exercícios. Uma solução possível é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Implement a generic function named marshal that can marshal JSON but only
-accepts values that implement the json.Marshaler interface.
+Implemente uma função genérica chamada `marshal` que possa serializar JSON, mas aceita apenas valores que implementem a interface `json.Marshaler`.
 
 .play generics/behavior-constraints/exercise1.go 
 .play generics/behavior-constraints/answer1.go
