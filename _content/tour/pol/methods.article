@@ -291,20 +291,18 @@ Wartość typu data jest konstruowana, a następnie wywoływane są metody.
     data.displayName(d)
     (*data).setAge(&d, 21)
 
-Since methods are really just functions with syntactic sugar, the methods can be
-executed like functions. You can see that the receiver is really a parameter, it’s
-the first parameter. When you call a method, the compiler converts that to a
-function call underneath.
+Ponieważ metody są w rzeczywistości po prostu funkcjami z syntaktycznym cukrem, metody mogą być wywoływane jak funkcje.
+Możesz zauważyć, że odbiorca (receiver) to tak naprawdę parametr, który jest pierwszym parametrem. Kiedy wywołujesz metodę,
+kompilator przekształca to w wywołanie funkcji pod spodem.
 
-Note: Do not execute methods like this, but you may see this syntax in tooling messages.
+Uwaga: Nie wywołuj metod w ten sposób, możesz jednakże zobaczyć tę składnię w komunikatach narzędziowych (tooling messages).
 
-** Know The Behavior of the Code
+** Zrozum zachowanie kodu
 
-If you know the data semantics at play, then you know the behavior of the code. If
-you know the behavior of the code, then you know the cost of the code. Once you
-know the cost, I’m engineering.
+Jeśli znasz semantykę danych, która jest używana, to znasz zachowanie kodu. Jeśli znasz zachowanie kodu,
+to znasz koszty kodu. Kiedy już znasz koszty, to możesz inżynierować (optymalizować) kod.
 
-Given this type and method set.
+Biorąc pod uwagę ten typ i zestaw metod.
 
     type data struct {
         name string
@@ -320,7 +318,7 @@ Given this type and method set.
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-You can write the following code.
+Możesz napisać następujący kod.
 
     func main() {
         d := data{
@@ -333,35 +331,36 @@ You can write the following code.
         f1()
     }
 
-Output:
+Wynik:
 
     My Name Is Bill
     My Name Is Bill
 
-You start with constructing a value of type Data assigning it to the variable d.
-Then you take the method displayName, bound to d, and assign that to a variable
-named f1. This is not a method call but an assignment which creates a level of
-indirection. Functions are values in Go and belong to the set of internal types.
+Rozpoczynasz od konstruowania wartości typu Data i przypisujesz ją do zmiennej d.
+Następnie bierzesz metodę displayName, związaną z d, i przypisujesz ją do zmiennej
+o nazwie f1. To nie jest wywołanie metody, ale przypisanie, które tworzy poziom
+pośrednictwa. Funkcje są wartościami w języku Go i należą do zbioru typów wewnętrznych.
 
-After the assignment, you can call the method indirectly through the use of the
-f1 variable. This displays the name Bill. Then you change the data so the name
-is now Joan, and call the method once again through the f1 variable. You don’t
-see the change. Bill is the output once again. So Why?
+Po dokonaniu przypisania możesz wywoływać metodę pośrednio, korzystając z zmiennej f1.
+To spowoduje wyświetlenie nazwy "Bill". Następnie zmieniasz dane, więc teraz nazwa to "Joan",
+i ponownie wywołujesz metodę poprzez zmienną f1. Jednak nie widzisz zmiany,
+a na wyjściu jest ponownie "Bill". Dlaczego?
 
 .image /tour/eng/static/img/m1.png
 
-It has to do with the data semantics at play. The displayName method is using a
-value receiver so value semantics are at play.
+To ma związek z semantyką danych, która jest używana. Metoda displayName używa odbiornika wartości,
+dlatego w grę wchodzi semantyka wartości.
 
     func (d data) displayName() {
         fmt.Println("My Name Is", d.name)
     }
 
-This means that the f1 variable maintains and operates against its own copy of d.
-So calling the method through the f1 variable, will always use the copy and that
-copy is protected against change. This is what you want with value semantics.
+To oznacza, że zmienna f1 utrzymuje i działa na swojej własnej kopii d.
+Dlatego wywołanie metody poprzez zmienną f1 zawsze będzie korzystać z kopii,
+która jest chroniona przed zmianami. To jest dokładnie to, czego oczekuje się
+od semantyki wartości (value semantics).
 
-Now you will do the same thing but with the setAge method.
+Teraz zrobisz to samo, ale z metodą setAge.
 
     func main() {
         d := data{
@@ -374,7 +373,7 @@ Now you will do the same thing but with the setAge method.
         f2(45)
     }
 
-Output:
+Wynik:
 
     Bill Is Age 45
     Sammy Is Age 45
@@ -386,46 +385,50 @@ call. This time you see the name has changed.
 
 .image /tour/eng/static/img/m2.png
 
-The setAge function is using a pointer receiver so setAge doesn’t operate on its
-own copy of the d variable, but is operating directly on the d variable. Therefore,
-f2 is operating on shared access and you see the change.
+
+Tym razem metoda setAge jest przypisana do zmiennej f2. Ponownie metoda jest wywoływana
+pośrednio za pomocą zmiennej f2, przekazując wartość 45 jako wiek dla Billa. Następnie
+zmienione zostaje imię Billa na "Sammy", a zmienna f2 jest ponownie używana do wykonania
+wywołania. Tym razem widzisz, że imię zostało zmienione.
 
     func (d *data) setAge(age int) {
         d.age = age
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-Without knowing the data semantics at play, you won’t know the behavior of the code.
-These data semantics are real and affect the behavior.
 
-** Notes
+Bez znajomości semantyki danych, nie będziesz wiedział, jakie jest zachowanie kodu.
+Te semantyki danych są rzeczywiste i wpływają na zachowanie programu.
 
-- Methods are functions that declare a receiver variable.
-- Receivers bind a method to a type and can use value or pointer semantics.
-- Value semantics mean a copy of the value is passed across program boundaries.
-- Pointer semantics mean a copy of the values address is passed across program boundaries.
-- Stick to a single semantic for a given type and be consistent.
+** Notatki
 
-** Quotes
+- Metody to funkcje, które deklarują zmienną odbiorcy (receiver).
+- Odbiorcy wiążą metodę z danym typem i mogą korzystać zarówno z semantyki wartości (value) jak i wskaźników (pointer).
+- Semantyka wartości oznacza, że kopia wartości jest przekazywana przez granice programu.
+- Semantyka wskaźników oznacza, że kopia adresu wartości jest przekazywana przez granice programu.
+- Trzymaj się jednej semantyki dla danego typu i bądź konsekwentny.
 
-"Methods are valid when it is practical or reasonable for a piece of data to expose a capability." - William Kennedy
+** Cytaty
 
-** Extra Reading
+"Metody są prawidłowe wtedy, gdy jest praktyczne lub uzasadnione, aby pewna część danych udostępniała pewne funkcje (zdolności)." - William Kennedy
+
+** Dodatkowe materiały
 
 - [[https://golang.org/doc/effective_go.html#methods][Methods]]    
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
 		 
-* Exercises
+* Ćwiczenia
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-Declare a struct that represents a baseball player. Include name, atBats and hits.
-Declare a method that calculates a players batting average. The formula is Hits / AtBats.
-Declare a slice of this type and initialize the slice with several players. Iterate
-over the slice displaying the players name and batting average.
+Zadeklaruj strukturę reprezentującą zawodnika baseballowego. Obejmuje ona pola: name (imię),
+atBats (liczba podejść do odbicia) i hits (liczba trafionych odbić).
+Zadeklaruj metodę obliczającą średnią uderzeń zawodnika. Formuła to Hits / AtBats.
+Zadeklaruj wycinek (slice) tego typu i zainicjuj go kilkoma zawodnikami.
+Iteruj po wycinku, wyświetlając imiona zawodników oraz ich średnie uderzeń.
 
 .play methods/exercise1.go
 .play methods/answer1.go
