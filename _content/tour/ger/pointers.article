@@ -43,15 +43,13 @@ Stacks räumen sich selber auf und die zero-values helfen bei der Initialiserung
 Jedes Mal wenn eine Funktion aufgerufen wird und ein Frame in den Memory geschrieben wird, wird das Frame initialisiert und so ist räumt sich der Stack
 selber auf. Wenn eine Funktion returned, wird der Speicher für das Frame gelassen, da es unklar ist, ob der Memory-Slog nochmals gebraucht wird. Es wäre ineffizient Speicher bei returns zu initialisieren.
 
-*Pass* *By* *Value*
+*Per* *Wert* *übergeben* (pass by value)
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+Daten werden im Programm per Wert übergeben(pass by valu). Das heisst, dass wenn Daten im Programm weitergegeben werden, hat jede 
+Funktion oder Go-Routine seine eigene Kopie der Daten. Du wirst mit zwei Arten von Daten arbeit: Dem Wert selber (int, string, user) oder 
+der Adresse des Wertes im Memory. Adressen sind Daten die übergreifend kopiert und gespeichert werden können.
 
-The following code attempts to explain this more.
+Der folgnede Code erklärt dies genauer:
 
     func main() {
 
@@ -112,32 +110,31 @@ Output:
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
 ** Notes
+- Benutze Pointers um Daten zu teilen
+- Werte in Go werden immer per Wert übergeben (pass by value)
+- "Value of" was ist in der Box. "Address of" (&), wo ist die Box
+- DEr (*) Operator deklariert eine Pointer Variabel plus den Wert wo der Pointer hinzeigt
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+** Flucht-Analyse
 
-** Escape Analysis
+Der Algorithmus, mit dem der Compiler feststellt, ob ein Wert auf dem Stack oder Heap konstruiert werden sollte
+auf dem Stack oder Heap aufgebaut werden soll, wird "Escape-Analyse" genannt. Der Name des Algorithmus lässt
+klingt, als würden die Werte zuerst auf dem Stack konstruiert und dann bei Bedarf
+auf den Heap, wenn es nötig ist. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
+einmal, und der Algorithmus für die Escape-Analyse entscheidet, wo der Wert abgelegt wird (Stack
+oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichnet.
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+Beim Verständnis der Escape-Analyse geht es darum, den Besitz von Werten zu verstehen. Die Idee dahinter ist,
+wenn ein Wert innerhalb des Bereichs einer Funktion konstruiert wird, dann besitzt diese Funktion
+den Wert besitzt. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
+existieren, wenn die besitzende Funktion zurückkehrt? Wenn die Antwort nein lautet, kann der Wert
+auf dem Stapel konstruiert werden. Lautet die Antwort ja, muss der Wert auf dem
+dem Heap konstruiert werden.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
-
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
+Zuweisungen verursacht. Sie müssen sich jedoch darüber im Klaren sein, dass die Escape-Analyse Schwächen hat, die
+zu nicht offensichtlichen Zuweisungen führen kann. Außerdem nutzt der Algorithmus Möglichkeiten, um
+Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
 
     // user represents a user in the system.
     type user struct {
@@ -154,14 +151,15 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+Die Funktion stayOnStack verwendet die Wertesemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
+den Aufrufer zurück. Mit anderen Worten, der Aufrufer erhält seine eigene Kopie des Benutzerwerts, der
+konstruiert wird.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+Wenn die Funktion stayOnStack aufgerufen wird und zurückkehrt, muss der von ihr konstruierte Benutzerwert
+nicht mehr zu existieren, da der Aufrufer seine eigene Kopie erhält. Daher
+kann die Konstruktion des Benutzerwerts innerhalb von stayOnStack auf dem Stack erfolgen.
+Keine Zuweisung.
+
 
     type user struct {
         name  string
@@ -177,94 +175,98 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert an den Aufrufer zurückzugeben
+an den Aufrufer zurückzugeben. Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den
+Benutzerwert, der konstruiert wird.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+Wenn die Funktion escapeToHeap aufgerufen wird und zurückkehrt, muss der von ihr konstruierte Benutzerwert
+immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
+Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap nicht
+auf dem Stack, sondern auf dem Heap erfolgen. Ja, Zuweisung.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Überlegen Sie, was passieren würde, wenn der Benutzerwert im letzten Beispiel auf dem Stack konstruiert würde
+auf dem Stack konstruiert würde, wenn die Zeigersemantik bei der Rückkehr verwendet wird.
+
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+Der Aufrufer würde eine Kopie einer Stack-Adresse aus dem darunter liegenden Frame erhalten und die Integrität
+würde verloren gehen. Sobald die Kontrolle an die aufrufende Funktion zurückgeht, ist der Speicher auf dem
+Stack, in dem sich der Benutzerwert befindet, wiederverwendbar. In dem Moment, in dem die aufrufende Funktion
+einen weiteren Funktionsaufruf tätigt, wird ein neuer Frame gesliced und der Speicher überschrieben,
+wodurch der gemeinsam genutzte Wert vernichtet wird.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+Aus diesem Grund wird der Stack als selbstreinigend angesehen. Nullwert-Initialisierung
+trägt dazu bei, dass jeder benötigte Stack-Frame ohne den Einsatz von GC bereinigt werden kann. Der Stapel
+ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame genommen und initialisiert wird.
+Funktionsaufrufs initialisiert wird. Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei Rückgaben, weil
+der Compiler nicht weiß, ob der Speicher auf dem Stack jemals wieder benötigt wird.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Die Escape-Analyse entscheidet, ob ein Wert auf dem Stack (der Standard) oder dem
+Heap (die Flucht). Mit der Funktion stayOnStack übergebe ich eine Kopie des Wertes
+an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalten. Mit der Funktion escapeToHeap
+übergebe ich eine Kopie der Adresse des Wertes zurück an den Aufrufer (auf dem
+den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
+
+
+Es gibt viele kleine Details, die mit der Escape-Analyse zusammenhängen; um mehr zu erfahren
+lesen Sie den Beitrag in Kapitel 14 mit dem Titel Escape Analysis Mechanics.
+Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert, um
+eine neue Art der Übergabe von Funktionsein- und -ausgangsargumenten unter Verwendung von Registern
+anstelle von Speicher auf dem Stack. Dies ist aktiviert für Linux, MacOS und Windows auf
+den 64-Bit-x86-Architekturen aktiviert. Dies bedeutet, dass einige Funktionsargumente nicht
+auf den Stack kopiert werden, aber einige können, abhängig von der Machbarkeit der Verwendung von Registern.
+Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
 
 ** Notes
-
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- Wenn ein Wert referenziert werden kann, nachdem die Funktion, die den Wert konstruiert, zurückkehrt.
+- Wenn der Compiler feststellt, dass ein Wert zu groß ist, um auf den Stack zu passen.
+- Wenn der Compiler die Größe eines Wertes zur Kompilierungszeit nicht kennt.
+- Wenn ein Wert durch die Verwendung von Funktions- oder Schnittstellenwerten entkoppelt ist.
 
 ** Garbage Collection Semantics
-
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+Sobald ein Wert auf dem Heap aufgebaut ist, muss sich der Garbage Collector (GC)
+beteiligt. Der wichtigste Teil des GC ist der Pacing-Algorithmus. Er bestimmt
+die Häufigkeit/Rate, mit der der GC laufen muss, um einen möglichst kleinen Heap
+in Verbindung mit dem besten Anwendungsdurchsatz zu erhalten.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
 ** Stack vs Heap
 
-"The stack is for data that needs to persist only for the lifetime of the function
-that constructs it, and is reclaimed without any cost when the function exits. The
-heap is for data that needs to persist after the function that constructs it exits,
-and is reclaimed by a sometimes costly garbage collection." - Ayan George
+"Der Stack ist für Daten gedacht, die nur für die Dauer der Funktion, die sie erstellt, bestehen bleiben müssen
+die sie aufbaut, bestehen bleiben müssen, und die ohne Kosten zurückgewonnen werden, wenn die Funktion beendet wird. Der
+Heap ist für Daten, die auch nach Beendigung der Funktion, die sie erstellt, bestehen bleiben müssen,
+und wird durch eine manchmal kostspielige Garbage Collection zurückgewonnen." - Ayan George
 
-** Stack Growth
+** Stack Wachstum 
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+Die Größe der einzelnen Frames für jede Funktion wird zur Kompilierzeit berechnet. Das bedeutet,
+wenn der Compiler die Größe eines Wertes zur Kompilierzeit nicht kennt, muss der Wert
+auf dem Heap konstruiert werden. Ein Beispiel hierfür ist die Verwendung der eingebauten Funktion make, um
+ein Slice zu konstruieren, dessen Größe auf einer Variablen basiert.
 
     b := make([]byte, size) // Backing array allocates on the heap.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go verwendet eine zusammenhängende Stack-Implementierung, um zu bestimmen, wie Stacks wachsen und schrumpfen.
+Eine Alternative, die Go hätte verwenden können, ist eine segmentierte Stack-Implementierung, die
+die von einigen Betriebssystemen verwendet wird.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+Jeder Funktionsaufruf kommt mit einer kleinen Präambel, die fragt: "Gibt es genug Stack
+Platz für diesen neuen Frame?". Wenn ja, dann ist das kein Problem und der Rahmen wird übernommen und
+initialisiert. Wenn nicht, muss ein neuer, größerer Stack aufgebaut werden und der Speicher auf dem
+Speicher des bestehenden Stapels auf den neuen kopiert werden. Dies erfordert Änderungen an
+Zeigern, die auf Speicher auf dem Stack verweisen. Die Vorteile von zusammenhängendem Speicher und
+linearen Traversalen mit moderner Hardware ist der Ausgleich für die Kosten des Kopierens.
+
+
+Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf den Stapel einer anderen Goroutine haben.
+den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, jeden
+jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
+
 
 ** Extra Reading
 
@@ -308,23 +310,22 @@ track of every pointer to every stack and readjust those pointers to the new loc
 - [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
 
 * Exercises
-
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Exercise 1
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*Teil* *A:* Deklarieren und initialisieren Sie eine Variable vom Typ int mit dem Wert 20.
+Geben Sie die "Adresse von" und den "Wert von" der Variablen an.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*Teil* *B:* Deklarieren und initialisieren Sie eine Zeigervariable vom Typ int, die auf
+die letzte Variable, die Sie gerade erstellt haben. Geben Sie die "Adresse von" , "Wert von" und den
+"Wert, auf den der Zeiger zeigt".
 
-** Exercise 2
+** Übung 2
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+Deklarieren Sie einen struct-Typ und erstellen Sie einen Wert dieses Typs. Deklarieren Sie eine Funktion, die
+den Wert eines Feldes in diesem struct-Typ ändern kann. Zeigen Sie den Wert vor
+und nach dem Aufruf Ihrer Funktion.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go
