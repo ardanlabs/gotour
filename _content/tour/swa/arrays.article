@@ -1,59 +1,68 @@
-Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Arrays(Safu)
+
+Arrays ni muundo maalum wa data katika Go ambao unaturuhusu sisi kutenga vitalu vya kudumu vya kumbukumbu ya ukubwa wa kudumu.
+
+
 
 * Arrays
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Angalia hii Video]]
+- Iwapo unahitaji usaidizi wa kifedha, Una uhuru wa kutumia  [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Arrays ni muundo maalum wa data katika Go ambayo inaruhusu sisi kutenga contiguous
+vitalu vya kumbukumbu ya ukubwa wa kudumu. Arrays kuwa na baadhi ya vipengele maalum katika Go kuhusiana na
+jinsi wanavyotangazwa na kuonekana kama aina.
 
-** Code Review
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+
+** Tupitie Code
+
+- *Mfano Wa* *1:* Kuanzisha na Kurudia
+- *Mfano wa * *2:* Aina Tofauti za  arrays
+- *Mfano wa * *3:* Contiguous memory allocations
+- *Mfano wa * *4:* Range mechanics
 
 .play arrays/example1.go
 .play arrays/example2.go
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
+** Kutangaza na Kuanzisha Values
 
-Declare an array of five strings initialized to its zero value state.
+
+Tangaza array ya strings  tano  iliyoanzishwa hadi hali yake ya sifuri.
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+
+Kamba ni neno lisilobadilika, neno mbili, muundo wa data unaowakilisha kielekezi kwa a
+safu kuu ya baiti na jumla ya idadi ya baiti katika safu inayounga mkono. Tangu
+safu hii imewekwa kwa hali yake ya sifuri ya thamani, kila kipengele kimewekwa kwa thamani yake ya sifuri
+jimbo. Hii ina maana kwamba kila mshororo una neno la kwanza lililowekwa kuwa nil na la pili
+neno limewekwa kwa 0.
+
 
 .image /tour/eng/static/img/a1.png
 
-** String Assignments
+** String Assignments(Kazi za Kamba)
 
-What happens when a string is assigned to another string?
-
+Je! ni nini hufanyika wakati kamba imeongezwa  kamba nyingine?
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Wakati kamba imepewa kamba nyingine, thamani ya maneno mawili inakiliwa,
+kusababisha maadili mawili tofauti ya mfuatano wote kushiriki safu sawa ya usaidizi.
+
 
 .image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+Gharama ya kunakili kamba ni sawa bila kujali ukubwa wa kamba, a
+nakala ya maneno mawili.
 
-** Iterating Over Collections
+** Iterating Over Collections(Kurudia Mikusanyiko)
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Go hutoa semantiki mbili tofauti za kurudia juu ya mkusanyiko. Naweza kurudia
+kwa kutumia semantiki za thamani au semantiki za vielelezo.
+
 
     // Value Semantic Iteration
     for i, fruit := range strings {
@@ -66,18 +75,19 @@ using value semantics or pointer semantics.
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Unapotumia urudiaji wa semantic wa thamani, mambo mawili hutokea. Kwanza, mkusanyiko mimi nina
+iterating over imenakiliwa na unarudia juu ya nakala. Katika kesi ya safu,
+nakala inaweza kuwa ghali kwa kuwa safu nzima imenakiliwa. Katika kesi ya kipande,
+hakuna gharama halisi kwani ni thamani ya kipande cha ndani pekee ndiyo inakiliwa na sio
+safu ya kuunga mkono. Pili, unapata nakala ya kila kipengele kinachorudiwa.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+Unapotumia marudio ya kisemantiki ya kielekezi, unarudia mkusanyo asilia na mimi
+fikia kila kipengele kinachohusishwa na mkusanyiko moja kwa moja.
+
 
 ** Value Semantic Iteration
 
-Given the following code and output.
+Kwa kuzingatia Code  ifuatayo na matokeo.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
@@ -92,27 +102,26 @@ Output:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+Tofauti ya nyuzi ni safu ya nyuzi 5. Kitanzi kinarudia juu ya kila mfuatano
+kwenye mkusanyiko na kuonyesha nafasi ya faharisi na thamani ya kamba. Tangu hii
+ni mrudisho wa kisemantiki wa thamani, safu ya masafa inarudia juu ya nakala yake yenye kina kifupi
+ya safu na kwa kila marudio tofauti ya matunda ni nakala ya kila kamba
+(muundo wa data ya maneno mawili).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Angalia jinsi utofauti wa matunda unavyopitishwa kwa chaguo la kukokotoa la kuchapisha kwa kutumia semantiki za thamani.
+Kazi ya kuchapisha inapata nakala yake ya thamani ya kamba pia. Wakati ulipoasili
+kamba hupitishwa kwa kazi ya uchapishaji, kuna nakala 4 za thamani ya kamba
+(safu, nakala ya kina, mabadiliko ya matunda na nakala ya chaguo la kuchapisha). Nakala zote 4
+wanashiriki safu sawa ya baiti. 
 
 .image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+Kufanya nakala za thamani ya kamba ni muhimu kwa sababu inazuia thamani ya kamba
+kutoka milele kutoroka hadi lundo. Hii inaondoa mgao usio na tija kwenye lundo.
 
-** Pointer Semantic Iteration
+** Pointer Semantic Iteration(Kurudia Semantiki za Pointers )
 
-Given the following code and output.
-
+Kwa kuzingatia Code ifuatayo na matokeo.
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
         println(i, strings[i])
@@ -126,16 +135,16 @@ Output:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Kwa mara nyingine tena, kutofautisha kwa masharti ni safu ya nyuzi 5. Kitanzi kinarudia tena
+kila mfuatano kwenye mkusanyiko na huonyesha nafasi ya faharasa na thamani ya mfuatano.
+Kwa kuwa hii ni marudio ya kisemantiki ya kielekezi, safu ya masafa inarudiwa juu ya
+safu ya mifuatano moja kwa moja na kwa kila marudio, thamani ya mfuatano kwa kila faharasa
+nafasi inapatikana moja kwa moja kwa simu ya kuchapisha.
 
-** Different Type Arrays
+** Different Type Arrays(Aina tofauti Arrays)
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Inafurahisha kuona kile ambacho mkusanyaji hutoa kama hitilafu wakati wa kugawa
+safu za aina sawa ambazo ni za urefu tofauti.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
@@ -146,18 +155,15 @@ Compiler Error:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+Hapa unatangaza safu kamili ya 4 na 5 iliyoanzishwa hadi hali yake ya sifuri.
+Kisha jaribu kuzigawa kwa kila mmoja na mkusanyaji anasema, "haiwezi kutumia nne
+(aina [4]int) kama aina [5]int katika mgawo".
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+
 
 ** Contiguous Memory Construction
 
-You want to prove that an array provides a contiguous layout of memory.
+Unataka kudhibitisha kuwa array hutoa mpangilio wa kumbukumbu.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -174,41 +180,41 @@ Output:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Hapa unaanzisha array ya mifuatano 5 iliyoanzishwa kwa thamani. Kisha tumia thamani
+urudiaji wa kisemantiki ili kuonyesha taarifa kuhusu kila mfuatano. Matokeo yanaonyesha
+kila thamani ya mfuatano wa mtu binafsi, anwani ya kutofautisha v na anwani ya
+kila kipengele katika safu.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Unaweza kuona jinsi safu ni kizuizi cha kumbukumbu na jinsi kamba ni mbili
+neno au muundo wa data 16 kwenye usanifu wangu wa 64-bit. Anwani kwa kila kipengele
+iko umbali wa hatua ya baiti 16.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+Ukweli ni kwamba utofauti wa v una anwani sawa kwa kila marudio huimarisha
+kuelewa kuwa v ni tofauti ya ndani ya kamba ya aina ambayo ina nakala ya kila moja
+thamani ya kamba wakati wa kurudia.
+** CPU Caches(Akiba za CPU
+)
 
-** CPU Caches
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+Kuna tofauti nyingi za kiufundi kati ya processsors  na muundo wao. Katika
+sehemu hii, utazungumza kwa kiwango cha juu kuhusu wasindikaji na semantiki kwamba
+ni sawa kati yao wote. Uelewa huu wa kisemantiki utatoa
+wewe ni mfano mzuri wa kiakili wa jinsi kichakataji kinavyofanya kazi na huruma unayoweza kutoa.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
-
+Kila msingi ndani ya processor ina kashe yake ya ndani ya kumbukumbu (L1 na L2) na a
+akiba ya kawaida ya kumbukumbu (L3) inayotumika kuhifadhi/kufikia data na maagizo. Vifaa
+nyuzi katika kila msingi zinaweza kufikia kache zao za L1 na L2 za karibu. Data kutoka L3 au kuu
+kumbukumbu inahitaji kunakiliwa kwenye kashe ya L1 au L2 kwa ufikiaji.
 .image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Gharama ya kusubiri ya kufikia data iliyopo katika akiba tofauti hubadilika kutoka
+angalau kwa wengi: L1 -> L2 -> L3 -> kumbukumbu kuu. Kama Scott Meyers alivyosema, "Ikiwa utendaji
+mambo basi jumla ya kumbukumbu unayo ni jumla ya kache. Kuu
+kumbukumbu ni polepole sana kufikia, kwa kusema, inaweza pia kuwa haipo."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Utendaji leo ni kuhusu jinsi data inavyotiririka kupitia maunzi. Ikiwa kila
+kipande cha data mahitaji ya vifaa (wakati wowote) ipo tu kwenye kumbukumbu kuu, my
+programu zitaenda polepole ikilinganishwa na data ambayo tayari iko kwenye kache za L1 au L2.
 
     3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
 
@@ -222,36 +228,37 @@ programs will run slower as compared to the data already being present in the L1
     L2 cache reference ........................... 7 ns ................... 84 ins
     Main memory reference ...................... 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Unaandikaje code  inayohakikisha  data inayohitajika kutekeleza maagizo
+iko kila wakati kwenye kache za L1 au L2? Unahitaji kuandika nambari ambayo ni ya kiufundi
+huruma na prefetcher ya processor. Mtangulizi anajaribu kutabiri nini
+data inahitajika kabla ya maagizo kuomba data kwa hivyo tayari iko katika aidha
+kashe ya L1 au L2.
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Kuna chembechembe tofauti za ufikiaji wa kumbukumbu kulingana na mahali ufikiaji ulipo
+kutokea. Nambari yangu inaweza kusoma/kuandika kumbukumbu kidogo kama sehemu ndogo zaidi ya kumbukumbu
+ufikiaji. Hata hivyo, kutoka kwa mtazamo wa mifumo ya caching, granularity ni 64 byte.
+Kizuizi hiki cha kumbukumbu cha byte 64 kinaitwa mstari wa kache.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Prefetcher hufanya kazi vyema zaidi maagizo yanayotekelezwa yanapoweza kutabirika
+mifumo ya kufikia kumbukumbu. Njia moja ya kuunda muundo wa ufikiaji unaotabirika kwa kumbukumbu
+ni kuunda kizuizi cha kumbukumbu na kisha kurudia juu ya kumbukumbu hiyo
+kutekeleza upitishaji wa mstari kwa hatua inayotabirika.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Safu ni muundo muhimu zaidi wa data kwa maunzi kwa sababu inasaidia
+mifumo ya ufikiaji inayotabirika. Walakini, kipande ndio muundo muhimu zaidi wa data
+katika Go. Vipande katika Go hutumia safu iliyo chini.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Mara tu unapounda array(Safu), kila kipengee kiko mbali sawa na kinachofuata au
+kipengele kilichotangulia. Unaporudia safu, unaanza kutembea kwenye mstari wa kache
+iliunganisha mstari wa kache kwa hatua inayoweza kutabirika. Prefetcher itachukua hii
+muundo wa ufikiaji wa data unaotabirika na kuanza kuvuta data kwa ufanisi kwenye
+processor, hivyo kupunguza gharama za muda wa kufikia data.
+
+Fikiria una kumbukumbu kubwa ya mraba na orodha iliyounganishwa ya nodi zinazolingana
+idadi ya vipengele kwenye tumbo. Ikiwa utafanya mapitio katika sehemu zilizounganishwa
+list, na kisha upitishe matrix katika pande zote mbili (Safuwima na Safu), itakuwaje
+utendaji wa mapito tofauti kulinganisha?
 
     func RowTraverse() int {
         var ctr int
@@ -264,10 +271,9 @@ the performance of the different traversals compare?
         }
         return ctr
     }
-
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+Kupitia safu mlalo kutakuwa na utendakazi bora zaidi kwa sababu hupitia kumbukumbu, akiba
+mstari kwa mstari wa kache uliounganishwa, ambao huunda muundo wa ufikiaji unaotabirika. Mistari ya akiba
+inaweza kuletwa na kunakiliwa kwenye kache ya L1 au L2 kabla ya data kuhitajika.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +287,9 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+Column Traverse ndiyo mbaya zaidi kwa mpangilio wa ukubwa kwa sababu muundo huu wa ufikiaji
+huvuka mipaka ya ukurasa wa OS kwenye kila ufikiaji wa kumbukumbu. Hii husababisha kutokuwa na utabiri
+kwa uletaji mapema wa mstari wa kache na inakuwa kumbukumbu ya ufikiaji bila mpangilio.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,9 +303,9 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Orodha iliyounganishwa ni ya polepole mara mbili ya upitishaji wa safu mlalo hasa kwa sababu kuna akiba
+line hukosa lakini TLB chache (Tafsiri Lookaside Buffer) hukosa. Wingi wa nodi
+zilizounganishwa kwenye orodha zipo ndani ya kurasa zile zile za OS.
 
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
@@ -307,47 +313,46 @@ connected in the list exist inside the same OS pages.
 
 ** Translation Lookaside Buffer (TLB)
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Kila programu inayoendesha inapewa ramani kamili ya kumbukumbu ya kumbukumbu halisi na OS na hiyo
+inayoendesha programu inafikiria wana kumbukumbu yote ya mwili kwenye mashine. Hata hivyo,
+kumbukumbu ya kimwili inahitaji kushirikiwa na programu zote zinazoendesha. Mfumo wa uendeshaji
+hushiriki kumbukumbu ya kimwili kwa kuvunja kumbukumbu halisi katika kurasa na kurasa za ramani
+kwa kumbukumbu halisi kwa programu yoyote inayoendesha. Kila OS inaweza kuamua ukubwa wa ukurasa,
+lakini 4k, 8k, 16k ni saizi zinazokubalika na za kawaida.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+TLB ni akiba ndogo ndani ya kichakataji ambayo husaidia kupunguza muda kuwaka
+kutafsiri anwani pepe kwa anwani halisi ndani ya mawanda ya ukurasa wa Mfumo wa Uendeshaji
+na kukabiliana ndani ya ukurasa. Kukosa dhidi ya akiba ya TLB kunaweza kusababisha ucheleweshaji mkubwa
+kwa sababu sasa vifaa vinapaswa kusubiri OS kuchambua jedwali la ukurasa wake ili kupata
+ukurasa sahihi wa anwani pepe inayohusika. Ikiwa programu inaendelea
+mashine ya mtandaoni (kama kwenye wingu) basi jedwali la kurasa za mashine linahitaji
+kuchunguzwa kwanza.
 
-Remember what was said:
+Kumbuka kilichosemwa:
+Orodha iliyounganishwa ni ya polepole mara mbili ya upitishaji wa safu mlalo hasa kwa sababu kuna akiba
+mstari hukosa lakini TLB chache hukosa (imeelezwa ijayo). Wingi wa nodi zilizounganishwa ndani
+orodha zipo ndani ya kurasa sawa za OS.
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Orodha Iliyounganishwa ni maagizo ya ukubwa kwa kasi zaidi kuliko safu wima kwa sababu ya
+Ufikiaji wa TLB. Ingawa kuna makosa ya kache na mtiririko wa orodha iliyounganishwa,
+kwa kuwa kumbukumbu nyingi za kikundi cha nodi zitatua ndani ya ukurasa huo huo,
+Ucheleweshaji wa TLB hauathiri utendakazi. Hii ndio sababu kwa programu zinazotumia a
+kiasi kikubwa cha kumbukumbu, kama utumizi wa msingi wa DNA, unaweza kutaka kutumia usambazaji
+ya Linux ambayo imesanidiwa kwa ukubwa wa ukurasa kwa mpangilio wa megabaiti au mbili za kumbukumbu.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
-
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Yote yakishasemwa, muundo unaozingatia data ni muhimu. Kuandika algorithm ya ufanisi inabidi
+kuzingatia jinsi data inavyopatikana. Kumbuka, utendaji leo unakaribia
+jinsi unavyoweza kupata data kwenye kichakataji kwa ufanisi.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
 
-** CPU Cache Notes
+** Vidokezo vya Cache ya CPU
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Michoro ya Ziada
 
 *Industry* *Defined* *Latencies*
 
@@ -370,7 +375,7 @@ how efficiently you can get data into the processor.
 
 .image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Usomaji wa Ziada
 
 *CPU* *Caches* */* *Memory*
 
@@ -402,7 +407,7 @@ how efficiently you can get data into the processor.
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
-** Notes
+** Vidokezo
 
 - If you don't understand the data, you don't understand the problem.
 - If you don't understand the cost of solving the problem, you can't reason about the problem.
@@ -412,7 +417,7 @@ how efficiently you can get data into the processor.
 - Memory is allocated as a contiguous block.
 - Go gives you control over spacial locality.
 
-* Exercises
+* Mazoezi ya Ziada
 
 Use the template as a starting point to complete the exercises. A possible solution
 is provided.
