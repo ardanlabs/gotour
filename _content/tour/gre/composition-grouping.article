@@ -1,0 +1,228 @@
+Grouping With Types
+It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+
+* Grouping With Types
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+It’s important to remember that in Go the concepts of sub-typing or sub-classing
+really don't exist and these design patterns should be avoided.
+
+** Code Review
+
+- *Example* *1:* Grouping By State
+- *Example* *2:* Grouping By Behavior
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Grouping Different Types of Data
+
+It’s important to remember that in Go the concepts of sub-typing or sub-classing
+really don't exist and these design patterns should be avoided.
+
+The following is an anti-pattern you shouldn’t follow or implement.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+The Animal type is being declared as a base type that tries to define data that is
+common to all animals. You also attempt to provide some common behavior to an
+animal as well.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+Most animals have the ability to speak in one way or the other. However, trying to
+apply this common behavior to just an animal doesn’t make any sense. At this
+point, You have no idea what sound this animal makes, so you write UGH.
+
+    type Dog struct {
+        Animal
+        PackFactor int
+    }
+
+Now the real problems begin. I’m attempting to use embedding to make a Dog
+everything an Animal is plus more. On the surface this will seem to work, but there
+will be problems. With that being said, a Dog does have a specific way they speak.
+
+    func (d *Dog) Speak() {
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+In the implementation of the Speak method, you can change out UGH for Woof. This is
+specific to how a dog speaks.
+
+    type Cat struct {
+        Animal
+        ClimbFactor int
+    }
+
+If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
+Using embedding, a Cat is everything an Animal is plus more.
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+In the implementation of the Speak method, you can change out UGH for Meow. This
+is specific to how a cat speaks.
+
+Everything seems fine and it looks like embedding is providing the same
+functionality as inheritance does in other languages. Then you try to go ahead and
+group dogs and cats by the fact they have a common DNA of being an Animal.
+
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+When you try to do this, the compiler complains that a Dog and Cat are not an Animal
+and this is true. Embedding isn’t the same as inheritance and this is the pattern I
+need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
+can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+
+This kind of mechanic is also not very flexible. It requires configuration by the
+developer and unless you have access to the code, you can’t make configuration changes
+over time.
+
+If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
+this in Go? It’s not about grouping through common DNA, it’s about grouping
+through common behavior. Behavior is the key.
+
+    type Speaker interface {
+        Speak()
+    }
+
+If you use an interface, then you can define the common method set of behavior that I
+want to group different types of data against.
+
+    speakers := []Speaker{
+        &Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+In the new code, you can now group Dogs and Cats together based on their common
+set of behavior, which is the fact that Dogs and Cats can speak.
+
+In fact, the Animal type is really type pollution because declaring a type just to
+share a set of common states is a smell and should be avoided.
+
+    type Dog struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Cat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+In this particular case, you would rather see the Animal type removed and the fields
+copied and pasted into the Dog and Cat types. Later you will have notes about better
+patterns that eliminate these scenarios from happening.
+
+Here are the code smells from the original code:
+
+- The Animal type provides an abstraction layer of reusable state.
+- The program never needs to create or solely use a value of Animal type.
+- The implementation of the Speak method for the Animal type is generalized.
+- The Speak method for the Animal type is never going to be called.
+
+Guidelines around declaring types:
+
+- Declare types that represent something new or unique.
+- Don't create aliases just for readability.
+- Validate that a value of any type is created or used on its own.
+- Embed types not because you need the state, but because we need the behavior.
+- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
+- Question types that are aliases or abstractions for an existing type.
+- Question types whose sole purpose is to share a common set of states.
+
+** Don’t Design With Interfaces
+
+Unfortunately, too many developers attempt to solve problems in the abstract first.
+They focus on interfaces right away and this leads to interface pollution. As a
+developer, you exist in one of two modes: a programmer and then an engineer.
+
+When you are programming, you are focused on getting a piece of code to work. Trying
+to solve the problem and break down walls. Prove that my initial ideas work. That is
+all you care about. This programming should be done in the concrete and is never
+production ready.
+
+Once you have a prototype of code that solves the problem, you need to switch to
+engineering mode. You need to focus on how to write the code at a micro-level for
+data semantics and readability, then at a macro-level for mental models and
+maintainability. You also need to focus on errors and failure states.
+
+This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
+abstraction, and for testability. Abstracting is only one of a few refactors that need
+to be performed. This works best when you start with a piece of concrete code and
+then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
+are absolutely necessary.
+
+Every problem you solve with code is a data problem requiring me to write data
+transformations. If you don’t understand the data, you don’t understand the problem. If you
+don’t understand the problem, you can’t write any code. Starting with a concrete
+solution that is based on the concrete data structures is critical. As Rob Pike said,
+
+"Data dominates. If you've chosen the right data structures and organized things
+well, the algorithms will almost always be self-evident". - Rob Pike
+
+When is abstraction necessary? When you see a place in the code where the data
+could change and you want to minimize the cascading code effects that would result. I
+might use abstraction to help make code testable, but you should try to avoid this if
+possible. The best testable functions are functions that take raw data in and send
+raw data out. It shouldn’t matter where the data is coming from or going.
+
+In the end, start with a concrete solution to every problem. Even if the bulk of that
+is just programming. Then discover the interfaces that are absolutely required for
+the code today.
+
+"Don’t design with interfaces, discover them". - Rob Pike
