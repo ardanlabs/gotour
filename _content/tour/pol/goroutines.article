@@ -1,116 +1,109 @@
-Goroutines
-Goroutines are functions that are created and scheduled to be run independently by the Go scheduler.
+Gorutyny (Goroutines)
+Gorutyny to funkcje, które są tworzone i planowane do niezależnego wykonania przez planistę (scheduler) języka Go.
 
-* Goroutines
+* Gorutyny (Goroutines)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego sprawdź nasz [[https://www.ardanlabs.com/scholarship/][program stypendialny]]
 
-Goroutines are functions that are created and scheduled to be run independently
-by the Go scheduler. The Go scheduler is responsible for the management and
-execution of goroutines.
+Gorutyny to funkcje które są tworzone i planowane do niezależnego wykonania przez
+planistę (scheduler) języka Go. Planista (scheduler) języka Go jest odpowiedzialny
+za zarządzanie i wykonanie gorutyn.
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1:* Goroutines and Concurrency
-- *Example* *2:* Goroutine context switching
-- *Example* *3:* Goroutines and Parallelism
+- *Example* *1:* Gorutyny i współbieżność
+- *Example* *2:* Gorutyny i zmiany kontekstu
+- *Example* *3:* Gorutyny i równoległość
 
 .play goroutines/example1.go
 .play goroutines/example2.go
 .play goroutines/example3.go
 
-** Scheduler Semantics
+** Semantyka planisty
 
-When a Go program starts up, the Go runtime asks the machine (virtual or physical)
-how many operating system threads can run in parallel. This is based on the number
-of cores that are available to the program. For each thread that can be run in parallel,
-the runtime creates an operating system thread (M) and attaches that to a data structure
-that represents a logical processor (P) inside the program. This P and M represent the
-compute power or execution context for running the Go program.
+Kiedy program Go się uruchamia, planista Go pyta maszynę (wirtualną lub fizyczną) ile
+wątków systemu operacyjnego może działać równolegle. Jest to oparte na liczbie rdzeni dostępnych
+dla programu. Dla każdego wątku, który może być uruchomiony równolegle, planista tworzy wątek
+systemu operacyjnego (M) i dołącza go do struktury danych, która reprezentuje procesor
+logiczny (P) wewnątrz programu. To P i M reprezentują moc obliczeniową lub kontekst wykonania
+do uruchamiania programu Go.
 
-Also, an initial Goroutine (G) is created to manage the execution of instructions
-on a selected M/P. Just like an M manages the execution of instructions on the hardware,
-a G manages the execution of instructions on the M. This creates a new layer of
-abstraction above the operating system, but it moves execution control to the
-application level.
+Dodatkowo, początkowa gorutyna (G) jest tworzona do zarządzania wykonywaniem
+instrukcji na wybranym M/P. Podobnie jak M zarządza wykonywaniem instrukcji na sprzęcie,
+G zarządza wykonywaniem instrukcji na M. Tworzy to nową warstwę abstrakcji powyżej
+systemu operacyjnego, ale przenosi kontrolę wykonania na poziom aplikacji.
 
 .image /tour/eng/static/img/gor1.png
 
-Since the Go scheduler sits on top of the operating system scheduler, it’s important
-to have some semantic understanding of the operating system scheduler and the constraints
-it applies to the Go scheduler and applications.
+Ponieważ planista (scheduler) języka Go działa na platformie systemu operacyjnego,
+istotne jest posiadanie pewnego semantycznego zrozumienia planisty systemu operacyjnego
+oraz ograniczeń, jakie nakłada na planistę Go i aplikacje.
 
-The operating system scheduler has the job of creating the illusions that multiple
-pieces of work are being executed at the same time. Even when this is physically
-impossible. This requires some tradeoffs in the design of the scheduler. Before I
-go any further, it’s important to define some words.
+Planista systemu operacyjnego ma za zadanie tworzenie iluzji, że wiele zadań jest
+wykonywanych w tym samym czasie. Nawet jeśli jest to fizycznie niemożliwe.
+Wymaga to pewnych kompromisów w projektowaniu planisty. Zanim przejdę dalej,
+ważne jest, aby zdefiniować kilka słów.
 
-*Work:* A set of instructions to be executed for a running application. This is
-accomplished by threads and an application can have 1 to many threads.
+*Praca:* Zestaw instrukcji do wykonania dla działającej aplikacji. Jest
+realizowanA przez wątki i aplikacja może mieć od 1 do wielu wątków.
 
-*Thread:* A path of execution that is scheduled and performed. Threads are responsible
-for the execution of instructions on the hardware.
+*Wątek:* Ścieżka wykonania, która jest zaplanowana i wykonywana.
+Wątki są odpowiedzialne za wykonywanie instrukcji na sprzęcie.
 
-*Thread* *States:* A thread can be in one of three states: Running, Runnable, or
-Waiting. Running means the thread is executing its assigned instructions on the
-hardware by having a G placed on the M. Runnable means the thread wants time on
-the hardware to execute its assigned instructions and is sitting in a run queue.
-Waiting means the thread is waiting for something before it can resume its work.
-Waiting threads are not a concern of the scheduler.
+*Stany* *Wątków:* Wątek może znajdować się w jednym z trzech stanów: Running, Runnable lub Waiting.
+Running oznacza, że wątek wykonuje swoje przypisane instrukcje na sprzęcie, umieszczając G na M.
+Runnable oznacza, że wątek potrzebuje czasu na sprzęcie, aby wykonać swoje przypisane instrukcje i
+siedzi w kolejce uruchamiania. Waiting oznacza, że wątek czeka na coś, zanim będzie mógł wznowić
+swoją pracę. Wątki oczekujące nie są problemem planisty.
 
-*Concurrency:* This means undefined out of order execution. In other words, given
-a set of instructions that would be executed in the order provided, they are executed
-in a different undefined order, but all executed. The key is, the result of executing
-the full set of instructions in any undefined order produces the same result. You will
-say work can be done concurrently when the order the work is executed in doesn’t matter,
-as long as all the work is completed.
+*Współbieżność:* Oznacza niezdefiniowane wykonywanie instrukcji. Innymi słowy, dany zestaw instrukcji,
+który miałby być wykonany w podanym porządku, jest wykonywany w innym niezdefiniowanym porządku,
+ale wszystkie są wykonywane. Kluczem jest to, że wynik wykonania pełnego zestawu instrukcji w
+dowolnym niezdefiniowanym porządku daje ten sam wynik. Powiesz, że praca może być wykonywana współbieżnie,
+gdy nie ma znaczenia kolejność wykonywania pracy, pod warunkiem, że cała praca zostanie wykonana.
 
-*Parallelism:* This means doing a lot of things at once. For this to be an option,
-you need the ability to physically execute two or more operating system threads at
-the same time on the hardware.
+*Równoległość*: Oznacza wykonywanie wielu rzeczy jednocześnie. Aby to było możliwe, musisz mieć możliwość
+fizycznego wykonania dwóch lub więcej wątków systemu operacyjnego w tym samym czasie na sprzęcie.
 
-*CPU* *Bound* *Work:* This is work that does not cause the thread to naturally move
-into a waiting state. Calculating fibonacci numbers would be considered CPU-Bound work. 
+*Praca* *Dotycząca* *CPU:* To praca, która nie powoduje naturalnego przejścia wątku do stanu oczekiwania.
+Obliczanie liczb fibonacciego byłoby uważane za pracę CPU-Bound.
 
-*I/O* *Bound* *Work:* This is work that does cause the thread to naturally move into
-a waiting state. Fetching data from different URLs would be considered I/O-Bound work.
+*Praca* *Dotycząca* *Wejścia/Wyjścia (I/O):* To praca, która powoduje naturalne przejście wątku do
+stanu oczekiwania. Pobieranie danych z różnych adresów URL byłoby uważane za pracę I/O-Bound.
 
-*Synchronization:* When two or more Goroutines will need to access the same memory
-location potentially at the same time, they need to be synchronized and take turns.
-If this synchronization doesn’t take place, and at least one Goroutine is performing
-a write, you can end up with a data race. Data races are a cause of data corruption
-bugs that can be difficult to find.
+*Synchronizacja:* Kiedy dwie lub więcej gorutyn będzie musiało uzyskać dostęp do tego samego
+miejsca w pamięci, potencjalnie w tym samym czasie, muszą zostać zsynchronizowane. Jeśli ta synchronizacja
+nie nastąpi, a przynajmniej jedna gorutyna wykonuje zapis, możesz mieć do czynienia z wyścigiem danych.
+Wyścigi danych są przyczyną błędów związanych z uszkodzeniem danych, które mogą być trudne do znalezienia.
 
-*Orchestration:* When two or more Goroutines need to signal each other, with or
-without data, orchestration is the mechanic required. If orchestration does not
-take place, guarantees about concurrent work being performed and completed will
-be missed. This can cause all sorts of data corruption bugs.
+*Orkiestracja:* Kiedy dwie lub więcej gorutyn musi się nawzajem sygnalizować, z danymi lub bez,
+orkiestracja jest mechanicznie wymagana. Jeśli orkiestracja nie nastąpi, gwarancje dotyczące
+wykonywania i zakończenia pracy współbieżnej zostaną utracone. Może to spowodować wszelkiego rodzaju
+błędy związane z uszkodzeniem danych.
 
-There are lots of little details related to the scheduling semantics, so to learn
-more read the three posts in chapter 14 titled, Scheduling In Go.
+Jest wiele małych szczegółów związanych z semantyką planowania, więc aby dowiedzieć się więcej,
+przeczytaj trzy wpisy w rozdziale 14 zatytułowane Scheduling In Go.
 
-** Concurrency Basics
+** Podstawy współbieżności
 
-Starting with a basic concurrency problem that requires orchestration.
+Zaczynając od podstawowego problemu związanego z współbieżnością, który wymaga orchestracji.
 
     func init() {
         runtime.GOMAXPROCS(1)
     }
 
-The call to GOMAXPROCS is being used to run the Go program as a single threaded
-Go program. This program will be single threaded and have a single P/M to execute
-all Goroutines. The function is capitalized because it’ s also an environment variable.
-Though this function call will overwrite the variable.
+Wywołanie GOMAXPROCS jest używane do uruchomienia programu Go jako jednowątkowy program Go. Ten program
+będzie jednowątkowy i będzie miał pojedynczy P/M do wykonania wszystkich gorutyn. Funkcja jest zapisana
+wielkimi literami, ponieważ jest również zmienną środowiskową. Wywołanie tej funkcji nadpisze zmienną.
 
     g := runtime.GOMAXPROCS(0)
 
-This function is an important function when you set CPU quotas to a container
-configuration. When passing 0, the number of threads the Go program will be using
-is reported. You must make sure that number matches the number of operating system
-threads you have available in my containerized environment. If the numbers are not
-the same, the Go program won’t run as well as it otherwise could. You might want
-to use the environment variable or this call to match things up.
+Ta funkcja jest ważna, gdy ustawiasz limity CPU dla konfiguracji kontenera. Przy przekazywaniu wartości 0,
+zostanie zgłoszona liczba wątków, jakie program Go będzie używał. Musisz upewnić się, że ta liczba odpowiada
+liczbie dostępnych wątków systemu operacyjnego w moim środowisku konteneryzacji. Jeśli liczby te się nie zgadzają,
+program Go nie będzie działać tak dobrze, jak mogłoby to być w innym przypadku. Możesz użyć zmiennej
+środowiskowej lub tego wywołania, aby dopasować wartości.
 
     func main() {
         var wg sync.WaitGroup
@@ -132,26 +125,24 @@ to use the environment variable or this call to match things up.
         fmt.Println("\nTerminating Program")
     }
 
-This program has to solve an orchestration problem. The main Goroutine can’t allow
-the main function to return until there is a guarantee the two Goroutines being
-created finish their work first. A WaitGroup is a perfect tool for orchestration
-problems that don’t require data to be passed between Goroutines. The signaling
-here is performed through an API that allows a Goroutine to wait for other Goroutines
-to signal they’re done.
+Ten program musi rozwiązać problem orkiestracji. Główna gorutyna nie może pozwolić na
+powrót funkcji main, dopóki nie ma gwarancji, że dwie gorutyny, które są tworzone,
+najpierw zakończą swoją pracę. WaitGroup jest doskonałym narzędziem do rozwiązywania
+problemów orkiestracji, które nie wymagają przekazywania danych między gorutynami.
+Sygnalizacja tutaj jest wykonywana za pomocą API, które pozwala gorutynie czekać
+na inne gorutyny, aby sygnalizowały, że są gotowe.
 
-In this code, a WaitGroup is constructed to its zero value state and then immediately
-the Add method is called to set the WaitGroup to 2, which will match the number of
-Goroutines to be created. When you know how many Goroutines upfront that will be
-created, you should call Add once with that number. When you don’t know (like in
-a streaming service) then calling Add(1) is acceptable.
+W tym kodzie, WaitGroup jest konstruowany do stanu wartości zero, a następnie natychmiast
+wywoływana jest metoda Add, aby ustawić WaitGroup na 2, co będzie odpowiadać liczbie gorutyn,
+które zostaną utworzone. Kiedy wiesz, ile gorutyn zostanie utworzonych, powinieneś wywołać Add tylko
+raz z tą właśnie liczbą. Kiedy nie wiesz (jak w usłudze strumieniowej), wywołanie Add(1) jest akceptowalne.
 
-At the end of main is the call to Wait. Wait holds the main Goroutine from causing
-the function to return. When the main function returns, the Go program is shut
-down with extreme prejudice. This is why managing the orchestration with the proper
-guarantees is important. The Wait call will block until the WaitGroup is set back
-to 0.
+Na końcu funkcji main jest wywołanie funkcji Wait. Wywołanie to powoduje zatrzymanie głównej
+goroutyny i uniemożliwia jej zakończenie. Gdy funkcja main zakończy działanie, program Go zostanie zakończony.
+Dlatego ważne jest odpowiednie zarządzanie orkiestracji z odpowiednimi gwarancjami. Wywołanie funkcji Wait
+będzie blokować działanie programu do momentu, aż licznik WaitGroup zostanie ponownie ustawiony na 0.
 
-In the middle of the program, you have the creation of the two Goroutines.
+W środku programu , masz utworzenie dwóch gorutyn.
 
     func main() {
         . . .
@@ -169,13 +160,13 @@ In the middle of the program, you have the creation of the two Goroutines.
         . . .
     }
 
-Literal functions are declared and executed with the use of the keyword go. At
-this point, you are telling the Go scheduler to execute these functions concurrently.
-To execute them in an undefined order. Inside the implementation of each Goroutine
-is the call to Done. That call is what decrements the WaitGroup by 1. Once both
-calls to Done are made, the WaitGroup will change from 2 to 0, and then the main
-Goroutine will be allowed to be unblocked from the call to Wait, terminating the
-program.
+
+Funkcje literałowe są deklarowane i uruchamiane za pomocą słowa kluczowego "go". W tym momencie
+informujesz planistę Go, aby wykonał te funkcje równolegle, w nieokreślonej kolejności. Wewnątrz
+implementacji każdej Gorutyny znajduje się wywołanie funkcji "Done". To wywołanie zmniejsza
+liczbę w WaitGroup o 1. Gdy oba wywołania funkcji "Done" zostaną wykonane, licznik WaitGroup
+zmieni się z 2 na 0, a następnie główna Gorutyna zostanie odblokowana ze względu na wywołanie
+funkcji "Wait", co zakończy program.
 
     func main() {
         var wg sync.WaitGroup
@@ -189,23 +180,25 @@ program.
         . . .
     }
 
-An important part of this orchestration pattern is keeping the Add and Done calls
-in the same line of sight. Try not to pass the WaitGroup as a function parameter
-where the calls get lost. This will help to reduce bugs.
+Ważnym elementem tego wzorca orchestracji jest trzymanie wywołań funkcji "Add" i "Done" w
+zasięgu wzroku (w tym samym miejscu w kodzie). Staraj się unikać przekazywania WaitGroup
+jako parametru funkcji, gdzie te wywołania mogą być zagubione. To pomoże w redukcji błędów w kodzie.
 
-    Output:
+    Wynik:
 
     Start Goroutines
     Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
-When you build and run this program, you see how this program runs concurrently.
-The second Goroutine created was scheduled first. It got to finish its work and
-then the other Goroutine ran. Both ran to completion before the program terminated.
-The next time you run this program, there is no guarantee you see the same output.
-The only guarantee in this program is that the program won’t terminate until the
-two Goroutines are done.
+Kiedy budujesz i uruchamiasz ten program, widzisz, jak program działa współbieżnie.
+Druga utworzona Gorutyna została zaplanowana jako pierwsza. Miała okazję do zakończenia
+swojej pracy, a następnie została uruchomiona kolejna Gorutyna. Obydwie Gorutyny zostały
+uruchomione i zakończone przed zakończeniem programu. Następnym razem, gdy uruchomisz
+ten program, nie ma gwarancji, że zobaczysz ten sam wynik. Jedyną gwarancją w tym
+programie jest to, że program nie zakończy się, dopóki obie Gorutyny nie zostaną
+zakończone. Kolejność ich wykonywania może się różnić w zależności od planisty Go i
+innych czynników środowiskowych, dlatego wynik może być różny przy różnych uruchomieniach.
 
 Even if you run this program 100 times and see the same output, there is no guarantee
 it will happen again. It may be highly probable, but not guaranteed. Especially not
@@ -220,13 +213,16 @@ guaranteed across different versions, operating systems and architectures.
         fmt.Println("\nTerminating Program")
     }
 
-If you comment the call to Wait what will happen when you run this program? Once
-again, there is no guarantee at all anymore with what will happen, but there are
-different possibilities.
 
-The program could behave as before since calls to Println are system calls that
-do allow the scheduler to make a context switch. The program could execute just
-one of the two Goroutines or possibly terminate immediately.
+Nawet jeśli uruchomisz ten program 100 razy i zobaczysz ten sam wynik, nie ma gwarancji,
+że zawsze tak będzie. To może być bardzo prawdopodobne, ale nie jest gwarantowane. Szczególnie
+nie jest to gwarantowane w różnych wersjach języka, systemach operacyjnych i architekturach.
+Wynik może się różnić w zależności od tych czynników i jest to naturalne zachowanie
+w kontekście współbieżności i równoległości w programowaniu.
+
+Program może zachowywać się tak, jak wcześniej, ponieważ wywołania funkcji Println to
+wywołania systemowe, które pozwalają planiście na dokonanie zmiany kontekstu. Program
+może wykonać jedną z dwóch Gorutyn lub być może zakończyć się natychmiast.
 
     func main() {
         var wg sync.WaitGroup
@@ -234,17 +230,17 @@ one of the two Goroutines or possibly terminate immediately.
 
         go func() {
             lowercase()
-            // wg.Done()               <-- CHANGED
+            // wg.Done()               <-- ZMIANA
         }()
 
         . . .
     }
 
-What happens if you forget to call Done in one of the Goroutines? In this case,
-the program would deadlock since the WaitGroup can’t get back down to 0. The Wait
-call will block forever.
+Co się stanie jeśli zapomnisz wywołać funkcję Done w jednej z Gorutyn?
+W tym przypadku program zablokuje się, ponieważ WaitGroup nie może wrócić do 0.
+Wywołanie Wait spowoduje blokadę na zawsze.
 
-    Output:
+    Wynik:
 
     Start Goroutines
     Waiting To Finish
@@ -260,14 +256,14 @@ call will block forever.
         concurrency/goroutines/example1/example1.go:42 +0x145
     exit status 2
 
-You can see how the Go Runtime identifies the program is deadlocked on line 42 where
-the call to Wait is happening. You shouldn’t get too excited about deadlock detection
-since every single Goroutine needs to be blocked with no way out. This shows why keeping
-the Add and Done call together is so important.
+Możesz teraz zobaczyć jak planista Go identyfikuje program jako zablokowany w linii 42, gdzie
+następuje wywołanie Wait. Nie powinieneś się zbytnio ekscytować wykrywaniem zablokowania,
+ponieważ każda pojedyncza Gorutyna musi być zablokowana bez wyjścia. To pokazuje,
+dlaczego tak ważne jest trzymanie wywołań Add i Done razem.
 
     func main() {
         var wg sync.WaitGroup
-        wg.Add(1)              <-- CHANGED, Number Too Small
+        wg.Add(1)              <-- ZMIENIONO, za mała liczba
 
         go func() {
             lowercase()
@@ -282,16 +278,16 @@ the Add and Done call together is so important.
         . . .
     }
 
-What happens if you don’t give the WaitGroup the correct number of Goroutines to
-wait on? If the number is too large, you will have another deadlock. If the number
-is too small, there are no guarantees that the work is done before the program moves
-on. The output of the program is undefined.
+Co się stanie jeśli nie podasz WaitGroup prawidłowej liczby Gorutyn do oczekiwania?
+Jeśli liczba jest zbyt duża, otrzymasz kolejne zablokowanie. Jeśli liczba jest zbyt mała,
+nie ma gwarancji, że praca zostanie wykonana, zanim program przejdzie dalej.
+Wynik programu jest niezdefiniowany.
 
-** Preemptive Scheduler
+** Planista preemptywny
 
-Even though the scheduler runs within the scope of the application, it’s important
-to see how the schedule is preemptive. This means you can’t predict when a context
-switch will take place and this will change every time you run the program.
+Mimo że planista działa w obrębie aplikacji, ważne jest zrozumienie, że planowanie jest preemptywne. Oznacza to,
+że nie można przewidzieć, kiedy nastąpi zmiana kontekstu, i ta zmiana będzie się zmieniać za każdym razem,
+gdy uruchamiasz program.
 
     func main() {
         var wg sync.WaitGroup
@@ -313,9 +309,9 @@ switch will take place and this will change every time you run the program.
         fmt.Println("\nTerminating Program")
     }
 
-Using the same orchestration pattern as before, this program has each Goroutine doing
-a lot more work. Work that the scheduler won’t give a Goroutine enough time to finish
-completely in one time slice.
+Korzystając z tego samego wzorca orchestracji co wcześniej, program ten pozwala każdej Gorutynie
+na wykonanie znacznie więcej pracy. Praca, na którą planista nie da Gorutynie
+wystarczająco dużo czasu na ukończenie w jednym skrawku czasu (time slice).
 
     func printHashes(prefix string) {
         for i := 1; i <= 50000; i++ {
@@ -326,8 +322,7 @@ completely in one time slice.
         fmt.Println("Completed", prefix)
     }
 
-This function is performing a lot of I/O bound work that has the potential of
-being context switched.
+Ta funkcja wykonuje wiele operacji związanych z I/O, które mają potencjał do zmiany kontekstu (context switch).
 
     $ ./example2 | cut -c1 | grep '[AB]' | uniq
     B
@@ -347,45 +342,44 @@ being context switched.
     B
     A  3 Context Switches
 
-As you can see, every time you run the program, there are a different number of
-context switches. This is a great thing because a scheduler shouldn’t be predictable.
-Concurrency needs to remain undefined and you must remember that when you use concurrency
-to solve my performance problems.
+
+Jak widać, za każdym razem, gdy uruchamiasz program, zachodzi różna liczba zmian kontekstu. Jest to dobre,
+ponieważ planista nie powinien być przewidywalny. Współbieżność powinna pozostawać niezdefiniowana,
+i musisz pamiętać o tym, gdy używasz współbieżności do rozwiązywania problemów wydajnościowych.
 
     func init() {
         runtime.GOMAXPROCS(2)
     }
 
-What happens if you go back to the original program but change GOMAXPROCS so the program runs as a two threaded Go program?
+Co się stanie, jeśli wrócisz do pierwotnego programu, ale zmienisz ustawienia GOMAXPROCS, aby program działał jako program Go z dwoma wątkami?
 
-    Output:
+    Wynik:
 
     Start Goroutines
     Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
-What you see is that the concurrency of the program is now more fine grained. The output
-to the letter is undefined and out of order.
+To, co widzisz, to teraz współbieżność programu jest bardziej drobnoziarnista. Wyjście jest nieokreślone i nieuporządkowane.
 
-** Notes
+** Notatki
 
-- Goroutines are functions that are scheduled to run independently.
-- We must always maintain an account of running goroutines and shutdown cleanly.
-- Concurrency is not parallelism.
+- Gorutyny to funkcje, które są planowane do niezależnego działania.
+- Zawsze musimy śledzić liczbę uruchomionych gorutyn i zamykać je w sposób czysty.
+- Współbieżność to nie to samo co równoległość.
 
-- Concurrency is about dealing with lots of things at once.
-- Parallelism is about doing lots of things at once.
+- Współbieżność polega na zarządzaniu wieloma rzeczami jednocześnie.
+- Równoległość polega na wykonywaniu wielu rzeczy jednocześnie.
 
-"Parallelism is about physically doing two or more things at the same time. Concurrency is about undefined, out of order, execution." - William Kennedy
+"Równoległość polega na fizycznym wykonywaniu dwóch lub więcej rzeczy jednocześnie. Współbieżność dotyczy nieokreślonego, nieuporządkowanego wykonania." - William Kennedy
 
-"By default, goroutines shouldn't outlive the function they were created from. this forces you into a extremely good design posture." - Peter Bourgon
+"Domyślnie gorutyny nie powinny przetrwać funkcji, z której zostały utworzone. To zmusza do wyjątkowo dobrego projektowania." - Peter Bourgon
 
-** Design Guidelines
+** Wskazówki projektowania
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design][design guidelines]] for concurrency.
+- Dowiedz się o [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design][wytycznych projektowania]] dla współbieżności.
 
-** Extra Reading
+** Dodatkowe materiały
 
 - [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html][Scheduling In Go - Part I]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html][Scheduling In Go - Part II]] - William Kennedy    
@@ -402,16 +396,16 @@ to the letter is undefined and out of order.
 - [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor    
 - [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi    
 
-* Exercises
+* Ćwiczenia
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-*Part* *A* Create a program that declares two anonymous functions. One that counts
-down from 100 to 0 and one that counts up from 0 to 100. Display each number with
-an unique identifier for each goroutine. Then create goroutines from these functions
-and don't let main return until the goroutines complete.
+*Część* *A* Stwórz program, który deklaruje dwie funkcje anonimowe. Jedna z nich odlicza od 100 do 0,
+a druga zlicza od 0 do 100. Wyświetl każdą liczbę z unikalnym identyfikatorem dla każdej gorutyny.
+Następnie stwórz gorutyny z tych funkcji i nie pozwól, aby funkcja main zakończyła działanie,
+dopóki gorutyny nie zostaną zakończone.
 
 *Part* *B* Run the program in parallel.
 
