@@ -1,26 +1,25 @@
-Struct Types
-You can declare a generic type using a struct type.
+Typy strukturalne
+Możesz zadeklarować typ generyczny, używając typu strukturalnego.
 
-* Generics - Struct Types
+* Typy generyczne - Typy strukturalne
 
-You can declare a generic type using a struct type.
+Możesz zadeklarować ogólny typ, używając typu strukturalnego.
 
-** Video
+** Film
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
 
 .html generics-video.html
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1*: Linked List
+- *Example* *1*: Lista łączona
 
 .play generics/struct-types/example1.go
 
-** Explained
+** Wytłumaczenie
 
-What if you wanted to declare your own generic type using a struct type?
+Jeśli chciałbyś zadeklarować własny ogólny typ, używając typu strukturalnego, to jak byś to zrobił?
 
     type node[T any] struct {
         Data T
@@ -28,30 +27,30 @@ What if you wanted to declare your own generic type using a struct type?
         prev *node[T]
     }
 
-This struct type is declared to represent a node for the linked list. Each node
-contains an individual piece of data that is stored and managed by the list. The use
-of square brackets declares that type T is a generic type to be determined at
-compile time. The use of the constraint "any" describes there is no constraint on
-what type T can become.
+Ten typ strukturalny jest zadeklarowany w celu reprezentacji węzła dla listy łączonej.
+Każdy węzeł zawiera pojedynczy element danych, który jest przechowywany i zarządzany
+przez listę. Użycie nawiasów kwadratowych deklaruje, że typ T jest ogólny i będzie
+określany podczas kompilacji. Użycie ograniczenia "any" oznacza, że nie ma ograniczeń
+co do tego, jakim typem może być T.
 
-With type T declared, the Data field can now be defined as a field of some type T to
-be determined later. The next and prev fields need to point to a node of that same
-type T. These are the pointers to the next and previous node in the linked list,
-respectively. To make this connection, the fields are declared as pointers to a node
-that is bound to type T through the use of the square brackets.
+Dzięki zadeklarowaniu typu T, pole Data może teraz być zdefiniowane jako pole jakiegoś typu T,
+które zostanie określone później. Pola next i prev muszą wskazywać na węzeł tego samego
+typu T. Odpowiednio są to wskaźniki do następnego i poprzedniego węzła w liście łączonej.
+Aby nawiązać tę relację, pola są deklarowane jako wskaźniki do węzła, który jest powiązany z
+typem T za pomocą nawiasów kwadratowych.
 
     type list[T any] struct {
         first *node[T]
         last *node[T]
     }
 
-The second struct type is named list and represents a collection of nodes by
-pointing to the first and last node in a list. These fields need to point to a node of
-some type T, just like the next and prev fields from the node type.
 
-Once again, the identifier T is defined as a generic type (to be determined later)
-that can be substituted for "any" concrete type. Then the first and last fields are
-declared as pointers to a node of some type T using the square bracket syntax.
+Drugi typ struktury nosi nazwę "list" i reprezentuje zbiór węzłów, wskazując na pierwszy i ostatni
+węzeł w liście. Te pola muszą wskazywać na węzeł jakiegoś typu T, tak samo jak pola next i prev w typie węzła.
+
+Ponownie, identyfikator T jest definiowany jako typ generyczny (do określenia później), który może zostać
+zastąpiony przez "dowolny" konkretny typ. Następnie pola first i last są deklarowane jako wskaźniki
+do węzła jakiegoś typu T, przy użyciu składni z nawiasami kwadratowymi.
 
     func (l *list[T]) add(data T) *node[T] {
         n := node[T]{
@@ -71,73 +70,68 @@ declared as pointers to a node of some type T using the square bracket syntax.
         return &n
     }
 
-This is an implementation of a method named add for the list type. No formal generic type
-list declaration is required (as with functions) since the method is bound to the list through
-the receiver. The add method’s receiver is declared as a pointer to a list of some type T and
-the return is declared as a pointer to a node of the same type T.
+Jest to implementacja metody o nazwie "add" dla typu "list". Nie jest wymagane formalne
+deklarowanie typu generycznego "list" (jak w przypadku funkcji), ponieważ metoda jest związana z
+listą za pomocą odbiornika. Odbiornik metody "add" jest deklarowany jako wskaźnik do listy
+pewnego typu T, a zwracany jest jako wskaźnik do węzła tego samego typu T.
 
-The code after the construction of a node will always be the same, regardless of
-what type of data is being stored in the list since that is just pointer manipulation.
-It’s only the construction of a new node that is affected by the type of data that will
-be managed. Thanks to generics, the construction of a node can be bound to type T
-which gets substituted later at compile time.
+Kod po konstrukcji węzła zawsze będzie taki sam, niezależnie od tego, jakiego rodzaju
+dane są przechowywane w liście, ponieważ jest to tylko manipulacja wskaźnikami. To tylko
+konstrukcja nowego węzła jest wpływana przez typ danych, które zostaną zarządzane. Dzięki
+ogólnym typom konstrukcja węzła może być związana z typem T, który zostaje zastąpiony
+później podczas kompilacji.
 
-Without generics, this entire method would need to be duplicated since the
-construction of a node would need to be hard coded to a known, declared type prior
-to compilation. Since the amount of code (for the entire list implementation) that
-needs to change for different data types is very small, being able to declare a node
-and list to manage data of some type T reduces the cost of code duplication and
-maintenance.
+Bez ogólnych typów cała ta metoda musiałaby być zduplikowana, ponieważ konstrukcja węzła
+musiałaby być zakodowana na stałe do znanego, zadeklarowanego typu przed kompilacją.
+Ponieważ ilość kodu (dla całej implementacji listy), który musi się zmienić w przypadku
+różnych typów danych, jest bardzo mała, możliwość deklaracji węzła i listy do zarządzania
+danymi jakiegoś typu T redukuje koszty duplikacji i utrzymania kodu.
 
     type user struct {
         name string
     }
     
     func main() {
-        // Store values of type user into the list.
+        // Przechowaj wartości typu "user" w liście.
         var lv list[user]
         n1 := lv.add(user{"bill"})
         n2 := lv.add(user{"ale"})
         fmt.Println(n1.Data, n2.Data)
         
-        // Store pointers of type user into the list.
+        // Przechowaj wskaźniki typu "user" w liście.
         var lp list[*user]
         n3 := lp.add(&user{"bill"})
         n4 := lp.add(&user{"ale"})
         fmt.Println(n3.Data, n4.Data)
     }
 
-Output:
+Wynik:
 
     {bill} {ale}
     &{bill} &{ale}
 
-Here is a small application. A type named user is declared and then a list is
-constructed to its zero value state to manage values of type user. A second list is
-then constructed to its zero value state and this list manages pointers to values of
-type user. The only difference between these two lists is one manages values of
-type user and the other pointers of type user.
+Oto mała aplikacja. Zadeklarowany jest typ o nazwie "user", a następnie lista jest tworzona w swoim
+zerowym stanie, aby zarządzać wartościami typu "user". Druga lista jest również tworzona w swoim
+zerowym stanie i zarządza wskaźnikami do wartości typu "user". Jedyna różnica między tymi dwoma
+listami polega na tym, że jedna zarządza wartościami typu "user", a druga wskaźnikami typu "user".
 
-Since type user is explicitly specified during the construction of the list type, the add
-method in turn accepts values of type user. Since a pointer of type user is explicitly
-specified during the construction of the list type, the add method accepts pointers of
-type user.
+Ponieważ typ "user" jest jawnie określony podczas konstrukcji typu listy, metoda "add" przyjmuje
+wartości typu "user". Ponieważ wskaźnik typu "user" jest jawnie określony podczas konstrukcji
+typu listy, metoda "add" przyjmuje wskaźniki typu "user".
 
-You can see in the output of the program, the Data field for the nodes in the respective
-lists match the data semantic used in the construction.
+Możesz zobaczyć w wyniku działania programu, że pole "Data" dla węzłów w odpowiednich listach
+odpowiada semantyce danych użytych podczas konstrukcji.
 
-* Exercises
+* Ćwiczenia
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-Declare a generic type named stack that uses a struct with a single
-field named data declared as a slice of some type T. Declare a method
-named push that accepts a value of some type T and appends the value to
-the slice. Declare a method named pop that returns the latest value of
-some type T that was appended to the slice and an error. Then write a main
-function that uses the methods.
+Zadeklaruj generyczny typ o nazwie stack, który używa struktury z pojedynczym polem o nazwie data zadeklarowanym
+jako slice pewnego typu T. Zadeklaruj metodę o nazwie push, która przyjmuje wartość pewnego typu T i dodaje tę
+wartość do slice'a. Zadeklaruj metodę o nazwie pop, która zwraca ostatnią dodaną wartość pewnego typu T do slice'a
+oraz błąd. Następnie napisz funkcję główną, która używa tych metod.
 
 .play generics/struct-types/exercise1.go 
 .play generics/struct-types/answer1.go
