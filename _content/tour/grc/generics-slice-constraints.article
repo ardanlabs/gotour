@@ -1,50 +1,51 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Περιορισμοί Φετών 
+Υπάρχουν κάποιες φορές, που κανείς θέλει να περιορίσει έναν τύπο γενικού προγραμματισμού, ώστε να είναι μόνο μια φέτα κάποιου τύπου.
 
-* Generics - Slice Constraints
+* Γενικός Προγραμματισμός - Περιορισμοί Φετών 
 
-There may be times where you need to constrain the generic type to be only a slice.
+Υπάρχουν κάποιες φορές, που κανείς θέλει να περιορίσει έναν τύπο γενικού προγραμματισμού, ώστε να είναι μόνο μια φέτα κάποιου τύπου.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Κανείς, μπορεί να παρακολουθήσει την ομιλία του Bill Kennedy, σχετικά με τον Γενικό Προγραμματισμό,
+που παρουσιάζει λεπτομερώς όλα τα παραδείγματα αυτής της ενότητας της Επισκόπησης.
 
 .html generics-video.html
 
-** Code Review
+** Επισκόπηση Κώδικα
 
-- *Example* *1*: Operate function
+- *Παράδειγμα* *1*: Συνάρτηση Operate
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Επεξηγήσεις
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Εδώ, ο τύπος Numbers, που είναι ορισμένος από τον χρήστη, έχει ένα υποκείμενο τύπο, ο οποίος 
+είναι μια φέτα ακεραίων. 
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+Ο μεταγλωττιστής επιτρέπει σε κάποιον, να μετατρέψει μεταβλητές βασισμένες σε μια φέτα ακέραιων, 
+σε μεταβλητές τύπου Numbers. Συνήθως, αυτό είναι κάτι καλό και αυτό που θέλει κανείς. Εξαιτίας 
+αυτής της λειτουργικότητας, κανείς μπορεί να γράψει μια συνάρτηση γενικού προγραμματισμού, 
+η οποία μπορεί να λειτουργήσει σε μια φέτα, η οποία να σέβεται τον υποκείμενο τύπο της φέτας.
 
     type operateFunc[T any] func(t T) T
 
     func operate[T any](slice []T, fn operateFunc[T]) []T {
         ret := make([]T, len(slice))
-            for i, v := range slice {
+        for i, v := range slice {
             ret[i] = fn(v)
         }
         
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Στον παραπάνω κώδικα, η συνάρτηση operate δηλώνει έναν τύπο γενικού προγραμματισμού 
+T, ο οποίος μπορεί να είναι οτιδήποτε. Ο τύπος χρησιμοποιείται, προκειμένου να δηλωθεί
+μια παράμετρος με το όνομα slice, που αποδέχεται μια φέτα, αυτού του ίδιου τύπου T. Η
+συνάρτηση επίσης, δέχεται μια συνάρτηση γενικού προγραμματισμού του ίδιου τύπου με τον
+T και επιστρέφει επίσης, μια φέτα στοιχείων τύπου T.
 
     type Numbers []int
     
@@ -58,25 +59,26 @@ of T as well.
         return numbers
     }
 
-Output:
+Αποτέλεσμα:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+Η συνάρτηση Double δέχεται μια τιμή τύπου Numbers και περνάει αυτή την τιμή στην συνάρτηση 
+operate. Σε αυτή την περίπτωση, ο μεταγλωττιστής χρησιμοποιεί τον υποκείμενο τύπο int, 
+για τον τύπο T και έτσι η τιμή Numbers μπορεί να περάσει στην συνάρτηση. Όμως, αυτό που 
+επιστρέφεται είναι μια φέτα τύπου int, όπως φαίνεται στο αποτέλεσμα.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Αν κανείς θέλει να εξασφαλίσει ότι, μόνο μια τιμή Numbers είναι δυνατόν να περάσει, αλλά και να
+επιστραφεί από την συνάρτηση operate, τότε πρέπει να πραγματοποιήσει τις ακόλουθες αλλαγές. 
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Η παραπάνω διεπαφή δηλώνει έναν περιορισμό τύπων, ο οποίος περιορίζει έναν τύπο γενικού προγραμματισμού 
+σε μια φέτα κάποιου τύπου T. Η χρήση του τελεστή ~ περιορίζει σε εκείνους τους τύπους, των οποίων ο 
+υποκείμενος τύπος είναι ο T. Χρησιμοποιώντας αυτή την διεπαφή περιορισμού τύπων κανείς μπορεί να αλλάξει 
+την συνάρτηση operate.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -100,9 +102,9 @@ underlying type is T. With this interface, you can change the operate function.
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Στην συνέχεια, αλλάζει η συνάρτηση operate, προκειμένου να δηλώνει δύο τύπους 
+γενικού προγραμματισμού. Ο τύπος S αντιπροσωπεύει μια τιμή φέτας, κάποιου τύπου T 
+και ο T, είναι ένας οποιοσδήποτε τύπος. Η συνάρτηση επιστρέφει μια τιμή τύπου S.
 
     type Numbers []int
     
@@ -117,10 +119,10 @@ function returns a value of type S.
         return numbers
     }
 
-Output:
+Αποτέλεσμα:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+Αυτή την φορά, όταν κανείς περνάει την τιμή Numbers στην συνάρτηση operate, η φέτα που 
+επιστρέφεται, είναι τύπου Numbers. Ο υποκείμενος τύπος αγνοείται και γίνεται σεβαστός ο 
+τύπος, που είναι ορισμένος από τον χρήστη.
