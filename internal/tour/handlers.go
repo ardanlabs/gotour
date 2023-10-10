@@ -12,7 +12,7 @@ import (
 
 type root struct {
 	engContent []byte
-	greContent []byte
+	grcContent []byte
 }
 
 // rootHandler returns a handler for all the requests except the ones for lessons.
@@ -51,7 +51,7 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "/tour/gre/":
 		log.Println("render greek tour")
-		if err := renderUI(w, rot.greContent); err != nil {
+		if err := renderUI(w, rot.grcContent); err != nil {
 			log.Println(err)
 		}
 	}
