@@ -1,22 +1,22 @@
-Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+Tipe Data Pointer
+Pointer memiliki tujuan untuk berbagi nilai di seluruh batasan program.
 
-* Pointers
+* Tipe Data Pointer
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+Pointer memiliki tujuan untuk berbagi nilai melintasi batas-batas program.
+Ada beberapa jenis batasan program. Yang paling umum adalah antara pemanggilan fungsi.
+Ada juga batasan antara Goroutines yang akan dipelajari lebih lanjut nanti.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *Contoh* *1:* Pemberian Nilai
+- *Contoh* *2:* Berbagi Nilai I
+- *Contoh* *3:* Berbagi Nilai II
+- *Contoh* *4:* Analisis Lepas
+- *Contoh* *5:* Pertumbuhan Stack
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,92 +24,92 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+Ketika program Go dimulai, Go runtime membuat sebuah Goroutine.
+Goroutine adalah sebuah unit pemrosesan tingkat aplikasi yang ringan dengan banyak kesamaan
+yang sama seperti unit pemrosesan pada sistem operasi. Tugas mereka adalah untuk mengelola eksekusi fisik
+dari satu set instruksi yang berbeda. Setiap program Go memiliki setidaknya 1 Goroutine yang disebut Goroutine utama.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Setiap Goroutine diberikan blok memori sendiri yang disebut stack.
+Setiap stack dimulai dengan alokasi sebesar 2048 byte (2k).
+Meskipun ukurannya sangat kecil, tumpukan dapat tumbuh seiring berjalannya waktu.
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Setiap kali sebuah fungsi dipanggil, sebagian blok dari stack diambil untuk membantu Goroutine
+menjalankan instruksi yang terkait dengan fungsi tersebut. Setiap blok memori individual disebut sebagai frame.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
- 
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Ukuran frame untuk suatu fungsi tertentu dihitung pada saat kompilasi.
+Tidak ada nilai yang dapat dibangun di atas tumpukan kecuali kompiler mengetahui
+ukuran nilai tersebut pada saat kompilasi. Jika kompiler tidak mengetahui ukuran suatu nilai pada saat kompilasi,
+nilai tersebut harus dibangun di atas heap.
 
-*Pass* *By* *Value*
+Setiap kali Anda melakukan panggilan fungsi, dan suatu frame memori dialokasikan,
+memori untuk frame tersebut diinisialisasi, itulah cara stack membersihkan dirinya sendiri.
+Pada saat fungsi mengembalikan nilai, memori untuk frame dibiarkan begitu saja karena tidak diketahui
+apakah memori tersebut akan dibutuhkan lagi. Akan tidak efisien untuk menginisialisasi memori saat pengembalian.
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+*Pemberian* *dengan* *Nilai*
 
-The following code attempts to explain this more.
+Semua data berpindah di sepanjang program dengan nilai.
+Ini berarti saat data dilewatkan melintasi batasan program,
+setiap fungsi atau Goroutine diberikan salinan tersendiri dari data tersebut.
+Ada dua tipe data yang akan Anda kerjakan, nilai itu sendiri (tipe data int,
+string, user) atau alamat dari nilai tersebut. Alamat adalah data yang perlu disalin
+dan disimpan melintasi batas-batas program.
+
+Kode berikut mencoba menjelaskan hal diatas lebih lanjut.
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
+        // Deklarasikan variabel bertipe int dengan nilai 10.
         count := 10
 
-        // To get the address of a value, use the & operator.
+        // Untuk mendapatkan alamat suatu nilai, gunakan operator &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // Berikan salinan dari nilai yang terkandung dalam variable `count` (apa yang ada di dalam kotak)
+        // ke fungsi inkremen1.
         increment1(count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        // Cetak "nilai" dan "alamat" dari variabel count.
+        // Nilai dari variabel count tidak akan berubah setelah pemanggilan fungsi.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
+        // Berikan salinan "alamat" dari variabel count (tempat kotaknya)
+        // ke fungsi inkremen2. Ini masih dianggap pemberian dengan nilai
+        // dan bukan pemberian referensi karena alamat adalah nilai.
         increment2(&count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        // Cetak "nilai" dan "alamat" dari variabel count.
+        // Nilai variabel count telah berubah setelah pemanggilan fungsi.
         println(
-            "count:\tValue Of[", 
+            "count:\tValue Of[",
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // increment1 mendeklarasikan fungsi untuk menerima salinan sendiri dari
+    // nilai integer.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Menambah salinan lokal dari nilai int pemanggil.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // increment2 mendeklarasikan fungsi untuk menerima salinan sendiri dari
+    // alamat yang menunjuk ke nilai integer.
+    // Variabel pointer adalah tipe literal dan dideklarasikan menggunakan *.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // Menambah nilai int pemanggil melalui pointer.
         *inc++
         println(
-            "inc2:\tValue Of[", 
-            inc, "]\tAddr Of[", &inc, 
+            "inc2:\tValue Of[",
+            inc, "]\tAddr Of[", &inc,
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+Keluaran:
 
     count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
     inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
@@ -117,35 +117,35 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** Catatan
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- Gunakan pointer untuk berbagi data.
+- Nilai dalam Go selalu dilewatkan dengan nilai.
+- "Nilai" adalah apa yang ada di dalam kotak. "Alamat" ( & ), adalah dimana dimana kotak berada dalam memori.
+- Operator ( * ) mendeklarasikan variabel penunjuk (pointer) dan "Nilai yang ditunjuk oleh penunjuk".
 
 ** Escape Analysis
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+Algoritma yang digunakan oleh kompilator (compiler) untuk menentukan apakah sebuah nilai
+harus dibuat di dalam stack atau heap disebut "escape analysis".
+Nama algoritma ini membuatnya terdengar seperti nilai-nilai dibuat di dalam stack terlebih dahulu,
+lalu "melarikan diri" (atau dipindahkan) ke heap ketika diperlukan.
+Tapi tidak demikian. Konstruksi nilai hanya terjadi sekali, dan algoritma "escape analysis" menentukan
+di mana itu akan terjadi (stack atau heap). Hanya konstruksi di heap yang disebut sebagai "allocation" (alokasi) dalam Go.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Memahami "escape analysis" adalah tentang memahami kepemilikan nilai.
+Ide nya adalah ketika sebuah nilai dibuat dalam cakupan sebuah fungsi,
+maka fungsi tersebut yang memiliki nilai tersebut. Dari situ, pertanyaannya adalah,
+apakah nilai yang sedang dibuat masih harus ada ketika fungsi yang memiliki nilai tersebut mengembalikan nilainya?
+Jika jawabannya adalah tidak, maka nilai tersebut dapat dibuat di dalam stack.
+Jika jawabannya adalah ya, maka nilai tersebut harus disimpan di dalam heap.
 
-    // user represents a user in the system.
+Catatan: Aturan kepemilikan adalah aturan dasar yang baik untuk mengidentifikasi kode yang menyebabkan alokasi.
+Namun, Anda harus mengetahui bahwa escape analysis memiliki kekurangan yang dapat menghasilkan alokasi yang tidak jelas.
+Selain itu, algoritma ini memanfaatkan peluang untuk memanfaatkan optimisasi kompiler guna menghemat alokasi.
+
+    // variabel user mewakili pengguna dalam suatu sistem
     type user struct {
         name  string
         email string
@@ -160,14 +160,14 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+Fungsi stayOnStack menggunakan semantik nilai untuk mengembalikan nilai user kembali ke pemanggil.
+Dengan kata lain, pemanggil mendapatkan salinan sendiri dari nilai pengguna yang sedang dibuat.
+
+Ketika fungsi stayOnStack dipanggil dan mengembalikan nilai, nilai user yang dibangun di dalamnya tidak perlu ada lagi,
+karena pemanggil mendapatkan salinan sendiri. Oleh karena itu,
+konstruksi nilai pengguna di dalam stayOnStack dapat terjadi di dalam stack.
+Tidak ada alokasi
 
     type user struct {
         name  string
@@ -183,61 +183,58 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+Fungsi escapeToHeap menggunakan semantik nilai bertipe pointer untuk mengembalikan nilai user kepada pemanggil.
+Dengan kata lain, pemanggil mendapatkan akses bersama (sebuah alamat) ke nilai pengguna yang sedang dibuat.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+Ketika fungsi escapeToHeap dipanggil dan mengembalikan nilai, nilai pengguna yang dibuat olehnya
+memang masih perlu ada, karena pemanggil mendapatkan akses bersama ke nilai tersebut.
+Oleh karena itu, konstruksi nilai user di dalam escapeToHeap tidak dapat terjadi di dalam stack,
+melainkan harus terjadi di dalam heap. Ini mengakibatkan alokasi.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Pikirkan apa yang akan terjadi jika nilai user dalam contoh terakhir dibangun di dalam stack
+ketika menggunakan semantik pointer pada pengembalian.
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+Pemanggil akan mendapatkan salinan alamat stack dari frame di bawahnya dan integritas akan hilang.
+Begitu kendali kembali ke fungsi pemanggil, memori di stack di mana nilai user ada dapat digunakan kembali.
+Saat fungsi pemanggil membuat panggilan fungsi lain, frame baru dibuat dan memori akan ditimpa,
+menghapus nilai bersama.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+Ini sebabnya Anda memikirkan stack sebagai sesuatu yang membersihkan dirinya sendiri.
+Inisialisasi nilai nol membantu membersihkan setiap frame stack yang Anda butuhkan tanpa menggunakan GC (Garbage Collection).
+Stack membersihkan dirinya sendiri karena satu frame diambil dan diinisialisasi untuk eksekusi setiap panggilan fungsi.
+Stack dibersihkan selama panggilan fungsi dan bukan pada saat pengembalian,
+karena kompiler tidak tahu apakah memori di stack akan dibutuhkan lagi.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+Escape analysis menentukan apakah sebuah nilai dibuat di dalam stack (nilai default)
+atau di dalam heap (nilai yang melarikan diri). Dengan fungsi stayOnStack, saya mengembalikan salinan nilai ke pemanggil,
+jadi aman untuk menyimpan nilai tersebut di dalam stack.
+Dengan fungsi escapeToHeap, saya mengembalikan salinan alamat nilai ke pemanggil (berbagi melalui stack),
+jadi tidak aman untuk menyimpan nilai tersebut di dalam stack.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+Ada banyak detail kecil yang terkait dengan escape analysis, jadi untuk mempelajari lebih lanjut,
+bacalah bacaan dalam bab 14 yang berjudul "Escape Analysis Mechanics".
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Catatan: Mulai dari versi 1.17, Go mengubah ABI (application binary interface) untuk menerapkan
+cara baru dalam melewatkan argumen masukan dan keluaran fungsi dengan menggunakan register daripada memori di stack.
+Ini bisa digunakan untuk Linux, MacOS, dan Windows pada arsitektur x86 64-bit.
+Ini berarti beberapa argumen fungsi tidak akan disalin di stack,
+tetapi beberapa mungkin tergantung pada kelayakan penggunaan register.
+Ini tidak mengubah semantik yang dijelaskan dalam bab ini.
 
-** Notes
+** Catatan
 
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- Ketika sebuah nilai dapat diacu setelah fungsi yang membangun nilai tersebut mengembalikan nilai.
+- Ketika kompilator menentukan bahwa sebuah nilai terlalu besar untuk muat di dalam stack.
+- Ketika kompiler tidak mengetahui ukuran sebuah nilai pada saat kompilasi.
+- Ketika sebuah nilai diuraikan melalui penggunaan fungsi atau nilai antarmuka.
 
 ** Garbage Collection Semantics
 
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+Setelah sebuah nilai dibangun di dalam heap, Garbage Collector (GC) harus terlibat.
+Bagian terpenting dari GC adalah algoritma pemacuannya. Ini menentukan frekuensi/laju
+di mana GC harus berjalan untuk menjaga ukuran heap yang paling kecil seiring dengan throughput aplikasi yang terbaik.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
@@ -248,89 +245,93 @@ that constructs it, and is reclaimed without any cost when the function exits. T
 heap is for data that needs to persist after the function that constructs it exits,
 and is reclaimed by a sometimes costly garbage collection." - Ayan George
 
-** Stack Growth
+** Pertumbuhan Stack
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+Ukuran setiap frame untuk setiap fungsi dihitung pada waktu kompilasi.
+Ini berarti jika kompiler tidak mengetahui ukuran sebuah nilai pada waktu kompilasi,
+nilai tersebut harus dibangun di dalam heap.
+Contoh dari hal ini adalah penggunaan fungsi bawaan "make" untuk membuat sebuah slice
+yang ukurannya bergantung pada sebuah variabel.
 
     b := make([]byte, size) // Backing array allocates on the heap.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go menggunakan implementasi stack yang berkelanjutan untuk menentukan bagaimana stack tumbuh dan menyusut.
+Salah satu alternatif yang bisa digunakan oleh Go adalah implementasi stack yang tersegmentasi,
+yang digunakan oleh beberapa sistem operasi.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
+Setiap panggilan fungsi dilengkapi dengan sebuah perkenalan kecil yang bertanya,
+"Apakah ada cukup ruang di stack untuk frame baru ini?". Jika ya, maka tidak ada masalah,
+dan frame tersebut diambil dan diinisialisasi.
+Jika tidak, maka sebuah stack yang lebih besar harus dibangun,
+dan memori di stack yang ada harus disalin ke yang baru.
+Ini memerlukan perubahan pada pointer yang merujuk ke memori di stack.
+Keuntungan dari memori yang berkelanjutan dan penelusuran linear dengan perangkat keras modern
+adalah pengorbanan untuk biaya penyalinan.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+Karena penggunaan stack yang berkelanjutan, tidak ada Goroutine yang dapat memiliki pointer ke stack Goroutine lain.
+Hal ini akan menghasilkan overhead yang terlalu besar bagi runtime
+untuk melacak setiap pointer ke setiap stack dan menyesuaikan kembali pointer tersebut ke lokasi baru.
 
-** Extra Reading
+** Bacaan Tambahan
 
-**Pointer* *Mechanics*
+**Mekanisme* *Pointer*
 
-- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
-- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy
 
 *Stacks*
 
-- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]
 
 *Escape* *Analysis* *and* *Inlining*
 
-- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]
 - [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
 
 *Garbage* *Collection*
 
-- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
-- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
-- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
-- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
-- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
-- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
-- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
-- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
-- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
-- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
-- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
-- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]]
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers
 
 *Static* *Single* *Assignment* *Optimizations*
 
-- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
-- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]
 - [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*Bagian* *A:* Mendeklarasikan dan menginisialisasi variabel bertipe int dengan nilai 20.
+Menampilkan "alamat dari" (address of) dan "nilai dari" (value of) variabel tersebut.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*Bagian* *B:* Deklarasikan sebuah variabel baru dengan tipe float32 dan inisialisasikan variabel tersebut
+Mendeklarasikan dan menginisialisasi variabel pointer bertipe int yang menunjuk ke variabel terakhir yang baru saja
+Anda buat. Menampilkan "alamat dari" (address of), "nilai dari" (value of),
+dan "nilai yang ditunjuk oleh pointer" (value that the pointer points to).
 
-** Exercise 2
+** Latihan 2
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+Mendeklarasikan tipe data struct dan membuat sebuah nilai dari tipe data tersebut.
+Mendeklarasikan sebuah fungsi yang dapat mengubah nilai dari salah satu field dalam tipe data struct ini.
+Menampilkan nilai sebelum dan setelah panggilan ke fungsi tersebut.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go
