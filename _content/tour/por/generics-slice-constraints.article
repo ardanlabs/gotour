@@ -1,34 +1,33 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Restrições de Slice
+Pode haver momentos em que você precisa restringir o tipo generic a ser apenas um slice.
 
-* Generics - Slice Constraints
+* Generics - Restrições de Slice
 
-There may be times where you need to constrain the generic type to be only a slice.
+Pode haver momentos em que você precisa restringir o tipo generic a ser apenas um slice.
 
-** Video
+** Vídeo
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Assista à palestra que dei sobre Generics, que percorre todos os exemplos 
+desta seção do Tour (vídeo em Inglês).
 
 .html generics-video.html
 
-** Code Review
+** Revisão de Código
 
-- *Example* *1*: Operate function
+- *Exemplo* *1*: Função Operate
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Explicação
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Aqui o usuário definiu o tipo Numbers que no fundo é um slice do tipo integers. 
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+O compilador permite que você converta variáveis baseadas em um slice de 
+integers para variáveis do tipo Numbers. Isso geralmente é bom e é o que 
+você deseja. Devido a essa funcionalidade, você pode escrever uma função 
+generic que pode operar em um slice, respeitando o tipo subjacente.
 
     type operateFunc[T any] func(t T) T
 
@@ -40,11 +39,9 @@ slice respecting the underlying type.
         
         return ret
     }
-
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Aqui, a função operate declara um tipo generic T que pode ser qualquer coisa. Esse tipo 
+é usado para declarar um parâmetro chamado slice que aceita um slice desse mesmo tipo T. 
+A função também aceita uma função generic do mesmo tipo T e também retorna um slice de T.
 
     type Numbers []int
     
@@ -58,25 +55,25 @@ of T as well.
         return numbers
     }
 
-Output:
+Resultado:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+A função Double aceita um valor do tipo Numbers e passa esse valor para a função operate. 
+Neste caso, o compilador utiliza o tipo subjacente para o tipo T e o valor Numbers pode 
+ser passado para a função. No entanto, o que é retornado é um slice do tipo int, como 
+visto no resultado.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Se você precisa garantir que apenas um valor Numbers possa ser passado e retornado 
+pela função operate, você pode fazer as seguintes alterações.
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Essa interface declara uma restrição para restringir um tipo generic a um slice real 
+de algum tipo T. O uso do elemento de aproximação ~ restringe a todos os tipos cujo tipo 
+subjacente seja T. Com essa interface, você pode alterar a função operate.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -100,9 +97,9 @@ underlying type is T. With this interface, you can change the operate function.
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Agora, altere a função operate para declarar dois tipos genéricos. O tipo S que representa 
+um valor de slice de algum tipo T e T, que é um tipo que pode ser qualquer coisa. A função 
+retorna um valor do tipo S.
 
     type Numbers []int
     
@@ -117,10 +114,10 @@ function returns a value of type S.
         return numbers
     }
 
-Output:
+Resultado:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+
+Desta vez, quando você passa o valor Numbers para a função operate, o slice que é retornado é 
+do tipo Numbers. O tipo subjacente é ignorado e o tipo definido pelo usuário é respeitado.
