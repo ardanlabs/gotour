@@ -1,74 +1,82 @@
-Hash Tables
-A hash table is a classic example of a container type that can take real advantage of generics.
+Πίνακες Κατακερματισμού
+Ενας πίνακας κατακερματισμού είναι ένα κλασσικό παράδειγμα ενός τύπου συλλογής, ο οποίος μπορεί να εκμεταλλευτεί την δυνατότητα γενικού προγραμματισμού.
 
-* Generics - Hash Tables
+* Γενικός Προγραμματισμός - Πίνακες Κατακερματισμού
 
-A hash table is a classic example of a container type that can take real advantage of
-generics. This implementation was coded by Matt Layher (@mdlayer) in a blog post
-he wrote. It's a great example of what is possible with generics.
+Ενας πίνακας κατακερματισμού είναι ένα κλασσικό παράδειγμα ενός τύπου συλλογής
+ο οποίος μπορεί να εκμεταλλευτεί την δυνατότητα γενικού προγραμματισμού. Η 
+παρούσα υλοποίηση γράφτηκε από τον Matt Layher (@mdlayer) σε μια ανάρτηση blog,
+που έκανε. Πρόκειται για ένα καλό παράδειγμα του τι είναι δυνατό με τον
+γενικό προγραμματισμό.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Κανείς, μπορεί να παρακολουθήσει την ομιλία του Bill Kennedy, σχετικά με τον Γενικό Προγραμματισμό,
+που παρουσιάζει λεπτομερώς όλα τα παραδείγματα αυτής της ενότητας της Επισκόπησης.
 
 .html generics-video.html
 
-** Code Review
+** Επισκόπηση Κώδικα
 
-- *Example* *1*: Hash Table
+- *Παράδειγμα* *1*: Πίνακας Κατακερματισμού
 
 .play generics/hash-table/example1.go
 
-** Explained
+** Επεξηγήσεις
 
-This code is a bit more complex than what you have so far. It’s what you can
-expect to see from real world implementations. Throughout this section, you will
-see two views of the code. One before and after applying the new syntax for
-generics.
+Αυτός ο κώδικας, είναι λίγο πιο περίπλοκος απ' ότι έχει παρουσιαστεί, έως τώρα. 
+Πρόκειται για ένα παράδειγμα, του τι πρέπει κανείς να περιμένει να δει, σε 
+υλοποιήσεις στον πραγματικό κόσμο. Σε όλη την παρούσα ενότητα, θα παρουσιαστούν 
+δύο εκδοχές του κώδικα. Μια πριν και μια μετά από την εφαρμογή του νέου συντακτικού 
+γενικού προγραμματισμού.
 
     type hashFunc func(key K, buckets int) int
 
-This type declares a hash function signature that is used by the hash table to
-calculate a bucket position for data storage and retrieval. The user must implement
-and provide this function when constructing a hash table. The function accepts a
-key and the number of buckets it can choose from. Since you want this system to be
-generic in terms of the types used for the key and value, you declare a parameter
-named key with a type of the single capital letter K.
+Ο παραπάνω τύπος δηλώνει την υπογραφή μιας συνάρτησης κατακερματισμού, που θα χρησιμοποιηθεί 
+από τον πίνακα κατακερματισμού, προκειμένου να υπολογιστεί μια θέση για αποθήκευση και ανάσυρση 
+δεδομένων (bucket). Ο χρήστης πρέπει να υλοποιήσει και να παρέχει αυτή την συνάρτηση, όταν 
+κατασκευάζεται ένας πίνακας κατακερματισμού. Η συνάρτηση αποδέχεται ένα κλειδί και τον αριθμό
+των θέσεων αποθήκευσης, απο τις οποίες μπορεί να κάνει μια επιλογή. Καθώς ο σκοπός είναι αυτό 
+το σύστημα να είναι γενικού προγραμματισμού, σε όρους των τύπων που χρησιμοποιούνται για τα κλειδιά αλλά και
+για τις τιμές, δηλώνεται μια παράμετρος τύπου με περιορισμό τύπου, το μοναδικό κεφαλαίο γράμμα K.
 
-Next, you can apply the generics syntax to make K an actual generic type.
+Στην συνέχεια, κανείς μπορεί να εφαρμόσει το συντακτικό του γενικού προγραμματισμού, προκειμένου 
+να μετατρέψει τον K σε ένα αληθινό τύπο γενικού προγραμματισμού.
 
-    type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
+    type hashFunc[K comparable] func(key K, buckets int) int <-- ΑΛΛΑΞΕ
 
-After the type name, add the square brackets with the generic type K and a
-constraint of comparable. Since values of the key type need to be used in a
-compare operation, Documenting this now makes sense, even if the
-implementation of the hash function doesn’t require it. Consistency is everything in
-terms of readability, comprehension, and maintainability over time.
+Μετά από το όνομα του τύπου, προστίθενται αγκύλες με τον τύπο γενικού προγραμματισμού 
+K και τον περιορισμό τύπου comparable, καθώς οι τιμές του τύπου κλειδιού πρέπει να 
+χρησιμοποιηθούν σε λειτουργίες σύγκρισης. Η καταγραφή αυτού του χαρακτηριστικού την 
+δεδομένη στιγμή, έχει νόημα, ακόμα και αν η υλοποίηση της συνάρτησης κατακερματισμού, 
+δεν το απαιτεί. Η συνέπεια είναι τα πάντα για την ευκολία ανάγνωσης, την κατανόηση και 
+την δυνατότητα συντήρησης του κώδικα, με το πέρας του χρόνου.
 
-This type represents a key/value pair of data that will be stored by the hash table.
+Ο ακόλουθος τύπος αντιπροσωπεύει ένα ζεύγος δεδομένων κλειδιού/τιμής τα οποία θα αποθηκευτούν 
+στον πίνακα κατακερματισμού.
 
     type keyValuePair struct {
         Key K
         Value V
     }
 
-The job of this type is to hold the actual data with the corresponding key. Next the
-code declares a key field of type K, and a value field of type V.
+Η δουλειά αυτού του τύπου είναι να αποθηκεύσει τα πραγματικά δεδομένα, στο αντίστοιχο κλειδί. 
+Στην συνέχεια, ο κώδικας δηλώνει ένα πεδίο κλειδιού τύπου K καθώς και ένα πεδίο τιμής τύπου V.
 
-Now you can apply the generics syntax to make K and V an actual generic type.
+Τώρα είναι δυνατόν κανείς, να εφαρμόσει το συντακτικό γενικού προγραμματισμού, προκειμένου να 
+μετατρέψει τους K και V σε έναν πραγματικό γενικό τύπο. 
 
-    type keyValuePair[K comparable, V any] struct { <-- CHANGED
+    type keyValuePair[K comparable, V any] struct { <-- ΑΛΛΑΞΕ
         Key K
         Value V
     }
 
-After the type name, add the square brackets with the generic types K and V. In
-this declaration, K represents the key as before and V represents a value, which can
-be anything.
+Μετά το όνομα του τύπου, προστίθενται οι αγκύλες με τους τύπους γενικού προγραμματισμού 
+K και V. Σε αυτή την δήλωση, ο K αντιπροσωπεύει το κλειδί, όπως και πριν, ενώ ο V αντιπροσωπεύει 
+μια τιμή, η οποία μπορεί να είναι οτιδήποτε.
 
-This type represents a hash table that manages a hash function and a set of
-buckets for key/value data storage.
+Ο τύπος παρακάτω, αντιπροσωπεύει έναν πίνακα κατακερματισμού, που διαχειρίζεται τόσο μια συνάρτηση
+κατακερματισμού όσο και ένα σύνολο θέσεων για αποθήκευση δεδομένων με την μορφή κλειδί/τιμή.
 
     type Table struct {
         hashFunc hashFunc
@@ -76,26 +84,27 @@ buckets for key/value data storage.
         data [][]keyValuePair
     }
 
-The Table type has three fields, a hash function, the number of buckets, and the
-data which is represented as a slice of a slice of key/value pairs. The outer slice
-represents buckets and the inner slice represents key/value pairs that are stored
-inside a bucket.
+Ο πίνακας έχει τρια πεδία, μια συνάρτηση κατακερματισμού, τον αριθμό των θέσεων δεδομένων
+καθώς και τα δεδομένα, που αναπαρίστανται ως μια φέτα φέτας ζευγών κλειδιού/τιμής. Η 
+εξωτερική φέτα αντιπροσωπεύει τις θέσεις αποθήκευσης των δεδομένων, ενώ η εσωτερική φέτα
+αντιπροσωπεύει ζεύγη κλειδιού/τιμής, που αποθηκεύονται σε θέσεις δεδομένων.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the field declarations.
+Στην συνέχεια, εφαρμόζεται το συντακτικό του γενικού προγραμματισμού, προκειμένου να δηλωθούν
+οι γενικού τύποι του κλειδιού και της τιμής και να εφαρμοστούν στις δηλώσεις των πεδίων.
 
-    type Table[K comparable, V any] struct { <-- CHANGED
-        hashFunc hashFunc[K] <-- CHANGED
+    type Table[K comparable, V any] struct { <-- ΑΛΛΑΞΕ
+        hashFunc hashFunc[K] <-- ΑΛΛΑΞΕ
         buckets int
-        data [][]keyValuePair[K, V] <-- CHANGED
+        data [][]keyValuePair[K, V] <-- ΑΛΛΑΞΕ
     }
 
-After the type name, add the square brackets with the generic types K and V. The
-hashFunc type declaration requires information about the concrete type to use for
-the key. The keyValuePair type declaration requires information about the concrete
-type for the key and value.
+Μετά το όνομα του τύπου, προστίθενται οι αγκύλες με τους τύπους γενικού προγραμματισμού 
+K και V. Η δήλωση του τύπου hashFunc απαιτεί πληροφορίες για τον πραγματικό τύπου, που θα
+χρησιμοποιηθεί για το κελιδί. Η δήλωση τύπου keyValuePair απαιτεί πληροφορίες για τον
+πραγματικό τύπο, τόσο του κλειδιού, όσο και της τιμής.
 
-This is a factory function that can construct a Table for use.
+Παρακάτω, παρουσιάζεται μια συνάρτηση παραγωγής (factory) η οποία είναι σε θέση να δημιουργήσει
+ένα Table, έτοιμο προς χρήση.
 
     func New(
         buckets int,
@@ -109,33 +118,37 @@ This is a factory function that can construct a Table for use.
         }
     }
 
-The factory function accepts the number of buckets to manage and a hash function
-for selecting a bucket for data storage and lookup. When a Table value is
-constructed, the number of buckets is used to construct the slice, setting the length
-of the outer slice to the number of buckets that will be used.
+Η συνάρτηση παραγωγής αποδέχεται το πλήθος των θέσεων δεδομένων, που πρέπει να διαχειριστεί
+καθώς και μια συνάρτηση κατακερματισμού, προκειμένου να επιλέγεται η κατάλληλη θέση, για την 
+αποθήκευση δεδομένων καθώς και για τις αναζητήσεις. Όταν δημιουργείται μια τιμή Table, το 
+πλήθος των διαθέσιμων θέσεων δεδομένων χρησιμοιποιείται, προκειμένου να κατασκευαστεί η φέτα,
+θέτωντας το μήκος της εξωτερικής φέτας ίσο με το πλήθος των θέσεων που πρόκειται να χρησιμοποιηθούν.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Παρακάτω, εφαρμόζεται το συντακτικό γενικού προγραμματισμού, προκειμένου να δηλωθούν οι τύποι
+γενικού προγραμματισμού για το κλειδί και την τιμή και να εφαρμοστούν στους τύπους που πρέπει
+να κατασκευαστούν.
 
-    func New[K comparable, V any]( <-- CHANGED
+    func New[K comparable, V any]( <-- ΑΛΛΑΞΕ
         buckets int,
-        hf hashFunc[K],            <-- CHANGED
-    ) *Table[K, V] {               <-- CHANGED
+        hf hashFunc[K],            <-- ΑΛΛΑΞΕ
+    ) *Table[K, V] {               <-- ΑΛΛΑΞΕ
         
-        return &Table[K, V]{       <-- CHANGED
+        return &Table[K, V]{       <-- ΑΛΛΑΞΕ
             hashFunc: hf,
             buckets: buckets,
-            data: make([][]keyValuePair[K, V], buckets), <-- CHANGED
+            data: make([][]keyValuePair[K, V], buckets), <-- ΑΛΛΑΞΕ
         }
     }
 
-After the type name, add the square brackets and the generic types K and V. Then
-K is applied to the hf input parameter to complete the hashFunc type declaration.
-The K and V types are applied to the Table type being constructed and returned.
-Finally, the initialization of the data field requires K and V to be applied to the
-construction syntax for the keyValuePair type.
+Μετά από το όνομα του τύπου, προστίθενται αγκύλες και οι τύποι γενικού προγραμματισμού
+K και V. Στην συνέχεια, ο τύπος K εφαρμόζεται στην παράμετρο εισόδου hf, προκειμένου
+να ολοκληρωθεί η δήλωση τύπου hashFunc. Οι τύποι K και V εφαρμόζονται στον τύπο Table, 
+που είναι προς κατασκευή και πρόκειται να επιστραφεί. Τέλος, η ανάθεση τιμής στο πεδίο 
+δεδομένων, απαιτεί τόσο τον K όσο και τον V να εφαμοστούν, στο συντακτικό δημιουργίας 
+για τον τύπο keyValuePair.
 
-This is a method that can insert values into the hash table based on a specified key.
+Παρακάτω, παρουσιάζεται μια μέθοδος με την οποία κανείς, μπορεί να προσθέσει τιμές στον 
+πίνακα κατακερματισμού, με βάση συγκεκριμένο κλειδί.
 
     type Table[K comparable, V any] struct {
         hashFunc hashFunc[K]
@@ -159,22 +172,26 @@ This is a method that can insert values into the hash table based on a specified
         t.table[bucket] = append(t.table[bucket], kvp)
     }
 
-The Insert method is declared to accept a key and value of the same generic types
-that are declared with the Table type. The first step of inserting is to identify the
-bucket to use for storage. That is performed by calling the hash function with the
-specified key. The hash function returns an integer value that represents the bucket
-to use.
+Η μέθοδος τύπου Insert δηλώνεται, ώστε να να δέχεται ένα κλειδί και μια τιμή, με τους 
+ίδιους τύπους γενικού προγραμματισμού, που δηλώθηκαν μαζί με τον τύπο του Table. Το
+πρώτο βήμα στην διαδικασία της εισαγωγής είναι ο προσδιορισμός της κατάλληλης θέσης, 
+που θα χρησιμοποιηθεί για αποθήκευση. Αυτό πραγματοποιείται με την κλήση της συνάρτησης 
+κατακερματισμού με το συγκεκριμένο κλειδί. Η συνάρτηση κατακερματισμού επιστρέφει μια 
+ακέραια τιμή, που αντιπροσωπεύει ποιά θα είναι η θέση δεδομένων προς χρήση.
 
-Then the function checks to see if the specified key has already been used to store
-a value in the selected bucket. This is performed by ranging over the existing set of
-key/value pairs in the bucket. If the key already exists, the value for that key is
-updated. If the key is not found, then a new key/value pair value is constructed,
-initialized, and appended to the slice for the selected bucket.
+Στην συνέχεια, η συνάρτηση ελέγχει αν το συγκεκριμένο κλειδί έχει ήδη χρησιμοποιηθεί, 
+προκειμένου να αποθηκευτεί μια τιμή στην επιλεγμένη θέση δεδομένων. Αυτός ο έλεγχος
+πραγματοποιείται διατρέχοντας τα διαθέσιμα ζεύγη κελιδιού/τιμής, στην δεδομένη θέση
+αποθήκευσης. Αν το κλειδί υπάρχει ήδη, τότε η τιμή του ζεύγους που αντιστοιχεί στο
+δεδομένο κελιδί ανανεώνεται, με την τρέχουσα. Αν το κλειδί δεν βρεθεί κατά την αναζήτηση, τότε 
+δημιουργείται ένα καινούργιο ζεύγος κλειδιού/τιμής, λαμβάνει αρχική τιμή και προστίθεται
+στην φέτα, στην επιλεγμένη θέση αποθήκευσης. 
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Παρακάτω, εφαρμόζεται το συντακτικό γενικού προγραμματισμού, προκειμένου να δηλωθούν οι τύποι 
+γενικού προγραμματισμού για το κλειδί και την τιμή, ενώ στην συνέχεια, εφαρμόζονται στους τύπους
+που πρέπει να κατασκευαστούν.
 
-    func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
+    func (t *Table[K, V]) Insert(key K, value V) { <-- ΑΛΛΑΞΕ
         bucket := t.hashFunc(key, t.buckets)
         for idx, kvp := range t.table[bucket] {
             if key == kvp.Key {
@@ -183,19 +200,19 @@ apply them to the types that need to be constructed.
             }
         }
     
-        kvp := keyValuePair[K, V]{                 <-- CHANGED
+        kvp := keyValuePair[K, V]{                 <-- ΑΛΛΑΞΕ
             Key: key,
             Value: value,
         }
         t.table[bucket] = append(t.table[bucket], kvp)
     }
 
-After the type name in the receiver, add the square brackets and the generic
-types K and V. The only other change is to apply K and V to the construction syntax
-of the keyValuePair type.
+Μετά το όνομα τύπου στον λήπτη μεθόδου κανείς, πρέπει να προσθέσει αγκύλες καθώς και 
+τους τύπους γενικού προγραμματισμού K και V. Η μόνη άλλη αλλαγή που πρέπει να γίνει, είναι
+η εφαρμογή των K και V στην σύνταξη κατασκευής του τύπου keyValuePair.
 
-This is a method that can retrieve values from the hash table based on a specified
-key.
+Παρακάτω, παρουσιάζεται μια μέθοδος τύπου, η οποία μπορεί να ανακτήσει τιμές από τον πίνακα
+κατακερματισμού, κάνοντας χρήση συγκεκριμένου κλειδιού. 
 
     func (t *Table) Retrieve(key K) (V, bool) {
         bucket := t.hashFunc(key, t.buckets)
@@ -209,21 +226,24 @@ key.
         return zero, false
     }
 
-The Retrieve method is declared to accept a key and return a copy of the value
-stored for that key. The first step of retrieving is to identify the bucket that was
-used for storage. That is performed by calling the hash function with the specified
-key. The hash function returns an integer value that represents the bucket to look
-at.
+Η μέθοδος Retrieve δηλώνεται έτσι ώστε να δέχεται ένα κλειδί και να επιστρέφει ένα 
+αντίγραφο της αποθηκευμένης τιμής, που αντιστοιχεί σε αυτό το κλειδί. Το πρώτο βήμα 
+προκειμένου να γίνει η ανάκτηση, είναι ο προσδιορισμός τη θέση αποθήκευσης, η οποία έχει
+χρησιμοποιηθεί. Αυτό πραγματοποιείται με μια κλήση στην συνάρτηση κατακερματισμού,
+με το συγκεκριμένο κλειδί. Η συνάρτηση κατακερματισμού επιστρέφει μια ακέραια τιμή, 
+η αποία αντιστοιχεί σε ποιά θέση αποθήκευσης πρέπει κανείς να κοιτάξει.
 
-Then the function iterates over the collection of key/value pairs stored inside the
-bucket, looking for the specified key one by one. If the key is found, a copy of the
-value is returned and true is provided to the caller. If the key is not found, zero
-value is returned and false is provided to the caller.
+Στην συνέχεια, η συνάρτηση διατρέχει την συλλογή από ζεύγη κλειδιών/τιμών, που διατηρεί 
+στο εσωτερικό της θέσης αποθήκευσης ένα προς ένα, αναζητώντας το συγκεκριμένο κλειδί. 
+Αν το κλειδί βρεθεί κατά την αναζήτηση, επιστρέφεται ένα αντίγραφο της τιμής, καθώς και 
+η τιμή true στον καλώντα. Αν το κλειδί δεν βρεθεί, επιστρέφεται η μηδενική τιμή, καθώς και
+false στον καλώντα.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Στην συνέχεια, εφαρμόζεται η σύνταξη γενικού προγραμματισμού, προκειμένου να δηλωθούν οι τύποι
+γενικού προγραμματισμού για τα κλειδιά και τις τιμές και εφαρμόζονται στους τύπους, που πρέπει
+να κατασκευαστούν.
 
-    func (t *Table[K, V]) Get(key K) (V, bool) { <-- CHANGED
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- ΑΛΛΑΞΕ
         bucket := t.hashFunc(key, t.buckets)
         for idx, kvp := range t.data[bucket] {
             if key == kvp.Key {
@@ -235,17 +255,18 @@ apply them to the types that need to be constructed.
         return zero, false
     }
 
-After the type name in the receiver, add the square brackets and the generic
-types K and V. No other code changes are required.
+Μετά το όνομα του τύπου στον λήπτη μεθόδου, προστίθενται αγκύλες και οι τύποι γενικού προγραμματισμού
+K και V. Δεν απαιτούνται άλλες αλλαγές στον κώδικα. 
 
-This is a small program to test the hash table implementation.
+Παρακάτω, ακολουθεί ένα μικρό πρόγραμμα, που ελέγχει την υλοποίηση του πίνακα κατακερματισμού. 
 
     func main() {
         const buckets = 8
         . . .
     }
 
-Start with a constant that defines the number of buckets to use in the hash table.
+Κανείς, ξεκινάει με μια σταθερά η οποία ορίζει το πλήθος των θέσεων αποθήκευσης προς χρήση, στον
+πίνακα κατακερματισμού.
 
     import (
         "hash/fnv"
@@ -263,13 +284,14 @@ Start with a constant that defines the number of buckets to use in the hash tabl
         . . .
     }
 
-Next, declare a hash function that declares a string for the key. The
-implementation uses the fnv package from the standard library which implements
-the FNV-1 and FNV-1a, non-cryptographic hash functions created by Glenn Fowler,
-Landon Curt Noll, and Phong Vo. FNV stands for the Fowler-Noll-Vo hash function.
+Στην συνέχεια, δηλώνεται η συνάρτηση κατακερματισμού, η οποία δηλώνει, με την σειρά 
+της, μια συμβολοσειρά ως κλειδί. Η υλοποίηση χρησιμοποιεί το πακέτο fnv, από την 
+βασική βιβλιοθήκη, το οποίο υλοποιεί τις μη κρυπτογραφικές συναρτήσεις FNV-1 και FNV-1a, 
+που δημιουργήθηκαν από τον Glenn Fowler, τον Landon Curt Noll, και τον Phong Vo. Το 
+FNV σημαίνει συνάρτηση κατακερματισμού των Fowler-Noll-Vo.
 
-The modulus operation with the buckets value forces the final value to fall within
-the range for the number of buckets.
+Εφαρμόζοντας τον τελεστή υπολοίπου (modulus) στην τιμή της θέσης αποθήκευσης, αναγκάζεται
+έτσι η τελική τιμή να βρίσκεται εντός του εύρους των διαθέσιμων θέσεων αποθήκευσης.
 
     import (
         "hash/fnv"
@@ -283,12 +305,13 @@ the range for the number of buckets.
         . . .
     }
 
-Next, construct a hash table, explicitly stating that the key will be of type string
-and the value of type int. There is nothing in the input parameters that can help the
-compiler infer this information.
+Στην συνέχεια, δημιουργείται ένας πίνακας κατακερματισμού, δηλώνοντας ρητά ότι το 
+κλειδί θα είναι τύπου συμβολοσειράς και η τιμή τύπου ακεραίου. Δεν υπάρχει τίποτα 
+στις παραμέτρους εισόδου, που να διευκολύνει τον μεταγλωττιστή, να συνάγει αυτές τις
+πληροφορίες.
 
-To show the nature of the hash table being generic, defined a second hash
-function and table.
+Προκειμένου να παρουσιαστεί η φύση γενικού προγραμματισμού του πίνακα κατακερματισμού, 
+παρακάτω ορίζεται μια δεύτερη συνάρτηση και ένας δεύτερος πίνακας κατακερματισμού.
 
     import (
         "hash/fnv"
@@ -306,10 +329,11 @@ function and table.
         . . .
     }
 
-This hash function declares an integer for the key and performs a simple modulus
-operation with the bucket value against the key. Then a new table is constructed
-where the key is specified to be an integer and the value a string. The reverse of
-the first table.
+Αυτή η συνάρτηση κατακερματισμού, δηλώνει έναν ακέραιο για το κλειδί και πραγματοποιεί
+μια απλή πράξη υπολοίπου με την τιμή της θέσης αποθήκευσης και την τιμή του κλειδιού. 
+Στην συνέχεια κατασκευάζεται ένας νέος πίνακας, όπου προσδιορίζεται ότι το κελιδί θα είναι
+ακέραιος και η τιμή συμβολοσειρά. Πρόκειται για την αντίστροφη διάταξη, από αυτή του πρώτου
+πίνακα.
 
 
     import (
@@ -334,7 +358,7 @@ the first table.
         }
     }
 
-Output:
+Αποτέλεσμα:
 
     t1.Rtr(foo) = (0, true)
     t2.Rtr(0) = (foo, true)
@@ -345,5 +369,4 @@ Output:
     t1.Rtr(nope!) = (0, false)
     t2.Rtr(3) = (, false)
 
-Finally write some code to store and retrieve values from the two respective
-tables.
+Τέλος, ο παραπάνω κώδικας αποθηκεύει και ανασύρει τιμές, από τους δύο αντίστοιχους πίνακες.
