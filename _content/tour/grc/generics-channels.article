@@ -1,35 +1,36 @@
-Channels
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+Κανάλια Επικοινωνίας
+Εξερεύνηση του τρόπου με τον οποίο η ομάδα της Go θα μπορούσε να προσθέσει ένα πακέτο με πρότυπα ταυτόχρονης εκτέλεσης, στην βασική βιβλιοθήκη, εξαιτίας της δυνατότητας γενικού προγραμματισμού.
 
-* Generics - Channels
+* Γενικός Προγραμματισμός - Κανάλια Επικοινωνίας
 
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+Εξερεύνηση του τρόπου με τον οποίο η ομάδα της Go θα μπορούσε να προσθέσει ένα πακέτο με πρότυπα ταυτόχρονης εκτέλεσης, στην βασική βιβλιοθήκη, εξαιτίας της δυνατότητας γενικού προγραμματισμού.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Κανείς, μπορεί να παρακολουθήσει την ομιλία του Bill Kennedy, σχετικά με τον Γενικό Προγραμματισμό,
+που παρουσιάζει λεπτομερώς όλα τα παραδείγματα αυτής της ενότητας της Επισκόπησης.
 
 .html generics-video.html
 
-** Code Review
+** Επισκόπηση Κώδικα 
 
-- *Example* *1*: Work Function
-- *Example* *2*: Pooling
+- *Παράδειγμα* *1*: Συνάρτηση Εργασίας
+- *Παράδειγμα* *2*: Συγκέντρωση Πόρων για Εργασίες
 
 .play generics/channels/example1.go
 .play generics/channels/example2.go
 
-** Explained
+** Επεξηγήσεις
 
-This would require declaring channels and functions using generic types.
+Κάτι τέτοιο, θα απαιτούσε την δήλωση καναλιών επικοινωνίας και συναρτήσεις, που χρησιμοποιούν 
+τύπους γενικού προγραμματισμού.
 
     type workFn[Result any] func(context.Context) Result
 
-In this example, a type is declared that represents a function which accepts a context
-and returns a value of generic type Result. This function declaration describes a
-function that implements the concurrent work that will be performed and the result
-of that work.
+Σε αυτό το παράδειγμα, δηλώνεται ένας τύπος, που αντιπροσωπεύει μια συνάρτηση, η οποία
+δέχεται έναν Context και επιστρέφει μια τιμή του τύπου γενικού προγραμματισμού Result. 
+Αυτή η δήλωση συνάρτησης, περιγράφει μια συνάρτηση, η οποία υλοποιεί την εργασία ταυτόχρονης
+εκτέλεσης, που θα πραγματοποιηθεί, καθώς και το αποτέλεσμα αυτής της εργασίας. 
 
     func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
         ch := make(chan Result, 1)
@@ -42,18 +43,22 @@ of that work.
         return ch
     }
 
-Now write a function named doWork that executes the specified work function
-concurrently and returns a channel so the caller can receive the result of the work
-performed by the work function. A generic type named Result is declared to
-represent the return type for the work function and the type for the channel.
+Στην συνέχεια, ακολουθεί η συγγραφή μια συνάρτησης με το όνομα doWork, η οποία εκτελεί
+ταυτόχρονα την συγκεκριμένη συνάρτηση work και επιστρέφει ένα κανάλι επικοινωνίας, 
+ώστε ο καλών να μπορεί να παραλάβει το αποτέλεσμα της εργασίας, που πραγματοποιήθηκε 
+από την συνάρτηση work. Δηλώνεται επίσης ένας τύπος γενικού προγραμματισμού με το 
+όνομα Result, προκειμένου να αντιπροσωπεύσει τον τύπο επιστροφής της συνάρτησης work 
+καθώς και τον τύπο του καναλιού επικοινωνίας.
 
-In the implementation of the doWork function, a buffered channel of one is
-constructed of generic type Result. That’s the channel returned to the caller to
-receive the result of the concurrent work. In the middle of the function, a goroutine
-is constructed to execute the work function concurrently. Once the work function
-returns, the return argument is sent back to the caller through the channel.
+Στην υλοποίηση της συνάρτησης doWork, δημιουργείται ένα κανάλι επικοινωνίας, με ενδιάμεση 
+μνήμη μεγέθους ένα και τύπο γενικού προγραμματισμού Result. Πρόκειται για το κανάλι που
+επιστρέφεται στον καλώντα, προκειμένου να παραλάβει το αποτέλεσμα της εργασίας, που εκτελείται
+ταυτόχρονα. Στην μέση αυτής της συνάρτησης δημιουργείται μια goroutine, προκειμένου να 
+εκτλέσει την συνάρτηση work, ταυτόχρονα. Όταν αυτή η συνάρτηση work επιστρέφει, το όρισμα 
+επιστροφής αποστέλλεται πίσω στον καλώντα, μέσω του καναλιού επικοινωνίας.
 
-To test the use of the doWork function, build a small program.
+Προκειμένου να ελεγχθεί η χρήση της συνάρτησης doWork, δημιουργείται το ακόλουθο, μικρό 
+πρόγραμμα. 
 
     func main() {
         duration := 100 * time.Millisecond
@@ -76,34 +81,38 @@ To test the use of the doWork function, build a small program.
         }
     }
 
-Output:
+Αποτέλεσμα:
 
     doWork : work complete
     main: work complete
 
-The program starts by declaring a context that will timeout in 100 milliseconds.
-Then a work function is declared that waits for up to 200 milliseconds before
-returning the string, "work complete". With the context and the work function in
-place, a call to doWork is made and a channel of type string is returned and
-assigned to the variable result.
+Το πρόγραμμα ξεκινάει δηλώνοντας μια Context, η οποία έχει χρόνο timeout 100 millisecond,
+μετά το πέρας του οποίου, λήγει. Στην συνέχεια, δηλώνεται μια συνάρτηση εργασίας, η οποία
+περιμένει μέχρι και 200 millisecond, πρωτού επιστρέψει την συμβολοσειρά "work complete". 
+Έχοντας κανείς την μεταβλητή τύπου Context και την συνάρτηση εργασίας, μπορεί να πραγματοποιηθεί 
+μια κλήση στην doWork και στην συνέχεια επιστρέφεται ένα κανάλι τύπου συμβολοσειράς, που εκχωρείται
+στην μεταβλητή result.
 
-The compiler is able to determine the concrete type to use for the generic type
-Result by inspecting the return type of the literal work function that is passed into
-the doWork function. This is brilliant because it means you didn’t have to pass the type
-in on the call to doWork.
+Ο μεταγλωττιστής είναι ικανός να προσδιορίσει τον πραγματικό τύπο, που πρέπει να χρησιμοποιήσει 
+για τον τύπο γενικού προγραμματισμού Result, επιθεωρώντας τον τύπο επιστροφής της ρητής συνάρτησης 
+εργασίας, που περνάει στην συνάρτηση doWork. Αυτό, είναι εξαιρετικό, επειδή σημαίνει ότι, δεν χρειαζόταν 
+να περάσει ο τύπος, στην κλήση της doWork.
 
-With the channel of type string assigned to the variable result, a select case is used
-to wait for the result to be returned on time, or for the timeout to occur. The
-doWork function can be used to perform this concurrent work for any concrete type
-required.
+Έχοντας πραγματοποιηθεί η εκχώρηση στην μεταβλήτη result του καναλιού επικοινωνίας 
+τύπου συμβολοσειράς, στην συνέχεια χρησιμοποιείται μια δήλωση select επιλογής περιπτώσεων, 
+προκειμένου να πραγματοποιηθεί αναμονή, ώστε να επιστραφεί το αποτέλεσμα στην result εγκάιρως ή 
+να συμπληρωθεί ο χρόνος για το timeout. Η συνάρτηση doWork μπορεί να χρησιμοποιηθεί, προκειμένου 
+να πραγματοποιήσει την εργασία με ταυτόχρονη εκτέλεση, για κάθε πραγματικό τύπο, για τον οποίο 
+απιτείται κάτι τέτοιο. 
 
-This same idea could be applied to a pool of goroutines that could execute work on
-a generic input and return a generic result.
+Η ίδια ιδέα θα μπορούσε να εφαρμοστεί σε ένα διαθέσιμο αριθμό από goroutine, οι οποίες θα μπορούσαν 
+να εκτελέσουν εργασίες σε είσοδο γενικού προγραμματισμού και να επιστρέψουν ένα αποτέλεσμα γενικού 
+προγραμματισμού.
 
 type workFn[Input any, Result any] func(input Input) Result
 
-In this example, change the function type to accept a generic input and return a
-generic result.
+Σε αυτό το παράδειγμα, γίνεται αλλαγή στον τύπο της συνάρτησης, προκειμένου να δέχεται μια είσοδο
+γενικού προγραμματισμού και να επιστρέφει ένα αποτέλεσμα γενικού προγραμματισμού.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
         var wg sync.WaitGroup
@@ -129,18 +138,23 @@ generic result.
         return ch, cancel
     }
 
-In the poolWork function, the same two generic types are declared to represent the
-input and return type for the work function. A WaitGroup is constructed to manage
-the lifecycle of the Goroutines in the pool. Then a channel is constructed of the
-generic Input type. This channel is used by the Goroutines in the pool to receive the
-input data for the work function.
+Στην συνάρτηση poolWork, δηλώνονται οι δύο ίδιοι τύποι γενικού προγραμματισμού, 
+προκειμένου να αντιπροσωπεύσουν τον τύπο εισόδου αλλά και τον τύπο επιστροφής 
+της συνάρτησης εργασίας. Επίσης, δημιουργείται μια μεταβλητή τύπου WaitGroup, 
+προκειμένου να διαχειριστεί τον κλυκλο ζωής των Goroutine, που είναι διαθέσιμες.
+Τέλος, δημιουργείται ένα κανάλι επικοινωνίας του τύπου γενικού προγραμματισμού 
+Input. Αυτό το κανάλι επικοινωνίας χρησιμοποιείται από τις διαθέσιμες Goroutine 
+προεκειμένου να παραδίδει τα δεδομένα εισόδου για την κάθε συνάρτηση εργασίας.
 
-Then the pool of Goroutines are created with each Goroutine waiting in a receive
-operation using a for-range loop against the channel. Finally, a cancel function is
-constructed to allow the caller to shutdown the pool and wait for all the Goroutines
-to signal they have terminated.
+Στην συνέχεια δημιουργείται ο κατάλληλος αριθμός Goroutine, με κάθε μια από τις 
+διαθέσιμες Goroutine, κάνοντας χρήση της επανάληψης for-range στο κανάλι επικοινωνίας,
+να περιμένει σε μια λειτουργία παραλαβής. Τέλος, δημιουργείται μια συνάρτηση 
+cancel, προκειμένου να επιτρέψει στον καλώντα να τερματίσει τις διαθέσιμες Goroutine 
+και να περιμένει, έως ότου όλες σηματοδοτήσουν ότι, έχουν τερματίσει την λειτουργία
+τους.
 
-To test the use of the poolWork function, built a second small program.
+Προεκειμένου να ελεγχθεί η συνάρτηση poolWork, κατασκευάζεται το ακόλουθο μικρό 
+πρόγραμμα. 
 
     func main() {
         size := runtime.GOMAXPROCS(0)
@@ -158,21 +172,23 @@ To test the use of the poolWork function, built a second small program.
         }
     }
 
-Output:
+Αποτέλεσμα:
 
     pollWork : 3 : received
     pollWork : 2 : received
     pollWork : 1 : received
     pollWork : 0 : received
 
-The size of the pool is calculated based on the number of Goroutines that can run in
-parallel. Then a work function is constructed to sleep for a random amount of time
-and then return a string that represents the input.
+Το πλήθος των διαθέσιμων Goroutine, υπολογίζεται με βάση τον αριθμό Goroutine, που μπορεί
+να εκτελεστούν ταυτόχρονα. Στην συνέχεια, δημιουργείται μια συνάρτηση εργασίας, προκειμένου 
+να αναμένει, για ένα τυχαίο χρονικό διάστημα και στην συνέχεια να επιστρέψει μια συμβολοσειρά 
+που αντιπροσωπεύει την είσοδο.
 
-With that in place, the poolWork function is executed and the channel and cancel
-function returned. The cancel function is deferred and a loop is constructed to send
-4 values into the pool. The output will be different each time you run the program
-since this work is happening concurrently.
+Έχοντας κάτι τέτοιο διαθέσιμο, η συνάρτηση poolWork εκτελείται και επιστρέφονται, το κανάλι 
+επικοινωνίας, καθώς και η συνάρτηση cancel. Η συνάρτηση cancel καλείται, προκειμένου να εκτελεστεί 
+με καθυστέρηση (defer) και δημιουργείται μια επαναληπτική προσπέλαση, προκειμένου να αποσταλούν 4
+τιμές στις διαθέσιμες Goroutines. Το αποτέλεσμα θα είναι διαφορετικό κάθε φορά που εκτελείται το 
+πρόγραμμα καθώς οι εργασίες πραγματοποιούνται με ταυτόχρονη εκτέλεση.
 
-These little examples provide some insight into how a concurrent package could be
-implemented.
+Αυτά τα μικρά παραδείγματα παρέχουν μια μικρή εικόνα, για τον τρόπο με τον οποίο, ένα πακέτο ταυτόχρονης
+εκτέλεσης θα μπορούσε να υλοποιηθεί.
