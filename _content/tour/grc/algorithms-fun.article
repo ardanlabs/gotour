@@ -1,22 +1,23 @@
-Fun Problems
-This section contains a set fun code challenges that showcase some of the capabilities offered by Go.
+Διασκεδαστικά Προβλήματα
+Αυτό το τμήμα περιέχει ένα σύνολο διασκεδαστικών προκλήσεων κώδικα, που επιδεικνύουν κάποιες από τις δυνατότητες, που προσφέρει η Go.
 
-* Sleeping Barber Problem
+* Πρόβλημα Κοιμώμενου Κουρέα
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Παρακολουθήστε το Video]]
+- Εάν Χρειάζεστε Οικονομική Συνδρομή, Χρησιμοποιείστε το σχετικό [[https://www.ardanlabs.com/scholarship/][Έγγραφο Υποτροφίας]]
 
-This sample program implements the sleeping barber problem.
+Αυτό το παράδειγμα προγράμματος, υλοποιεί το πρόβλημα του κοιμώμενου κουρέα.
 
-- See more at [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+- Περισσότερες πληροφορίες στο [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-There is one barber in the barber shop, one barber chair and `n` chairs for
-waiting customers. If there are no customers, the barber sits down in the
-barber chair and takes a nap. An arriving customer must wake the barber.
-Subsequent arriving customers take a waiting chair if any are empty or
-leave if all chairs are full.
+Υπάρχει ένας κουρέας στο κουρείο, μια καρέκλα για κούρεμα και `n` καρέκλες
+για πελάτες σε αναμονή, να εξυπηρετηθούν. Αν δεν υπάρχουν πελάτες, ο κουρέας
+κάθεται στην καρέκλα για κούρεμα και παίρνει έναν υπνάκο. Ένας νέος πελάτης
+πρέπει να ξυπνήσει τον κουρέα. Οι επόμενοι πελάτες περιμένουν στις καρέκλες, που
+είναι διαθέσιμες για αναμονή, αν υπάρχουν ακόμα άδειες ή φεύγουν, αν όλες οι 
+καρέκλες είναι γεμάτες.
 
-*Output:*
+*Αποτέλεσμα:*
 
     Opening the shop
     Barber ready to work
@@ -42,37 +43,41 @@ leave if all chairs are full.
 
 .play algorithms/fun/barber.go
 
-* Frequency
+* Συχνότητα
 
-This sample programs shows you how to implement a function that can find
-the frequency of a given rune that is used in a specified sentence.
+Αυτό το παράδειγμα προγράμματος παρουσιάζει πως να υλοποιηθεί μια 
+συνάρτηση, η οποία μπορεί να βρει την συχνότητα εμφάνισης ενός rune,
+που χρησιμοποιείται σε συγκεκριμένη πρόταση.
 
-- Sequential: A linear algorithm to perform a rune count.
-- Concurrent: A concurrent algorithm to perform a rune count.
+- Σειριακή: Ένας γραμμικός αλγόριθμος, που πραγματοποιεί την μέτρηση των rune.
+- Ταυτόχρονη: Ένας αλγόριθμος ταυτόχρονης εκτέλεσης, που πραγματοποιεί την μέτρηση των rune.
 
 .play algorithms/fun/freq_sequential.go
 .play algorithms/fun/freq_concurrent.go
 
-*  Variable Length Quantity encoding/decoding.
+* Κωδικοποίηση/Αποκωδικοποίηση Ποσότητας Μεταβλητού Μήκους.
 
-This sample program showcases how Go can be leveraged to implement variable length quantity encoding/decoding.
+Αυτό το παράδειγμα προγράμματος, επιδεικνύει πως η Go μπορεί να χρησιμοποιηθεί, προκειμένου να 
+υλοποιηθεί κωδικοποίηση/αποκωδικοποίηση ποσότητας μεταβλητού μήκους.
 
-- See more at [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+- Περισσότερες πληροφορίες στο [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-In short, the goal of this encoding is to save encode integer values in
-a way that would save bytes. Only the first 7 bits of each byte is significant
-(right-justified; sort of like an ASCII byte). So, if you have a 32-bit value,
-you have to unpack it into a series of 7-bit bytes. Of course, you will have
-a variable number of bytes depending upon your integer. To indicate which
-is the last byte of the series, you leave bit #7 clear. In all of the
-preceding bytes, you set bit #7.
+Εν συντομία, ο στόχος αυτής της κωδικοποίησης είναι η κωδικοποίηση ακέραιων
+τιμών με τέτοιο τρόπο, ώστε να εξοικονομηθούν byte. Μόνο τα πρώτα 7 bit κάθε
+byte είναι σημαντικά (δεξιά στοίχιση, περίπου όπως συμβαίνει και με ένα byte
+κωδικοποίησης ASCII). Συνεπώς, αν κανείς έχει μια τιμή 32-bit, πρέπει να την 
+αναλύσει σε μια σειρά από byte 7-bit. Ασφαλώς, θα υπάρχει ένα μεταβλητό πλήθος 
+byte, που θα εξαρτάται από τον συγκεκριμένο ακέραιο. Προκειμένου να υποδειχθεί
+ποιό είναι το τελευταίο byte στην σειρά, κανείς αφήνει το 7ο bit καθαρό. Σε 
+όλα τα προηγούμενα byte, το 7ο bit λαμβάνει τιμή.
 
-So, if an integer is between 0-127, it can be represented as one byte. The
-largest integer allowed is 0FFFFFFF, which translates to 4 bytes variable
-length. Here are examples of delta-times as 32-bit values, and the variable
-length quantities that they translate to:
+Επομένως, αν ένας ακέραιος βρίσκεται μεταξύ των 0-127, μπορεί να αναπαρασταθεί
+ως ένα byte. Ο μεγαλύτερος ακέραιος που επιτρέπεται είναι ο 0FFFFFFF, που 
+μεταφράζεται σε μεταβλητό μήκος 4 byte. Παρακάτω, παρουσιάζονται παραδείγματα 
+διαφορών χρόνου ως τιμές 32-bit, καθώς και οι ποσότητες μεταβλητού μήκους, στις 
+οποίες αυτές μεταφράζονται:
 
-    NUMBER        VARIABLE QUANTITY
+    ΑΡΙΘΜΟΣ        ΜΕΤΑΒΛΗΤΗ ΠΟΣΟΤΗΤΑ
     00000000              00
     00000040              40
     0000007F              7F
@@ -86,13 +91,14 @@ length quantities that they translate to:
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-A variable-length quantity (VLQ) is a universal code that uses an arbitrary
-number of binary octets (eight-bit bytes) to represent an arbitrarily large
-integer. It was defined for use in the standard MIDI file format[1] to save
-additional space for a resource constrained system, and is also used in the
-later Extensible Music Format (XMF). A VLQ is essentially a base-128
-representation of an unsigned integer with the addition of the eighth bit
-to mark continuation of bytes. See the example below.
+Μια ποσότητα μεταβλητού μήκους (VLQ) είναι ένας γενικός τρόπος κωδικοποίησης, 
+που χρησιμοποιεί ένα αυθαίρετο αριθμό δυαδικών οκτάδων (byte αποτελούμενα από οκτώ bit), 
+προκειμένου να αναπαρασταθεί ένας αυθαίρετα μεγάλος αριθμός. Είχε οριστεί, προκειμένου να
+χρησιμοποιηθεί στην προδιαγραφή αρχείων MIDI[1], ώστε να εξοικονομηθεί ο πρόσθετος 
+χώρος, σε κάποιο σύστημα με περιορισμούς πόρων και είναι επίσης σε χρήση στον μετέπειτα 
+τύπο αρχείου Επεκτάσιμης Διαμόρφωσης Μουσικής (XMF). Ένα VLQ είναι ουσιαστικά μια 
+αναπαράσταση βάσης 128, ενός ακέραιου χωρίς πρόσημο, με την προσθήκη του όγδοου bit να 
+σηματοδοτεί την συνέχιση των byte. Περισσότερα, στο παρακάτω παράδειγμα.
 
 	Int:    16384
 	IntHex: 0x00004000
@@ -100,31 +106,34 @@ to mark continuation of bytes. See the example below.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Lets say I want to represent the number 3435 in VLQ. 3435 in
-binary is 110101101011. We can not fit this in a byte. So we will
-chop it up from the end in 7-bit blocks.
+Έστω ότι κανείς, θέλει να αναπαραστήσει τον αριθμό 3435 με VLQ. Το 3435 σε
+στο δυαδικό σύστημα είναι 110101101011. Αυτό δεν χωράει σε ένα byte. Επομένως,
+θα κοπεί από το τέλος σε τμήματα των 7 bit.
 
-    Septet	7	6	5	4	3	2	1
+    Επτάδα	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-Now we prepend all but the last with a 1-bit to indicate that an octet
-follows and prepend a 0-bit to the last, signalling the final octet.
+Στην συνέχεια, προστίθεται στην αρχή σε όλες, εκτός από την τελευταία επτάδα, 
+η τιμή 1-bit, προκειμένου να σηματοδοτηθεί ότι ακολουθεί μια ακόμα οχτάδα, 
+ενώ προστίθεται στην αρχή της τελευταίας επτάδας η τιμή 0-bit, που σηματοδοτεί 
+ότι πρόκειται για την τελευταία οκτάδα. 
 
-    Octet   8	7	6	5	4	3	2	1
-    #1      0	1	1	0	1	0	1	1
-    #2      1	0	0	1	1	0	1	0
+    Οκτάδα   8	7	6	5	4	3	2	1
+    #1       0	1	1	0	1	0	1	1
+    #2       1	0	0	1	1	0	1	0
 
-Finally we concatenate them, most significant octet first, into
+Τέλος, οι διαθέσιμες οκτάδες συνδέονται στην σειρά, με την πιο σημαντική οκτάδα
+πρώτη, και γίνονται
 
-Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
+Κωδικοποίηση: 10011010 01101011  Δεκαεξαδικό: 0x9A 0x6B
 
-*Extra* *Resources:*
+*Πρόσθετοι* *Πόροι:*
 
 - [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
 - [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
-*For* *an* *excellent* *implementation* *of* *this* *algorithm* *look* *here:*
+*Για* *μια* *εξαιρετική* *υλοποίηση* *του* *αλγόριθμου* *κανεί* *μπορεί* *να* *επισκεφθεί:*
 
 - [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
