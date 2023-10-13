@@ -15,7 +15,7 @@ Ada juga batasan antara Goroutines yang akan dipelajari lebih lanjut nanti.
 - *Contoh* *1:* Pemberian Nilai
 - *Contoh* *2:* Berbagi Nilai I
 - *Contoh* *3:* Berbagi Nilai II
-- *Contoh* *4:* Analisis Lepas
+- *Contoh* *4:* Escape Analysis
 - *Contoh* *5:* Pertumbuhan Stack
 
 .play pointers/example1.go
@@ -33,7 +33,7 @@ Setiap Goroutine diberikan blok memori sendiri yang disebut stack.
 Setiap stack dimulai dengan alokasi sebesar 2048 byte (2k).
 Meskipun ukurannya sangat kecil, tumpukan dapat tumbuh seiring berjalannya waktu.
 
-.image /tour/eng/static/img/p1.png
+.image /tour/ind/static/img/p1.png
 
 Setiap kali sebuah fungsi dipanggil, sebagian blok dari stack diambil untuk membantu Goroutine
 menjalankan instruksi yang terkait dengan fungsi tersebut. Setiap blok memori individual disebut sebagai frame.
@@ -194,7 +194,7 @@ melainkan harus terjadi di dalam heap. Ini mengakibatkan alokasi.
 Pikirkan apa yang akan terjadi jika nilai user dalam contoh terakhir dibangun di dalam stack
 ketika menggunakan semantik pointer pada pengembalian.
 
-.image /tour/eng/static/img/p2.png
+.image /tour/ind/static/img/p2.png
 
 Pemanggil akan mendapatkan salinan alamat stack dari frame di bawahnya dan integritas akan hilang.
 Begitu kendali kembali ke fungsi pemanggil, memori di stack di mana nilai user ada dapat digunakan kembali.
@@ -225,9 +225,9 @@ Ini tidak mengubah semantik yang dijelaskan dalam bab ini.
 
 ** Catatan
 
-- Ketika sebuah nilai dapat diacu setelah fungsi yang membangun nilai tersebut mengembalikan nilai.
+- Ketika suatu nilai dapat direferensikan setelah fungsi yang membangun nilai tersebut mengembalikan nilai.
 - Ketika kompilator menentukan bahwa sebuah nilai terlalu besar untuk muat di dalam stack.
-- Ketika kompiler tidak mengetahui ukuran sebuah nilai pada saat kompilasi.
+- Ketika kompilator tidak mengetahui ukuran sebuah nilai pada saat kompilasi.
 - Ketika sebuah nilai diuraikan melalui penggunaan fungsi atau nilai antarmuka.
 
 ** Garbage Collection Semantics
@@ -248,7 +248,7 @@ and is reclaimed by a sometimes costly garbage collection." - Ayan George
 ** Pertumbuhan Stack
 
 Ukuran setiap frame untuk setiap fungsi dihitung pada waktu kompilasi.
-Ini berarti jika kompiler tidak mengetahui ukuran sebuah nilai pada waktu kompilasi,
+Ini berarti jika kompilator tidak mengetahui ukuran sebuah nilai pada waktu kompilasi,
 nilai tersebut harus dibangun di dalam heap.
 Contoh dari hal ini adalah penggunaan fungsi bawaan "make" untuk membuat sebuah slice
 yang ukurannya bergantung pada sebuah variabel.
@@ -329,9 +329,9 @@ dan "nilai yang ditunjuk oleh pointer" (value that the pointer points to).
 
 ** Latihan 2
 
-Mendeklarasikan tipe data struct dan membuat sebuah nilai dari tipe data tersebut.
-Mendeklarasikan sebuah fungsi yang dapat mengubah nilai dari salah satu field dalam tipe data struct ini.
-Menampilkan nilai sebelum dan setelah panggilan ke fungsi tersebut.
+Deklarasikan tipe data struct dan buatlah sebuah nilai dari tipe data tersebut.
+Deklarasikan sebuah fungsi yang dapat mengubah nilai dari salah satu field dalam tipe data struct ini.
+Tampilkan nilai sebelum dan setelah panggilan ke fungsi tersebut.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go
