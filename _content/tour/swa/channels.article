@@ -1,29 +1,28 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
-
-* Channels
+Channels(Vituo)
+Vituo huruhusu goroutines kuwasiliana na kila mmoja kwa kutumia semantiki za kuashiria.
+* Vituo
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- Unahitaji Usaidizi wa Kifedha, Jaza hapa [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+Ni muhimu kufikiria chaneli si kama muundo wa data, lakini kama fundi wa
+kuashiria. Hii inaendana na wazo kwamba unatuma na kupokea kutoka kwa kituo,
+si kusoma na kuandika. Ikiwa shida iliyo mbele yako haiwezi kutatuliwa kwa kuashiria,
+ikiwa neno kuashiria halitoki kinywani mwako, unahitaji kuhoji matumizi ya
+njia.
 
-** Code Review
+** Ukaguzi wa Code 
 
-- *Example* *1:* Wait for result
-- *Example* *2:* Fan out
-- *Example* *3:* Wait for task
-- *Example* *4:* Pooling
-- *Example* *5:* Fan out semaphore
-- *Example* *6:* Bounded work pooling
-- *Example* *7:* Drop
-- *Example* *8:* Cancellation
-- *Example* *9:* Retry timeout
-- *Example* *10:* Channel cancellation
+- *Mfano* *1:* Kungojea matokeo
+- *Mfano* *2:* Fanya feni
+- *Mfano* *3:* Subiri kazi
+- *Mfano* *4:* Pooling(Kuunganisha)
+- *Mfano* *5:* semaphore ya Nje
+- *Mfano* *6:* Ushirikiano wa kazi uliofungwa
+- *Mfano* *7:* Acha
+- *Mfano* *8:* Cancellation(Kughairi)
+- *Mfano* *9:* Jaribu tena muda umeisha
+- *Mfano* *10:* Kughairiwa kwa kituo
 
 .play channels/example1.go
 .play channels/example2.go
@@ -36,104 +35,104 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** Mitambo ya Channels
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+Gharama ya kuwa na dhamana katika kiwango cha kuashiria haijulikani latency. The
+mtumaji hatajua ni muda gani wanahitaji kusubiri kwa mpokeaji kukubali ishara.
+Kusubiri kwa mpokeaji hutengeneza muda wa kuzuia. Katika kesi hii, haijulikani
+kiasi cha kuzuia utulivu. Mtumaji anapaswa kusubiri, kwa muda usiojulikana,
+mpaka mpokeaji atakapopatikana ili kupokea ishara.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+Kusubiri kwa mpokeaji kunamaanisha kiufundi, operesheni ya kupokea hufanyika hapo awali
+kutuma. Kwa njia, upokeaji hutokea nanoseconds hapo awali, lakini ni hapo awali.
+Hii ina maana kwamba mpokeaji huchukua ishara na kisha anaondoka, akimruhusu mtumaji
+ili sasa kuendelea na dhamana.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+Je, ikiwa mchakato hauwezi kusubiri muda usiojulikana? Nini kama aina hiyo
+latency haitafanya kazi? Kisha dhamana haiwezi kuwa katika kiwango cha kuashiria, inahitaji
+kuwa nje yake. Mitambo nyuma ya utendakazi huu ni kwamba kutuma sasa kunafanyika
+kabla ya kupokea. Mtumaji anaweza kutekeleza ishara bila kuhitaji mpokeaji
+kupatikana. Hivyo mtumaji anapata kutembea na si kusubiri. Hatimaye, unatumaini,
+mpokeaji anaonyesha na kuchukua ishara.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+Hii inapunguza gharama ya kusubiri wakati wa kutuma, lakini inaleta kutokuwa na uhakika kuhusu mawimbi
+kupokelewa na kwa hivyo kujua kama kuna matatizo ya juu ya mkondo na wapokeaji.
+Hii inaweza kuunda mchakato wa kukubali kazi ambayo haianzishi wala kumalizika. Ni
+hatimaye inaweza kusababisha shinikizo kubwa la mgongo na mifumo kuanguka.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+Jambo la pili la kuzingatia ni, unahitaji kutuma data na ishara? Ikiwa ishara
+inahitaji uwasilishaji wa data, basi kuashiria ni 1 hadi 1 kati ya Goroutines.
+Ikiwa Goroutine mpya inahitaji kupokea ishara pia, ishara ya pili inapaswa kutumwa.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+Ikiwa data haihitaji kupitishwa kwa ishara, basi ishara inaweza kuwa 1 kwa
+1 au 1 hadi nyingi kati ya Goroutines. Kuashiria bila data kimsingi hutumika kwa
+kughairi au kuzima. Inafanywa kwa kufunga kituo.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+Jambo la tatu la kuzingatia ni hali ya kituo. Kituo kinaweza kuwa katika jimbo 1 kati ya 3.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+Chaneli inaweza kuwa katika hali ya kutokuwepo kwa kuunda chaneli hadi hali yake ya sifuri.
+Inatuma na kupokea dhidi ya vituo katika hali hii itazuia. Hii ni nzuri kwa hali
+ambapo unataka kutekeleza kusimamishwa kwa kazi kwa muda mfupi.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+Chaneli inaweza kuwa katika hali wazi kwa kutumia kitendakazi kilichojengewa ndani. Inatuma na
+inayopokea dhidi ya chaneli katika hali hii itafanya kazi chini ya masharti yafuatayo:
 
-*Unbuffered* *Channels:*
+*Hazina Buffer* *Channeli:*
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+- Dhamana katika kiwango cha kuashiria na kupokea kutokea kabla ya kutuma. Inatuma
+na kupokea Goroutines haja ya kuja pamoja katika nafasi sawa na wakati kwa ajili ya
+ishara ya kushughulikiwa.
 
-*Buffered* *Channels:*
+*Zina Buffer* *Channeli:*
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+- Hutoa dhamana nje ya kiwango cha kuashiria na kutuma kutendeka kabla ya
+kupokea. Ikiwa bafa haijajaa, kutuma kunaweza kukamilisha vinginevyo watazuia. Ikiwa
+buffer si tupu, kupokea inaweza kukamilisha vinginevyo wao kuzuia.
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+Kituo kinaweza kuwa katika hali ya kufungwa kwa kutumia kipengele cha kukokotoa kilichojengewa ndani. Wewe huna
+haja ya kufunga chaneli ili kutoa kumbukumbu, hii ni kwa ajili ya kubadilisha hali. Inatuma
+kwenye kituo kilichofungwa kitasababisha hofu, hata hivyo kupokea kwenye kituo kilichofungwa
+itarudi mara moja.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+Kwa maelezo haya yote, unaweza kuzingatia mifumo ya kituo. Kuzingatia kuashiria
+ni muhimu. Wazo ni kwamba, ikiwa unahitaji dhamana katika kiwango cha kuashiria au la,
+kulingana na wasiwasi wa muda wa kusubiri. Ikiwa unahitaji kusambaza data na ishara au la, kulingana
+juu ya kushughulikia kughairi au la. Unataka kubadilisha sintaksia kuwa semantiki hizi.
 
-** Design Guidelines
+** Miongozo ya Kubuni
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
+- Soma Kuhusu [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][miongozo ya kubuni]] ya Channels.
 
-** Diagrams
+** Michoro
 
-*Guarantee* *Of* *Delivery*
+*Hakikisho * *la* *Uwasilishaji*
 
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+`Dhamana ya Uwasilishaji` inategemea swali moja: “Je, ninahitaji hakikisho kwamba
+ishara iliyotumwa na goroutine fulani imepokewa?"
 
 .image /tour/eng/static/img/guarantee_of_delivery.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*Kuashiria* *Na* *Au* *Bila* *Data*
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+Unapoenda kuashiria `na` data, kuna usanidi wa chaneli tatu
+chaguzi unazoweza kuchagua kulingana na aina ya `dhamana` unayohitaji.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+Kuashiria bila data hutumikia kusudi kuu la kughairi. Inaruhusu moja
+goroutine kuashiria goroutine mwingine kughairi wanachofanya na kuendelea.
+Ughairi unaweza kutekelezwa kwa kutumia njia `zisizo buffered` na `zilizoakibishwa`.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*State(Jimbo)*
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+Tabia ya channel huathiriwa moja kwa moja na `Jimbo` yake ya sasa. The
+hali ya kituo inaweza kuwa `nil`, `wazi` au `imefungwa`.
 
 .image /tour/eng/static/img/state.png
 
-** Extra Reading
+** Usomaji wa Ziada
 
 - [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
 - [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
@@ -144,7 +143,7 @@ state of a channel can be `nil`, `open` or `closed`.
 
 ** Buffer Bloat - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+Kuwa mwangalifu kuhusu kutumia vihifadhi(buffers) vikubwa kwa wazo la kupunguza muda wa kusubiri.
 
 - Large buffers prevent timely notification of back pressure.
 - They defeat your ability to reduce back pressure in a timely matter.
@@ -154,7 +153,7 @@ Be careful about using large buffers with the idea of reducing latency.
 - Use them to handle well defined bursts of data.
 - Use them to deal with speed of light issues between handoffs.
 
-*Videos*
+*Video*
 
 - [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
