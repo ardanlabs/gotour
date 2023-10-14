@@ -1,26 +1,25 @@
-Functions
-Functions are at the core of the language and they provide a mechanism to group and organize our code to separate and distinct pieces of functionality.
+Funkcje
+Funkcje stanowią istotny element języka i dostarczają mechanizmu do grupowania i organizacji kodu w odrębne i wyodrębnione części funkcjonalności.
 
-* Functions
+* Funkcje
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego sprawdź nasz [[https://www.ardanlabs.com/scholarship/][program stypendialny]]
 
-Functions are at the core of the language and they provide a mechanism to group
-and organize our code to separate and distinct pieces of functionality. They can
-be used to provide an API to the packages we write and are a core component to
-concurrency.
+Funkcje stanowią istotny element języka i dostarczają mechanizmu do grupowania i organizacji
+naszego kodu w osobne i wyodrębnione fragmenty funkcjonalności. Funkcje mogą być używane
+do dostarczania API dla tworzonych przez nas pakietów i stanowią kluczowy składnik współbieżności.
 
-Functions in Go play a central role in structuring code and promoting clean,
-maintainable, and efficient software. Understanding how to declare, define, and
-use functions is crucial for writing effective Go programs.
+W języku Go funkcje odgrywają centralną rolę w strukturyzowaniu kodu oraz promują tworzenie czystego,
+zwięzłego i efektywnego oprogramowania. Zrozumienie, jak deklarować, definiować i używać funkcji,
+jest kluczowe dla pisania efektywnych programów w Go.
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1:* Return multiple values
-- *Example* *2:* Blank identifier
-- *Example* *3:* Redeclarations
-- *Example* *4:* Anonymous Functions/Closures
+- *Example* *1:* Zwracanie wielu wartości
+- *Example* *2:* Pusty identyfikator
+- *Example* *3:* Re-deklaracje
+- *Example* *4:* Funkcje anonimowe/Domknięcia
 - *Example* *5:* Recover panics
 
 .play functions/example1.go
@@ -29,39 +28,39 @@ use functions is crucial for writing effective Go programs.
 .play functions/example4.go
 .play functions/example5.go
 
-Functions are a fundamental building block of programs and are used to encapsulate
-and organize code for better modularity and reusability. Functions are blocks of code
-that perform a specific task or a set of related tasks. Here's an overview of
-functions in Go:
+Funkcje stanowią fundamentalny element programów i służą do enkapsulacji oraz organizacji
+kodu w celu uzyskania lepszej modularności i możliwości ponownego użycia. Funkcje to
+bloki kodu, które wykonują określone zadanie lub zestaw powiązanych zadań. Oto przegląd
+funkcji w języku Go:
 
-** Function Declaration
+** Deklaracja funkcji
 
-To declare a function in Go, you use the `func` keyword followed by the
-function name, a list of parameters enclosed in parentheses, and an optional
-return type. The general syntax is:
+Aby zadeklarować funkcję w języku Go, używasz słowa kluczowego func, a następnie podajesz
+nazwę funkcji, listę parametrów zawartą w nawiasach i opcjonalny typ zwracany.
+Ogólna składnia jest następująca:
 
    func functionName(parameter1 type, parameter2 type, ...) return_type {
        // Function body
    }
 
-For example:
+Na przykład:
 
    func add(x int, y int) int {
        return x + y
    }
 
-** Parameters and Return Values
+** Parametry i wartości zwracane
 
-Functions can take zero or more parameters, which are the values passed to the
-function when it is called. Each parameter consists of a name and a type. In
-the example above, `add` takes two integer parameters, `x` and `y`.
+Funkcje mogą przyjmować zero lub więcej parametrów, które są przekazywane do funkcji
+podczas jej wywołania. Każdy parametr składa się z nazwy i typu. W przykładzie
+powyżej funkcja add przyjmuje dwa parametry typu całkowitego, x i y.
 
-Functions can return zero or one value (or none, in which case you can omit the
-return type). The `return` statement is used to specify the value to be returned.
-In the example above, `add` returns an integer.
+Funkcje mogą zwracać zero lub jedną wartość (lub w ogóle nie zwracać, wtedy można
+pominąć typ zwracany). Instrukcja return służy do określenia wartości, która ma
+zostać zwrócona. W przykładzie powyżej funkcja add zwraca wartość całkowitą.
 
-Go allows functions to return multiple values. This is useful in cases where you
-want to return more than one result from a function. For example:
+Go pozwala na zwracanie przez funkcje wielu wartości. Jest to przydatne w przypadkach,
+gdy chcesz zwrócić więcej niż jedną wartość z funkcji. Na przykład:
 
    func divide(x, y float64) (float64, error) {
        if y == 0 {
@@ -70,13 +69,13 @@ want to return more than one result from a function. For example:
        return x / y, nil
    }
 
-In this example, the `divide` function returns both a floating-point result and
-an error (if the division by zero occurs).
+W tym przykładzie funkcja divide zwraca zarówno wynik zmiennoprzecinkowy,
+jak i błąd (jeśli wystąpi dzielenie przez zero).
 
-Go allows you to specify names for the return values in a function's signature.
-Named return values are automatically initialized and can be used as regular
-variables within the function. They are particularly useful when dealing with
-complex functions or error handling. For example:
+Go pozwala określić nazwy wartości zwracanych w sygnaturze funkcji. Nazwane wartości
+zwracane są automatycznie zainicjowane i mogą być używane jako zwykłe zmienne
+wewnątrz funkcji. Są szczególnie przydatne przy pracy z bardziej skomplikowanymi
+funkcjami lub obsługą błędów. Na przykład:
 
    func divide(x, y float64) (result float64, err error) {
        if y == 0 {
@@ -87,20 +86,22 @@ complex functions or error handling. For example:
        return
    }
 
-** Function Calls
+** Wywoływanie funkcji
 
-To call a function in Go, you use the function name followed by a list of arguments
-enclosed in parentheses. If the function has multiple return values, you can capture
-them in variables. For example:
+Aby wywołać funkcję w języku Go, używasz nazwy funkcji, a następnie podajesz
+listę argumentów zawartą w nawiasach. Jeśli funkcja ma wiele wartości zwracanych,
+możesz je przechwycić w zmiennych. Na przykład:
 
-   sum := add(3, 5)            // Call the add function and assign its result to sum
-   result, err := divide(8, 2) // Call the divide function and capture both result and error
+   sum := add(3, 5)            // Wywołaj funkcję add i przypisz jej wynik do zmiennej 'sum'
+   result, err := divide(8, 2) // Wywołaj funkcję divide i przechwyć zarówno wynik, jak i błąd
 
-** Function Variadic Parameters
+** Parametry funkcji o zmiennej długości (variadic parameters)
 
-Go supports variadic functions, which allow you to pass a variable number of
-arguments to a function. To define a variadic parameter, you use an ellipsis
-(`...`) followed by the parameter type. For example:
+
+Go obsługuje funkcje o parametrach o zmiennej długości (variadic functions),
+co pozwala na przekazywanie zmiennej liczby argumentów do funkcji. Aby zdefiniować
+parametr o zmiennej długości, używa się trzech kropek (...), a następnie
+podaje się typ parametru. Na przykład:
 
    func calculateSum(nums ...int) int {
        sum := 0
@@ -110,14 +111,14 @@ arguments to a function. To define a variadic parameter, you use an ellipsis
        return sum
    }
 
-You can call this function with any number of integers.
+Możesz wywołać tę funkcję z dowolną liczbą całkowitych argumentów.
 
-** Anonymous Functions
+** Funkcje anonimowe
 
-Go supports anonymous functions, also known as closures. These are functions
-without a name, and they can be assigned to variables and used as arguments to
-other functions. Closures are often used in Go for tasks like defining inline
-functions or for concurrent programming using goroutines.
+Go obsługuje anonimowe funkcje, znane również jako domknięcia (closures). Są to funkcje
+bez nazwy, które można przypisać do zmiennych i używać jako argumenty do innych funkcji.
+Domknięcia są często używane w Go do definiowania funkcji w miejscu (inline) lub
+do programowania współbieżnego przy użyciu gorutyn (goroutines).
 
    add := func(x, y int) int {
        return x + y
@@ -125,11 +126,13 @@ functions or for concurrent programming using goroutines.
 
    result := add(3, 5)
 
-** Function as a Type
+** Funkcja jako typ
 
-In Go, functions can also be used as types. This allows you to define functions
-that take other functions as arguments or return them as results. It's a powerful
-feature for implementing higher-order functions and callbacks.
+
+W języku Go funkcje mogą również być używane jako typy. Dzięki temu można definiować funkcje,
+które przyjmują inne funkcje jako argumenty lub zwracają je jako wyniki. Jest to potężna
+cecha do implementacji funkcji wyższego rzędu (higher-order functions) i obsługi zwrotnych
+wywołań (callbacks).
 
    type MathFunc func(int, int) int
 
@@ -137,46 +140,45 @@ feature for implementing higher-order functions and callbacks.
        return op(x, y)
    }
 
-You can then pass functions as arguments to `operate`.
+Wówczas możesz przekazywać funkcje jako argumenty do funkcji operate.
 
-** Defer and Panic
+** Defer i Panic
 
-Go provides two special built-in functions called `defer` and `panic` for handling
-exceptional situations and resource management. `defer` is used to schedule a function
-call to be executed just before the function returns, while `panic` is used to
-trigger a run-time error and unwind the stack.
+Go dostarcza dwie specjalne wbudowane funkcje o nazwach defer i panic do obsługi
+sytuacji wyjątkowych i zarządzania zasobami. defer jest używane do zaplanowania
+wywołania funkcji, które zostanie wykonane tuż przed zakończeniem funkcji, podczas
+gdy panic jest używane do wywołania błędu w czasie działania programu i cofnięcia
+stosu wywołań.
 
-** Notes
+** Notatki
 
-- Functions can return multiple values and most return an error value.
-- The error value should always be checked as part of the programming logic.
-- The blank identifier can be used to ignore return values.
-- Syntax: func, receiver, identifier, [parameter(s)], [return(s)], code block.
-- Variadic parameters, variadic arguments, and unfurling a slice.
-- Functions are a type: you can use functions as parameters, arguments, & returns.
-- Defer is used to schedule a function call in another function.
-- Panic triggers a run-time error and unwinds the stack.
-- Named returns are less readable and are not idiomatic
+- Funkcje mogą zwracać wiele wartości, a większość z nich zwraca wartość błędu.
+- Wartość błędu zawsze powinna być sprawdzana jako część logiki programu.
+- Pusty identyfikator może być używany do zignorowania wartości zwracanych.
+- Składnia: func, receiver, identyfikator, [parametr(y)], [wynik(i)], blok kodu.
+- Parametry o zmiennej długości, argumenty o zmiennej długości i rozkładanie ciągu.
+- Funkcje są typem: można używać funkcji jako parametrów, argumentów i wyników.
+- Defer służy do zaplanowania wywołania funkcji w innej funkcji.
+- Panic wywołuje błąd w czasie działania programu i cofa stos wywołań.
+- Nazwane wartości zwracane są mniej czytelne i nie są idiomatyczne.
 
-** Extra Reading
+** Dodatkowe materiały
 
 - [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
 - [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
 - [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
 
-* Exercises
+* Ćwiczenia
 
-Use the template as a starting point to complete the exercises. A possible
-solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-*Part* *A:* Declare a struct type to maintain information about a user. Declare a
-function that creates value of and returns pointers of this type and an error
-value. Call this function from main and display the value.
+*Część* *A:* Zadeklaruj typ struktury do przechowywania informacji o użytkowniku.
+Zadeklaruj funkcję, która tworzy wartość tego typu i zwraca wskaźniki na nią oraz
+wartość błędu. Wywołaj tę funkcję w funkcji main i wyświetl wartość.
 
-*Part* *B:* Make a second call to your function but this time ignore the value
-and just test the error value.
+*Część* *B:* Wykonaj drugie wywołanie swojej funkcji, ale tym razem zignorujwartość i przetestuj tylko wartość błędu.
 
-.play functions/exercise1.go		
+.play functions/exercise1.go
 .play functions/answer1.go
