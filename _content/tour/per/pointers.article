@@ -1,0 +1,258 @@
+اشاره‌گرها (Pointers)
+اشاره‌گرها (Pointers) هدف به اشتراک‌گذاری مقادیر در مرزهای برنامه را دارند.
+
+* اشاره‌گرها (Pointers)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+اشاره‌گرها (Pointers) هدف به اشتراک‌گذاری مقادیر در مرزهای برنامه را دارند. انواع مختلفی از مرزهای برنامه وجود دارد. معمول‌ترین مرز بین فراخوانی‌های تابعی است. همچنین یک مرز بین Goroutine ها وجود دارد که برای آن دفترچه‌های یادداشت دارید.
+
+** بررسی کد
+
+- *مثال* *1:* انتقال با مقدار
+- *مثال* *2:* اشتراک‌گذاری داده I
+- *مثال* *3:* اشتراک‌گذاری داده II
+- *مثال* *4:* تجزیه و تحلیل خروج
+- *مثال* *5:* رشد استک
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+هنگامی که یک برنامه Go شروع می‌شود، Go runtime یک Goroutine ایجاد می‌کند. Goroutine‌ها نخ‌های سطح برنامه سبک با بسیاری از همان مفاهیم نخ‌های سیستم عاملی هستند. وظیفه آن‌ها مدیریت اجرای فیزیکی یک مجموعه متمایز از دستورات است. هر برنامه Go حداقل یک Goroutine دارد که به آن Goroutine اصلی می‌گویید.
+
+هر Goroutine دارای یک بلوک حافظه به نام استک است. هر استک ابتدا به عنوان یک تخصیص 2048 بایت (2k) شروع می‌شود. این بسیار کوچک است، اما استک‌ها می‌توانند با گذر زمان به اندازه بزرگ شدن.
+
+.image /tour/eng/static/img/p1.png
+
+هر بار که یک تابع صدا زده میشود، یک بلوکی از فضای استک برای کمک به اجرای دستورات مربوط به آن تابع گوروتین برداشت میشود. هر بلوک حافظه فردی، یک قابلیت سازگاری میباشد.
+
+سایز یک قاب برای یک تابع خاص در زمان کامپایل محاسبه میشود. هیچ مقداری نمیتواند بر روی استک ساخته شود مگر اینکه کامپایلر سایز آن مقدار را در زمان کامپایل بداند. اگر کامپایلر سایز یک مقدار را در زمان کامپایل نداند، مقدار باید در هیپ ساخته شود.
+
+استک ها خودتمیزکننده هستند و مقدار صفر در کمک به مقداردهی اولیه استک کمک میکند.
+هر بار که یک تابع صدا زده میشود و یک بلاک از حافظه برای آن بلاک خارج میشود، حافظه برای آن بلاک مقداردهی اولیه میشود، که همین است که استک خودتمیزکننده است. هنگام یک بازگشت تابع، حافظه فریم تنها به حال خود برده میشود زیرا نامعلوم است که آیا حافظه مورد نیاز دوباره استفاده خواهد شد یا خیر. مقداردهی اولیه حافظه در بازگشت نیازمندانه خواهد بود.
+
+*Pass* *By* *Value*
+
+همه داده‌ها به صورت مقادیری در برنامه جابجا می‌شوند. این به این معناست که در حین عبور داده از مرزهای برنامه، هر تابع یا گوروتین نسخه اختصاصی از داده را در اختیار می‌گیرد. دو نوع داده وجود دارد که با آن‌ها کار خواهید کرد، خود مقدار (عدد صحیح، رشته، کاربر) یا آدرس مقدار. آدرس‌ها داده‌هایی هستند که باید در مرزهای برنامه کپی شده و ذخیره شود.
+
+این قطعه کد سعی می‌کند توضیح این موضوع را بدهد.
+
+    func main() {
+
+        // Declare variable of type int with a value of 10.
+        count := 10
+
+        // To get the address of a value, use the & operator.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "value of" count (what’s in the box)
+        // to the increment1 function.
+        increment1(count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count will not change after the function call.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "address of" count (where is the box)
+        // to the increment2 function. This is still considered a pass by
+        // value and not a pass by reference because addresses are values.
+        increment2(&count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count has changed after the function call.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1 declares the function to accept its own copy of
+    // and integer value.
+    func increment1(inc int) {
+
+        // Increment the local copy of the caller’s int value.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2 declares the function to accept its own copy of
+    // an address that points to an integer value.
+    // Pointer variables are literal types and are declared using *.
+    func increment2(inc *int) {
+
+        // Increment the caller’s int value through the pointer.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+خروجی:
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** نکات
+
+- استفاده از اشاره‌گرها برای به اشتراک گذاری داده استفاده میشود.
+- مقادیر در گو همواره به صورت pass by value هستند.
+- "مقدار"، چه درون جعبه است. "آدرس" ( & )، جعبه کجاست.
+- عملگر ( * ) یک متغیر اشاره‌گر را تعریف میکند و "مقداری که اشاره‌گر به آن اشاره میکند".
+
+** تجزیه و تحلیل فرار
+
+الگوریتمی که کامپایلر برای تشخیص این کاربرد مقدارها روی استک یا هیپ استفاده میکند، "تجزیه و تحلیل فرار" نامیده میشود. نام این الگوریتم باعث میشود به نظر برسد که مقدارها در ابتدا روی استک ساخته شده و سپس فرار میکنند (یا منتقل میشوند) به هیپ در صورت نیاز. اما این مطلب صحیح نیست. یک مقدار تنها یک بار ساخته میشود و الگوریتم تجزیه و تحلیل فرار تصمیم میگیرد که آن مقدار کجا ساخته شود (استک یا هیپ). تنها ساختن مقدار در هیپ در گو، یک اختصاص می‌باشد.
+
+متوجه شدن از تجزیه و تحلیل فرار به معنای درک مالکیت مقدار است. ایده این است که وقتی یک مقدار در محدوده یک تابع ساخته میشود، آن تابع مالک مقدار است. از آنجا، سوال را درباره این پرسیده میکنیم که آیا مقداری که در حال ساخت است، باید هنوز هم وجود داشته باشد وقتی که تابع مالک برمیگردد؟ اگر پاسخ منفی باشد، مقدار میتواند از روی استک ساخته شود. اگر پاسخ مثبت باشد، مقدار باید در هیپ ساخته شود.
+
+توجه: قاعده مالکیت یک قاعده پایه برای شناسایی کدهایی است که باعث ایجاد اختصاص میشوند. با این حال، باید توجه داشت که تجزیه و تحلیل فرار خرابی‌هایی در خود دارد که ممکن است منجر به اختصاص‌های غیر قابل تشخیص شود. همچنین، این الگوریتم فرصت‌هایی را از طریق بهینه‌سازی‌های کامپایلر می‌گیرد تا تعداد اختصاص‌ها را کاهش دهد.
+
+    // user represents a user in the system.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+تابع stayOnStack با استفاده از سمانتیک مقدار، مقدار کاربر را به تماس گیرنده برگرداند. به عبارت دیگر، تماس گیرنده یک نسخه جدید از مقدار کاربر را دریافت می‌کند که در حال ساخت است.
+
+زمانی که تابع stayOnStack فراخوانی شده و برگشت داده می‌شود، مقدار کاربر که در حال ساخت است برای وجود ندارد، زیرا تماس گیرنده نسخه خود را دریافت کرده است. بنابراین، ساخت مقدار کاربر در داخل تابع stayOnStack می‌تواند در استک انجام شود. هیچ تخصیصی انجام نمی‌شود.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+تابع escapeToHeap از معنای اشاره‌گرها (pointer semantics) برای بازگرداندن یک مقدار کاربر به تماس‌گیرنده استفاده می‌کند. به عبارت دیگر، تماس‌گیرنده دسترسی به اشتراک (یک آدرس) به مقدار کاربر در حال ساخت را دریافت می‌کند.
+
+زمانی که تابع escapeToHeap فراخوانی می‌شود و بازگشت می‌دهد، مقدار کاربری که ایجاد می‌کند همچنان باید وجود داشته باشد، زیرا تماس‌گیرنده دسترسی به اشتراک به مقدار در حال ساخت دارد. بنابراین، ساخت مقدار کاربر در داخل تابع escapeToHeap نمی‌تواند در استک انجام شود، بلکه باید در هیپ انجام شود. بله، تخصیص حافظه.
+
+فکر کنید چه اتفاقی می‌افتد اگر مقدار کاربر در مثال اخیر در استک ساخته شود هنگام استفاده از معنای اشاره‌گرها در بازگردانی.
+
+.image /tour/eng/static/img/p2.png
+
+تماس‌گیرنده یک کپی از آدرس استک از قسمت پایین‌تری به اشتراک می‌گیرد و سلامتی از بین می‌رود. یک‌بار که کنترل به تابع تماس‌گیرنده برگشت داده می‌شود، حافظه استک که مقدار کاربر در آن وجود دارد دوباره قابل استفاده است. لحظه‌ای که تابع تماس‌گیرنده یک تماس دیگر به تابع انجام می‌دهد، یک فریم جدید برش داده می‌شود و حافظه بازنویسی می‌شود و مقدار به اشتراک‌گذاری شده را از بین می‌برد.
+
+در نتیجه، بهتر است درباره استک به عنوان یک محیط خودپاک‌سازی فکر کنید. مقدار ابتدایی صفر به تمیز کردن هر فریم استک کمک می‌کند که نیاز دارید تا بدون استفاده از GC تمیز شود. استک به عنوان یک محیط خودپاک‌سازی در نظر گرفته می‌شود زیرا برای اجرای هر تماس تابع یک فریم گرفته و مقدار ابتدایی تنظیم می‌شود. استک در طول تماس‌های تابع تمیز می‌شود و نه در زمان بازگشت، زیرا کامپایلر نمی‌داند آیا حافظه در استک در آینده نیاز خواهد شد یا نه.
+
+تحلیل گریز تصمیم می‌گیرد که آیا یک مقدار باید در استک (مقدار پیش‌فرض) یا در هیپ (گریز) ایجاد شود. با تابع stayOnStack، من یک کپی از مقدار را به تماس‌گیرنده باز می‌گردانم، بنابراین ایمن است که مقدار را در استک نگه داریم. با تابع escapeToHeap، من یک کپی از آدرس مقدار را به تماس‌گیرنده (با به اشتراک‌گذاری در استک) باز می‌گردانم، بنابراین ایمن نیست که مقدار را در استک نگه داریم.
+
+تعداد زیادی جزئیات کوچک مرتبط با تحلیل گریز وجود دارد، بنابراین برای یادگیری بیشتر مقاله‌ای را در فصل 14 با عنوان "مکانیک‌های تحلیل گریز" بخوانید.
+
+توجه: از نسخه 1.17 به بعد، Go ABI (رابط باینری برنامه) را تغییر داده و یک روش جدید برای انتقال آرگومان‌های ورودی و خروجی توابع با استفاده از رجیسترها به جای حافظه در استک پیاده‌سازی کرده است. این ویژگی برای سیستم‌های Linux، MacOS و Windows در معماری 64 بیتی x86 فعال شده است. این به این معناست که برخی از آرگومان‌های توابع در استک کپی نخواهند شد، اما برخی از آنها ممکن است به توجیه استفاده از رجیسترها بستگی داشته باشد. این تغییری در معنا و رفتار توصیف شده در این فصل ایجاد نمی‌کند.
+
+** نکات
+
+- زمانی که مقدار ممکن است بعد از بازگشت تابعی که مقدار را ایجاد می‌کند، مورد ارجاع قرار گیرد.
+- زمانی که کامپایلر تشخیص می‌دهد که یک مقدار بیش از حد بزرگ است تا در استک جا بیافتد.
+- زمانی که کامپایلر اندازه‌ی یک مقدار را در زمان کامپایل نمی‌داند.
+- زمانی که یک مقدار از طریق استفاده از مقادیر تابعی یا رابطی از یکدیگر جدا می‌شود.
+
+** معنای مدیریت زباله
+
+هنگامی که یک مقدار در هیپ ایجاد می‌شود، مجمع زباله (GC) باید درگیر شود. بخش مهم‌ترین GC الگوریتم تنظیم سرعت است. این الگوریتم تعیین می‌کند که میزان و سرعتی که GC باید اجرا شود را تا حفظ کوچکترین هیپ ممکن به همراه بهترین توانایی برنامه تعیین می‌کند.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** تفاوت استک و هیپ
+
+"استک برای داده‌هایی استفاده می‌شود که فقط برای مدت زمان اجرای تابعی که آن را ایجاد می‌کند نیاز دارند و بدون هیچ هزینه‌ای با خروج از تابع بازیابی می‌شوند. هیپ برای داده‌هایی استفاده می‌شود که باید پس از خروج از تابعی که آن را ایجاد کرده استفاده شوند و به وسیله مجمع زباله‌ای گاهاً هزینه‌بر برگشت داده می‌شوند." - آیان جورج
+
+** رشد استک
+
+اندازه هر قاب برای هر تابع در زمان کامپایل محاسبه می‌شود. این بدان معناست که اگر کامپایلر اندازه‌ی یک مقدار را در زمان کامپایل نداند، مقدار باید در هیپ ایجاد شود. یک مثال از این موضوع استفاده از تابع داخلی make برای ایجاد یک تاییده است که اندازه آن بر اساس یک متغیر است.
+
+    b := make([]byte, size) // Backing array allocates on the heap.
+
+Go از یک پیاده‌سازی ادامه‌دار برای تعیین نحوه رشد و کوچک‌شدن استک استفاده می‌کند. یکی از جایگزین‌هایی که Go می‌توانست استفاده کند، یک پیاده‌سازی استک تقسیم‌شده است که توسط برخی سیستم‌عامل‌ها استفاده می‌شود.
+
+هر فراخوانی تابع با یک آغازنامه کوچک همراه است که می‌پرسد: "آیا فضای کافی برای این قاب جدید وجود دارد؟". اگر بله باشد، هیچ مشکلی وجود ندارد و قاب گرفته شده و مقداردهی اولیه می‌شود. اگر نه باشد، باید یک استک بزرگتر جدید ایجاد شود و حافظه در استک موجود باید به استک جدید کپی شود. این نیاز به تغییر اشاره‌گرهایی دارد که به حافظه در استک اشاره دارند. مزایای حافظه ادامه‌دار و عبورهای خطی با سخت‌افزارهای مدرن، مقابله با هزینه کپی است.
+
+به دلیل استفاده از استک‌های ادامه‌دار، هیچ Goroutine‌ای نمی‌تواند اشاره‌گری به استک Goroutine دیگری داشته باشد. این به اندازه‌ی کافی هزینه دار است که اجرایی باید همه اشاره‌گرها به هر استک و تنظیم مجدد این اشاره‌گرها به مکان جدید را پیگیری کند.
+
+** خواندن موارد بیشتر
+
+**Pointer* *Mechanics*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+
+*Stacks*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+
+*Escape* *Analysis* *and* *Inlining*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+
+*Garbage* *Collection*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+
+*Static* *Single* *Assignment* *Optimizations*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+
+* تمرینات
+
+از الگو به عنوان نقطه شروعی برای انجام تمرین‌ها استفاده کنید. یک پاسخ ممکن نیز ارائه شده است.
+
+** تمرین 1
+
+*بخش* *A:* تعریف و مقداردهی اولیه یک متغیر از نوع int با مقدار 20 را انجام دهید.
+آدرس و مقدار متغیر را نمایش دهید.
+
+*بخش* *B:*  و مقداردهی اولیه یک متغیر اشاره‌گر از نوع int که به آخرین متغیری که تازه ایجاد کرده‌اید اشاره می‌کند. آدرس، مقدار و مقداری که اشاره‌گر به آن اشاره می‌کند را نمایش دهید.
+
+** تمرین 2
+
+تعریف یک نوع ساختاری (struct) و ایجاد یک مقدار از این نوع. تعریف یک تابع که می‌تواند مقدار یک فیلد در این نوع ساختاری را تغییر دهد. نمایش مقدار قبل و بعد از فراخوانی تابع.
+
+با این توضیحات، شما می‌توانید کد مورد نظر خود را بنویسید و از تابع برای تغییر مقدار فیلد استفاده کنید.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go

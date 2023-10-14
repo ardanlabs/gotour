@@ -103,6 +103,9 @@ func Main() {
 	engUIContent, engIndex := addLanguage("tour/eng/")
 	defer engIndex.Close()
 
+	perUIContent, perIndex := addLanguage("tour/per/")
+	defer perIndex.Close()
+
 	vieUIContent, vieIndex := addLanguage("tour/vie/")
 	defer vieIndex.Close()
 
@@ -111,6 +114,7 @@ func Main() {
 
 	r := root{
 		engContent: engUIContent,
+		perContent: perUIContent,
 		vieContent: vieUIContent,
 	}
 
