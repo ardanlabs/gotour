@@ -1,32 +1,33 @@
 Type Conversions And Assertions
-Learn how type conversations and assertions work.
 
-* Type Conversions And Assertions
+Jifunze jinsi ubadilishaji wa aina na uthibitisho unavyofanya kazi.
+
+* Type Conversions And Assertions((Ubunifu wa Aina na Uthibitisho))
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- Unahitaji Usaidizi wa Kifedha, Tumia  [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+Ubadilishaji wa aina huruhusu data ya aina moja kubadilisha hadi aina nyingine. Aina
+madai hukuruhusu kuuliza swali ikiwa kuna thamani ya aina fulani iliyohifadhiwa
+ndani ya kiolesura.
 
-** Code Review
+** Ukaguzi wa Code
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *Mfano* *1:* Ubadilishaji wa Interfaces
+- *Mfano* *2:*Madai ya Aina ya Runtime
+- *Mfano* *3:* Mabadiliko ya Tabia
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implicit Interface Conversions
+** Ubadilishaji wa Kiolesura Kinacho Dhahiri
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+Kama ulivyoona katika mfano wa mwisho, Thamani ya kiolesura cha aina moja inaweza kupitishwa kwa a
+aina tofauti za kiolesura ikiwa thamani halisi iliyohifadhiwa ndani ya kiolesura itatekeleza
+tabia zote mbili. Hii inaweza kuchukuliwa kuwa ubadilishaji kamili wa kiolesura, lakini ndivyo
+bora kufikiria jinsi data halisi inavyohamishwa kupitia miingiliano katika a
+hali ya kutengana.
 
     type Mover interface {
         Move()
@@ -42,7 +43,7 @@ decoupled state.
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+Kwa kuzingatia miingiliano hii mitatu, ambapo MoveLocker ni muundo wa Mover na Locker.
 
     type bike struct{}
 
@@ -58,61 +59,60 @@ Given these three interfaces, where MoveLocker is the composition of Mover and L
         fmt.Println("Unlocking the bike")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+Na kwa kuzingatia baiskeli ya aina hii ya zege inayotekelezea miingiliano yote mitatu. Unaweza kufanya nini?
 
     var ml MoveLocker
     var m Mover
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+Unaweza kuunda thamani ya aina ya MoveLocker na Mover hadi hali yake ya sifuri ya thamani.
+Hizi ni thamani za kiolesura ambazo hazina thamani kabisa.
 
     ml = bike{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+Basi unaweza kuunda thamani ya aina ya baiskeli kwa hali yake ya sifuri na kugawa a
+nakili kwa kibadilishaji cha MoveLocker ml. Hii inawezekana kwa sababu baiskeli inafanya kazi
+tabia zote tatu, na mkusanyaji anaweza kuona kuwa utekelezaji upo.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+Kisha unaweza kukabidhi kutofautisha kwa MoveLocker ml kwa kibadilishaji cha Mover m. Hili linawezekana
+kwa sababu sitoi thamani ya kiolesura ml lakini thamani halisi iliyohifadhiwa ndani
+ya ml ambayo ni thamani ya baiskeli. Mkusanyaji anajua kuwa thamani yoyote halisi iliyohifadhiwa ndani
+ya ml lazima pia kutekeleza kiolesura cha Mover.
 
-This assignment however is not valid. 
-
+Jukumu hili hata hivyo si halali.
     ml = m
 
-Output:
+Pato:
 
     cannot use m (type Mover) as type MoveLocker in assignment:
         Mover does not implement MoveLocker (missing Lock method)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+Huwezi kukabidhi kibadilishaji cha Mover m kwa muundo wa MoverLocker ml kwa sababu
+mkusanyaji anaweza tu kuhakikisha kuwa thamani halisi iliyohifadhiwa ndani ya m inajua jinsi ya Kusonga.
+Haijui wakati wa kukusanya ikiwa thamani halisi pia inajua jinsi ya Kufunga na Kufungua.
 
-** Type Assertion Mechanics
+** Type Assertion Mechanics(Aina ya Mitambo ya Madai)
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+Madai ya aina hukuruhusu kuuliza swali wakati wa kukimbia, je, kuna thamani ya
+aina fulani iliyohifadhiwa ndani ya kiolesura. Unaona hilo na syntax ya m.(bike).
 
     b := m.(bike)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+Katika hali hii, unauliza ikiwa kuna thamani ya baiskeli iliyohifadhiwa ndani ya m kwa sasa
+kanuni inatekelezwa. Ikiwa kuna, basi variable b inapewa nakala ya baiskeli
+thamani iliyohifadhiwa. Kisha nakala inaweza kunakiliwa ndani ya muundo wa kiolesura cha ml.
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+Ikiwa hakuna thamani ya baiskeli iliyohifadhiwa ndani ya thamani ya kiolesura, basi programu inaogopa.
+unataka hii ikiwa kunapaswa kuwa na dhamana ya baiskeli iliyohifadhiwa. Nini kama kuna
+nafasi haipo na hiyo ni halali? Kisha unahitaji fomu ya pili ya madai ya aina.
 
     b, ok := m.(bike)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+Katika fomu hii, ikiwa sawa ni kweli, kuna thamani ya baiskeli iliyohifadhiwa ndani ya kiolesura. Kama
+sawa ni uongo, basi hakuna na programu haina hofu. Tofauti b hata hivyo
+bado ni ya aina ya baiskeli, lakini imewekwa katika hali yake ya thamani ya sifuri.
 
     func main() {
         mvs := []fmt.Stringer{
@@ -132,9 +132,6 @@ is still of type bike, but it is set to its zero value state.
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+Katika fomu hii, ikiwa sawa ni kweli, kuna thamani ya baiskeli iliyohifadhiwa ndani ya kiolesura. Kama
+sawa ni uongo, basi hakuna na programu haina hofu. Tofauti b hata hivyo
+bado ni ya aina ya baiskeli, lakini imewekwa katika hali yake ya thamani ya sifuri.
