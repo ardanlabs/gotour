@@ -10,8 +10,8 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'welcome',
     'title': '',
-    'description': `<p>对于任何具有其他编程语言经验并想要学习 Go 的中级开发人员来说，这都是材料。 我们相信，对于任何想要快速开始学习 Go 或想要更彻底地了解该语言及其内部结构的人来说，本材料都是完美的。</p>
-    <p><b>第一次运行示例可能需要一些时间才能完成。 这是因为旅游服务可能未运行。 请给它一些时间来完成。</b></p>
+    'description': `<p>对于任何具有其他编程语言经验并想要学习 Go 的中级开发人员来说，这都是有价值的学习资料。 我们相信，对于任何想要快速开始学习 Go 或想要更彻底地了解该语言及其内部结构的人来说，本材料都是合适的。</p>
+    <p><b>第一次运行示例可能需要一些时间才能完成。 这是因为指南服务可能未运行。 请给它一些时间来完成。</b></p>
     `,
     'lessons': [
         'welcome',
@@ -98,23 +98,23 @@ value('tableOfContents', [{
 }]).
 // translation
 value('translation', {
-    'off': 'off',
-    'on': 'on',
-    'syntax': 'Syntax-Highlighting',
-    'lineno': 'Line-Numbers',
-    'reset': 'Reset Slide',
-    'format': 'Format Source Code',
-    'kill': 'Kill Program',
-    'run': 'Run',
-    'compile': 'Compile and Run',
-    'more': 'Options',
-    'toc': 'Table of Contents',
-    'prev': 'Previous',
-    'next': 'Next',
-    'waiting': 'Waiting for remote server...',
-    'errcomm': 'Error communicating with remote server.',
-    'submit-feedback': 'Send feedback about this page',
-    'search': 'Search for content',
+    'off': '关',
+    'on': '开',
+    'syntax': '语法高亮',
+    'lineno': '行号',
+    'reset': '复位',
+    'format': '格式化代码',
+    'kill': '终止程序',
+    'run': '运行',
+    'compile': '编译并运行',
+    'more': '选项',
+    'toc': '目录',
+    'prev': '向前',
+    'next': '向后',
+    'waiting': '等待服务器……',
+    'errcomm': '与服务器通讯异常。',
+    'submit-feedback': '提交本页的反馈',
+    'search': '搜索内容',
 
     // GitHub issue template: update repo and messaging when translating.
     'github-repo': 'github.com/ardanlabs/gotour',
