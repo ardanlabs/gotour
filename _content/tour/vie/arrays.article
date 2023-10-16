@@ -1,83 +1,93 @@
-Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Mảng (Arrays)
+Mảng là 1 cấu trúc dữ liệu đặc biệt của Go cho phép ta cấp phát các khối bộ nhớ có kích thước cố định liên tục nhau.
 
-* Arrays
+* Mảng (Arrays)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/][Đơn xin Học bổng]] 
+của chúng tôi.
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Mảng là một cấu trúc dữ liệu đặc biệt của Go cho phép chúng ta cấp phát các khối bộ nhớ có kích 
+thước cố định liên tục nhau.
+Mảng có một số tính năng đặc biệt trong Go liên quan đến cách chúng được khai báo và phân loại.
 
 ** Code Review
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+- *Ví* *dụ* *1:* Khai báo, khởi tạo và duyệt mảng
+- *Ví* *dụ* *2:* Những loại mảng khác nhau
+- *Ví* *dụ* *3:* Cấp phát bộ nhớ liên tục
+- *Ví* *dụ* *4:* Cơ chế lặp với `range`
 
-.play arrays/example1.go
-.play arrays/example2.go
-.play arrays/example3.go
-.play arrays/example4.go
+.play arrays/vidu1.go
+.play arrays/vidu2.go
+.play arrays/vidu3.go
+.play arrays/vidu4.go
 
-** Declaring and Initializing Values
+** Khai báo và khởi tạo giá trị
 
-Declare an array of five strings initialized to its zero value state.
+Khai báo một mảng gồm 5 chuỗi (string) với giá trị khởi tạo là 0.
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+Một chuỗi là một cấu trúc dữ liệu không thể thay đổi, có 2 phần, đại diện cho một con trỏ đến 
+một mảng `byte` và độ dài của mảng đó.
+Vì mảng này được đặt ở trạng thái zero value (giá trị 0), mỗi phần tử được đặt ở trạng thái 
+zero value của nó.
+Điều này có nghĩa là mỗi chuỗi có phần đầu tiên (con trỏ) là `nil` và phần thứ hai (độ dài) là 0.
+
+    strings[0] = "Apple"
+    strings[1] = "Orange"
+    strings[2] = "Banana"
+    strings[3] = "Grape"
+    strings[4] = "Plum"
 
 .image /tour/eng/static/img/a1.png
 
-** String Assignments
+** Gán giá trị cho chuỗi
 
-What happens when a string is assigned to another string?
+Điều gì xảy ra khi một chuỗi được gán cho một chuỗi khác?
 
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Khi một chuỗi được gán cho một chuỗi khác, giá trị của hai phần (con trỏ và độ dài) trong chuỗi 
+được sao chép, kết quả là hai chuỗi khác nhau cùng chia sẻ một mảng bên dưới.
 
 .image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+"Chi phí" sao chép 1 chuỗi là như nhau bất kể kích thước của chuỗi, nó chỉ sao chép 2 thứ: 
+con trỏ và độ dài mảng bên dưới.
 
-** Iterating Over Collections
+** Duyệt qua các tập hợp
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Go cung cấp hai cách khác nhau để duyệt qua một tập hợp.
+Chúng ta có thể duyệt bằng cách sử dụng giá trị hoặc con trỏ.
 
-    // Value Semantic Iteration
+    // duyệt giá trị
     for i, fruit := range strings {
         println(i, fruit)
     }
 
 
-    // Pointer Semantic Iteration
+    // duyệt con trỏ
     for i := range strings {
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Khi duyệt giá trị, hai điều xảy ra.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+- Đầu tiên, tập hợp mà chúng ta đang duyệt qua được sao chép và bản sao được sử dụng để duyệt qua 
+  thay vì bản gốc.
+  Trong trường hợp của một mảng, bản sao có thể tốn kém vì toàn bộ mảng được sao chép.
+  Trong trường hợp của một `slice`, không có chi phí thực sự vì chỉ có thông tin nội bộ của `slice` 
+  được sao chép không phải là mảng bên dưới. (Xem phần `slice` để biết thêm chi tiết.)
 
-** Value Semantic Iteration
+- Thứ hai, chúng ta nhận được một bản sao của mỗi phần tử được lặp qua.
 
-Given the following code and output.
+Khi duyệt con trỏ, chúng ta lặp qua bản gốc và truy cập trực tiếp vào mỗi phần tử trong tập hợp.
+
+** Duyệt giá trị
+
+Cho đoạn code và kết quả bên dưới.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
@@ -92,26 +102,23 @@ Output:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+Biến `strings` là một mảng gồm 5 chuỗi. Vòng lặp duyệt qua mỗi chuỗi trong tập hợp, hiển thị 
+vị trí và giá trị chuỗi. Vì đây là duyệt giá trị, vòng lặp `for` duyệt qua bản sao của mảng 
+và trong mỗi lần lặp, biến `fruit` là một bản sao của từng chuỗi trong mảng.
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Hãy để ý rằng biến `fruit` được truyền vào hàm `println` sử dụng giá trị.
+Hàm `println` đang nhận bản sao riêng của giá trị chuỗi. Sau khi chuỗi được truyền vào hàm 
+`println`, có 4 bản sao của giá trị chuỗi (mảng gốc, bản sao của mảng, biến `fruit` và bản sao 
+cho hàm `println`). Tất cả 4 bản sao đều chia sẻ cùng một mảng `byte` bên dưới.
 
 .image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+Tạo bản sao của giá trị chuỗi là quan trọng vì nó ngăn giá trị chuỗi thoát ra khỏi `heap`.
+Điều này loại bỏ việc cấp phát không hiệu quả trên `heap`.
 
-** Pointer Semantic Iteration
+** Duyệt con trỏ
 
-Given the following code and output.
+Cho đoạn code và kết quả bên dưới.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
@@ -126,16 +133,15 @@ Output:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Một lần nữa, biến `strings` là một mảng gồm 5 chuỗi. Vòng lặp duyệt qua mỗi chuỗi trong tập hợp, 
+hiển thị vị trí và giá trị chuỗi.
+Vì đây là duyệt con trỏ, vòng lặp `for` duyệt qua mảng `strings` trực tiếp và trong mỗi lần lặp, 
+giá trị chuỗi cho mỗi vị trí được truy cập trực tiếp khi gọi hàm `println`.
 
-** Different Type Arrays
+** Các loại mảng
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Bạn sẽ ngạc nhiên khi thấy trình biên dịch (compiler) trả về lỗi khi gán các mảng cùng loại 
+nhưng có độ dài khác nhau.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
@@ -146,18 +152,20 @@ Compiler Error:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+Chúng ta khai báo một mảng gồm 5 số nguyên được khởi tạo ở trạng thái zero value của nó. Sau đó 
+khai báo 1 mảng gồm 4 số nguyên được khởi tạo với các giá trị khá 0. Khi ta thử gán chúng cho 
+nhau thì trình biên dịch báo lỗi, "không thể sử dụng `four` (kiểu `[4]int`) như là 
+kiểu `[5]int` trong phép gán".
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+Hiểu được trình biên dịch đang nói gì là rất quan trọng.
+Nó đang nói rằng một mảng gồm 4 số nguyên và một mảng gồm 5 số nguyên đại diện cho các 
+kiểu dữ liệu khác nhau.
+Kích thước của một mảng là một phần của thông tin của kiểu dữ liệu.
+Trong Go thì kích thước của một mảng phải được biết trước khi biên dịch.
 
-** Contiguous Memory Construction
+** Cấp phát bộ nhớ liên tục
 
-You want to prove that an array provides a contiguous layout of memory.
+Chúng ta muốn chứng minh rằng một mảng cung cấp một bố cục bộ nhớ liên tục.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -174,41 +182,39 @@ Output:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Chúng ta khai báo một mảng gồm 5 chuỗi được khởi tạo với các giá trị.
+Sau đó sử dụng duyệt theo giá trị để hiển thị thông tin về mỗi chuỗi.
+Kết quả hiển thị mỗi giá trị chuỗi, địa chỉ của biến `v` và địa chỉ của mỗi phần tử trong mảng.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Bạn có thể thấy mảng là một khối bộ nhớ liên tục và một chuỗi là một cấu trúc dữ liệu gồm hai 
+phần hoặc 16 `byte` trên kiến trúc 64 `bit` trên máy tính của tôi. Địa chỉ của mỗi phần tử 
+được cách nhau 16 `byte`.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+Sự thật là biến `v` có cùng địa chỉ trên mỗi lần lặp củng cố thêm hiểu biết rằng `v` là một biến 
+cục bộ kiểu chuỗi chứa một bản sao của mỗi giá trị chuỗi trong lần lặp.
 
-** CPU Caches
+** Bộ nhớ tạm của CPU (CPU Caches)
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+Có rất nhiều sự khác biệt vật lý giữa các bộ xử lý và thiết kế của chúng. Trong phần này, 
+chúng ta sẽ tìm hiểu sơ bộ về các bộ xử lý và các điểm giống nhau giữa chúng. Hiểu biết này sẽ 
+cung cấp cho bạn một khái niệm tốt về cách bộ xử lý hoạt động.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
+Mỗi lõi bên trong bộ xử lý có bộ nhớ tạm (cache) cục bộ riêng của nó (L1 và L2) và một 
+bộ nhớ tạm chung (L3) được sử dụng để lưu trữ/truy cập dữ liệu và các chỉ thị. 
+Các luồng (thread) phần cứng trong mỗi lõi có thể truy cập vào bộ nhớ tạm L1 và L2 của chúng.
+Dữ liệu từ L3 hoặc bộ nhớ chính cần được sao chép vào bộ nhớ tạm L1 hoặc L2 để truy cập.
 
 .image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Tốc độ truy cập dữ liệu trong các bộ nhớ khác nhau thay đổi từ nhanh nhất đến chậm nhất: 
+L1 -> L2 -> L3 -> bộ nhớ chính. Theo Scott Meyers nói, "Nếu hiệu suất quan trọng thì tổng dung 
+lượng bộ nhớ bạn có chính là tổng dung lượng của bộ nhớ tạm. Bộ nhớ chính chậm đến mức có thể 
+nói rằng nó không tồn tại".
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Ngày nay, khi nói về hiệu năng là nói về về cách dữ liệu luân chuyển qua phần cứng 
+một cách hiệu quả. Nếu mỗi phần dữ liệu mà phần cứng cần (tại bất kỳ thời điểm nào) 
+chỉ tồn tại trong bộ nhớ chính, chương trình của chúng ta sẽ chạy chậm hơn so với khi dữ liệu 
+đã có sẵn trong bộ nhớ tạm L1 hoặc L2.
 
     3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
 
@@ -222,36 +228,35 @@ programs will run slower as compared to the data already being present in the L1
     L2 cache reference ........................... 7 ns ................... 84 ins
     Main memory reference ...................... 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
+Làm thế nào để chúng ta viết code mà có thể đảm bảo rằng dữ liệu cần thiết để thực thi một 
+chỉ thị luôn có mặt trong bộ nhớ tạm L1 hoặc L2? Chúng ta cần viết code có cơ chế lặp với 
+bộ đệm trước của bộ xử lý. Bộ đệm trước sẽ cố gắng dự đoán dữ liệu nào cần thiết trước khi các 
+chỉ thị yêu cầu dữ liệu được gửi đến để dữ liệu đã có sẵn trong bộ nhớ tạm L1 hoặc L2.
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Có nhiều mức độ chi tiết khác nhau của việc truy cập bộ nhớ tùy thuộc vào nơi việc truy cập 
+xảy ra. Code của chúng ta có thể đọc/ghi một `byte` của bộ nhớ như là đơn vị nhỏ nhất của 
+việc truy cập bộ nhớ. Tuy nhiên, từ góc nhìn của hệ thống bộ nhớ đệm, độ chi tiết là 64 byte. 
+Khối bộ nhớ 64 byte này được gọi là một dòng bộ nhớ đệm (cache line).
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Bộ đệm trước hoạt động tốt nhất khi các chỉ thị đang được thực thi tạo ra các mẫu truy cập 
+dữ liệu từ bộ nhớ có thể dự đoán được. Một cách để tạo ra một mẫu truy cập bộ nhớ có thể 
+dự đoán là xây dựng một khối bộ nhớ liên tục và sau đó lặp qua bộ nhớ đó thực hiện một lần 
+duyệt tuyến tính với một bước nhảy có thể dự đoán.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Mảng là cấu trúc dữ liệu quan trọng nhất đối với phần cứng vì nó hỗ trợ các mẫu truy cập 
+có thể dự đoán. Tuy nhiên, `slice` là cấu trúc dữ liệu quan trọng nhất trong Go. Slice trong Go 
+sử dụng một mảng bên dưới.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Một khi chúng ta xây dựng một mảng, mỗi phần tử có khoảng cách bằng nhau so với phần tử 
+tiếp theo hoặc trước đó. Khi duyệt qua một mảng, chúng ta bắt đầu đi qua các dòng bộ nhớ đệm 
+theo các bước nhảy có thể dự đoán. Bộ đệm trước sẽ nhận ra mẫu truy cập dữ liệu có thể 
+dự đoán này và bắt đầu đưa dữ liệu vào bộ xử lý một cách hiệu quả, do đó giảm chi phí truy cập 
+dữ liệu.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Hãy tưởng tượng chúng ta có một ma trận vuông lớn của bộ nhớ và một danh sách liên kết các 
+nốt khớp với số lượng phần tử trong ma trận. Nếu chúng ta thực hiện một lần duyệt qua 
+danh sách liên kết, và sau đó duyệt qua ma trận theo cả hai hướng (cột và dòng), hiệu suất 
+của các lần duyệt khác nhau sẽ như thế nào?
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +270,9 @@ the performance of the different traversals compare?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+Duyệt theo hàng sẽ có hiệu suất tốt nhất vì nó đi qua bộ nhớ, dòng bộ nhớ đệm liên tục 
+bằng cách tạo ra một mẫu truy cập dự đoán được. Các dòng bộ nhớ đệm có thể được tải trước và 
+sao chép vào bộ nhớ tạm L1 hoặc L2 trước khi dữ liệu được yêu cầu.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +286,9 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+Duyệt theo cột là tệ nhất vì nó đi qua các ranh giới trang của hệ điều hành trên mỗi lần 
+truy cập bộ nhớ. Điều này không gây ra tính dự đoán cho việc truy cập bộ nhớ đệm và trở thành 
+bộ nhớ truy cập ngẫu nhiên.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,59 +302,56 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Danh sách liên kết chậm gấp đôi so với duyệt theo hàng chủ yếu là do có các dòng bộ nhớ đệm 
+bị lỗi (cache line miss) nhưng ít lỗi TLB (Translation Lookaside Buffer). Hầu hết các nốt được 
+kết nối trong danh sách tồn tại trong cùng một trang của hệ điều hành.
 
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
     BenchmarkRowTraverse-16         310      11060883 ns/op
 
-** Translation Lookaside Buffer (TLB)
+** Bộ đệm tra cứu bản dịch địa chỉ (Translation Lookaside Buffer - TLB)
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Mỗi chương trình đang chạy được cung cấp một bản đồ bộ nhớ đầy đủ của bộ nhớ ảo bởi 
+hệ điều hành và chương trình đang chạy nghĩ rằng chúng có toàn bộ bộ nhớ vật lý trên máy. 
+Tuy nhiên, bộ nhớ vật lý cần được chia sẻ với tất cả các chương trình đang chạy. Hệ điều hành 
+chia sẻ bộ nhớ vật lý bằng cách chia bộ nhớ vật lý thành các trang và ánh xạ các trang đến 
+bộ nhớ ảo cho bất kỳ chương trình đang chạy nào. Mỗi hệ điều hành có thể quyết định kích thước 
+của một trang, nhưng 4k, 8k, 16k là các kích thước hợp lý và phổ biến.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+TLB là một bộ nhớ đệm nhỏ bên trong bộ xử lý giúp giảm độ trễ khi dịch một địa chỉ ảo thành 
+địa chỉ vật lý trong phạm vi của một trang hệ điều hành và độ lệch bên trong trang. Một lỗi TLB 
+có thể gây ra độ trễ lớn vì bây giờ phần cứng phải đợi hệ điều hành quét bảng trang của nó để 
+xác định trang đúng cho địa chỉ ảo cần xét. Nếu chương trình đang chạy trên máy ảo 
+(ví dụ như trong điện toán đám mây) thì bảng phân trang máy ảo cần được quét trước.
 
-Remember what was said:
+Hãy nhớ lại những gì đã được nói ở trên:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Danh sách liên kết chậm gấp đôi so với duyệt theo hàng chủ yếu là do có các dòng bộ nhớ đệm 
+bị lỗi (cache line miss) nhưng ít lỗi TLB (Translation Lookaside Buffer). Hầu hết các nốt 
+được kết nối trong danh sách tồn tại trong cùng một trang của hệ điều hành.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+Danh sách liên kết nhanh hơn duyệt theo cột nhờ vào việc truy cập TLB. Mặc dù có các lỗi bộ nhớ 
+đệm xảy ra, nhưng vì hầu hết bộ nhớ cho một nhóm nốt sẽ nằm trong cùng một trang hệ điều hành,
+nên độ trễ TLB không ảnh hưởng đến hiệu suất. Đây là lý do tại sao đối với các chương trình
+sử dụng một lượng lớn bộ nhớ, như các ứng dụng dựa trên DNA, bạn có thể muốn sử dụng một
+phiên bản phân phối Linux được cấu hình với kích thước trang là một hoặc hai megabyte bộ nhớ. 
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Tổng kết lại, thiết kế hướng dữ liệu là quan trọng. Viết một thuật toán hiệu quả phải
+xem xét cách truy cập dữ liệu. Hãy nhớ, hiệu suất ngày nay là về cách bạn có thể
+đưa dữ liệu vào bộ xử lý một cách hiệu quả.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
 
-** CPU Cache Notes
+** Ghi chú về CPU Cache
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Thông tin thêm
 
-*Industry* *Defined* *Latencies*
+*Độ* *trễ* *tiêu* *chuẩn*
 
     L1 cache reference ......................... 0.5 ns ...................  6 ins
     Branch mispredict ............................ 5 ns ................... 60 ins
@@ -366,11 +368,11 @@ how efficiently you can get data into the processor.
     Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
     Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
-*Cache* *Latencies* *Image*
+*Độ* *trễ* *của* *bộ* *nhớ* *tạm*
 
 .image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Tài liệu đọc thêm (tiếng Anh)
 
 *CPU* *Caches* */* *Memory*
 
@@ -402,27 +404,27 @@ how efficiently you can get data into the processor.
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
-** Notes
+** Ghi chú
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
+- Nếu chúng ta không hiểu dữ liệu, chúng ta không hiểu vấn đề.
+- Nếu chúng ta không hiểu về chi phí giải quyết vấn đề, chúng ta không thể lập luận về vấn đề.
+- Nếu chúng ta không hiểu phần cứng, chúng ta không thể lập luận về chi phí giải quyết vấn đề.
+- Mảng là cấu trúc dữ liệu có độ dài cố định không thể thay đổi.
+- Mảng có độ dài khác nhau được coi là các kiểu dữ liệu khác nhau.
+- Bộ nhớ được cấp phát như một khối liên tục.
+- Go cung cấp cho bạn quyền kiểm soát về địa chỉ bộ nhớ.
 
-* Exercises
+* Bài tập
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
+Sử dụng mẫu như điểm khởi đầu để hoàn thành các bài tập. Đáp án sẽ được cung cấp. 
+Nhưng hãy cố tự làm trước khi xem.
 
-** Exercise 1
+** Bài tập 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
+Khai báo một mảng gồm 5 chuỗi với mỗi phần tử được khởi tạo với giá trị zero value 
+của nó. Khai báo một mảng thứ hai gồm 5 chuỗi và khởi tạo mảng này với các giá trị khác 0. 
+Gán mảng thứ hai cho mảng thứ nhất và hiển thị kết quả của mảng đầu tiên. 
+Hiển thị giá trị chuỗi và địa chỉ của mỗi phần tử.
 
-.play arrays/exercise1.go
-.play arrays/answer1.go
+.play arrays/baitap1.go
+.play arrays/dapan1.go
