@@ -1,25 +1,25 @@
-Context Package
-The package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+Pakiet context
+Pakiet context definiuje typ Context, który przenosi terminy, sygnały anulowania i inne wartości związane z żądaniem, przekraczając granice API i między procesami.
 
-* Context Package
+* Pakiet context
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
 
-The package context defines the Context type, which carries deadlines, cancellation
-signals, and other request-scoped values across API boundaries and between processes.
+Pakiet context definiuje typ Context, który przenosi terminy, sygnały anulowania i
+inne wartości związane z żądaniem, przekraczając granice API i między procesami.
 
-** Code Review
+** Przegląd kodu
 
-"Context values are for request-scoped data that passes through programs in a
-distributed system.
+Wartości kontekstu są przeznaczone do przechowywania danych związanymi z żądaniem,
+które przechodzi przez programy w systemach rozproszonych.
 
-- *Example* *1:* Store / Retrieve Values
-- *Example* *2:* WithCancel
-- *Example* *3:* WithDeadline
-- *Example* *4:* WithTimeout
-- *Example* *5:* Request/Response
-- *Example* *6:* Cancellation
+- *Przykład* *1:* Przechowywanie i odczytywanie wartości kontekstu
+- *Przykład* *2:* WithCancel
+- *Przykład* *3:* WithDeadline
+- *Przykład* *4:* WithTimeout
+- *Przykład* *5:* Request/Response
+- *Przykład* *6:* Cancellation
 
 .play context/example1.go
 .play context/example2.go
@@ -40,20 +40,20 @@ A solution provided by the Go team to solve this problem is the Context package.
 It was written and introduced by Sameer Ajmani back in 2014 at the Gotham Go
 conference. He also wrote a blog post for the Go blog.
 
-Slide Deck: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
+Zestaw slajdów: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
 
-Blog Post: [[https://blog.golang.org/context][https://blog.golang.org/context]]
+Blog post: [[https://blog.golang.org/context][https://blog.golang.org/context]]
 
 Through this published work and conversations with Sameer over the years,
 a set of semantics have evolved.
 
-*Incoming* *requests* *to* *a* *server* *should* *create* *a* *Context*
+*Przychodzące* *żądania* *do* *serwera* *powinny* *tworzyć* *Context*
 
-The time to create a Context is always as early as possible in the processing of a
-request or task. Working with Context early in the development cycle will force you
-to design API’s to take a Context as the first parameter. Even if you are not 100%
-sure a function needs a Context, it’s easier to remove the Context from a few
-functions than try to add Context later.
+Czas utworzenia Kontekstu zawsze jest jak najwcześniejszy w procesie przetwarzania
+żądania lub zadania. Praca z Kontekstem na wczesnym etapie cyklu rozwoju zmusi Cię do
+projektowania interfejsów API tak, aby Kontekst był pierwszym parametrem. Nawet jeśli
+nie jesteś pewien, czy funkcja potrzebuje Kontekstu w 100%, łatwiej jest usunąć Kontekst
+z kilku funkcji niż próbować dodać Kontekst później.
 
     75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
     76 // pair, this makes for really easy, convenient routing.
@@ -68,17 +68,16 @@ functions than try to add Context later.
     107    a.TreeMux.Handle(verb, path, h)
     108 }
 
-You see code taken from the service project we teach at Ardan Labs. Line 86 defines
-a handler function that is bound to all routes as shown on line 107. It’s this
-function that starts to process any incoming requests. On line 87, a span is created
-for the request which takes as its first parameter a Context. This is the first
-time in the service code a Context is needed.
+W kodzie widzisz fragment pochodzący z projektu serwisowego, który uczymy w Ardan Labs.
+Linia 86 definiuje funkcję obsługi, która jest powiązana ze wszystkimi trasami, jak
+pokazano na linii 107. To właśnie ta funkcja rozpoczyna przetwarzanie wszystkich
+przychodzących żądań. Na linii 87 tworzony jest obszar dla żądania, który jako pierwszy
+parametr przyjmuje Kontekst. To pierwszy moment w kodzie serwisu, w którym potrzebny jest Kontekst.
 
-What’s great here is that the http.Request value already contains a Context. This
-was added in version 1.7 of Go. This means the code doesn’t need to manually create
-a top-level Context. If we were using version 1.8 of Go, then you would need to
-create an empty Context before the call to StartSpan by using the context.Background
-function.
+Co jest wspaniałe, to to, że wartość http.Request już zawiera Kontekst. Zostało to dodane w wersji 1.7 Go.
+Oznacza to, że w kodzie nie trzeba ręcznie tworzyć Kontekstu na najwyższym poziomie. Gdybyśmy używali
+wersji 1.8 Go, musielibyśmy utworzyć pusty Kontekst przed wywołaniem funkcji StartSpan, korzystając z
+funkcji context.Background.
 
     https://golang.org/pkg/context/#Background
 
@@ -86,15 +85,14 @@ function.
     88         ctx, span := trace.StartSpan(ctx, "internal.platform.web")
     89         defer span.End()
 
-This is what the code would have to look like in version 1.8 of Go. As it’s described
-in the package documentation,
+Oto, jak kod wyglądałby w wersji 1.8 Go. Jak opisano w dokumentacji pakietu:
 
-Background returns a non-nil, empty Context. It’s never canceled, has no values,
-and has no deadline. It is typically used by the main function, initialization,
-and tests, and as the top-level Context for incoming requests.
+Background zwraca niepusty Kontekst, który nigdy nie jest anulowany, nie ma wartości
+i nie ma terminu ważności. Zazwyczaj jest używany w funkcji głównej, inicjalizacji,
+oraz w testach jako Kontekst na najwyższym poziomie dla przychodzących żądań.
 
-It’s an idiom in Go to use the variable name ctx for all Context values. Since a
-Context is an interface, no pointer semantics should be used.
+W Go to idiomatyczne, aby używać zmiennej o nazwie ctx do wszystkich wartości Kontekstu.
+Ponieważ Kontekst jest interfejsem, nie należy używać semantyki wskaźnikowej.
 
     https://golang.org/pkg/context/#Context
 
@@ -105,14 +103,13 @@ Context is an interface, no pointer semantics should be used.
         Value(key interface{}) interface{}
     }
 
-Every function that accepts a Context should get its own copy of the interface value.
+Każda funkcja przyjmująca wartość Context powinna otrzymać swój własny egzemplarz interfejsu.
 
-*Outgoing* *calls* *to* *servers* *should* *accept* *a* *Context*
+*Wywołania* *kierowane* *do* *serwerów* *powinny* *akceptować* *wartość* *Context*
 
-The idea behind this semantic is that higher level calls need to tell lower level
-calls how long they are willing to wait. A great example of this is with the http
-package and the version 1.7 changes made to the Do method to respect timeouts on
-a request.
+Ideą tego podejścia jest umożliwienie wywołań na wyższym poziomie informowania wywołań
+na niższym poziomie, jak długo są gotowe czekać. Doskonałym przykładem jest pakiet http i
+zmiany wprowadzone w wersji 1.7 metody Do, aby uwzględniała ona limity czasowe w żądaniach.
 
     01 package main
     02 
@@ -156,41 +153,42 @@ a request.
     40     io.Copy(os.Stdout, resp.Body)
     41 }
 
-This program issues a request for the Ardan rss blog feed with a timeout of 50
-milliseconds. On lines 15-19, the request is created to make a GET call against
-the provided URL. Lines 22-23 create a Context with a 50 millisecond timeout. A
-new API added to the Request value back in version 1.7 is the WithContext method.
-This method allows the Request value’s Context field to be updated. On line 26,
-that is exactly what the code is doing.
 
-On line 30, the actual request is made using the Do method from the http package’s
-DefaultClient value. The Do method will respect the timeout value of 50 milliseconds
-that is now set inside the Context within the Request value. What you are seeing is the
-code (higher level function) telling the Do method (lower level function) how long
-we're willing to wait for the Do operation to be completed.
+Ten program wysyła żądanie dotyczące kanału RSS bloga Ardan z limitem czasowym
+wynoszącym 50 milisekund. W liniach 15-19 tworzone jest żądanie GET do podanego
+adresu URL. W liniach 22-23 tworzony jest Context z limitem czasowym wynoszącym
+50 milisekund. Nowe API dodane do wartości Request w wersji 1.7 to metoda WithContext.
+Ta metoda pozwala na aktualizację pola Context wartości Request. Dokładnie to jest wykonane w linii 26.
 
-*Do* *not* *store* *Contexts* *inside* *a* *struct* *type*
+W linii 30 rzeczywiste żądanie jest wykonywane za pomocą metody Do z pakietu http
+od wartości DefaultClient. Metoda Do będzie uwzględniać wartość limitu czasowego
+wynoszącą 50 milisekund, która jest teraz ustawiona w polu Context wewnątrz wartości
+Request. To, co widzisz, to kod (funkcja na wyższym poziomie) informujący metodę Do
+(funkcję na niższym poziomie), ile jesteśmy gotowi czekać na zakończenie operacji Do.
 
-Instead, pass a Context explicitly to each function that needs it. Essentially, any
-function that is performing I/O should accept a Context value as it’s first parameter
-and respect any timeout or deadline configured by the caller. In the case of Request,
-there was backwards compatibility issues to consider. So instead of changing the API’s,
-the mechanic shown in the last section was implemented.
+*Nie* *przechowuj* *wartości* *Context* *w* *strukturze*
 
-There are exceptions to every rule. However, within the scope of this post and any
-API’s from the standard library that take a Context, the idiom is to have the first
-parameter accept the Context value.
+Zamiast tego przekazuj wartość Context jawnie do każdej funkcji, która go potrzebuje.
+W zasadzie każda funkcja wykonująca operacje wejścia/wyjścia powinna akceptować wartość
+Context jako swoje pierwsze parametry i uwzględniać limit czasu lub termin dostosowany
+przez wywołującego. W przypadku Request konieczne było uwzględnienie problemów z
+kompatybilnością wsteczną. Dlatego zamiast zmieniać API, zaimplementowano mechanizm
+pokazany w poprzednim rozdziale.
+
+Istnieją wyjątki od każdej reguły. Niemniej jednak w zakresie tego posta i wszystkich
+API w standardowej bibliotece, które akceptują wartość Context, idiomem jest akceptowanie
+wartości Context jako pierwszego parametru.
 
 .image /tour/eng/static/img/context_figure1.png
 
-The figure shows an example from the net package where the first parameter of each
-method takes a Context as the first parameter and uses the ctx variable name idiom.
+Rysunek przedstawia przykład z pakietu net, w którym pierwszy parametr każdej metody
+przyjmuje Context jako pierwszy parametr i używa idiomu nazwy zmiennej ctx.
 
-*The* *chain* *of* *function* *calls* *between* *them* *must* *propagate* *the* *Context*
+*Łańcuch* *wywołań* *funkcji* *musi* *przenosić* *Context* *między* *nimi*
 
-This is an important rule since a Context is request or task based. You want the
-Context and any changes made to it during the processing of the request or task
-to be propagated and respected.
+To ważna zasada, ponieważ Context jest związany z żądaniem lub zadaniem. Chcesz,
+aby Context i wszelkie zmiany dokonane w jego trakcie podczas przetwarzania żądania
+lub zadania były przenoszone i respektowane.
 
     23 // List returns all the existing users in the system.
     24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
@@ -231,18 +229,18 @@ be lost. This is not what you want.
     45     return users, nil
     46 }
 
-You see the declaration of the List method that was called on line 28. Once again
-this method accepts a Context as its first parameter. This value is then propagated
-down the call stack once again on lines 35 and 41. Since line 41 is a database call,
-that function should be respecting any timeout information set in the Context from
-any caller above.
+Widzisz deklarację metody List, która została wywołana w linii 28. Ponownie ta
+metoda przyjmuje Context jako swój pierwszy parametr. Ten parametr jest następnie
+przekazywany w dół stosu wywołań, ponownie w linii 35 i 41. Ponieważ linia 41 to
+wywołanie do bazy danych, ta funkcja powinna respektować wszelkie informacje o
+limitach czasowych ustawione w Context przez każdego wywołującego powyżej.
 
-*Replace* *a* *Context* *using* *WithCancel,* *WithDeadline,* *WithTimeout,* *or* *WithValue*
+*Zastąp* *Context* *używając* *WithCancel,* *WithDeadline,* *WithTimeout,* *lub* *WithValue*
 
-Because each function can add/modify the Context for their specific needs, and
-those changes should not affect any function that was called before it, the Context
-uses value semantics. This means any change to a Context value creates a new Context
-value that is then propagated forward.
+Ponieważ każda funkcja może dodać/modyfikować Context do swoich konkretnych potrzeb,
+a te zmiany nie powinny wpływać na funkcje wywoływane wcześniej, Context używa semantyki
+wartościowej. Oznacza to, że każda zmiana wartości Context tworzy nową wartość
+Context, która jest następnie propagowana do przodu.
 
     01 func main() {
     02
@@ -277,28 +275,27 @@ value that is then propagated forward.
     31     }
     32 }
 
-This is a small program that shows the value semantic nature of the WithTimeout
-function. On line 08, the call to WithTimeout returns a new Context value and a
-cancel function. Since the function call requires a parent Context, the code uses
-the Background function to create a top-level empty Context. This is what the
-Background function is for.
+To niewielki program, który pokazuje wartościową naturę funkcji WithTimeout. W linii 08
+wywołanie funkcji WithTimeout zwraca nową wartość Context oraz funkcję anulującą.
+Ponieważ wywołanie funkcji wymaga rodzica Context, kod używa funkcji Background do
+utworzenia pustego Contextu najwyższego poziomu. Właśnie do tego celu służy funkcja Background.
 
-Moving forward the Context value created by the WithTimeout function is used. If
-any future functions in the call chain need their own specific timeout or deadline,
-they should also use the appropriate With function and this new Context value as
-the parent.
+W przyszłości wartość Context utworzona przez funkcję WithTimeout jest wykorzystywana.
+Jeśli jakiekolwiek przyszłe funkcje w łańcuchu wywołań potrzebują własnego określonego
+limitu czasu lub terminu, również powinny użyć odpowiedniej funkcji With i tej nowej
+wartości Context jako rodzica.
 
-It’s critically important that any cancel function returned from a With function
-is executed before that function returns. This is why the idiom is to use the defer
-keyword right after the With call, as you see on line 26. Not doing this will cause
-memory leaks in your program.
+Niezwykle ważne jest, żeby funkcja anulująca zwrócona przez funkcję With została
+wykonana przed zakończeniem tej funkcji. Dlatego też idiom polega na użyciu słowa
+kluczowego defer tuż po wywołaniu funkcji With, tak jak to widzisz w linii 26.
+Niezastosowanie tego spowoduje wycieki pamięci w twoim programie.
 
-*When* *a* *Context* *is* *canceled,* *all* *Contexts* *derived* *from* *it* *are* *also* *canceled*
+*Kiedy* *Context* *jest* *anulowany,* *wszystkie* *Contexty* *pochodne* *również* *są* *anulowane*
 
-The use of value semantics for the Context API means each new Context value is
-given everything the parent Context has plus any new changes. This means if a
-parent Context is cancelled, all children derived by that parent Context are
-cancelled as well.
+Użycie semantyki wartościowej w API Context oznacza, że każda nowa wartość Context
+otrzymuje wszystko, co ma rodzica Context, oraz wszelkie nowe zmiany. Oznacza to,
+że jeśli rodzic Context zostaje anulowany, to wszystkie Contexty pochodne od tego
+rodzica również są anulowane.
 
     01 func main() {
     02
@@ -331,58 +328,57 @@ cancelled as well.
     29     wg.Wait()
     30 }
 
-This program creates a Context value that can be cancelled on line 04. Then on
-lines 13-25, ten goroutines are created. Each goroutine places their unique id
-inside their own Context value on line 19. The call to WithValue is passed the
-main function’s Context value as its parent. Then on line 22, each goroutine waits
-until their Context is cancelled.
+Ten program tworzy wartość Context, którą można anulować w linii 04. Następnie, w liniach 13-25,
+tworzonych jest dziesięć gorutyn. Każda gorutyna umieszcza swoje unikalne id w swojej własnej
+wartości Context w linii 19. Wywołanie WithValue dostaje jako rodzica wartość Context funkcji
+głównej. Następnie, w linii 22, każda gorutyna czeka, aż jej Context zostanie anulowany.
 
-On line 28, the main goroutine cancels its Context value and then waits on line 29
-for all ten of the goroutines to receive the signal before shutting down the program.
-Once the cancel function is called, all ten goroutines on line 41 will become
-unblocked and print that they have been cancelled. One call to cancel to cancel
-them all.
+W linii 28 główna gorutyna anuluje swoją wartość Context, a następnie oczekuje w linii 29,
+aż wszystkie dziesięć gorutyn otrzyma sygnał przed zamknięciem programu. Po wywołaniu
+funkcji anulowania, wszystkie dziesięć gorutyn w linii 41 zostanie odblokowanych i wyświetli
+komunikat o swoim anulowaniu. Jedno wywołanie anulowania, by anulować je wszystkie.
 
-This also shows that the same Context may be passed to functions running in different
-goroutines. A Context is safe for simultaneous use by multiple goroutines.
+To pokazuje również, że ten sam Context może być przekazywany do funkcji uruchamianych w
+różnych gorutynach. Context jest bezpieczny do jednoczesnego użycia przez wiele gorutyn.
 
-Do not pass a nil Context, even if a function permits it. Pass a TODO context if
-you are unsure about which Context to use. One of my favorite parts of the Context
-package is the TODO function. I am a firm believer that a programmer is always
-drafting code. This is no different than a writer who is drafting versions of an
-article. You never know everything as you write code, but hopefully you know enough
-to move things along. In the end, you are constantly learning, refactoring and
-testing along the way.
+Nie przekazuj pustego Contextu, nawet jeśli funkcja na to pozwala. Jeśli nie jesteś pewien,
+który Context użyć, przekaż Context TODO. Jedną z moich ulubionych części pakietu Context
+jest funkcja TODO. Jestem przekonany, że programista zawsze tworzy kod. To nie różni
+się od pisarza, który pisze różne wersje artykułu. Podczas pisania kodu nigdy nie wiesz
+wszystkiego, ale miejmy nadzieję, że wiesz wystarczająco, żeby ruszać naprzód. W końcu
+jesteś ciągle w trakcie nauki, refaktoryzacji i testowania po drodze.
 
-There have been many times when I knew I needed a Context but was unsure where it
-would come from. I knew I was not responsible for creating the top-level Context
-so using the Background function was out of the question. I needed a temporary
-top-level Context until I figured out where the actual Context was coming from.
-This is when you should use the TODO function over the Background function.
+Wiele razy wiedziałem, że potrzebuję Context, ale nie byłem pewien, skąd miałby on
+pochodzić. Wiedziałem, że nie jestem odpowiedzialny za tworzenie Contextu najwyższego
+poziomu, więc użycie funkcji Background było wykluczone. Potrzebowałem tymczasowego
+Contextu najwyższego poziomu, dopóki nie dowiedziałem się, skąd naprawdę będzie
+pochodzić Context. W takich przypadkach powinieneś użyć funkcji TODO zamiast funkcji Background.
 
-*Use* *Context* *values* *only* *for* *request-scoped* *data*
+*Używaj* *wartości* *Context* *tylko* *dla* *danych* *związanych* *z* *żądaniem*
 
-Don't use the Context for passing optional parameters to functions. This might be
-the most important semantic of all. Do not use the Context value to pass data into
-a function when that data is required by the function to execute its code successfully.
-In other words, a function should be able to execute its logic with an empty Context
-value. In cases where a function requires information to be in the Context, if that
-information is missing, the program should fail and signal the application to shutdown.
+Nie używaj Contextu do przekazywania opcjonalnych parametrów do funkcji. To może być
+najważniejsza z wszystkich semantyk. Nie używaj wartości Contextu do przekazywania
+danych do funkcji, gdy te dane są wymagane do poprawnego wykonania jej kodu. Innymi
+słowy, funkcja powinna móc wykonać swoją logikę z pustą wartością Context. W przypadkach,
+gdy funkcja wymaga, aby informacje były w Context, a tych informacji brakuje, program
+powinien zakończyć działanie i sygnalizować aplikacji zamknięcie.
 
-A classic example of the misuse of passing data into a function call using Context
-is with database connections. As a general rule, you want to follow this order when
-moving data around your program.
+Klasycznym przykładem błędnego użycia przekazywania danych do wywołania funkcji przy
+użyciu Contextu jest związek z połączeniami baz danych. Ogólna zasada jest taka,
+że wartość Contextu powinna przechodzić przez funkcję w następującej kolejności,
+przemieszczając dane w programie.
 
-Pass the data as a function parameter This is the clearest way to move data around
-the program without hiding it.
+Przekaż dane jako parametr funkcji. To jest najczystrzy sposób przemieszczania
+danych w programie, bez ukrywania ich.
 
-Pass the data through the receiver If the function that needs the data can’t have
-its signature altered, then use a method and pass the data through the receiver.
+Przekaż dane przez odbiorcę (receiver). Jeśli funkcja, która potrzebuje danych,
+nie może zmienić swojego interfejsu, użyj metody i przekaż dane przez odbiorcę.
 
-Quick example of using a receiver
+Szybki przykład użycia odbiorcy.
 
-Request handlers are a classic example of the second rule. Since a handler function
-is bound to a specific declaration, the handler signature can’t be altered.
+Obsługa żądań to klasyczny przykład zastosowania drugiej zasady. Ponieważ funkcja
+obsługująca jest przypisana do konkretnej deklaracji, sygnatura obsługującego
+nie może być zmieniana.
 
     23 // List returns all the existing users in the system.
     24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
@@ -397,11 +393,11 @@ is bound to a specific declaration, the handler signature can’t be altered.
     33     return web.Respond(ctx, w, users, http.StatusOK)
     34 }
 
-Here you see the List handler method from the service project. The signature of
-these methods are bound to the what the web framework defined and they can’t be
-altered. However, to make the business call on line 28, a database connection is
-required. This code finds the connection pool not from the Context value that is
-passed in, but from the receiver.
+Tutaj widzisz metodę List obsługującą zapytania w projekcie usługi. Sygnatury tych
+metod są przypisane do tego, co zdefiniował framework webowy, i nie mogą być
+zmieniane. Jednak, aby wykonać wywołanie biznesowe w linii 28, wymagane jest
+połączenie z bazą danych. Ten kod pobiera pulę połączeń nie z wartości Context,
+która jest przekazywana, ale z odbiorcy (receiver).
 
     15 // User represents the User API method handler set.
     16 type User struct {
@@ -411,9 +407,9 @@ passed in, but from the receiver.
     20 // ADD OTHER STATE LIKE THE LOGGER AND CONFIG HERE.
     21 }
 
-You see the declaration of the receiver type. Anything that a request handler needs
-is defined as fields. This allows for information to not be hidden and for the business
-layer to function with an empty Context value.
+Widzisz deklarację typu odbiorcy (receiver). Wszystko, czego potrzebuje obsługa
+zapytania, jest zdefiniowane jako pola. Pozwala to na to, aby informacje nie
+były ukrywane i aby warstwa biznesowa mogła działać z pustą wartością Context.
 
     14 // API constructs an http.Handler with all application routes defined.
     15 func API(shutdown chan os.Signal, log *log.Logger, db *sqlx.DB, authenticator *auth.Authenticator) http.Handler {
@@ -427,13 +423,14 @@ layer to function with an empty Context value.
     31
     32     app.Handle("GET", "/v1/users", u.List)
 
-This code constructs a User value and then binds the List method into the route.
-Once again, since the signature of a handler function is unchangeable, using a
-receiver and methods is the next best way to pass data without it being hidden.
+Ten kod konstruuje wartość User, a następnie przypisuje metodę List do trasy.
+Ponownie, ponieważ sygnatura funkcji obsługi nie jest zmienialna, używanie
+odbiorcy i metod jest kolejnym najlepszym sposobem przekazywania danych bez
+ukrywania ich.
 
-*Debugging* *or* *tracing* *data* *is* *safe* *to* *pass* *in* *a* *Context*
+*Informacje* *służące* *do* *debugowania* *lub* *śledzenia* *są* *bezpieczne* *do* *przekazywania* *w* *Context*
 
-Data that can be stored and received from a Context value is debug and tracing information.
+Dane, które mogą być przechowywane i odczytywane z wartości Context, to informacje służące do debugowania i śledzenia.
 
     23 // Values represent state for each request.
     24 type Values struct {
@@ -442,9 +439,9 @@ Data that can be stored and received from a Context value is debug and tracing i
     27     StatusCode int
     28 }
 
-Here is a declaration of a type that is constructed and stored inside each Context
-value created for a new request. The three fields provide tracing and debugging
-information for the request. This information is gathered as the request progresses.
+Oto deklaracja typu, który jest tworzony i przechowywany w każdej wartości Context
+utworzonej dla nowego żądania. Trzy pola dostarczają informacje do celów
+śledzenia i debugowania żądania.
 
     75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
     76 // pair, this makes for really easy, convenient routing.
@@ -462,8 +459,9 @@ information for the request. This information is gathered as the request progres
     89     }
     90     ctx = context.WithValue(ctx, KeyValues, &v)
 
-See how the Values type is constructed on line 86 and then stored inside the Context
-on line 90. It’s the logging middleware that needs most of this information.
+Zobacz, jak typ Values jest tworzony w linii 86, a następnie przechowywany
+wewnątrz kontekstu (Context) w linii 90. To middleware do logowania, który
+potrzebuje większości tych informacji.
 
     20 // Create the handler that will be attached in the middleware chain.
     21 h := func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
@@ -481,44 +479,46 @@ on line 90. It’s the logging middleware that needs most of this information.
     37         r.RemoteAddr, time.Since(v.Now),
     38     )
 
-The consequence of passing information through the Context is shown in the code on
-lines 27-30. The code is attempting to retrieve the Values data from the Context
-and checking if the data was there. If the data is not there, then a major integrity
-issue exists and the service needs to shutdown. This is done in the service code by
-sending a special error value back up through the application.
+Skutek przekazywania informacji za pomocą kontekstu (Context) jest widoczny w kodzie
+w liniach 27-30. Kod próbuje pobrać dane z wartościami (Values) z kontekstu i sprawdza,
+czy dane są tam obecne. Jeśli danych tam nie ma, oznacza to poważny problem z integralnością,
+i usługa musi zostać wyłączona. W kodzie usługi jest to realizowane poprzez przesyłanie
+specjalnej wartości błędu w górę aplikacji.
 
-If you are passing database connections or user information into your business
-layer using a Context, you have two problems:
+Jeśli przekazujesz połączenia do bazy danych lub informacje o użytkowniku do swojej
+warstwy biznesowej za pomocą kontekstu (Context), masz dwa problemy:
 
-- You need to be checking for integrity and you need a mechanism to shutdown the service quickly.
-- Testing and debugging becomes much harder and more complicated. You are walking away from better clarity and readability in your code.
+- Musisz sprawdzać integralność i potrzebujesz mechanizmu do szybkiego wyłączania usługi w przypadku problemów.
+- Testowanie i debugowanie staje się znacznie trudniejsze i bardziej skomplikowane. Odstępujesz od lepszej klarowności i czytelności kodu.
 
-** Notes
+** Notatki
 
-- Incoming requests to a server should create a Context.
-- Outgoing calls to servers should accept a Context. 
-- The chain of function calls between them must propagate the Context.
-- Replace a Context using WithCancel, WithDeadline, WithTimeout, or WithValue.
-- When a Context is canceled, all Contexts derived from it are also canceled.
-- Do not store Contexts inside a struct type; instead, pass a Context explicitly to each function that needs it.
-- Do not pass a nil Context, even if a function permits it. Pass context.TODO if you are unsure about which Context to use.
-- Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions.
-- The same Context may be passed to functions running in different goroutines; Contexts are safe for simultaneous use by multiple goroutines.
+- Przychodzące żądania do serwera powinny tworzyć Kontekst.
+- Wywołania wychodzące do serwerów powinny akceptować Kontekst.
+- Łańcuch wywołań funkcji pomiędzy nimi musi propagować Kontekst.
+- Zastępuj Kontekst używając WithCancel, WithDeadline, WithTimeout lub WithValue.
+- Gdy Kontekst jest anulowany, wszystkie Konteksty pochodzące od niego również są anulowane.
+- Nie przechowuj Kontekstów wewnątrz typu struktury; zamiast tego przekazuj Kontekst jawnie do każdej funkcji, która go potrzebuje.
+- Nie przekazuj Kontekstu nil, nawet jeśli funkcja na to pozwala. Użyj context.TODO, jeśli nie jesteś pewien, który Kontekst jest potrzebny.
+- Używaj wartości kontekstu jedynie do przechowywania danych związanego z żądaniem, które przechodzi między procesami i interfejsami, a nie do przekazywania opcjonalnych parametrów do funkcji.
+- Ten sam Kontekst może być przekazywany do funkcji uruchamianych w różnych gorutynach; Konteksty są bezpieczne do jednoczesnego użytku przez wiele gorutyn.
 
-** Extra Reading
+** Dodatkowe materiały
 
 - [[https://www.ardanlabs.com/blog/2019/09/context-package-semantics-in-go.html][Context Package Semantics In Go]] - William Kennedy  
 - [[https://golang.org/pkg/context][Package context]] - Go Team    
 - [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
 - [[https://rakyll.org/leakingctx/][Using contexts to avoid leaking goroutines]] - JBD    
 
-* Exercises
+* Ćwieczenia
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-Use the template and follow the directions. You will be writing a web handler that performs a mock database call but will timeout based on a context if the call takes too long. You will also save state into the context.
+Skorzystaj z szablonu i postępuj zgodnie z instrukcjami. Będziesz tworzyć obsługę sieciową,
+która będzie wykonywać symulowane zapytanie do bazy danych, ale zostanie przerwane w przypadku
+przekroczenia określonego czasu związanego z kontekstem. Będziesz także zapisywać dane stanu do kontekstu.
 
 .play context/exercise1.go
 .play context/answer1.go
