@@ -1,55 +1,55 @@
-Grouping With Types
-It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+Grupowanie z typami
+Warto pamiętać, że w Go koncepcje podtypów lub podklas naprawdę nie istnieją, i tych wzorców projektowych należy unikać.
 
-* Grouping With Types
+* Grupowanie z typami
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Warto pamiętać, że w Go koncepcje podtypów lub podklas naprawdę nie istnieją, i tych wzorców projektowych należy unikać.
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1:* Grouping By State
-- *Example* *2:* Grouping By Behavior
+- *Przykład* *1:* Grupowanie przez stan
+- *Przykład* *2:* Grupowanie przez zachowanie
 
 .play composition/grouping/example1.go
 .play composition/grouping/example2.go
 
-** Grouping Different Types of Data
+** Grupowanie różnych typów danych
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Warto pamiętać, że w Go koncepcje podtypowania lub podklasowania naprawdę nie istnieją,
+i te wzorce projektowe powinny być unikane.
 
-The following is an anti-pattern you shouldn’t follow or implement.
+Poniższy przykład to antywzorzec, którego nie powinieneś stosować ani implementować.
 
     type Animal struct {
         Name string
         IsMammal bool
     }
 
-The Animal type is being declared as a base type that tries to define data that is
-common to all animals. You also attempt to provide some common behavior to an
-animal as well.
+Typ Animal jest deklarowany jako typ bazowy, który próbuje zdefiniować dane
+wspólne dla wszystkich zwierząt. Sprawiasz, że próbujesz również dostarczyć
+pewne wspólne zachowanie dla zwierząt.
 
     func (a *Animal) Speak() {
         fmt.Println("UGH!",
         "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Most animals have the ability to speak in one way or the other. However, trying to
-apply this common behavior to just an animal doesn’t make any sense. At this
-point, You have no idea what sound this animal makes, so you write UGH.
+Większość zwierząt ma zdolność do wydawania dźwięków w jakiś sposób. Jednak
+próba zastosowania tego wspólnego zachowania tylko do zwierzęcia nie ma sensu.
+W tym momencie nie wiesz, jaki dźwięk wydaje to zwierzę, więc zapisujesz "UGH".
 
     type Dog struct {
         Animal
         PackFactor int
     }
 
-Now the real problems begin. I’m attempting to use embedding to make a Dog
-everything an Animal is plus more. On the surface this will seem to work, but there
-will be problems. With that being said, a Dog does have a specific way they speak.
+Teraz zaczynają się prawdziwe problemy. Próbujesz użyć osadzania, aby uczynić
+Psa wszystkim, czym jest Zwierzę, a także czymś więcej. Na pierwszy rzut oka
+może to wydawać się działać, ale pojawią się problemy. Niemniej jednak, Pies ma
+konkretny sposób wydawania dźwięków.
 
     func (d *Dog) Speak() {
         fmt.Println("Woof!",
@@ -58,16 +58,16 @@ will be problems. With that being said, a Dog does have a specific way they spea
             "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Woof. This is
-specific to how a dog speaks.
+W implementacji metody Speak możesz zastąpić "UGH" na "Woof". Jest to specyficzne
+dla tego, jak pies wydaje dźwięki.
 
     type Cat struct {
         Animal
         ClimbFactor int
     }
 
-If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
-Using embedding, a Cat is everything an Animal is plus more.
+Jeśli chcemy, aby Pies reprezentował Zwierzę, to musimy również mieć Koty. Dzięki
+użyciu embedding, Kot posiada wszystkie cechy Zwierzęcia, a także dodatkowe.
 
     func (c *Cat) Speak() {
         fmt.Println("Meow!",
@@ -76,12 +76,12 @@ Using embedding, a Cat is everything an Animal is plus more.
             "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Meow. This
-is specific to how a cat speaks.
+W implementacji metody Speak, możesz zamienić UGH na Meow. To specyficzne dla sposobu,
+w jaki koty wydają dźwięki.
 
-Everything seems fine and it looks like embedding is providing the same
-functionality as inheritance does in other languages. Then you try to go ahead and
-group dogs and cats by the fact they have a common DNA of being an Animal.
+Wszystko wydaje się w porządku, i wydaje się, że embedding zapewnia taką samą
+funkcjonalność, jak dziedziczenie w innych językach programowania. Następnie
+próbujesz grupować psy i koty na podstawie faktu, że mają wspólne dziedzictwo jako Zwierzęta.
 
     animals := []Animal{
         Dog{
@@ -105,25 +105,25 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
         animal.Speak()
     }
 
-When you try to do this, the compiler complains that a Dog and Cat are not an Animal
-and this is true. Embedding isn’t the same as inheritance and this is the pattern I
-need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
-can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+Kiedy próbujesz to zrobić, kompilator sygnalizuje, że Pies i Kot nie są Zwierzętami,
+i to jest prawdą. Embedding nie jest tym samym co dziedziczenie, i to jest wzorzec,
+którego powinieneś unikać. Pies to Pies, Kot to Kot, a Zwierzę to Zwierzę. Nie można
+przekazywać Psa i Kota tak, jakby byli Zwierzętami, ponieważ nimi nie są.
 
-This kind of mechanic is also not very flexible. It requires configuration by the
-developer and unless you have access to the code, you can’t make configuration changes
-over time.
+Ten rodzaj mechanizmu nie jest również bardzo elastyczny. Wymaga konfiguracji przez
+programistę, i dopóki masz dostęp do kodu, nie możesz wprowadzać zmian w
+konfiguracji w miarę upływu czasu.
 
-If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
-this in Go? It’s not about grouping through common DNA, it’s about grouping
-through common behavior. Behavior is the key.
+Jeśli to nie jest sposób, w jaki możemy tworzyć kolekcje Psów i Kotów w Go,
+to jak możemy to zrobić? Chodzi o grupowanie przez wspólne zachowanie,
+a zachowanie jest kluczem.
 
     type Speaker interface {
         Speak()
     }
 
-If you use an interface, then you can define the common method set of behavior that I
-want to group different types of data against.
+Jeśli używasz interfejsu, możesz zdefiniować wspólny zestaw metod, które reprezentują
+zachowanie, które chcesz grupować w różne typy danych.
 
     speakers := []Speaker{
         &Dog{
@@ -146,11 +146,12 @@ want to group different types of data against.
         speaker.Speak()
     }
 
-In the new code, you can now group Dogs and Cats together based on their common
-set of behavior, which is the fact that Dogs and Cats can speak.
+W nowym kodzie możesz teraz grupować psy i koty na podstawie ich wspólnego
+zestawu zachowań, czyli faktu, że psy i koty potrafią mówić.
 
-In fact, the Animal type is really type pollution because declaring a type just to
-share a set of common states is a smell and should be avoided.
+W rzeczywistości typ Animal jest rodzajem zanieczyszczenia typów, ponieważ
+deklarowanie typu tylko po to, aby udostępnić zestaw wspólnych stanów,
+jest złym rozwiązaniem i powinno być unikane.
 
     type Dog struct {
         Name string
@@ -164,65 +165,62 @@ share a set of common states is a smell and should be avoided.
         ClimbFactor int
     }
 
-In this particular case, you would rather see the Animal type removed and the fields
-copied and pasted into the Dog and Cat types. Later you will have notes about better
-patterns that eliminate these scenarios from happening.
+W tym konkretnym przypadku wolałbyś zobaczyć usunięcie typu Animal, a pola skopiowane i
+wklejone do typów Dog i Cat. Wkrótce pojawią się informacje o lepszych wzorcach
+eliminujących te scenariusze.
 
-Here are the code smells from the original code:
+Oto problemy w kodzie źródłowym:
 
-- The Animal type provides an abstraction layer of reusable state.
-- The program never needs to create or solely use a value of Animal type.
-- The implementation of the Speak method for the Animal type is generalized.
-- The Speak method for the Animal type is never going to be called.
+- Typ Animal dostarcza warstwę abstrakcyjną do ponownego użycia stanu.
+- Program nigdy nie musi tworzyć ani wyłącznie używać wartości typu Animal.
+- Implementacja metody Speak dla typu Animal jest ogólna.
+- Metoda Speak dla typu Animal nigdy nie zostanie wywołana.
 
-Guidelines around declaring types:
+Wskazówki dotyczące deklarowania typów:
 
-- Declare types that represent something new or unique.
-- Don't create aliases just for readability.
-- Validate that a value of any type is created or used on its own.
-- Embed types not because you need the state, but because we need the behavior.
-- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
-- Question types that are aliases or abstractions for an existing type.
-- Question types whose sole purpose is to share a common set of states.
+- Deklaruj typy, które reprezentują coś nowego lub unikalnego.
+- Nie twórz aliasów tylko dla czytelności.
+- Zweryfikuj, że wartość dowolnego typu jest tworzona lub używana samodzielnie.
+- Osadzaj typy nie dlatego, że potrzebujesz stanu, ale dlatego, że potrzebujesz zachowania.
+- Jeśli nie myślisz o zachowaniach, zamykasz się w projekcie, którego nie możesz rozwijać w przyszłości bez kaskadowych zmian w kodzie.
+- Kwestionuj typy, które są aliasami lub abstrakcjami dla istniejącego typu.
+- Kwestionuj typy, których jedynym celem jest współdzielenie wspólnego zestawu stanów.
 
-** Don’t Design With Interfaces
+** Nie projektuj z interfejsami
 
-Unfortunately, too many developers attempt to solve problems in the abstract first.
-They focus on interfaces right away and this leads to interface pollution. As a
-developer, you exist in one of two modes: a programmer and then an engineer.
+Niestety, zbyt wielu programistów próbuje rozwiązać problemy w sposób abstrakcyjny. Skupiają się od
+razu na interfejsach, co prowadzi do zanieczyszczenia interfejsami. Jako programista działasz w
+jednym z dwóch trybów: jako programista, a potem jako inżynier.
 
-When you are programming, you are focused on getting a piece of code to work. Trying
-to solve the problem and break down walls. Prove that my initial ideas work. That is
-all you care about. This programming should be done in the concrete and is never
-production ready.
+Gdy programujesz, skupiasz się na przekonaniu się, że kawałek kodu działa. Próbujesz rozwiązać
+problem i przełamać bariery. Dowodzisz, że twoje początkowe pomysły działają. To jest to, co
+naprawdę się liczy. Programowanie to praca z konkretnymi rozwiązaniami, które nigdy nie są
+gotowe do użycia w produkcji.
 
-Once you have a prototype of code that solves the problem, you need to switch to
-engineering mode. You need to focus on how to write the code at a micro-level for
-data semantics and readability, then at a macro-level for mental models and
-maintainability. You also need to focus on errors and failure states.
+Gdy masz prototyp kodu, który rozwiązuje problem, musisz przejść w tryb inżynierii. Skupiasz się
+na tym, jak napisać kod na poziomie mikro dla semantyki danych i czytelności, a następnie na
+poziomie makro dla modeli mentalnych i możliwości utrzymania. Musisz również zwrócić uwagę na
+błędy i stany awarii.
 
-This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
-abstraction, and for testability. Abstracting is only one of a few refactors that need
-to be performed. This works best when you start with a piece of concrete code and
-then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
-are absolutely necessary.
+Ta praca polega na cyklu refaktoryzacji. Refaktoryzacja dotyczy czytelności, efektywności,
+abstrakcji i testowalności. Abstrakcja to tylko jedna z wielu refaktoryzacji, które trzeba
+przeprowadzić. Działa najlepiej, gdy zaczynasz od konkretnego kawałka kodu i ODKRYWASZ
+interfejsy, które są potrzebne. Nie stosuj abstrakcji, chyba że jest to absolutnie konieczne.
 
-Every problem you solve with code is a data problem requiring me to write data
-transformations. If you don’t understand the data, you don’t understand the problem. If you
-don’t understand the problem, you can’t write any code. Starting with a concrete
-solution that is based on the concrete data structures is critical. As Rob Pike said,
+Każdy problem rozwiązujesz kodem, który jest problemem danych, wymagającym napisania
+przekształceń danych. Jeśli nie rozumiesz danych, nie rozumiesz problemu. Jeśli nie
+rozumiesz problemu, nie możesz napisać kodu. Zacznij od konkretnego rozwiązania
+opartego na konkretnych strukturach danych. Jak powiedział Rob Pike:
 
-"Data dominates. If you've chosen the right data structures and organized things
-well, the algorithms will almost always be self-evident". - Rob Pike
+"Dane dominują. Jeśli wybierzesz właściwe struktury danych i dobrze zorganizujesz rzeczy, to algorytmy prawie zawsze będą oczywiste". - Rob Pike
 
-When is abstraction necessary? When you see a place in the code where the data
-could change and you want to minimize the cascading code effects that would result. I
-might use abstraction to help make code testable, but you should try to avoid this if
-possible. The best testable functions are functions that take raw data in and send
-raw data out. It shouldn’t matter where the data is coming from or going.
+Kiedy jest potrzebna abstrakcja? Gdy zauważasz miejsce w kodzie, w którym dane mogą się
+zmieniać i chcesz zminimalizować kaskadowe efekty zmian w kodzie. Abstrakcję można
+wykorzystać do ułatwienia testowania kodu, ale należy starać się jej unikać, jeśli
+to możliwe. Najlepsze funkcje do testowania to funkcje, które przyjmują surowe dane i
+zwracają surowe dane. Nie powinno mieć znaczenia, skąd pochodzą dane ani gdzie idą.
 
-In the end, start with a concrete solution to every problem. Even if the bulk of that
-is just programming. Then discover the interfaces that are absolutely required for
-the code today.
+Na koniec zacznij od konkretnej rozwiązania każdego problemu, nawet jeśli większość z
+tego to tylko programowanie. Następnie odkryj interfejsy, które są absolutnie niezbędne do kodu dzisiaj.
 
-"Don’t design with interfaces, discover them". - Rob Pike
+"Nie projektuj z interfejsami, odkrywaj je" - Rob Pike.
