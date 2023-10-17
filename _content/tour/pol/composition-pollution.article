@@ -1,52 +1,51 @@
-Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+Zanieczyszczenie interfejsem
+"Zanieczyszczenie interfejsem" (interface pollution) wynika z tego, że ludzie projektują oprogramowanie z wykorzystaniem interfejsów zamiast odkrywać je.
 
-* Interface Pollution
+* Zanieczyszczenie interfejsem
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+"Zanieczyszczenie interfejsem" (interface pollution) wynika z tego, że ludzie projektują
+oprogramowanie z wykorzystaniem interfejsów zamiast je odkrywać.
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *Example* *1:* Tworzenie zanieczyszczonych interfejsów
+- *Example* *2:* Usuwanie zanieczyszczonych interfejsów
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Interface Pollution
+** Zanieczyszczenie interfejsem
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+Zanieczyszczenie interfejsu wynika z faktu, że ludzie projektują oprogramowanie z użyciem interfejsów
+zamiast je odkrywać. Powinieneś najpierw zaprojektować konkretne rozwiązanie problemu. Następnie
+możesz odkryć, gdzie program potrzebuje być polimorficzny, jeśli w ogóle.
 
-These are things I’ve heard from other developers.
+To są rzeczy, które słyszałem od innych programistów.
 
-"I’m using interfaces because we have to use interfaces".
+"Używam interfejsów, ponieważ musimy używać interfejsów".
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+Nie, nie musimy używać interfejsów. Używamy interfejsów, gdy jest to praktyczne i uzasadnione.
+Istnieje koszt używania interfejsów: poziom pośrednictwa i alokacja, gdy przechowujemy
+konkretne wartości wewnątrz nich. Jeśli koszt alokacji nie jest wart tego, co zyskuję przez
+odłączenie, nie powinieneś używać interfejsów.
 
-"I need to be able to test my code so I need to use interfaces".
+"Muszę być w stanie przetestować mój kod, więc muszę używać interfejsów".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+Nie, musisz najpierw zaprojektować moje API z myślą o użytkowniku, a nie o teście.
+Jeśli API nie jest testowalne, powinieneś zastanowić się, czy jest użyteczne.
+Istnieją różne poziomy API. Niższego poziomu API, które nie jest eksportowane,
+może i powinno skupić się na testowalności. Wyższe poziomy API dostępne publicznie
+muszą skupić się na użyteczności.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+Funkcje, które przyjmują surowe dane i zwracają surowe dane, są najbardziej testowalne.
+Oddziel przekształcanie danych od tego, skąd pochodzą i dokąd trafiają. To ćwiczenie
+refaktoryzacyjne, które musisz przeprowadzić podczas cyklu inżynieryjnego kodowania.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+Poniżej znajduje się przykład tworzenia zanieczyszczenia interfejsu przez niewłaściwe
+użycie interfejsu, gdy nie jest on potrzebny.
 
     type Server interface {
         Start() error
@@ -54,33 +53,30 @@ interface when one is not needed.
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+Interfejs Server definiuje umowę dla serwerów TCP. Problem polega na tym, że nie potrzebujesz umowy,
+potrzebujesz implementacji. Będzie tylko jedna implementacja, zwłaszcza że ty jesteś osobą, która
+ją implementuje. Nie potrzebujesz, aby ktoś inny to dla ciebie robił.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+Dodatkowo ten interfejs oparty jest na rzeczowniku, a nie czasowniku. Konkretne typy są rzeczownikami,
+ponieważ reprezentują konkretne problemy. Interfejsy opisują zachowanie, a Server to nie jest zachowanie.
 
-Here are some ways to identify interface pollution:
+Oto kilka sposobów rozpoznawania zanieczyszczenia interfejsem:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- Pakiet deklaruje interfejs, który pasuje do całego API swojego własnego konkretnego typu.
+- Interfejsy są eksportowane, ale konkretne typy implementujące interfejs są niewidoczne na zewnątrz.
+- Funkcja fabryczna dla konkretnego typu zwraca wartość interfejsu z niewidoczną wartością konkretnego typu wewnątrz.
+- Interfejs można usunąć, a dla użytkownika API nic się nie zmienia.
+- Interfejs nie odłącza API od zmiany.
+- Wskazówki dotyczące zanieczyszczenia interfejsem:
 
-Guidelines around interface pollution:
+Użyj interfejsu:
 
-Use an interface:
+- Kiedy użytkownicy API muszą dostarczyć szczegóły implementacji.
+- Kiedy API ma wiele implementacji, które wymagają utrzymania.
+- Kiedy zidentyfikowano części API, które mogą ulec zmianie i wymagają odłączenia.
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+Zastanów się nad interfejsem:
 
-Question an interface:
-
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- Kiedy jego jedynym celem jest tworzenie testowalnych API (najpierw twórz użyteczne API).
+- Kiedy nie zapewnia wsparcia, aby API mogło unikać zmian.
+- Kiedy nie jest jasne, w jaki sposób interfejs poprawia jakość kodu.
