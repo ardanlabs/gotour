@@ -1,32 +1,30 @@
-Type Conversions And Assertions
-Learn how type conversations and assertions work.
+Konwersje typów i asercje
+Dowiedz się, jak działają konwersje typów i asercje.
 
-* Type Conversions And Assertions
+* Konwersje typów i asercje
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+Konwersja typu pozwala na zmianę danych z jednego typu na inny typ. Asercja typu pozwala zapytać,
+czy wartość danego typu jest przechowywana wewnątrz interfejsu.
 
-** Code Review
+** Przegląd kodu
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *Przykład* *1:* Konwersje interfejsów
+- *Przykład* *2:* Asercje typu w czasie wykonania
+- *Przykład* *3:* Zmiany zachowań
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implicit Interface Conversions
+** Niejawne konwersje interfejsów
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+Jak widzieliście w ostatnim przykładzie, wartość interfejsu jednego typu może być przekazywana
+do innego typu interfejsu, jeśli konkretne wartości przechowywane wewnątrz interfejsu
+implementują oba zachowania. To można uznać za niejawne przekształcenie interfejsu,
+ale lepiej jest myśleć o tym, jak konkretne dane są przenoszone przez interfejsy w stanie zdekouplowanym.
 
     type Mover interface {
         Move()
@@ -42,7 +40,7 @@ decoupled state.
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+Mając te trzy interfejsy, gdzie MoveLocker to kompozycja Mover i Locker.
 
     type bike struct{}
 
@@ -58,61 +56,65 @@ Given these three interfaces, where MoveLocker is the composition of Mover and L
         fmt.Println("Unlocking the bike")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+I z danym konkretnym typem bike, który implementuje wszystkie trzy interfejsy. Co możesz zrobić?
 
     var ml MoveLocker
     var m Mover
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+Możesz skonstruować wartość typu MoveLocker i Mover do ich stanu zero. Są to wartości interfejsowe,
+które są rzeczywiście bezwartościowe.
 
     ml = bike{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+Następnie możesz skonstruować wartość typu bike do stanu zero i przypisać jej kopię do zmiennej
+MoveLocker o nazwie "ml". To jest możliwe, ponieważ bike implementuje wszystkie trzy zachowania,
+a kompilator widzi, że implementacja istnieje.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+Możesz następnie przypisać zmienną MoveLocker "ml" do zmiennej "m" typu Mover. To jest możliwe,
+ponieważ przypisujesz nie samą wartość interfejsu "ml", ale konkretną wartość przechowywaną w "ml",
+która jest wartością typu bike. Kompilator wie, że każda konkretne wartość przechowywana w "ml"
+musi również implementować interfejs "Mover".
 
-This assignment however is not valid. 
+Jednak to przypisanie nie jest ważne.
 
     ml = m
 
-Output:
+Wynik:
 
     cannot use m (type Mover) as type MoveLocker in assignment:
         Mover does not implement MoveLocker (missing Lock method)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+Nie możesz przypisać zmiennej "Mover" "m" z powrotem do zmiennej "MoverLocker" "ml", ponieważ
+kompilator może jedynie zagwarantować, że konkretne wartości przechowywane w "m" potrafią się
+poruszać (implementują interfejs "Mover"). Nie jest w stanie na etapie kompilacji określić,
+czy konkretne wartości w "m" potrafią także blokować i odblokowywać (implementować interfejsy
+"Locker" i "Unlocker").
 
-** Type Assertion Mechanics
+** Mechanika asercji typu
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+Asercja typu pozwala na pytanie o to, czy w interfejsie przechowywana jest wartość danego
+typu w trakcie działania programu. To widoczne jest w składni "m.(bike)".
 
     b := m.(bike)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+W tym przypadku pytasz, czy w danym momencie wykonania kodu w zmiennej "m" przechowywana
+jest wartość typu "bike". Jeśli tak, zmienna "b" otrzymuje kopię tej wartości. Następnie
+kopię można przekopiować do zmiennej interfejsowej "ml".
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+Jeśli w zmiennej interfejsowej nie ma wartości typu "bike", program zgłasza wyjątek.
+Jest to pożądane, jeśli zawsze tam powinna znajdować się wartość typu "bike". Co jednak,
+jeśli istnieje szansa, że jej tam nie będzie i jest to zgodne z oczekiwaniami?
+Wówczas potrzebujesz drugiej formy asercji typu.
 
     b, ok := m.(bike)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+W tej formie, jeśli "ok" wynosi true, to w zmiennej interfejsowej przechowywana jest
+wartość typu "bike". Jeśli "ok" wynosi false, oznacza to, że takiej wartości tam
+nie ma i program nie zgłasza błędu. Zmienna "b" pozostaje typu "bike",
+ale zostaje zainicjowana jako jej wartość zerowa.
 
     func main() {
         mvs := []fmt.Stringer{
@@ -132,9 +134,9 @@ is still of type bike, but it is set to its zero value state.
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+Zakładając, że w programie zdefiniowane są dwa typy o nazwach "Car" i "Cloud", które
+implementują interfejs "fmt.Stringer", można utworzyć kolekcję, która pozwala przechowywać
+wartości obu typów "Car" i "Cloud". Następnie, 10 razy losowo wybierasz liczbę od 0 do 1 i
+wykonujesz asercję typu, aby sprawdzić, czy wartość w tym losowym indeksie zawiera wartość
+typu "Cloud". Ponieważ istnieje możliwość, że nie jest to typ "Cloud",
+druga forma asercji typu jest tutaj kluczowa.
