@@ -1,22 +1,22 @@
-Methods
-A function is called a method when that function has a receiver declared.
+Métodos
+Uma função é chamada de método quando essa função tem um receiver declarado.
 
-* Methods
+* Métodos
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao Vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
 
-A function is called a method when that function has a receiver declared. The
-receiver is the parameter that is declared between the keyword func and the
-function name.
+Uma função é chamada de método quando essa função tem um receiver declarado. O
+receiver é o parâmetro que é declarado entre a palavra-chave func e o nome da
+função.
 
-** Code Review
+** Revisão de Código
 
-- *Example* *1:* Declare and receiver behavior
-- *Example* *2:* Named typed methods
-- *Example* *3:* Function/Method variables
-- *Example* *4:* Function Types
-- *Example* *5:* Value and Pointer semantics
+- *Exemplo* *1:* Declaração e comportamento do receiver
+- *Exemplo* *2:* Métodos em tipos nomeados
+- *Exemplo* *3:* Variáveis de função/método
+- *Exemplo* *4:* Tipos de função
+- *Exemplo* *5:* Semântica de valor e ponteiro
 
 .play methods/example1.go
 .play methods/example2.go
@@ -24,10 +24,10 @@ function name.
 .play methods/example4.go
 .play methods/example5.go
 
-** Method Declarations
+** Declarações de Método
 
-There are two types of receivers, value receivers for implementing value semantics
-and pointer receivers for implementing pointer semantics.
+Existem dois tipos de receivers, receivers de valor para implementar a semântica
+de valor e receivers de ponteiro para implementar a semântica de ponteiro.
 
     type user struct {
         name  string
@@ -43,45 +43,47 @@ and pointer receivers for implementing pointer semantics.
         fmt.Printf("Changed User Email To %s\n", email)
     }
 
-The notify function is implemented with a value receiver. This means the method
-operates under value semantics and will operate on its own copy of the value used
-to make the call.
+A função notify é implementada com um receiver de valor. Isso significa que o
+método opera sob semântica de valor e operará em sua própria cópia do valor usado
+para fazer a chamada.
 
-The changeEmail function is implemented with a pointer receiver. This means the
-method operates under pointer semantics and will operate on shared access to the
-value used to make the call.
+A função changeEmail é implementada com um receiver de ponteiro. Isso significa
+que o método opera sob semântica de ponteiro e operará com acesso compartilhado
+ao valor usado para fazer a chamada.
 
-Outside of a few exceptions, a method set for a type should not contain a mix of
-value and pointer receivers. Data semantic consistency is critically important
-and this includes declaring methods.
+Fora algumas exceções, um conjunto de métodos de um tipo não deve
+conter uma mistura de receivers de valor e ponteiro. A consistência semântica
+dos dados é extremamente importante e isso inclui a declaração de métodos.
 
-** Method Calls
+** Chamadas de Método
 
-When making a method call, the compiler doesn’t care if the value used to make
-the call matches the receiver’s data semantics exactly. The compiler just wants
-a value or pointer of the same type.
+Ao fazer uma chamada de método, o compilador não se importa se o valor usado
+para fazer a chamada corresponde exatamente à semântica dos dados do receiver.
+O compilador só quer um valor ou ponteiro do mesmo tipo.
 
     bill := user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
-You can see that a value of type user is constructed and assigned to the bill
-variable. In the case of the notify call, the bill variable matches the receiver
-type which is using a value receiver. In the case of the changeEmail call, the
-bill variable doesn’t match the receiver type which is using a pointer receiver.
-However, the compiler accepts the method call and shares the bill variable with
-the method. Go will adjust to make the call.
+Você pode ver que um valor do tipo user é construído e atribuído à variável
+bill. No caso da chamada do notify, a variável bill corresponde ao tipo receiver
+que é um receiver de valor. No caso da chamada do changeEmail, a variável bill
+não corresponde ao tipo de receiver que é um receiver de ponteiro. Entretanto,
+o compilador aceita a chamada do método e compartilha a variável bill com o
+método. Go se ajustará para fazer a chamada.
 
-This works the same when the variable used to make the call is a pointer variable.
+Isso funciona da mesma forma quando a variável usada para fazer a chamada é uma
+variável de ponteiro.
 
     bill := &user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
-In this case, the bill variable is a pointer variable to a value of type user.
-Once again, Go adjusts to make the method call when calling the notify method.
+Neste caso, a variável bill é uma variável de ponteiro para um valor do tipo user.
+Mais uma vez, Go se ajusta para fazer a chamada de método ao chamar o método notify.
 
-If Go didn’t adjust, then this is what you would have to do to make those same method calls. 
+Se Go não se ajustasse, então isso é o que você teria que fazer para realizar as mesmas
+chamadas de método.
 
     bill := user{"Bill", "bill@email.com"}
     (&bill).changeEmail("bill@hotmail.com")
@@ -89,21 +91,22 @@ If Go didn’t adjust, then this is what you would have to do to make those same
     bill := &user{"Bill", "bill@email.com"}
     (*bill).notify()
 
-I’m glad you don’t have to do that to make method calls in Go.
+Fico feliz que você não precise fazer isso para fazer chamadas de método em Go.
 
-** Data Semantic Guideline For Internal Types
+** Orientação de Semântica de Dados Para Tipos Internos
 
-As a guideline, if the data I’m working with is an internal type (slice, map,
-channel, function, interface) then use value semantics to move the data around
-the program. This includes declaring fields on a type. However, when I’m reading
-and writing you need to remember I’m using pointer semantics.
+Como uma orientação, se os dados com os quais estou trabalhando forem um tipo
+interno (slice, map, channel, function, interface), use a semântica de valor
+para mover os dados pelo programa. Isso inclui declarar campos em um tipo.
+No entanto, quando estou lendo e escrevendo, você precisa se lembrar que estou
+usando a semântica de ponteiro.
 
     type IP []byte
     type IPMask []byte
 
-These types are declared in the net package that is part of the standard library.
-They are declared with an underlying type which is a slice of bytes. Because of
-this, these types follow the guidelines for internal types.
+Esse tipos são declarados no pacote net que faz parte da biblioteca padrão.
+Eles são declarados com um underlying type que é uma slice de bytes. Por causa
+disso, esses tipos seguem as guidelines de tipos internos.
 
     func (ip IP) Mask(mask IPMask) IP {
         if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
@@ -124,15 +127,16 @@ this, these types follow the guidelines for internal types.
         return out
     }
 
-With the Mask method, value semantics are in play for both the receiver, parameter,
-and return argument. This method accepts its own copy of a Mask value, it mutates
-that value and then it returns a copy of the mutation. This method is using value
-semantic mutation. This is not an accident or random.
+Com o método Mask, a semântica de valor está em jogo para o receiver, parâmetro e
+para o argumento de retorno. Este método aceita sua própria cópia de um valor Mask,
+ele modifica esse valor e então retorna uma cópia da mutação. Este método está usando
+semântica de valor para mutação. Isso não é um acidente ou aleatório.
 
-A function can decide what data input and output it needs. What it can’t decide
-is the data semantics for how the data flows in or out. The data drives that
-decision and the function must comply. This is why Mask implements a value semantic
-mutation api. It must respect how a slice is designed to be moved around the program.
+Uma função pode decidir quais entradas e saídas de dados são necessárias. O que
+ela não pode decidir é a semântica dos dados sobre como os dados entram ou saem.
+Os dados orientam essa decisão e a função deve estar em conformidade. É por isso
+que Mask implementa a API de mutação utilizando semântica de valor. Isso deve
+respeitar a forma como uma slice é projetada para ser movida pelo programa.
 
     func ipEmptyString(ip IP) string {
         if len(ip) == 0 {
@@ -141,20 +145,21 @@ mutation api. It must respect how a slice is designed to be moved around the pro
         return ip.String()
     }
 
-The `ipEmptyString` function is also using value semantics for the input and output.
-This function accepts its own copy of an IP value and returns a string value. No
-use of pointer semantics because the data dictates the data semantics and not the
-function.
+A função `ipEmptyString` também usa semântica de valor para entrada e saída.
+Esta função aceita sua própria cópia de um valor IP e retorna um valor string. Não
+há uso de semântica de ponteiro porque os dados ditam a semântica dos dados e não
+a função.
 
-One exception to using value semantics is when you need to share a slice or map
-with a function that performs unmarshaling or decoding.
+Uma exceção ao uso da semântica de valor é quando você precisa compartilhar uma
+slice ou map com uma função que executa unmarshaling ou decoding.
 
-** Data Semantic Guideline For Struct Types
+** Orientação de Semântica de Dados Para Tipos Struct
 
-As a guideline, if the data I’m working with is a struct type then you have to
-think about what the data represents to make a decision. A good general rule is
-to ask if the struct represents data or an API. If the struct represents data, use
-value semantics. If the struct represents an API, use pointer semantics.
+Como uma orientação, se os dados com os quais estou trabalhando são um tipo struct,
+então você deve pensar sobre o que os dados representam para tomar uma decisão.
+Uma boa regra geral é perguntar se a struct representa dados ou uma API. Se a struct
+representa dados, use a semântica de valor. Se a struct representa uma API, use
+a semântica de ponteiro.
 
     type Time struct {
         sec  int64
@@ -162,22 +167,22 @@ value semantics. If the struct represents an API, use pointer semantics.
         loc  *Location
     }
 
-Here is the Time struct from the time package. If you consider Time to represents
-data, value semantics should be used for this struct.
+Aqui está a struct Time do pacote time. Se você considerar que Time representa
+dados, a semântica de valor deve ser usada para essa struct.
 
-When looking at an existing code base and you want to know what data semantic was
-chosen, look for a factory function. The return type of a factory function should
-dictate the data semantic chosen by the developer.
+Ao examinar uma base de código existente e desejar saber qual era a semântica de
+dados escolhida, procure por uma factory function. O tipo de retorno da factory
+function deve ditar a semântica de dados escolhida pelo desenvolvedor.
 
     func Now() Time {
         sec, nsec := now()
         return Time{sec + unixToInternal, nsec, Local}
     }
 
-Now is the factory function for constructing Time values. Look at the return,
-it’s using value semantics. This tells you that you should be using value semantics
-for Time values which means every function gets its own copy of a Time value and
-fields in a struct should be declared as values of type Time.
+Now é a factory function para construir valores Time. Veja o retorno, está usando
+semântica de valor. Isso indica que você deve usar semântica de valor para valores
+Time, o que significa que cada função obtém sua própria cópia do valor Time e os
+campos em uma struct devem ser declarados como valores do tipo Time.
 
     func (t Time) Add(d Duration) Time {
         t.sec += int64(d / 1e9)
@@ -193,43 +198,43 @@ fields in a struct should be declared as values of type Time.
         return t
     }
 
-Add is a method that needs to perform a mutation operation. If you look closely,
-you will see the function is using value semantic mutation. The Add method gets its
-own copy of the Time value used to make the call, it mutates its own copy, then it
-returns a copy back to the caller. Once again, this is the safest way to perform a
-mutation operation.
+Add é um método que precisa realizar uma operação de mutação. Se você olhar com
+atenção, verá que a função semântica de valor para mutação. O método Add obtém
+sua própria cópia do valor Time usado para fazer a chamada, ele modifica sua própria
+cópia e retorna uma cópia para o chamador. Mais uma vez, esta é a maneira mais
+segura de realizar uma operação de mutação.
 
     func div(t Time, d Duration) (qmod2 int, r Duration) {}
 
-Here is another example where the div function accepts a value of type Time and
-Duration (int64), then returns values of type int and Duration. Value semantics
-for the Time type and for all the built-in types. Duration has an underlying type
-of int64.
+Aqui está outro exemplo onde a função div aceita um valor do tipo Time e Duration
+(int64) e retorna valores do tipo int e Duration. Semântica de valor para o tipo
+Time e para todos os tipos built-in. Duration tem um underlying type de int64.
 
     func (t *Time) UnmarshalBinary(data []byte) error {}
     func (t *Time) GobDecode(data []byte) error {}
     func (t *Time) UnmarshalJSON(data []byte) error {}
     func (t *Time) UnmarshalText(data []byte) error {}
 
-These four methods from the Time package seem to break the rules for data semantic
-consistency. They are using pointer semantics, why? Because they are implementing
-an interface where the method signature is locked in. Since the implementation
-requires a mutation, pointer semantics are the only choice.
+Esses quatro métodos do pacote Time parecem quebrar as regras de consistência da 
+semântica de dados. Eles estão usando semântica de ponteiro, por quê? Porque eles
+estão implementando uma interface onde a assinatura do método está bloqueada. Como
+a implementação requer uma mutação, a semântica de ponteiro é a única escolha.
 
-Here is a guideline: If value semantics are at play, you can switch to pointer
-semantics for some functions as long as you don’t let the data in the remaining
-call chain switch back to value semantics. Once you switch to pointer semantics,
-all future calls from that point need to stick to pointer semantics. You can never,
-ever, never, go from pointer to value. It’s never safe to make a copy of a value
-that a pointer points to.
+Aqui está uma orientação: Se a semântica de valor estiver em jogo, você pode mudar
+para a semântica de ponteiro para algumas funções, desde que não permita que os
+dados na cadeia de chamadas restante voltem para a semântica de valor. Depois
+de mudar para semântica de ponteiro, todas as chamadas futuras a partir desse
+ponto precisarão seguir a semântica de ponteiro. Você nunca, jamais, pode mudar
+de ponteiro para valor. Nunca é seguro fazer uma cópia de um valor para o qual
+um ponteiro aponta.
 
     func Open(name string) (file *File, err error) {
         return OpenFile(name, O_RDONLY, 0)
     }
 
-The Open function from the os package shows that when using a value of type File,
-pointer semantics are at play. File values need to be shared and should never be
-copied.
+A função Open do pacote os mostra que ao usar um valor do tipo File, a semântica
+de ponteiro está em jogo. Valores File precisam ser compartilhados e nunca devem
+ser copiados.
 
     func (f *File) Chdir() error {
         if f == nil {
@@ -241,9 +246,9 @@ copied.
         return nil
     }
 
-The method Chdir is using a pointer receiver even though this method does not
-mutate the File value. This is because File values need to be shared and can’t
-be copied.
+O método Chdir está usando a receiver de ponteiro, apesar disso esse método
+não altera o valor de File. Isso ocorre porque os valores File precisam ser
+compartilhados e não podem ser copiados.
 
     func epipecheck(file *File, e error) {
         if e == syscall.EPIPE {
@@ -255,12 +260,12 @@ be copied.
         }
     }
 
-The epipecheck function as well accepts File values using pointer semantics.
+A função epipecheck também aceita valores File usando semântica de ponteiro.
 
-** Methods Are Just Functions
+** Métodos São Apenas Funções
 
-Methods are really just functions that provide syntactic sugar to provide the
-ability for data to exhibit behavior.
+Métodos são, na verdade, apenas funções que fornecem um syntactic sugar para
+fornecer a capacidade dos dados exibirem comportamento.
 
     type data struct {
         name string
@@ -276,11 +281,11 @@ ability for data to exhibit behavior.
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-A type and two methods are declared. The displayName method is using value
-semantics and setAge is using pointer semantics.
+Um tipo e dois métodos são declarados. O método displayName está usando
+semântica de valor e setAge está usando semântica de ponteiro.
 
-Note: Do not implement setters and getters in Go. These are not apis with purpose
-and in these cases it’s better to make those fields exported.
+Nota: Não implemente setters e getters em Go. Estas não são APIs com propósito
+e nestes casos é melhor exportar esses campos.
     
     d := data{
         name: "Bill",
@@ -289,25 +294,26 @@ and in these cases it’s better to make those fields exported.
     d.displayName()
     d.setAge(21)
 
-A value of type data is constructed and method calls are made.
+Um valor do tipo data é construído e chamadas de métodos são feitas.
 
     data.displayName(d)
     (*data).setAge(&d, 21)
 
-Since methods are really just functions with syntactic sugar, the methods can be
-executed like functions. You can see that the receiver is really a parameter, it’s
-the first parameter. When you call a method, the compiler converts that to a
-function call underneath.
+Uma vez que métodos são apenas funções com syntactic sugar, os métodos podem
+ser executados como funções. Você pode ver que o receiver é realmente um parâmetro,
+é o primeiro parâmetro. Quando você chama um método o compilador o converte em
+uma chamada de função por baixo dos panos.
 
-Note: Do not execute methods like this, but you may see this syntax in tooling messages.
+Nota: Não execute métodos dessa forma, mas você poderá ver esta sintaxe em
+mensagens de ferramentas.
 
-** Know The Behavior of the Code
+** Conheça o Comportamento do Código
 
-If you know the data semantics at play, then you know the behavior of the code. If
-you know the behavior of the code, then you know the cost of the code. Once you
-know the cost, I’m engineering.
+Se você conhece a semântica dos dados em jogo, então você conhece o comportamento
+do código. Se você conhece o comportamento do código, então conhece o custo do código.
+Uma vez que sei o custo, estou fazendo engenharia.
 
-Given this type and method set.
+Dado este tipo e conjunto de métodos.
 
     type data struct {
         name string
@@ -323,7 +329,7 @@ Given this type and method set.
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-You can write the following code.
+Você pode escrever o seguinte código.
 
     func main() {
         d := data{
@@ -336,35 +342,35 @@ You can write the following code.
         f1()
     }
 
-Output:
+Resultado:
 
     My Name Is Bill
     My Name Is Bill
 
-You start with constructing a value of type Data assigning it to the variable d.
-Then you take the method displayName, bound to d, and assign that to a variable
-named f1. This is not a method call but an assignment which creates a level of
-indirection. Functions are values in Go and belong to the set of internal types.
+Você começa construindo um valor do tipo Data atribuindo-o à variável d.
+Então você pega o método displayName, vinculado a d, e atribui ele a uma variável
+chamada f1. Isso não é uma chamada de método, mas uma atribuição que cria um nível
+de indireção. Funções são valores em Go e pertencem ao conjunto de tipos internos.
 
-After the assignment, you can call the method indirectly through the use of the
-f1 variable. This displays the name Bill. Then you change the data so the name
-is now Joan, and call the method once again through the f1 variable. You don’t
-see the change. Bill is the output once again. So Why?
+Após a atribuição, você pode chamar o método indiretamente através do uso da
+variável f1. Isso exibe o nome Bill. Então você altera os dados para que o nome
+agora seja Joan, e chama o método mais uma vez através da variável f1. Você não
+vê a mudança. Bill é o resultado mais uma vez. Então por que?
 
 .image /tour/eng/static/img/m1.png
 
-It has to do with the data semantics at play. The displayName method is using a
-value receiver so value semantics are at play.
+Isso tem a ver com a semântica que está em jogo. O método displayName está usando
+um receiver de valor então a semântica de valor está em jogo.
 
     func (d data) displayName() {
         fmt.Println("My Name Is", d.name)
     }
 
-This means that the f1 variable maintains and operates against its own copy of d.
-So calling the method through the f1 variable, will always use the copy and that
-copy is protected against change. This is what you want with value semantics.
+Isso significa que a variável f1 mantém e opera sua própria cópia de d.
+Então chamar o método através da variável f1, sempre usará a cópia e essa cópia
+é protegida contra alterações. Isso é o que você deseja com a semântica de valor.
 
-Now you will do the same thing but with the setAge method.
+Agora você vai fazer a mesma coisa, mas com o método setAge.
 
     func main() {
         d := data{
@@ -377,58 +383,58 @@ Now you will do the same thing but with the setAge method.
         f2(45)
     }
 
-Output:
+Resultado:
 
     Bill Is Age 45
     Sammy Is Age 45
 
-This time the setAge method is assigned to the variable f2. Once again, the
-method is executed indirectly through the f2 variable passing 45 for Bill’s age.
-Then Bill’s name is changed to Sammy and the f2 variable is used again to make the
-call. This time you see the name has changed.
+Desta vez o método setAge é atribuído à variável f2. Mais uma vez, o método
+é executado indiretamente através da variável f2 passando 45 para a idade de Bill.
+Então o nome de Bill é alterado para Sammy e a variável f2 é usada novamente para
+fazer a chamada. Desta vez você vê que o nome mudou.
 
 .image /tour/eng/static/img/m2.png
 
-The setAge function is using a pointer receiver so setAge doesn’t operate on its
-own copy of the d variable, but is operating directly on the d variable. Therefore,
-f2 is operating on shared access and you see the change.
+A função setAge está usando um receiver de ponteiro então setAge não opera na
+sua própria cópia da variável d, mas está operando diretamente na variável d.
+Portanto, f2 está operando com acesso compartilhado e você vê a mudança.
 
     func (d *data) setAge(age int) {
         d.age = age
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-Without knowing the data semantics at play, you won’t know the behavior of the code.
-These data semantics are real and affect the behavior.
+Sem conhecer a semântica dos dados em jogo, você não saberá o comportamento do código.
+Essa semântica de dados é real e afeta o comportamento.
 
-** Notes
+** Notas
 
-- Methods are functions that declare a receiver variable.
-- Receivers bind a method to a type and can use value or pointer semantics.
-- Value semantics mean a copy of the value is passed across program boundaries.
-- Pointer semantics mean a copy of the values address is passed across program boundaries.
-- Stick to a single semantic for a given type and be consistent.
+- Métodos são funções que declaram uma variável receiver.
+- Receivers vinculam um método a um tipo e podem usar semântica de valor ou ponteiro.
+- Semântica de valor significa que uma cópia do valor é passada através dos limites do programa.
+- Semântica de ponteiro significa que uma cópia do endereço dos valores é passada através dos limites do programa.
+- Atenha-se a uma única semântica para um determinado tipo e seja consistente.
 
-** Quotes
+** Citações
 
-"Methods are valid when it is practical or reasonable for a piece of data to expose a capability." - William Kennedy
+"Métodos são válidos quando é prático e razoável que um dado exponha uma capacidade." - William Kennedy
 
-** Extra Reading
+** Leitura Extra
 
 - [[https://golang.org/doc/effective_go.html#methods][Methods]]    
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
 		 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Use o modelo como ponto de partida para completar os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Declare a struct that represents a baseball player. Include name, atBats and hits.
-Declare a method that calculates a players batting average. The formula is Hits / AtBats.
-Declare a slice of this type and initialize the slice with several players. Iterate
-over the slice displaying the players name and batting average.
+Declare uma struct que representa um jogador de baseball. Inclua name, atBats e hits.
+Declare um método que calcula a média de rebatidas de um jogador. A fórmula é Hits / AtBats.
+Declare uma slice desse tipo e inicialize a slice com vários jogadores. Itere a slice
+mostrando o nome dos jogadores e a média de rebatidas.
 
 .play methods/exercise1.go
 .play methods/answer1.go

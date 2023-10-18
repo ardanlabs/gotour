@@ -1,31 +1,29 @@
-Embedding
-Embedding types provide the final piece of sharing and reusing state and behavior between types.
+Incorporação
+A incorporação de tipos fornece a parte final de compartilhamento e reutilização de estado e comportamento entre tipos.
 
-* Embedding
+* Incorporação
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de assistência financeira, use nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudo]]
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+A incorporação de tipos fornece a parte final de compartilhamento e reutilização de 
+estado e comportamento entre tipos. Através do uso da promoção do tipo interno, 
+os campos e métodos de um tipo interno podem ser acessados diretamente por referências do tipo externo.
 
-Embedding types provide the final piece of sharing and reusing state and behavior
-between types. Through the use of inner type promotion, an inner type's fields and
-methods can be directly accessed by references of the outer type.
+** Revisão de código
 
-** Code Review
-
-- *Example* *1:* Declaring Fields			   
-- *Example* *2:* Embedding types
-- *Example* *3:* Embedded types and interfaces
-- *Example* *4:* Outer and inner type interface implementations
+- *Exemplo* *1:* Declarando Campos
+- *Exemplo* *2:* Tipos de incorporação
+- *Exemplo* *3:* Tipos e interfaces incorporados
+- *Exemplo* *4:* Implementações de interface de tipo externo e interno
 	
 .play embedding/example1.go
 .play embedding/example2.go
 .play embedding/example3.go		   
 .play embedding/example4.go
 
-** Embedding Mechanics
+** Funcionamento da Incorporação
 
-This first example does not show embedding, just the declaration of two struct
-types working together as a field from one type to the other.
+Este primeiro exemplo não mostra incorporação, apenas a declaração de dois tipos struct trabalhando juntos como um campo de um tipo para outro.
 
     type user struct {
         name  string
@@ -37,7 +35,7 @@ types working together as a field from one type to the other.
         level  string
     }
 
-This is embedding.
+Isso é incorporação.
 
     type user struct {
         name  string
@@ -49,8 +47,7 @@ This is embedding.
         level  string
     }
 
-The person field is removed and just the type name is left. You can also embed a
-type using pointer semantics.
+O campo person é removido e resta apenas o nome do tipo. Você também pode incorporar um tipo usando a semântica de ponteiro.
 
     type user struct {
         name  string
@@ -62,13 +59,12 @@ type using pointer semantics.
         level  string
     }
 
-In this case, a pointer of the type is embedded. In either case, accessing the
-embedded value is done through the use of the type’s name.
+Neste caso, o ponteiro do tipo é incorporado. Em ambos os casos, o acesso ao valor incorporado é feito através do uso do nome do tipo.
 
-The best way to think about embedding is to view the user type as an inner type and
-admin as an outer type. It’s this inner/outer type relationship that is magical
-because with embedding, everything related to the inner type (both fields and methods)
-can be promoted up to the outer type. 
+A melhor maneira de pensar sobre a incorporação é ver o tipo `user` como um tipo interno e o tipo
+`admin` como um tipo externo. É essa relação de tipo interno/externo que é a mágica,
+pois com a incorporação, tudo relacionado ao tipo interno (tanto campos quanto métodos)
+pode ser promovido para o tipo externo.
 
     type user struct {
         name  string
@@ -99,18 +95,16 @@ can be promoted up to the outer type.
         ad.notify() // Outer type promotion
     }
 
-Output:
+Resultado:
 
     Sending user email To john smith<john@yahoo.com>
     Sending user email To john smith<john@yahoo.com>
 
-Once you add a method named notify for the user type and then a small main function.
-You can see the output is the same whether you call the notify method through the inner
-pointer value directly or through the outer type value. The notify method declared for
-the user type is accessible directly by the admin type value.
+Depois de adicionar um método chamado `notify` para o tipo `user` e, em seguida, uma pequena função `main`.
+Você pode ver que a saída é a mesma, quer você chame o método `notify` diretamente através do valor do ponteiro interno 
+ou através do valor do tipo externo. O método `notify` declarado para o tipo `user` é acessível diretamente pelo valor do tipo `admin`.
 
-Though this looks like inheritance, you must be careful. This is not about reusing
-state, but about promoting behavior.
+Embora isso pareça herança, você deve ter cuidado. Isso não se trata de reutilizar estado, mas de promover comportamento.
 
     type notifier interface {
         notify()
@@ -120,12 +114,11 @@ state, but about promoting behavior.
         n.notify()
     }
 
-Now you add an interface and a polymorphic function that accepts any concrete value
-that implements the full method set of behavior defined by the notifier interface.
-Which is just a method named notify.
+Agora, você adiciona uma interface e uma função polimórfica que aceita qualquer valor concreto
+que implementa o conjunto completo de métodos de comportamento definidos pela interface `notifier`.
+Que é apenas um método chamado `notify`.
 
-Because of embedding and promotion, values of type admin now implement the notifier
-interface.
+Devido à incorporação e à promoção, os valores do tipo `admin` agora implementam a interface `notifier`.
 
     func main() {
         ad := admin{
@@ -139,12 +132,12 @@ interface.
         sendNotification(&ad)
     }
 
-Output:
+Resultado:
 
     Sending user email To john smith<john@yahoo.com>
 
-You can send the address of the admin value into the polymorphic function since
-embedding promotes the notify behavior up to the admin type.
+Você pode enviar o endereço do valor do tipo `admin` para a função polimórfica, 
+uma vez que a incorporação promove o comportamento `notify` até o tipo `admin`.
 
     type admin struct {
         *user  // Pointer Semantic Embedding
@@ -157,8 +150,8 @@ embedding promotes the notify behavior up to the admin type.
             a.email)
     }
 
-When the outer type implements a method already implemented by the inner type,
-the promotion doesn’t take place.
+Quando o tipo externo implementa um método que já foi implementado 
+pelo tipo interno, a promoção não ocorre.
 
     func main() {
         ad := admin{
@@ -172,33 +165,33 @@ the promotion doesn’t take place.
         sendNotification(&ad)
     }
 
-Output:
+Resultado:
     
     Sending admin email To john smith<john@yahoo.com>
 
-You can see the outer type’s method is now being executed.
+Você pode observar que o método do tipo externo está sendo executado agora.
 
-** Notes
+** Notas
 
-- Embedding types allow us to share state or behavior between types.
-- The inner type never loses its identity.
-- This is not inheritance.
-- Through promotion, inner type fields and methods can be accessed through the outer type.
-- The outer type can override the inner type's behavior.
+- Tipos incorporados nos permitem compartilhar estado ou comportamento entre tipos.
+- O tipo interno nunca perde sua identidade.
+- Isso não é herança.
+- Através da promoção, campos e métodos do tipo interno podem ser acessados através do tipo externo.
+- O tipo externo pode substituir o comportamento do tipo interno.
 
-** Extra Reading
+** Leitura Extra
 
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
 - [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
 
-* Exercises
+* Exercícios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utilize o template como ponto de partida para concluir os exercícios. Uma possível solução é fornecida.
 
-** Exercise 1
+** Exercício 1
 
-Edit the code from the template. Add a new type CachingFeed which embeds Feed and
-overrides the Fetch method.
+Edite o código a partir do template. Adicione um novo tipo chamado `CachingFeed` 
+que incorpora `Feed` e substitui o método `Fetch`.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go
