@@ -1,90 +1,91 @@
-Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Tablice
+Tablice (ang. Arrays) to specjalna struktura danych w języku Go, która pozwala na przydzielenie ciągłych bloków pamięci o stałym rozmiarze.
 
-* Arrays
+* Tablice
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Tablice są specjalną strukturą danych w Go, która umożliwia przydzielenie
+ciągłych bloków pamięci o stałym rozmiarze. Tablice w Go mają pewne specjalne
+cechy związane z tym, jak są deklarowane i traktowane jako typy.
 
-** Code Review
+** Przegląd kody
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+- *Przykład* *1:* Deklaruj, inicjalizuj i iteruj
+- *Przykład* *2:* Różne typy tablic
+- *Przykład *3:* Ciągła alokacja pamięci
+- *Przykład* *4:* Mechanika zakresu (Range)
 
 .play arrays/example1.go
 .play arrays/example2.go
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
+** Deklarowanie i inicjowanie wartości
 
-Declare an array of five strings initialized to its zero value state.
+Zadeklaruj tablicę pięciu łańcuchów znaków zainicjowaną do stanu zerowego.
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+Warto zauważyć, że string w Go jest strukturą danych typu immutable, składającą
+się z dwóch słów. Pierwsze słowo reprezentuje wskaźnik do tablicy bajtów
+podstawowej, a drugie słowo określa łączną ilość bajtów w tej tablicy.
+W przypadku tablicy zainicjowanej do stanu zerowego, każdy element tablicy
+string ma ustawione pierwsze słowo na nil i drugie słowo na 0.
 
 .image /tour/eng/static/img/a1.png
 
-** String Assignments
+** Przypisywanie łańcucha znaków
 
-What happens when a string is assigned to another string?
+Co się stanie po przypisaniu łańcucha do innego łańcucha?
 
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Kiedy łańcuch znaków jest przypisany do innego łańcucha znaków, dwuelementowa wartość
+jest kopiowana, co powoduje, że dwa różne łańcuchy znaków dzielą tę samą tablicę podstawową.
 
 .image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+Koszt skopiowania ciągu znaków jest taki sam, niezależnie od jego rozmiaru,
+wynosi to kopię dwóch słów.
 
-** Iterating Over Collections
+** Iteracja po kolekcjach
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Go udostępnia dwie różne semantyki do iteracji po kolekcjach. Można iterować,
+używając semantyki wartościowej lub semantyki wskaźnika.
 
-    // Value Semantic Iteration
+    // Iteracja semantyką wartościową
     for i, fruit := range strings {
         println(i, fruit)
     }
 
 
-    // Pointer Semantic Iteration
+    // Iteracja semantyką wskaźnikową
     for i := range strings {
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Podczas korzystania z iteracji semantyki wartościowej dzieją się dwie rzeczy.
+Po pierwsze, kolekcja, którą iterujesz, zostaje skopiowana, a iteracja odbywa
+się na kopii. W przypadku tablicy kopia może być kosztowna, ponieważ kopiowana
+jest cała tablica. W przypadku wycinka (slice) nie ma rzeczywistego kosztu,
+ponieważ kopiowana jest tylko wewnętrzna wartość wycinka, a nie tablica podstawowa.
+Po drugie, otrzymujesz kopię każdego elementu, który jest iterowany.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+Korzystając z semantyki wskaźnikowej, iterujesz po oryginalnej kolekcji i masz dostęp
+do każdego elementu skojarzonego z tą kolekcją bezpośrednio.
 
-** Value Semantic Iteration
+** Iteracja semantyką wartościową
 
-Given the following code and output.
+Poniżej kod i wynik działania:
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
         println(i, fruit)
     }
 
-Output:
+Wynik:
 
     0 Apple
     1 Orange
@@ -92,33 +93,34 @@ Output:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+Zmienna strings to tablica 5 ciągów znaków. Pętla iteruje po każdym ciągu
+znaków w kolekcji i wyświetla pozycję indeksu i wartość ciągu. Ponieważ
+to jest iteracja semantyką wartości, pętla for range iteruje na swojej
+własnej kopii tablicy i w każdej iteracji zmienna fruit jest kopią każdego
+ciągu znaków (struktury danych dwóch słów).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Zauważ, jak zmienna fruit jest przekazywana do funkcji print za pomocą
+semantyki wartości. Funkcja print otrzymuje własną kopię wartości ciągu znaków.
+W momencie, gdy ciąg znaków jest przekazywany do funkcji print, istnieje
+4 kopie wartości ciągu znaków (tablica, kopia płytki, zmienna fruit i
+kopia funkcji print). Wszystkie 4 kopie dzielą tę samą tablicę bajtów.
 
 .image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+Tworzenie kopii wartości ciągu znaków jest ważne, ponieważ zapobiega to
+ucieczce wartości ciągu znaków na stertę. Dzięki temu eliminuje się
+nieproduktywne alokacje na stercie.
 
-** Pointer Semantic Iteration
+** Iteracja semantyką wskaźnikową
 
-Given the following code and output.
+Poniżej kod i wynik działania:
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
         println(i, strings[i])
     }
 
-Output:
+Wynik:
 
     0 Apple
     1 Orange
@@ -126,38 +128,38 @@ Output:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Jeszcze raz, zmienna strings to tablica pięciu ciągów znaków. Pętla iteruje po
+każdym ciągu znaków w kolekcji i wyświetla pozycję indeksu oraz wartość ciągu
+znaków. Ponieważ to jest iteracja semantyki wskaźnikowej, pętla for range iteruje
+bezpośrednio po tablicy strings, a podczas każdej iteracji wartość ciągu znaków
+dla każdej pozycji indeksu jest dostępna bezpośrednio w wywołaniu funkcji print.
 
-** Different Type Arrays
+** Różne typy tablic
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Interesujące jest to, jakie komunikaty o błędach dostarcza kompilator, gdy
+próbujemy przypisywać tablice o tych samych typach, ale różnych rozmiarach.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
 
     five = four
 
-Compiler Error:
+Błąd kompilacji:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+W tym przypadku deklarujesz tablicę o rozmiarze 4 i 5 liczb całkowitych zainicjowanych
+do stanu o wartości zerowej. Następnie próbujesz przypisać je sobie nawzajem, a kompilator
+mówi: "nie można użyć four (typ [4]int) jako typu [5]int w przypisaniu".
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+Warto zrozumieć, co mówi kompilator. Oznacza to, że tablica składająca się z 4 liczb
+całkowitych i tablica składająca się z 5 liczb całkowitych reprezentują dane różnych typów.
+Rozmiar tablicy stanowi część jej informacji typu. W Go rozmiar tablicy musi być znany
+na etapie kompilacji.
 
-** Contiguous Memory Construction
+** Ciągla alokacja pamięci
 
-You want to prove that an array provides a contiguous layout of memory.
+Chcesz udowodnić, że tablica zapewnia ciągły układ pamięci.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -166,7 +168,7 @@ You want to prove that an array provides a contiguous layout of memory.
             v, &v, &five[i])
     }
 
-Output:
+Wynik:
 
     Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
     Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
@@ -174,84 +176,86 @@ Output:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Tutaj deklarujesz tablicę z 5 ciągami zainicjowanymi wartościami. Następnie używasz
+wartościowej iteracji, aby wyświetlić informacje o każdym ciągu. Wynik pokazuje każdą
+pojedynczą wartość ciągu, adres zmiennej v oraz adres każdego elementu w tablicy.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Możesz zobaczyć, że tablica jest ciągłym blokiem pamięci, a ciąg to struktura
+danych o rozmiarze dwóch słów lub 16 bajtów w architekturze 64-bitowej. Adres
+każdego elementu jest odległy o 16 bajtów.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+Fakt, że zmienna v ma ten sam adres podczas każdej iteracji, wzmacnia zrozumienie,
+że v to zmienna lokalna typu string, która zawiera kopię każdej wartości ciągu
+podczas iteracji.
 
-** CPU Caches
+** Pamięć podręcza CPU
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+Istnieje wiele mechanicznych różnic między procesorami i ich konstrukcją. W tej
+sekcji omówimy ogólny model procesora oraz semantykę, która jest stosunkowo taka
+sama we wszystkich procesorach. Zrozumienie tej semantyki dostarczy ci dobrego
+modelu mentalnego dotyczącego działania procesora i pozwoli na lepsze zrozumienie
+jego działania.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
+Każdy rdzeń w procesorze ma własną lokalną pamięć podręczną (L1 i L2) oraz wspólną
+pamięć podręczną (L3) do przechowywania i dostępu do danych i instrukcji. Wątki
+sprzętowe w każdym rdzeniu mogą uzyskiwać dostęp do swoich lokalnych pamięci podręcznych
+L1 i L2. Dane z pamięci L3 lub głównej pamięci muszą być skopiowane do pamięci podręcznej
+L1 lub L2 w celu dostępu.
 
 .image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Koszt opóźnienia dostępu do danych, które znajdują się w różnych pamięciach podręcznych,
+zmienia się od najniższego do najwyższego: L1 -> L2 -> L3 -> główna pamięć. Jak powiedział
+Scott Meyers: "Jeśli wydajność ma znaczenie, to łączna ilość pamięci, którą masz, to łączna
+ilość pamięci podręcznej. Główna pamięć jest tak wolna w dostępie, że praktycznie rzecz biorąc,
+można by ją zignorować."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Wydajność dzisiaj zależy od tego, jak efektywnie dane przepływają przez sprzęt. Jeśli każdy
+fragment danych, którego potrzebuje sprzęt (w danym momencie), znajduje się tylko w głównej
+pamięci, moje programy będą działać wolniej w porównaniu do sytuacji, w której dane są już
+obecne w pamięci L1 lub L2.
 
-    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+    3GHz(3 miliardy cykli zegara na sekundę) * 4 instrukcje na cykl = 12 instrukcji na ns!
 
-    1 ns ............. 1 ns .............. 12 instructions  (one) 
-    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
-    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
-    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+    1 ns ............. 1 ns .............. 12 instrukcji  (jeden)
+    1 µs ......... 1,000 ns .......... 12,000 instrukcji  (tysiąc)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instrukcji  (milion)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instrukcji  (miliard)
 
-    Industry Defined Latencies
-    L1 cache reference ......................... 0.5 ns ...................  6 ins
-    L2 cache reference ........................... 7 ns ................... 84 ins
-    Main memory reference ...................... 100 ns ................. 1200 ins
+    Zdefiniowane opóźnienia
+    L1 pamięć podręczna ......................... 0.5 ns ...................  6 ins
+    L2 pamięć podręczna ........................... 7 ns ................... 84 ins
+    Pamięć główna................................ 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
+Jak napisać kod, który gwarantuje, że dane potrzebne do wykonania instrukcji zawsze
+znajdują się w pamięci podręcznej L1 lub L2? Musisz napisać kod, który jest mechanicznie
+zgodny z mechanizmem prefetcher procesora. Prefetcher stara się przewidzieć, jakie dane
+będą potrzebne, zanim instrukcje poproszą o te dane, dzięki czemu dane są już obecne w
+pamięci podręcznej L1 lub L2.
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Istnieją różne poziomy dostępu do pamięci w zależności od tego, gdzie zachodzi dostęp.
+Twój kod może czytać/zapisywać bajt pamięci jako najmniejszą jednostkę dostępu do pamięci.
+Jednak z perspektywy systemów pamięci podręcznej jednostką granularności jest blok o
+rozmiarze 64 bajtów, zwany linią pamięci podręcznej (cache line).
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Prefetcher działa najlepiej, gdy wykonywane instrukcje tworzą przewidywalne wzorce dostępu
+do pamięci. Jednym ze sposobów stworzenia przewidywalnego wzorca dostępu do pamięci jest
+skonstruowanie ciągłego bloku pamięci i następnie iterowanie po tej pamięci, wykonując
+liniowy przebieg z przewidywalnym krokiem.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Tablica jest najważniejszą strukturą danych dla sprzętu, ponieważ obsługuje przewidywalne
+wzorce dostępu. Jednak w Go najważniejszą strukturą danych jest slice. Slicey w Go używają
+tablicy jako struktury bazowej.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Po utworzeniu tablicy każdy element jest równie oddalony od następnego lub poprzedniego elementu.
+Podczas iteracji po tablicy zaczynasz przechodzić od jednej linii pamięci podręcznej do kolejnej,
+utrzymując przewidywalny krok. Prefetcher wykryje ten przewidywalny wzorzec dostępu do danych i
+zacznie wydajnie ściągać dane do procesora, zmniejszając tym samym opóźnienia kosztów dostępu do
+danych.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Wyobraź sobie, że masz dużą macierz kwadratową pamięci i listę połączonych węzłów, która odpowiada
+liczbie elementów w macierzy. Jeśli wykonasz przejście po liście połączonej i następnie przejdziesz
+przez macierz w obie strony (kolumnowo i wierszowo), jak będzie się różnić wydajność różnych tras?
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +269,9 @@ the performance of the different traversals compare?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+Przechodzenie wierszowe (row traverse) będzie miało najlepszą wydajność, ponieważ przechodzi przez pamięć,
+blokami cache line połączonymi ze sobą, co tworzy przewidywalny wzorzec dostępu. Cache line mogą być
+wcześniej przewidziane i skopiowane do pamięci podręcznej L1 lub L2, zanim dane będą potrzebne.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +285,10 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+Przechodzenie kolumnowe (column traverse) jest najgorsze o rząd wielkości, ponieważ ten wzorzec dostępu
+przekracza granice stron systemu operacyjnego (OS page boundaries) przy każdym dostępie do pamięci.
+To powoduje brak przewidywalności dla wcześniejszego przewidywania cache line i staje się praktycznie
+dostępem do losowej pamięci.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,59 +302,55 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Lista połączona (linked list) jest dwukrotnie wolniejsza od przekładu wierszy (row traversal),
+głównie dlatego, że występują tam cache line misses, ale mniej TLB (Translation Lookaside Buffer)
+misses. Większość węzłów połączonych na liście istnieje w tych samych stronach OS.
 
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
     BenchmarkRowTraverse-16         310      11060883 ns/op
 
-** Translation Lookaside Buffer (TLB)
+** Bufor mikroprocesorowej pamięci
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Każdy działający program otrzymuje pełne mapowanie pamięci wirtualnej od systemu operacyjnego i myśli,
+że dysponuje całą pamięcią fizyczną na maszynie. Niemniej jednak pamięć fizyczna musi być dzielona
+między wszystkie uruchomione programy. System operacyjny dzieli pamięć fizyczną, dzieląc ją na strony i
+mapując strony na pamięć wirtualną dla dowolnie działającego programu. Każdy system operacyjny może
+określić rozmiar strony, ale rozmiary 4k, 8k i 16k są rozsądnymi i powszechnymi rozmiarami.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+TLB to mały bufor wewnątrz procesora, który pomaga zmniejszyć opóźnienia w tłumaczeniu adresu wirtualnego
+na adres fizyczny w ramach strony systemu operacyjnego i przesunięcia wewnątrz strony. Brak trafienia w
+pamięć podręczną TLB może powodować duże opóźnienia, ponieważ teraz sprzęt musi czekać, aż system operacyjny
+przejrzy swoją tabelę stron, aby znaleźć odpowiednią stronę dla danego adresu wirtualnego. Jeśli program
+działa na maszynie wirtualnej (na przykład w chmurze), to najpierw trzeba przejrzeć tabelę stron maszyny
+wirtualnej.
 
-Remember what was said:
+Pamiętaj to, co zostało powiedziane:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Lista połączona jest dwukrotnie wolniejsza niż przekład wierszy głównie dlatego, że występują tam braki w
+cache line, ale mniej braków TLB (wyjaśnionych dalej). Większość węzłów połączonych na liście istnieje w
+tych samych stronach systemu operacyjnego.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+LinkedList jest o rzędy wielkości szybszy niż przekład kolumny ze względu na dostęp do TLB. Mimo że są
+tam braki w cache line w trakcie trawersowania listy połączonej, ponieważ większość pamięci grupy węzłów
+znajdzie się w tej samej stronie, opóźnienia TLB nie wpływają na wydajność. Dlatego też, dla programów
+korzystających z dużej ilości pamięci, takich jak aplikacje oparte na DNA, można rozważyć użycie dystrybucji
+systemu Linux skonfigurowanej z rozmiarami stron rzędu megabajtów lub dwóch pamięci.
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Wszystko to podkreśla, jak ważne jest podejście oparte na danych. Efektywny algorytm musi uwzględniać sposób
+dostępu do danych. Pamiętaj, że wydajność dzisiaj zależy od tego, jak efektywnie można dostarczyć dane do procesora.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
 
-** CPU Cache Notes
+** Notatki pamięci podręcznej procesora
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Dodatkowe diagramy
 
-*Industry* *Defined* *Latencies*
+*Określone* *Czasy* *Opóźnień*
 
     L1 cache reference ......................... 0.5 ns ...................  6 ins
     Branch mispredict ............................ 5 ns ................... 60 ins
@@ -366,13 +367,13 @@ how efficiently you can get data into the processor.
     Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
     Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
-*Cache* *Latencies* *Image*
+*Wykres* *Czasów* *Opóźnień* *Pamięci* *Podręcznej*
 
 .image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Dodatkowe materiały
 
-*CPU* *Caches* */* *Memory*
+*CPU* *Pamięć podręczna* */* *Pamięć*
 
 - [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
 - [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
@@ -392,7 +393,7 @@ how efficiently you can get data into the processor.
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
 - [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
 
-*Data-Oriented* *Design*
+*Projektowanie* *Zorientowane* *Na* *Dane*
 
 - [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
 - [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
@@ -402,27 +403,26 @@ how efficiently you can get data into the processor.
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
-** Notes
+** Notatki
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
+- Jeśli nie rozumiesz danych, to nie rozumiesz problemu.
+- Jeśli nie rozumiesz kosztu rozwiązania problemu, nie możesz rozważać go logicznie.
+- Jeśli nie rozumiesz sprzętu, nie możesz rozważać kosztu rozwiązania problemu.
+- Tablice to struktury danych o stałej długości, które nie mogą zmieniać się.
+- Tablice o różnych rozmiarach są traktowane jako różne typy.
+- Pamięć jest alokowana jako blok o ciągłej lokalizacji.
+- Go daje kontrolę nad przestrzenną lokalizacją.
 
-* Exercises
+* Ćwiczenia
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
 
-** Exercise 1
+** Ćwiczenie 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
+Zadeklaruj tablicę zawierającą 5 ciągów znaków, gdzie każdy element jest zainicjowany na wartość zero.
+Następnie zadeklaruj drugą tablicę 5 ciągów znaków i zainicjuj ją za pomocą literałów ciągów znaków.
+Przypisz drugą tablicę do pierwszej i wyświetl wynik pierwszej tablicy. Wyświetl wartość ciągu znaków
+oraz adres każdego elementu.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go
