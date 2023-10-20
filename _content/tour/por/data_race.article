@@ -1,12 +1,12 @@
-Corrida de Dados
-Uma corrida de dados ocorre quando duas ou mais Goroutines tentam acessar a mesma localização de memória ao mesmo tempo,
+Data Race
+Uma Data Race ocorre quando duas ou mais Goroutines tentam acessar a mesma localização de memória ao mesmo tempo,
 
-* Corrida de Dados
+* Data Race
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
 - Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
 
-Uma corrida de dados ocorre quando duas ou mais Goroutines tentam acessar a mesma 
+Uma Data Race ocorre quando duas ou mais Goroutines tentam acessar a mesma 
 localização de memória ao mesmo tempo, sendo que pelo menos uma Goroutine está 
 realizando uma escrita. Quando isso acontece, é impossível prever o resultado. Esse 
 tipo de erro é difícil de encontrar porque causa problemas que sempre parecem aleatórios.
@@ -17,12 +17,12 @@ Esses ~8 minutes do Scott Meyers são ótimos para ouvir :
 
 ** Revisão de Código
 
-- *Exemplo* *1:* Corrida de Dados
+- *Exemplo* *1:* Data Race
 - *Exemplo* *2:* Incrementos Atômicos
 - *Exemplo* *3:* Mutex
 - *Exemplo* *4:* Mutexes de Leitura/Escrita
-- *Exemplo* *5:* Map Corrida de Dados
-- *Exemplo* *6:* Interface Baseada em Corrida de Dados
+- *Exemplo* *5:* Map Data Race
+- *Exemplo* *6:* Interface Baseada em Data Race
 
 .play data_race/example1.go
 .play data_race/example2.go     
@@ -31,9 +31,9 @@ Esses ~8 minutes do Scott Meyers são ótimos para ouvir :
 .play data_race/example5.go
 .play data_race/example6.go
 
-** Exemplo de Corrida de Dados
+** Exemplo de Data Race
 
-Este é um ótimo exemplo de uma corrida de dados e de como elas podem 
+Este é um ótimo exemplo de uma Data Race e de como elas podem 
 ficar ocultas por anos e, eventualmente, aparecer em momentos estranhos 
 e causar corrupção de dados.
 
@@ -151,7 +151,7 @@ você obterá a resposta de 2.
     Final Counter: 2
 
 
-O que está acontecendo? Você está encontrando um bug de corrida de dados que existia 
+O que está acontecendo? Você está encontrando um bug de Data Race que existia 
 antes, mas não estava ocorrendo. A chamada para o log agora está fazendo com que o 
 scheduler faça uma troca de contexto entre as duas Goroutines em um momento 
 inadequado.
@@ -181,7 +181,7 @@ inadequado.
 Após a operação de modificação, ocorre uma troca de contexto. As três operações não são 
 mais ininterruptas, e a Goroutine 2 acaba com um valor local errado no momento em que 
 conclui a operação de escrita. Você tem muita sorte de que isso esteja acontecendo todas 
-as vezes e você possa vê-lo. Mas normalmente, uma corrida de dados como essa acontece 
+as vezes e você possa vê-lo. Mas normalmente, uma Data Race como essa acontece 
 "aleatoriamente" e é impossível saber disso até que seja tarde demais. Felizmente, o 
 Go possui um detector de corrida para ajudar a encontrar corridas de dados.
 
@@ -244,12 +244,12 @@ Ambas as Goroutines foram criadas na linha 36.
     44 }()
 
 Você pode claramente ver a leitura e escrita não sincronizadas. Como observação adicional, 
-a operação "plus plus" (++) na linha 39 também seria uma corrida de dados se o código 
+a operação "plus plus" (++) na linha 39 também seria uma Data Race se o código 
 estivesse acessando a variável de contador. A operação "plus plus", por baixo, é uma operação 
 de leitura, modificação e escrita , e o sistema operacional pode facilmente fazer uma troca 
 de contexto no meio dela.
 
-Então, como você pode corrigir o código para garantir que você remova a corrida de dados? 
+Então, como você pode corrigir o código para garantir que você remova a Data Race? 
 Existem duas ferramentas que você pode usar, instruções atômicas e mutexes.
 
 ** Instruções Atômicas
@@ -532,7 +532,7 @@ A saída mostra como várias Goroutines estão lendo ao mesmo tempo, mas todas a
 ** Notas
 
 - As Goroutines precisam ser coordenadas e sincronizadas.
-- Quando duas ou mais Goroutines tentam acessar o mesmo recurso, temos uma corrida de dados.
+- Quando duas ou mais Goroutines tentam acessar o mesmo recurso, temos uma Data Race.
 - Funções atômicas e mutexes podem fornecer o suporte de que precisamos.
 
 ** Coerência de Cache e Falso Compartilhamento
@@ -563,7 +563,7 @@ Use o template como um ponto de partida para completar os exercícios. Uma poss�
 
 ** Exercício 1
 
-Dado o programa a seguir, use o detector de corrida (race detector) para encontrar e corrigir a corrida de dados.
+Dado o programa a seguir, use o detector de corrida (race detector) para encontrar e corrigir a Data Race.
 
 .play data_race/exercise1.go
 .play data_race/answer1.go
