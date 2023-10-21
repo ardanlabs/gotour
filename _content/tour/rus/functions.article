@@ -1,27 +1,27 @@
-Functions
-Functions are at the core of the language and they provide a mechanism to group and organize our code to separate and distinct pieces of functionality.
+Функции
+Функции являются центральной частью языка и используются для группировки и организации нашего кода в отдельные функциональные элементы.
 
-* Functions
+* Функции
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-Functions are at the core of the language and they provide a mechanism to group
-and organize our code to separate and distinct pieces of functionality. They can
-be used to provide an API to the packages we write and are a core component to
-concurrency.
+Функции являются центральной частью языка и используются для группировки и организации
+нашего кода в отдельные функциональные элементы. Они могут использоваться
+для предоставления API к созданных нами пакетам и являются основным компонентом
+параллелизма.
 
-Functions in Go play a central role in structuring code and promoting clean,
-maintainable, and efficient software. Understanding how to declare, define, and
-use functions is crucial for writing effective Go programs.
+Функции в Go играют центральную роль в структурировании кода и способствуют созданию чистого,
+поддерживаемого и эффективного программного обеспечения. Понимание того, как объявлять
+и использовать функции, является ключевым моментом для написания эффективных программ на Go.
 
-** Code Review
+** Обзор кода
 
-- *Example* *1:* Return multiple values
-- *Example* *2:* Blank identifier
-- *Example* *3:* Redeclarations
-- *Example* *4:* Anonymous Functions/Closures
-- *Example* *5:* Recover panics
+- *Пример* *1:* Возврат нескольких значений
+- *Пример* *2:* Пустой идентификатор
+- *Пример* *3:* Повторное объявление
+- *Пример* *4:* Анонимные функции/Замыкания
+- *Пример* *5:* Восстановление после паники
 
 .play functions/example1.go
 .play functions/example2.go
@@ -29,54 +29,53 @@ use functions is crucial for writing effective Go programs.
 .play functions/example4.go
 .play functions/example5.go
 
-Functions are a fundamental building block of programs and are used to encapsulate
-and organize code for better modularity and reusability. Functions are blocks of code
-that perform a specific task or a set of related tasks. Here's an overview of
-functions in Go:
+Функции являются фундаментальным строительным блоком программ и используются для инкапсуляции
+и организации кода с целью лучшей модульности и повторного использования. Функции представляют
+собой блоки кода, выполняющие определенную задачу или набор связанных задач. Вот обзор функций в Go:
 
-** Function Declaration
+** Объявление Функции
 
-To declare a function in Go, you use the `func` keyword followed by the
-function name, a list of parameters enclosed in parentheses, and an optional
-return type. The general syntax is:
+Для объявления функции в Go используется ключевое слово `func`, за которым следует
+имя функции, список параметров, заключенных в скобки, и необязательный
+тип возвращаемого значения. Общий синтаксис выглядит следующим образом:
 
-   func functionName(parameter1 type, parameter2 type, ...) return_type {
-       // Function body
+   func имяФункции(параметр1 тип, параметр2 тип, ...) тип_возвращаемого_значения {
+       // Тело функции
    }
 
-For example:
+Например:
 
    func add(x int, y int) int {
        return x + y
    }
 
-** Parameters and Return Values
+** Параметры и Возвращаемые Значения
 
-Functions can take zero or more parameters, which are the values passed to the
-function when it is called. Each parameter consists of a name and a type. In
-the example above, `add` takes two integer parameters, `x` and `y`.
+Функции могут принимать ноль или более параметров, которые представляют собой значения,
+передаваемые в функцию при ее вызове. Каждый параметр состоит из имени и типа. В
+приведенном выше примере, `add` принимает два целочисленных параметра, `x` и `y`.
 
-Functions can return zero or one value (or none, in which case you can omit the
-return type). The `return` statement is used to specify the value to be returned.
-In the example above, `add` returns an integer.
+Когда функция не имеeт возвращаемого значения, его тип можно опустить.
+Ключевое слово `return` используется для указания возвращаемого значения.
+В приведенном выше примере, `add` возвращает целое число.
 
-Go allows functions to return multiple values. This is useful in cases where you
-want to return more than one result from a function. For example:
+Go позволяет функциям возвращать несколько значений. Это полезно в случаях,
+когда необходимо вернуть более одного результата из функции. Например:
 
    func divide(x, y float64) (float64, error) {
        if y == 0 {
-           return 0, errors.New("division by zero")
+           return 0, errors.New("деление на ноль")
        }
        return x / y, nil
    }
 
-In this example, the `divide` function returns both a floating-point result and
-an error (if the division by zero occurs).
+В этом примере функция `divide` возвращает как результат с плавающей точкой,
+так и ошибку (если происходит деление на ноль).
 
-Go allows you to specify names for the return values in a function's signature.
-Named return values are automatically initialized and can be used as regular
-variables within the function. They are particularly useful when dealing with
-complex functions or error handling. For example:
+В Go можно указывать имена для возвращаемых значений в сигнатуре функции.
+Имена возвращаемых значений автоматически инициализируются и могут использоваться как обычные
+переменные внутри функции. Они особенно полезны при работе с сложными функциями или обработке ошибок.
+Например:
 
    func divide(x, y float64) (result float64, err error) {
        if y == 0 {
@@ -87,20 +86,20 @@ complex functions or error handling. For example:
        return
    }
 
-** Function Calls
+** Вызов Функции
 
-To call a function in Go, you use the function name followed by a list of arguments
-enclosed in parentheses. If the function has multiple return values, you can capture
-them in variables. For example:
+Для вызова функции в Go используется имя функции, за которым следует список аргументов,
+заключенных в скобки. Если у функции есть несколько возвращаемых значений, их можно сохранить
+в переменных. Например:
 
-   sum := add(3, 5)            // Call the add function and assign its result to sum
-   result, err := divide(8, 2) // Call the divide function and capture both result and error
+   sum := add(3, 5)            // Вызвать функцию сложения и присвоить ее результат переменной `sum`
+   result, err := divide(8, 2) // Вызвать функцию деления и получить как результат, так и ошибку
 
-** Function Variadic Parameters
+** Вариативные Параметры Функции
 
-Go supports variadic functions, which allow you to pass a variable number of
-arguments to a function. To define a variadic parameter, you use an ellipsis
-(`...`) followed by the parameter type. For example:
+Go поддерживает вариативные функции, которые позволяют передавать переменное количество
+аргументов в функцию. Для определения вариативного параметра используется многоточие
+(`...`), за которым следует тип параметра. Например:
 
    func calculateSum(nums ...int) int {
        sum := 0
@@ -110,14 +109,14 @@ arguments to a function. To define a variadic parameter, you use an ellipsis
        return sum
    }
 
-You can call this function with any number of integers.
+Вы можете вызвать эту функцию с любым количеством целых чисел.
 
-** Anonymous Functions
+** Анонимные Функции
 
-Go supports anonymous functions, also known as closures. These are functions
-without a name, and they can be assigned to variables and used as arguments to
-other functions. Closures are often used in Go for tasks like defining inline
-functions or for concurrent programming using goroutines.
+Go поддерживает анонимные функции, также известные как замыкания. Это функции
+без имени, и их можно присваивать переменным и использовать в качестве аргументов
+других функций. Замыкания часто используются в Go для таких задач как определение
+встроенных функций или для параллельного программирования с использованием горутин.
 
    add := func(x, y int) int {
        return x + y
@@ -125,11 +124,11 @@ functions or for concurrent programming using goroutines.
 
    result := add(3, 5)
 
-** Function as a Type
+** Функция как Тип
 
-In Go, functions can also be used as types. This allows you to define functions
-that take other functions as arguments or return them as results. It's a powerful
-feature for implementing higher-order functions and callbacks.
+В Go функции также могут использоваться как типы. Это позволяет определять функции,
+которые принимают другие функции в качестве аргументов или возвращают их как результат.
+Это мощный механизм для реализации функций высокого порядка и колбэков.
 
    type MathFunc func(int, int) int
 
@@ -137,46 +136,45 @@ feature for implementing higher-order functions and callbacks.
        return op(x, y)
    }
 
-You can then pass functions as arguments to `operate`.
+Затем вы можете передать функции в качестве аргументов `operate`.
 
-** Defer and Panic
+** Отложенные Вызовы и Паника
 
-Go provides two special built-in functions called `defer` and `panic` for handling
-exceptional situations and resource management. `defer` is used to schedule a function
-call to be executed just before the function returns, while `panic` is used to
-trigger a run-time error and unwind the stack.
+Go предоставляет две специальные встроенные функции, называемые `defer` и `panic`, для обработки
+ощибок и управления ресурсами. `defer` используется для организации вызова функции
+на выполнение прямо перед возвратом из функции, в то время как `panic` используется для
+генерации ошибки во время выполнения и раскрутки стека.
 
-** Notes
+** Заметки
 
-- Functions can return multiple values and most return an error value.
-- The error value should always be checked as part of the programming logic.
-- The blank identifier can be used to ignore return values.
-- Syntax: func, receiver, identifier, [parameter(s)], [return(s)], code block.
-- Variadic parameters, variadic arguments, and unfurling a slice.
-- Functions are a type: you can use functions as parameters, arguments, & returns.
-- Defer is used to schedule a function call in another function.
-- Panic triggers a run-time error and unwinds the stack.
-- Named returns are less readable and are not idiomatic
+- Функции могут возвращать несколько значений, и чаще всего возвращают значение ошибки.
+- Значение ошибки всегда необходимо проверять как часть программной логики.
+- Для игнорирования возвращаемых значений можно использовать пустой идентификатор.
+- Синтаксис: func, получатель, идентификатор, [параметр(ы)], [возврат(ы)], блок кода.
+- Вариативные параметры, вариативные аргументы и разворачивание среза.
+- Функции - это тип: вы можете использовать функции как параметры, аргументы и возвращаемые значения.
+- Отложенный вызов (`defer`) используется для организации вызова функции перед выходом из другой функции.
+- `panic` запускает ошибку времени выполнения и раскручивает стек.
+- Именованные возвращаемые значения менее читабельны и неидиоматичны.
 
-** Extra Reading
+** Дополнительная литература
 
-- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
-- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
-- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+- [[https://golang.org/doc/effective_go.html#functions][Эффективный Go]]
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Функции и Обнаженные возвраты в Go]]
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Понимание отложенных вызовов и восстановления]]
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible
-solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Здесь представлен возможный вариант решения.
 
-** Exercise 1
+** Упражнение 1
 
-*Part* *A:* Declare a struct type to maintain information about a user. Declare a
-function that creates value of and returns pointers of this type and an error
-value. Call this function from main and display the value.
+*Часть* *A:* Объявите тип структуры для хранения информации о пользователе. Объявите
+функцию, которая создает значение этого типа и возвращает указатели на это значение и значение ошибки.
+Вызовите эту функцию из `main` и отобразите значение.
 
-*Part* *B:* Make a second call to your function but this time ignore the value
-and just test the error value.
+*Часть* *B:* Сделайте второй вызов вашей функции, но на этот раз проигнорируйте значение
+и просто проверьте значение ошибки.
 
-.play functions/exercise1.go		
+.play functions/exercise1.go
 .play functions/answer1.go
