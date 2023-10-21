@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a basic hash table.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο συγκραφής ενός βασικού πίνακα κατακερματισμού.
 package main
 
 import (
@@ -59,89 +59,89 @@ func main() {
 
 const numBuckets = 256
 
-// An entry where we store key and value in the hash.
+// Ένας entry όπου αποθηκεύουμε κλειδί και τιμή στον πίνακα.
 type entry struct {
 	key   string
 	value int
 }
 
-// Hash is a simple Hash table implementation.
+// Ο Hash είναι μια απλή υλοποίηση πίνακα κατακερματισμού.
 type Hash struct {
 	buckets [][]entry
 	hash    maphash.Hash
 }
 
-// New returns a new hash table.
+// Η New επιστρέφει έναν νέο πίνακα κατακερματισμού.
 func New() *Hash {
 	return &Hash{
 		buckets: make([][]entry, numBuckets),
 	}
 }
 
-// Store adds a value in the hash table based on the key.
+// Η Store προσθέτει μια τιμή στον πίνακα κατακερματισμού με βάση το κλειδί.
 func (h *Hash) Store(key string, value int) {
 
-	// For the specified key, identify what bucket in
-	// the slice we need to store the key/value inside of.
+	// Για το συγκεκριμένο κλειδί, προσδιορίστε σε ποιά θέση αποθήκευσης
+	// στην φέτα πρέπει να αποθηκεύσουμε τα κλειδί/τιμή.
 	idx := h.hashKey(key)
 
-	// Extract a copy of the bucket from the hash table.
+	// Εξάγετε ένα αντίγραφο από την θέση αποθήκευσης από τον πίνακα κατακερματισμού.
 	bucket := h.buckets[idx]
 
-	// Iterate over the indexes for the specified bucket.
+	// Επαναλάβετε επί των δεικτών για την συγκεκριμένη θέση αποθήκευσης.
 	for idx := range bucket {
 
-		// Compare the keys and if there is a match replace the
-		// existing entry value for the new value.
+		// Συγκρίνετε τα κλειδιά και αν υπάρχει κάποιο που ταιριάζει
+		// αντικαταστήστε την υπάρχουσα τιμή της εγγραφής με την νέα.
 		if bucket[idx].key == key {
 			bucket[idx].value = value
 			return
 		}
 	}
 
-	// This key does not exist, so add this new value.
+	// Αυτό το κλειδί δεν υπάρχει, επόμένως προσθέστε αυτή την νέα τιμή.
 	h.buckets[idx] = append(bucket, entry{key, value})
 }
 
-// Retrieve extracts a value from the hash table based on the key.
+// Η Retrieve εξάγει μια τιμή από τον πίνακα κατακερματισμούμε βάση το κλειδί.
 func (h *Hash) Retrieve(key string) (int, error) {
 
-	// For the specified key, identify what bucket in
-	// the slice we need to store the key/value inside of.
+	// Για το συγκεκριμένο κλειδί, προσδιορίστε σε ποιά θέση
+	// αποθήκευσης μέσα στην φέτα πρέπει να αποθηκεύσουμε τα κλειδί/τιμή.
 	idx := h.hashKey(key)
 
-	// Iterate over the entries for the specified bucket.
+	// Επαναλάβετε επί των εγγραφών για την συγκεκριμένη θέση αποθήκευσης.
 	for _, entry := range h.buckets[idx] {
 
-		// Compare the keys and if there is a match return
-		// the value associated with the key.
+		// Συγκρίνετε τα κελιδιά και αν υπάρχει ταύτιση
+		// επιστρέψτε την τιμή που σχετίζεται με το κλειδί.
 		if entry.key == key {
 			return entry.value, nil
 		}
 	}
 
-	// The key was not found so return the error.
+	// Το κλειδί δεν βρέθηκε επομένως επιστρέψτε το σφάλμα.
 	return 0, fmt.Errorf("%q not found", key)
 }
 
-// Delete deletes an entry from the hash table.
+// Η Delete διαγράφει μια εγγραφή από τον πίνακα κατακερματισμού.
 func (h *Hash) Delete(key string) error {
 
-	// For the specified key, identify what bucket in
-	// the slice we need to store the key/value inside of.
+	// Για το συγκεκριμένο κλειδί, προσδιορίστε σε ποιά θέση
+	// αποθήκευσης στην φέτα πρέπει να αποθηκεύσουμε τα κλειδί/τιμή.
 	bucketIdx := h.hashKey(key)
 
-	// Extract a copy of the bucket from the hash table.
+	// Εξάγετε ένα αντίγραφο της θέσης αποθήκευσης από τον πίνακα κατακερματισμού.
 	bucket := h.buckets[bucketIdx]
 
-	// Iterate over the entries for the specified bucket.
+	// Επαναλάβετε επί των εγγραφών για την συγγκεκριμένη θέση αποθήκευσης.
 	for entryIdx, entry := range bucket {
 
-		// Compare the keys and if there is a match remove
-		// the entry from the bucket.
+		// Συγκρίνετε τα κελιδιά και αν υπάρχει ταύτιση απομακρύνετε
+		// την εγγραφή από την θέση αποθήκευσης.
 		if entry.key == key {
 
-			// Remove the entry based on its index position.
+			// Απομακρύνετε την εγγραφή με βάση την θέση δείκτη της.
 			bucket = removeEntry(bucket, entryIdx)
 
 			// Replace the existing bucket for the new one.
@@ -150,12 +150,13 @@ func (h *Hash) Delete(key string) error {
 		}
 	}
 
-	// The key was not found so return the error.
+	// Το κλειδί δεν βρέθηκε επομένως επιστρέψτε το σφάλμα.
 	return fmt.Errorf("%q not found", key)
 }
 
-// Len return the number of elements in the hash. This function currently
-// uses a linear traversal but could be improved with meta-data.
+// Η Len επιστρέφει τον αριθμό των στοιχείων στον πίνακα κατακερματισμού.
+// Η συνάρτηση στην τρέχουσα μορφή της χρησιμοποιεί μια γραμμική
+// προσπέλαση η οποία όμως θα μπορούσε να βελτιωθεί με μετα-δεδομένα.
 func (h *Hash) Len() int {
 	sum := 0
 	for _, bucket := range h.buckets {
@@ -164,7 +165,7 @@ func (h *Hash) Len() int {
 	return sum
 }
 
-// Do calls fn on each key/value. If fn return false stops the iteration.
+// Η Do καλέι την fn σε κάθε κλειδί/τιμή. Αν η fn επσιτρέψει false, τότε σταματάει η επανάληπτική προσπέλαση.
 func (h *Hash) Do(fn func(key string, value int) bool) {
 	for _, bucket := range h.buckets {
 		for _, entry := range bucket {
@@ -175,60 +176,69 @@ func (h *Hash) Do(fn func(key string, value int) bool) {
 	}
 }
 
-// hashKey calculates the bucket index position to use
-// for the specified key.
+// Η hashKey υπολογίζει ποιά θέση δείκτη της θέσης αποθήκευσης
+// να χρησιμοποιήσει για το συγκεκριμένο κλειδί.
 func (h *Hash) hashKey(key string) int {
 
-	// Reset the maphash to initial state so we'll get the same
-	// hash value for the same key.
+	// Καλέστε την Reset στον maphash του πίνακα
+	// στην αρχική κατάσταση ώστε να πάρουμε την ίδια
+	// τιμή κατακερματισμού για το ίδιο κλειδί.
 	h.hash.Reset()
 
-	// Write the key to the maphash to update the current state.
-	// We don't check error value since WriteString never fails.
+	// Γράψτε το κλειδί στον maphash προκειμένου να ανανεωθεί
+	// η παρούσα κατάσταση. Δε ελέγχουμε την τιμή σφάλματος
+	// καθώς η WriteString δεν αποτυγχάνει ποτε.
 	h.hash.WriteString(key)
 
-	// Ask the maphash for its current state which we will
-	// use to calculate the final bucket index.
+	// Αναζητήστε από στον maphash την τρέχουσα κατάσταση
+	// την οποία θα χρησιμοποιήσουμε προκειμένου να υπολογίσουμε
+	// τον τελικό δείκτη της θέσης αποθήκευσης.
 	n := h.hash.Sum64()
 
-	// Use the modulus operator to return a value in the range
-	// of our bucket length defined by the const numBuckets.
+	// Χρησιμοποιείστε τον τελεστή ακέραις διαίρεσης (modulus)
+	// προκειμένου να επιστρέψετε μια τιμή στο εύρος
+	// του διαθέσιμου μήκους για τις θέσεις αποθήκευσης
+	// όπως ορίζεται από την σταθερά numBuckets.
 	return int(n % numBuckets)
 }
 
-// removeEntry performs the physical act of removing an
-// entry from a bucket,
+// Η removeEntry πραγματοποιεί την απομάκρυνση μιας εγγραφής
+// από μια θέση αποθήκευσης.
 func removeEntry(bucket []entry, idx int) []entry {
 
 	// https://github.com/golang/go/wiki/SliceTricks
-	// Cut out the entry by taking all entries from
-	// infront of the index and moving them behind the
-	// index specified.
+	// Απομακρύνετε την εγγραφή παίρνοντας όλες τις
+	// εγγραφές μπορστά από τον δείκτη θέσης και
+	// μεταφέροντας τεςπίσω από τον συγκεκριμένο δείκτη.
 	copy(bucket[idx:], bucket[idx+1:])
 
-	// Set the proper length for the new slice since
-	// an entry was removed. The length needs to be
-	// reduced by 1.
+	// Θέστε το κατάλληλο μήκος για την νέα φέτα καθώς
+	// απομακρύνθηκε μια εγγραφή. Το μήκος πρέπει να
+	// μειωθεί κατά 1.
 	bucket = bucket[:len(bucket)-1]
 
-	// Look to see if the current allocation for the
-	// bucket can be reduced due to the amount of
-	// entries removed from this bucket.
+	// Προσπαθήστε να διαπιστώσετε αν η τρέχουσα εκχώρηση
+	// για την θέση αποθήκευσης μπορεί να μειωθεί
+	// εξαιτίας του αριθμού των εγγραφών που αφαιρέθηκαν
+	// από την θέση αποθήκευσης.
 	return reduceAllocation(bucket)
 }
 
-// reduceAllocation looks to see if memory can be freed to
-// when a bucket has lost a percent of entries.
+// Η reduceAllocation αναζητά αν μπορεί να απελευθερώσει
+// μνήμη όταν ένας χώρος αποθήκευσης έχει χάσει κάποιο
+// ποσοστό των εγγραφών του.
 func reduceAllocation(bucket []entry) []entry {
 
-	// If the bucket if more than ½ full, do nothing.
+	// Αν η θέση αποθήκευσης είναι περισσότερο από το ½ γεμάτη,
+	// τότε μην κάνετε τίποτα.
 	if cap(bucket) < 2*len(bucket) {
 		return bucket
 	}
 
-	// Free memory when the bucket shrinks a lot. If we don't do that,
-	// the underlying bucket array will stay in memory and will be in
-	// the biggest size the bucket ever was
+	// Απελευθερώστε την μνήμη όταν ο χώρος αποθήκευσης συρρικνώνεται
+	// πολύ. Αν δεν το κάνουμε αυτό, ο υποκείμενος πίνακας αποθήκευσης
+	// θα παραμείνει στην μνήμη και θα συνεχίσει να έχει το μεγαλύτερο
+	// μέγεθος που είχε ποτέ η θέση αποθήκευσης.
 	newBucket := make([]entry, len(bucket))
 	copy(newBucket, bucket)
 	return newBucket

@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a basic double linked list.
+// Αυτό το δείγμα προγράμματος παρουσιάζει πως μπορεί κάποιος να γράψει μια απλή διπλά συνδεδεμένη λίστα.
 package main
 
 import (
@@ -34,83 +34,85 @@ func main() {
 
 // =============================================================================
 
-// Node represents the data being stored.
+// Ο Node αναπαριστά τα δεδομένα προς αποθήκευση.
 type Node struct {
 	Data string
 	next *Node
 	prev *Node
 }
 
-// List represents a list of nodes.
+// Η List αναπαριστά μια λίστα από στοιχεία (node).
 type List struct {
 	Count int
 	first *Node
 	last  *Node
 }
 
-// Add places a new node at the end of the list.
+// Η Add τοποθετεί ένα νέο στοιχείο στο τέλος της λίστας.
 func (l *List) Add(data string) *Node {
 
-	// When creating the new node, have the new node
-	// point to the last node in the list.
+	// Όταν κατασκευάζετε το νέο στοιχείο, βάλτε το νέο στοιχείο
+	// να δείχνει προς το τελευταίο στοιχείο της λίστας.
 	n := Node{
 		Data: data,
 		prev: l.last,
 	}
 
-	// Increment the count for the new node.
+	// Αυξήστε την μέτρηση για το νέο στοιχείο.
 	l.Count++
 
-	// If this is the first node, attach it.
+	// Αν πρόκειται για το πρώτο στοιχείο,
+	// τότε συνδέστε το.
 	if l.first == nil && l.last == nil {
 		l.first = &n
 		l.last = &n
 		return &n
 	}
 
-	// Fix the fact that the last node does not point back to
-	// the NEW node.
+	// Διορθώστε το γεγονός ότι το τελευταίο στοιχείο δεν δείχνει
+	// στο ΝΕΟ στοιχείο.
 	l.last.next = &n
 
-	// Fix the fact the Last pointer is not pointing to the true
-	// end of the list.
+	// Διορθώστε το γεγονός ότι ο τελευταίος δείκτης διεύθυνσης δεν
+	// δείχνει προς το πραγματικό τέλος της λίστας.
 	l.last = &n
 
 	return &n
 }
 
-// AddFront places a new node at the front of the list.
+// Η AddFront τοποθετεί ένα νέο στοιχείο στην αρχή της λίστας.
 func (l *List) AddFront(data string) *Node {
 
-	// When creating the new node, have the new node
-	// point to the first node in the list.
+	// Όταν δημιουργείτε ένα νέο στοιχείο, βάλτε το νέο στοιχείο
+	// να δείχνει στο πρώτο στοιχείο της λίστας.
 	n := Node{
 		Data: data,
 		next: l.first,
 	}
 
-	// Increment the count for the new node.
+	// Αυξήστε την μέτρηση για το νέο στοιχείο.
 	l.Count++
 
-	// If this is the first node, attach it.
+	// Αν πρόκειται για το πρώτο στοιχείο,
+	// τότε συνδέστε το.
 	if l.first == nil && l.last == nil {
 		l.first = &n
 		l.last = &n
 		return &n
 	}
 
-	// Fix the fact that the first node does not point back to
-	// the NEW node.
+	// Διορθώστε το γεγονός ότι το πρώτο στοιχείο δεν δείχνει
+	// στο ΝΕΟ στοιχείο.
 	l.first.prev = &n
 
-	// Fix the fact the First pointer is not pointing to the true
-	// beginning of the list.
+	// Διορθώστε το γεγονός ότι ο πρώτος δείκτης διεύθυνσης δεν
+	// δείχνει προς την πραγματική αρχή της λίστας.
 	l.first = &n
 
 	return &n
 }
 
-// Find traverses the list looking for the specified data.
+// Η Find διατρέχει την λίστα αναζητώντας τα συγκεκριμένα δεδομένα.
 func (l *List) Find(data string) (*Node, error) {
 	n := l.first
 	for n != nil {
@@ -122,8 +124,8 @@ func (l *List) Find(data string) (*Node, error) {
 	return nil, fmt.Errorf("unable to locate %q in list", data)
 }
 
-// FindReverse traverses the list in the opposite direction
-// looking for the specified data.
+// Η FindReverse διατρέχει την λίστα στην αντίθετη κατεύθυνση
+// αναζητώντας τα συγκεκριμένα δεδομένα.
 func (l *List) FindReverse(data string) (*Node, error) {
 	n := l.last
 	for n != nil {
@@ -135,16 +137,17 @@ func (l *List) FindReverse(data string) (*Node, error) {
 	return nil, fmt.Errorf("unable to locate %q in list", data)
 }
 
-// Remove traverses the list looking for the specified data
-// and if found, removes the node from the list.
+// Η Remove διατρέχει την λίστα αναζητώντας για τα συγκεκριμένα
+// δεδομένα και αν τα βρει, τα απομακρύνει από την λίστα.
 func (l *List) Remove(data string) (*Node, error) {
 	n, err := l.Find(data)
 	if err != nil {
 		return nil, err
 	}
 
-	// Detach the node by linking the previous node's next
-	// pointer to the node in front of the one being removed.
+	// Αποκολλήστε το στοιχείο συνδεόντας τον δείκτη διεύθυνσης
+	// next του προηγούμενου στοιχείου με το στοιχείο εμπρός από
+	// εκείνο που απομακρύνετε.
 	n.prev.next = n.next
 	n.next.prev = n.prev
 	l.Count--
@@ -152,8 +155,8 @@ func (l *List) Remove(data string) (*Node, error) {
 	return n, nil
 }
 
-// Operate accepts a function that takes a node and calls
-// the specified function for every node found.
+// Η Operate δέχεται μια συνάρτηση που παίρνει ένα στοιχείο
+// και καλεί την συγκεκριμένη συνάρτηση για κάθε στοιχείο.
 func (l *List) Operate(f func(n *Node) error) error {
 	n := l.first
 	for n != nil {
@@ -165,8 +168,8 @@ func (l *List) Operate(f func(n *Node) error) error {
 	return nil
 }
 
-// OperateReverse accepts a function that takes a node and
-// calls the specified function for every node found.
+// Η OperateReverse δέχεται μια συνάρτηση που παίρνει ένα στοιχείο
+// και καλεί την συγκεκριμένη συνάρτηση για κάθε στοιχείο.
 func (l *List) OperateReverse(f func(n *Node) error) error {
 	n := l.last
 	for n != nil {
@@ -178,28 +181,30 @@ func (l *List) OperateReverse(f func(n *Node) error) error {
 	return nil
 }
 
-// AddSort adds a node based on lexical ordering.
+// Η AddSort προσθέτει ένα στοιχείο με βάση μια λεξικογραφική
+// ταξινόμηση.
 func (l *List) AddSort(data string) *Node {
 
-	// If the list was empty add the data
-	// as the first node.
+	// Αν η λίστα ήταν άδεια, προσθέστε τα δεδομένα
+	// ως το πρώτο στοιχείο.
 	if l.first == nil {
 		return l.Add(data)
 	}
 
-	// Traverse the list looking for placement.
+	// Διατρέξτε την λίστα, αναζητώντας σημείο τοποθέτησης.
 	n := l.first
 	for n != nil {
 
-		// If this data is greater than the current node,
-		// keep traversing until it is less than or equal.
+		// Αν αυτά τα δεδομένα είναι μεγαλύτερα από το
+		// τρέχον στοιχείο, συνεχίστε την προσπέλαση μέχρι
+		// να είναι μικρότερα ή ίσα.
 		if strings.Compare(data, n.Data) > 0 {
 			n = n.next
 			continue
 		}
 
-		// Create the new node and place it before the
-		// current node.
+		// Δημιουργείστε ένα νέο στοιχείο και τοποθετήστε το
+		// πριν από το τρέχον στοιχείο.
 		new := Node{
 			Data: data,
 			next: n,
@@ -208,26 +213,28 @@ func (l *List) AddSort(data string) *Node {
 
 		l.Count++
 
-		// If this node is now to be the first,
-		// fix the first pointer.
+		// Αν αυτό το στοιχείο πρόκειται να είναι
+		// τώρα το πρώτο, διορθώστε τον πρώτο δείκτη
+		// διεύθυνσης.
 		if l.first == n {
 			l.first = &new
 		}
 
-		// If the current node points to a previous node,
-		// then that previous nodes next must point to the
-		// new node.
+		// Αν το τρέχον στοιχείο δείχνει σε προηγούμενο
+		// στοιχείο τότε το πεδίο next αυτού του προηγούμενου
+		// στοιχείου πρέπει να δείχνει στο νέο στοιχείο.
 		if n.prev != nil {
 			n.prev.next = &new
 		}
 
-		// The current previous points must point back
-		// to this new node.
+		// Ο τρέχων δείκτης διεύθυνσης prev πρέπει να δείχνει
+		// σε αυτό το νέο στοιχείο.
 		n.prev = &new
 
 		return n
 	}
 
-	// This must be the largest string, so add to the end.
+	// Αυτή πρέπει αν είναι ημεγαλύτερη συμβολοσειρά, επομένως προσθέστε την
+	// στο τέλος.
 	return l.Add(data)
 }

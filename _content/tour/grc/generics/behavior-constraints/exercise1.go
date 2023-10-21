@@ -1,27 +1,28 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic function named marshal that can marshal JSON but only
-// accepts values that implement the json.Marshaler interface.
+// Υλοποιείστε μια γενική συνάρτηση με το όνομα marshal που να μπορεί να σειριοποιήσει
+// (marshal) JSON όμως δέχεται μόνο τιμές που υλοποιούν την διεπαφή json.Marshaler interface.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (import).
 
-// Declare the generic function named marshal that can accept only values
-// of type T that implement the json.Marshaler interface.
+// Δηλώστε μια συνάρτηση γενικού προγραμματισμού με το όνομα marshal
+// που μπορεί να δεχτεί μόνο τιμές του τύπου T, που υλοποιεί την
+// διεπαφή json.Marshaler.
 
-// Define a type names user with two fields, name and email.
+// Ορίστε έναν τύπο με το όνομα user με δύο πεδία, το πεδίο name και το πεδίο email.
 
-// Implement a method that implements the json.Marshaler interface. Have the
-// method return a value of type user as JSON.
+// Υλοποιείστε μια μέθοδο τύπου που υλοποιεί με την σειρά της την διεπαφή json.Marshaler.
+// Η μέθοδος τύπου πρέπει να επιστρέφει μια τιμή τύπου user ως JSON.
 
 func main() {
 
-	// Construct a value of type user.
+	// Δημιουργείστε μια τιμή τύπου user.
 
-	// Call the generic marshal function.
+	// Καλέστε την συνάρτηση γενικού προγραμματισμού marshal.
 
-	// Display the returned JSON.
+	// Παρουσιάστε την επιστραμένη τιμή JSON.
 }

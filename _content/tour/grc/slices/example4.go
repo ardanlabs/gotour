@@ -1,17 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to takes slices of slices to create different
-// views of and make changes to the underlying array.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως λαμβάνονται φέτες φετών προκειμένου να δημιουργηθούν
+// διαφορετικές οπτικές και να πραγματοποιηθούν αλλαγές στον υποκείμενο πίνακα.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Create a slice with a length of 5 elements and a capacity of 8.
+	// Δημιουργείστε μια φέτα με μήκος 5 στοιχείων και χωρητικότητα 8.
 	slice1 := make([]string, 5, 8)
 	slice1[0] = "Apple"
 	slice1[1] = "Orange"
@@ -21,30 +21,30 @@ func main() {
 
 	inspectSlice(slice1)
 
-	// Take a slice of slice1. We want just indexes 2 and 3.
-	// Parameters are [starting_index : (starting_index + length)]
+	// Πάρτε μια φέτα της slice1. Θέλουμε μονάχα τους δείκτες 2 και 3.
+	// Οι παράμετροι είναι [αρχικός_δείκτης : (αρχικός_δείκτης + μήκος)]
 	slice2 := slice1[2:4]
 	inspectSlice(slice2)
 
 	fmt.Println("*************************")
 
-	// Change the value of the index 0 of slice2.
+	// Αλλάξτε την τιμή του δείκτη 0 της slice2.
 	slice2[0] = "CHANGED"
 
-	// Display the change across all existing slices.
+	// Παρουσιάστε την αλλαγή σε όλες τις υπάρχουσες φέτες.
 	inspectSlice(slice1)
 	inspectSlice(slice2)
 
 	fmt.Println("*************************")
 
-	// Make a new slice big enough to hold elements of slice 1 and copy the
-	// values over using the builtin copy function.
+	// Δημιουργείστε μια αρκετά μεγάλη φέτα προκειμένου να χωρέσει τα στοιχεία της slice1 και αντιγράψτε τις
+	// τιμές χρησιμοποιώντας την προεγκατεστημένη συνάρτηση copy.
 	slice3 := make([]string, len(slice1))
 	copy(slice3, slice1)
 	inspectSlice(slice3)
 }
 
-// inspectSlice exposes the slice header for review.
+// Η inspectSlice εκθέτει την επικεφαλίδα της φέτας για επισκόπηση.
 func inspectSlice(slice []string) {
 	fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
 	for i, s := range slice {

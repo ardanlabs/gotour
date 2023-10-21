@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use the predeclared type constraint
-// "comparable". A type parameter with the comparable constraint accepts as
-// a type argument any comparable type. It permits the use of == and != with
-// values of that type parameter.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος χρήσης του
+// προεγκατεστημένου περιορισμού τύπου "comparable". Μια παράμετρος τύπου
+// με τον περιορισμό comparable αποδέχεται ως όρισμα τύπου οποιονδήποτε
+// τύπο είναι συγκρίσιμος (comparable). Επιτρέπει την χρήση τψν τελεστών
+// == και != με τιμές αυτής της παραμέτρου τύπου.
 package main
 
 import "fmt"

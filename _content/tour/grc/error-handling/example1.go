@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how the default error type is implemented.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως υλοποιείται ο βασικός τύπος error.
 package main
 
 import "fmt"
@@ -24,7 +24,7 @@ func (e *errorString) Error() string {
 }
 
 // http://golang.org/src/pkg/errors/errors.go
-// New returns an error that formats as the given text.
+// Η New επιστρέφει έναν error που μορφοποιείται ως το δοσμένο κείμενο.
 func New(text string) error {
 	return &errorString{text}
 }
@@ -38,7 +38,7 @@ func main() {
 	fmt.Println("Life is good")
 }
 
-// webCall performs a web operation.
+// Η webCall πραγματοποιεί μια λειτουργία web.
 func webCall() error {
 	return New("Bad Request")
 }

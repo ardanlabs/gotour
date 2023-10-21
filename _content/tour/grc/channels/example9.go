@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the retry timeout channel pattern.
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας επαναπροσπάθειας με χρόνο αναμονής (retry timeout).
 package main
 
 import (
@@ -20,9 +20,11 @@ func main() {
 	retryTimeout(ctx, time.Second, func(ctx context.Context) error { return errors.New("always fail") })
 }
 
-// retryTimeout: You need to validate if something can be done with no error
-// but it may take time before this is true. You set a retry interval to create
-// a delay before you retry the call and you use the context to set a timeout.
+// retryTimeout: Χρειάζεται να επικυρώσετε αν κάτι μπορεί να εκτελεστεί χωρίς
+// σφάλμα αλλά μπορεί να χρειαστεί κάποιος χρόνος προτού να συμβεί αυτό.
+// Ορίζετε ένα χρονικό διάστημα που δημιουργεί μια καθυστέρηση (retry interval)
+// μετά το οποίο θα ξαναπροσπαθήσετε την κλήση και χρησιμοποιείτε το context προκειμένου να
+// ορίσετε το χρονικό διάστημα ακύρωσης (timeout).
 func retryTimeout(ctx context.Context, retryInterval time.Duration, check func(ctx context.Context) error) {
 
 	for {

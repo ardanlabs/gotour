@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to create values from exported types with
-// embedded unexported types.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δημιουργούνται τιμές από εξαγόμενους τύπους 
+// με ενσωματωμένους μη εξαγόμενους τύπους.
 package main
 
 import (
@@ -15,12 +15,12 @@ import (
 
 func main() {
 
-	// Create a value of type Manager from the users package.
+	// Δημιουργείστε μια τιμή τύπου Manager Από το πακέτο users.
 	u := users.Manager{
 		Title: "Dev Manager",
 	}
 
-	// Set the exported fields from the unexported user inner type.
+	// Εκχωρείστε τιμή στα εξαγόμενα πεδία από τον μη εξαγόμενο εσωτερικό τύπο χρήστη.
 	u.Name = "Chole"
 	u.ID = 10
 
@@ -30,16 +30,16 @@ func main() {
 // -----------------------------------------------------------------------------
 -- users/users.go --
 
-// Package users provides support for user management.
+// Το πακέτο users παρέχει υποστήριξη για διαχείριση χρηστών.
 package users
 
-// User represents information about a user.
+// Ο User αναπαριστά πληροφορίες σχετικά με κάποιο χρήστη.
 type user struct {
 	Name string
 	ID   int
 }
 
-// Manager represents information about a manager.
+// Ο Manager αναπαριστά πληροφορίες σχετικά με κάποιο manager.
 type Manager struct {
 	Title string
 

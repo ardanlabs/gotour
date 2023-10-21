@@ -1,17 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how you can't always get the address of a value.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δεν είναι πάντα δυνατόν να πάρει κανείς την διεύθυνση μιας τιμής.
 package main
 
 import "fmt"
 
-// duration is a named type with a base type of int.
+// Ο duration είναι ένας επώνυος τύπος με βασικό τύπο έναν ακέραιο.
 type duration int
 
-// notify implements the notifier interface.
+// Η notify υλοποιεί την διεπαφή notifier.
 func (d *duration) notify() {
 	fmt.Println("Sending Notification in", *d)
 }

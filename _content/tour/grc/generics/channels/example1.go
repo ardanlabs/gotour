@@ -1,10 +1,11 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to execute a work function in a goroutine and
-// return a channel of type Result (to be determined later) back to the caller.
+// Δείγμα προγράμματος που παρουσιάζει τον τρόπο εκτέλεσης μιας συνάρτησης εργασίας
+// σε μια goroutine και την επιστροφή ενός καναλιού επικοινωνίας τύπου Result
+// (που θα προσδιοριστεί αργότερα) πίσω στον καλώντα.
 package main
 
 import (

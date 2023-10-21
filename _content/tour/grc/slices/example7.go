@@ -1,14 +1,14 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare and use variadic functions.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης και χρήσης συναρτήσεων με μεταβλητό αριθμό ορισμάτων (variadic functions).
 package main
 
 import "fmt"
 
-// user is a struct type that declares user information.
+// Ο user είναι ένας τύπος struct που δηλώνει πληροφορίες χρήστη.
 type user struct {
 	id   int
 	name string
@@ -16,28 +16,28 @@ type user struct {
 
 func main() {
 
-	// Declare and initialize a value of type user.
+	// Δηλώστε και δώστε αρχική τιμή σε μια τιμή τύπου user.
 	u1 := user{
 		id:   1432,
 		name: "Betty",
 	}
 
-	// Declare and initialize a value of type user.
+	// Δηλώστε και δώστε αρχική τιμή σε μια τιμή τύπου user.
 	u2 := user{
 		id:   4367,
 		name: "Janet",
 	}
 
-	// Display both user values.
+	// Παρουσιάστε και τις δύο τιμές user.
 	display(u1, u2)
 
-	// Create a slice of user values.
+	// Δημιοθργείστε μια φέτα τιμών user.
 	u3 := []user{
 		{24, "Bill"},
 		{32, "Joan"},
 	}
 
-	// Display all the user values from the slice.
+	// Παρουσιάστε όλες τις τιμές user από την φέτα.
 	display(u3...)
 
 	change(u3...)
@@ -47,7 +47,7 @@ func main() {
 	}
 }
 
-// display can accept and display multiple values of user types.
+// Η display μπορεί να δεχθεί και να παρουσιάσει πολλαπλές τιμές τύπου user.
 func display(users ...user) {
 	fmt.Println("**************************")
 	for _, u := range users {
@@ -55,7 +55,7 @@ func display(users ...user) {
 	}
 }
 
-// change shows how the backing array is shared.
+// Η change παρουσιάζει τον τρόπο με τον οποίο μοιράζεται ο υποκείμενος πίνακας.
 func change(users ...user) {
 	users[1] = user{99, "Same Backing Array"}
 }

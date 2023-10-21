@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to determine if an integer is a
-// palindrome or not.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο ελέγχου αν ένας ακέραιος
+// είναι ένα παλίνδρομο ή όχι.
 package main
 
 import "fmt"
@@ -25,50 +25,54 @@ func main() {
 	}
 }
 
-// IsPalindrome checks if a integer is a Palindrome.
+// Η IsPalindrome ελέγχει αν ένας ακέραιος είναι Παλίνδρομο.
 func IsPalindrome(input int) bool {
 
-	// A negative integer is not a palindrome.
+	// Ένας αρνητικός ακέραιος δεν μπορεί να είναι παλίνδρομος.
 	if input < 0 {
 		return false
 	}
 
-	// An integer that is only one digit in length is a palindrome.
+	// Ένας ακέραιος με μήκος μόνο ενός αριθμού είναι ένα παλίνδρομο.
 	if input >= 0 && input < 10 {
 		return true
 	}
 
-	// Reverse the digits in the integer.
+	// Αντιστρέψτε τα ψηφία στον ακέραιο.
 	rev := Reverse(input)
 
 	return input == rev
 }
 
-// Reverse takes the specified integer and reverses it.
+// Η Reverse παίρνει τον συγκεκριμένο ακέραιο και τον αντιστρέφει.
 func Reverse(num int) int {
 
-	// Construct result to its zero value.
+	// Δημιουργήστε την result με την μηδενική της τιμή.
 	var result int
 
-	// Loop until num is zero.
+	// Επαναλάβετε, εως ότου η num να ισούται με το μηδέν.
 	for num != 0 {
 
-		// Perform a modulus operation to get the last digit from the value set in num.
+		// Πραγματοποιείστε την λειτουργία υπολοίπου ακέραιας διαίρεσης (modulus)
+		// προκειμένου να πάρετε το τελευταίο ψηφίο από την τιμή που έχει ανατεθεί στην num.
 		// https://www.geeksforgeeks.org/find-first-last-digits-number/
-		// Ex. For num = 125, last = 5
+		// Πχ. Για num = 125, τελευταίο = 5
 		last := num % 10
 
-		// Multiple the current result by 10 to shift the digits in
-		// the current result to the left.
-		// Ex. For result = 5, result = 50
+		// Πολλαπλασιάστε την τρέχουσα τιμή
+		// της result με 10 προκειμένου να
+		// μεταθέσετε τα ψηφία στην τρέχουσα
+		// τιμή της result προς τα αριστερά.
+		// Πχ. Για result = 5, result = 50
 		result = result * 10
 
-		// Add the digit we took from the end of num to the result.
-		// Ex. For result = 21 and last = 5, result = 215
+		// Προσθέστε το ψηφίο που πήραμε από το τέλος της
+		// num στην result.
+		// Πχ. Για result = 21 και last = 5, result = 215
 		result += last
 
-		// Remove the digit we just reversed from num.
-		// Ex. For num = 125, num = 12
+		// Απομακρύνετε το ψηφίο που μόλις αντιστρέψαμε από την num.
+		// Πχ. Για num = 125, num = 12
 		num = num / 10
 	}
 

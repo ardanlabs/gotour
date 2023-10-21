@@ -1,31 +1,31 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct type and create a value of this type. Declare a function
-// that can change the value of some field in this struct type. Display the
-// value before and after the call to your function.
+// Δηλώστε έναν τύπο struct και δημιουργείστε μια τιμή αυτού του τύπου. Δημιουργήστε μια συνάρτηση που
+// μπορεί να αλλάξει την τιμή κάποιου πεδίου σε μεταβλητές αυτού του τύπου struct. Παρουσιάστε την τιμή πριν
+// και μετά την κλήση της συνάρτησης σας.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγών (imports).
 
-// Declare a type named user.
+// Δηλώστε έναν τύπο με το όνομα user.
 
-// Create a function that changes the value of one of the user fields.
-func funcName( /* add pointer parameter, add value parameter */ ) {
+// Δημιουργείστε μια συνάρτηση η οποία αλλάζει την τιμής ενός από τα πεδία του user.
+func funcName( /* προθέστε μια παράμετρο δείκτη διεύθυνσης, προσθέστε μια παράμετρο τιμής */ ) {
 
-	// Use the pointer to change the value that the
-	// pointer points to.
+	// Χρησιμοποιείστε τον δείκτη διεύθυνσης προκειμένου να αλλάξετε την τιμή, στην οποία
+	// ο δείκτης, δείχνει.
 }
 
 func main() {
 
-	// Create a variable of type user and initialize each field.
+	// Δημιουργείστε μια μεταβλητή τύπου user και δώστε αρχική τιμή σε κάθε πεδίο.
 
-	// Display the value of the variable.
+	// Παρουσιάστε την τιμή της μεταβλητής.
 
-	// Share the variable with the function you declared above.
+	// Μοιραστείτε την μεταβλητή με την συνάρτηση που δηλώσατε παραπάνω.
 
-	// Display the value of the variable.
+	// Δηλώστε την τιμή της μεταβλητής.
 }

@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use the WithCancel function.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η χρήση της συνάρτησης WithCancel.
 package main
 
 import (
@@ -14,15 +14,15 @@ import (
 
 func main() {
 
-	// Create a context that is cancellable only manually.
-	// The cancel function must be called regardless of the outcome.
+	// Δημιουργείστε μια context η οποία μπορεί να ακυρωθεί μόνο χειροκίνητα.
+	// Η συνάρτηση cancel πρέπει να κληθεί ανεξάρτητα από το αποτέλεσμα.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Ask the goroutine to do some work for us.
+	// Ζητήστε από την goroutine να πραγματοποιήσει μια εργασία για εμάς.
 	go func() {
 
-		// Wait for the work to finish. If it takes too long move on.
+		// Περιμένετε προκειμένου να ολοκληρωθεί η εργασία. Αν παίρνει πολύ χρόνο, προχωρήστε.
 		select {
 		case <-time.After(100 * time.Millisecond):
 			fmt.Println("moving on")
@@ -32,12 +32,12 @@ func main() {
 		}
 	}()
 
-	// Simulate work.
+	// Προσομοιώστε την εργασία.
 	time.Sleep(50 * time.Millisecond)
 
-	// Report the work is done.
+	// Αναφέρετε ότι η εργασία ολοκληρώθηκε.
 	cancel()
 
-	// Just hold the program to see the output.
+	// Απλά κρατήστε το πρόγραμμα προκειμένου να δείτε τη έξοδο.
 	time.Sleep(time.Second)
 }

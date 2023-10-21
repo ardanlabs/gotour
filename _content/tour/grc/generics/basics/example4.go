@@ -1,24 +1,25 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to write a function that provides a generics
-// solution which allows a slice of any type T (to be determined later) to be
-// passed and printed.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συγγραφής μια
+// συνάρτησης που παρέχει μια λύση γενικού προγραμματισμού, η οποία επιτρέπει
+// να περάσει και να τυπωθεί μια φέτα οποιουδήποτε τύπου T (ο οποίος θα προσδιοριστεί αργότερα)
 package main
 
 import (
 	"fmt"
 )
 
-// To avoid the ambiguity with array declarations, type parameters require a
-// constraint to be applied. The `any` constraint states there is no constraint
-// on what type T can become. The predeclared identifier `any` is an alias for
-// `interface{}`.
+// Προκειμένου να αποφευχθεί η αμφισημία με τις δηλώσεις πινάκων οι παράμετροι τύπων
+// απαιτούν να εφαρμοστεί κάποις περιορισμός. Ο περιορισμός `any` υποδηλώνει ότι δεν
+// υπάρχει κανένας περιορισμός στο τύπο που μπορεί να γίνει ο T. Το προεγκατεστημένο
+// αναγνωριστικό `any` είναι ένα ψευδώνυμο (alias) για την `interface{}`.
 //
-// This code more closely resembles the concrete implementations that we started
-// with and is easier to read than the reflect implementation.
+// Αυτός ο κώδικας μοιάζει περισσότερο με την πραγματική υλοποίηση με την οποία ξεκινήσαμε
+// και είναι περισσότερο εύκολο να τον διαβάσει κανείς απ' ότι είναι η υλοποίηση με την
+// αντανάκλαση.
 
 func print[T any](slice []T) {
 	fmt.Print("Generic: ")

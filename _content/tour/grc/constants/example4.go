@@ -1,17 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 /*
-// A Duration represents the elapsed time between two instants as
-// an int64 nanosecond count. The representation limits the largest
-// representable duration to approximately 290 years.
+// Ένας Duration αναπαριστά τον χρόνο που παρήλθε ανάμεσα σε δύο στιγμές
+// σαν μια καταμέτρηση nanosecond τύπου int64. Η αναπαράσταση περιορίζει
+// την μεγαλύτερη διάρκεια που μπορεί να παρασταθεί είναι προσεγγιστικά τα 290 χρόνια.
 
 type Duration int64
 
-// Common durations. There is no definition for units of Day or larger
-// to avoid confusion across daylight savings time zone transitions.
+// Κοινές διάρκειες. Δεν υπάρχει κανείς ορισμός για μονάδες μιας ημέρας ή μεγαλύτερες
+// προκειμένου να αποφευχθεί η σύγχυση κατά μήκος μεταβάσεων σε ζώνες με θερινή ώρα.
 
 const (
         Nanosecond  Duration = 1
@@ -22,12 +22,12 @@ const (
         Hour                 = 60 * Minute
 )
 
-// Add returns the time t+d.
+// Η Add επιστρέφει την ώρα t+d.
 func (t Time) Add(d Duration) Time
 */
 
-// Sample program to show how literal, constant and variables work
-// within the scope of implicit conversion.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως ρητές κατασκευές, σταθερές και μεταβλητές λειτουργούν
+// εντός του πλαισίου σιωπηρών μετατροπών.
 package main
 
 import (
@@ -37,23 +37,23 @@ import (
 
 func main() {
 
-	// Use the time package to get the current date/time.
+	// Χρησιμοποιείστε το πακέτο time προκειμένου να πάρετε την τρέχουσα ημερομηνία/ώρα.
 	now := time.Now()
 
-	// Subtract 5 nanoseconds from now using a literal constant.
+	// Αφαιρέστε 5 nanosecond από την now χρησιμοποιώντας μια ρητή σταθερά.
 	literal := now.Add(-5)
 
-	// Subtract 5 seconds from now using a declared constant.
+	// Αφαιρέστε 5 second από την now χρησιμοποώντας μια δηλωμένη σταθερά.
 	const timeout = 5 * time.Second // time.Duration(5) * time.Duration(1000000000)
 	constant := now.Add(-timeout)
 
-	// Subtract 5 nanoseconds from now using a variable of type int64.
+	// Αφαιρέστε 5 nanosecond από την now χρησιμοποιώντας μια μεταβλητή τύπου int64.
 	minusFive := int64(-5)
 	variable := now.Add(minusFive)
 
 	// example4.go:50: cannot use minusFive (type int64) as type time.Duration in argument to now.Add
 
-	// Display the values.
+	// Παρουσιάστε τις τιμές.
 	fmt.Printf("Now     : %v\n", now)
 	fmt.Printf("Literal : %v\n", literal)
 	fmt.Printf("Constant: %v\n", constant)

@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show type assertions using the comma-ok idiom.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η χρήση του ιδιώματος κόμμα-ok για διαβεβαιώσεις τύπων.
 package main
 
 import (
@@ -11,31 +11,31 @@ import (
 	"log"
 )
 
-// user defines a user in our application.
+// Ο user ορίζει έναν χρήστη στην εφαρμογή μας.
 type user struct {
 	id   int
 	name string
 }
 
-// finder represents the ability to find users.
+// Ο finder αναπαριστά την ικανότητα να αναζητάει κανείς χρήστες.
 type finder interface {
 	find(id int) (*user, error)
 }
 
-// userSVC is a service for dealing with users.
+// Ο userSVC είναι μια υπηρεσία για την διαχείριση των χρηστών.
 type userSVC struct {
 	host string
 }
 
-// find implements the finder interface using pointer semantics.
+// Η find υλοποιεί την διεπαφή finder χρησιμοποιώντας σημειολογία δείκτη διεύθυνσης.
 func (*userSVC) find(id int) (*user, error) {
 	return &user{id: id, name: "Anna Walker"}, nil
 }
 
-// mockSVC defines a mock service we will access.
+// Ο mockSVC ορίζει μια μίμηση υπηρεσία στην οποία θα αποτκήσουμε πρόσβαση.
 type mockSVC struct{}
 
-// find implements the finder interface using pointer semantics.
+// Η find υλοποιεί την διεπαφή finder χρησιμοποιώντας σημειολογία δείκτη διεύθυνσης.
 func (*mockSVC) find(id int) (*user, error) {
 	return &user{id: id, name: "Jacob Walker"}, nil
 }
@@ -55,9 +55,9 @@ func run(f finder) error {
 	}
 	fmt.Printf("Found user %+v\n", u)
 
-	// If the concrete type value stored inside the interface value is of the
-	// type *userSVC, then "ok" will be true and "svc" will be a copy of the
-	// pointer stored inside the interface.
+	// Αν ο τύπος της πραγματικής τιμής που είναι αποθηκευμένη στην τιμή διεπαφής είναι
+	// τύπου *userSVC, τότε η "ok" θα είναι true και η "svc" θα είναι ένα αντίγραφο
+	// του δείκτη διεύθυνσης που είναι αποθηκευμένη στην διεπαφή.
 	if svc, ok := f.(*userSVC); ok {
 		log.Println("queried", svc.host)
 	}

@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how the program can access a value
-// of an unexported identifier from another package.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μπορεί το πρόγραμμα να έχει πρόσβαση σε μια τιμή
+// ενός μη εξαγόμενου αναγνωριστικού από άλλο πακέτο.
 package main
 
 import (
@@ -15,8 +15,8 @@ import (
 
 func main() {
 
-	// Create a variable of the unexported type using the exported
-	// New function from the package counters.
+	// Δημιουργείστε μια μεταβλητή του μη εξαγόμενου τύπου χρησιμοποιώντας την εξαγόμενη
+	// συνάρτηση New από το πακέτο counters.
 	counter := counters.New(10)
 
 	fmt.Printf("Counter: %d\n", counter)
@@ -25,14 +25,14 @@ func main() {
 // -----------------------------------------------------------------------------
 -- counters/counters.go --
 
-// Package counters provides alert counter support.
+// Το πακέτο counters παρέχει υποστήριξη μετρητών ειδοποιήσεων.
 package counters
 
-// alertCounter is an unexported named type that
-// contains an integer counter for alerts.
+// Ο alertCounter είναι ένας επώνυμος μη εξαγόμενος τύπος που
+// περιέχει έναν ακέραιο μετρητή ειδοποιήσεων.
 type alertCounter int
 
-// New creates and returns values of the unexported type alertCounter.
+// Η New δημιουργεί και επιστρέφει τιμές του μη εξαγόμενου τύπου alertCounter.
 func New(value int) alertCounter {
 	return alertCounter(value)
 }

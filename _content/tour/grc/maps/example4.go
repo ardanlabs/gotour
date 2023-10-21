@@ -1,15 +1,16 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare, initialize and iterate
-// over a map. Shows how iterating over a map is random.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δηλώνεται, λαμβάνει αρχική τιμή
+// και γίνεται επαναληπτική προσπέλαση σε ένα πίνακα κατακερματισμού. Παρουσιάζεται επίσης
+// πως η επαναληπτική προσπέλαση ενός πίνακα κατακερματισμού είναι τυχαία.
 package main
 
 import "fmt"
 
-// user represents someone using the program.
+// Ο user αναπαριστά κάποιον που χρησιμοποιεί το πρόγραμμα.
 type user struct {
 	name    string
 	surname string
@@ -17,7 +18,7 @@ type user struct {
 
 func main() {
 
-	// Declare and initialize the map with values.
+	// Δηλώστε και δώστε αρχικές τιμές στον πίνακα κατακερματισμού.
 	users := map[string]user{
 		"Roy":     {"Rob", "Roy"},
 		"Ford":    {"Henry", "Ford"},
@@ -25,15 +26,15 @@ func main() {
 		"Jackson": {"Michael", "Jackson"},
 	}
 
-	// Iterate over the map printing each key and value.
+	// Προσπελάστε επαναληπτικά τον πίνακα κατακερματισμού τυπώνοντας κάθε κλειδί και τιμή.
 	for key, value := range users {
 		fmt.Println(key, value)
 	}
 
 	fmt.Println()
 
-	// Iterate over the map printing just the keys.
-	// Notice the results are different.
+	// Προσπελάστε επαναληπτικά τον πίνακα κατακερματισμού τυπώνοντας απλά τα κλειδιά.
+	// Παρατηρείστε ότι τα αποτελέσματα είναι διαφορετικά.
 	for key := range users {
 		fmt.Println(key)
 	}

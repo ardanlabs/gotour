@@ -1,9 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use a mutex to define critical
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος χρήσης ενός στοιχείου αμοιβαίου αποκλεισμού
+// (mutex) προκειμένου να οριστούν κρίσιμα μέρη κώδικα που έχουν ανάγκη από συγχρονισμένη πρόσβαση.
 // sections of code that need synchronous access.
 package main
 
@@ -12,47 +13,47 @@ import (
 	"sync"
 )
 
-// counter is a variable incremented by all goroutines.
+// Η counter είναι μια μεταβλητή που αυξάνεται από όλες τις goroutine.
 var counter int
 
-// mutex is used to define a critical section of code.
+// Η mutex χρησιμοποιείται προκειμένου να οριστεί ένα κρίσιμο τμήμα κώδικα.
 var mutex sync.Mutex
 
 func main() {
 
-	// Number of goroutines to use.
+	// Ο αριθμός των goroutine προς χρήση.
 	const grs = 2
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται προκειμένου να γίνει η διαχείριση η ταυτόχρονη εκτέλεση.
 	var wg sync.WaitGroup
 	wg.Add(grs)
 
-	// Create two goroutines.
+	// δημιουργείστε δύο goroutine.
 	for g := 0; g < grs; g++ {
 		go func() {
 			for i := 0; i < 2; i++ {
 
-				// Only allow one goroutine through this critical section at a time.
+				// Επιτρέψτε μόνο μια goroutine να έχει πρόσβαση σε αυτό το κρίσιμο τμήμα κάθε φορά.
 				mutex.Lock()
 				{
-					// Capture the value of counter.
+					// Κρατήστε την τιμή της counter.
 					value := counter
 
-					// Increment our local value of counter.
+					// Αυξήστε την τιμή του τοπικού αντίγραφου της counter.
 					value++
 
-					// Store the value back into counter.
+					// Αποθηκεύστε την τιμή πίσω στην αρχική counter.
 					counter = value
 				}
 				mutex.Unlock()
-				// Release the lock and allow any waiting goroutine through.
+				// Ελευθερώστε την δέσμευση (lock) και επιτρέψτε σε όποια goroutine περιμένει για πρόσβαση, να την πάρει.
 			}
 
 			wg.Done()
 		}()
 	}
 
-	// Wait for the goroutines to finish.
+	// Αναμένετε τις goroutine να τελειώσουν.
 	wg.Wait()
 	fmt.Printf("Final Counter: %d\n", counter)
 }

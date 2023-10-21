@@ -1,17 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show the components of a slice. It has a
-// length, capacity and the underlying array.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστούν τα συστατικά μιας φέτας. Η φέτα έχει
+// μήκος, χωρητικότητα καθώς και τον υποκείμενο πίνακα.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Create a slice with a length of 5 elements and a capacity of 8.
+	// Δημιουργείστε μια φέτα με μήκος 5 στοιχεία και χωρητικότητα 8.
 	fruits := make([]string, 5, 8)
 	fruits[0] = "Apple"
 	fruits[1] = "Orange"
@@ -22,7 +22,7 @@ func main() {
 	inspectSlice(fruits)
 }
 
-// inspectSlice exposes the slice header for review.
+// Η inspectSlice αποκαλύπτει την επικεφαλίδα τηε φέτας, προς επισκόπηση.
 func inspectSlice(slice []string) {
 	fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
 	for i, s := range slice {

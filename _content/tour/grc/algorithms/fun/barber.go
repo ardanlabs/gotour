@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to implement the sleeping barber
-// problem.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο υλοποίησης του προβλήματος
+// του κοιμώμενου κουρέα.
 package main
 
 import (
@@ -22,7 +22,7 @@ func main() {
 	shop := OpenShop(maxChairs)
 	defer shop.Close()
 
-	// Close the shop in 50 milliseconds.
+	// Κλείστε το μαγαζί σε 50 millisecond.
 	t := time.NewTimer(50 * time.Millisecond)
 	<-t.C
 }
@@ -30,28 +30,28 @@ func main() {
 // =============================================================================
 
 var (
-	// ErrShopClosed is returned when the shop is closed.
+	// Η ErrShopClosed επιστρέφεται όταν το μαγαζί είναι κλειστό.
 	ErrShopClosed = errors.New("shop closed")
 
-	// ErrNoChair is returned when all the chairs are occupied.
+	// Η ErrNoChair επιστρέφεται όταν όλες οι καρέκλες είναι κατειλημένες.
 	ErrNoChair = errors.New("no chair available")
 )
 
-// customer represents a customer to be serviced.
+// Ο customer αναπαριστά ένα πελάτη έτοιμο προς εξυπηρέτηση.
 type customer struct {
 	name string
 }
 
-// Shop represents the barber's shop which contains chairs for customers
-// that customers can occupy and the barber can service. The shop can
-// be closed for business.
+// Ο Shop αναπαριστά το κουρείο που περιέχει καρέκλες για τους πελάτες
+// τις οποίες μπορούν να χρησιμοποιήσουν και οκουρέας μπορεί να τους
+// εξυπηρετήσει. Το κατάστημα μπορεί να είναι κλειστό.
 type Shop struct {
-	open    int32          // Determines if the shop is open for business.
-	chairs  chan customer  // The set of chairs customers wait in.
-	wgClose sync.WaitGroup // Provides support for closing the shop.
+	open    int32          // Καθορίζει αν το μαγαζί είναι ανοιχτό.
+	chairs  chan customer  // Το σύνολο των καρεκλών στις οποίες περιμένουν οι πελάτες.
+	wgClose sync.WaitGroup // ΑΠρέχει υποστήριξη για το κλείσιμο του μαγαζιού.
 }
 
-// OpenShop creates a new shop for business and gets the barber working.
+// Η OpenShop δημιουργεί ένα νέο μαγαζί και βάζει τον κουρέα να εργαστεί.
 func OpenShop(maxChairs int) *Shop {
 	fmt.Println("Opening the shop")
 
@@ -60,7 +60,7 @@ func OpenShop(maxChairs int) *Shop {
 	}
 	atomic.StoreInt32(&s.open, 1)
 
-	// This is the barber and they will service customers.
+	// Αυτός είναι ο κουρέας και θα παρέχει υπηρεσίες στους πελάτες.
 
 	s.wgClose.Add(1)
 	go func() {
@@ -73,13 +73,14 @@ func OpenShop(maxChairs int) *Shop {
 		}
 	}()
 
-	// Start creating customers who enter the shop.
+	// Αρχίστε να δημιουργείτε πελάτες που εισέρχονται στο μαγαζί.
 
 	go func() {
 		var id int64
 
 		for {
-			// Wait some random time for the next customer to enter.
+			// Περιμένετε για τυχαίο χρονικό διάστημ ώσπου να εισέλθει ο
+			// επόμενος πελάτης.
 			time.Sleep(time.Duration(rand.Intn(75)) * time.Millisecond)
 
 			name := fmt.Sprintf("cust-%d", atomic.AddInt64(&id, 1))
@@ -94,16 +95,17 @@ func OpenShop(maxChairs int) *Shop {
 	return &s
 }
 
-// Close prevents any new customers from entering the shop and waits for
-// the barber to finish all existing customers.
+// Η Close αποτρέπει νέους πελάτες από την είσοδο τους στο μαγαζί
+// και αναμένει τον κουρέα να τελειώσει την εξυπηρέτηση των υπάρχοντων
+// πελατών.
 func (s *Shop) Close() {
 	fmt.Println("Closing the shop")
 	defer fmt.Println("Shop closed")
 
-	// Mark the shop closed.
+	// Σηματοδοτήστε  ότι το μαγαζί είναι κλειστό.
 	atomic.StoreInt32(&s.open, 0)
 
-	// Wait for the barber to finish with the existing customers.
+	// Περιμένετε ώστε ο κουρέας να τελειώσει με τους υπάρχοντες πελάτες.
 	close(s.chairs)
 	s.wgClose.Wait()
 }

@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to implement an empty interface solution which
-// uses type assertions for the different concrete slices to be supported.
-// We've basically moved the functions from above into case statements.
-// This function uses the String method against the value.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος υλοποίησης
+// μια λύση κενής διεπαφής η οποία χρησιμοποιεί διαβεβαιώσεις τύπων
+// για τις διαφορετικές πραγματικές φέτες που πρέπει να υποστηριχθούν.
+// Βασικά, μεταφέραμε τις παραπάνω συναρτήσεις σε δηλώσεις case.
+// Αυτή η συνάρτηση χρησιμοποιεί την μέθοδο τύπου String από την τιμή.
 package main
 
 import (
@@ -33,8 +34,8 @@ func stringifyAssert(v interface{}) []string {
 	return nil
 }
 
-// Defining two types that implement the fmt.Stringer interface. Each
-// implementation creates a stringified version of the concrete type.
+// Ορίζοντας δύο τύπους που υλοποιούν την διεπαφή the fmt.Stringer. Κάθε
+// υλοποίησης δημιουργεί μια εκδοχή συμβολοσειράς του πραγματικού τύπου.
 
 type user struct {
 	name  string

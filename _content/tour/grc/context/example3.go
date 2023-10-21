@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use the WithDeadline function.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος χρήσης της συνάρτησης WithDeadline.
 package main
 
 import (
@@ -18,28 +18,28 @@ type data struct {
 
 func main() {
 
-	// Set a deadline.
+	// Ορίστε μια προθεσμία.
 	deadline := time.Now().Add(150 * time.Millisecond)
 
-	// Create a context that is both manually cancellable and will signal
-	// a cancel at the specified date/time.
+	// Δημιουργήστε ένα context που είναι τόσο χειροκίνητα ακυρώσιμο όσο και που θα σηματοδοτήσει
+	// μια ακύρωση στον συγκεκριμένο χρόνο.
 	ctx, cancel := context.WithDeadline(context.Background(), deadline)
 	defer cancel()
 
-	// Create a channel to received a signal that work is done.
+	// Δημιουργήστε ένα κανάλι επικοινωνίας προκειμένου να παραληφθεί ένα σήμα ότι η εργασία ολοκληρώθηκε.
 	ch := make(chan data, 1)
 
-	// Ask the goroutine to do some work for us.
+	// Ζητήστε από την goroutine να πραγματοποιήσει μια εργασία για εμάς.
 	go func() {
 
-		// Simulate work.
+		// Προσομοιώστε την εργασία.
 		time.Sleep(200 * time.Millisecond)
 
-		// Report the work is done.
+		// Αναφέρετε ότι η εργασία ολοκληρώθηκε.
 		ch <- data{"123"}
 	}()
 
-	// Wait for the work to finish. If it takes too long move on.
+	// Περιμένετε προκειμένου να ολοκληρωθεί η εργασία. Αν παίρνει πολύ χρόνο, προχωρήστε.
 	select {
 	case d := <-ch:
 		fmt.Println("work complete", d)

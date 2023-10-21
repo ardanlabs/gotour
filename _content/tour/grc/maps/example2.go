@@ -1,37 +1,37 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how maps behave when you read an
-// absent key.
+// Δείγμα προγράμματος που παρουσιάζει πως συμπεριφέρονται οι πινακαες κατακερματισμού
+// όταν γίνεται ανάγνωση ενός κλειδιού που δεν υπάρχει.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Create a map to track scores for players in a game.
+	// Δημιουργείστε έναν πίνακα κατακερματισμού προκειμένου να παρακολουθείσετε τα σκορ παικτών σε έναν αγώνα.
 	scores := make(map[string]int)
 
-	// Read the element at key "anna". It is absent so we get
-	// the zero-value for this map's value type.
+	// Διαβάστε το στοιχείο στο κλειδί "anna". Δεν υπάρχει, επομένως λαμβάνουμε
+	// την μηδενική τιμή για τον τύπο των τιμών του πίνακα κατακερματισμού.
 	score := scores["anna"]
 
 	fmt.Println("Score:", score)
 
-	// If we need to check for the presence of a key we use
-	// a 2 variable assignment. The 2nd variable is a bool.
+	// Αν πρέπει να ελέγξουμε για την παρουσία ενός κλειδιού χρησιμοποιούμε
+	// μια εκχώρηση 2 μεταβλητών. Η 2η μεταβλητή είναι μια bool.
 	score, ok := scores["anna"]
 
 	fmt.Println("Score:", score, "Present:", ok)
 
-	// We can leverage the zero-value behavior to write
-	// convenient code like this:
+	// Μπορούμε να χρησιμοποιήσουμε την συμπεριφορά με την μηδενική τιμή ώστε
+	// να γράψουμε βολικο κώδικα όπως αυτός:
 	scores["anna"]++
 
-	// Without this behavior we would have to code in a
-	// defensive way like this:
+	//Χωρίς αυτή την συμπεριφορά, θα έπρεπε να γράψουμε κώδικα
+	// με αμυντικό τρόπο όπως παρακάτω:
 	if n, ok := scores["anna"]; ok {
 		scores["anna"] = n + 1
 	} else {

@@ -1,31 +1,31 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how only types that can have
-// equality defined on them can be a map key.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ότι μόνο τύποι που μπορούν να έχουν
+// ορισμό για την ισότητα μπορούν να είναι κλειδιά σε πίνακες κατακερματισμού.
 package main
 
 import "fmt"
 
-// user represents someone using the program.
+// Ο user αναπαριστά κάποιον που χρησιμοποιεί το πρόγραμμα.
 type user struct {
 	name    string
 	surname string
 }
 
-// users defines a set of users.
+// Η users ορίζει ένα σύνολο από user.
 type users []user
 
 func main() {
 
-	// Declare and make a map that uses a slice as the key.
+	// Δηλώστε και δημιουργείστε έναν πίνακα κατακερματισμού που χρησιμοποιεί μια φέτα ως κλειδί.
 	u := make(map[users]int)
 
 	// ./example3.go:22: invalid map key type users
 
-	// Iterate over the map.
+	// Πραγματοποιείστε επαναληπτική προσπέλαση στην πίνακα κατακερματισμού.
 	for key, value := range u {
 		fmt.Println(key, value)
 	}

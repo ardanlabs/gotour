@@ -1,34 +1,34 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how embedded types work with interfaces.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως οι ενσωματωμένοι τύποι λειτουργούν με διεπαφές.
 package main
 
 import "fmt"
 
-// notifier is an interface that defined notification
+// Ο notifier είναι μια διεπαφή που ορίζει συμπεριφορά ειδοποιήσεων.
 // type behavior.
 type notifier interface {
 	notify()
 }
 
-// user defines a user in the program.
+// Ο user ορίζει έναν χρήστη στο πρόγραμμα.
 type user struct {
 	name  string
 	email string
 }
 
-// notify implements a method notifies users
-// of different events.
+// Η notify υλοποιεί μια μέθοδο τύπου που ειδοποιεί τους χρήστες για διαφορετικά
+// γεγονότα.
 func (u *user) notify() {
 	fmt.Printf("Sending user email To %s<%s>\n",
 		u.name,
 		u.email)
 }
 
-// admin represents an admin user with privileges.
+// Ο admin αναπαριστά έναν χρήστη διαχειριστή με προνόμια.
 type admin struct {
 	user
 	level string
@@ -36,7 +36,7 @@ type admin struct {
 
 func main() {
 
-	// Create an admin user.
+	// Δημιουργήστε έναν χρήστη admin.
 	ad := admin{
 		user: user{
 			name:  "john smith",
@@ -45,14 +45,14 @@ func main() {
 		level: "super",
 	}
 
-	// Send the admin user a notification.
-	// The embedded inner type's implementation of the
-	// interface is "promoted" to the outer type.
+	// Στείλτε στον χρήστη admin μια ειδοποίηση.
+	// Η υλοποίηση της διεπαφής του ενσωματωμένου εσωτερικού τύπου "προωθείται"
+	// στον εξωτερικό τύπο.
 	sendNotification(&ad)
 }
 
-// sendNotification accepts values that implement the notifier
-// interface and sends notifications.
+// Η sendNotification δέχεται τιμές που υλοποιούν την διεπαφή notifier
+// και αποστέλλει ειδοποιήσεις.
 func sendNotification(n notifier) {
 	n.notify()
 }

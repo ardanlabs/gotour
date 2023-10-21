@@ -1,21 +1,21 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how constants do have a parallel type system.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως οι σταθερές έχουν ένα παράλληλο σύστημα τύπων.
 package main
 
 import "fmt"
 
 const (
-	// Max integer value on 64 bit architecture.
+	// Μέγιστη ακέραια τιμή σε αρχιτεκτονική υλικού 64 bit.
 	maxInt = 9223372036854775807
 
-	// Much larger value than int64.
+	// Πολύ μεγαλύτερη τιμή από ότι μπορεί να αποθηκευτεί σε int64.
 	bigger = 9223372036854775808543522345
 
-	// Will NOT compile
+	// ΔΕΝ θα μεταγλωττιστεί
 	// biggerInt int64 = 9223372036854775808543522345
 )
 

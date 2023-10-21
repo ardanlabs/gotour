@@ -1,22 +1,23 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic function that can marshal JSON.
+// Υλοποιεί μια συνάρτηση γενικού προγραμματισμού που μπορεί να σειριοποιήσει (marshal) σε JSON.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (import).
 
-// Implement the generic function named marshal that can accept any value
-// of type T and marshal that value into JSON.
+// Υλοποιείστε την συνάρτηση γενικού προγραμματισμού με το όνομα
+// marshal που μπορεί να δεχθεί κάθε τιμή τύπου T και να σειριοποιήσει
+// αυτή την τιμή σε JSON.
 
-// Declare a struct type named User with two fields, Name and Age.
+// Δηλώστε έναν τύπο struct με το όνομα User με δύο πεδία, το πεδίο Name και το πεδίο Age.
 
 func main() {
-	// Construct a value of type User.
+	// Δημιουργήστε μια τιμή τύπου User.
 
-	// Call the generic marshal function.
+	// Καλέστε την συνάρτηση γενικού προγραμματισμού marshal.
 
-	// Print the JSON produced by the marshal function.
+	// Εκτυπώστε την JSON που παράγει η συνάρτηση marshal.
 }

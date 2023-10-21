@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the pooling channel pattern.
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας συγκέντρωσης πόρων.
 package main
 
 import (
@@ -16,8 +16,8 @@ func main() {
 	pooling()
 }
 
-// pooling: In this pattern, the parent goroutine signals 100 pieces of work
-// to a pool of child goroutines waiting for work to perform.
+// Πρώτυπο συγκέντρωση πόρων (pooling): Σε αυτό το πρώτυπο, η αρχική goroutine σηματοδοτεί την ύπαρξη
+// 100 τεμάχια εργασίας σε διαθέσιμο απόθεμα παράγωγων goroutine οι οποίες περιμένουν να πραγματοποιήσουν εργασία.
 func pooling() {
 	ch := make(chan string)
 

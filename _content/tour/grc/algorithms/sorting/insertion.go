@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a insertion sort.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο συγγραφής μιας ταξινόμησης εισαγωγής.
 package main
 
 import (
@@ -22,27 +22,29 @@ func main() {
 func insertionSort(numbers []int) {
 	var n = len(numbers)
 
-	// Walk through the numbers from left to right. Through
-	// each outer loop iteration we move values from right
-	// to left inside the array when they are larger than
-	// the value that preceed it.
+	// Διατρέξτε τους αριθμούς από αριστερά προς τα δεξιά.
+	// Μέσα από κάθε επανάληψη του εξωτερικού βρόγχου μεταφέρουμε
+	// τιμές από δεξιά στα αριστερά εντός του πίνακα όταν είναι
+	// μεγαλύτερες από την τιμή που προηγείται.
 
 	for i := 1; i < n; i++ {
 		j := i
 
-		// For the given starting i index position, look
-		// for smaller values to move left down the numbers list.
+		// Για τον δεδομένο αρχικό δείκτη θέσης i, αναζητείστε
+		// μικρότερες τιμές προκειμένου να τις μεταφέρετε αριστερά
+		// στον κατάλογο των αριθμών.
 
 		for j > 0 {
 
-			// Is the value on the left larger than the
-			// right. If true, swap the two values.
+			// Είναι η τιμή αριστερά μεγαλύτερη από την
+			// δεξιά; Αν είναι αληθές, εναλλάξτε τις δύο
+			// τιμές.
 
 			if numbers[j-1] > numbers[j] {
 				numbers[j-1], numbers[j] = numbers[j], numbers[j-1]
 			}
 
-			// Walk through the item from right to left.
+			// Επισκεφθείτε το στοιχείο από δεξιά προς τα αριστερά.
 
 			j--
 		}

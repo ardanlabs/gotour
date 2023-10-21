@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a binary search using an
-// iterative approach.
+// Αυτό το δείγμα προγράμματος παρουσιάζει πως γράφεται μια διαδική αναζήτηση
+// χτησιμοποιώντας μια επαναληπτική προσέγγιση.
 package main
 
 import (
@@ -32,28 +32,29 @@ func binarySearchIterative(sortedList []int, target int) (int, error) {
 	var leftIdx int
 	rightIdx := len(sortedList) - 1
 
-	// Loop until we find the target or searched the list.
+	// Επαναλάβετε μέχρι να βρείτε τον στόχο ή μέχρι
+	// να ολοκληρώσετε την αναζήτηση της λίστας.
 	for leftIdx <= rightIdx {
 
-		// Calculate the middle index of the list.
+		// Υπολογίστε τον δείκτη στην μέση της λίστας.
 		mid := (leftIdx + rightIdx) / 2
 
-		// Capture the value to check.
+		// Κρατήστε την τιμή προκειμένου να πραγματοποιήσετε έλεγχο.
 		value := sortedList[mid]
 
 		switch {
 
-		// Check if we found the target.
+		// Ελέγξτε αν βρέθηκε ο στόχος.
 		case value == target:
 			return mid, nil
 
-		// If the value is greater than the target, cut the list
-		// by moving the rightIdx into the list.
+		// Αν η τιμή είναι μεγαλύτερη από τον στόχο, διαιρέστε την λίστα
+		// μετακινώντας την rightIdx εντός της λίστας.
 		case value > target:
 			rightIdx = mid - 1
 
-		// If the value is less than the target, cut the list
-		// by moving the leftIdx into the list.
+			// Αν η τιμή είναι μικρότερη από τον στόχο, διαιρέστε την λίστα
+			// μετακινώντας την leftIdx εντός της λίστας.
 		case value < target:
 			leftIdx = mid + 1
 		}

@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare a generics version of the user defined
-// type. It represents a slice of some type T (to be determined later). The
-// last method is declared with a value receiver based on a vector of the
-// same type T and returns a value of that same type T as well.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης μιας
+// εκδοχής γενικού προγραμματισμού του τύπου που είναι ορισμένος από τον χρήστη.
+// Αναπαριστά μια φέτα κάποιου τύπου T (που θα προσδιοριστεί αργότερα). Η
+// τελευταία μέθοδος δηλώνεται με λήπτη μεθόδου τιμής με βάση ένα διάνυσμα ίδιου τύπου
+// T και επιστρέφει μια τιμή αυτού το ίδιου τύπου T επίσης.
 package main
 
 import (

@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program that explores how interface assignments work when
-// values are stored inside the interface.
+// Δείγμα προγράμματος όπου εξερευνείται πως λειτουργούν οι αναθέσεις σε διεπαφές όταν
+// αποθηκεύονται τιμές μέσα στην διεπαφή.
 package main
 
 import (
@@ -12,17 +12,17 @@ import (
 	"unsafe"
 )
 
-// notifier provides support for notifying events.
+// Ο notifier παρέχει υποστήριξη για γεγονότα ειδοποίησης.
 type notifier interface {
 	notify()
 }
 
-// user represents a user in the system.
+// Ο user αναπαριστά έναν χρήστη στο σύστημα.
 type user struct {
 	name string
 }
 
-// notify implements the notifier interface.
+// Η notify υλοποιεί την διεπαφή notifier.
 func (u user) notify() {
 	fmt.Println("Alert", u.name)
 }
@@ -35,32 +35,31 @@ func inspect(n *notifier, u *user) {
 
 func main() {
 
-	// Create a notifier interface and concrete type value.
+	// Δημιουργείστε μια διεπαφή notifier και μια πραγματική τιμή τύπου.
 	var n1 notifier
 	u := user{"bill"}
 
-	// Store a copy of the user value inside the notifier
-	// interface value.
+	// Αποθηκεύστε ένα αντίγραφο της τιμής user στην τιμή διεπαφής notifier.
 	n1 = u
 
-	// We see the interface has its own copy.
+	// Παρατηρούμε ότι η διεπαφή έχει το δικό της αντίγραφο.
 	// Addr User: 0x1040a120  Word Value: 0x10427f70  Ptr Value: {bill}
 	inspect(&n1, &u)
 
-	// Make a copy of the interface value.
+	// Κάντε ένα αντίγραφο της τιμής διεπαφής.
 	n2 := n1
 
-	// We see the interface is sharing the same value stored in
-	// the n1 interface value.
+	// Παρατηρούμε ότι η διεπαφή μοιράζεται την ίδια τιμή που είναι αποθηκευμένη
+	// στην τιμή διεπαφής n1.
 	// Addr User: 0x1040a120  Word Value: 0x10427f70  Ptr Value: {bill}
 	inspect(&n2, &u)
 
-	// Store a copy of the user address value inside the
-	// notifier interface value.
+	// Αποθηκεύστε ένα αντίγραφο της τιμής διεύθυνσης μνήμης του χρήστη
+	// στην τιμή της διεπαφής notifier.
 	n1 = &u
 
-	// We see the interface is sharing the u variables value
-	// directly. There is no copy.
+	// Παρατηρούμε ότι η διεπαφή μοιράζεται την τιμή της μεταβλητής u άμεσα. Δεν υπάρχει
+	// αντίγραφο.
 	// Addr User: 0x1040a120  Word Value: 0x1040a120  Ptr Value: {bill}
 	inspect(&n1, &u)
 }

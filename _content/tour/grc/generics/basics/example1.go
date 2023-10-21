@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how concrete implementations of print functions that can
-// only work with slices of the specified type.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος πραγματικών υλοποιήσεων
+// συναρτήσεων εκτύπωσης που μπορούν να λειτουργήσουν μόνο με φέτες συγκεκριμένου τύπου.
 package main
 
 import (

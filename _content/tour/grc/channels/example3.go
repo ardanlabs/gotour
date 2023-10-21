@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the wait for task channel pattern.
+// Αυτό το δείγμα προγράμματος παρουσιάζει το πρότυπο καναλιού επικοινωνίας αναμονής για εργασία.
 package main
 
 import (
@@ -16,8 +16,8 @@ func main() {
 	waitForTask()
 }
 
-// waitForTask: In this pattern, the parent goroutine sends a signal to a
-// child goroutine waiting to be told what to do.
+// waitForTask: Σε αυτό το πρότυπο, η αρχική goroutine αποστέλει ένα σήμα σε μια
+// παράγωγη goroutine η οποία περιμένει να της υποδειχθεί τι πρέπει να κάνει.
 func waitForTask() {
 	ch := make(chan string)
 

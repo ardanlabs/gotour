@@ -1,8 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας απόρριψης εργασίας.
 // This sample program demonstrates the drop channel pattern.
 package main
 
@@ -15,9 +16,11 @@ func main() {
 	drop()
 }
 
-// drop: In this pattern, the parent goroutine signals 2000 pieces of work to
-// a single child goroutine that can't handle all the work. If the parent
-// performs a send and the child is not ready, that work is discarded and dropped.
+// Απόρριψη εργασίας (drop): Σε αυτό το πρότυπο, η αρχική goroutine σηματοδοτεί
+// την παρουσία 2000 τεμαχίων εργασίας σε μια παράγωγη goroutine η οποία δεν είναι
+// σε θέση να χειριστεί όλο το έργο. Αν η αρχική goroutine πραγματοποιεί μια
+// αποστολή και η παράγωγη goroutine δεν είναι σε κατάσταση ετοιμότητας να παραλάβει
+// αυτή η εργασία απορρίπτεται και πετιέται.
 func drop() {
 	const cap = 100
 	ch := make(chan string, cap)

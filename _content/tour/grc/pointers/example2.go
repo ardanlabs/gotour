@@ -1,33 +1,33 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show the basic concept of using a pointer
-// to share data.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η βασική έννοια της χρήσης δείκτη διεύθυνσης
+// προκειμένου να μοιραστεί κανείς δεδομένα.
 package main
 
 func main() {
 
-	// Declare variable of type int with a value of 10.
+	// Δηλώστε μεταβλητή τύπου int με τιμή ίση με 10.
 	count := 10
 
-	// Display the "value of" and "address of" count.
+	// Παρουσιάστε την "τιμή της" και την "διεύθυνση μνήμης της" μεταβλητής count.
 	println("count:\tValue Of[", count, "]\t\tAddr Of[", &count, "]")
 
-	// Pass the "address of" count.
+	// Περάστε στην συνάρτηση την "διεύθυνση της" μεταβλητής count.
 	increment(&count)
 
 	println("count:\tValue Of[", count, "]\t\tAddr Of[", &count, "]")
 }
 
-// increment declares count as a pointer variable whose value is
-// always an address and points to values of type int.
+// Η increment δηλώνει την count ως μεταβλή δείκτη διεύθυνσης της οποίας η τιμή είναι
+// πάντα μια διεύθυσνη μνήμης και δείχνει σε τιμές τύπου int.
 //
 //go:noinline
 func increment(inc *int) {
 
-	// Increment the "value of" count that the "pointer points to".
+	// Αυξήστε την "τιμή της" μεταβλητής στην οποία "ο δείκτης διεύθυνσης δείχνει προς".
 	*inc++
 
 	println("inc:\tValue Of[", inc, "]\tAddr Of[", &inc, "]\tValue Points To[", *inc, "]")

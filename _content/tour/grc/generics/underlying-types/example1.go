@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare two user defined types based on an
-// underlying concrete type. Each type implements a method named last that
-// returns the value stored at the highest index position in the vector or an
-// error when the vector is empty.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης
+// δύο τύπων ορισμένων από τον χρήστη βασισμένων σε έναν υποκείμενο
+// πραγματικό (concrete) τύπο. Κάθε τύπος υλοποιεί μια μέθοδο τύπου με το
+// όνομα last που επιστρέφει την τιμή που είναι αποθηκευμένη στην θέση
+// υψηλότερου δείκτη στο διάνυσμα ή ένα σφάλμα όταν το διάνυσμα είναι άδειο.
 package main
 
 import (

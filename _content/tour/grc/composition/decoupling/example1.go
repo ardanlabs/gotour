@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program demonstrating struct composition.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η σύνθεση struct.
 package main
 
 import (
@@ -14,20 +14,20 @@ import (
 	"time"
 )
 
-// Data is the structure of the data we are copying.
+// Ο Data είναι η δομή των δεδομένων που θα αντιγράψουμε.
 type Data struct {
 	Line string
 }
 
 // =============================================================================
 
-// Xenia is a system we need to pull data from.
+// Ο Xenia είναι ένα σύστημα από το οποίο θέλουμε να αντλήσουμε στοιχεία.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
 }
 
-// Pull knows how to pull data out of Xenia.
+// Η Pull γνωρίζει πως να αντλεί δεδομένα από τον Xenia.
 func (*Xenia) Pull(d *Data) error {
 	switch rand.Intn(10) {
 	case 1, 9:
@@ -43,13 +43,13 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Pillar is a system we need to store data into.
+// Ο Pillar είναι ένα σύστημα που χρειαζόμαστε να αποθηκεύει δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
 }
 
-// Store knows how to store data into Pillar.
+// Η Store γνωρίζει πως να αποθηκεύει δεδομένα στον Pillar.
 func (*Pillar) Store(d *Data) error {
 	fmt.Println("Out:", d.Line)
 	return nil
@@ -57,7 +57,7 @@ func (*Pillar) Store(d *Data) error {
 
 // =============================================================================
 
-// System wraps Xenia and Pillar together into a single system.
+// Ο System συνδυάζει τον Xenia και τον Pillar σε ένα σύστημα.
 type System struct {
 	Xenia
 	Pillar
@@ -65,7 +65,7 @@ type System struct {
 
 // =============================================================================
 
-// pull knows how to pull bulks of data from Xenia.
+// Η pull γνωρίζει πως να αντλεί δεδομένα από τον Xenia.
 func pull(x *Xenia, data []Data) (int, error) {
 	for i := range data {
 		if err := x.Pull(&data[i]); err != nil {
@@ -76,7 +76,7 @@ func pull(x *Xenia, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// store knows how to store bulks of data into Pillar.
+// Η store γνωρίζει πως να αποθηκεύει δεδομένα στον Pillar.
 func store(p *Pillar, data []Data) (int, error) {
 	for i := range data {
 		if err := p.Store(&data[i]); err != nil {
@@ -87,7 +87,7 @@ func store(p *Pillar, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Copy knows how to pull and store data from the System.
+// Η Copy γνωρίζει πως να αντλει και να αποθηκεύει γεγονότα στο σύστημα.
 func Copy(sys *System, batch int) error {
 	data := make([]Data, batch)
 

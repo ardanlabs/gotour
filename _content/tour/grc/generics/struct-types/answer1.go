@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic stack type.
+// Υλοποιήστε έναν τύπο στοίβας γενικού προγραμματισμού.
 package main
 
 import (
@@ -11,20 +11,20 @@ import (
 	"fmt"
 )
 
-// Declare a generic type named stack that uses a struct with a single
-// field named data declared as a slice of some type T.
+// Δηλώστε ένα τύπο γενικού προγραμματισμού με το όνομα stack που χρησιμοποιεί
+// έναν struct με μοναδικό πεδίο με το όνομα data που δηλώνεται σαν μια φέτα τύπου T.
 type stack[T any] struct {
 	data []T
 }
 
-// Declare a method named push that accepts a value of some type T and appends
-// the value to the slice.
+// Δηλώστε μια μέθοδο τύπου με το όνομα push που αποδέχεται μια τιμή κάποιου τύπου T
+// και προσθέτει την τιμή στην φέτα.
 func (s *stack[T]) push(v T) {
 	s.data = append(s.data, v)
 }
 
-// Declare a method named pop that returns the latest value of some type T
-// that was appended to the slice and an error.
+// Δηλώστε μια μέθοδο με το όνομα pop που επιστρέφει την τελευταία τιμή κάποιου τύπου
+// T που προστέθηκε στην φέτα και ένα σφάλμα.
 func (s *stack[T]) pop() (T, error) {
 	var zero T
 
@@ -43,35 +43,35 @@ func (s *stack[T]) pop() (T, error) {
 
 func main() {
 
-	// Constructs a value of type stack that stores integers.
+	// Δημιουργήστε μια τιμή τύπου στοίβας που αποθηκεύει ακέραιους.
 	var s stack[int]
 
-	// Push the values of 10 and 20 to the stack.
+	// Προσθέστε με την Push τις τιμές 10 και 20 στην στοίβα.
 	s.push(10)
 	s.push(20)
 
-	// Pop a value from the stack.
+	// Αφαιρέστε με την Pop μια τιμή από την στοίβα.
 	v, err := s.pop()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Print the value that was popped.
+	// Τυπώστε την τιμή που αφαιρέθηκε.
 	fmt.Println(v)
 
-	// Pop another value from the stack.
+	// Αφαιρέστε άλλη τιμή από την στοίβα.
 	v, err = s.pop()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Print the value that was popped.
+	// Τυπώστε την τιμή που αφαιρέθηκε.
 	fmt.Println(v)
 
-	// Pop another value from the stack. This should
-	// return an error.
+	// Αφαιρέστε άλλη τιμή από την στοίβα. Κάτι τέτοιο θα πρέπει
+	// να επιστρέψει ένα σφάλμα.
 	v, err = s.pop()
 	if err != nil {
 		fmt.Println(err)

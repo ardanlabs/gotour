@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to retrieve the minimum integer
-// from a slice of integers.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τροπο ανάκτησης
+// τον ελάχιστο ακέραιο από μια φέτα ακεραίων.
 package main
 
 import "fmt"
@@ -37,26 +37,27 @@ func main() {
 	}
 }
 
-// Min returns the minimum integer in the slice.
+// Η Min επιστρέφει τον ελάχιστο ακέραιο στην φέτα.
 func Min(n []int) (int, error) {
 
-	// First check there are numbers in the collection.
+	// Πρώτα ελέγξτε ότι υπάρχουν αριθμοί στην συλλογή.
 	if len(n) == 0 {
 		return 0, fmt.Errorf("slice %#v has no elements", n)
 	}
 
-	// If the length of the slice is 1 then return the
-	// integer at index 0.
+	// Αν το μήκος της φέτας είναι 1 τότε επιστρέψτε τον
+	// ακέραιο στον δείκτη 0.
 	if len(n) == 1 {
 		return n[0], nil
 	}
 
-	// Save the first value as current min and then loop over
-	// the slice of integers looking for a smaller number.
+	// Αποθηκεύστε την πρώτη τιμή σαν την τρέχουσα ελάχιστη τιμή
+	// και στην συνέχεια επαναλάβετε την προσπέλαση της φέτας
+	// αναζητώντας μικρότερο αριθμό.
 	min := n[0]
 	for _, num := range n[1:] {
 
-		// If num is less than min. Assign min to num.
+		// Αν η num είναι μικρότερη από την min. Εκχωρείστε την num στην min.
 		if num < min {
 			min = num
 		}

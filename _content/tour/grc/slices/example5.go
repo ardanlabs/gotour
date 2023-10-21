@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how one needs to be careful when appending
-// to a slice when you have a reference to an element.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως κανείς πρέπει να είναι προσεχτικός
+// όταν προσθέτει σε μια φέτα όταν υπάρχει αναφορά σε κάποιο στοιχείο.
 package main
 
 import "fmt"
@@ -15,31 +15,31 @@ type user struct {
 
 func main() {
 
-	// Declare a slice of 3 users.
+	// Δηλώστε μια φέτα με 3 user.
 	users := make([]user, 3)
 
-	// Share the user at index 1.
+	// Μοιραστείτε τον χρήστη στον δείκτη 1.
 	shareUser := &users[1]
 
-	// Add a like for the user that was shared.
+	// Προσθέστε ένα like για τον χρήστη που μοιράστηκε προηγουμένως.
 	shareUser.likes++
 
-	// Display the number of likes for all users.
+	// Παρουσιάστε τον αριθμό των like για όλους τους χρήστες.
 	for i := range users {
 		fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
 	}
 
-	// Add a new user.
+	// Προσθέστε έναν νέο χρήστη.
 	users = append(users, user{})
 
-	// Add another like for the user that was shared.
+	// Προσθέστε ακόμα ένα like για τον χρήστη που μοιράστηκε προηγουμένως.
 	shareUser.likes++
 
-	// Display the number of likes for all users.
+	// Παρουσιάστε τον αριθμό των like για όλους τους χρήστες.
 	fmt.Println("*************************")
 	for i := range users {
 		fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
 	}
 
-	// Notice the last like has not been recorded.
+	// Παρατηρείστε ότι το τελευταίο like δεν έχει καταγραφεί.
 }

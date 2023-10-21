@@ -1,13 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare a type that is based on the empty
-// interface so any value can be added into the vector. Since the last
-// function is using the empty interface for the return, users will need to
-// perform type assertions to get back to the concrete value being stored
-// inside the interface.
+// Δείγμα προγράμματος προκιεμένου να παρουσιαστεί ο τρόπος δήλωσης ενός τύπου
+// που βασίζεται στην άδεια διεπαφή ώστε να μπορεί να προστεθεί στο διάνυσμα κάθε τιμή.
+// Καθώς η τελευταία συνάρτηση χρησιμοποιεί την άδεια διεπαφή για την επιστροφή, οι
+// χρήστες θα πρέπει να πραγματοποιήσουν διαβεβαιώσεις τύπων ώστε να παραλάβουν
+// την πραγματική τιμή που είναι αποθηκευμένη στην διεπαφή.
 package main
 
 import (

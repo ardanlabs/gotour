@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to walk through a map by
-// alphabetical key order.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως να προσπελαστεί ένας πίνακας κατακερματισμού
+// κατά αλφαβητική σειρά των κλειδιών του.
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 	"sort"
 )
 
-// user represents someone using the program.
+// Ο user αναπαριστά κάποιον που χρησιμοποιεί το πρόγραμμα.
 type user struct {
 	name    string
 	surname string
@@ -20,7 +20,7 @@ type user struct {
 
 func main() {
 
-	// Declare and initialize the map with values.
+	// Δηλώστε και δώστε αρχικές τιμές στον πίνακα καταμερματισμού.
 	users := map[string]user{
 		"Roy":     {"Rob", "Roy"},
 		"Ford":    {"Henry", "Ford"},
@@ -28,16 +28,16 @@ func main() {
 		"Jackson": {"Michael", "Jackson"},
 	}
 
-	// Pull the keys from the map.
+	// Τραβήξτε τα κλειδιά από τον πίνακα κατακερματισμού.
 	var keys []string
 	for key := range users {
 		keys = append(keys, key)
 	}
 
-	// Sort the keys alphabetically.
+	// Ταξινομήστε τα κλειδιά αλφαβητικά.
 	sort.Strings(keys)
 
-	// Walk through the keys and pull each value from the map.
+	// Προσπελάστε τα κλειδιά και τραβήξτε κάθε τιμή από τον πίνακα κατακερματισμού.
 	for _, key := range keys {
 		fmt.Println(key, users[key])
 	}

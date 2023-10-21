@@ -1,33 +1,33 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct type to maintain information about a user. Declare a function
-// that creates value of and returns pointers of this type and an error value. Call
-// this function from main and display the value.
+// Δηλώστε έναν τύπο struct που διατηρεί πληροφορίες για ένα χρήστη. Δηλώστε μια
+// συνάρτηση που δημιουργεί μια τιμή και επιστρέφει δείκτες διεύθυνσης αυτού του τύπου και μια τιμή
+// σφάλματος. Καλέστε αυτή την συνάρτηση από την main και παρουσιάστε την τιμή
 //
-// Make a second call to your function but this time ignore the value and just test
-// the error value.
+// Κάντε μια δεύτερη κλήση στην συνάρτηση σας όμως αυτή τη φορά αγνοείστε την τιμή
+// και απλά ελέγξτε την τιμή σφάλματος.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
-// Declare a type named user.
+// Δηλώστε έναν τύπο με το όνομα user.
 
-// Declare a function that creates user type values and returns a pointer
-// to that value and an error value of nil.
-func funcName() /* (pointer return arg, error return arg) */ {
+// Δηλώστε μια συνάρτηση που δημιουργεί τιμές τύπου user και επιστρέφει δείκτες διεύθυνσης
+// σε αυτές τις τιμές και ένα σφάλμα με τιμή ίση με nil.
+func funcName() /* (όρισμα επιστροφής δείκτη διεύθυνσης, όρισμα επιστροφής σφάλματος) */ {
 
-	// Create a value of type user and return the proper values.
+	// Δημιουργείστε μια τιμή τύπου user και επιστρέψτε τις κατάλληλες τιμές.
 }
 
 func main() {
 
-	// Use the function to create a value of type user. Check
-	// the error being returned.
+	// Χρησιμοποιείστε την συνάρτηση προκειμένου να δημιουργήσετε μια τιμή τύπου user. Ελέγξτε
+	// το σφάλμα που επιστρέφεται.
 
-	// Display the value that the pointer points to.
+	// ΠΑρουσιάστε την τιμή στην οποία ο δείκτης διέυθυνσης δείχνει.
 
-	// Call the function again and just check the error.
+	// Καλέστε την συνάρτηση ξανά και απλά ελέγξτε το σφάλμα.
 }

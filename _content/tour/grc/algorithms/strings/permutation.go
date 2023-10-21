@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to determine if a string is a
-// permutation or not.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο εξακρίβωσης αν μια συμβολοσειρά
+// είναι μια αντιμετάθεση ή όχι.
 package main
 
 import (
@@ -38,31 +38,31 @@ func main() {
 
 // =============================================================================
 
-// RuneSlice a custom type of a slice of runes.
+// Ο RuneSlice είναι ένας προσαρμοσμένος τύπος μιας φέτας ρούνων (rune).
 type RuneSlice []rune
 
-// For sorting an RuneSlice.
+// Για την ταξινόμηση ενός RuneSlice.
 func (p RuneSlice) Len() int           { return len(p) }
 func (p RuneSlice) Less(i, j int) bool { return p[i] < p[j] }
 func (p RuneSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
-// IsPermutation check if two strings are permutations.
+// Η IsPermutation ελέγχει αν δύο συμβολοσειρές είναι αντιμεταθέσεις η μια της άλλης.
 func IsPermutation(str1, str2 string) bool {
 
-	// If the length are not equal they cannot be permutation.
+	// Αν δεν έχουν το ίδιο μήκος δεν γίνεται να είναι αντιμεταθέσεις.
 	if len(str1) != len(str2) {
 		return false
 	}
 
-	// Convert each string into a collection of runes.
+	// Μετατρέψτε κάθε συμβολοσειρά σε μια συλλογή από ρούνους.
 	s1 := []rune(str1)
 	s2 := []rune(str2)
 
-	// Sort each collection of runes.
+	// Ταξινομήστε κάθε συλλογή από ρούνους.
 	sort.Sort(RuneSlice(s1))
 	sort.Sort(RuneSlice(s2))
 
-	// Convert the collection of runes back to a string
-	// and compare.
+	// Μετατρέψτε την συλλογή από ρούνους σε μια συμβολοσειρά και
+	// συγκρίνετε.
 	return string(s1) == string(s2)
 }

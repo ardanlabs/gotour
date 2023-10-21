@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to implement a reflection solution which allows
-// a slice of any type to be provided and stringified. This is a generic
-// function thanks to the reflect package. Notice the call to the String
-// method via reflection.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος υλοποίησης
+// μιας λύσης αντανάκλασης η οποία επιτρέπει σε μια φέτα οποιουδήποτε τύπου
+// να μετατραπεί σε συμβολοσειρά. Πρόκειται για μια συνάρτηση γενικού
+// προγραμματισμού εξαιτίας του πακέτου reflect. Παρατηρείστε την κλήση
+// στην μέθοδο τύπου String μέσω αντανάκλασης.
 package main
 
 import (
@@ -35,8 +36,8 @@ func stringifyReflect(v interface{}) []string {
 	return ret
 }
 
-// Defining two types that implement the fmt.Stringer interface. Each
-// implementation creates a stringified version of the concrete type.
+// Ορίζοντας δύο τύπους που υλοποιούν την διεπαφή the fmt.Stringer. Κάθε
+// υλοποίησης δημιουργεί μια εκδοχή συμβολοσειράς του πραγματικού τύπου.
 
 type user struct {
 	name  string

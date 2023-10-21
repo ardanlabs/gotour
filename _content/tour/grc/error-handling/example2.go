@@ -1,10 +1,11 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use error variables to help the
-// caller determine the exact error being returned.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως χρησιμοποιούνται μεταβλητές σφάλματος
+// προκειμένου να βοηθήσουν τον καλώντα να προσδιορίσει το ακριβές σφάλμα που επιστρέφεται.
 package main
 
 import (
@@ -13,10 +14,10 @@ import (
 )
 
 var (
-	// ErrBadRequest is returned when there are problems with the request.
+	// Η ErrBadRequest επιστρέφεται όταν υπάρχουν προβλήματα με το αίτημα.
 	ErrBadRequest = errors.New("Bad Request")
 
-	// ErrPageMoved is returned when a 301/302 is returned.
+	// Η ErrPageMoved επιστρέφεται όταν επιστρέφει ένα 301/302.
 	ErrPageMoved = errors.New("Page Moved")
 )
 
@@ -40,7 +41,7 @@ func main() {
 	fmt.Println("Life is good")
 }
 
-// webCall performs a web operation.
+// Η webCall πραγματοποιεί μια λειτουργία web.
 func webCall(b bool) error {
 	if b {
 		return ErrBadRequest

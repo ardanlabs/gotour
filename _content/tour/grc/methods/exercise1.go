@@ -1,27 +1,30 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct that represents a baseball player. Include name, atBats and hits.
-// Declare a method that calculates a player's batting average. The formula is hits / atBats.
-// Declare a slice of this type and initialize the slice with several players. Iterate over
-// the slice displaying the players name and batting average.
+// Δηλώστε ένα struct που αντιπροσωπεύει έναν παίκτη baseball. Συμπεριλάβετε τα πεδία name,
+// atBats and hits.
+// Δηλώστε μια μέθοδο τύπου που υπολογίζει την μέση τιμή των χτυπημάτων ενός παίκτη. Ο τύπος
+// είναι Hits / AtBats.
+// Δηλώστε μια φέτα αυτού του τύπου και δώστε ως αρχική τιμή αρκετούς παίκτες. Πραγματοποιείστε
+// διαδοχική επίσκεψη των στοιχείων της φέτας, παρουσιάζοντας στην συνέχεια το πεδίο name και την
+// μέση τιμή χτυπημάτων του κάθε παίκτη.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
-// Declare a struct that represents a ball player.
-// Include fields called name, atBats and hits.
+// Δηλώστε έναν struct που αντιπορσωπεύει έναν παίκτη.
+// Συμπεριλάβετε πεδία με το όνομα name, atBats and hits.
 
-// Declare a method that calculates the batting average for a player.
-func ( /* receiver */ ) average() /* return type */ {
+// Δηλώστε μια μέθοδο τύπου που υπολογίζει τον μέσο χτυπημάτων για τον παίκτη.
+func ( /* λήπτης μεθόδου */ ) average() /* τύπος επιστροφής */ {
 }
 
 func main() {
 
-	// Create a slice of players and populate each player
-	// with field values.
+	// Δημιουργείστε μια φέτα παικτών και γεμίστε κάθε παίκτη
+	// με τιμές πεδίων.
 
-	// Display the batting average for each player in the slice.
+	// Παρουσιάστε το μέσο όρο χτυπημάτων για κάθε παίκτη στην φέτα.
 }

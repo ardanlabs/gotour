@@ -1,21 +1,22 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare a generic type using a struct type.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης τύπου γενικού προγραμματισμού με την χρήση τύπου struct.
 package main
 
 import (
 	"fmt"
 )
 
-// This code defines two user defined types that implement a linked list. The
-// node type contains data of some type T (to be determined later) and points
-// to other nodes of the same type T. The list type contains pointers to the
-// first and last nodes of some type T. The add method is declared with a
-// pointer receiver based on a list of some type T and is implemented to add
-// nodes to the list of the same type T.
+// Ο κώδικας ορίζει δύο τύπους ορισμένους από τον χρήστη που υλοποιούν μια
+// συνδεδεμένη λίστα. Ο τύπος στοιχείου της λίστας περιέχει δεδομένα κάποιου
+// τύπου T (που θα καθοριστεί αργότερα) και δείχνει προς άλλα στοιχεία του
+// ίδιου τύπου T. Ο τύπος της λίστας περιέχει δείκτες διεύθυνσης στο πρώτο
+// και στο τελευταίο στοιχείο κάποιου τύπου T. Η μέθοδος τύπου δηλώνεται
+// με λήπτη μεθόδου δείκτη διεύθυνσης με βάση μια λίστα κάποιου τύπου T και
+// υλοποιείται προκειμένου να προσθέτει στοιχεία στην λίστα ίδιου τύπου T.
 
 type node[T any] struct {
 	Data T
@@ -43,7 +44,7 @@ func (l *list[T]) add(data T) *node[T] {
 	return &n
 }
 
-// This user type represents the data to be stored into the linked list.
+// Αυτός ο τύπος user αναπαριστά τα δεδομένα που θα αποθηκευτούν στην συνδεδεμένη λίστα.
 
 type user struct {
 	name string
@@ -53,13 +54,13 @@ type user struct {
 
 func main() {
 
-	// Store values of type user into the list.
+	// Αποθηκεύστε τιμές τύπου user στην λίστα.
 	var lv list[user]
 	n1 := lv.add(user{"bill"})
 	n2 := lv.add(user{"ale"})
 	fmt.Println(n1.Data, n2.Data)
 
-	// Store pointers of type user into the list.
+	// Αποθηκεύστε δείκτες διεύθυνσης τύπου user στην λίστα.
 	var lp list[*user]
 	n3 := lp.add(&user{"bill"})
 	n4 := lp.add(&user{"ale"})

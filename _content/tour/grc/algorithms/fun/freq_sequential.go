@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to implement a function that can
-// find the frequency a given rune is used in a specified sentence.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο υλοποίησης μιας συνάρτησης
+// που μπορεί να βρει την συχνότητα ενός ρούνου (rune) σε συγκεκριμένη πρόταση.
 package main
 
 import (

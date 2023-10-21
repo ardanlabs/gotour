@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a basic binary tree.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο συγγραφής ενός βασικού δυαδικού δέντρου.
 package main
 
 import (
@@ -68,18 +68,19 @@ func main() {
 
 // =============================================================================
 
-// Data represents the information being stored.
+// Ο Data αναπαριστά την πληροφορία προς αποθήκευση.
 type Data struct {
 	Key  int
 	Name string
 }
 
-// Tree represents all values in the tree.
+// Ο Tree αναπαριστά όλες τις τιμές στο δέντρο.
 type Tree struct {
 	root *node
 }
 
-// Insert adds a value into the tree and keeps the tree balanced.
+// Η Insert προσθέτει μια τιμή στο δέντρο και κρατάει το δέντρο
+// ισορροπημένο.
 func (t *Tree) Insert(data Data) {
 	t.root = t.root.insert(t, data)
 
@@ -88,7 +89,7 @@ func (t *Tree) Insert(data Data) {
 	}
 }
 
-// Find traverses the tree looking for the specified tree.
+// Η Find διατρέχει το δέντρο αναζητώντας για το συγκεκριμένο δέντρο.
 func (t *Tree) Find(key int) (Data, error) {
 	if t.root == nil {
 		return Data{}, errors.New("cannot find from an empty tree")
@@ -97,7 +98,7 @@ func (t *Tree) Find(key int) (Data, error) {
 	return t.root.find(key)
 }
 
-// Delete removes the key from the tree and keeps it balanced.
+// Η Delete απομακρύνει το κλειδί από το δέντρο και το κρατάει ισορροπημένο.
 func (t *Tree) Delete(key int) error {
 	if t.root == nil {
 		return errors.New("cannot delete from an empty tree")
@@ -114,9 +115,9 @@ func (t *Tree) Delete(key int) error {
 	return nil
 }
 
-// PreOrder traversal get the root node then traversing its child
-// nodes recursively.
-// Use cases: copying tree, mapping prefix notation.
+// Η διέλευση PreOrder παίρνει το στοιχείο της ρίζας και στην συνέχεια
+// διασχίζει τα παιδιά της με αναδρομή.
+// Περιπτώσεις χρήσης: αντιγραφή δέντρων, απεικόνιση συμβολισμού προθέματος (prefix notation).
 //
 //	      #1
 //	   /      \
@@ -132,9 +133,9 @@ func (t *Tree) PreOrder() []Data {
 	return order
 }
 
-// InOrder traversal travel from the leftmost node to the rightmost nodes
-// regardless of depth.
-// In-order traversal gives node values in ascending order.
+// Η διεύλεση InOrder επισκέπτεται από το πιο αριστερό στοιχείο
+// στο πιο δεξίο στοιχείο ανεξάρτητα από το βάθος.
+// Η διέλευση In-order δίνει τις τιμές των στοιχείων σε αύξουσα κατάταξη.
 //
 //	      #4
 //	   /      \
@@ -150,9 +151,10 @@ func (t *Tree) InOrder() []Data {
 	return order
 }
 
-// PostOrder traversal get the leftmost node then its sibling then go up to its
-// parent, recursively.
-// Use cases: tree deletion, mapping postfix notation.
+// Η διέλευση PostOrder παίρνει το πιο αριστερό στοιχείο, στην συνέχεια
+// επισκέπτεται το αδελφό στοιχείο και στην συνέχεια επισκέπτεται το
+// πατρικό στοιχείο, αναδρομικά.
+// ΠΕριπτώσεις χρήσης: διαγραφή δέντρου, απεικόνιση συμβολισμού επιθέματος (postfix notation).
 //
 //	      #7
 //	   /      \
@@ -170,7 +172,7 @@ func (t *Tree) PostOrder() []Data {
 
 // =============================================================================
 
-// node represents the data stored in the tree.
+// Ο node αναπαριστά τα δεδομένα που είναι αποθηκευμένα στο δέντρο.
 type node struct {
 	data  Data
 	level int
@@ -179,8 +181,9 @@ type node struct {
 	right *node
 }
 
-// height returned the level of the tree the node exists in.
-// Level 1 is at the last layer of the tree.
+// Η height επιστρέφει το επίπεδο του δέντρου στο οποίο υπάρχει
+// το στοιχείο. Το επίπεδο 1 βρίσκεται στο τελευταίο επίπεδο του
+// δέντρου.
 //
 //	      #7          -- height = 3
 //	   /      \
@@ -194,8 +197,8 @@ func (n *node) height() int {
 	return n.level
 }
 
-// insert adds the node into the tree and makes sure the
-// tree stays balanced.
+// Η insert προσθέτει το στοιχείο στο δέντρο και
+// επιβεβαιώνει ότι το δέντρο παραμένει ισορροπήμένο.
 func (n *node) insert(t *Tree, data Data) *node {
 	if n == nil {
 		return &node{data: data, level: 1, tree: t}
@@ -216,7 +219,7 @@ func (n *node) insert(t *Tree, data Data) *node {
 	return n.rebalance()
 }
 
-// find traverses the tree looking for the specified key.
+// Η find διατρέχει το δέντρο αναζητώντας το συγκεκριμένο κλειδί.
 func (n *node) find(key int) (Data, error) {
 	if n == nil {
 		return Data{}, errors.New("key not found")
@@ -234,13 +237,13 @@ func (n *node) find(key int) (Data, error) {
 	}
 }
 
-// balRatio provides information about the balance ratio
-// of the node.
+// Η balRatio παρέχει πληροφορία σχετικά με τον λόγο ισορροπίας
+// του στοιχείου.
 func (n *node) balRatio() int {
 	return n.right.height() - n.left.height()
 }
 
-// rotateLeft turns the node to the left.
+// Η rotateLeft στρέφει το στοιχείο αριστερά.
 //
 //	#3          #4
 //	  \        /  \
@@ -256,7 +259,7 @@ func (n *node) rotateLeft() *node {
 	return r
 }
 
-// rotateRight turns the node to the right.
+// Η rotateRight στρέφει το στοιχείο δεξιά.
 //
 //	    #5      #4
 //	   /       /  \
@@ -272,7 +275,7 @@ func (n *node) rotateRight() *node {
 	return l
 }
 
-// rotateLeftRight turns the node to the left and then right.
+// Η rotateLeftRight στρέφει το στοιχείο αριστερά και μετά δεξιά.
 //
 //	  #5          #5      #4
 //	 /           /       /  \
@@ -286,7 +289,7 @@ func (n *node) rotateLeftRight() *node {
 	return n
 }
 
-// rotateLeftRight turns the node to the left and then right.
+// Η rotateLeftRight στρέφει το στοιχείο αριστερά και μετά δεξιά.
 //
 //	#3        #3          #4
 //	  \         \        /  \
@@ -300,7 +303,7 @@ func (n *node) rotateRightLeft() *node {
 	return n
 }
 
-// rebalance will rotate the nodes based on the ratio.
+// Η rebalance περιστρέφει τα στοιχεία με βάση τον λόγο.
 func (n *node) rebalance() *node {
 	switch {
 	case n.balRatio() < -1 && n.left.balRatio() == -1:
@@ -318,9 +321,9 @@ func (n *node) rebalance() *node {
 	return n
 }
 
-// findMax finds the maximum element in a (sub-)tree. Its value replaces
-// the value of the to-be-deleted node. Return values: the node itself and
-// its parent node.
+// Η findMax βρίσκει το μέγιστο στοιχείο ενός υποδέντρου. Η τιμή του
+// αντικαθιστά την τιμή του στοιχείου που θα διαγραφεί. Τιμές επιστροφής:
+// το ίδιο το στοιχείο και το πατρικό στοιχείο του.
 func (n *node) findMax(parent *node) (*node, *node) {
 	switch {
 	case n == nil:
@@ -332,8 +335,9 @@ func (n *node) findMax(parent *node) (*node, *node) {
 	return n.right.findMax(n)
 }
 
-// replaceNode replaces the parent’s child pointer to n with a pointer
-// to the replacement node. parent must not be nil.
+// Η replaceNode αντικαθιστά τον πατρικό δείκτη διεύθυνσης
+// του n με ένα δείκτη διεύθυνσης στο στοιχείο προς αντικατάσταση.
+// Το πατρικό στοιχείο δνε πρεπει να έχει τιμή nil.
 func (n *node) replaceNode(parent, replacement *node) error {
 	if n == nil {
 		return errors.New("replaceNode() not allowed on a nil node")
@@ -350,10 +354,11 @@ func (n *node) replaceNode(parent, replacement *node) error {
 	return nil
 }
 
-// delete removes an element from the tree. It is an error to try
-// deleting an element that does not exist. In order to remove an
-// element properly, Delete needs to know the node’s parent node.
-// Parent must not be nil.
+// Η delete απομακρύνει ένα στοιχείο από το δέντρο. Είναι σφάλμα,
+// να προσπαθήσει κανείς να διαγραψει ένα στοιχείο που δεν υπάρχει.
+// Προκειμένου να απομακρυνθεί ένα στοιχείο με κατάλληλο τρόπο, η
+// Delete χρειάζεται να γνωρίζει το πατρικό στοιχείο του. Αυτο το
+// πατρικό στοιχείο δεν πρέπει να έχει τιμή nil.
 func (n *node) delete(key int, parent *node) error {
 	if n == nil {
 		return errors.New("value to be deleted does not exist in the tree")
@@ -384,7 +389,8 @@ func (n *node) delete(key int, parent *node) error {
 	}
 }
 
-// preOrder traverses the node by traversing the child nodes recursively.
+// Η preOrder διατρέχει ένα στοιχείο διατρέχοντας τα παιδιά του
+// με αναδρομή.
 func (n *node) preOrder(f func(*node)) {
 	if n != nil {
 		f(n)
@@ -393,8 +399,8 @@ func (n *node) preOrder(f func(*node)) {
 	}
 }
 
-// inOrder traversal the node by the leftmost node to the rightmost nodes
-// regardless of depth.
+// Η inOrder διασχίζει το στοιχείο από το πιο αριστερό στο πιο δεξί στοιχείο
+// ανεξαρτήτως του βάθους.
 func (n *node) inOrder(f func(*node)) {
 	if n != nil {
 		n.left.inOrder(f)
@@ -403,8 +409,8 @@ func (n *node) inOrder(f func(*node)) {
 	}
 }
 
-// postOrder traversal the node by the leftmost node then its sibling
-// then up to its parent, recursively.
+// Η postOrder διασχίζει το στοιχείο από το πιο αριστερό στοιχείο, μετά από το
+// αδελφό στοιχείο στο πατρικό στοιχείο, με αναδρομή.
 func (n *node) postOrder(f func(*node)) {
 	if n != nil {
 		n.left.postOrder(f)
@@ -415,7 +421,7 @@ func (n *node) postOrder(f func(*node)) {
 
 // =============================================================================
 
-// max returns the larger of the two values.
+// Η max επιστρέφει την μεγαλύτερη από τις δύο τιμές.
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -425,16 +431,17 @@ func max(a, b int) int {
 
 // =============================================================================
 
-// PrettyPrint takes a Tree value and displays a pretty print
-// version of the tree.
+// Η PrettyPrint παίρνει μια τιμή δέντρου και παρουσιάζει
+// μια ευχάριστη εκτυπωμένη εκδοχή του δέντρου.
 func PrettyPrint(t Tree) {
 
-	// Build an index map of positions for print layout.
+	// Δημιουργήστε έναν πίνακα κατακερματισμού ως ευρετήριο
+	// θέσεων για την διάταξη της εκτύπωσης.
 	values := make(map[int]int)
 	maxIdx := buildIndexMap(values, 0, 0, t.root)
 
-	// Calculate the total number of levels based on
-	// the max index provided.
+	// Υπολογείστε το συνολικό αριθμό των επιπέδων με βάση
+	// τον μέγιστο παρεχόμενο δείκτη.
 	var levels int
 	for {
 		pow := math.Pow(2, float64(levels))
@@ -445,10 +452,10 @@ func PrettyPrint(t Tree) {
 	}
 	levels--
 
-	// Capture the positional data to use.
+	// Κρατήστε τα δεδομένα θέσης προς χρήση.
 	data := generateData(levels)
 
-	// Set the edge of the top of the tree.
+	// Ορίστε την πλευρά της κορυφή του δέντρου.
 	for sp := 0; sp < data[0].edge; sp++ {
 		fmt.Print(" ")
 	}
@@ -458,12 +465,12 @@ func PrettyPrint(t Tree) {
 	dataIdx := 1
 	for i := 1; i < len(data); i = i + 2 {
 
-		// Set the edge of this row.
+		// Ορίστε την πλευρά αυτής της γραμμής
 		for sp := 0; sp < data[i].edge; sp++ {
 			fmt.Print(" ")
 		}
 
-		// Draw the hashes for this row.
+		// Σχεδιάστε τις γραμμές για αυτή την γραμμή.
 		dataHashIdx := dataIdx
 		for h := 0; h < data[i].draw; h++ {
 			if values[dataHashIdx] != maxInt {
@@ -489,12 +496,12 @@ func PrettyPrint(t Tree) {
 		}
 		fmt.Print("\n")
 
-		// Set the edge of the next row.
+		// Θέστε την πλευρά της επόμενης πλευράς.
 		for sp := 0; sp < data[i+1].edge; sp++ {
 			fmt.Print(" ")
 		}
 
-		// Draw the numbers for this row.
+		// Σχεδιάστε τους αριθμούς για αυτή την σειρά.
 		for n := 0; n < data[i+1].draw; n++ {
 			if values[dataIdx] != maxInt {
 				fmt.Printf("%02d", values[dataIdx])
@@ -525,8 +532,9 @@ func PrettyPrint(t Tree) {
 
 const maxInt = int(^uint(0) >> 1)
 
-// buildIndex traverses the tree and generates a map of index positions
-// for each node in the tree for printing.
+// Η buildIndex διατρέχει το δέντρο και παράγει έναν πίνακα
+// κατακερματισμού δεικτών θέσεων για κάθε στοιχείο στο
+// δέντρο προς εκτύπωση.
 //
 //	      40
 //	   /      \
@@ -537,37 +545,40 @@ const maxInt = int(^uint(0) >> 1)
 // values{0:40, 1:05, 2:80, 3:02, 4:25, 5:65, 6:98}
 func buildIndexMap(values map[int]int, idx int, maxIdx int, n *node) int {
 
-	// We need to keep track of the highest index position used
-	// to help calculate tree depth.
+	// Πρέπει να καρατάμε λογαριασμό της υψηλότερης θέσης δείκτη
+	// που χρηισμοποιείται προκειμένου να υποβοηθηθεί ο υπολογισμός
+	// του βάθους του δέντρου.
 	if idx > maxIdx {
 		maxIdx = idx
 	}
 
-	// We have reached the end of a branch. Use the maxInt to mark
-	// no value in that position.
+	// Φτάσαμε στο τέλος ενός τμήματος. Χρησιμοποιείστε την maxInt προκειμένου
+	// να σηματοδοτηθει ότι δεν υπάρχει τιμή σε αυτή την θέση.
 	if n == nil {
 		values[idx] = maxInt
 		return maxIdx
 	}
 
-	// Save the value of this node in the map at the
-	// calculated index position.
+	// Αποθηκεύστε την τιμή αυτού του στοιχείου στον πίνακα κατακερματισμού
+	// στην υπολογισμένη θέση δείκτη.
 	values[idx] = n.data.Key
 
-	// Check if there are still nodes to check down the left
-	// branch. When we move down the tree, the next index doubles.
+	// Ελεγξτε αν υπάρχουν αακόμα στοιχεία προς έλεγχο στο αριστερό
+	// τμήμα. Όταν μετακινούμαστε προς τα κάτω στο δέντρο, διπλασιάζεται
+	// ο επόμενος δείκτης.
 	if n.left != nil {
 		nextidx := 2*idx + 1
 		maxIdx = buildIndexMap(values, nextidx, maxIdx, n.left)
 	}
 
-	// Check if there are still nodes to check down the right
-	// branch. When we move down the tree, the next index doubles.
+	// Ελέγξτε αν υπάρχουν ακόμα στοιχεία προς έλεγχο προς τα κάτω
+	// στο δεξί τμήμα. Όταν μετακινούμαστε προς τα κάτω στο δέντρο, διπλασιάζεται
+	// ο επόμενος δείκτης.
 	nextidx := 2*idx + 2
 	maxIdx = buildIndexMap(values, nextidx, maxIdx, n.right)
 
-	// We need to set missing indexes in the map to maxInt.
-	// So they are ignored in the printing of the map.
+	// Πρέπει να θέσουμε τους απόντες δείκτες στον πίνακα κατακερματισμου
+	// στην τιμή maxInt. Με αυτό τον τρόπο, θα αγνοηθούν κατά την εκτύπωση.
 	if idx == 0 {
 		for i := 0; i < maxIdx; i++ {
 			if _, ok := values[i]; !ok {
@@ -579,7 +590,7 @@ func buildIndexMap(values map[int]int, idx int, maxIdx int, n *node) int {
 	return maxIdx
 }
 
-// pos provides positional data for printing a tree.
+// Ο pos παρέχει δεδομένα θέσης για την εκτύπωση ενός δέντρου.
 type pos struct {
 	edge    int
 	draw    int
@@ -588,8 +599,8 @@ type pos struct {
 	gapPad  int
 }
 
-// generateData generates all the positional data needed to display
-// nodes at different levels.
+// Η generateData παράγει όλα τα δεδομένα θέσης που χρειάζεονται προκειμένου
+// να παρουσιαστούν τα στοιχεία σε διαφορετικά επίπεδα.
 func generateData(level int) []pos {
 	totalData := (level * 2) - 1
 	data := make([]pos, totalData)
@@ -600,14 +611,14 @@ func generateData(level int) []pos {
 
 	for i := totalData - 1; i >= 0; i = i - 2 {
 
-		// Generate starting edge positions.
+		// δημιουργήστε τις αρχικές θέσεις των πλευρών.
 		data[i].edge = int(math.Pow(2, float64(edge)))
 		if i > 0 {
 			data[i-1].edge = data[i].edge + 1
 		}
 		edge++
 
-		// Generate draw information.
+		// Δημιουργήστε πληροφορίες σχεδιασμού.
 		if draw > 0 {
 			data[i].draw = int(math.Pow(2, float64(draw)))
 			data[i-1].draw = data[i].draw
@@ -619,20 +630,20 @@ func generateData(level int) []pos {
 		}
 		draw--
 
-		// Generate padding information.
+		// Δημιουργήστε πληροφορίες ενθεμάτων.
 		padding += data[i].edge
 		data[i].padding = padding
 		if i > 0 {
 			data[i-1].padding = padding
 		}
 
-		// Generate gaps information.
+		// Δημιουργήστε πληροφορίες κενών.
 		data[i].gaps = data[i].draw - 1
 		if i > 0 {
 			data[i-1].gaps = data[i].gaps
 		}
 
-		// Generate gap padding information.
+		// Δημιουργήστε πληροφορίες ενθεμάτων κενών.
 		if i > 2 {
 			data[i-1].gapPad = int(math.Pow(2, float64(gapPad)))
 			data[i].gapPad = data[i-1].gapPad - 2

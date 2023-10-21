@@ -1,25 +1,23 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how arrays of different sizes are
-// not of the same type.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί το γεγονός ότι πίνακες διαφορετικών μεγεθών
+// ανήκουν σε διαφορετικούς τύπους.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare an array of 5 integers that is initialized
-	// to its zero value.
+	// Δηλώστε έναν πίνακα με 5 ακέραιους ο οποίος λαμβάνει την μηδενική του τιμή.
 	var five [5]int
 
-	// Declare an array of 4 integers that is initialized
-	// with some values.
+	// Δηλώστε έναν πίνακα με 4 ακέραιους ο οποίος λαμβάνει ως αρχική τιμή κάποιες τιμές.
 	four := [4]int{10, 20, 30, 40}
 
-	// Assign one array to the other
+	// Εκχωρείστε τον ένα πίνακα στον άλλο.
 	five = four
 
 	// ./example2.go:21: cannot use four (type [4]int) as type [5]int in assignment

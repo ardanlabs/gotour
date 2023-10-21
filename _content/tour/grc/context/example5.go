@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program that implements a web request with a context that is
-// used to timeout the request if it takes too long.
+// Δείγμα προγράμματος που υλοποιεί ένα αίτημα web με μια context που
+// χρησιμοποιείται προκειμένου να λήξει το αίτημα αν παίρνει πολύ χρόνο.
 package main
 
 import (
@@ -18,31 +18,31 @@ import (
 
 func main() {
 
-	// Create a new request.
+	// Δημιουργείστε ένα νέο αίτημα.
 	req, err := http.NewRequest("GET", "https://www.ardanlabs.com/blog/post/index.xml", nil)
 	if err != nil {
 		log.Println("ERROR:", err)
 		return
 	}
 
-	// Create a context with a timeout of 50 milliseconds.
+	// Δημιουργείστε ένα αίτημα με διάρκεια λήξης 50 millisecond.
 	ctx, cancel := context.WithTimeout(req.Context(), 50*time.Millisecond)
 	defer cancel()
 
-	// Bind the new context into the request.
+	// Δεσμεύστε το νέο context στο αίτημα.
 	req = req.WithContext(ctx)
 
-	// Make the web call and return any error. Do will handle the
-	// context level timeout.
+	// Πραγματοποιείστε την κλήση web και επιστρέψτε το σφάλμα. Η Do θα χειριστεί
+	// την λήξη στο επίπεδο του context.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("ERROR:", err)
 		return
 	}
 
-	// Close the response body on the return.
+	// Κλείστε το σώμα της απόκρισης στην επιστροφή.
 	defer resp.Body.Close()
 
-	// Write the response to stdout.
+	// Γράψτε την επιστροφή στην βασική έξοδο.
 	io.Copy(os.Stdout, resp.Body)
 }

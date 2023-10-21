@@ -1,6 +1,6 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 import (
@@ -8,22 +8,25 @@ import (
 	"syscall"
 )
 
-// Sample code to show how it is important to use value or pointer semantics
-// in a consistent way. Choose the semantic that is reasonable and practical
-// for the given type and be consistent. One exception is an unmarshal
-// operation since that always requires the address of a value.
+// Δείγμα κώδικα προκειμένου να παρουσιαστεί πόσο σημαντικό είναι να γίνεται
+// χρήση σημειολογίας τιμής ή δείκτη διεύθυνσης με συνεπή τρόπο. Επιλέξτε 
+// την σημειολογία που είναι λογική και πρακτική για τον τρέχοντα τύπο 
+// και προσπαθείστε να είστε συνεπείς. Μια εξαίρεση σε αυτό τον κανόνα είναι
+// μια λειτουργία αποσειριοποίησης (unmarshal) καθώς κάτι τέτοιο πάντα απαιτεί
+// την χρήση διεύθυνσης μιας  τιμής.
 
 // *****************************************************************************
 
-// These is a named type from the net package called IP and IPMask with a base
-// type that is a slice of bytes. Since we use value semantics for reference
-// types, the implementation is using value semantics for both.
+// Οι παρακάτω τύποι είναι επώνυμοι τύποι απο το πακέτο net που ονομάζονται IP 
+// και IPMask με βασικό τύπο μια φέτα από byte. Καθώς χρησιμοποιούμε σημειολογία
+// τιμής για τύπους που είναι αναφορές, η υλοποίηση χρησιμοποιεί σημειολογία
+// τιμής και για τους δύο.
 
 type IP []byte
 type IPMask []byte
 
-// Mask is using a value receiver and returning a value of type IP. This
-// method is using value semantics for type IP.
+// Η Mask χρησιμοποιεί λήπτη μεθόδου τιμής και επιστρέφει μια τιμή τύπου IP. Αυτή η
+// μέθοδος τύπου χρησμοποιέι σημειολογία τιμής για τον τύπο IP.
 
 func (ip IP) Mask(mask IPMask) IP {
 	if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
@@ -43,8 +46,8 @@ func (ip IP) Mask(mask IPMask) IP {
 	return out
 }
 
-// ipEmptyString accepts a value of type IP and returns a value of type string.
-// The function is using value semantics for type IP.
+// Η ipEmptyString δέχεται μια τιμή τύπου IP και επιστρέφει μια τιμή τύπου συμβολοσειράς.
+// Η συνάρτηση χρησιμοποιεί σημειολογία τιμής για τον τύπο IP.
 
 func ipEmptyString(ip IP) string {
 	if len(ip) == 0 {
@@ -55,8 +58,9 @@ func ipEmptyString(ip IP) string {
 
 // *****************************************************************************
 
-// Should time use value or pointer semantics? If you need to modify a time
-// value should you mutate the value or create a new one?
+// Θα έπρεπε ο time να χρησιμοποιήσει σημειολογία τιμής ή δείκτη διεύθυνσης; 
+// Αν χρειάζεται να τροποποιήσετε μια τιμή time, πρέπει να μετατρέψετε την τιμή 
+// ή να δημιουργήσετε μια καινούργια.
 
 type Time struct {
 	sec  int64
@@ -64,17 +68,17 @@ type Time struct {
 	loc  *Location
 }
 
-// Factory functions dictate the semantics that will be used. The Now function
-// returns a value of type Time. This means we should be using value
-// semantics and copy Time values.
+// Συναρτήσης παραγωγής (factory) υποδεικνύουν την σημειολογία που πρέπει να χρησιμοποιηθεί.
+// Η συνάρτηση Now επιστρέφει μια τιμή τύπου Time. Αυτό σημαίνει ότι πρέπει να χρησιμοποιήσουμε
+// σημειολογία τιμής και να αντιγράψουμε τις τιμές Time.
 
 func Now() Time {
 	sec, nsec := now()
 	return Time{sec + unixToInternal, nsec, Local}
 }
 
-// Add is using a value receiver and returning a value of type Time. This
-// method is using value semantics for Time.
+// Η Add χρησιμοποιεί λήπτη μεθόδου τιμής και επιστρέφει μια τιμή τύπου Time. Αυτή 
+// η μέθοδος χρησιμοποιεί σημειολογία τιμής για την Time.
 
 func (t Time) Add(d Duration) Time {
 	t.sec += int64(d / 1e9)
@@ -90,15 +94,15 @@ func (t Time) Add(d Duration) Time {
 	return t
 }
 
-// div accepts a value of type Time and returns values of built-in types.
-// The function is using value semantics for type Time.
+// Η div δέχεται μια τιμή τύπου Time και επιστρέφει τιμές προεγκατεστημένων τύπων.
+// Η συνάρτηση χρησιμοποιεί σημειολογία τιμής για τον τύπο Time.
 
 func div(t Time, d Duration) (qmod2 int, r Duration) {
-	// Code here
+	// Κώδικας εδώ
 }
 
-// The only use pointer semantics for the `Time` api are these
-// unmarshal related functions.
+// Η μόνη χρήση σημειολογίας δείκτη διεύθυνσης για την api της `Time` είναι
+// οι ακόλουθες συναρτήσεις αποσειριοποίησης (unmarshal).
 
 func (t *Time) UnmarshalBinary(data []byte) error {
 func (t *Time) GobDecode(data []byte) error {
@@ -107,16 +111,16 @@ func (t *Time) UnmarshalText(data []byte) error {
 
 // *****************************************************************************
 
-// Factory functions dictate the semantics that will be used. The Open function
-// returns a pointer of type File. This means we should be using pointer
-// semantics and share File values.
+// Οι συναρτήσεις παραγωγής (factory) υπαγορεύουν την σημειολογία που θα χρησιμοποιηθεί. 
+// Η συνάρτηση Open επιστρέφει έναν δείκτη διεύθυνσης τύπου File. Αυτό σημαίνει ότι πρέπει να 
+// χρησιμοποιήσουμε σημειολογία τιμής για να μοιραστούμε τιμές File.
 
 func Open(name string) (file *File, err error) {
 	return OpenFile(name, O_RDONLY, 0)
 }
 
-// Chdir is using a pointer receiver. This method is using pointer
-// semantics for File.
+// Η Chdir χρησιμοποιεί λήπτη μεθόδου δείκτη διεύθυνσης. Αυτή η μέθοδος χρησιμοποιεί σημειολογία 
+// δείκτη διεύθυνσης για τον File.
 
 func (f *File) Chdir() error {
 	if f == nil {
@@ -128,8 +132,8 @@ func (f *File) Chdir() error {
 	return nil
 }
 
-// epipecheck accepts a pointer of type File.
-// The function is using pointer semantics for type File.
+// Η epipecheck αποδέχεται έναν δείκτη διεύθυνσης τύπου File.
+// Η συνάρτηση χρησιμοποιεί σημειολογία δείκτη διεύθυνσης για τον τύπο File.
 
 func epipecheck(file *File, e error) {
 	if e == syscall.EPIPE {

@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This code is provided by Matt Layher (@mdlayher)
+// Αυτός ο κώδικας παρέχεται από τον Matt Layher (@mdlayher)
 // https://mdlayher.com/blog/go-generics-draft-design-building-a-hashtable/#a-generic-hashtable
 
-// Sample program to show how to write a generic hash table.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συγγραφής
+// ενός πίνακα κατακερματισμού γενικού προγραμματισμού.
 package main
 
 import (

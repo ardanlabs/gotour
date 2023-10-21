@@ -1,18 +1,18 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how you can personally mock concrete types when
-// you need to for your own packages or tests.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μπορεί κανείς να μιμηθεί πραγματικούς τύπους 
+// όταν χρειάζεται για τα πακέτα ή για ελέγχους.
 package main
 
 import (
 	"play.ground/pubsub"
 )
 
-// publisher is an interface to allow this package to mock the pubsub
-// package support.
+// Ο publisher είναι μια διεπαφή που επιτρέπει σε αυτό το πακέτο να μιμηθεί την 
+// υποστήριξη του πακέτου pubsub.
 type publisher interface {
 	Publish(key string, v interface{}) error
 	Subscribe(key string) error
@@ -20,20 +20,20 @@ type publisher interface {
 
 // =============================================================================
 
-// mock is a concrete type to help support the mocking of the pubsub package.
+// Ο mock είναι ένας πραγματικός τύπος που βοηθά την υποστήριξη μίμησης του παλέτου pubsub.
 type mock struct{}
 
-// Publish implements the publisher interface for the mock.
+// Η Publish υλοποιεί την διεπαφή publisher για την μίμηση.
 func (m *mock) Publish(key string, v interface{}) error {
 
-	// ADD YOUR MOCK FOR THE PUBLISH CALL.
+	// ΠΡΟΣΘΕΣΤΕ ΤΗΝ ΜΙΜΗΣΗ ΚΛΗΣΗΣ ΤΗΣ ΚΛΗΣΗ PUBLISH.
 	return nil
 }
 
-// Subscribe implements the publisher interface for the mock.
+// Η Subscribe υλοποιεί την διεπαφή publisher για την μίμηση.interface for the mock.
 func (m *mock) Subscribe(key string) error {
 
-	// ADD YOUR MOCK FOR THE SUBSCRIBE CALL.
+	// ΠΡΟΣΘΕΣΤΕ ΤΗΝ ΜΙΜΗΣΗ ΤΗΣ ΚΛΗΣΗΣ ΤΗΣ SUBSCRIBE.
 	return nil
 }
 
@@ -41,17 +41,18 @@ func (m *mock) Subscribe(key string) error {
 
 func main() {
 
-	// Create a slice of publisher interface values. Assign
-	// the address of a pubsub.PubSub value and the address of
-	// a mock value.
+	// δημιουργείστε μια φέτα τιμών διεπαφής publisher. Εκχωρείστε 
+	// την διεύθυνση μνήμης μιας τιμής pubsub.PubSub και μια διεύθυνση 
+	// μνήμης μιας τιμής μίμησης.
 	pubs := []publisher{
 		pubsub.New("localhost"),
 		&mock{},
 	}
 
-	// Range over the interface value to see how the publisher
-	// interface provides the level of decoupling the user needs.
-	// The pubsub package did not need to provide the interface type.
+	// Διατρέξτε με την έκφραση range την τιμή της διεπαφής προκειμένου
+	// να δείτε πως η διεπαφή publisher παρέχει το επίπεδο αποσύνδεσης 
+	// που χρειάζεται ο χρήστης.
+	// Το πακέτο pubsub δεν χρειαζόταν να παρέχει τον τύπο διεπαφής.
 	for _, p := range pubs {
 		p.Publish("key", "value")
 		p.Subscribe("key")
@@ -61,39 +62,40 @@ func main() {
 // -----------------------------------------------------------------------------
 -- pubsub/pubsub.go --
 
-// Package pubsub simulates a package that provides publication/subscription
-// type services.
+// Το πακέτο pubsub προσομοιώνει ένα πακέτο που παρέχει 
+// υπηρεσίες δημοσίευσης/συνδρομής
 package pubsub
 
-// PubSub provides access to a queue system.
+// Ο PubSub παρέχει πρόσβαση σε ένα σύστημα ουράς.
 type PubSub struct {
 	host string
 
-	// PRETEND THERE ARE MORE FIELDS.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΟΥΝ ΠΕΡΙΣΣΟΤΕΡΑ ΠΕΔΙΑ.
 }
 
-// New creates a pubsub value for use.
+// Η New δημιουργεί μια τιμή pubsub προς χρήση.
 func New(host string) *PubSub {
 	ps := PubSub{
 		host: host,
 	}
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 
 	return &ps
 }
 
-// Publish sends the data for the specified key.
+// Η Publish αποστέλει τα δεδομένα για το συγκεκριμένο κλειδί.
 func (ps *PubSub) Publish(key string, v interface{}) error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 	return nil
 }
 
-// Subscribe sets up an request to receive messages for the specified key.
+// Η Subscribe δημιουργεί ένα αίτημα προκειμλενου να δεχθεί μυνήματα για ένα 
+// συγκεκριμένο κλειδί.
 func (ps *PubSub) Subscribe(key string) error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 	return nil
 }
 

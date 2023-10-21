@@ -3,27 +3,28 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare an array of 5 strings with each element initialized to its zero value.
-//
-// Declare a second array of 5 strings and initialize this array with literal string
-// values. Assign the second array to the first and display the results of the first array.
-// Display the string value and address of each element.
+// Δηλώστε ένα πίνακα 5 συμβολοσειρών με κάθε στοιχείο του πίνακα να λαμβάνει σαν αρχική κατάσταση την κατάσταση
+// μηδενικής τιμής.
+
+// Δηλώστε ένα δεύτερο πίνακα 5 συμβολοσειρών και δώστε αρχικές τιμές στα στοιχεία του με ρητές
+// τιμές συμβολοσειράς. Εκχωρείστε τον δεύτερο πίνακα στον πρώτο και παρουσιάστε τα αποτελέσματα του πρώτου πίνακα.
+// Παρουσιάστε την τιμή συμβολοσειράς και την διεύθυνση μνήμης κάθε στοιχείου.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare string arrays to hold names.
+	// Δηλώστε τον πίνακα names προκειμένου να φιλοξενήσει συμβολοσειρές ονομάτων.
 	var names [5]string
 
-	// Declare an array pre-populated with friend's names.
+	// Δηλώστε έναν πίνακα που περιέχει ήδη ονόματα φίλων.
 	friends := [5]string{"Joe", "Ed", "Jim", "Erick", "Bill"}
 
-	// Assign the array of friends to the names array.
+	// Εκχωρείστε τον πίνακα friends στον πίνακα array.
 	names = friends
 
-	// Display each string value and address index in names.
+	// Παρουσιάστε κάθε τιμή συμβολοσειράς και τον αντίστοιχο δείκτη διεύθυνσης στον πίνακα names.
 	for i, name := range names {
 		fmt.Println(name, &names[i])
 	}

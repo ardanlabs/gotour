@@ -1,32 +1,32 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 /*
 	https://blog.golang.org/strings
 
-	Go source code is always UTF-8.
-	A string holds arbitrary bytes.
-	A string literal, absent byte-level escapes, always holds valid UTF-8 sequences.
-	Those sequences represent Unicode code points, called runes.
-	No guarantee is made in Go that characters in strings are normalized.
+	Ο πηγαίος κώδικας της Go είναι πάντα UTF-8.
+	Μια συμβολοσειρά περιέχει αυθαίρετα byte.
+	Μια ρητή κατασκευή συμβολοσειράς, χωρίς διακόπτες διαφυγής επιπέδου byte, πάντα περιέχει έγκυρες ακολουθίες UTF-8.
+	Αυτές οι ακολουθίες αναπαριστούν στοιχεία κωδικοποίησης Unicode, τα οποία αποκαλούνται ως ρούνοι (rune).
+	Δεν δίνεται καμία εγγύηση στην Go ότι οι χαρακτήρες σε συμβολοσειρές είναι κανονικοποιημένοι.
 
 	----------------------------------------------------------------------------
 
-	Multiple runes can represent different characters:
+	Πολλαπλοί rune μπορούν να αναπαριστούν διαφορετικούς χαρακτήρες:
 
-	The lower case grave-accented letter à is a character, and it's also a code
-	point (U+00E0), but it has other representations.
+	Το πεζό γράμμα με βαρύ τονισμό à είναι ένας χαρακτήρας, ενώ είναι επίσης ένα στοιχείο κωδικοποίησης
+	(U+00E0), αλλά έχει και άλλες αναπαραστάσεις.
 
-	We can use the "combining" grave accent code point, U+0300, and attach it to
-	the lower case letter a, U+0061, to create the same character à.
+	Μπορούμε να χρησιμοποιήσουμε το στοιχείο κωδικοποίησης βαρέως τονισμού που μπορεί να "συνδυάζει", U+0300,
+	μαζί με το πεζό γράμμα a, U+0061, προκειμένου να δημιουργηθεί ο ίδιος χαρακτήρας à.
 
-	In general, a character may be represented by a number of different sequences
-	of code points (runes), and therefore different sequences of UTF-8 bytes.
+	Γενικά, ένας χρακτήρας μπορεί να αναπαρασταθεί με ένα πλήθος απο διαφορετικές ακολουθίες
+	στοιχείων κωδικοποίησης (ρούνους), επομένως και από διαφορετικές ακολουθίες UTF-8 byte.
 */
 
-// Sample program to show how strings have a UTF-8 encoded byte array.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως οι συμβολοσειρές έχουν έναν πίνακα byte κωδικοποιημένα σε UTF-8.
 package main
 
 import (
@@ -36,26 +36,26 @@ import (
 
 func main() {
 
-	// Declare a string with both chinese and english characters.
+	// Δηλώστε μια συμβολοσειρά τόσο με κινέζικους όσο και με αγγλικούς χαρακτήρες.
 	s := "世界 means world"
 
-	// UTFMax is 4 -- up to 4 bytes per encoded rune.
+	// Η UTFMax είναι 4 -- μέχρι 4 byte ανά κωδικοποιημένο rune.
 	var buf [utf8.UTFMax]byte
 
-	// Iterate over the string.
+	// Πραγματοποιείστε επαναληπτική προσπέλαση στην συμβολοσειρά.
 	for i, r := range s {
 
-		// Capture the number of bytes for this rune.
+		// Κρατήστε τον αριθμό των byte για αυτό το rune.
 		rl := utf8.RuneLen(r)
 
-		// Calculate the slice offset for the bytes associated
-		// with this rune.
+		// Υπολογείστε το διάστημα μετατόπισης της φέτας για τα byte που σχετίζονται
+		// με αυτό το rune.
 		si := i + rl
 
-		// Copy of rune from the string to our buffer.
+		// Αντιγράψτε το rune από την συμβολοσειρά στον προσωρινό αποθηκευτικό χώρο.
 		copy(buf[:], s[i:si])
 
-		// Display the details.
+		// Παρουσιάστε τις λεπτομέρειες.
 		fmt.Printf("%2d: %q; codepoint: %#6x; encoded bytes: %#v\n", i, r, r, buf[:rl])
 	}
 }

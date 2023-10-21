@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to retrieve the maximum integer
-// from a slice of integers.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο ανάκτησης
+// του μεγαλύτερου ακεραίου από μια φέτα ακεραίων.
 package main
 
 import "fmt"
@@ -37,26 +37,28 @@ func main() {
 	}
 }
 
-// Max returns the maximum integer in the slice.
+// Η Max επιστρέφει τον μεγαλύτερο ακέραιο στην φέτα.
 func Max(n []int) (int, error) {
 
-	// First check there are numbers in the collection.
+	// Ελέγξτε πρώτα ότι υπάρχουν αριθμοί στην συλλογή.
 	if len(n) == 0 {
 		return 0, fmt.Errorf("slice %#v has no elements", n)
 	}
 
-	// If the length of the slice is 1 then return the
-	// integer at index 0.
+	// Αν το μήκος της φέτας είναι 1 τότε επιστρέψτε τον ακέραιο
+	// στον δείκτη 0.
 	if len(n) == 1 {
 		return n[0], nil
 	}
 
-	// Save the first value as current max and then loop over
-	// the slice of integers looking for a larger number.
+	// Αποθηκεύστε την πρώτη τιμή ωσ το τρέχον μέγιστο
+	// και στην συνέχεια επαναλάβετε την προσπέλαση της
+	// φέτας των ακεραίων αναζητώντας μεγαλύτερο αριθμό.
 	max := n[0]
 	for _, num := range n[1:] {
 
-		// If num is greater than max, assign max to num.
+		// Αν η num είναι μεγαλύτερη από την max, εκχωρήστε την
+		// num στην max.
 		if num > max {
 			max = num
 		}

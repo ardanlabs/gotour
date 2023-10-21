@@ -1,11 +1,11 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 // http://golang.org/src/pkg/encoding/json/decode.go
-// Sample program to show how to implement a custom error type
-// based on the json package in the standard library.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως υλοποιείται ένας
+// εξειδικευμένος τύπος σφάλματος με βάση το πακέτο json της βασικής βιβλιοθήκης,
 package main
 
 import (
@@ -13,25 +13,27 @@ import (
 	"reflect"
 )
 
-// An UnmarshalTypeError describes a JSON value that was
-// not appropriate for a value of a specific Go type.
+// Ο UnmarshalTypeError περιγράφει μια τιμή JSON που δεν
+// ήταν κατάλληλη για μια τιμή ενός συγκεκριμένου τύπου της Go.
 type UnmarshalTypeError struct {
-	Value string       // description of JSON value
-	Type  reflect.Type // type of Go value it could not be assigned to
+	Value string       // περιγραφή μιας τιμής JSON
+	Type  reflect.Type // ο τύπος της τιμής της Go στην οποία δεν μπορούσε να γίνει η ανάθεση.
 }
 
-// Error implements the error interface.
+// Η Error υλοποιεί την διεπαφή error.
+// Η Error υλοποιεί την διεπαφή error.
 func (e *UnmarshalTypeError) Error() string {
 	return "json: cannot unmarshal " + e.Value + " into Go value of type " + e.Type.String()
 }
 
-// An InvalidUnmarshalError describes an invalid argument passed to Unmarshal.
-// (The argument to Unmarshal must be a non-nil pointer.)
+// Ο InvalidUnmarshalError περιγράφει ένα μη έγκυρο όρισμα που πέρασε στην Unmarshal.
+// (Το όρισμα στην Unmarshal πρέπει να είναι ένας δείκτης διεύθυνσης χωρίς την τιμή nil).
 type InvalidUnmarshalError struct {
 	Type reflect.Type
 }
 
-// Error implements the error interface.
+// Η Error υλοποιεί την διεπαφή error.
+// Η Error υλοποιεί την διεπαφή error.
 func (e *InvalidUnmarshalError) Error() string {
 	if e.Type == nil {
 		return "json: Unmarshal(nil)"
@@ -43,14 +45,14 @@ func (e *InvalidUnmarshalError) Error() string {
 	return "json: Unmarshal(nil " + e.Type.String() + ")"
 }
 
-// user is a type for use in the Unmarshal call.
+// Ο user είναι ένας τύπος που χρησιμοποιείται στην κλήση της Unmarshal.
 type user struct {
 	Name int
 }
 
 func main() {
 	var u user
-	err := Unmarshal([]byte(`{"name":"bill"}`), u) // Run with a value and pointer.
+	err := Unmarshal([]byte(`{"name":"bill"}`), u) // Εκτελέστε με μια τιμή και ένα δείκτη διεύθυνσης.
 	if err != nil {
 		switch e := err.(type) {
 		case *UnmarshalTypeError:
@@ -66,7 +68,7 @@ func main() {
 	fmt.Println("Name:", u.Name)
 }
 
-// Unmarshal simulates an unmarshal call that always fails.
+// Η Unmarshal μιμείται μια κλήση αποσειριοποίησης που πάντα αποτυγχάνει.
 func Unmarshal(data []byte, v interface{}) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {

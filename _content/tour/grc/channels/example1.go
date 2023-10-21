@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the wait for result channel pattern.
+// Αυτό το παράδειγμα προγράμματος παρουσιάζει το πρότυπο καναλιού επικοινωνίας,, περιμένοντας για αποτελέσματα.
 package main
 
 import (
@@ -16,8 +16,8 @@ func main() {
 	waitForResult()
 }
 
-// waitForResult: In this pattern, the parent goroutine waits for the child
-// goroutine to finish some work to signal the result.
+// waitForResult: Σε αυτό το πρότυπο, η αρχική goroutine περιμένει για την παράγωγη
+// goroutine να ολοκληρώσει κάποια εργασία ώστε να μεταδώσει το αποτέλεσμα.
 func waitForResult() {
 	ch := make(chan string)
 

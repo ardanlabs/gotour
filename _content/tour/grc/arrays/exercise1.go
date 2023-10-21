@@ -1,25 +1,26 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare an array of 5 strings with each element initialized to its zero value.
-//
-// Declare a second array of 5 strings and initialize this array with literal string
-// values. Assign the second array to the first and display the results of the first array.
-// Display the string value and address of each element.
+// Δηλώστε ένα πίνακα 5 συμβολοσειρών με κάθε στοιχείο του πίνακα να λαμβάνει σαν αρχική κατάσταση την κατάσταση
+// μηδενικής τιμής.
+
+// Δηλώστε ένα δεύτερο πίνακα 5 συμβολοσειρών και δώστε αρχικές τιμές στα στοιχεία του με ρητές
+// τιμές συμβολοσειράς. Εκχωρείστε τον δεύτερο πίνακα στον πρώτο και παρουσιάστε τα αποτελέσματα του πρώτου πίνακα.
+// Παρουσιάστε την τιμή συμβολοσειράς και την διεύθυνση μνήμης κάθε στοιχείου.
 package main
 
 // Add imports.
 
 func main() {
 
-	// Declare an array of 5 strings set to its zero value.
+	// Δηλώστε ένα πίνακα 5 συμβολοσειρών ο οποίος λαμβάνει την μηδενική του τιμή.
 
-	// Declare an array of 5 strings and pre-populate it with names.
+	// Δηλώστε ένα πίνακα 5 συμβολοσειρών και δώστε του μια σειρά από ονόματα.
 
-	// Assign the populated array to the array of zero values.
+	// Εκχωρείστε τον πίνακα με τα ονόματα στον πίνακα με την μηδενική τιμή.
 
-	// Iterate over the first array declared.
-	// Display the string value and address of each element.
+	// Πραγματοποιείστε επαναλειμμένη προσπέλαση του πρώτου πίνακα.
+	// Παρουσιάστε την τιμή συμβολοσειράς και την διεύθυνση του κάθε στοιχείου.
 }

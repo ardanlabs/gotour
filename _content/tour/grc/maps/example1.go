@@ -1,15 +1,15 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to initialize a map, write to
-// it, then read and delete from it.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως λαμβάνει αρχική τιμή ένας πίνακας κατακερματισμού (map), πως
+// γίνεται εγγραφή σε αυτόν και πως γίνεται διαγραφή από αυτόν.
 package main
 
 import "fmt"
 
-// user represents someone using the program.
+// Ο user αναπαριστά κάποιον που χρησιμοποιεί το πρόγραμμα.
 type user struct {
 	name    string
 	surname string
@@ -17,34 +17,34 @@ type user struct {
 
 func main() {
 
-	// Declare and make a map that stores values
-	// of type user with a key of type string.
+	// Δηλώστε και φτιάξτε έναν πίνακα κατακερματισμού που αποθηκεύει τιμές
+	// τύπου user με κλειδί τύπου συμβολοσειράς.
 	users := make(map[string]user)
 
-	// Add key/value pairs to the map.
+	// Προσθέστε ζεύγη κλειδιού/τιμής στον πίνακα κατακερματισμού.
 	users["Roy"] = user{"Rob", "Roy"}
 	users["Ford"] = user{"Henry", "Ford"}
 	users["Mouse"] = user{"Mickey", "Mouse"}
 	users["Jackson"] = user{"Michael", "Jackson"}
 
-	// Read the value at a specific key.
+	// Διαβάστε την τιμή στο συγκεκριμένο κλειδί.
 	mouse := users["Mouse"]
 
 	fmt.Printf("%+v\n", mouse)
 
-	// Replace the value at the Mouse key.
+	// Αντικαταστείστε την τιμή στο κλειδί Mouse.
 	users["Mouse"] = user{"Jerry", "Mouse"}
 
-	// Read the Mouse key again.
+	// Διαβάστε το κλειδί Mouse ξανά.
 	fmt.Printf("%+v\n", users["Mouse"])
 
-	// Delete the value at a specific key.
+	// Διαγράψτε την τιμή στο συγκεκριμένο κλειδί.
 	delete(users, "Roy")
 
-	// Check the length of the map. There are only 3 elements.
+	// Ελέγξτε το μήκος του πίνακα κατακερματισμού. Υπάρχουν μόνο 3 στοιχεία.
 	fmt.Println(len(users))
 
-	// It is safe to delete an absent key.
+	// Είναι ασφαλές να διαγράψετε ένα κλειδί που δεν υπάρχει.
 	delete(users, "Roy")
 
 	fmt.Println("Goodbye.")

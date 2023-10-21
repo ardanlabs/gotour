@@ -1,18 +1,18 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare and iterate over
-// arrays of different types.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης και επαναληπτικής προσπέλασης
+// πινάκων διαφορετικών τύπων.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare an array of five strings that is initialized
-	// to its zero value.
+	// Δηλώστε έναν πίνακα πέντε συμβολοσειρών ο οποίος λαμβάνει ως αρχική τιμή
+	// την μηδενική του τιμή.
 	var fruits [5]string
 	fruits[0] = "Apple"
 	fruits[1] = "Orange"
@@ -20,16 +20,16 @@ func main() {
 	fruits[3] = "Grape"
 	fruits[4] = "Plum"
 
-	// Iterate over the array of strings.
+	// Πραγματοποιείστε επαναληπτική προσπέλαση του πίνακα με τις συμβολοσειρές.
 	for i, fruit := range fruits {
 		fmt.Println(i, fruit)
 	}
 
-	// Declare an array of 4 integers that is initialized
-	// with some values.
+	// Δηλώστε έναν πίνακα με 4 ακεραίους που λαμβάνει ως αρχική τιμή
+	// κάποιε τιμές.
 	numbers := [4]int{10, 20, 30, 40}
 
-	// Iterate over the array of numbers.
+	// Πραγματοποιείστε επαναληπτική προσπέλαση του πίνακα με τους αριθμούς.
 	for i := 0; i < len(numbers); i++ {
 		fmt.Println(i, numbers[i])
 	}

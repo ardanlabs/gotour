@@ -1,14 +1,14 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare and initialize struct types.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης και εκχώρησης αρχικής τιμής σε τύπους struct.
 package main
 
 import "fmt"
 
-// example represents a type with different fields.
+// Ο example αναπαριστά ένα τύπο με διαφορετικά πεδία.
 type example struct {
 	flag    bool
 	counter int16
@@ -17,22 +17,22 @@ type example struct {
 
 func main() {
 
-	// Declare a variable of type example set to its
-	// zero value.
+	// Δηλώστε μια μεταβλητή τύπου example και εχκωρείστε της, την
+	// μηδενική της τιμή.
 	var e1 example
 
-	// Display the value.
+	// ΠΑρουσιάστε την τιμή.
 	fmt.Printf("%+v\n", e1)
 
-	// Declare a variable of type example and init using
-	// a struct literal.
+	// Δηλώστε μια μεταβλητή τύπου example και δώστε της αρχική τιμή κάνοντας χρήση
+	// ενός ρητού struct.
 	e2 := example{
 		flag:    true,
 		counter: 10,
 		pi:      3.141592,
 	}
 
-	// Display the field values.
+	// Παρουσιάστε τις τιμές των πεδίων.
 	fmt.Println("Flag", e2.flag)
 	fmt.Println("Counter", e2.counter)
 	fmt.Println("Pi", e2.pi)

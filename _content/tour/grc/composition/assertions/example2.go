@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program demonstrating that type assertions are a runtime and
-// not compile time construct.
+// Δείγμα προγράμματος παρουσιάζει πως οι διαβεβαιώσεις τύπου είναι κατασκευές σταδίου
+// εκτέλεσης και όχι σταδίου μεταγλώττισης.
 package main
 
 import (
@@ -12,38 +12,39 @@ import (
 	"math/rand"
 )
 
-// car represents something you drive.
+// Ο car αναπαριστά κάτι που οδηγείται.
 type car struct{}
 
-// String implements the fmt.Stringer interface.
+// Η String υλοποιεί την διεπαφή fmt.Stringer.
 func (car) String() string {
 	return "Vroom!"
 }
 
-// cloud represents somewhere you store information.
+// Ο cloud αναπαριστά ένα μέρος που αποθηκεύει κανείς πληροφορίες.
 type cloud struct{}
 
-// String implements the fmt.Stringer interface.
+// Η String υλοποιεί την διεπαφή fmt.Stringer.
 func (cloud) String() string {
 	return "Big Data!"
 }
 
 func main() {
 
-	// Create a slice of the Stringer interface values.
+	// Δημιουργείστε μια φέτα τιμών της διεπαφής Stringer.
 	mvs := []fmt.Stringer{
 		car{},
 		cloud{},
 	}
 
-	// Let's run this experiment ten times.
+	// Ας τρέξουμε αυτό το παράδειγμα δέκα φορές.
 	for i := 0; i < 10; i++ {
 
-		// Choose a random number from 0 to 1.
+		// Επιλέξτε έναν τυχαίο αριθμό μεταξύ 0 και 1.
 		rn := rand.Intn(2)
 
-		// Perform a type assertion that we have a concrete type
-		// of cloud in the interface value we randomly chose.
+		// Πραγματοποιείστε μια διαβεβαίωση τύπου προκειμένου να
+		// εξακριβωθεί ότι έχουμε έναν πραγματικό τύπο
+		// cloud στην τιμή διεπαφής που επιλέξαμε τυχαία.
 		if v, is := mvs[rn].(cloud); is {
 			fmt.Println("Got Lucky:", v)
 			continue

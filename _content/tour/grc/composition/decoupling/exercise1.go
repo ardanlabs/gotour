@@ -1,39 +1,39 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Using the template, declare a set of concrete types that implement the set
-// of predefined interface types. Then create values of these types and use
-// them to complete a set of predefined tasks.
+// Χρησιμοποιώντας το πρότυπο, δηλώστε ένα σύνολο πραγματικών τύπων που υλοποιούν ένα σύνολο 
+// προκαθορισμένων τύπων διεπαφών. Στην συνέχεια, δημιουργείστε τιμές αυτών των τύπων και 
+// χρησιμοποιείστε τις προκειμένου να ολοκληρώσετε ένα σύνολο από προκαθορισμένες ενέργειες.
 package main
 
-// Add import(s).
+// Προσθέστε δηλώσεις εισαγωγής (import).
 
-// administrator represents a person or other entity capable of administering
-// hardware and software infrastructure.
+// Ο administrator αναπαριστά ένα πρόσωπο ή άλλη οντότητα που είναι ικανοί
+// να διαχειρίζονται υποδομές υλικού και λογισμικού.
 type administrator interface {
 	administrate(system string)
 }
 
-// developer represents a person or other entity capable of writing software.
+// Ο developer αναπαριστά ένα πρόσωπο ή άλλη οντότητα που μπορούν να γράφουν λογισμικό.
 type developer interface {
 	develop(system string)
 }
 
 // =============================================================================
 
-// adminlist represents a group of administrators.
+// Ο adminlist αναπαριστά ένα σύνολο από administrator.
 type adminlist struct {
 	list []administrator
 }
 
-// Enqueue adds an administrator to the adminlist.
+// Η Enqueue προσθέτει έναμ administrator σε έναν adminlist.
 func (l *adminlist) Enqueue(a administrator) {
 	l.list = append(l.list, a)
 }
 
-// Dequeue removes an administrator from the adminlist.
+// Η Dequeue απομακρύνει έναν administrator από έναν adminlist.
 func (l *adminlist) Dequeue() administrator {
 	a := l.list[0]
 	l.list = l.list[1:]
@@ -42,17 +42,17 @@ func (l *adminlist) Dequeue() administrator {
 
 // =============================================================================
 
-// devlist represents a group of developers.
+// Ο devlist αναπαριστά ένα σύνολο από developer.
 type devlist struct {
 	list []developer
 }
 
-// Enqueue adds a developer to the devlist.
+// Η Enqueue προσθέτει έναν developer στον devlist.
 func (l *devlist) Enqueue(d developer) {
 	l.list = append(l.list, d)
 }
 
-// Dequeue removes a developer from the devlist.
+// Η Dequeue απομακρύνει έναν developer από τον devlist.
 func (l *devlist) Dequeue() developer {
 	d := l.list[0]
 	l.list = l.list[1:]
@@ -61,40 +61,41 @@ func (l *devlist) Dequeue() developer {
 
 // =============================================================================
 
-// Declare a concrete type named sysadmin with a name field of type string.
+// Δηλώστε έναν πραγματικό τύπο με το όνομα sysadmin με ένα πεδίο name τύπου συμβολοσειράς.
 
-// Declare a method named administrate for the sysadmin type, implementing the
-// administrator interface. administrate should print out the name of the
-// sysadmin, as well as the system they are administering.
+// Δηλώστε μια μέθοδο τύπου με το όνομα administrate για τον τύπο sysadmintype, που υλοποιεί
+// την διεπαφή administrator. Η administrate θα πρέπει να τυπώνει το πεδίο name του
+// sysadmin, όπως επίσης και το σύστημα το οποίο διαχειρίζεται.
 
-// Declare a concrete type named programmer with a name field of type string.
+// Δηλώστε έναν πραγματικό τύπο με το όνομα programmer με ένα πεδίο name τύπου συμβολοσειράς.
 
-// Declare a method named develop for the programmer type, implementing the
-// developer interface. develop should print out the name of the
-// programmer, as well as the system they are coding.
+// Δηλώστε μια μέθοδο με το όνομα develop για τον τύπο programmer, υλοποιώντας 
+// την διεπαφή developer. Η develop πρέπει να τυπώνει το πεδίο name του 
+// programmer, όπως επίσης το σύστημα που γράφουν.
 
-// Declare a concrete type named company. Declare it as the composition of
-// the administrator and developer interface types.
+// Δηλώστε έναν πραγματικό τύπο με το όνομα company. Δηλώστε τον σαν την σύνθεση 
+// των τύπων διεπαφής administrator και developer.
 
 // =============================================================================
 
 func main() {
 
-	// Create a variable named admins of type adminlist.
+	// Δημιουργείστε μια μεταβλητή με το όνομα admins τύπου adminlist.
 
-	// Create a variable named devs of type devlist.
+	// Δημιουργείστε μια μεταβλητή με το όνομα devs τύπου devlist.
 
-	// Enqueue a new sysadmin onto admins.
+	// Με την Enqueue προσθέστε έναν νέο sysadmin στον admins.
 
-	// Enqueue two new programmers onto devs.
+	// Με την Enqueue προσθέστε δύο νέους programmers στον devs.
 
-	// Create a variable named cmp of type company, and initialize it by
-	// hiring (dequeuing) an administrator from admins and a developer from devs.
+	// Δημιουργείστε μια μεταβλητή με το όνομα cmp τύπου company, και δώστε 
+	// αρχική τιμή προσλαμβάνονατς (dequeuing) έναν administrator από τον admins και
+	// έναν developer από τον devs.
 
-	// Enqueue the company value on both lists since the company implements
-	// each interface.
+	// Με την Enqueue προσθέστε την τιμή company και στις δύο λίστες καθώς ο company 
+	// υλοποιεί κάθε διεπαφή.
 
-	// A set of tasks for administrators and developers to perform.
+	// Ένα σύνολο εργασιών προς ολοκλήρωση από administrator και developer.
 	tasks := []struct {
 		needsAdmin bool
 		system     string
@@ -104,19 +105,19 @@ func main() {
 		{needsAdmin: false, system: "omega"},
 	}
 
-	// Iterate over tasks.
+	// Προσπελάστε επαναλληπτικά τις εργασίες.
 	for _, task := range tasks {
 
-		// Check if the task needs an administrator else use a developer.
+		// Ελέγξτε αν η εργασία χρειάζεται έναν administrator διαφορετικά χρησιμοποιείστε έναν developer.
 		if {
 
-			// Dequeue an administrator value from the admins list and
-			// call the administrate method.
+			// Με την Dequeue απομακρύνετε μια τιμή administrator από την λίστα admins και 
+			// καλέστε την μέθοδο τύπου administrate.
 
 			continue
 		}
 
-		// Dequeue a developer value from the devs list and
-		// call the develop method.
+		// Με την Dequeue απομακρύνετε μια τιμή developer από την λίστα devs και 
+		// καλέστε την μέθοδο τύπου develop.
 	}
 }

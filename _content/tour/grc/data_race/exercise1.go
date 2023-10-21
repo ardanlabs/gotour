@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Fix the race condition in this program.
+// Διορθώστε την συνθήκη ανταγωνισμού δεδομένων σε αυτό το πρόγραμμα.
 package main
 
 import (
@@ -12,19 +12,19 @@ import (
 	"sync"
 )
 
-// numbers maintains a set of random numbers.
+// Η numbers διατηρεί ένα σύνολο από τυχαίους αριθμούς.
 var numbers []int
 
 func main() {
 
-	// Number of goroutines to use.
+	// Ο αριθμός των goroutines προς χρήση.
 	const grs = 3
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται προκειμένου να γίνει η διαχείριση της ταυτόχρονης εκτέλεσης.
 	var wg sync.WaitGroup
 	wg.Add(grs)
 
-	// Create three goroutines to generate random numbers.
+	// Δημιουργείστε τρεις goroutine προκειμένου να παράξετε τυχαίους αριθμούς.
 	for i := 0; i < grs; i++ {
 		go func() {
 			random(10)
@@ -32,19 +32,19 @@ func main() {
 		}()
 	}
 
-	// Wait for all the goroutines to finish.
+	// Περιμένετε ώστε να ολοκληρώσουν όλες οι goroutines.
 	wg.Wait()
 
-	// Display the set of random numbers.
+	// Παρουσιάστε το σύνολο των τυχαίων αριθμών.
 	for i, number := range numbers {
 		fmt.Println(i, number)
 	}
 }
 
-// random generates random numbers and stores them into a slice.
+// Η random παράγει τυχαίους αριθμούς και τους αποθηκεύει σε μια φέτα.
 func random(amount int) {
 
-	// Generate as many random numbers as specified.
+	// Δημιουργείστε όσους τυχαίους αριθμούς χρειάζεται.
 	for i := 0; i < amount; i++ {
 		n := rand.Intn(100)
 		numbers = append(numbers, n)

@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show the syntax of type assertions.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο συντακτικός κανόνας επιβεβαιώσεων τύπου.
 package main
 
 import (
@@ -11,23 +11,23 @@ import (
 	"log"
 )
 
-// user defines a user in our application.
+// Ο user ορίζει έναν χρήστη στην εφαρμογή μας.
 type user struct {
 	id   int
 	name string
 }
 
-// finder represents the ability to find users.
+// ο finder αναπαριστά την δυνατότητα αναζήτησης χρηστών.
 type finder interface {
 	find(id int) (*user, error)
 }
 
-// userSVC is a service for dealing with users.
+// Ο userSVC είναι μια υπηρεσία αντιμετώπισης χρηστών.
 type userSVC struct {
 	host string
 }
 
-// find implements the finder interface using pointer semantics.
+// Η find υλοποιεί την διεπαφή finder χρησιμοποιώντας σημειολογία δείκτη διεύθυνσης.
 func (*userSVC) find(id int) (*user, error) {
 	return &user{id: id, name: "Anna Walker"}, nil
 }
@@ -42,8 +42,7 @@ func main() {
 	}
 }
 
-// run performs the find operation against the concrete data that
-// is passed into the call.
+// Η run πραγματοποιεί την λειτουργία αναζήτησης στα πραγματικά δεδομένα που περνάνε στην κλήση.
 func run(f finder) error {
 	u, err := f.find(1234)
 	if err != nil {
@@ -51,19 +50,21 @@ func run(f finder) error {
 	}
 	fmt.Printf("Found user %+v\n", u)
 
-	// Ideally the finder abstraction would encompass all of
-	// the behavior you care about. But what if, for some reason,
-	// you really need to get to the concrete value stored inside
-	// the interface?
+	// Ιδανικά η αφαίρεση finder θα περιελάμβανε όλη την συμπεριφορά
+	// που σας ενδιαφέρει. Όμως τι θα συνέβαινε, αν για κάποιο λόγο,
+	// χρειάζεται να πάρετε την πραγματική τιμή που είναι αποθηκευμένη
+	// στην διεπαφή;
 
-	// Can you access the "host" field from the concrete userSVC type pointer
-	// that is stored inside this interface variable? No, not directly.
-	// All you know is the data has a method named "find".
+	// Μπορείτε να έχετε πρόσβαση στο πεδίο "host" από τον πραγματικό τύπο
+	// δείκτη διεύθυνσης userSVC ο οποίος είναι αποθηκευμένος στην μεταβλητή
+	// διεπαφής; Όχι, κάτι τέτοιο δεν είναι δυνατόν, τουλάχιστον όχι άμεσα.
+	// Το μόνο που γνωρίζετε είναι ότι τα δεδομένα έχουν μια μέθοδο τύπου με το
+	// όνομα "find".
 	// ./example5.go:61:26: f.host undefined (type finder has no field or method host)
 	log.Println("queried", f.host)
 
-	// You can use a type assertion to get a copy of the userSVC pointer
-	// that is stored inside the interface.
+	// Μπορείτε να χρησιμοποιήσετε μια διαβεβαίωση τύπου προκειμένου να πάρετε ένα αντίγραφο
+	// του δείκτη διεύθυνσης userSVC που είναι αποθηκευμένος στην διεπαφή.
 	svc := f.(*userSVC)
 	log.Println("queried", svc.host)
 

@@ -1,25 +1,25 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare function variables.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δηλώνονται μεταβλητές συνάρτησης.
 package main
 
 import "fmt"
 
-// data is a struct to bind methods to.
+// Ο data είναι είναι ένας struct στον οποίο μπορεί κανείς να αναθέτει μεθόδους.
 type data struct {
 	name string
 	age  int
 }
 
-// displayName provides a pretty print view of the name.
+// Η displayName παρέχει μια ευχάριστη εκτύπωση του ονόματος.
 func (d data) displayName() {
 	fmt.Println("My Name Is", d.name)
 }
 
-// setAge sets the age and displays the value.
+// Η setAge θέτει την ηλικία και παρουσιάζει την τιμή.
 func (d *data) setAge(age int) {
 	d.age = age
 	fmt.Println(d.name, "Is Age", d.age)
@@ -27,20 +27,20 @@ func (d *data) setAge(age int) {
 
 func main() {
 
-	// Declare a variable of type data.
+	// Δηλώστε μια μεταβλητή τύπου data.
 	d := data{
 		name: "Bill",
 	}
 
 	fmt.Println("Proper Calls to Methods:")
 
-	// How we actually call methods in Go.
+	// Πως καλούμε μεθόδους τύπου στην Go.
 	d.displayName()
 	d.setAge(45)
 
 	fmt.Println("\nWhat the Compiler is Doing:")
 
-	// This is what Go is doing underneath.
+	// Αυτό κάνει η Go στο παρασκήνιο.
 	data.displayName(d)
 	(*data).setAge(&d, 45)
 
@@ -48,35 +48,35 @@ func main() {
 
 	fmt.Println("\nCall Value Receiver Methods with Variable:")
 
-	// Declare a function variable for the method bound to the d variable.
-	// The function variable will get its own copy of d because the method
-	// is using a value receiver.
+	// Δηλώστε μια μεταβλητή συνάρτησης για την μέθοδο τύπου που είναι δεσμευμένη στην μεταβλητή d.
+	// Η μεταβλητή συνάρτησης θα αποκτήσει το δικό της αντίγραφο της d επειδή η μέθοδος
+	// χρησιμοποιεί λήπτη μεθόδου τιμής.
 	f1 := d.displayName
 
-	// Call the method via the variable.
+	// Καλέστε την μέθοδο μέσω της μεταβλητής.
 	f1()
 
-	// Change the value of d.
+	// Αλλάξτε την τιμή της d.
 	d.name = "Joan"
 
-	// Call the method via the variable. We don't see the change.
+	// Καλέστε την μέθοδο μέσω της μεταβλητής. Δεν παρατηρούμε την αλλαγη.
 	f1()
 
 	// =========================================================================
 
 	fmt.Println("\nCall Pointer Receiver Method with Variable:")
 
-	// Declare a function variable for the method bound to the d variable.
-	// The function variable will get the address of d because the method
-	// is using a pointer receiver.
+	// Δηλώστε μια μεταβλητή συνάρτησης για την μέθοδο τύπου που είναι δεσμευμένη στην μεταβλητή d.
+	// Η μεταβλητή συνάρτησης θα αποκτήσει την διεύθυνση της d επειδή η μέθοδος
+	// χρησιμοποιεί λήπτη μεθόδου δείκτη διεύθυνσης.
 	f2 := d.setAge
 
-	// Call the method via the variable.
+	// Καλέστε την μέθοδο μέσω της μεταβλητής.
 	f2(45)
 
-	// Change the value of d.
+	// Αλλάξτε την τιμή της d.
 	d.name = "Sammy"
 
-	// Call the method via the variable. We see the change.
+	// Καλέστε την μέθοδο μέσω της μεταβλητής. Παρατηρούμε την αλλαγη.
 	f2(45)
 }

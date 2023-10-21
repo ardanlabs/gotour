@@ -1,53 +1,52 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Create a custom error type called appError that contains three fields, err error,
-// message string and code int. Implement the error interface providing your own message
-// using these three fields. Implement a second method named temporary that returns false
-// when the value of the code field is 9. Write a function called checkFlag that accepts
-// a bool value. If the value is false, return a pointer of your custom error type
-// initialized as you like. If the value is true, return a default error. Write a main
-// function to call the checkFlag function and check the error using the temporary
-// interface.
+// Δημιουργείστε έναν εξειδικευμένο τύπο error, με το όνομα appError, που περιέχει τρία πεδία
+// err error, message string και code int. Υλοποιείστε την διεπαφή error, παρέχοντας το δικό
+// σας μήνυμα, χρησιμοποιώντας αυτά τα τρία πεδία. Υλοποιείστε μια δεύτερη μέθοδο με το όνομα
+// temporary, που επιστρέφει false όταν η τιμή του πεδίου code είναι 9. Γράψτε μια συνάρτηση
+// με το όνομα checkFlag που αποδέχεται μια τιμή bool. Αν η τιμή είναι false, επιστρέψτε έναν
+// δείκτη διεύθυνσης του εξειδικευμένου τύπου error, με αρχική τιμή όπως επιθυμείτε. Αν η τιμή
+// είναι true, επιστρέψτε το βασικό error. Γράψτε μια συνάρτηση main και καλέστε την συνάρτηση
+// checkFlag και ελέγξτε το σφάλμα, χρησιμοποιώντας την διεπαφή temporary.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (import).
 
-// Declare a struct type named appError with three fields, err of type error,
-// message of type string and code of type int.
+// Δηλώστε έναν τύπο struct με το όνομα appError με τρία πεδία, err τύπου error,
+// message τύπου string και code τύπου int.
 
-// Declare a method for the appError struct type that implements the
-// error interface.
+// Δηλώστε μια μέθοδο τύπου για τον τύπο struct appError που υλοποιεί την διεπαφή
+// error.
 
-// Declare a method for the appError struct type named Temporary that returns
-// true when the value of the code field is not 9.
+// Δηλώστε μια μέθοδο τύπου για τον τύπο struct appError με το όνομα Temporary που
+// επιστρέφει true όταν η τιμή του πεδίου code δεν είναι 9.
 
-// Declare the temporary interface type with a method named Temporary that
-// takes no parameters and returns a bool.
+// Δηλώστε τον τύπο διεπαφής temporary με μια μέθοδο τύπου με το όνομα Temporary
+// που δεν παίρνει καμία παράμετρο και επιστρέφει bool.
 
-// Declare a function named checkFlag that accepts a boolean value and
-// returns an error interface value.
-func checkFlag( /* parameter */ ) /* return arg */ {
+// Δηλώστε μια συνάρτηση με το όνομα checkFlag που αποδέχεται μια τιμή αληθείας
+// και επιστρέφει μια τιμή διεπαφής error.
+func checkFlag( /* παράμετρος */ ) /* όρισμα επιστροφής */ {
 
-	// If the parameter is false return an appError.
+	// Αν η παράμετρος είναι false επέστρεψε έναν appError.
 
-	// Return a default error.
+	// Επιστρέψτε ένα βασικό σφάλμα.
 }
 
 func main() {
 
-	// Call the checkFlag function to simulate an error of the
-	// concrete type.
+	// Καλέστε την συνάρτηση checkFlag προκειμένου να μιμηθείτε ένα σφάλμα του πραγματικού τύπου.
 
-	// Check the concrete type and handle appropriately.
+	// Ελέγξτε τον πραγματικό τύπο και ελεγξτε ανάλογα.
 	switch e := err.(type) {
 
-	// Apply the case for the existence of the Temporary behavior.
-	// Log the error and write a second message only if the
-	// error is not temporary.
+	// Εφαρμόστε την περίπτωση για την ύπαρξη συμπεριφοράς Temporary.
+	// Καταγράψτε το σφάλμα και γράψτε ένα δεύτερο μήνυμα μόνο αν το σφάλμα δεν είναι
+	// προσωρινό.
 
-	// Apply the default case and just log the error.
+	// Εφαρμόστε την βασική περίπτωση και απλά καταγράψτε το σφάλμα.
 	}
 }

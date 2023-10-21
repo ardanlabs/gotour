@@ -1,9 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Package example4 provides code to show how to implement behavior as context.
+// Το πακέτο example4 παρέχει κώδικα προκειμένου να παρουσιαστεί πως υλοποιείται συμπεριφορά ως πλαίσιο αναφοράς (context).
 package example4
 
 import (
@@ -14,14 +15,14 @@ import (
 	"net"
 )
 
-// client represents a single connection in the room.
+// Ο client αναπαριστά μια μοναδική σύνδεση στο δωμάτιο.
 type client struct {
 	name   string
 	reader *bufio.Reader
 }
 
-// TypeAsContext shows how to check multiple types of possible custom error
-// types that can be returned from the net package.
+// Η TypeAsContext δείχνει πως να ελεγχθούν πολλοί τύποι για πιθανούς εξειδικευμένους τύπους σφάλματος
+// που μπορούν να επιστραφούν από το πακέτο net.
 func (c *client) TypeAsContext() {
 	for {
 		line, err := c.reader.ReadString('\n')
@@ -59,14 +60,14 @@ func (c *client) TypeAsContext() {
 	}
 }
 
-// temporary is declared to test for the existence of the method coming
-// from the net package.
+// Ο temporary δηλώνεται προκειμένου να ελέγξει για την ύπαρξη της μεθόδου τύπου
+// που προέρχεται από το πακέτο net.
 type temporary interface {
 	Temporary() bool
 }
 
-// BehaviorAsContext shows how to check for the behavior of an interface
-// that can be returned from the net package.
+// Η BehaviorAsContext επιδεικνύει πως να ελεγχθεί η συμπεριφορά μιας διεπαφής
+// που μπορεί να επιστραφεί από το πακέτο net.
 func (c *client) BehaviorAsContext() {
 	for {
 		line, err := c.reader.ReadString('\n')

@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how slices allow for efficient linear traversals.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως οι φέτες επιτρέπουν allow for αποτελεσματικές γραμμικές προσπελάσεις.
 package main
 
 import (
@@ -13,20 +13,20 @@ import (
 
 func main() {
 
-	// Given a stream of bytes to be processed.
+	// Δεδομένης μιας ακολουθίας από byte προς επεξεργασία.
 	x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
-	// Perform a linear traversal across the bytes, never making
-	// copies of the actual data but still passing those bytes
-	// to the binary function for processing.
+	// Πραμγατοπιείστε μια γραμμική προσπέλαση στα byte, χωρίς να κάνετε
+	// αντίγραφα των πραγματικών δεδομένων αλλά περνώντας αυτά τα byte
+	// στην συνάρτηση του πακέτου binary προς επεξεργασία.
 
 	a := x[0]
 	b := binary.LittleEndian.Uint16(x[1:3])
 	c := binary.LittleEndian.Uint16(x[3:5])
 	d := binary.LittleEndian.Uint32(x[5:9])
 
-	// The result is zero allocation data access that is mechanically
-	// sympathetic with the hardware.
+	// Το αποτέλεσμα είναι πρόσβαση σε δεδομένα με μηδενική εκχώρηση που είναι μηχανικά
+	// συμπαθητική με το υλικό.
 
 	fmt.Println(a, b, c, d)
 }

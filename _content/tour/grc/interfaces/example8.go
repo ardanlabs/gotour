@@ -1,39 +1,39 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show the syntax and mechanics of type
-// switches and the empty interface.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί το συντακτικό και ο μηχανισμός των
+// εναλλαγών τύπων και της άδειας διεπαφής.
 package main
 
 import "fmt"
 
 func main() {
 
-	// fmt.Println can be called with values of any type.
+	// Η fmt.Println μπορεί να χληθεί με τιμές κάθε τύπου.
 	fmt.Println("Hello, world")
 	fmt.Println(12345)
 	fmt.Println(3.14159)
 	fmt.Println(true)
 
-	// How can we do the same?
+	// Πως μπορούμε να επιτύχουμε το ίδιο αποτέλεσμα;
 	myPrintln("Hello, world")
 	myPrintln(12345)
 	myPrintln(3.14159)
 	myPrintln(true)
 
-	// - An interface is satisfied by any piece of data when the data exhibits
-	// the full method set of behavior defined by the interface.
-	// - The empty interface defines no method set of behavior and therefore
-	// requires no method by the data being stored.
+	// - Μια διεπαφή ικανοποιείται από ένα κομμάτι δεδομένων όταν αυτά τα δεδομένα επιδεικνύουν
+	// το πλήρες σύνολο συμπεριφορών μεθόδων τύπου που ορίζονται από την διεπαφή.
+	// - Η άδεια διεπαφή δεν ορίζει κανένα σύνολο συμπεριφορών μεθόδων τύπου και επομένως
+	// δεν απαιτεί καμία μέθοδο τύπου από τα δεδομένα που αποθηκεύει.
 
-	// - The empty interface says nothing about the data stored inside
-	// the interface.
-	// - Checks would need to be performed at runtime to know anything about
-	// the data stored in the empty interface.
-	// - Decouple around well defined behavior and only use the empty
-	// interface as an exception when it is reasonable and practical to do so.
+	// - Η άδεια διεπαφή δεν λέει τίποτα σχετικά με τα δεδομένα που είναι αποθηκευμένα στην
+	// διεπαφή.
+	// - Θα πρέπει να πραγματοποιηθούν έλεγχοι κατά το στάδιο της εκτέλεσης προκειμένου να
+	// μάθει κανείς οτιδήποτε για τα δεδομένα που είναι αποθηκευμένα στην άδεια διεπαφή.
+	// - Πραγματοποιείστε αποσυνδέση γύρω από καλά ορισμένες συμπεριφορές και χρησιμοποιείστε
+	// την άδεια διεπαφή σαν μια εξαίρεση όταν αυτό είναι λογικό και πρακτικό.
 }
 
 func myPrintln(a interface{}) {

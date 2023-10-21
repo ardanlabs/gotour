@@ -1,12 +1,12 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 // $ ./example2 | cut -c1 | grep '[AB]' | uniq
 
-// Sample program to show how the goroutine scheduler
-// will time slice goroutines on a single thread.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως ο χρονοδρομολογητής των goroutine
+// θα διαμοιράσει τις goroutines σε ένα μοναδικό νήμα εκτέλεσης.
 package main
 
 import (
@@ -19,52 +19,52 @@ import (
 
 func init() {
 
-	// Allocate one logical processor for the scheduler to use.
+	// Διαθέστε έναν λογικό επεξεργαστή προς χρήση στον χρονοδρομολογητή.
 	runtime.GOMAXPROCS(1)
 }
 
 func main() {
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται προκειμένου να διαχειριστεί την ταυτόχρονη εκτέλεση.
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	fmt.Println("Create Goroutines")
 
-	// Create the first goroutine and manage its lifecycle here.
+	// Δημιουργείστε την πρώτη goroutine και διαχειριστείτε τον κύκλο ζωής της εδώ.
 	go func() {
 		printHashes("A")
 		wg.Done()
 	}()
 
-	// Create the second goroutine and manage its lifecycle here.
+	// Δημιουργείστε την δεύτερη goroutine και διαχειριστείτε τον κύκλο ζωής της εδώ.
 	go func() {
 		printHashes("B")
 		wg.Done()
 	}()
 
-	// Wait for the goroutines to finish.
+	// Περιμένετε τις goroutine να τελειώσουν.
 	fmt.Println("Waiting To Finish")
 	wg.Wait()
 
 	fmt.Println("Terminating Program")
 }
 
-// printHashes calculates the sha1 hash for a range of
-// numbers and prints each in hex encoding.
+// Η printHashes υπολογίζει την τιμή κατακερματισμού sha1 για τον εύρος των
+// αριθμών και τυπώνει την καθεμία με δεκαεξαδική κωδικοποίηση.
 func printHashes(prefix string) {
 
-	// print each has from 1 to 10. Change this to 50000 and
-	// see how the scheduler behaves.
+	// τυπώστε κάθε τιμή κατακερματισμού από το 1 έως το 10. Αλλάξτε το σε 50000 και
+	// παρακολουθείστε πως συμπεριφέρεται ο χρονοδρομολογητής.
 	for i := 1; i <= 50000; i++ {
 
-		// Convert i to a string.
+		// Μετατρέψτε το i σε συμβολοσειρά.
 		num := strconv.Itoa(i)
 
-		// Calculate hash for string num.
+		// Υπολογίστε την τιμή κατακερματισμού για την συμβολοσειρά num.
 		sum := sha1.Sum([]byte(num))
 
-		// Print prefix: 5-digit-number: hex encoded hash
+		// Πρόθεμα εκτύπωσης: αριθμός 5 ψηφίων: τιμή κατακερματισμού με δεκαεξαδική κωδικοποίηση.
 		fmt.Printf("%s: %05d: %x\n", prefix, i, sum)
 	}
 

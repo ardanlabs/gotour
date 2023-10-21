@@ -1,62 +1,62 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare methods and how the Go
-// compiler supports them.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δηλώνονται μέθοδοι τύπου και πως ο
+// μεταγλωττιστής της Go τις υποστηρίζει.
 package main
 
 import (
 	"fmt"
 )
 
-// user defines a user in the program.
+// Ο user ορίζει ένα χρήστη στο πρόγραμμα.
 type user struct {
 	name  string
 	email string
 }
 
-// notify implements a method with a value receiver.
+// Η notify υλοποιεί μια μέθοδο τύπου με λήπτη μεθόδου τιμής.
 func (u user) notify() {
 	fmt.Printf("Sending User Email To %s<%s>\n",
 		u.name,
 		u.email)
 }
 
-// changeEmail implements a method with a pointer receiver.
+// Η changeEmail υλοποιεί μια μέθοδο με λήπτη μεθόδου δείκτη διεύθυνσης.
 func (u *user) changeEmail(email string) {
 	u.email = email
 }
 
 func main() {
 
-	// Values of type user can be used to call methods
-	// declared with both value and pointer receivers.
+	// Οι τιμές τύπου user μπορούν να χρησιμοποιηθούν προκειμένου να κληθούν μέθοδοι τύπου
+	// οι οποίες έχουν δηλωθεί με λήπτες μεθόδου τόσο τιμής όσο και δείκτη διεύθυνσης.
 	bill := user{"Bill", "bill@email.com"}
 	bill.changeEmail("bill@hotmail.com")
 	bill.notify()
 
-	// Pointers of type user can also be used to call methods
-	// declared with both value and pointer receiver.
+	// Δείκτες διεύθυνσης τύπου user μπορούν να χρησιμοποιηθούν προκειμένου να κληθούν μέθοδοι
+	// τύπου που είναι δηλωμένες τόσο με δείκτες μεθόδου τιμής όσο και με δείκτη διεύθυνσης.
 	joan := &user{"Joan", "joan@email.com"}
 	joan.changeEmail("joan@hotmail.com")
 	joan.notify()
 
-	// Create a slice of user values with two users.
+	// Δημιουργείστε μια φέτα με τιμές user με δύο user.
 	users := []user{
 		{"ed", "ed@email.com"},
 		{"erick", "erick@email.com"},
 	}
 
-	// Iterate over the slice of users switching
-	// semantics. Not Good!
+	// Πραγματοποιείστε επαναληπτική προσπέλαση στην φέτα των user αλλάζοντας
+	// την σημειολογία που χρησιμοποιείτε. Κακή επιλογή!
 	for _, u := range users {
 		u.changeEmail("it@wontmatter.com")
 	}
 
-	// Exception example: Using pointer semantics
-	// for a collection of strings.
+	// Παράδειγμα εξαίρεσης του κανόνα: Χρησιμοποιώντας σημειολογία δείκτη διεύθυσνης
+	// για μια συλλογή από συμβολοσειρές.
 	keys := make([]string, 10)
 	for i := range keys {
 		keys[i] = func() string { return "key-gen" }()

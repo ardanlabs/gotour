@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how wrapping errors work with the stdlib.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως γίνεται το περιτύλιγμα σφαλμάτων με την βασική βιβλιοθήκη.
 package main
 
 import (
@@ -11,23 +11,23 @@ import (
 	"fmt"
 )
 
-// AppError represents a custom error type.
+// Ο AppError αναπαριστά ένα εξειδικευμένο τύπο σφάλματος.
 type AppError struct {
 	State int
 }
 
-// Error implements the error interface.
+// Η Error υλοποιεί την διεπαφή error.
 func (ae *AppError) Error() string {
 	return fmt.Sprintf("App Error, State: %d", ae.State)
 }
 
-// IsAppError checks if an error of type AppError exists.
+// Η IsAppError ελέγχει αν υπάρχει ένα σφάλμα τύπου AppError.
 func IsAppError(err error) bool {
 	var ae *AppError
 	return errors.As(err, &ae)
 }
 
-// GetAppError returns a copy of the AppError pointer.
+// Η GetAppError επιστρέφει ένα αντίγραφο του δείκτη διεύθυνσης AppError.
 func GetAppError(err error) *AppError {
 	var ae *AppError
 	if !errors.As(err, &ae) {
@@ -38,10 +38,10 @@ func GetAppError(err error) *AppError {
 
 func main() {
 
-	// Make the function call and validate the error.
+	// Δημιουργείστε την κλήση της συνάρτησης και επιβεβαιώστε το σφάλμα.
 	if err := firstCall(10); err != nil {
 
-		// Check if the error is an AppError.
+		// Ελέγξτε αν το σφάλμα είναι ένας AppError.
 		if IsAppError(err) {
 			ae := GetAppError(err)
 			fmt.Printf("Is AppError, State: %d\n", ae.State)
@@ -49,13 +49,13 @@ func main() {
 
 		fmt.Print("\n********************************\n\n")
 
-		// Display the error using the implementation of
-		// the error interface.
+		// Παρουσιάστε το σφάλμα χρησιμοποιώντας την υλοποίηση της διεπαφής
+		// error.
 		fmt.Printf("%v\n", err)
 	}
 }
 
-// firstCall makes a call to a second function and wraps any error.
+// Η firstCall κάνει την κλήση σε μια δεύτερη συνάρτηση και ενθυλακώνει το όποιο σφάλμα.
 func firstCall(i int) error {
 	if err := secondCall(i); err != nil {
 		return fmt.Errorf("firstCall->secondCall(%d) : %w", i, err)
@@ -63,7 +63,7 @@ func firstCall(i int) error {
 	return nil
 }
 
-// secondCall makes a call to a third function and wraps any error.
+// Η secondCall κάνει την κλήση σε μια τρίτη συνάρτηση και ενθυλακώνει το όποιο σφάλμα.
 func secondCall(i int) error {
 	if err := thirdCall(); err != nil {
 		return fmt.Errorf("secondCall->thirdCall() : %w", err)
@@ -71,7 +71,7 @@ func secondCall(i int) error {
 	return nil
 }
 
-// thirdCall create an error value we will validate.
+// Η thirdCall δημιουργεί μια τιμή error την οποία θα επιβεβαιώσουμε.
 func thirdCall() error {
 	return &AppError{99}
 }

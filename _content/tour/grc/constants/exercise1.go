@@ -1,27 +1,27 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare an untyped and typed constant and display their values.
+// Δηλώστε μια σταθερά χωρίς τύπο και μια με τύπο και παρουσιάστε τις τιμές τους.
 //
-// Multiply two literal constants into a typed variable and display the value.
+// Πολλαπλασιάστε δυο ρητές σταθερές σε μια μεταβλητή με τύπο και παρουσιάστε την τιμή.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
 const (
-// Declare a constant named server of kind string and assign a value.
+// Δηλώστε μια σταθερά με το όνομα server είδους συμβολοσειράς string και εκχωρείστε μια τιμή.
 
-// Declare a constant named port of type integer and assign a value.
+// Δηλώστε μια σταθερά με το όνομα port ακέραιου τύπου integer και εχκωρείστε μια τιμή.
 )
 
 func main() {
 
-	// Display the value of both server and port.
+	// Παρουσιάστε την τιμή των server και port.
 
-	// Divide a constant of kind integer and kind floating point and
-	// assign the result to a variable.
+	// Διαιρέστε μια σταθερά είδους ακεραίου με μια σταθερά είδους κινητής υποδιαστολής και
+	// εκχωρείστε το αποτέλεσμα σε μια μεταβλητή.
 
-	// Display the value of the variable.
+	// Παρουσιάστε την τιμή της μεταβλητής.
 }

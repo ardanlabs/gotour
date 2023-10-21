@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show see if the class can find the bug.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί αν η κλάση μπορεί να εντοπίσει το πρόβλημα.
 package main
 
 import (
@@ -11,15 +11,16 @@ import (
 	"log"
 )
 
-// customError is just an empty struct.
+// Ο customError είναι απλά ένας κενός struct.
 type customError struct{}
 
-// Error implements the error interface.
+// Η Error υλοποιεί την διεπαφή error.
+// Η Error υλοποιεί την διεπαφή error.
 func (c *customError) Error() string {
 	return "Find the bug."
 }
 
-// fail returns nil values for both return types.
+// Η fail επιστρέφει τιμές nil για τους δύο τύπους επιστροφής.
 func fail() ([]byte, *customError) {
 	return nil, nil
 }

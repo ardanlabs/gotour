@@ -1,15 +1,16 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
 // https://github.com/dominikh/go-tools#installation
 // go install honnef.co/go/tools/cmd/...@2023.1.3
 
-// Alignment is about placing fields on address alignment boundaries
-// for more efficient reads and writes to memory.
+// Η Ευθυγράμμιση/στοίχιση αφορά την τοποθέτηση πεδίων εντός ευθυγραμμισμένων ορίων μνήμης
+// για πιο αποτελεσματικές αναγνώσεις και εγγραφές στην μνήμη.
 
-// Sample program to show how struct types align on boundaries.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος με τον οποίο οι τύποι ευθυγραμμίζονται
+// κατά μήκως ορίων μνήμης.
 package main
 
 import (
@@ -17,50 +18,50 @@ import (
 	"unsafe"
 )
 
-// No byte padding.
+// Χωρίς προσθήκη byte.
 type nbp struct {
-	a bool // 	1 byte				sizeof 1
-	b bool // 	1 byte				sizeof 2
-	c bool // 	1 byte				sizeof 3 - Aligned on 1 byte
+	a bool // 	1 byte				μέγεθος 1
+	b bool // 	1 byte				μέγεθος 2
+	c bool // 	1 byte				μέγεθος 3 - Ευθυγράμμιση σε 1 byte
 }
 
-// Single byte padding.
+// Προσθήκη ενός byte.
 type sbp struct {
-	a bool //	1 byte				sizeof 1
-	//			1 byte padding		sizeof 2
-	b int16 // 	2 bytes				sizeof 4 - Aligned on 2 bytes
+	a bool //	1 byte				μέγεθος 1
+	//			προσθήκη 1 byte		μέγεθος 2
+	b int16 // 	2 byte				μέγεθος 4 - Ευθυγράμμιση σε 2 byte
 }
 
-// Three byte padding.
+// Προσθήκη τριών byte.
 type tbp struct {
-	a bool //	1 byte				size 1
-	//			3 bytes padding		size 4
-	b int32 //	4 bytes				size 8 - Aligned on 4 bytes
+	a bool //	1 byte				μέγεθος 1
+	//			προσθήκη 3 byte		μέγεθος 4
+	b int32 //	4 byte				μέγεθος 8 - Ευθυγράμμιση σε 4 byte
 }
 
-// Seven byte padding.
+// Προσθήκη εφτά byte.
 type svnbp struct {
-	a bool //	1 byte				size 1
-	//			7 bytes padding		size 8
-	b int64 //	8 bytes				size 16 - Aligned on 8 bytes
+	a bool //	1 byte				μέγεθος 1
+	//			προσθήκη 7 byte		μέγεθος 8
+	b int64 //	8 byte				μέγεθος 16 - Ευθυγράμμιση σε 8 byte
 }
 
-// No padding.
+// Χωρίς προσθήκη.
 type np struct {
-	a string // 16 bytes			size 16
-	b string // 16 bytes			size 32
-	c int32  //  4 bytes			size 36
-	d int32  //  4 bytes			size 40 - Aligned on 8 bytes
+	a string // 16 byte			μέγεθος 16
+	b string // 16 byte			μέγεθος 32
+	c int32  //  4 byte			μέγεθος 36
+	d int32  //  4 byte			μέγεθος 40 - Ευθυγράμμιση σε 8 byte
 }
 
-// Eight byte padding on 64bit Arch. Word size is 8 bytes.
+// Προσθήκη οκτώ byte σε αρχιτεκτονική  υλικού 64bit. Το μέγεθος λέξης είναι 8 byte.
 type ebp64 struct {
-	a string //	16 bytes			size 16
-	b int32  //	 4 bytes			size 20
-	//  		 4 bytes padding	size 24
-	c string //	16 bytes			size 40
-	d int32  //	 4 bytes			size 44
-	//  		 4 bytes padding	size 48 - Aligned on 8 bytes
+	a string //	16 byte				μέγεθος 16
+	b int32  //	 4 byte				μέγεθος 20
+	//  		 4 byte προσθήκη	μέγεθος 24
+	c string //	16 byte				μέγεθος 40
+	d int32  //	 4 byte		 		μέγεθος 44
+	//  		 4 byte προσθήκη	μέγεθος 48 - Ευθυγράμμιση σε 8 byte
 }
 
 func main() {

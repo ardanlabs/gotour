@@ -1,37 +1,37 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how what we are doing is NOT embedding
-// a type but just using a type as a field.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως, ό,τι κάνουμε ΔΕΝ είναι να ενσωματώνουμε ένα τύπο
+// αλλά απλά να χρησιμοποιούμε έναν τύπο ως ένα πεδίο.
 package main
 
 import "fmt"
 
-// user defines a user in the program.
+// Ο user ορίζει ένα χρήστη στο πρόγραμμα.
 type user struct {
 	name  string
 	email string
 }
 
-// notify implements a method notifies users
-// of different events.
+// Η notify υλοποιεί μια μέθοδο τύπου που ειδοποιεί τους χρήστες
+// για διαφορετικά γεγονότα.
 func (u *user) notify() {
 	fmt.Printf("Sending user email To %s<%s>\n",
 		u.name,
 		u.email)
 }
 
-// admin represents an admin user with privileges.
+// Ο admin αναπαριστά έναν χρήστη διαχειριστή με προνόμια.
 type admin struct {
-	person user // NOT Embedding
+	person user // ΔΕΝ είναι Ενσωμάτωση
 	level  string
 }
 
 func main() {
 
-	// Create an admin user.
+	// Δημιουργήστε έναν χρήστη admin.
 	ad := admin{
 		person: user{
 			name:  "john smith",
@@ -40,6 +40,6 @@ func main() {
 		level: "super",
 	}
 
-	// We can access fields methods.
+	// Μπορούμε να έχουμε πρόσβαση σε μεθόδους τύπου των πεδίων.
 	ad.person.notify()
 }

@@ -1,85 +1,88 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program demonstrating when implicit interface conversions
-// are provided by the compiler.
+// Δείγμα προγράμματος που παρουσιάζει πότε παρέχονται από τον
+// μεταγλωττιστή σιωπηρές μετατροπές διεπαφών
 package main
 
 import "fmt"
 
-// Mover provides support for moving things.
+// Ο Mover παρέχει υποστήριξη για την μεταφορά πραγμάτων.
 type Mover interface {
 	Move()
 }
 
-// Locker provides support for locking and unlocking things.
+// Ο Locker παρέχει υποστήριξη για κλέιδωμα και ξεκλείδωμα πραγμάτων.
 type Locker interface {
 	Lock()
 	Unlock()
 }
 
-// MoveLocker provides support for moving and locking things.
+// Ο MoveLocker παρέχει υποστήριξη για μεταφορά και κλείδωμα πραγμάτων.
 type MoveLocker interface {
 	Mover
 	Locker
 }
 
-// bike represents a concrete type for the example.
+// Ο bike αναπαριστά έναν πραγματικό τύπο για το παράδειγμα.
 type bike struct{}
 
-// Move can change the position of a bike.
+// Η Move μπορεί να αλλάξει την θέση ενός ποδήλατου.
 func (bike) Move() {
 	fmt.Println("Moving the bike")
 }
 
-// Lock prevents a bike from moving.
+// Η Lock αποτρέπει την μετακίνηση ενός ποδήλατου.
 func (bike) Lock() {
 	fmt.Println("Locking the bike")
 }
 
-// Unlock allows a bike to be moved.
+// Η Unlock επιτρέπει την μετακίνηση ενός ποδηλάτου.
 func (bike) Unlock() {
 	fmt.Println("Unlocking the bike")
 }
 
 func main() {
 
-	// Declare variables of the MoveLocker and Mover interfaces set to their
-	// zero value.
+	// Δηλώστε μεταβλητές των διεπαφών MoveLocker και Mover και εκχωρείστε σε αυτές
+	// τις μηδενικές τους τιμές.
 	var ml MoveLocker
 	var m Mover
 
-	// Create a value of type bike and assign the value to the MoveLocker
-	// interface value.
+	// Δημιουργείστε μια τιμή τύπου bike και εκχωρείστε την τιμή της στην
+	// τιμή διεπαφής MoveLocker.
 	ml = bike{}
 
-	// An interface value of type MoveLocker can be implicitly converted into
-	// a value of type Mover. They both declare a method named move.
+	// Μια τιμή διεπαφής τύπου MoveLocker μπορεί να μετατραπεί σιωπηρά
+	// σε μια τιμή τύπου Mover. Και οι δύο δηλώνουν μια μέθοδο με το όνομα move.
 	m = ml
 
 	// prog.go:68: cannot use m (type Mover) as type MoveLocker in assignment:
 	//	   Mover does not implement MoveLocker (missing Lock method)
 	ml = m
 
-	// Interface type Mover does not declare methods named lock and unlock.
-	// Therefore, the compiler can't perform an implicit conversion to assign
-	// a value of interface type Mover to an interface value of type MoveLocker.
-	// It is irrelevant that the concrete type value of type bike that is stored
-	// inside of the Mover interface value implements the MoveLocker interface.
+	// Ο τύπος διεπαφής Mover δεν δηλώνει μεθόδους τύπου με όνομα lock και unlock.
+	// Επομένως, ο μεταγλωττιστής δεν μπορεί να πραγματοποιήσει μια σιωπηρή μετατροπή
+	// προκειμένου να εκχωρήσει μια τιμή τύπου διεπαφής Mover σε μια τιμή διεπαφής τύπου
+	// MoveLocker. Είναι άσχετο ότι η τιμή του πραγματικού τύπου που είναι τύπου bike
+	// που βρίσκεται αποθηκευμένη στην τιμή διεπαφής Mover υλοποιεί την διεπαφή MoveLocker.
 
-	// We can perform a type assertion at runtime to support the assignment.
+	// Μπορούμε να πραγματοποιήσουμε μια διαβεβαίωση τύπου στον στάδιο εκτέλεσης προκειμένου
+	// να υποστηρίξουμε την εκχώρηση.
 
-	// Perform a type assertion against the Mover interface value to access
-	// a COPY of the concrete type value of type bike that was stored inside
-	// of it. Then assign the COPY of the concrete type to the MoveLocker
-	// interface.
+	// Πραγματοποιείστε μια διαβεβαίωση τύπου στην τιμή διεπαφής Mover προκειμένου
+	// να έχετε πρόσβαση σε ένα ΑΝΤΙΓΡΑΦΟ της πραγματικής τιμής τύπου που είναι τύπου bike
+	// η οποία βρίσκεται αποθηκευμένη σε αυτή.
+	// Στην συνέχεια μπορείτε να εκχωρείσετε το ΑΝΤΙΓΡΑΦΟ του πραγματικού τύπου στην
+	// διεπαφή MoveLocker.
 	b := m.(bike)
 	ml = b
 
-	// It's important to note that the type assertion syntax provides a way
-	// to state what type of value is stored inside the interface. This is
-	// more powerful from a language and readability standpoint, than using
-	// a casting syntax, like in other languages.
+	// Είναι σημαντικό να σημειωθεί ότι το συντακτικό της διαβεβαίωσης τύπου
+	// παρέχει ένα τρόπο να δηλωθεί τι τύπου τιμή είναι αποθηκευμένη στην διεπαφή.
+	// Αυτό είναι περισσότερο ισχυρό από την άποψη της γλώσσας και της δυνατότητας
+	// ευκολίας ανάγνωσης από την χρήση ένός συντακτικού ανάθεσης, όπως συμβαίνει σε
+	// άλλες γλώσσες.
 }

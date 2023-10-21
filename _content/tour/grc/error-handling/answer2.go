@@ -3,13 +3,14 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Create a custom error type called appError that contains three fields, err error,
-// message string and code int. Implement the error interface providing your own message
-// using these three fields. Implement a second method named temporary that returns false
-// when the value of the code field is 9. Write a function called checkFlag that accepts
-// a bool value. If the value is false, return a pointer of your custom error type
-// initialized as you like. If the value is true, return a default error. Write a main
-// function to call the checkFlag function and check the error using the temporary
+// Δημιουργείστε έναν εξειδικευμένο τύπο error, με το όνομα appError, που περιέχει τρία πεδία
+// err error, message string και code int. Υλοποιείστε την διεπαφή error, παρέχοντας το δικό
+// σας μήνυμα, χρησιμοποιώντας αυτά τα τρία πεδία. Υλοποιείστε μια δεύτερη μέθοδο με το όνομα
+// temporary, που επιστρέφει false όταν η τιμή του πεδίου code είναι 9. Γράψτε μια συνάρτηση
+// με το όνομα checkFlag που αποδέχεται μια τιμή bool. Αν η τιμή είναι false, επιστρέψτε έναν
+// δείκτη διεύθυνσης του εξειδικευμένου τύπου error, με αρχική τιμή όπως επιθυμείτε. Αν η τιμή
+// είναι true, επιστρέψτε το βασικό error. Γράψτε μια συνάρτηση main και καλέστε την συνάρτηση
+// checkFlag και ελέγξτε το σφάλμα, χρησιμοποιώντας την διεπαφή temporary.
 // interface.
 package main
 
@@ -18,24 +19,24 @@ import (
 	"fmt"
 )
 
-// appError is a custom error type for the program.
+// Ο appError είναι ένας εξειδικευμένος τύπος σφάλματος για το πρόγραμμα.
 type appError struct {
 	err     error
 	message string
 	code    int
 }
 
-// Error implements the error interface for appError.
+// Η Error υλοποιεί την διεπαφή error για έναν appError.
 func (a *appError) Error() string {
 	return fmt.Sprintf("App Error[%s] Message[%s] Code[%d]", a.err, a.message, a.code)
 }
 
-// Temporary implements behavior about the error.
+// Η Temporary υλοποιεί συμπεριφορά σχετικά με το σφάλμα.
 func (a *appError) Temporary() bool {
 	return (a.code != 9)
 }
 
-// temporary is used to test the error we receive.
+// Ο temporary χρησιμοποιείται προκειμένου να ελέγξει το σφάλμα που λαμβάνουμε.
 type temporary interface {
 	Temporary() bool
 }
@@ -54,10 +55,10 @@ func main() {
 	}
 }
 
-// checkFlag returns one of two errors based on the value of the parameter.
+// Η checkFlag επιστρέφει ένα ή δύο σφάλματα με βάση την τιμή της παραμέτρου.
 func checkFlag(t bool) error {
 
-	// If the parameter is false return an appError.
+	// Αν η παράμετρος είναι false επέστρεψε έναν appError.
 	if !t {
 		return &appError{errors.New("Flag False"), "The Flag was false", 9}
 	}

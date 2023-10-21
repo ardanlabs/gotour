@@ -1,31 +1,31 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare and initialize a variable of type int with the value of 20. Display
-// the _address of_ and _value of_ the variable.
+// Δηλώστε και δώστε αρχική τιμή σε μεταβλητή ακέραιου τύπου με την τιμή 20.
+// Παρουσιάστε την _διεύθυνση της_ και την _τιμή της_ μεταβλητής.
 //
-// Declare and initialize a pointer variable of type int that points to the last
-// variable you just created. Display the _address of_ , _value of_ and the
-// _value that the pointer points to_.
+// Δηλώστε και δώστε αρχική τιμή σε μεταβλητή δείκτη διευθύνσεων ακέραιου τύπου που δείχνει προς
+// την τελευταία μεταβλητή που μόλις δημιουργήσατε. Παρουσιάστε την _διεύθυνση της_, την _τιμή της_  και την
+// _τιμή στην οποία ο δείκτης διεύθυνσης δείχνει προς_.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare an integer variable with the value of 20.
+	// Δηλώστε μια μεταβλητή ακεραίου με τιμή ίση με 20.
 	value := 20
 
-	// Display the address of and value of the variable.
+	// Παρουσιάστε την διεύθυνση της και την τιμή της μεταβλητής.
 	fmt.Println("Address Of:", &value, "Value Of:", value)
 
-	// Declare a pointer variable of type int. Assign the
-	// address of the integer variable above.
+	// Δηλώστε μια μεταβλητή δείκτη διεύθυνσης τύπου int. Εκχωρείστε την
+	// διεύθυνση της μεταβλητής ακεραίου από παραπάνω.
 	p := &value
 
-	// Display the address of, value of and the value the pointer
-	// points to.
+	// Παρουσιάστε την διεύθυνση της, την τιμή της και την τιμή στην οποία
+	// ο δείκτης δείχνει.
 	fmt.Println("Address Of:", &p, "Value Of:", p, "Points To:", *p)
 }

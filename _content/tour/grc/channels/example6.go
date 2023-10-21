@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the bounded work pooling channel pattern.
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας περιορισμένης συγκέντρωση πόρων εργασίας.
 package main
 
 import (
@@ -17,11 +17,12 @@ func main() {
 	boundedWorkPooling()
 }
 
-// boundedWorkPooling: In this pattern, a pool of child goroutines is created
-// to service a fixed amount of work. The parent goroutine iterates over all
-// work, signalling that into the pool. Once all the work has been signaled,
-// then the channel is closed, the channel is flushed, and the child
-// goroutines terminate.
+// boundedWorkPooling: Σε αυτό το πρότυπο, δημιουργείται μια διαθέσιμη συγκέντρωση
+// παράγωγων goroutine προκειμένου να εξυπηρετήσουν ένα δεδομένο ποσό εργασίας.
+// Η αρχική goroutine προσπελαύνει επαναληπτικά όλες τις εργασίες, ενημερώνοντας
+// σχετικά τις διαθέσιμες goroutine. Όταν έχει σηματοδοτηθεί όλος ο όγκος εργασίας,
+// τότε το αρχικό κανάλι επικοινωνίας κλείνει, καθαρίζει και οι παράγωγες goroutines
+// τερματίζουν την λειτουργία τους.
 func boundedWorkPooling() {
 	work := []string{"paper", "paper", "paper", "paper", 2000: "paper"}
 

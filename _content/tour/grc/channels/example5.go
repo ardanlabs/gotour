@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the fan out semaphore channel pattern.
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας εξάπλωσης (fan out) με σηματοφόρο (semaphore).
 package main
 
 import (
@@ -17,8 +17,9 @@ func main() {
 	fanOutSem()
 }
 
-// fanOutSem: In this pattern, a semaphore is added to the fan out pattern
-// to restrict the number of child goroutines that can be schedule to run.
+// fanOutSem: Σε αυτό το πρότυπο, ένας σηματοφόρος (semaphore) προστίθεται στο πρότυπο εξάπλωσης (fan out)
+// προκειμένου να περιοριστεί ο αριθμός των παράγωγων goroutine που είναι δυνατόν να χρονοδρομολογηθούν προς
+// εκτέλεση.
 func fanOutSem() {
 	children := 2000
 	ch := make(chan string, children)

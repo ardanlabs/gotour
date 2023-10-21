@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a basic circular queue.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο συγγραφής μιας απλής κυκλικής ουράς.
 package main
 
 import (
@@ -40,12 +40,12 @@ func main() {
 	q.Operate(f)
 }
 
-// Data represents what is being stored on the queue.
+// Ο Data αναπαριστά αυτό που θα αποθηκευτεί στην ουρά.
 type Data struct {
 	Name string
 }
 
-// Queue represents a list of data.
+// Ο Queue αναπαριστά μια λίστα δεδομένων.
 type Queue struct {
 	Count int
 	data  []Data
@@ -53,7 +53,7 @@ type Queue struct {
 	end   int
 }
 
-// New returns a queue with a set capacity.
+// Η New επιστρέφει μια ουρά με δεδομένη χωρητικότητα.
 func New(cap int) (*Queue, error) {
 	if cap <= 0 {
 		return nil, errors.New("invalid capacity")
@@ -67,13 +67,15 @@ func New(cap int) (*Queue, error) {
 	return &q, nil
 }
 
-// Enqueue inserts data into the queue if there
-// is available capacity.
+// Η Enqueue εισάγει δεδομένα στην ουρά εφόσον
+// υπάρχει διαθέσιμη χωρητικότητα.
 func (q *Queue) Enqueue(data Data) error {
 
-	// If the front of the queue is right behind the end or
-	// if the front is at the end of the capacity and the end
-	// is at the beginning of the capacity, the queue is full.
+	// Αν το μπροστινό μέρος της ουράς είναι ακριβώς από
+	// πίσω από το τελευταίο μέρος της ή αν το μπροστινό μέρος
+	// βρίσκεται στο τέλος της χωρητικότητας και το τελευταίο μέρος
+	// είναι στην αρχή της χωρητικότητας, τότε η ουρά είναι
+	// γεμάτη.
 	//  F  E  - Enqueue (Full) |  E        F - Enqueue (Full)
 	// [A][B][C]               | [A][B][C]
 	if q.front+1 == q.end ||
@@ -84,15 +86,16 @@ func (q *Queue) Enqueue(data Data) error {
 	switch {
 	case q.front == len(q.data):
 
-		// If we are at the end of the capacity, then
-		// circle back to the beginning of the capacity by
-		// moving the front pointer to the beginning.
+		// Αν βρισκόμαστε στο τέλος της χωρητικότητας τότε,
+		// μετακινούμαστε στην αρχή της χωρητικότητας, μετακινώντας
+		// τον μπροστινό δείκτη διεύθυνσης στην αρχή.
 		q.front = 0
 		q.data[q.front] = data
 	default:
 
-		// Add the data to the current front position
-		// and then move the front pointer.
+		// Προσθέστε τα δεδομένα στην τρέχουσα μπροστινή
+		// θέση και στην συνέχεια μετακινείστε τον μπροστινό
+		// δείκτη διεύθυνσης.
 		q.data[q.front] = data
 		q.front++
 	}
@@ -102,11 +105,11 @@ func (q *Queue) Enqueue(data Data) error {
 	return nil
 }
 
-// Dequeue removes data into the queue if data exists.
+// Η Dequeue απομακρύνει δεδομένα από την ουρά αν αυτά υποάρχουν ήδη μέσα.
 func (q *Queue) Dequeue() (Data, error) {
 
-	// If the front and end are the same, the
-	// queue is empty
+	// Αν το μπροστινό και το τελευταίο μέρος είναι τα ίδια
+	// τότε η ουρά είναι άδεια.
 	//  EF - (Empty)
 	// [  ][ ][ ]
 	if q.front == q.end {
@@ -117,15 +120,16 @@ func (q *Queue) Dequeue() (Data, error) {
 	switch {
 	case q.end == len(q.data):
 
-		// If we are at the end of the capacity, then
-		// circle back to the beginning of the capacity by
-		// moving the end pointer to the beginning.
+		// Αν βρισκόμαστε στο τέλος της χωρητικότητας,
+		// τότε μετακινούμαστε στην αρχή της χωρητικότητας
+		// μετακινώντας τον δείκτη διεύθυνσης τέλους,
+		// στην αρχή.
 		q.end = 0
 		data = q.data[q.end]
 	default:
 
-		// Remove the data from the current end position
-		// and then move the end pointer.
+		// Απομακρύνετε τα δεδομένα από την τρέχουσα θέση τέλους
+		// και μετά μετακινείστε τον δείκτη διεύθυνσης τέλους.
 		data = q.data[q.end]
 		q.end++
 	}
@@ -135,8 +139,9 @@ func (q *Queue) Dequeue() (Data, error) {
 	return data, nil
 }
 
-// Operate accepts a function that takes data and calls
-// the specified function for every piece of data found.
+// Η Operate δέχεται μια συνάρτηση που παίρνει δεδομένα
+// και καλεί την συγκεκριμένη συνάρτηση για κάθε
+// κομμάτι δεδομένων που μπορεί να βρει.
 func (q *Queue) Operate(f func(d Data) error) error {
 	end := q.end
 	for {

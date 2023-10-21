@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how functions can return multiple values while using
-// named and struct types.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μπορούν οι συναρτήσεις να
+// επιστρέφουν πολλαπλές τιμές ενώ χρησιμοποιούν επώνυμους τύπους struct.
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 	"fmt"
 )
 
-// user is a struct type that declares user information.
+// Η user είναι ένας τύπος struct που δηλώνει την πληροφορία σχετικά με τον user.
 type user struct {
 	ID   int
 	Name string
@@ -20,36 +20,36 @@ type user struct {
 
 func main() {
 
-	// Retrieve the user profile.
+	// Ανασύρατε το προφίλ χρήστη.
 	u, err := retrieveUser("sally")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Display the user profile.
+	// Παρουσιάστε το προφίλ χρήστη.
 	fmt.Printf("%+v\n", *u)
 }
 
-// retrieveUser retrieves the user document for the specified
-// user and returns a pointer to a user type value.
+// Η retrieveUser ανασύρει το έγγραφο του χρήστη για τον συγκεκριμένο
+// χρήστη και επιστρέφει έναν δείκτη διεύθυνσης σε μια τιμή τύπου user.
 func retrieveUser(name string) (*user, error) {
 
-	// Make a call to get the user in a json response.
+	// Πραγματοποιείστε μια κλήση προκειμένου να πάρετε τον χρήστη σε μια απάντηση json.
 	r, err := getUser(name)
 	if err != nil {
 		return nil, err
 	}
 
-	// Unmarshal the json document into a value of
-	// the user struct type.
+	// Αποσειριοποιείστε (unmarshal) το έγγραφο json σε μια τιμή
+	// τύπου struct.
 	var u user
 	err = json.Unmarshal([]byte(r), &u)
 	return &u, err
 }
 
-// GetUser simulates a web call that returns a json
-// document for the specified user.
+// Η GetUser μιμείται μια κλήση web η οποία επιστρέφει ένα έγγραφο json
+// για τον συγκεκριμένο χρήστη.
 func getUser(name string) (string, error) {
 	response := `{"id":1432, "name":"sally"}`
 	return response, nil

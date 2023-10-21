@@ -1,16 +1,16 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct type and create a value of this type. Declare a function
-// that can change the value of some field in this struct type. Display the
-// value before and after the call to your function.
+// Δηλώστε έναν τύπο struct και δημιουργείστε μια τιμή αυτού του τύπου. Δημιουργήστε μια συνάρτηση που
+// μπορεί να αλλάξει την τιμή κάποιου πεδίου σε μεταβλητές αυτού του τύπου struct. Παρουσιάστε την τιμή πριν
+// και μετά την κλήση της συνάρτησης σας.
 package main
 
 import "fmt"
 
-// user represents a user in the system.
+// Ο user αναπαριστά έναν χρήστη στο σύστημα.
 type user struct {
 	name        string
 	email       string
@@ -19,28 +19,28 @@ type user struct {
 
 func main() {
 
-	// Create a variable of type user and initialize each field.
+	// Δημιουργείστε μια μεταβλητή τύπου user και δώστε αρχική τιμή σε κάθε πεδίο.
 	bill := user{
 		name:        "Bill",
 		email:       "bill@ardanlabs.com",
 		accessLevel: 1,
 	}
 
-	// Display the value of the accessLevel field.
+	// Παρουσιάστε την τιμή της μεταβλητής.
 	fmt.Println("access:", bill.accessLevel)
 
-	// Share the bill variable with the accessLevel function
-	// along with a value to update the accessLevel field with.
+	// Μοιραστείτε την μεταβλητή bill με την συνάρτηση accessLevel
+	// μαζί με μια τιμή για να ανανεωθεί με αυτή η τιμή του πεδίου accessLevel.
 	accessLevel(&bill, 10)
 
-	// Display the value of the accessLevel field again.
+	// Παρουσιάστε την τιμή του πεδίου accessLevel ξανά.
 	fmt.Println("access:", bill.accessLevel)
 }
 
-// accessLevel changes the value of the users access level.
+// Η accessLevel αλλάζει την τιμή του επιπέδου πρόσβαση του χρήστη.
 func accessLevel(u *user, accessLevel int) {
 
-	// Set of value of the accessLevel field to the value
-	// that is passed in.
+	// Εκχωρείστε στην τιμή του πεδίου accessLevel field την τιμή
+	// που περνάει ως είσοδος της συνάρτησης.
 	u.accessLevel = accessLevel
 }

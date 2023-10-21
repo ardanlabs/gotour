@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to create goroutines and
-// how the scheduler behaves.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δημιουργούνται goroutines και
+// πως συμπεριφέρεται ο χρονοδρομολογητής.
 package main
 
 import (
@@ -15,38 +15,38 @@ import (
 
 func init() {
 
-	// Allocate one logical processor for the scheduler to use.
+	// Διαθέστε έναν λογικό επεξεργαστή προς χρήση στον χρονοδρομολογητή.
 	runtime.GOMAXPROCS(1)
 }
 
 func main() {
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται προκειμένου να διαχειριστεί την ταυτόχρονη εκτέλεση.
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	fmt.Println("Start Goroutines")
 
-	// Create a goroutine from the lowercase function.
+	// Δημιουργείστε μια από την συνάρτηση lowercase.
 	go func() {
 		lowercase()
 		wg.Done()
 	}()
 
-	// Create a goroutine from the uppercase function.
+	// Δημιουργείστε μια συνάρτηση από την συνάρτηση uppercase.
 	go func() {
 		uppercase()
 		wg.Done()
 	}()
 
-	// Wait for the goroutines to finish.
+	// Περιμένετε τις goroutine να τελειώσουν.
 	fmt.Println("Waiting To Finish")
 	wg.Wait()
 
 	fmt.Println("\nTerminating Program")
 }
 
-// lowercase displays the set of lowercase letters three times.
+// Η lowercase παρουσιάζει το σύνολο των πεζών γραμμα΄των τρεις φορές.
 func lowercase() {
 
 	// Display the alphabet three times
@@ -57,7 +57,7 @@ func lowercase() {
 	}
 }
 
-// uppercase displays the set of uppercase letters three times.
+// Η uppercase παρουσιάζει το σύνολο των κεφαλαίων γραμμάτων τρεις φορές.
 func uppercase() {
 
 	// Display the alphabet three times

@@ -1,23 +1,23 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how stacks grow/change.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μεγαλώνουν/αλλάζουν οι στοίβες εκτέλεσης.
 package main
 
-// Number of elements to grow each stack frame.
-// Run with 1 and then with 1024
+// Ο αριθμός των στοιχείων κατά τον οποίο θα μεγεθυνθεί κάθε πλαίσιο στοίβας.
+// Εκτελέστε με τιμή 1 και μετά με τιμή 1024
 const size = 1
 
-// main is the entry point for the application.
+// Η συνάρτηση main είναι το σημείο είσόδου για την εφαρμογή.
 func main() {
 	s := "HELLO"
 	stackCopy(&s, 0, [size]int{})
 }
 
-// stackCopy recursively runs increasing the size
-// of the stack.
+// Η stackCopy εκτελείται αναδρομικά μεγαλώνοντας με αυτό τον τρόπο το μέγεθος
+// της στοίβας.
 //
 //go:noinline
 func stackCopy(s *string, c int, a [size]int) {

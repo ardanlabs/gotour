@@ -1,11 +1,12 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to write a function that provides an empty interface
-// solution which uses type assertions for the different concrete slices to be
-// supported. We've basically moved the functions from above into case statements.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συγγραφής μιας συνάρτησης
+// που παρέχει μια λύση άδειας διεπαφής, η οποία χρησιμοποιεί διαβεβαιώσεις τύπων για τις
+// διαφορετικές πραγματικές φέτες που μπορεί να υποστηρίξει. Βασικά μεταφέραμε τις
+// παραπάνω συναρτήσεις σε δηλώσεις περιπτώσεων case.
 package main
 
 import (

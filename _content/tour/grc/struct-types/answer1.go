@@ -1,17 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct type to maintain information about a user (name, email and age).
-// Create a value of this type, initialize with values and display each field.
+// Δηλώστε έναν τύπο struct προκειμένου να διατηρήσετε πληροφορίες ενός χρήστη (name, email and age).
+// Δημιουργήστε μια τιμή αυτού του τύπου, δώστε αρχικές τιμές και παρουσιάστε την τιμή κάθε πεδίου.
 //
-// Declare and initialize an anonymous struct type with the same three fields. Display the value.
+// Δηλώστε και δώστε αρχική τιμή σε ένα ανώνυμο τύπο struct με τα ίδια τρια πεδία. Παρουσιάστε την τιμή του.
 package main
 
 import "fmt"
 
-// user represents a user in the system.
+// Ο user αναπαριστά έναν χρήστη του συστήματος.
 type user struct {
 	name  string
 	email string
@@ -20,19 +20,19 @@ type user struct {
 
 func main() {
 
-	// Declare variable of type user and init using a struct literal.
+	// Δηλώστε μεταβλητή τύπου user και δώστε αρχική τιμή χρησιμοποιώντας μια ρητή κατασκευή struct.
 	bill := user{
 		name:  "Bill",
 		email: "bill@ardanlabs.com",
 		age:   45,
 	}
 
-	// Display the field values.
+	// Παρουσιάστε τις τιμές των πεδίων.
 	fmt.Println("Name", bill.name)
 	fmt.Println("Email", bill.email)
 	fmt.Println("Age", bill.age)
 
-	// Declare a variable using an anonymous struct.
+	// Δηλώστε μια μεταβλητή χρησιμοποιώντας μια ανώνυμη struct.
 	ed := struct {
 		name  string
 		email string
@@ -43,7 +43,7 @@ func main() {
 		age:   46,
 	}
 
-	// Display the field values.
+	// Παρουσιάστε τις τιμές των πεδίων.
 	fmt.Println("Name", ed.name)
 	fmt.Println("Email", ed.email)
 	fmt.Println("Age", ed.age)

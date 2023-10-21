@@ -1,13 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// YOU NEED TO RUN THIS EXAMPLE OUTSIDE OF THE TOUR
+// ΠΡΕΠΕΙ ΝΑ ΕΚΤΕΛΕΣΕΤΕ ΑΥΤΟ ΤΟ ΠΑΡΑΔΕΙΓΜΑ ΕΚΤΟΣ ΤΗΣ ΑΝΑΣΚΟΠΗΣΗΣ
 // go build -race  or  go run main.go -race
 
-// Sample program to show how to create race conditions in
-// our programs. We don't want to do this.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δημιουργίας συνθηκών ανταγωνισμού για δεδομένα
+// στα προγράμματα μας. Αυτό είναι κάτι το οποίο δεν θέλουμε να το κάνουμε.
 package main
 
 import (
@@ -15,30 +15,30 @@ import (
 	"sync"
 )
 
-// counter is a variable incremented by all goroutines.
+// Η counter είναι μια μεταβλητή που αυξάνεται από όλες τις goroutine.
 var counter int
 
 func main() {
 
-	// Number of goroutines to use.
+	// Ο αριθμός των goroutine προς χρήση.
 	const grs = 2
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται για την διαχείριση της ταυτόχρονης εκτέλεσης.
 	var wg sync.WaitGroup
 	wg.Add(grs)
 
-	// Create two goroutines.
+	// Δημιουργείστε δύο goroutine.
 	for g := 0; g < grs; g++ {
 		go func() {
 			for i := 0; i < 2; i++ {
 
-				// Capture the value of Counter.
+				// Κρατήστε την τιμή της counter.
 				value := counter
 
-				// Increment our local value of Counter.
+				// Αυξήστε την τοπική τιμή της counter.
 				value++
 
-				// Store the value back into Counter.
+				// Αποθηκεύστε την τιμή πάλι στην αρχική counter.
 				counter = value
 			}
 
@@ -46,7 +46,7 @@ func main() {
 		}()
 	}
 
-	// Wait for the goroutines to finish.
+	// Περιμένετε ώστε να ολοκληρώσουν οι goroutine.
 	wg.Wait()
 	fmt.Println("Final Counter:", counter)
 }

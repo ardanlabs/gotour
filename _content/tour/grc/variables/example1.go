@@ -1,19 +1,20 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// The playground is actually a 64-bit env with 32-bit pointers
-// The os/arch combo is named nacl/amd64p32
+// Το playground είναι στην πραγματικότητα ένα περιβάλλον 64-bit με δείκτες διεύθυνσης
+// 32-bit.
+// Ο συνδυασμός λειτουργικού συστήματος/αρχιτεκτονικής υλικού ονομάζεται nacl/amd64p32
 
-// Sample program to show how to declare variables.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης μεταβλητών.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare variables that are set to their zero value.
+	// Δήλωση μεταβλητών που λαμβάνουν την μηδενική τους τιμή.
 	var a int
 	var b string
 	var c float64
@@ -24,8 +25,8 @@ func main() {
 	fmt.Printf("var c float64 \t %T [%v]\n", c, c)
 	fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-	// Declare variables and initialize.
-	// Using the short variable declaration operator.
+	// Δήλωση μεταβλητών και ανάθεση αρχικών τιμων.
+	// Χρήση του τελεστή γρήγορης δήλωσης μεταβλητής.
 	aa := 10
 	bb := "hello"
 	cc := 3.14159
@@ -36,19 +37,19 @@ func main() {
 	fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
 	fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-	// Specify type and perform a conversion.
+	// Προσδιορισμού τύπου μεταβλητής και πραγματοποίηση μετατροπής.
 	aaa := int32(10)
 
 	fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
 }
 
 /*
-	Zero Values:
-	Type Initialized Value
-	Boolean false
-	Integer 0
-	Floating Point 0
-	Complex 0i
-	String "" (empty string)
-	Pointer nil
+	Μηδενικές Τιμές:
+	Αρχική Τιμή εκ του Τύπου
+	Τιμή αληθείας false
+	Ακέραιο 0
+	Κινητής υποδιαστολής 0
+	Μιγαδικό 0i
+	Συμβολοσειρά "" (άδεια συμβολοσειρά)
+	Δείκτης Διεύθυνσης Μνήμης nil
 */

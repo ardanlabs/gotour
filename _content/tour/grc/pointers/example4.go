@@ -1,18 +1,18 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to teach the mechanics of escape analysis.
+// Δείγμα προγράμματος προκειμένου να διδαχθει ο μηχανισμός της ανάλυσης διαφυγής.
 package main
 
-// user represents a user in the system.
+// Ο user αναπαριστά έναν χρήστη στο σύστημα.
 type user struct {
 	name  string
 	email string
 }
 
-// main is the entry point for the application.
+// Η συνάρτηση main είναι το σημείο εισόδου για την εφαρμογή.
 func main() {
 	u1 := createUserV1()
 	u2 := createUserV2()
@@ -20,8 +20,8 @@ func main() {
 	println("u1", &u1, "u2", u2)
 }
 
-// createUserV1 creates a user value and passed
-// a copy back to the caller.
+// // Η createUserV1 δημιουργεί μια τιμή user και περνάει
+// ένα αντίγραφο της πίσω στον καλώντα.
 //
 //go:noinline
 func createUserV1() user {
@@ -35,8 +35,8 @@ func createUserV1() user {
 	return u
 }
 
-// createUserV2 creates a user value and shares
-// the value with the caller.
+// Η createUserV2 δημιουργεί μια τιμή user και μοιράζεται
+// την τιμή με τον καλώντα.
 //
 //go:noinline
 func createUserV2() *user {
@@ -51,7 +51,7 @@ func createUserV2() *user {
 }
 
 /*
-// See escape analysis and inlining decisions.
+// Δείτε την ανάλυση διαφυγής και τις αποφάσεις σχετικά με την ένθεση κώδικα (inlining).
 
 $ go build -gcflags -m=2
 # github.com/ardanlabs/gotraining/topics/go/language/pointers/example4
@@ -64,8 +64,9 @@ $ go build -gcflags -m=2
 ./example4.go:39:2:     from return &u (return) at ./example4.go:46:2
 ./example4.go:39:2: moved to heap: u
 
-// See the intermediate representation phase before
-// generating the actual arch-specific assembly.
+// Δείτε την φάση ενδιάμεσης αναπαράστασης πριν
+// την δημιουργία του πραγματικού συμβολικού κώδικα (assembly), εξειδικευμένου στην
+// συγκεκριμένη αρχιτεκτονική υλικού
 
 $ go build -gcflags -S
 CALL	"".createUserV1(SB)
@@ -79,12 +80,12 @@ CALL	"".createUserV1(SB)
 	0x0048 00072 MOVQ	BX, "".u1+64(SP)
 	0x004d 00077 PCDATA	$1,
 
-// See bounds checking decisions.
+// Δείτε αποφάσεις ελέγχων ορίων.
 
 go build -gcflags="-d=ssa/check_bce/debug=1"
 
-// See the actual machine representation by using
-// the disassembler.
+// Δείτε την πραγματική αναπαράσταση μηχανής χρησιμοποιώντας
+// τον disassembler.
 
 $ go tool objdump -s main.main example4
 TEXT main.main(SB) github.com/ardanlabs/gotraining/topics/go/language/pointers/example4/example4.go
@@ -98,8 +99,8 @@ TEXT main.main(SB) github.com/ardanlabs/gotraining/topics/go/language/pointers/e
   example4.go:15	0x105e2a3		4889542438		MOVQ DX, 0x38(SP)
   example4.go:15	0x105e2a8		48895c2440		MOVQ BX, 0x40(SP)
 
-// See a list of the symbols in an artifact with
-// annotations and size.
+// Δείτε μια λίστα των συμβόλων σε ένα στοιχείο (artifact)
+// με σημειώσεις και μεγέθη.
 
 $ go tool nm example4
  105e340 T main.createUserV1

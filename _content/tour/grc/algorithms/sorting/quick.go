@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a quick sort.
+// Αυτό το δείγμα προγράμματος παρουσιάζει παρουσιάζει τον τρόπο συγγραφής μιας γρήγορης ταξινόμησης.
 package main
 
 import (
@@ -28,7 +28,7 @@ func quickSort(numbers []int, leftIdx, rightIdx int) []int {
 	case leftIdx > rightIdx:
 		return numbers
 
-	// Divides array into two partitions.
+	// Διαιρεί τον πίνακα σε δύο διαμερίσεις.
 	case leftIdx < rightIdx:
 		numbers, pivotIdx := partition(numbers, leftIdx, rightIdx)
 
@@ -39,7 +39,7 @@ func quickSort(numbers []int, leftIdx, rightIdx int) []int {
 	return numbers
 }
 
-// partition it takes a portion of an array then sort it.
+// Η partition παίρνει ένα μέρος ενός πίνακα και μετά το ταξινομεί.
 func partition(numbers []int, leftIdx, rightIdx int) ([]int, int) {
 	pivot := numbers[rightIdx]
 

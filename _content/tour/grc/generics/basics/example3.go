@@ -1,11 +1,12 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to write a function that provides a reflection
-// solution which allows a slice of any type to be provided and printed. This
-// is a generic function thanks to the reflect package.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συγγραφής μιας
+// συνάρτησης που παρέχει μια λύση αντανάκλασης, η οποία επιτρέπει να παραληφθεί
+// και να τυπωθεί μια φέτα κάθε τύπου. Αυτή είναι μια συνάρτηση γενικού προγραμματισμού
+// εξαιτίας του πακέτου reflect.
 package main
 
 import (

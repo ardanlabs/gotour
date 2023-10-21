@@ -1,31 +1,31 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a nil slice of integers. Create a loop that appends 10 values to the
-// slice. Iterate over the slice and display each value.
+// Δηλώστε μια nil φέτα ακεραίων. Δημιουργείστε μια επανάληψη που προσθέτει 10 τιμές
+// στην φέτα. Επισκεφθείτε διαδοχικά τα στοιχεία της φέτας και παρουσιάστε κάθε τιμή.
 //
-// Declare a slice of five strings and initialize the slice with string literal
-// values. Display all the elements. Take a slice of index one and two
-// and display the index position and value of each element in the new slice.
+// Δηλώστε μια φέτα πέντε συμβολοσειρών και δώστε αρχική τιμή στην φέτα με ρητές τιμές
+// συμβολοσειρών. Παρουσιάστε όλα τα στοιχεία. Δημιουργείστε μια φέτα των δεικτών ένα και δύο και παρουσιάστε
+// την θέση δείκτη και την τιμή κάθε στοιχείου στην νέο φέτα.
 package main
 
-// Add imports.
+// Προσθέστε δήλωση εισαγωγών (imports).
 
 func main() {
 
-	// Declare a nil slice of integers.
+	// Δηλώστε μια nil φέτα ακεραίων.
 
-	// Append numbers to the slice.
+	// Προσθέστε αριθμούς στην φέτα.
 
-	// Display each value in the slice.
+	// Παρουσιάστε κάθε τιμή στην φέτα.
 
-	// Declare a slice of strings and populate the slice with names.
+	// Δηλώστε μια φέτα συμβολοσειρών και γεμίστε την φέτα με ονόματα.
 
-	// Display each index position and slice value.
+	// Παρουσιάστε κάθε θέση δείκτη και τιμή φέτας.
 
-	// Take a slice of index 1 and 2 of the slice of strings.
+	// Πάρτε μια φέτα των δεικτών 1 και 2 της φέτας των συμβολοσειρών.
 
-	// Display each index position and slice values for the new slice.
+	// Παρουσιάστε κάθε θέση δείκτη και τιμές φέτας για την νέα φέτα.
 }

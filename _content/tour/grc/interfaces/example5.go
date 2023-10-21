@@ -1,71 +1,69 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how the concrete value assigned to
-// the interface is what is stored inside the interface.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως η πραγματική τιμή που έχει εκχωρηθεί
+// στην διεπαφή είναι αυτό που αποθηκεύεται στην διεπαφή.
 package main
 
 import "fmt"
 
-// printer displays information.
+// Ο printer παρουσιάζει πληροφορίες.
 type printer interface {
 	print()
 }
 
-// cannon defines a cannon printer.
+// Ο cannon ορίζει έναν εκτυπωτή cannon.
 type cannon struct {
 	name string
 }
 
-// print displays the printer's name.
+// Η print παρουσιάζει το όνομα του εκτυπωτή.
 func (c cannon) print() {
 	fmt.Printf("Printer Name: %s\n", c.name)
 }
 
-// epson defines a epson printer.
+// Ο epson ορίζει έναν εκτυπωτή epson.
 type epson struct {
 	name string
 }
 
-// print displays the printer's name.
+// Η print παρουσιάζει το όνομα του εκτυπωτή.
 func (e *epson) print() {
 	fmt.Printf("Printer Name: %s\n", e.name)
 }
 
 func main() {
 
-	// Create a cannon and epson printer.
+	// Δημιουργείστε έναν εκτυπωτή cannon και έναν εκτυπωτή epson
 	c := cannon{"PIXMA TR4520"}
 	e := epson{"WorkForce Pro WF-3720"}
 
-	// Add the printers to the collection using both
-	// value and pointer semantics.
+	// Προσθέστε τους εκτυπωτές στην συλλογή  χρησιμοποιώντας
+	// τόσο σημειολογία  τιμής όσο και σημειολογία δείκτη διεύθυνσης.
 	printers := []printer{
 
-		// Store a copy of the cannon printer value.
+		// Αποθηκεύστε ένα αντίογραφο της τιμής εκτυπωτή cannon.
 		c,
 
-		// Store a copy of the epson printer value's address.
+		// Αποθηκεύστε ένα αντίγραφο της διεύθυνσης μνήμης της τιμής του εκτυπωτή epson.
 		&e,
 	}
 
-	// Change the name field for both printers.
+	// Αλλάξτε το πεδίο name για τους δύο εκτυπωτές.
 	c.name = "PROGRAF PRO-1000"
 	e.name = "Home XP-4100"
 
-	// Iterate over the slice of printers and call
-	// print against the copied interface value.
+	// Προσπελάστε επαναληπτικά την φέτα των εκτυπωτών και καλέστε
+	// την print από την αντιγραμμένη τιμή διεπαφής.
 	for _, p := range printers {
 		p.print()
 	}
 
-	// When we store a value, the interface value has its own
-	// copy of the value. Changes to the original value will
-	// not be seen.
+	// Όταν αποθηκεύουμε μια τιμή, η τιμή διεπαφής έχει το δικό της αντίγραφο
+	// της τιμής. Αλλαγές στην αρχική τιμή δεν θα γίνουν εμφανείς.
 
-	// When we store a pointer, the interface value has its own
-	// copy of the address. Changes to the original value will
-	// be seen.
+	// Όταν αποθηκεύουμε μια διεύθυνση μνήμης, η τιμή διεπαφής έχει το δικό της αντίγραφο
+	// της διεύθυνσης. Αλλαγές στην αρχική τιμή θα γίνουν εμφανείς.
 }

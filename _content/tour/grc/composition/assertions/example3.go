@@ -1,33 +1,33 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how method sets can affect behavior.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως τα σύνολα μεθόδων τύπων μπορούν να επηρεάσουν την συμπεριφορά.
 package main
 
 import "fmt"
 
-// user defines a user in the system.
+// Ο user ορίζει έναν χρήστη στο σύστημα.
 type user struct {
 	name  string
 	email string
 }
 
-// String implements the fmt.Stringer interface.
+// Η String υλοποιεί την διεπαφή fmt.Stringer.
 func (u *user) String() string {
 	return fmt.Sprintf("My name is %q and my email is %q", u.name, u.email)
 }
 
 func main() {
 
-	// Create a value of type user.
+	// Δημιουργείστε μια τιμή τύπου user.
 	u := user{
 		name:  "Bill",
 		email: "bill@ardanlabs.com",
 	}
 
-	// Display the values.
+	// Παρουσιάστει τις τιμές.
 	fmt.Println(u)
 	fmt.Println(&u)
 }

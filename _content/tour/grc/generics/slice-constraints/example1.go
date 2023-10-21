@@ -1,20 +1,22 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to define slice based constraints.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος ορισμού
+// περιορισμών με βάση φέτες.
 package main
 
 import (
 	"fmt"
 )
 
-// operateFunc defines a function type that takes a value of some type T and
-// returns a value of the same type T (to be determined later).
+// Η operateFunc ορίζει ένα τύπο συνάρτησης που παίρνει μια τιμή
+// κάποιου τύπου T και επιστρέφει μια τιμή του ίδιου τύπου T
+// (που θα προσδιοριστεί αργότερα).
 //
-// Slice defines a constraint that the data is a slice of some type T (to be
-// determined later).
+// Η Slice ορίζει ένα περιορισμό ώστε τα δεδομένα είναι μια φέτα κάποιου τύπου
+// T (που θα προσδιοριστεί αργότερα).
 
 type operateFunc[T any] func(t T) T
 
@@ -22,9 +24,10 @@ type Slice[T any] interface {
 	~[]T
 }
 
-// When it's important that the slice being passed in is exactly the same
-// as the slice being returned, use a slice constraint. This ensures that the
-// result slice S is the same as the incoming slice S.
+// Όταν είναι σημαντικό η φέτα που περνάει ως είσοδος να είναι ακριβώς η
+// ίδια με την φέτα που επιστρέφεται, χρησιμοποιείστε έναν περιορισμό
+// τύπου για φέτες. Αυτό εξασφαλίζει ότι η φέτα S που επιστρέφεται ως αποτέλεσμα
+// είναι η ίδια με την εισερχόμενη φέτα S.
 
 func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
 	ret := make(S, len(slice))
@@ -34,12 +37,13 @@ func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
 	return ret
 }
 
-// If you don't care about the constraint defined above, then operate2 provides
-// a simpler form. Operate2 still works because you can assign a slice of some
-// type T to the input and output arguments. However, the concrete types of the
-// input and output arguments will be based on the underlying types. In this
-// case not a slice of Numbers, but a slice of integers. This is not the case
-// with operate function above.
+// Αν δεν σας ενδιαφέρει ο περιορισμός που ορίστηκε παραπάνω, τότε η operate2
+// παρέχει μια απλούστερη μορφή. Η operate2 δουλεύει επειδή μπορείς ακόμα
+// να εκχωρήσεις μια φέτα κάποιου τύπου T στα ορίσματα εισόδου και εξόδου.
+// Όμως οι πραγματικοί τύποι των ορισμάτων εισόδου και εξόδου θα βασίζονται
+// στους υποκείμενους τύπους. Σε αυτή την περίπτωση, πρόκειται όχι για μια φέτα
+// από Numbers, αλλά για μια φέτα από ακέριαους. Αυτό δεν ισχύει με την συνάρτηση
+// operate παραπάνω.
 
 func operate2[T any](slice []T, fn operateFunc[T]) []T {
 	ret := make([]T, len(slice))
@@ -49,23 +53,25 @@ func operate2[T any](slice []T, fn operateFunc[T]) []T {
 	return ret
 }
 
-// I suspect most of the time operate2 is what you want: it's simpler, and more
-// flexible: You can always assign a []int back to a Numbers variable and vice
-// versa. But if you need to preserve that incoming type in the result for some
-// reason, you will need to use operate.
+// Η υποψία είναι ότι τον περισσότερο καιρό η operate2 είναι αυτό που ζητάτε:
+// είναι απλούστερη και περισσότερο ευέλικτη: Κανείς μπορεί πάντα να εκχωρήσει
+// μια []int σε μια μεταβλητή Numbers και το αντίστροφο. Όμως αν χρειάζεστε να
+// διατηρήσετε τον εισερχόμενο τύπο και στο αποτέλεσμα για κάποιο λόγο, θα πρέπει
+// να χρησιμοποιήσετε την operate.
 
 // =============================================================================
 
-// This code defines a named type that is based on a slice of integers. An
-// integer is the underlying type.
+// Αυτός ο κώδικας ορίζει έναν επώνυμο τύπο που βασίζεται σε μια φέτα από ακέραιους.
+// Ένας ακέραιος είναι ο υποκείμενος τύπος.
 //
-// Double is a function that takes a value of type Numbers, multiplies each
-// value in the underlying integer slice and returns that new Numbers value.
+// Η Double είναι μια συνάρτηση που παίρνει μια τιμή τύπου Numbers, πολλαπλασιάζει
+// κάθε τιμή στην υποκέιμενη φέτα ακεραίων και επσιτρέφει αυτή την νέα τιμή Numbers.
 //
-// Line 73 is commented out because the compiler is smart enough to infer the
-// types for S and T. The commented code shows the types being inferred.
+// Η Γραμμή 73 έχει μετατραπεί σε σχόλιο επειδή ο μεταγλωττιστής είναι αρκετά έξυπνος
+// ώστε να συνάγει τους τύπους για τους S και T. Ο κώδικας στο σχόλιο παρουσιάζει τους τύπους
+// που συνάγονται.
 //
-// operate2 is not used in the example.
+// Η operate2 δεν χρησιμοποιείται στο παράδειγμα.
 
 type Numbers []int
 

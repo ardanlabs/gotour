@@ -1,27 +1,30 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic map type.
+// Υλοποιείστε έναν τύπο πίνακα κατακερματισμού γενικού προγραμματισμού.
 package main
 
 import (
 	"fmt"
 )
 
-// Declare a generic type named keymap that uses an underlying type of map
-// with a key of type string and a value of some type T.
+// Δηλώστε έναν τύπο γενικού προγραμματισμού με το όνομα
+// keymap που χρησιμοποιεί ένα υποκείμενο τύπο πίνακα
+// κατακερματισμού με κλειδιά τύπου συμβολοσειράς και
+// τιμές κάποιου τύπου T.
 type keymap[T any] map[string]T
 
-// Implement a method named set that accepts a key of type string and a value
-// of type T.
+// Υλοποιήστε μια μέθοδο τύπου με το όνομα set που αποδέχεται
+// ένα κλειδί τύπου συμβολοσειράς και μια τιμή τύπου T.
 func (km keymap[T]) set(k string, v T) {
 	km[k] = v
 }
 
-// Implement a method named get that accepts a key of type string and return
-// a value of type T and true or false if the key is found.
+// Υλοποιείστε μια μέθοδο τύπου με το όνομα get που αποδέχεται
+// ένα κλειδί τύπου συμβολοσειράς και επιστρέφει μια τιμή τύπου
+// T και true ή false αν το κλειδί βρεθεί.
 func (km keymap[T]) get(k string) (T, bool) {
 	var zero T
 
@@ -37,32 +40,32 @@ func (km keymap[T]) get(k string) (T, bool) {
 
 func main() {
 
-	// Construct a value of type keymap that stores integers.
+	// Δημιουργήστε μια τιμή τύπου keymap που αποθηκεύει ακέραιους.
 	km := make(keymap[int])
 
-	// Add a value with key "jack" and a value of 10.
+	// Προσθέστε μια τιμή με το κλειδί "jack" και τιμή 10.
 	km.set("jack", 10)
 
-	// Add a value with key "jill" and a value of 20.
+	// Προσθέστε μια τιμή με το κλειδί "jill" και τιμή 20.
 	km.set("jill", 20)
 
-	// Get the value for "jack" and verify it's found.
+	// Πάρτε την τιμή για το "jack" και επιβεβαιώστε ότι βρέθηκε.
 	jack, found := km.get("jack")
 	if !found {
 		fmt.Println("jack not found")
 		return
 	}
 
-	// Print the value for the key "jack".
+	// Τυπώστε την τιμή για το κλειδί "jack".
 	fmt.Println("jack", jack)
 
-	// Get the value for "jill" and verify it's found.
+	// Πάρτε την τιμή για το "jill" και επιβεβαιώστε ότι βρέθηκε.
 	jill, found := km.get("jill")
 	if !found {
 		fmt.Println("jill not found")
 		return
 	}
 
-	// Print the value for the key "jill".
+	// Τυπώστε την τιμή για το κλειδί "jill".
 	fmt.Println("jill", jill)
 }

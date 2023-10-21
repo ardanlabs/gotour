@@ -1,13 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show that you cannot take the address
-// of an element in a map.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η αδυναμία να πάρει κανείς την διεύθυνση μνήμης
+// ενός στοιχείου του πίνακα κατακερματισμού.
 package main
 
-// player represents someone playing our game.
+// Ο player αναπαριστά κάποιον που παίζει το παιχνίδι μας.
 type player struct {
 	name  string
 	score int
@@ -15,19 +15,19 @@ type player struct {
 
 func main() {
 
-	// Declare a map with initial values using a map literal.
+	// Δηλώστε έναν πίνακα κατακερματισμού με αρχικές τιμές χρησιμοποιώντας μια ρητή κατασκευή πίνακα κατακερματισμού.
 	players := map[string]player{
 		"anna":  {"Anna", 42},
 		"jacob": {"Jacob", 21},
 	}
 
-	// Trying to take the address of a map element fails.
+	// Η προσπάθεια λήψης διεύθυνσης μνήμης ενός στοιχείου του πίνακα αποτυγχάνει.
 	anna := &players["anna"]
 	anna.score++
 
 	// ./example4.go:23:10: cannot take the address of players["anna"]
 
-	// Instead take the element, modify it, and put it back.
+	// Αντ' αυτού, πάρτε το στοιχείο, μετατρέψτε το και βάλτε το πάλι πίσω.
 	player := players["anna"]
 	player.score++
 	players["anna"] = player

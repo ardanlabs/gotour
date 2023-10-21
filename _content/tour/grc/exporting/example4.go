@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how unexported fields from an exported struct
-// type can't be accessed directly.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μη εξαγόμενα πεδία από έναν εξαγόμενο τύπο struct
+// δεν μπορούν να προσπελαστούν άμεσα.
 package main
 
 import (
@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	// Create a value of type User from the users package.
+	// Δημιουργήστε μια τιμή τύπου User από το πακέτο users.
 	u := users.User{
 		Name: "Chole",
 		ID:   10,
@@ -31,10 +31,10 @@ func main() {
 // -----------------------------------------------------------------------------
 -- users/users.go --
 
-// Package users provides support for user management.
+// Το πακέτο users παρέχει υποστήριξη για την διαχείριση χρηστών.
 package users
 
-// User represents information about a user.
+// Ο User αναπαριστά πληροφορίες με κάποιο χρήστη.
 type User struct {
 	Name string
 	ID   int

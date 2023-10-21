@@ -1,33 +1,36 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This is an example of using composition and interfaces. This is
-// something we want to do in Go. We will group common types by
-// their behavior and not by their state. This pattern does
-// provide a good design principle in a Go program.
+// Αυτό είναι ένα παράδειγμα χρήσης σύνθεσης και διεπαφών. Αυτό είναι
+// κάτι που θέλουμε να κάνουμε στην Go. Θα ομαδοποιήσουμε κοινούς τύπους
+// με βάση την συμπεριφορά τους και όχι με βάση την κατάστασή τους.
+// Αυτό το πρότυπο παρέχει μια καλή αρχή σχεδιασμού σε ένα πρόγραμμα της Go.
 package main
 
 import "fmt"
 
-// Speaker provide a common behavior for all concrete types
-// to follow if they want to be a part of this group. This
-// is a contract for these concrete types to follow.
+// Ο Speaker παρέχει μια κοινή συμπεριφορά προκειμένου
+// να ακολουθήσουν όλοι οι πραγματικοί τύποι που θέλουν
+// να είναι μέρος αυτού του συνόλου. Πρόκειται για μια
+// σύμβαση που μπορούν να ακολουθήσουν αυτοί οι πραγματικοί
+// τύποι.
 type Speaker interface {
 	Speak()
 }
 
-// Dog contains everything a Dog needs.
+// Ο Dog περιέχει ό,τι χρειάζεται ένας σκύλος.
 type Dog struct {
 	Name       string
 	IsMammal   bool
 	PackFactor int
 }
 
-// Speak knows how to speak like a dog.
-// This makes a Dog now part of a group of concrete
-// types that know how to speak.
+// Η Speak γνωρίζει πως να μιλάει σαν σκύλος.
+// Αυτό κάνει τον Dog μέρος ενός συνόλου
+// πραγματικών τύπων που γνωρίζουν πως να
+// μιλάνε.
 func (d *Dog) Speak() {
 	fmt.Printf(
 		"Woof! My name is %s, it is %t I am a mammal with a pack factor of %d.\n",
@@ -37,16 +40,17 @@ func (d *Dog) Speak() {
 	)
 }
 
-// Cat contains everything a Cat needs.
+// Ο Cat περιέχει ό,τι χρειάζεται μια γάτα.
 type Cat struct {
 	Name        string
 	IsMammal    bool
 	ClimbFactor int
 }
 
-// Speak knows how to speak like a cat.
-// This makes a Cat now part of a group of concrete
-// types that know how to speak.
+// Η Speak γνωρίζει πως να μιλάει σαν γάτα.
+// Αυτό κάνει έναν Cat τώρα μέρος ενός συνόλου
+// πραγματικών τύπων που γνωρίζουν πως να
+// μιλάνε.
 func (c *Cat) Speak() {
 	fmt.Printf(
 		"Meow! My name is %s, it is %t I am a mammal with a climb factor of %d.\n",
@@ -58,19 +62,21 @@ func (c *Cat) Speak() {
 
 func main() {
 
-	// Create a list of Animals that know how to speak.
+	// Δημιουργείστε μια λίστα από Animal που γνωρίζουν πως να μιλάνε.
 	speakers := []Speaker{
 
-		// Create a Dog by initializing its Animal parts
-		// and then its specific Dog attributes.
+		// Δημιουργείστε έναν Dog δίνοντας αρχικές τιμές στα
+		// μέρη του που αφορούν τον Animal
+		// και στην συνέχεια στα ιδιαίτερα χαρακτηριστικά του Dog.
 		&Dog{
 			Name:       "Fido",
 			IsMammal:   true,
 			PackFactor: 5,
 		},
 
-		// Create a Cat by initializing its Animal parts
-		// and then its specific Cat attributes.
+		// Δημιουργείστε έναν Cat δίνοντας αρχική τιμή στα
+		// μέρη που αφορούν τον Animal και μετά
+		// στα ιδιαίτερα χαρακτηριστικά του Cat.
 		&Cat{
 			Name:        "Milo",
 			IsMammal:    true,

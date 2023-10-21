@@ -1,61 +1,64 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Write a program that creates a fixed set of workers to generate random
-// numbers. Discard any number divisible by 2. Continue receiving until 100
-// numbers are received. Tell the workers to shut down before terminating.
+// Γράψτε ένα πρόγραμμα που παράγει έως 100 τυχαίους αριθμούς με ταυτόχρονη εκτέλεση, χρησιμοποιώντας ένα
+// απόθεμα εργασιών. Απορρίψτε τις ζυγές τιμές. Καθοδηγείστε τους εργάτες προκειμένου να τερματίσουν όταν έχουν συλλεχθεί
+// 100 μονοί αριθμοί.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
 func main() {
 
-	// Create the channel for sharing results.
+	// Δημιουρήστε ένα κανάλι επικοινωνίας για διαμοιρασμό των αποτελεσμάτων.
 
-	// Create a channel "shutdown" to tell goroutines when to terminate.
+	// Δημιουργήστε ένα κανάλι επικοινωνίας για τερματισμό προκειμένου να πει στις goroutines πότε να τερματίσουν.
 
-	// Define the size of the worker pool. Use runtime.GOMAXPROCS(0) to size the pool based on number of processors.
+	// Ορίστε το μέγεθος του αποθέματος goroutine που θα λειτουργήσουν ως εργάτες.
+	// Χρησιμοποιείστε την runtime.GOMAXPROCS(0) προκειμένου να ορίσετε το μέγεθος του
+	// αποθέματος με βάση το πλήθος των επεξργαστών.
 
-	// Create a sync.WaitGroup to monitor the Goroutine pool. Add the count.
+	// Δημιουργήστε ένα sync.WaitGroup προκειμένου να παρακολουθείτε το απόθεμα των Goroutine.
+	// Προσθέστε το πλήθος τους με την Add.
 
-	// Create a fixed size pool of goroutines to generate random numbers.
+	// Δημιουργείστε ένα απόθεμα από goroutine με συγκεκριμένο μέγεθος προκειμένου να παράγουν τυχαίους αριθμούς.
 	{
 		{
 
-			// Start an infinite loop.
+			// Ξεκινήστε έναν ατέρμονα βρόγχο.
 			{
 
-				// Generate a random number up to 1000.
+				// Δημιουργήστε έναν τυχαίο αριθμό μέχρι το 1000.
 
-				// Use a select to either send the number or receive the shutdown signal.
+				// Χρησιμοποιείστε μια δήλωση select προκειμένου να αποστείλετε τον αριθμό ή να παραλάβετε το σήμα τερματισμού.
 				{
 
-					// In one case send the random number.
+					// Στην μια περίπτωση αποστείλετε τον τυχαίο αριθμό.
 
-					// In another case receive from the shutdown channel.
+					// Σε άλλη περίπτωση παραλάβετε από το κανάλι τερματισμού.
 
 				}
 			}
 		}
 	}
 
-	// Create a slice to hold the random numbers.
+	// Δημιουργήστε μια φέτα για να αποθηκεύσει τους τυχαίους αριθμούς.
 
-	// Receive from the values channel with range.
+	// Παραλάβετε από το κανάλι επικοινωνίας των τιμών με την λέξη-κλειδί range.
 	{
 
-		// continue the loop if the value was even.
+		// Συνεχίστε την επανάληψη αν η τιμή ήταν ζυγή.
 
-		// Store the odd number.
+		// Αποθηκεύστε τον μονό αριθμό.
 
-		// break the loop once we have 100 results.
+		// Σταματήστε την επανάληψη όταν έχουμε 100 αποτελέσματα.
 	}
 
-	// Send the shutdown signal by closing the shutdown channel.
+	// Αποστείλετε το σήμα τερματισμού κλείνοντας το κανάλι τερματισμού.
 
-	// Wait for the Goroutines to finish.
+	// Περιμένετε ώστε να τελιεώσουν τις λειτουργίες τους όλες οι Goroutine.
 
-	// Print the values in our slice.
+	// Τυπώστε τις τιμές στην φέτα μας.
 }

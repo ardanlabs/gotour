@@ -1,29 +1,29 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to embed a type into another type and
-// the relationship between the inner and outer type.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως να ενσωματωθεί ένας τύπος σε ένα άλλο τύπο καθώς
+// και να παρουσιαστεί η σχέση μεταξύ του εσώτερου και του εξώτερου τύπου.
 package main
 
 import "fmt"
 
-// user defines a user in the program.
+// Ο user ορίζει έναν χρήστη στο πρόγραμμα.
 type user struct {
 	name  string
 	email string
 }
 
-// notify implements a method notifies users
-// of different events.
+// Η notify υλοποιεί μια μέθοδο τύπου που ενημερώνει τους χρήστες
+// για διαφορετικά γεγονότα.
 func (u *user) notify() {
 	fmt.Printf("Sending user email To %s<%s>\n",
 		u.name,
 		u.email)
 }
 
-// admin represents an admin user with privileges.
+// Ο admin αναπαριστά έναν χρήστη διαχειριστή με προνόμια.
 type admin struct {
 	user  // Embedded Type
 	level string
@@ -31,7 +31,7 @@ type admin struct {
 
 func main() {
 
-	// Create an admin user.
+	// Δημιουργείστε έναν χρήστη διαχειριστή.
 	ad := admin{
 		user: user{
 			name:  "john smith",
@@ -40,7 +40,7 @@ func main() {
 		level: "super",
 	}
 
-	// We can access the inner type's method directly.
+	// Μπορούμε να έχουμε πρόσβαση στην μέθοδο τύπου του εσώτερου τύπου απευθείας.
 	ad.user.notify()
 
 	// The inner type's method is promoted.

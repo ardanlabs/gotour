@@ -1,14 +1,17 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to implement a generics solution which allows
-// a slice of some type T (to be determined later) to be passed and stringified.
-// This code more closely resembles the concrete implementations that we started
-// with and is easier to read than the reflect implementation. However, an
-// interface constraint of type fmt.Stringer is applied to allow the compiler
-// to know the value of type T passed requires a String method.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος υλοποίησης
+// μιας λύσης γενικού προγραμματισμού που επιτρέπει σε μια φέτα κάποιου
+// τύπου T (ο οποίος θα καθοριστεί αργότερα) να περάσει και να μετατραπεί
+// σε συμβολοσειρά. Αυτός ο κώδικας μοιάζει περισσότερο με τις πραγματικές
+// υλοποιήσεις με τις οποίες ξεκινήσαμε και είναι ευκολότερο να διαβαστεί
+// από την υλοποίηση της αντανάκλασης. Όμως, εφαρμόζεται ένας περιορισμός
+// διεπαφής τύπου fmt.Stringer προκειμένου να επιτραπεί στον μεταγλωττιστή
+// να γνωρίζει ότι η τιμή του τύπου T που περνάει, απαιτεί μια μέθοδο τύπου
+// String.
 package main
 
 import (
@@ -25,8 +28,8 @@ func stringify[T fmt.Stringer](slice []T) []string {
 	return ret
 }
 
-// Defining two types that implement the fmt.Stringer interface. Each
-// implementation creates a stringified version of the concrete type.
+// Ορίζοντας δύο τύπους που υλοποιούν την διεπαφή the fmt.Stringer. Κάθε
+// υλοποίησης δημιουργεί μια εκδοχή συμβολοσειράς του πραγματικού τύπου.
 
 type user struct {
 	name  string

@@ -1,19 +1,20 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare and make a map of integer values with a string as the key. Populate the
-// map with five values and iterate over the map to display the key/value pairs.
+// Δηλώστε και δημιουργήστε έναν πίνακα κατακερματισμού ακέραιων τιμών με μια συμβολοσειρά ως κλειδί. Προσθέστε στον
+// πίνακα κατακερματισμού πέντε τιμές και επισκεφθείτε διαδοχικά τα στοιχεία του πίνακα κατακερματισμού για να παρουσιάσετε
+// τα ζεύγη κλειδιού/τιμής.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
 func main() {
 
-	// Declare and make a map of integer type values.
+	// Δηλώστε και δημιουργείστε έναν πίνακα κατακερματισμού με τιμές τύπου ακεραίου.
 
-	// Initialize some data into the map.
+	// Δώστε μερικές αρχικές τιμές στον πίνακα κατακερματισμού.
 
-	// Display each key/value pair.
+	// Παρουσιάστε κάθε ζεύγος κελιδιού/τιμής.
 }

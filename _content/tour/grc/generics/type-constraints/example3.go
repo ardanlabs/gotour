@@ -1,14 +1,15 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to mix type and behavior constraints.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συνδυασμού περιορισμών τύπου
+// που βασίζονται στον τύπο και στην συμπεριφορά.
 package main
 
 import "fmt"
 
-// Defining two concrete types that implement a match method.
+// Ορίζοντας δύο πραγματικούς τύπους που υλοποιούν μια μέθοδο τύπου με το όνομα match.
 
 type person struct {
 	name  string
@@ -28,22 +29,22 @@ func (f food) match(v food) bool {
 	return f.name == v.name
 }
 
-// The matcher interface defines two constraints. First, it constrains the data
-// to what type is acceptable. Second, it constrains the behavior of the data.
-// The match method requires that a value of type T (to be determined later)
-// will be the input of the method.
+// Η διεπαφή matcher ορίζει δύο περιορισμούς. Πρώτα, περιορίζει τα δεδομένα
+// στο τύπο που είναι αποδεκτός. Δεύτερον, περιορίζει την συμπεριφορά των δεδομένων.
+// Η μέθοδος τύπου match απαιτεί ότι μια τιμή τύπου T (που θα προσδιοριστεί αργότερα)
+// θα είναι η είσοδος της μεθόδου τύπου.
 
-// Note: The type list inside the interface is not needed for match to work.
-//       I'm trying to show how the type list and behavior can be combined.
+// Σημείωση: Ο κατάλογος των τύπων στην διεπαφή δεν είναι απαραίτητος προκειμένου
+//			 να επιτύχει το ταίριασμα. Αυτό που προσπαθούμε να παρουσιάσουμε είναι
+// 			 είναι ο τρόπος που μπορούν να συνδυαστούν ο κατάλογος τύπων και η συμπεριφορά.
 
 type matcher[T any] interface {
 	person | food
 	match(v T) bool
 }
 
-// The match function declares that the value of type T must implement the
-// matcher interface and is used for the slice and value arguments to the
-// function.
+// Η συνάρτηση match δηλώνει ότι η τιμή τύπου T πρέπει να υλοποιεί την διεπαφή
+// matcher και χρησιμοποιείται για τα ορίσματα φέτας και τιμής της συνάρτησης.
 
 func match[T matcher[T]](list []T, find T) int {
 	for i, v := range list {

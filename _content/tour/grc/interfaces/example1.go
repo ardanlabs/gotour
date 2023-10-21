@@ -1,31 +1,31 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program that could benefit from polymorphic behavior with interfaces.
+// Δείγμα προγράμματος που θα μπορούσε να ωφεληθεί από πολυμορφική συμπεριφορά με διεπαφές.
 package main
 
 import "fmt"
 
-// file defines a system file.
+// Ο file ορίζει ένα αρχείο συστήματος.
 type file struct {
 	name string
 }
 
-// read implements the reader interface for a file.
+// Η read υλοποιεί την διεπαφή reader για ένα αρχείο.
 func (file) read(b []byte) (int, error) {
 	s := "<rss><channel><title>Going Go Programming</title></channel></rss>"
 	copy(b, s)
 	return len(s), nil
 }
 
-// pipe defines a named pipe network connection.
+// Ο pipe ορίζει μια επώνυμη σύνδεση διοχεύτευσης δικτύου.
 type pipe struct {
 	name string
 }
 
-// read implements the reader interface for a network connection.
+// Η read υλοποιεί την διεπαφή reader για μια σύνδεση δικτύου.
 func (pipe) read(b []byte) (int, error) {
 	s := `{name: "bill", title: "developer"}`
 	copy(b, s)
@@ -34,16 +34,16 @@ func (pipe) read(b []byte) (int, error) {
 
 func main() {
 
-	// Create two values one of type file and one of type pipe.
+	// Δημιουργείστε δύο τιμές μια τύπου file και μια τύπου pipe.
 	f := file{"data.json"}
 	p := pipe{"cfg_service"}
 
-	// Call each retrieve function for each concrete type.
+	// Καλέστε κάθε συνάρτηση ανάσυρσης για κάθε πραγματικό τύπο.
 	retrieveFile(f)
 	retrievePipe(p)
 }
 
-// retrieveFile can read from a file and process the data.
+// Η retrieveFile μπορεί να διαβάσει από ένα file και να επεξεργαστεί τα δεδομένα.
 func retrieveFile(f file) error {
 	data := make([]byte, 100)
 
@@ -56,7 +56,7 @@ func retrieveFile(f file) error {
 	return nil
 }
 
-// retrievePipe can read from a pipe and process the data.
+// η retrievePipe μπορεί να διαβάσει από έναν pipe και να επεξεργαστεί τα δεδομένα.
 func retrievePipe(p pipe) error {
 	data := make([]byte, 100)
 

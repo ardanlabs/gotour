@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to store and retrieve
-// values from a context.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος αποθήκευσης και ανάσυρσης
+// τιμών από ένα context.
 package main
 
 import (
@@ -12,32 +12,32 @@ import (
 	"fmt"
 )
 
-// TraceID is represents the trace id.
+// Ο TraceID αναπαριστά ένα αναγνωριστικό ίχνους.
 type TraceID string
 
-// TraceIDKey is the type of value to use for the key. The key is
-// type specific and only values of the same type will match.
+// Ο TraceIDKey είναι ο τύπος τιμής προς χρήση για το κλειδί. Το κλειδί είναι
+// συγκεκριμένου τύπου και μόνο τιμές του ίδιου τύπου θα ταιριάζουν.
 type TraceIDKey int
 
 func main() {
 
-	// Create a traceID for this request.
+	// Δημιουργείστε μια traceID για αυτό το αίτημα.
 	traceID := TraceID("f47ac10b-58cc-0372-8567-0e02b2c3d479")
 
-	// Declare a key with the value of zero of type userKey.
+	// Δηλώστε ένα κλειδί με την τιμή μηδέν τύπου userKey.
 	const traceIDKey TraceIDKey = 0
 
-	// Store the traceID value inside the context with a value of
-	// zero for the key type.
+	// Αποθηκεύστε την τιμή traceID στην context με τιμή μηδέν
+	// για τον τύπο κλειδιού.
 	ctx := context.WithValue(context.Background(), traceIDKey, traceID)
 
-	// Retrieve that traceID value from the Context value bag.
+	// Ανασύρετε αυτή την τιμή traceID από την θήκη τιμών της Context.
 	if uuid, ok := ctx.Value(traceIDKey).(TraceID); ok {
 		fmt.Println("TraceID:", uuid)
 	}
 
-	// Retrieve that traceID value from the Context value bag not
-	// using the proper key type.
+	// Ανασύρετε αυτή την τιμή traceID από την θήκη τιμών της Context χωρίς
+	// να χρησιμοποιείτε τον κατάλληλο τύπο κλειδιού.
 	if _, ok := ctx.Value(0).(TraceID); !ok {
 		fmt.Println("TraceID Not Found")
 	}

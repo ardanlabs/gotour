@@ -1,24 +1,26 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic function named copyfy that is constrained to only
-// making copies of slices of type string or int.
+// Υλοποιείστε μια συνάρτηση γενικού προγραμματισμού με το όνομα copyfy,
+// οποία είναι περιορισμένη στο να κάνει μόνο αντίγραφα από φέτες τύπου
+// συμβολοσειράς ή ακεραίων.
 package main
 
 import (
 	"fmt"
 )
 
-// Declare an interface named copyer that creates a constraint on
-// string and int.
+// Δηλώστε μια διεπαφή με το όνομα copyer που δημιουργεί ένα περιορισμό
+// σε συμβολοσειρές και ακκεραίους.
 type copyer interface {
 	string | int
 }
 
-// Implement a generic function named copyfy that accepts a slice of some
-// type T but constrained on the copyer interface.
+// Υλοποιείστε μια συνάρτηση γενικού προγραμματισμού με το όνομα copyfy
+// που αποδέχεται μια φέτα κάποιου τύπου T όμως είναι περιορισμένη από την
+// διεπαφή copyer.
 func copyfy[T copyer](src []T) []T {
 	dest := make([]T, len(src))
 
@@ -31,25 +33,25 @@ func copyfy[T copyer](src []T) []T {
 
 func main() {
 
-	// Construct a slice of string with three values.
+	// Δημιουργήστε μια φέτα συμβολοσειρών με τρεις τιμές.
 	src1 := []string{"Bill", "Jill", "Joan"}
 
-	// Call the copyfy function to make a copy of the slice.
+	// Καλέστε την συνάρτηση copyfy προκειμένου να κάνετε ένα αντίγραφο της φέτας.
 	dest1 := copyfy(src1)
 
-	// Display the slice and the copy.
+	// Παρουσιάστε την φέτα και το αντίγραφο.
 	fmt.Println("src string :", src1)
 	fmt.Println("dest string:", dest1)
 
 	// -------------------------------------------------------------------------
 
-	// Construct a slice of int with three values.
+	// Δημιουργήστε μια φέτα ακεραίων με τρέις τιμές.
 	src2 := []int{10, 20, 30}
 
-	// Call the copyfy function to make a copy of the slice.
+	// Καλέστε την συνάρτηση copyfy προκειμένου να κάνετε αντίγραφο της φέτας.
 	dest2 := copyfy(src2)
 
-	// Display the slice and the copy.
+	// Παρουσιάστε την φέτα και το αντίγραφο.
 	fmt.Println("src int :", src2)
 	fmt.Println("dest int:", dest2)
 }

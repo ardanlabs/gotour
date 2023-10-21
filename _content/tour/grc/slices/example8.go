@@ -1,23 +1,23 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how the for range has both value and pointer semantics.
+// Δείγμα προγράμματος προκιεμένου να παρουσιαστεί πως η έκφραση for range έχει σημειολογία τόσο τιμής όσο και δείκτη διεύθυνσης.
 package main
 
 import "fmt"
 
 func main() {
 
-	// Using the value semantic form of the for range.
+	// Χρησιμοποιώντας την μορφή της έκφρασης for range που έχει σημειολογία τιμής.
 	friends := []string{"Annie", "Betty", "Charley", "Doug", "Edward"}
 	for _, v := range friends {
 		friends = friends[:2]
 		fmt.Printf("v[%s]\n", v)
 	}
 
-	// Using the pointer semantic form of the for range.
+	// Χρησιμοποιώντας την μορφή της έκφρασης for range που έχει σημειολογία δείκτη διεύθυνσης.
 	friends = []string{"Annie", "Betty", "Charley", "Doug", "Edward"}
 	for i := range friends {
 		friends = friends[:2]

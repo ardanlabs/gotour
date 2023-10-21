@@ -1,16 +1,16 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how variables of an unnamed type can
-// be assigned to variables of a named type, when they are
-// identical.
+// Δείγμα προγράμματος προκιεμένου να παρουσιαστεί πως μεταβλητές ενός ανώνυμου τύπου μπορούν
+// να εκχωρηθούν σε μεταβλητές ενός επώνυμου τύπου, όταν είναι
+// ίδιοι.
 package main
 
 import "fmt"
 
-// example represents a type with different fields.
+// Ο example αναπαριστά έναν τύπο με διαφορετικά πεδία.
 type example struct {
 	flag    bool
 	counter int16
@@ -19,8 +19,8 @@ type example struct {
 
 func main() {
 
-	// Declare a variable of an anonymous type and init
-	// using a struct literal.
+	// Δηλώστε μια μεταβλητή ενός ανώνυμου τύπου και δώστε της αρχική τιμή
+	// χρησιμοποιώντας μια ρητή κατασκευή struct.
 	e := struct {
 		flag    bool
 		counter int16
@@ -31,14 +31,14 @@ func main() {
 		pi:      3.141592,
 	}
 
-	// Create a value of type example.
+	// Δημιουργείστε μια τιμή τύπου example.
 	var ex example
 
-	// Assign the value of the unnamed struct type
-	// to the named struct type value.
+	// Εκχωρείστε την τιμή του ανώνυμου τύπου struct
+	// στην τιμή του επώνυμου τύπου struct.
 	ex = e
 
-	// Display the values.
+	// Παρουσιάστε τις τιμές.
 	fmt.Printf("%+v\n", ex)
 	fmt.Printf("%+v\n", e)
 	fmt.Println("Flag", e.flag)

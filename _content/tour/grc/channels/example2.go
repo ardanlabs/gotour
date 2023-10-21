@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the fan out channel pattern.
+// Αυτό το δείγμα προγράμματος παρουσιάζει το πρότυπο εξάπλωσης (fan out) ενός καναλιού επικοινωνίας.
 package main
 
 import (
@@ -16,8 +16,8 @@ func main() {
 	fanOut()
 }
 
-// fanOut: In this pattern, the parent goroutine creates 2000 child goroutines
-// and waits for them to signal their results.
+// fanOut: Σε αυτό το πρώτυπο, η αρχική goroutine δημιουργεί 2000 παράγωγες goroutine
+// και τις περιμένει να μεταδώσουν τα αποτελέσματά τους.
 func fanOut() {
 	children := 2000
 	ch := make(chan string, children)

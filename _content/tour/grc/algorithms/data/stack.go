@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a basic stack.
+// Αυτό το δείγμα προγράμματος παρουσιάζει τον τρόπο συγγραφής μιας απλής στοίβας.
 package main
 
 import (
@@ -33,56 +33,58 @@ func main() {
 	s.Operate(f)
 }
 
-// Data represents what is being stored on the stack.
+// Ο Data αναπαριστά αυτό που θα αποθηκευτεί στην στοίβα.
 type Data struct {
 	Name string
 }
 
-// Stack represents a stack of data.
+// Ο Stack αναπαριστά μια στοίβα δεδομένων.
 type Stack struct {
 	data []Data
 }
 
-// Make allows the creation of a stack with an initial
-// capacity for efficiency. Otherwise a stack can be
-// used in its zero value state.
+// Η Make επιτρέπει την δημιουργία μιας στοίβας με
+// αρχική χωρητικότητα για αποτελεσματικότητα.
+// Διαφορετικά, μια στοίβα μπορεί να χρησιμοποιηθεί
+// στην κατάσταση μηδενικής τιμής.
 func Make(cap int) *Stack {
 	return &Stack{
 		data: make([]Data, 0, cap),
 	}
 }
 
-// Count returns the number of items in the stack.
+// Η Count επιστρέφει τον αριθμό των αντικειμένων στην στοίβα.
 func (s *Stack) Count() int {
 	return len(s.data)
 }
 
-// Push adds data into the top of the stack.
+// Η προσθέτει δεδομένα στην κορυφή της στοίβας.
 func (s *Stack) Push(data Data) {
 	s.data = append(s.data, data)
 }
 
-// Pop removes data from the top of the stack.
+// Η Pop απομακρύνει δεδομένα από την κορυφή της στοίβας.
 func (s *Stack) Pop() (Data, error) {
 	if len(s.data) == 0 {
 		return Data{}, errors.New("stack empty")
 	}
 
-	// Calculate the top level index.
+	// Υπολογείστε τον δείκτη υψηλότερου επιπέδου.
 	idx := len(s.data) - 1
 
-	// Copy the data from that index position.
+	// Αντιγράψτε τα δεδομένα από αυτή την θέση δείκτη.
 	data := s.data[idx]
 
-	// Remove the top level index from the slice.
+	// Απομακρύνετε τον δείκτη υψηλότερου επιπέδου από την φέτα.
 	s.data = s.data[:idx]
 
 	return data, nil
 }
 
-// Peek provides the data stored on the stack based
-// on the level from the bottom. A value of 0 would
-// return the top piece of data.
+// Η Peek παρέχει τα δεδομένα που είναι αποθηκευμένα
+// στην στοίβα με βάση το επίπεδο από τον πάτο της στοίβας.
+// Μια τιμή 0 θα επιστρέψει το υψηλότερα τοποθετημένο
+// κομμάτι δεδομένων.
 func (s *Stack) Peek(level int) (Data, error) {
 	if level < 0 || level > (len(s.data)-1) {
 		return Data{}, errors.New("invalid level position")
@@ -91,9 +93,10 @@ func (s *Stack) Peek(level int) (Data, error) {
 	return s.data[idx], nil
 }
 
-// Operate accepts a function that takes data and calls
-// the specified function for every piece of data found.
-// It traverses from the top down through the stack.
+// Η Operate δέχεται μια συνάρτηση που παίρνει δεδομένα
+// και καλεί την συγκεκριμένη συνάρτηση για κάθε κομμάτι
+// δεδομένων που βρίσκει. Διατρέχει την στοίβα από πάνω
+// προς τα κάτω.
 func (s *Stack) Operate(f func(data Data) error) error {
 	for i := len(s.data) - 1; i > -1; i-- {
 		if err := f(s.data[i]); err != nil {

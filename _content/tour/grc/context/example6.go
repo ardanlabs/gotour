@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show when a Context is canceled, all Contexts
-// derived from it are also canceled.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως όταν ένα Context ακυρώνεται, ακυρώνονται
+// και όλα τα Context που προέρχονται από αυτό.
 package main
 
 import (
@@ -13,39 +13,39 @@ import (
 	"sync"
 )
 
-// Need a key type.
+// Χρειάζεστε ένα τύπο κλειδιού.
 type myKey int
 
-// Need a key value.
+// Χρειάζεστε μια τιμή κλειδιού.
 const key myKey = 0
 
 func main() {
 
-	// Create a Context that can be cancelled.
+	// Δημιουργείστε ένα Context που μπορεί να ακυρωθεί.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Use the Waitgroup for orchestration.
+	// Χρησιμοποιείστε την Waitgroup για λόγους ενορχήστρωσης.
 	var wg sync.WaitGroup
 	wg.Add(10)
 
-	// Create ten goroutines that will derive a Context from
-	// the one created above.
+	// Δημιουργήστε δέκα goroutines που θα εξάγουν ένα Context από αυτό
+	// που δημιουργήθηκε παραπάνω.
 	for i := 0; i < 10; i++ {
 		go func(id int) {
 			defer wg.Done()
 
-			// Derive a new Context for this goroutine from the Context
-			// owned by the main function.
+			// Εξάγετε ένα νέο Context για αυτή την goroutine από το Context
+			// που βρίσκεται στην κατοχή στης συνάρτησης main.
 			ctx := context.WithValue(ctx, key, id)
 
-			// Wait until the Context is cancelled.
+			// Περιμένετε έωσ να ακυρωθεί το Context.
 			<-ctx.Done()
 			fmt.Println("Cancelled:", id)
 		}(i)
 	}
 
-	// Cancel the Context and any derived Context's as well.
+	// Ακυρώστε το Context καθώς επίσης και κάθε παραγόμενο Context από αυτό.
 	cancel()
 	wg.Wait()
 }

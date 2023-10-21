@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program demonstrates the cancellation channel pattern.
+// Αυτό το δείγμα προγράμματος επιδεικνύει το πρότυπο καναλιού επικοινωνίας ακύρωσης.
 package main
 
 import (
@@ -17,10 +17,10 @@ func main() {
 	cancellation()
 }
 
-// cancellation: In this pattern, the parent goroutine creates a child
-// goroutine to perform some work. The parent goroutine is only willing to
-// wait 150 milliseconds for that work to be completed. After 150 milliseconds
-// the parent goroutine walks away.
+// Ακύρωση (cancellation): Σε αυτό το πρότυπο, η αρχική goroutine δημιουργεί μια
+// παράγωγη goroutine προκειμένου να πραγματοποιήσει κάποια εργασία. Η αρχική
+// goroutine είναι διατεθιμένη να περιμένει μόνο 150 millisecond ώστε να ολοκληρωθεί
+// αυτή η εργασία. Μετά από 150 millisecond η αρχική goroutine απλά απομακρύνεται.
 func cancellation() {
 	duration := 150 * time.Millisecond
 	ctx, cancel := context.WithTimeout(context.Background(), duration)

@@ -1,54 +1,54 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This is an example that removes the interface pollution by
-// removing the interface and using the concrete type directly.
+// Αυτό είναι ένα παράδειγμα που απομακρύνει την επιμόλυνση διεπαφής με
+// την απομάκρυνση της διεπαφής και την χρήση του πραγματικού τύπου απευθείας.
 package main
 
-// Server is our Server implementation.
+// Ο Server είναι η υλοποίηση μας του Server.
 type Server struct {
 	host string
 
-	// PRETEND THERE ARE MORE FIELDS.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΟΥΝ ΠΕΡΙΣΣΟΤΕΡΑ ΠΕΔΙΑ.
 }
 
-// NewServer returns an interface value of type Server
-// with a server implementation.
+// Η NewServer επιστρέφει μια τιμή διεπαφής τύπου Server
+// με μια υλοποίηση server.
 func NewServer(host string) *Server {
 
-	// SMELL - Storing an unexported type pointer in the interface.
+	// ΕΝΔΕΙΞΗ ΠΡΟΒΛΗΜΑΤΟΣ - Αποθήκευση ενός μη εξαγόμενου τύπου δείκτη διεύθυνσης στην διεπαφή.
 	return &Server{host}
 }
 
-// Start allows the server to begin to accept requests.
+// Η Start επιτρέπει στον server να ξεκινήσει να δέχεται αιτήματα.
 func (s *Server) Start() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 	return nil
 }
 
-// Stop shuts the server down.
+// Η Stop σταματάει τον server.
 func (s *Server) Stop() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 	return nil
 }
 
-// Wait prevents the server from accepting new connections.
+// Η Wait αποτρέπει τον server να δεχτεί νέες συνδέσεις.
 func (s *Server) Wait() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ.
 	return nil
 }
 
 func main() {
 
-	// Create a new Server.
+	// Δημιουργείστε έναν νέο Server.
 	srv := NewServer("localhost")
 
-	// Use the API.
+	// Χρησιμοποιείστε το API.
 	srv.Start()
 	srv.Stop()
 	srv.Wait()
@@ -56,14 +56,14 @@ func main() {
 
 // =============================================================================
 
-// NOTES:
+// ΣΗΜΕΙΩΣΕΙΣ:
 
-// Here are some guidelines around interface pollution:
-// * Use an interface:
-//      * When users of the API need to provide an implementation detail.
-//      * When API’s have multiple implementations that need to be maintained.
-//      * When parts of the API that can change have been identified and require decoupling.
-// * Question an interface:
-//      * When its only purpose is for writing testable API’s (write usable API’s first).
-//      * When it’s not providing support for the API to decouple from change.
-//      * When it's not clear how the interface makes the code better.
+// Εδώ είναι μερικές κατευθυντήριες γραμμές σχετικά με την επιμόλυνση διεπαφών:
+// * Χρησιμοποιείστε μια διεπαφή:
+//      * Όταν οι χρήστες του API χρειάζονται να παρέχουν κάποια λεπτομέρεια υλοποίησης.
+//      * Όταν τα API έχουν πολλαπλές υλοποιήσεις που χριάζονται συντήρηση.
+//      * Όταν μέρη του API που μπορούν να αλλάξουν έχουν προσδιοριστεί και απαιτούν αποσύνδεση.
+// * Αμφισβητήστε την ανάγκη μιας διεπαφής:
+//      * Όταν ο μόνος σκοπός της είναι η συγγραφή ελέγξιμων API (πρέπει πρώτα να γράφετε εύχρηστα API).
+//      * Όταν δεν παρέχει υποστήριξη ώστε το API να αποσυνδεθεί από την αλλαγή.
+//      * Όταν δεν είναι ξεκάθαρο πως η διεπαφή κάνει τον κώδικα καλύτερο.

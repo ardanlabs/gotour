@@ -1,61 +1,62 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This is an example that creates interface pollution
-// by improperly using an interface when one is not needed.
+// Αυτό είναι ένα παράδειγμα που δημιουργεί επιμόλυνση διεπαφών
+// χρησιμοποιώντας μια διεπαφή με ακατάλληλο τρόπο όταν κάτι
+// τέτοιο δεν χρειάζεται.
 package main
 
-// Server defines a contract for tcp servers.
+// Ο Server ορίζει μια σύμβαση για tcp servers.
 type Server interface {
 	Start() error
 	Stop() error
 	Wait() error
 }
 
-// server is our Server implementation.
+// Ο server είναι η υλοποίηση μας του Server implementation.
 type server struct {
 	host string
 
-	// PRETEND THERE ARE MORE FIELDS.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΟΥΝ ΠΕΡΙΣΣΟΤΕΡΑ ΠΕΔΙΑ
 }
 
-// NewServer returns an interface value of type Server
-// with a server implementation.
+// Η NewServer επιστρέφει μια τιμή διεπαφής τύπου Server
+// με μια υλοποίηση server.
 func NewServer(host string) Server {
 
-	// SMELL - Storing an unexported type pointer in the interface.
+	// ΕΝΔΕΙΞΗ ΠΡΟΒΛΗΜΑΤΟΣ - Αποθήκευση ενός μη εξαγόμενου τύπου δείκτη διεύθυνσης στην διεπαφή.
 	return &server{host}
 }
 
-// Start allows the server to begin to accept requests.
+// Η Start επιτρέπει στον server να ξεκινήσει να αποδέχεται αιτήματα.
 func (s *server) Start() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ
 	return nil
 }
 
-// Stop shuts the server down.
+// Η Stop σταματάει τον server.
 func (s *server) Stop() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ
 	return nil
 }
 
-// Wait prevents the server from accepting new connections.
+// Η Wait αποτρέπει τον server να δέχεται νέες συνδέσεις.
 func (s *server) Wait() error {
 
-	// PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+	// ΠΡΟΣΠΟΙΗΘΕΙΤΕ ΟΤΙ ΥΠΑΡΧΕΙ ΜΙΑ ΣΥΓΚΕΚΡΙΜΕΝΗ ΥΛΟΠΟΙΗΣΗ
 	return nil
 }
 
 func main() {
 
-	// Create a new Server.
+	// Δημιουργείστε έναν νέο Server.
 	srv := NewServer("localhost")
 
-	// Use the API.
+	// Χρησιμοποιείστε το API.
 	srv.Start()
 	srv.Stop()
 	srv.Wait()
@@ -63,11 +64,11 @@ func main() {
 
 // =============================================================================
 
-// NOTES:
+// ΣΗΜΕΙΩΣΕΙΣ:
 
-// Smells:
-//  * The package declares an interface that matches the entire API of its own concrete type.
-//  * The interface is exported but the concrete type is unexported.
-//  * The factory function returns the interface value with the unexported concrete type value inside.
-//  * The interface can be removed and nothing changes for the user of the API.
-//  * The interface is not decoupling the API from change.
+// ΕΝΔΕΙΞΕΙΣ:
+//  * Το πακέτο δηλώνει μια διεπαφή που ταιριάζει ολόκληρο το API του δικού του πραγματικού του τύπου.
+//  * Η διεπαφή είναι εξαγόμενη όμως ο πραγματικός τύπος είναι μη εξαγόμενος.
+//  * Η συνάρτηση παραγωγής επιστρέφει την τιμή διεπαφής με την μη εξαγόμενη πραγματική τιμή που περιέχει.
+//  * Η διεπαφή μπορεί να απομακρυνθεί και δεν θα αλλάξει τίποτα για τον χρήστη του API.
+//  * Η διεπαφή δεν αποσυνδέει το API από αλλαγές.

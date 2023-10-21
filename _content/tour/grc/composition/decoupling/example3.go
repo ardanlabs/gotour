@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program demonstrating interface composition.
+// Δείγμα προγράμματος προκειμένου να παρουσιάσει την σύνθεση διεπαφών.
 package main
 
 import (
@@ -14,24 +14,24 @@ import (
 	"time"
 )
 
-// Data is the structure of the data we are copying.
+// Ο Data είναι η δομή των δεομένων που αντιγράφουμε.
 type Data struct {
 	Line string
 }
 
 // =============================================================================
 
-// Puller declares behavior for pulling data.
+// Ο Puller δηλώνει συμπεριφορά άντλησης δεδομένων.
 type Puller interface {
 	Pull(d *Data) error
 }
 
-// Storer declares behavior for storing data.
+// Ο Storer δηλώνει συμπεριφορά αποθήκευσης δεδομένων.
 type Storer interface {
 	Store(d *Data) error
 }
 
-// PullStorer declares behavior for both pulling and storing.
+// Ο PullStorer δηλώνει συμπεριφορά τόσο για άντληση όσο και για αποθήκευση.
 type PullStorer interface {
 	Puller
 	Storer
@@ -39,13 +39,13 @@ type PullStorer interface {
 
 // =============================================================================
 
-// Xenia is a system we need to pull data from.
+// Ο Xenia είναι ένα σύστημα από το οποίο θέλουμε να αντλούμε δεδομένα.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
 }
 
-// Pull knows how to pull data out of Xenia.
+// Η Pull γνωρίζει πως να αντλεί δεδομένα από τον Xenia.
 func (*Xenia) Pull(d *Data) error {
 	switch rand.Intn(10) {
 	case 1, 9:
@@ -61,13 +61,13 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Pillar is a system we need to store data into.
+// Ο Pillar είναι ένα σύστημα στο οποίο πρέπει να αποθηκεύουμε δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
 }
 
-// Store knows how to store data into Pillar.
+// Η Store γνωρίζει πως να αποθηκεύει δεδομένα στον Pillar.
 func (*Pillar) Store(d *Data) error {
 	fmt.Println("Out:", d.Line)
 	return nil
@@ -75,7 +75,7 @@ func (*Pillar) Store(d *Data) error {
 
 // =============================================================================
 
-// System wraps Xenia and Pillar together into a single system.
+// Ο System συνδυάζει έναν Xenia και έναν Pillar σε ένα κοινό σύστημα.
 type System struct {
 	Xenia
 	Pillar
@@ -83,7 +83,7 @@ type System struct {
 
 // =============================================================================
 
-// pull knows how to pull bulks of data from any Puller.
+// Η pull γνωρίζει πως να αντελι δεδομένα από κάθε Puller.
 func pull(p Puller, data []Data) (int, error) {
 	for i := range data {
 		if err := p.Pull(&data[i]); err != nil {
@@ -94,7 +94,7 @@ func pull(p Puller, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// store knows how to store bulks of data from any Storer.
+// η store γνωρίζει πως να αποθηκεύει δεδομένα σε κάθε Storer.
 func store(s Storer, data []Data) (int, error) {
 	for i := range data {
 		if err := s.Store(&data[i]); err != nil {
@@ -105,7 +105,7 @@ func store(s Storer, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Copy knows how to pull and store data from any System.
+// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα από κάθε σύστημα.
 func Copy(ps PullStorer, batch int) error {
 	data := make([]Data, batch)
 

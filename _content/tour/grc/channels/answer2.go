@@ -1,14 +1,15 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Write a program that uses a fan out pattern to generate 100 random numbers
-// concurrently. Have each goroutine generate a single random number and return
-// that number to the main goroutine over a buffered channel. Set the size of
-// the buffer channel so no send every blocks. Don't allocate more buffers than
-// you need. Have the main goroutine display each random number is receives and
-// then terminate the program.
+// Γράψτε ένα πρόγραμμα που χρησιμοποιεί ένα πρότυπο διασκορπισμού για να παράξει 100 τυχαίους
+// αριθμούς με ταυτόχρονη εκτέλεση. Κάθε goroutine πρέπει να δημιουργεί ένα τυχαίο αριθμό
+// και να επιστρέφει αυτό τον αριθμό στην κύρια συνάρτηση μέσω ενός καναλιού επικοινωνίας με ενδιάμεση
+// μνήμη. Ορίστε το μέγεθος του καναλιού επικοινωνίας με ενδιάμεση μνήμη έτσι ώστε καμία
+// αποστολή να μην εμποδίζει, ποτέ. Μην εκχωρήσετε περισσότερες ενδιάμεσες μνήμες, απ' όσες
+// χρειάζεστε. Ζητήστε από την κύρια goroutine να παρουσιάσει κάθε τυχαίο αριθμό που παραλαμβάνει
+// και στην συνέχεια να τερματίζει το πρόγραμμα.
 package main
 
 import (
@@ -22,32 +23,32 @@ const (
 
 func main() {
 
-	// Create the buffer channel with a buffer for
-	// each goroutine to be created.
+	// Δημιουργείστε ένα κανάλι επικοινωνίας με ενδιάμεση μνήμη
+	// τόση όσες και οι goroutine που θα δημιουργηθούν.
 	values := make(chan int, goroutines)
 
-	// Iterate and launch each goroutine.
+	// Προσπελάστε επαναληπτικά και δημιουργείστε κάθε goroutine.
 	for gr := 0; gr < goroutines; gr++ {
 
-		// Create an anonymous function for each goroutine that
-		// generates a random number and sends it on the channel.
+		// Δημιουργήστε μια ανώνυμη συνάρτηση για κάθε goroutine που
+		// παράγει έναν τυχαίο αριθμό και τον αποστέλλει στο κανάλι επικοινωνίας.
 		go func() {
 			values <- rand.Intn(1000)
 		}()
 	}
 
-	// Create a variable to be used to track received messages.
-	// Set the value to the number of goroutines created.
+	// Δημιουργήστε μια μεταβλητή που θα χρησιμοποιηθεί για να καταγράφετε παραληφθέντα μηνύματα.
+	// Δώστε της την τιμή του αριθμού των goroutines που δημιουργήσατε.
 	wait := goroutines
 
-	// Iterate receiving each value until they are all received.
-	// Store them in a slice of ints.
+	// Προσπελάστε επαναληπτικά παραλαμβάνοντας κάθε τιμή μέχρι να παραληφθούν όλες.
+	// Αποθηκεύστε τις σε μια φέτα από int.
 	var nums []int
 	for wait > 0 {
 		nums = append(nums, <-values)
 		wait--
 	}
 
-	// Print the values in our slice.
+	// Εκτυπώστε τις τιμές στην φέτα μας.
 	fmt.Println(nums)
 }

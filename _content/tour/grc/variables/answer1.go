@@ -1,44 +1,44 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare three variables that are initialized to their zero value and three
-// declared with a literal value. Declare variables of type string, int and
-// bool. Display the values of those variables.
+// Δηλώστε τρεις μεταβλητές που λαμβάνουν ως αρχική τιμή την μηδενική τους τιμή καθώς και τρεις
+// που θα δηλωθούν με ρητή τιμή. Δηλώστε μεταβλητές τύπου συμβολοσειράς (string), ακεραίου (int) και
+// τιμής αληθείας (bool). Παρουσιάστε τις τιμές αυτών των μεταβλητών.
 //
-// Declare a new variable of type float32 and initialize the variable by
-// converting the literal value of Pi (3.14).
+// Δηλώστε μια νέα μεταβλητή τύπου float32 και δώστε αρχική τιμή στην μεταβλητή
+// μετατρέποντας την ρητή τιμή του π (3.14).
 package main
 
 import "fmt"
 
 func main() {
 
-	// Declare variables that are set to their zero value.
+	// Δηλώστε μεταβλητές οι οποίες λαμβάνουν τις μηδενικές τους τιμές.
 	var age int
 	var name string
 	var legal bool
 
-	// Display the value of those variables.
+	// Παρουσιάστε τις τιμές αυτών των μεταβλητών.
 	fmt.Println(age)
 	fmt.Println(name)
 	fmt.Println(legal)
 
-	// Declare variables and initialize.
-	// Using the short variable declaration operator.
+	// Δηλώστε μεταβλητές και δώστε αρχικές τιμές.
+	// Κάντε χρήση τον τελεστή γρήγορης δήλωσης μεταβλητής.
 	month := 10
 	dayOfWeek := "Tuesday"
 	happy := true
 
-	// Display the value of those variables.
+	// Παρουσιάστε την τιμή των μεταβλητών.
 	fmt.Println(month)
 	fmt.Println(dayOfWeek)
 	fmt.Println(happy)
 
-	// Perform a type conversion.
+	// Πραγματοποιείστε μια μετατροπή τύπου.
 	pi := float32(3.14)
 
-	// Display the value of that variable.
+	// Παρουσιάστε την τιμή αυτής της μεταβλητής.
 	fmt.Printf("%T [%v]\n", pi, pi)
 }

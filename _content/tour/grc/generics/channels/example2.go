@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to execute a work function via a pool of goroutines
-// and return a channel of type Input (to be determined later) back to the caller.
-// Once input is received by any given goroutine, the work function is executed
-// and the Result value is displayed.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος εκτέλεσης μιας συνάρτησης
+// εργασίας μέσω ενός διαθέσιμου συνόλου από goroutine και η επιστροφή ενός καναλιού
+// επικοινωνίας τύπου Input (που θα προσδιοριστεί αργότερα) πίσω στον καλώντα.
+// Όταν η είσοδος παραληφθεί από οποιαδήποτε goroutine, η συνάρτηση εργασίας εκτελείται
+// και η τιμή Result παρουσιάζεται.
 package main
 
 import (

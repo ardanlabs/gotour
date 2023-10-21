@@ -1,16 +1,16 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare methods against
-// a named type.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως δηλώνονται μέθοδοι τύπου
+// για επώνυμο τύπο.
 package main
 
 import "fmt"
 
-// duration is a named type that represents a duration
-// of time in Nanosecond.
+// Η duration είναι ένας επώνυμος τύπος που αναπαριστά μια διάρκεια
+// χρόνου σε Nanosecond.
 type duration int64
 
 const (
@@ -22,12 +22,12 @@ const (
 	hour                 = 60 * minute
 )
 
-// setHours sets the specified number of hours.
+// Η setHours θέτει την συγκεκριμένη τιμή ωρών.
 func (d *duration) setHours(h float64) {
 	*d = duration(h) * hour
 }
 
-// hours returns the duration as a floating point number of hours.
+// Η hours επιστρέφει την διάρκεια ως αριθμό κινητής υποδιαστολής ωρών.
 func (d duration) hours() float64 {
 	hour := d / hour
 	nsec := d % hour
@@ -36,14 +36,12 @@ func (d duration) hours() float64 {
 
 func main() {
 
-	// Declare a variable of type duration set to
-	// its zero value.
+	// Δηλώστε μια μεταβλητή τύπου duration που λαμβάνει την μηδενική τιμή του τύπου.
 	var dur duration
 
-	// Change the value of dur to equal
-	// five hours.
+	// Αλλάξτε την τιμή της dur προκειμένου να ισούται πέντε ώρες.
 	dur.setHours(5)
 
-	// Display the new value of dur.
+	// Παρουσιάστε την νέα τιμή της dur.
 	fmt.Println("Hours:", dur.hours())
 }

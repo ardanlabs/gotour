@@ -1,10 +1,11 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how you can use embedding to reuse behavior from
-// another type and override specific methods.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως μπορεί να χρησιμοποιηθεί η ενσωμάτωση τύπων
+// προκειμένου να επαναχρησιμοποιηθούν συμπεριφορές από άλλους τύπους και να ξανά οριστούν
+// συγκεκριμένες μέθοδοι τύπου.
 package main
 
 import (
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-// Document is the core data model we are working with.
+// Ο Document είναι το βασικό μοντέλο δεδομένων με το οποίο εργαζόμαστε.
 type Document struct {
 	Key   string
 	Title string
@@ -21,15 +22,15 @@ type Document struct {
 
 // ==================================================
 
-// Feed is a type that knows how to fetch Documents.
+// Ο Feed είναι ένας τύπος που γνωρίζει πως να παραλαμβάνει (fetch) Document.
 type Feed struct{}
 
-// Count tells how many documents are in the feed.
+// H Count ενημερώνει πόσα έγγραφα είναι διαθέσιμα προς παραλαβή.
 func (f *Feed) Count() int {
 	return 42
 }
 
-// Fetch simulates looking up the document specified by key. It is slow.
+// Η Fetch μιμείται την αναζήτηση ενός εγγράφου με βάση το κλειδί. Είναι αργή.
 func (f *Feed) Fetch(key string) (Document, error) {
 	time.Sleep(time.Second)
 
@@ -42,15 +43,15 @@ func (f *Feed) Fetch(key string) (Document, error) {
 
 // ==================================================
 
-// CachingFeed keeps a local copy of Documents that have already been
-// retrieved. It embeds Feed to get the Fetch and Count behavior but
-// "overrides" Fetch to have its cache.
+// Ο CachingFeed κρατάει ένα τοπικό αντίγραφο των Document που έχουν ήδη
+// ανασυρθεί. Ενσωματώνει τον Feed προκειμένου να αποκτήσει την συμπεριφορά Fetch και την συμπεριφορά Count
+// όμως ξανά ορίζει την Fetch προκειμένου να έχει την μνήμη αποθήκευσης.
 type CachingFeed struct {
 	docs map[string]Document
 	*Feed
 }
 
-// NewCachingFeed initializes a CachingFeed for use.
+// Η NewCachingFeed δίνει αρχική τιμή σε έναν CachingFeed έτοιμο προς χρήση.
 func NewCachingFeed(f *Feed) *CachingFeed {
 	return &CachingFeed{
 		docs: make(map[string]Document),
@@ -58,7 +59,7 @@ func NewCachingFeed(f *Feed) *CachingFeed {
 	}
 }
 
-// Fetch calls the embedded type's Fetch method if the key is not cached.
+// Η Fetch καλεί την μέθοδο τύπου Fetch του ενσωματωμένου τύπου αν το κλειδί δεν είναι στην προσωρινή μνήμη.
 func (cf *CachingFeed) Fetch(key string) (Document, error) {
 	if doc, ok := cf.docs[key]; ok {
 		return doc, nil
@@ -75,7 +76,7 @@ func (cf *CachingFeed) Fetch(key string) (Document, error) {
 
 // ==================================================
 
-// FetchCounter is the behavior we depend on for our process function.
+// Ο FetchCounter είναι η συμπεριφορά στην οποία εξαρτόμαστε για την συνάρτηση επεξεργασίας μας.
 type FetchCounter interface {
 	Fetch(key string) (Document, error)
 	Count() int

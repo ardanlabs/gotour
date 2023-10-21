@@ -1,17 +1,19 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Create a package named toy with a single exported struct type named Toy. Add
-// the exported fields Name and Weight. Then add two unexported fields named
-// onHand and sold. Declare a factory function called New to create values of
-// type toy and accept parameters for the exported fields. Then declare methods
-// that return and update values for the unexported fields.
+// Δημιουργείστε ένα πακέτο με το όνομα toy, με ένα μοναδικό εξαγόμενο τύπο 
+// struct, με το όνομα Toy. Προσθέστε τα εξαγόμενα πεδία Name και Weight. Στην συνέχεια, 
+// προσθέστε δύο μη εξαγόμενα πεδία, με τα ονόματα onHand και sold. Δηλώστε μια συνάρτηση 
+// κατασκευής (factory function) με το όνομα New, προκειμένου να δημιουργεί τιμές τύπου 
+// toy και να αποδέχεται παραμέτρους για τα εξαγόμενα πεδία. Στην συνέχεια δηλώστε μεθόδους 
+// τύπου που επιστρέφουν και ανανεώνουν τις τιμές των μη εξαγόμενων πεδίων. 
 //
-// Create a program that imports the toy package. Use the New function to create a
-// value of type toy. Then use the methods to set the counts and display the
-// field values of that toy value.
+// Δημιουργείστε ένα πρόγραμμα που εισάγει το πακέτο toy. Χρησιμοποιείστε την
+// συνάρτηση New, προκειμένου να δημιουργήσετε μια τιμή τύπου toy. Στην συνέχεια, χρησιμοποιείστε 
+// τις μεθόδους τύπου, προκειμένου να προσδιορίσετε τις απαριθμήσεις και να παρουσιάσετε τις 
+// τιμές των πεδίων αυτής της τιμής toy.
 package main
 
 import (
@@ -20,39 +22,38 @@ import (
 
 func main() {
 
-	// Use the New function from the toy package to create a value of
-	// type toy.
+	// Χρησιμοποιείστε την συνάρτηση New από το πακέτο toy προκειμένου να δημιουργήσετε μια τιμή
+	// τύπου toy.
 
-	// Use the methods from the toy value to set some initialize
-	// values.
+	// Χρησιμοποιείστε τις μεθόδους τύπου από την τιμή toy προκειμένου να δώσετε αρχικές τιμές
 
-	// Display each field separately from the toy value.
+	// Παρουσιάστε κάθε πεδίο ξεχωριστά από την τιμή toy.
 }
 
 // -----------------------------------------------------------------------------
 -- toy/toy.go --
 
-// Package toy contains support for managing toy inventory.
+// Το Πακέτο toy περιέχει υποστήριξη για την διαχείριση του αποθέματος παιχνιδιών.
 package toy
 
-// Declare a struct type named Toy with four fields. Name string,
-// Weight int, onHand int and sold int.
+// Δηλώστε έναν τύπο struct με το όνομα Toy με τέσσερα πεδία. Name string,
+// Weight int, onHand int και sold int.
 
-// Declare a function named New that accepts values for the
-// exported fields. Return a pointer of type Toy that is initialized
-// with the parameters.
+// Δηλώστε μια συνάρτηση με το όνομα New που αποδέχεται τιμές για τα εξαγόμενα
+// πεδία. Επιστρέψτε έναν δείκτη διεύθυνσης τύπου Toy που λαμβάνει αρχική τιμή με 
+// τις παραμέτρους.
 
-// Declare a method named OnHand with a pointer receiver that
-// returns the current on hand count.
+// Δηλώστε μια μέθοδο τύπου με το όνομα OnHand με λήπτη μεθόδου δείκτη διεύθυνσης που
+// επιστρέφει την τρέχουσα μέτρηση.
 
-// Declare a method named UpdateOnHand with a pointer receiver that
-// updates and returns the current on hand count.
+// Δηλώστε μια μέθοδο τύπου με το όνομα UpdateOnHand με λήπτη μεθόδου δείκτη διεύθυνσης 
+// που ανανεώνει και επιστρέφει την τρέχουσα μέτρηση.
 
-// Declare a method named Sold with a pointer receiver that
-// returns the current sold count.
+// Δηλώστε μια μέθοδο τύπου με το όνομα Sold με λήπτη μεθόδου δείκτη διεύθυνσης 
+// που επιστρέφει την τρέχουσα μέτρηση.
 
-// Declare a method named UpdateSold with a pointer receiver that
-// updates and returns the current sold count.
+// Δηλώστε μια μέθοδο τύπου με το όνομα UpdateSold με λήπτη μεθόδου δείκτη διεύθυνσης 
+// που ανανεώνει και επιστρέφει την τρέχουσα μέτρηση.
 
 // -----------------------------------------------------------------------------
 -- go.mod --

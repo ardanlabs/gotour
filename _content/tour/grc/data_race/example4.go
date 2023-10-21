@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to use a read/write mutex to define critical
-// sections of code that needs synchronous access.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος χρήσης ενός στοιχείου αμοιβαίου αποκλεισμού (mutex) ανάγνωσης/εγγραφής
+// προκειμένου να οριστούν κρίσιμα τμήματα κώδικα που χρειάζονται συγχρονισμένη πρόσβαση.
 package main
 
 import (
@@ -15,22 +15,22 @@ import (
 	"time"
 )
 
-// data is a slice that will be shared.
+// η data είναι μια φέτα που θα διαμοιραστεί.
 var data []string
 
-// rwMutex is used to define a critical section of code.
+// Η rwMutex χρησιμοποιείται προκειμένου να οριστεί ένα κρίσιμο τμήμα κώδικα.
 var rwMutex sync.RWMutex
 
-// Number of reads occurring at ay given time.
+// Ο αριθμός των αναγνώσεων που συμβαίνουν σε κάθε δεδομένη στιγμή.
 var readCount int64
 
 func main() {
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται για την διαχείριση της ταυτόχρονης εκτέλεσης.
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// Create a writer goroutine.
+	// Δημιουργείστε μια goroutine εγγραφής.
 	go func() {
 		for i := 0; i < 10; i++ {
 			writer(i)
@@ -38,7 +38,7 @@ func main() {
 		wg.Done()
 	}()
 
-	// Create eight reader goroutines.
+	// Δημιουργείστε οκτώ goroutine ανάγνωσης.
 	for i := 0; i < 8; i++ {
 		go func(id int) {
 			for {
@@ -47,46 +47,46 @@ func main() {
 		}(i)
 	}
 
-	// Wait for the write goroutine to finish.
+	// Περιμένετε ώστε να ολοκληρώσει η goroutine εγγραφής.
 	wg.Wait()
 	fmt.Println("Program Complete")
 }
 
-// writer adds a new string to the slice in random intervals.
+// Η writer προσθέτει μια νέα συμβολοσειρά στην φέτα κατά τυχαία διαστήματα.
 func writer(i int) {
 
-	// Only allow one goroutine to read/write to the slice at a time.
+	// Επιτρέψτε μόνο σε μια goroutine να αναγνώσει/γράψει στην φέτα σε δεδομένη στιγμή.
 	rwMutex.Lock()
 	{
-		// Capture the current read count.
-		// Keep this safe though we can due without this call.
+		// Κρατείστε την τρέχουσα τιμή των αναγνώσεων.
+		// Κρατείστε την ασφαλή μολονότι μπορούμε να κάνουμε χωρίς την ακόλουθη κλήση.
 		rc := atomic.LoadInt64(&readCount)
 
-		// Perform some work since we have a full lock.
+		// Πραγματοποιείστε κάποιες εργασίες καθώς έχουμε στην διάθεση μας πλήρες κλείδωμα.
 		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 		fmt.Printf("****> : Performing Write : RCount[%d]\n", rc)
 		data = append(data, fmt.Sprintf("String: %d", i))
 	}
 	rwMutex.Unlock()
-	// Release the lock.
+	// Απελευθερώστε την δέσμευση (lock).
 }
 
-// reader wakes up and iterates over the data slice.
+// Η reader ξυπνάει και κάνει επαναληπτική προσπέλαση στην φέτα δεδομένων.
 func reader(id int) {
 
-	// Any goroutine can read when no write operation is taking place.
+	// Κάθε goroutine μπορεί να διαβάσει όταν δεν πραγματοποιείται καμία λειτουργία ανάγνωσης.
 	rwMutex.RLock()
 	{
-		// Increment the read count value by 1.
+		// Αυξήστε την τιμή του μετρητή αναγνώσεων κατά 1.
 		rc := atomic.AddInt64(&readCount, 1)
 
-		// Perform some read work and display values.
+		// Πραγματοποιείστε κάποιες εργασίες ανάγνωσης και παρουσιάστε τις τιμές.
 		time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
 		fmt.Printf("%d : Performing Read : Length[%d] RCount[%d]\n", id, len(data), rc)
 
-		// Decrement the read count value by 1.
+		// Μειώστε την τιμή του μετρητή αναγνώσεων κατά 1.
 		atomic.AddInt64(&readCount, -1)
 	}
 	rwMutex.RUnlock()
-	// Release the read lock.
+	// Ελευθερώστε την δέσμευση ανάγνωσης.
 }

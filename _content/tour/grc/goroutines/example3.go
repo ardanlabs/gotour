@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to create goroutines and
-// how the goroutine scheduler behaves with two contexts.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δημιουργίας goroutine και
+// πως ο χρονοδρομολογητής των goroutine συμπεριφέρεται με δύο πλαίσια αναφοράς (contexts).
 package main
 
 import (
@@ -15,48 +15,48 @@ import (
 
 func init() {
 
-	// Allocate two logical processors for the scheduler to use.
+	// Διαθέστε δύο λογικούς επεξεργαστές προς χρήση στον χρονοδρομολογητή.
 	runtime.GOMAXPROCS(2)
 }
 
 func main() {
 
-	// wg is used to wait for the program to finish.
-	// Add a count of two, one for each goroutine.
+	// Η wg χρησιμοποιείται προκειμένου να αναμένει το πρόγραμμα να τερματίσει.
+	// Περάστε τον αριθμό δύο στην μέθοδο τύπου Add, ένα για κάθε goroutine.
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	fmt.Println("Start Goroutines")
 
-	// Declare an anonymous function and create a goroutine.
+	// Δηλώστε μια ανώνυμη συνάρτηση και δημιουργείστε μια goroutine.
 	go func() {
 
-		// Display the alphabet three times.
+		// Παρουσιάστε το αλφάβητο τρεις φορές.
 		for count := 0; count < 3; count++ {
 			for r := 'a'; r <= 'z'; r++ {
 				fmt.Printf("%c ", r)
 			}
 		}
 
-		// Tell main we are done.
+		// Ενημερώστε την συνάρτηση main ότι ολοκληρώσαμε.
 		wg.Done()
 	}()
 
-	// Declare an anonymous function and create a goroutine.
+	// Δηλώστε μια ανώνυμη συνάρτηση και δημιουργείστε μια goroutine.
 	go func() {
 
-		// Display the alphabet three times.
+		// Παρουσιάστε το αλφάβητο τρεις φορές.
 		for count := 0; count < 3; count++ {
 			for r := 'A'; r <= 'Z'; r++ {
 				fmt.Printf("%c ", r)
 			}
 		}
 
-		// Tell main we are done.
+		// Ενημερώστε την συνάρτηση main ότι ολοκληρώσαμε.
 		wg.Done()
 	}()
 
-	// Wait for the goroutines to finish.
+	// Περιμένετε ώστε να ολοκληρώσουν οι goroutine.
 	fmt.Println("Waiting To Finish")
 	wg.Wait()
 

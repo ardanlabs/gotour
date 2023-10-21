@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how anonymous functions and closures work.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί η λειτουργία των ανώνυμων συναρτήσεων και των συναρτήσεων εγκολπώσεων (closures).
 package main
 
 import "fmt"
@@ -11,31 +11,31 @@ import "fmt"
 func main() {
 	var n int
 
-	// Declare an anonymous function and call it.
+	// Δηλώστε μια ανώνυμη συνάρτηση και καλέστε την.
 	func() {
 		fmt.Println("Direct:", n)
 	}()
 
-	// Declare an anonymous function and assign it to a variable.
+	// Δηλώστε μια ανώνυμη συνάρτηση και εκχωρείστε την σε μια μεταβλητή.
 	f := func() {
 		fmt.Println("Variable:", n)
 	}
 
-	// Call the anonymous function through the variable.
+	// Καλέστε την ανώνυμη συνάρτηση μέσω της μεταβλητής.
 	f()
 
-	// Defer the call to the anonymous function till after main returns.
+	// Καθυστερείστε (defer) την κλήση στην ανώνυμη συνάρτηση μέχρι αφότου επιστρέψει η συνάρτηση main.
 	defer func() {
 		fmt.Println("Defer 1:", n)
 	}()
 
-	// Set the value of n to 3 before the return.
+	// Εκχωρείστε την τιμή της n σε 3 πριν την επιστροφή.
 	n = 3
 
-	// Call the anonymous function through the variable.
+	// Καλέστε την ανώνυμη συνάρτηση μέσω της μεταβλητής.
 	f()
 
-	// Defer the call to the anonymous function till after main returns.
+	// Καθυστερείστε (defer) την κλήση στην ανώνυμη συνάρτηση μέχρι μετά την επιστροφή της main.
 	defer func() {
 		fmt.Println("Defer 2:", n)
 	}()

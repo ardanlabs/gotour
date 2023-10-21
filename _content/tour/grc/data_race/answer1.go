@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Answer for exercise 1 of Race Conditions.
+// Απάντηση για την Άσκηση 1 των Συνθηκών Ανταγωνισμού Δεδομένων.
 package main
 
 import (
@@ -12,22 +12,22 @@ import (
 	"sync"
 )
 
-// numbers maintains a set of random numbers.
+// Η numbers διατηρεί ένα σύνολο τυχαίων αριθμών.
 var numbers []int
 
-// mutex will help protect the slice.
+// Η mutex θα βοηθήσει να προστατευθεί η φέτα.
 var mutex sync.Mutex
 
-// main is the entry point for the application.
+// Η main είναι το σημείο εισόδου για την εφαρμογή.
 func main() {
-	// Number of goroutines to use.
+	// Ο αριθμός των goroutine προς χρήση.
 	const grs = 3
 
-	// wg is used to manage concurrency.
+	// Η wg χρησιμοποιείται προκειμένου να γίνει διαχείριση της ταυτόχρονης εκτέλεσης.
 	var wg sync.WaitGroup
 	wg.Add(grs)
 
-	// Create three goroutines to generate random numbers.
+	// Δημιουργείστε τρεις goroutine προκειμένου να παράξετε τυχαίους αριθμούς.
 	for i := 0; i < grs; i++ {
 		go func() {
 			random(10)
@@ -35,22 +35,22 @@ func main() {
 		}()
 	}
 
-	// Wait for all the goroutines to finish.
+	// Περιμένετε ώστε να ολοκληρώσουν όλες οι goroutines.
 	wg.Wait()
 
-	// Display the set of random numbers.
+	// Παρουσιάστε το σύνολο των τυχαίων αριθμών.
 	for i, number := range numbers {
 		fmt.Println(i, number)
 	}
 }
 
-// random generates random numbers and stores them into a slice.
+// Η random παράγει τυχαίους αριθμούς και τους αποθηκεύει σε μια φέτα.
 func random(amount int) {
-	// Generate as many random numbers as specified.
+	// Δημιουργείστε όσους τυχαίους αριθμούς χρειάζεται.
 	for i := 0; i < amount; i++ {
 		n := rand.Intn(100)
 
-		// Protect this append to keep access safe.
+		// Προστατεύστε την προσθήκη προκειμένου να διατηρηθεί η ασφάλεια της πρόσβασης.
 		mutex.Lock()
 		{
 			numbers = append(numbers, n)

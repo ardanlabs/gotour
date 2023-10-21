@@ -1,57 +1,58 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare an interface named speaker with a method named speak. Declare a struct
-// named english that represents a person who speaks english and declare a struct named
-// chinese for someone who speaks chinese. Implement the speaker interface for each
-// struct using a value receiver and these literal strings "Hello World" and "你好世界".
-// Declare a variable of type speaker and assign the address of a value of type english
-// and call the method. Do it again for a value of type chinese.
+// Δηλώστε μια διεπαφή με το όνομα speaker με μια μέθοδο τύπου speak. Δηλώστε
+// ένα struct με το όνομα english που αντιπροσωπεύει ένα πρόσωπο που μιλάει αγγλικά και
+// δηλώστε ένα struct με το όνομα chinese, για κάποιον ο οποίος μιλάει κινέζικα. Υλοποιείστε
+// την διεπαφή speaker για κάθε struct, χρησιμοποιώντας λήπτη μεθόδου τιμής και τις ακόλουθες
+// ρητές συμβολοσειρές "Hello World" και "你好世界".
+// Δηλώστε μια μεταβλητή τύπου speaker και εκχωρείστε την διεύθυνση μνήμης μιας τιμής τύπου
+// english και καλέστε την μέθοδο τύπου. Κάντε το ίδιο, για μια τιμή τύπου chinese.
 //
-// Add a new function named sayHello that accepts a value of type speaker.
-// Implement that function to call the speak method on the interface value. Then create
-// new values of each type and use the function.
+// Προσθέστε μια νέα συνάρτηση με το όνομα sayHello που αποδέχεται μια τιμή τύπου
+// speaker. Υλοποιείστε αυτή την συνάρτηση ώστε, να καλέσει την μέθοδο speak στην τιμή διεπαφής.
+// Στην συνέχεια, δημιουργείστε νέες τιμές για κάθε τύπο και χρησιμοποιείστε την συνάρτηση.
 package main
 
-// Add imports.
+// Προσθέστε δηλώσεις εισαγωγής (imports).
 
-// Declare the speaker interface with a single method called speak.
+// Δηλώστε την διεπαφή speaker με μοναδική μέθοδο τύπου με το όνομα speak.
 
-// Declare an empty struct type named english.
+// Δηλώστε έναν άδειο τύπο struct με το όνομα english.
 
-// Declare a method named speak for the english type
-// using a value receiver. "Hello World"
+// Δηλώστε μια μέθοδο με το όνομα speak για τον τύπο english
+// χρησιμοποιώντας έναν λήπτη μεθόδου τιμής. "Hello World"
 
-// Declare an empty struct type named chinese.
+// Δηλώστε έναν άδειο τύπο struct με το όνομα chinese.
 
-// Declare a method named speak for the chinese type
-// using a pointer receiver. "你好世界"
+// Δηλώστε μια μέθοδο με το όνομα speak για τον τύπο chinese
+// χρησιμοποιώντας λήπτη μεθοδου δείκτη διεύθυνσης. "你好世界"
 
-// sayHello accepts values of the speaker type.
-func sayHello( /* Declare parameter */ ) {
+// Η sayHello αποδέχεται τιμές του τύπου speaker.
+func sayHello( /* Δηλώστε την παράμετρο */ ) {
 
-	// Call the speak method from the speaker parameter.
+	// Καλέστε την μέθοδο τύπου speak από την παράμετρο speaker.
 }
 
 func main() {
 
-	// Declare a variable of the interface speaker type
-	// set to its zero value.
+	// Δηλώστε μια μεταβλητή του τύπου διεπαφής speaker
+	// η οποία λαμβάνει την μηδενική τιμή της.
 
-	// Declare a variable of type english.
+	// Δηλώστε μια μεταβλητή τύπου english.
 
-	// Assign the english value to the speaker variable.
+	// Εκχωρείστε την τιμή english στην μεταβλητή speaker.
 
-	// Call the speak method against the speaker variable.
+	// Καλέστε την μέθοδο speak από την μεταβλητή speaker.
 
-	// Declare a variable of type chinese.
+	// Δηλώστε μια μεταβλητή του τύπου chinese.
 
-	// Assign the chinese pointer to the speaker variable.
+	// Εκχωρείστε τον δείκτη διεύθυνσης chinese στην μεταβλητή speaker.
 
-	// Call the speak method against the speaker variable.
+	// Καλέστε την μέθοδο τύπου speak από την μεταβλητή speaker.
 
-	// Call the sayHello function with new values and pointers
-	// of english and chinese.
+	// Καλέστε την συνάρτηση sayHello με καινούργιες τιμές και δείκτες διεύθυνσης
+	// των english και chinese.
 }

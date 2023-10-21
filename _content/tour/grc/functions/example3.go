@@ -1,20 +1,21 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// From Spec:
-// a short variable declaration may redeclare variables provided they
-// were originally declared earlier in the same block with the same
-// type, and at least one of the non-blank variables is new.
+// Από τις Προδιαγραφές της Γλώσσας:
+// μια γρήγορη δήλωση μεταβλητής μπορεί να δηλώσει ξανά μεταβλητές
+// δεδομένου ότι είχαν αρχικά δηλωθεί νωρίτερα στο ίδιο τμήμα κώδικα
+// με τον ίδιο τύπο και τουλάχιστον μια από τις μεταβλητές που δεν
+// είναι κενές (_), είναι καινούργια.
 
-// Sample program to show some of the mechanics behind the
-// short variable declaration operator redeclares.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστούν ορισμένοι από τους μηχανισμούς πίσω από
+// τον τελεστή σύντομης δήλωσης σε περιπτώσεις όπου γίνεται εκ νέου σύντομη δήλωση.
 package main
 
 import "fmt"
 
-// user is a struct type that declares user information.
+// Ο user είναι ένας τύπος struct που δηλώνει πληροφορίες χρήστη.
 type user struct {
 	id   int
 	name string
@@ -22,11 +23,11 @@ type user struct {
 
 func main() {
 
-	// Declare the error variable.
+	// Δηλώστε την μεταβλητή σφάλματος.
 	var err1 error
 
-	// The short variable declaration operator will
-	// declare u and redeclare err1.
+	// Ο τερλεστής σύντομης δήλωσης μεταβλητής θα δηλώσει
+	// την u και θα ξαναδηλώσει την err1.
 	u, err1 := getUser()
 	if err1 != nil {
 		return
@@ -34,8 +35,8 @@ func main() {
 
 	fmt.Println(u)
 
-	// The short variable declaration operator will
-	// redeclare u and declare err2.
+	// Ο τερλεστής σύντομης δήλωσης μεταβλητής θα
+	// ξαναδηλώσει την u και θα δηλώσει την err2.
 	u, err2 := getUser()
 	if err2 != nil {
 		return
@@ -44,7 +45,7 @@ func main() {
 	fmt.Println(u)
 }
 
-// getUser returns a pointer of type user.
+// Η getUser επιστρέφει έναν δείκτη διεύθυνσης τύπου user.
 func getUser() (*user, error) {
 	return &user{1432, "Betty"}, nil
 }

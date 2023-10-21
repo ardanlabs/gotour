@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to access an exported identifier.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως γίνεται η πρόσβαση σε ένα εξαγόμενο αναγνωριστικό.
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	// Create a variable of the exported type and initialize the value to 10.
+	// Δημιουργείστε μια μεταβλητή του εξαγόμενου τύπου και δώστε αρχική τιμή ίση με 10.
 	counter := counters.AlertCounter(10)
 
 	fmt.Printf("Counter: %d\n", counter)
@@ -23,11 +23,11 @@ func main() {
 // -----------------------------------------------------------------------------
 -- counters/counters.go --
 
-// Package counters provides alert counter support.
+// Το πακέτο counters παρέχει υποστήριξη μετρητών προειδοποίησης.
 package counters
 
-// AlertCounter is an exported named type that
-// contains an integer counter for alerts.
+// Ο AlertCounter είναι ένας εξαγόμενος επώνυμος τύπος που περιέχει έναν
+// ακέραιο μετρητή για προειδοποιήσεις.
 type AlertCounter int
 
 // -----------------------------------------------------------------------------

@@ -1,17 +1,19 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Create a package named toy with a single exported struct type named Toy. Add
-// the exported fields Name and Weight. Then add two unexported fields named
-// onHand and sold. Declare a factory function called New to create values of
-// type toy and accept parameters for the exported fields. Then declare methods
-// that return and update values for the unexported fields.
+// Δημιουργείστε ένα πακέτο με το όνομα toy, με ένα μοναδικό εξαγόμενο τύπο 
+// struct, με το όνομα Toy. Προσθέστε τα εξαγόμενα πεδία Name και Weight. Στην συνέχεια, 
+// προσθέστε δύο μη εξαγόμενα πεδία, με τα ονόματα onHand και sold. Δηλώστε μια συνάρτηση 
+// κατασκευής (factory function) με το όνομα New, προκειμένου να δημιουργεί τιμές τύπου 
+// toy και να αποδέχεται παραμέτρους για τα εξαγόμενα πεδία. Στην συνέχεια δηλώστε μεθόδους 
+// τύπου που επιστρέφουν και ανανεώνουν τις τιμές των μη εξαγόμενων πεδίων. 
 //
-// Create a program that imports the toy package. Use the New function to create a
-// value of type toy. Then use the methods to set the counts and display the
-// field values of that toy value.
+// Δημιουργείστε ένα πρόγραμμα που εισάγει το πακέτο toy. Χρησιμοποιείστε την
+// συνάρτηση New, προκειμένου να δημιουργήσετε μια τιμή τύπου toy. Στην συνέχεια, χρησιμοποιείστε 
+// τις μεθόδους τύπου, προκειμένου να προσδιορίσετε τις απαριθμήσεις και να παρουσιάσετε τις 
+// τιμές των πεδίων αυτής της τιμής toy.
 package main
 
 import (
@@ -39,10 +41,10 @@ func main() {
 // -----------------------------------------------------------------------------
 -- toy/toy.go --
 
-// Package toy contains support for managing toy inventory.
+// Το Πακέτο toy περιέχει υποστήριξη για την διαχείριση του αποθέματος παιχνιδιών.
 package toy
 
-// Toy represents a toy we sell.
+// Ο Toy αναπαριστά ένα παιχνίδι που πουλάμε.
 type Toy struct {
 	Name   string
 	Weight int
@@ -51,7 +53,7 @@ type Toy struct {
 	sold   int
 }
 
-// New creates values of type toy.
+// Η New δημιουργεί τιμές τύπου *Toy.
 func New(name string, weight int) *Toy {
 	return &Toy{
 		Name:   name,
@@ -59,27 +61,23 @@ func New(name string, weight int) *Toy {
 	}
 }
 
-// OnHand returns the current number of this
-// toy on hand.
+// Η OnHand επιστρέφει τον τρέχοντα αριθμό αυτού του παιχνιδιού που είναι διαθέσιμος.
 func (t *Toy) OnHand() int {
 	return t.onHand
 }
 
-// UpdateOnHand updates the on hand count and
-// returns the current value.
+// Η UpdateOnHand ανανεώνει την διαθέσιμη μέτρηση και επιστρέφει την τρέχουσα τιμή.
 func (t *Toy) UpdateOnHand(count int) int {
 	t.onHand += count
 	return t.onHand
 }
 
-// Sold returns the current number of this
-// toy sold.
+// Η Sold επιστρέφει τον τρέχοντα αριθμό πωλήσεων αυτού του παιχνιδιού.
 func (t *Toy) Sold() int {
 	return t.sold
 }
 
-// UpdateSold updates the sold count and
-// returns the current value.
+// Η UpdateSold ανανεώνει τον αριθμό πωλήσεων και επιστρέφει την τρέχουσα τιμή.
 func (t *Toy) UpdateSold(count int) int {
 	t.sold += count
 	return t.sold

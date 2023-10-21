@@ -1,46 +1,47 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Create a program that declares two anonymous functions. One that counts down from
-// 100 to 0 and one that counts up from 0 to 100. Display each number with an
-// unique identifier for each goroutine. Then create goroutines from these functions
-// and don't let main return until the goroutines complete.
+// Δημιουργήστε ένα πρόγραμμα που δηλώνει δύο ανώνυμες συναρτήσεις. Μια
+// που μετράει από το 100 στο 0 και μια που μετράει από το 0 στο 100. Παρουσιάστε
+// κάθε αριθμό με ένα μοναδικό αναγνωριστικό για κάθε goroutine. Στην συνέχεια
+// δημιουργείστε goroutines από αυτές τις συναρτήσεις και μην επιτρέψετε στην main
+// να επιστρέψει, μέχρι να ολοκληρώσουν οι goroutines.
 //
-// Run the program in parallel.
+// Εκτελέστε το πρόγραμμα παράλληλα.
 package main
 
-// Add imports.
+// Προσθέσετε δηλώσεις εισαγωγής (import).
 import "runtime"
 
 func init() {
 
-	// Allocate one logical processor for the scheduler to use.
+	// Διαθέστε έναν λογικό επεξεργαστή προς χρήση στον χρονοδρομολογητή.
 	runtime.GOMAXPROCS(1)
 }
 
 func main() {
 
-	// Declare a wait group and set the count to two.
+	// Δηλώστε ένα σύνολο αναμονής (WaitGroup) και δώστε την τιμή δύο.
 
-	// Declare an anonymous function and create a goroutine.
+	// Δηλώστε μια ανώνυμη συνάρτηση και δημιουργείστε μια goroutine.
 	{
-		// Declare a loop that counts down from 100 to 0 and
-		// display each value.
+		// Δηλώστε μια επαναληπτική προσπέλαση που μετράει από το 100 έως το 0 και
+		// παρουσιάστε κάθε τιμή.
 
-		// Tell main we are done.
+		// Ενημερώστε την συνάρτηση main ότι ολοκληρώσαμε.
 	}
 
-	// Declare an anonymous function and create a goroutine.
+	// Δηλώστε μια ανώνυμη συνάρτηση και δημιουργείστε μια goroutine.
 	{
-		// Declare a loop that counts up from 0 to 100 and
-		// display each value.
+		// Δηλώστε μια επαναληπτική προσπέλαση που μετράει από το 0 έως το 100 και
+		// παρουσιάστε κάθε τιμή.
 
-		// Tell main we are done.
+		// Ενημερώστε την συνάρτηση main ότι ολοκληρώσαμε.
 	}
 
-	// Wait for the goroutines to finish.
+	// Περιμένετε ώστε να ολοκληρώσουν οι goroutine.
 
-	// Display "Terminating Program".
+	// Παρουσιάστε την συμβολοσειρά "Terminating Program".
 }

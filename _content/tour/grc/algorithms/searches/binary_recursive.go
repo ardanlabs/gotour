@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to write a binary search using a
-// recursive approach.
+// Αυτό το δείγμα προγράμματος παρουσιάζει ο τρόπος συγγραφής μιας δυαδικής αναζήτησης
+// χρησιμοποιώντας μια αναδρομική προσέγγιση.
 package main
 
 import (
@@ -30,25 +30,25 @@ func main() {
 
 func binarySearchRecursive(sortedList []int, target int, leftIdx int, rightIdx int) (int, error) {
 
-	// Calculate the middle index of the list.
+	// Υπολογίστε τον μεσαίο δείκτη της λίστα.
 	midIdx := (leftIdx + rightIdx) / 2
 
-	// Check until leftIdx is smaller or equal with rightIdx.
+	// Ελέξτε μέχρι η leftIdx είναι μικρότερη ή ίση με την rightIdx.
 	if leftIdx <= rightIdx {
 
 		switch {
 
-		// Check if we found the target.
+		// Ελέγξτε αν βρέθηκε ο στόχος.
 		case sortedList[midIdx] == target:
 			return midIdx, nil
 
-		// If the value is greater than the target, cut the list
-		// by moving the rightIdx into the list.
+		// Αν η τιμή είναι μεγαλύτερη από τον στόχο, διαιρέστε την λίστα
+		// μετακινώντας την rightIdx εντός της λίστας.
 		case sortedList[midIdx] > target:
 			return binarySearchRecursive(sortedList, target, leftIdx, midIdx-1)
 
-		// If the value is less than the target, cut the list
-		// by moving the leftIdx into the list.
+		// Αν η τιμή είναι μικρότερη από τον στόχο, διαιρέστε την λίστα
+		// μετακινώντας την leftIdx εντός της λίστας.
 		case sortedList[midIdx] < target:
 			return binarySearchRecursive(sortedList, target, midIdx+1, rightIdx)
 		}

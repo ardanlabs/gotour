@@ -1,12 +1,14 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to implement a stringify function that is
-// specific to each of the concrete types implemented above. In each case,
-// the stringify function returns a slice of strings. These function use
-// the String method against the individual user or customer value.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος υλοποιήσης μια
+// συνάρτηση stringify που είναι συγκεκριμένη σε κάθε ένα από τους πραγματικούς
+// τύπους που είναι υλοποιημένοι παραπάνω. Σε κάθε περίπτωση η συνάρτηση
+// stringify επιστρέφει μια φέτα από συμβολοσειρές. Αυτές οι συναρτήσεις
+// χρησιμοποιούν την μέθοδο τύπου String σε κάθε ξεχωριστή τιμή user ή
+// customer.
 package main
 
 import (
@@ -29,8 +31,8 @@ func stringifyCustomers(customers []customer) []string {
 	return ret
 }
 
-// Defining two types that implement the fmt.Stringer interface. Each
-// implementation creates a stringified version of the concrete type.
+// Ορίζοντας δύο τύπους που υλοποιούν την διεπαφή fmt.Stringer. Κάθε
+// υλοποίηση δημιουργεί μια εκδοχή συμβολοσειράς του πραγματικού τύπου.
 
 type user struct {
 	name  string

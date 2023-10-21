@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how we can use the blank identifier to
-// ignore return values.
+// Δείγμα προγράμματος προκιεμένου να παρουσιαστεί ο τρόπος με τον οποίο μπορεί κανείς
+// να χρησιμοποιείσει το κενό αναγνωριστικό προκειμένου να αγνοήσει τιμές επιστροφής.
 package main
 
 import (
@@ -13,13 +13,13 @@ import (
 	"fmt"
 )
 
-// user is a struct type that declares user information.
+// Ο user είναι ένας τύπος struct που δηλώνει πληροφορίες χρήστη.
 type user struct {
 	ID   int
 	Name string
 }
 
-// updateStats provides update stats.
+// Η updateStats παρέχει στατιστικά στοιχεία ανανέωσης.
 type updateStats struct {
 	Modified int
 	Duration float64
@@ -29,37 +29,37 @@ type updateStats struct {
 
 func main() {
 
-	// Declare and initialize a value of type user.
+	// Δηλώστε και εκχωρείστε αρχική τιμή σε τιμή τύπου user.
 	u := user{
 		ID:   1432,
 		Name: "Betty",
 	}
 
-	// Update the user Name. Don't care about the update stats.
+	// Ανανεώστε το πεδίο Name του user. Δεν σας απασχολούν τα στατιστικά στοιχεία ανανέωσης.
 	if _, err := updateUser(&u); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Display the update was Successful.
+	// Παρουσιάστε ότι η ανανέωση ήταν επιτυχημένη.
 	fmt.Println("Updated user record for ID", u.ID)
 }
 
-// updateUser updates the specified user document.
+// Η updateUser ανανενώνει το συγκεκριμένο έγραφο του user.
 func updateUser(u *user) (*updateStats, error) {
 
-	// response simulates a JSON response.
+	// Η response μιμείται μια απάντηση σε μορφή JSON.
 	response := `{"Modified":1, "Duration":0.005, "Success" : true, "Message": "updated"}`
 
-	// Unmarshal the json document into a value of
-	// the userStats struct type.
+	// Αποσειριοποιείστε (unmarshal) το έγγραφο json σε μια τιμή
+	// τύπου userStats struct.
 	var us updateStats
 	if err := json.Unmarshal([]byte(response), &us); err != nil {
 		return nil, err
 	}
 
-	// Check the update status to verify the update
-	// was Successful.
+	// Ελέγξτε την κατάσταση ανανέωσης προκειμένου να επιβεβαιώσετε ότι η ανανέωση
+	// ήταν πετυχημένη.
 	if us.Success != true {
 		return nil, errors.New(us.Message)
 	}

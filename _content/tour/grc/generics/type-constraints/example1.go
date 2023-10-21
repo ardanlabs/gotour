@@ -1,12 +1,13 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to declare a constraint not based on behavior but
-// based on the type of data that is acceptable. This type of constrain is
-// important when functions (like Add) need to perform operations (like +)
-// that are not supported by all types.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος δήλωσης ενός
+// περιορισμού τύπου που δεν βασίζεται σε συμπεριφορά αλλά που βασίζεται
+// στον τύπο των δεδομένων ο οποίος είναι αποδεκτός. Αυτό το είδος περιορισμού
+// είναι σημαντικό όταν συναρτήσει (όπως η Add) πρέπει να πραγματοποιήσουν
+// λειτουργίες (όπως +) που δεν υποστηρίζονται από όλους τους τύπους.
 package main
 
 import "fmt"

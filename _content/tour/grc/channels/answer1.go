@@ -1,12 +1,12 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Write a program where two goroutines pass an integer back and forth
-// ten times. Display when each goroutine receives the integer. Increment
-// the integer with each pass. Once the integer equals ten, terminate
-// the program cleanly.
+// Γράψτε ένα πρόγραμμα όπου δύο goroutine περνάνε μπρος-πίσω έναν ακέραιο δέκα φορές.
+// Παρουσιάστε πότε η κάθε goroutine παραλαμβάνει τον ακέραιο. Αυξήστε την τιμή του
+// ακεραίου σε κάθε πέρασμα. Όταν ο ακέραιος ισούται με δέκα, τερματίστε το πρόγραμμα,
+// προσεγμένα.
 package main
 
 import (
@@ -16,15 +16,15 @@ import (
 
 func main() {
 
-	// Create an unbuffered channel.
+	// Δημιουργείστε ένα κανάλι επικοινωνίας χωρίς ενδιάμεση μνήμη.
 	share := make(chan int)
 
-	// Create the WaitGroup and add a count
-	// of two, one for each goroutine.
+	// Δημιουργείστε έναν WaitGroup και προσθέστε
+	// δύο, ένα για κάθε goroutine.
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	// Launch two goroutines.
+	// Δημιουργήστε δύο goroutine.
 	go func() {
 		goroutine("Bill", share)
 		wg.Done()
@@ -35,38 +35,38 @@ func main() {
 		wg.Done()
 	}()
 
-	// Start the sharing.
+	// Αρχίστε την διαμοίραση.
 	share <- 1
 
-	// Wait for the program to finish.
+	// Περιμένετε ώστε το πρόγραμμα να τελειώσει.
 	wg.Wait()
 }
 
-// goroutine simulates sharing a value.
+// Η goroutine προσομοιώνει τον διαμοιρασμό μιας τιμής.
 func goroutine(name string, share chan int) {
 	for {
 
-		// Wait to receive a value.
+		// Περιμένετε ώστε να σταλεί μια τιμή.
 		value, ok := <-share
 		if !ok {
 
-			// If the channel was closed, return.
+			// Αν το κανάλι επικοινωνίας κλείσει, επιστρέψτε.
 			fmt.Printf("Goroutine %s Down\n", name)
 			return
 		}
 
-		// Display the value.
+		// Παρουσιάστε την τιμή.
 		fmt.Printf("Goroutine %s Inc %d\n", name, value)
 
-		// Terminate when the value is 10.
+		// Τερματίστε όταν η τιμή είναι ίση με 10.
 		if value == 10 {
 			close(share)
 			fmt.Printf("Goroutine %s Down\n", name)
 			return
 		}
 
-		// Increment the value and send it
-		// over the channel.
+		// Αυξήστε την τιμή και αποστείλτε την στο
+		// κανάλι επικοινωνίας.
 		share <- (value + 1)
 	}
 }

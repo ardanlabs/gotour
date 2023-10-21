@@ -1,8 +1,9 @@
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample concurrent program shows you how to implement a function
-// that can find the frequency a given rune is used in a specified sentence.
+// Αυτό το δείγμα προγράμματος ταυτόχρονης εκτέλεσης παρουσιάζει τον τρόπο
+// υλοποίησης μιας συνάρτησης που μπορεί να βρει την συχνότητα με την οποία
+// χρησιμοποιείται ένας ρούνος (rune) σε μια συγκεκριμένη πρόταση.
 package main
 
 import (
@@ -20,21 +21,21 @@ func main() {
 }
 
 func concurrent(text string) map[rune]int {
-	m := make(map[rune]int)    // Map with final result
-	g := runtime.GOMAXPROCS(0) // Number of goroutines
-	l := len(text)             // Number of bytes to process
-	b := l / g                 // Number of buckets, one per goroutine
+	m := make(map[rune]int)    // Πίνακας κατακερματισμού με τελικό αποτέλεσμα.
+	g := runtime.GOMAXPROCS(0) // Αριθμός των goroutine.
+	l := len(text)             // Αριθμός των byte για επεξεργασία.
+	b := l / g                 // Αριθμός θέσεων αποθήκευσης, μία ανά goroutine
 
-	// Receives the result of each bucket processed
-	// by a goroutine.
+	// Παραλαμβάνει το αποτέλεσμα επεξεργασίας κάθε θέσης αποθήκευσης από
+	// μια goroutine.
 	ch := make(chan map[rune]int, g)
 
-	// Create g number of goroutines.
+	// Δημιουργήστε πλήθος g goroutine.
 
 	for i := 0; i < g; i++ {
-		str := i * b   // Starting idx position of bucket
-		end := str + b // Ending idx position of bucket
-		if i == g-1 {  // The last bucket gets ant remaining bytes
+		str := i * b   // Αρχική θέση δείκτη του χώρου αποθήκευσης.
+		end := str + b // Τελική θέση δείκτη του χώρου αποθήκευσης.
+		if i == g-1 {  // Η τελευταία θέση αποθήκευσης παίρνει τα υπολοιπόμενα byte.
 			end = end + (l - end)
 		}
 
@@ -45,15 +46,15 @@ func concurrent(text string) map[rune]int {
 				ch <- m
 			}()
 
-			// This G processes its bucket sequentially.
+			// Αυτή η G επεξεργάζεται τον χώρο αποθήκευσης σειριακά.
 			for _, r := range text[str:end] {
 				m[r]++
 			}
 		}()
 	}
 
-	// Wait for the results of each bucket to come
-	// in and process them into the final map.
+	// Περιμένετε την επιστροφή των αποτελεσμάτων κάθε χώρου αποθήκευσης
+	// και επεξεργαστείτε τα στον τελικό πίνακα κατακερματισμού.
 
 	for i := 0; i < g; i++ {
 		result := <-ch

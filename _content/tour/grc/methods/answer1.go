@@ -1,24 +1,27 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct that represents a baseball player. Include name, atBats and hits.
-// Declare a method that calculates a players batting average. The formula is hits / atBats.
-// Declare a slice of this type and initialize the slice with several players. Iterate over
-// the slice displaying the players name and batting average.
+// Δηλώστε ένα struct που αντιπροσωπεύει έναν παίκτη baseball. Συμπεριλάβετε τα πεδία name,
+// atBats and hits.
+// Δηλώστε μια μέθοδο τύπου που υπολογίζει την μέση τιμή των χτυπημάτων ενός παίκτη. Ο τύπος
+// είναι Hits / AtBats.
+// Δηλώστε μια φέτα αυτού του τύπου και δώστε ως αρχική τιμή αρκετούς παίκτες. Πραγματοποιείστε
+// διαδοχική επίσκεψη των στοιχείων της φέτας, παρουσιάζοντας στην συνέχεια το πεδίο name και την
+// μέση τιμή χτυπημάτων του κάθε παίκτη.
 package main
 
 import "fmt"
 
-// player represents a person in the game.
+// Ο player αναπαριστά ένα πρώσωπο στο παιχνίδι.
 type player struct {
 	name   string
 	atBats int
 	hits   int
 }
 
-// average calculates the batting average for a player.
+// Η average υπολογίζει τον μέσο όρο των χτυπημάτων για ένα παίκτη.
 func (p *player) average() float64 {
 	if p.atBats == 0 {
 		return 0.0
@@ -29,19 +32,19 @@ func (p *player) average() float64 {
 
 func main() {
 
-	// Create a few players.
+	// Δημιουργήστε μερικούς παίκτες.
 	ps := []player{
 		{"bill", 10, 7},
 		{"jim", 12, 6},
 		{"ed", 6, 4},
 	}
 
-	// Display the batting average for each player.
+	// Παρουσιάστε τον μέσο όρο χτυπημάτων για κάθε παίκτη.
 	for i := range ps {
 		fmt.Printf("%s: AVG[.%.f]\n", ps[i].name, ps[i].average()*1000)
 	}
 
-	// Why did I not choose this form?
+	// Γιατί δεν επέλεξα αυτή την μορφή;
 	for _, p := range ps {
 		fmt.Printf("%s: AVG[.%.f]\n", p.name, p.average()*1000)
 	}

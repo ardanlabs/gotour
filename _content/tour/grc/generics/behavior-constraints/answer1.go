@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Implement a generic function named marshal that can marshal JSON but only
-// accepts values that implement the json.Marshaler interface.
+// Υλοποιείστε μια γενική συνάρτηση με το όνομα marshal που να μπορεί να σειριοποιήσει
+// (marshal) JSON όμως δέχεται μόνο τιμές που υλοποιούν την διεπαφή json.Marshaler interface.
 package main
 
 import (
@@ -12,8 +12,8 @@ import (
 	"fmt"
 )
 
-// Implement the generic function named marshal that can accept only values
-// of type T that implement the json.Marshaler interface.
+// Υλοποιείστε μια γενική συνάρτηση με το όνομα marshal που μπορεί να
+// αποδέχεται μόνο τιμές τύπου T που υλοποιεί την διεπαφή json.Marshaler.
 func marshal[T json.Marshaler](v T) ([]byte, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
@@ -25,14 +25,14 @@ func marshal[T json.Marshaler](v T) ([]byte, error) {
 
 // =============================================================================
 
-// Define a type names user with two fields, name and email.
+// Ορίστε έναν τύπο με το όνομα user με δύο πεδία, το πεδίο name και το πεδίο email.
 type user struct {
 	name  string
 	email string
 }
 
-// Declare a method that implements the json.Marshaler interface. Have the
-// method return a value of type user as JSON.
+// Υλοποιείστε μια μέθοδο τύπου που υλοποιεί με την σειρά της την διεπαφή json.Marshaler.
+// Η μέθοδος τύπου πρέπει να επιστρέφει μια τιμή τύπου user ως JSON.
 func (u user) MarshalJSON() ([]byte, error) {
 	v := fmt.Sprintf("{\"name\": %q, \"email\": %q}", u.name, u.email)
 	return []byte(v), nil
@@ -42,19 +42,19 @@ func (u user) MarshalJSON() ([]byte, error) {
 
 func main() {
 
-	// Construct a value of type user.
+	// Δημιουργείστε μια τιμή τύπου user.
 	user := user{
 		name:  "Bill",
 		email: "bill@ardanlabs.com",
 	}
 
-	// Call the generic marshal function.
+	// Καλέστε την συνάρτηση γενικού προγραμματισμού marshal.
 	s1, err := marshal(user)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Display the returned JSON.
+	// Παρουσιάστε την επιστραμένη τιμή JSON.
 	fmt.Println("user:", string(s1))
 }

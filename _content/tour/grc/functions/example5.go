@@ -1,9 +1,9 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show how to recover from panics.
+// Δείγμα προγράμματος προκιεμένου να παρουσιαστεί ο τρόπος ανάκτησης ελέγχου (recover) από καταστάσεις panic.
 package main
 
 import (
@@ -13,27 +13,27 @@ import (
 
 func main() {
 
-	// Call the testPanic function to run the test.
+	// Καλέστε την συνάρτηση testPanic προκειμένου να εκτελεστεί ο έλεγχος.
 	if err := testPanic(); err != nil {
 		fmt.Println("Error:", err)
 	}
 }
 
-// testPanic simulates a function that encounters a panic to
-// test our catchPanic function.
+// Η testPanic μιμείται μια συνάρτηση που συναντά μια κατάσταση panic προκειμένου
+// να ελέγξουμε την συνάρτηση catchPanic.
 func testPanic() (err error) {
 
-	// Schedule the catchPanic function to be called when
-	// the testPanic function returns.
+	// Προγραμματίστε ώστε η συνάρτηση catchPanic να κληθεί όταν
+	// η συνάρτηση testPanic επιστρέψει.
 	defer catchPanic(&err)
 
 	fmt.Println("Start Test")
 
-	// Mimic a traditional error from a function.
+	// Εδώ μιμείστε ένα παραδοσιακό σφάλμα από μια συνάρτηση.
 	err = mimicError("1")
 
-	// Trying to dereference a nil pointer will cause the
-	// runtime to panic.
+	// Μια προσπάθεια πρόσβασης στην διεύθυνση μνήμης που δείχνει ένας δείκτης διεύθυνσης
+	// με την τιμή nil, θα προκαλέσει το εκτελέσιμο περιβάλλον να μπει σε κατάσταση panic.
 	var p *int
 	*p = 10
 
@@ -41,27 +41,27 @@ func testPanic() (err error) {
 	return err
 }
 
-// catchPanic catches panics and processes the error.
+// Η catchPanic συλλαμβάνει τις καταστάσεις panic και επεξεργάζεται το σφάλμα.
 func catchPanic(err *error) {
 
-	// Check if a panic occurred.
+	// Ελέγξτε αν συνέβη κατάσταση panic.
 	if r := recover(); r != nil {
 		fmt.Println("PANIC Deferred")
 
-		// Capture the stack trace.
+		// Αποθηκεύστε το ίχνος της στοίβας εκτέλεσης.
 		buf := make([]byte, 10000)
 		runtime.Stack(buf, false)
 		fmt.Println("Stack Trace:", string(buf))
 
-		// If the caller wants the error back provide it.
+		// Αν ο καλών θέλει το σφάλμα, παρέχετε το του.
 		if err != nil {
 			*err = fmt.Errorf("%v", r)
 		}
 	}
 }
 
-// mimicError is a function that simulates an error for
-// testing the code.
+// Η mimicError είναι μια συνάρτηση που μιμείται ένα σφάλμα για
+// λόγους ελέγχου του κώδικα.
 func mimicError(key string) error {
 	return fmt.Errorf("Mimic Error : %s", key)
 }

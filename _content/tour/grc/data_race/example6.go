@@ -1,11 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Sample program to show a more complicated race condition using
-// an interface value. This produces a read to an interface value after
-// a partial write.
+// Δείγμα προγράμματος προκειμένου να παρουσιαστεί μια περισσότερο περίπλοκη κατάσταση ανταγωνισμού για δεδομένα
+// χρησιμοποιώντας μια τιμή διεπαφής. Δημιουργείται μια ανάγνωση σε τιμή διεπαφής μετά από ανολοκλήρωτη εγγραφή.
 package main
 
 import (
@@ -14,18 +13,18 @@ import (
 	"sync"
 )
 
-// Speaker allows for speaking behavior.
+// Ο Speaker επιτρέπει συμπεριφορά ομιλίας.
 type Speaker interface {
 	Speak() bool
 }
 
-// Ben is a person who can speak.
+// Ο Ben είναι ένα πρόσωπο που μπορεί να μιλήσει.
 type Ben struct {
 	name string
 }
 
-// Speak allows Ben to say hello. It returns false if the method is
-// called through the interface value after a partial write.
+// Η Speak επιτρέπει στον Ben να πει γεια. Επιστρέφει false αν η μέθοδος τύπου κληθεί
+// από την τιμή διεπαφής μετά την ανολοκλήρωτη εγγραφή.
 func (b *Ben) Speak() bool {
 	if b.name != "Ben" {
 		fmt.Printf("Ben says, \"Hello my name is %s\"\n", b.name)
@@ -35,13 +34,13 @@ func (b *Ben) Speak() bool {
 	return true
 }
 
-// Jerry is a person who can speak.
+// Ο Jerry είναι ένα πρόσωπο που μπορεί να μιλήσει.
 type Jerry struct {
 	name string
 }
 
-// Speak allows Jerry to say hello. It returns false if the method is
-// called through the interface value after a partial write.
+// Η Speak επιτρέπει στον Jerry να πει γεια. Επιστρέφει false αν η μέθοδος τύπου
+// κληθεί από την τιμή διεπαφής μετά από μια ανολοκλήρωτη εγγραφή.
 func (j *Jerry) Speak() bool {
 	if j.name != "Jerry" {
 		fmt.Printf("Jerry says, \"Hello my name is %s\"\n", j.name)
@@ -53,15 +52,15 @@ func (j *Jerry) Speak() bool {
 
 func main() {
 
-	// Create values of type Ben and Jerry.
+	// Δημιουργείστε τιμές τύπων Ben και Jerry.
 	ben := Ben{"Ben"}
 	jerry := Jerry{"Jerry"}
 
-	// Assign the pointer to the Ben value to the interface value.
+	// Εκχωρείστε τον δείκτη διεύθυνσης προς την τιμή του Ben στην τιμή διεπαφής.
 	person := Speaker(&ben)
 
-	// Have a goroutine constantly assign the pointer of
-	// the Ben value to the interface and then Speak.
+	// Βάλτε την goroutine να εκχωρεί συνεχώς τον δείκτη διεύθυνσης της τιμής
+	// Ben στην διεπαφή και στην συνέχεια να καλεί την μέθοδο τύπου Speak.
 	go func() {
 		for {
 			person = &ben
@@ -71,8 +70,8 @@ func main() {
 		}
 	}()
 
-	// Have a goroutine constantly assign the pointer of
-	// the Jerry value to the interface and then Speak.
+	// Βάλτε την goroutine να εκχωρεί συνεχώς τον δείκτη διεύθυνσης της τιμής
+	// Jerry στην διεπαφή και στην συνέχεια να καλεί την μέθοδο τύπου Speak.
 	go func() {
 		for {
 			person = &jerry
@@ -82,8 +81,8 @@ func main() {
 		}
 	}()
 
-	// Just hold main from returning. The data race will
-	// cause the program to exit.
+	// Απλά κρατήστε την συνάρτηση main από το να επιστρέψει. Η κατάσταση ανταγωνισμού για δεδομένα θα
+	// τερματίσει το πρόγραμμα.
 	var wg sync.WaitGroup
 	wg.Add(1)
 	wg.Wait()

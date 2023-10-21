@@ -1,42 +1,42 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Declare a struct type to maintain information about a user. Declare a function
-// that creates value of and returns pointers of this type and an error value. Call
-// this function from main and display the value.
+// Δηλώστε έναν τύπο struct που διατηρεί πληροφορίες για ένα χρήστη. Δηλώστε μια
+// συνάρτηση που δημιουργεί μια τιμή και επιστρέφει δείκτες διεύθυνσης αυτού του τύπου και μια τιμή
+// σφάλματος. Καλέστε αυτή την συνάρτηση από την main και παρουσιάστε την τιμή
 //
-// Make a second call to your function but this time ignore the value and just test
-// the error value.
+// Κάντε μια δεύτερη κλήση στην συνάρτηση σας όμως αυτή τη φορά αγνοείστε την τιμή
+// και απλά ελέγξτε την τιμή σφάλματος.
 package main
 
 import "fmt"
 
-// user represents a user in the system.
+// Ο user αναπαριστά έναν χρήστη του συστήματος.
 type user struct {
 	name  string
 	email string
 }
 
-// newUser creates and returns pointers of user type values.
+// Η συνάρτηση newUser δημιουργεί και επιστρέφει δείκτες διεύθυνσης τιμών τύπου user.
 func newUser() (*user, error) {
 	return &user{"Bill", "bill@ardanlabs.com"}, nil
 }
 
 func main() {
 
-	// Create a value of type user.
+	// Δημιουργείστε μια τιμή τύπου user.
 	u, err := newUser()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Display the value.
+	// Παρουσιάστε την τιμή.
 	fmt.Println(*u)
 
-	// Call the function and just check the error on the return.
+	// Καλέστε την συνάρτηση και απλά ελέγξτε το σφάλμα στην επιστροφή.
 	_, err = newUser()
 	if err != nil {
 		fmt.Println(err)

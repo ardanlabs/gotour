@@ -1,10 +1,10 @@
 //go:build OMIT
 
-// All material is licensed under the Apache License Version 2.0, January 2004
+// Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// This sample program shows you how to determine if a string is a
-// palindrome or not.
+// Αυτό είναι ένα δείγμα προγράμματος που παρουσιάζει τον τρόπο
+// προσδιορισμού μιας παλίνδρομης από μια κανονική συμβολοσειράς.
 package main
 
 import "fmt"
@@ -27,20 +27,20 @@ func main() {
 
 // =============================================================================
 
-// IsPalindrome checks if a string is a Palindrome.
+// Η IsPalindrome ελέγχει αν μια συμβολοσειρά είναι Παλίνδρομη.
 func IsPalindrome(input string) bool {
 
-	// If the input string is empty or as a length of 1 return true.
+	// Αν η συμβολοσειρά εισόδου είναι άδεια ή έχει μήκος 1 επιστρέψτε true.
 	if input == "" || len(input) == 1 {
 		return true
 	}
 
-	// Convert the input string into slice of runes for processing.
-	// A rune represent a code point in the UTF-8 character set.
+	// Μετατρέψτε την συμβολοσειρά εισόδου σε φέτα ρούνων (rune) για επεξεργασία.
+	// Ένας ρούνος αναπαριστά ένα στοιχείο κωδικοποίησης στο σύνολο χαρακτήρων UTF-8.
 	runes := []rune(input)
 
-	// Run over runes forward and backward comparing runes.
-	// If runes[i] != runes[len(runes)-i-1] then it's not a palindrome.
+	// Προσπελάστε τους ρούνους κανονικά και ανάποδα, συγκρίνοντας τους.
+	// Αν runes[i] != runes[len(runes)-i-1] τότε δεν είναι παλίνδρομη.
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		if runes[i] != runes[j] {
 			return false
