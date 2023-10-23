@@ -1,22 +1,22 @@
-Fun Problems
-This section contains a set fun code challenges that showcase some of the capabilities offered by Go.
+Problemas Divertidos
+Esta sección contiene una serie de desafíos de código divertidos que muestran algunas de las capacidades ofrecidas por Go.
 
-* Sleeping Barber Problem
+* Problema del Barbero Dormilón
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Ver el video]]
 - Si necesita asistencia financiera, utilice nuestro [[https://www.ardanlabs.com/scholarship/][Formulario de becas]]
 
-This sample program implements the sleeping barber problem.
+Este programa de muestra implementa el problema del Barbero Dormilón.
 
-- See more at [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+- Más información en [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-There is one barber in the barber shop, one barber chair and `n` chairs for
-waiting customers. If there are no customers, the barber sits down in the
-barber chair and takes a nap. An arriving customer must wake the barber.
-Subsequent arriving customers take a waiting chair if any are empty or
-leave if all chairs are full.
+En la barbería hay un barbero, una silla de barbero y n sillas para los clientes que esperan. 
+Si no hay clientes, el barbero se sienta en la silla de barbero y se echa una siesta. 
+Un cliente que llega debe despertar al barbero. Los clientes que llegan posteriormente 
+ocupan una silla de espera si hay alguna disponible o se van si todas las sillas están 
+ocupadas.
 
-*Output:*
+*Salida:*
 
     Opening the shop
     Barber ready to work
@@ -42,37 +42,40 @@ leave if all chairs are full.
 
 .play algorithms/fun/barber.go
 
-* Frequency
+* Frecuencia
 
-This sample programs shows you how to implement a function that can find
-the frequency of a given rune that is used in a specified sentence.
+Este programa de muestra te muestra cómo implementar una función 
+que puede encontrar la frecuencia de un carácter específico usado 
+en una oración especificada.
 
-- Sequential: A linear algorithm to perform a rune count.
-- Concurrent: A concurrent algorithm to perform a rune count.
+- Secuencial: Un algoritmo lineal para contar runas.
+- Concurrente: Un algoritmo concurrente para contar runas.
 
 .play algorithms/fun/freq_sequential.go
 .play algorithms/fun/freq_concurrent.go
 
-*  Variable Length Quantity encoding/decoding.
+* Codificación/decodificación de Cantidad de Longitud Variable.
 
-This sample program showcases how Go can be leveraged to implement variable length quantity encoding/decoding.
+Este programa de muestra demuestra cómo Go puede ser utilizado para implementar 
+codificación/decodificación de cantidad de longitud variable.
 
-- See more at [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+- Más información en [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-In short, the goal of this encoding is to save encode integer values in
-a way that would save bytes. Only the first 7 bits of each byte is significant
-(right-justified; sort of like an ASCII byte). So, if you have a 32-bit value,
-you have to unpack it into a series of 7-bit bytes. Of course, you will have
-a variable number of bytes depending upon your integer. To indicate which
-is the last byte of the series, you leave bit #7 clear. In all of the
-preceding bytes, you set bit #7.
+En resumen, el objetivo de esta codificación es ahorrar bytes al codificar 
+valores enteros de una manera que ahorre espacio. Solo los primeros 7 bits 
+de cada byte son significativos (justificados a la derecha; algo así como 
+un byte ASCII). Entonces, si tienes un valor de 32 bits, debes descomponerlo
+en una serie de bytes de 7 bits. Por supuesto, tendrás un número variable 
+de bytes dependiendo de tu número entero. Para indicar cuál es el último 
+byte de la serie, dejas el bit n.° 7 sin marcar. En todos los bytes anteriores, 
+marcas el bit n.° 7.
 
-So, if an integer is between 0-127, it can be represented as one byte. The
-largest integer allowed is 0FFFFFFF, which translates to 4 bytes variable
-length. Here are examples of delta-times as 32-bit values, and the variable
-length quantities that they translate to:
+Entonces, si un entero está entre 0-127, se puede representar como un byte. 
+El entero más grande permitido es 0FFFFFFF, que se traduce en una longitud 
+variable de 4 bytes. Aquí tienes ejemplos de tiempos de delta como valores 
+de 32 bits y las cantidades de longitud variable a las que se traducen:
 
-    NUMBER        VARIABLE QUANTITY
+    NÚMERO        CANTIDAD DE LONGITUD VARIABLE
     00000000              00
     00000040              40
     0000007F              7F
@@ -86,13 +89,15 @@ length quantities that they translate to:
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-A variable-length quantity (VLQ) is a universal code that uses an arbitrary
-number of binary octets (eight-bit bytes) to represent an arbitrarily large
-integer. It was defined for use in the standard MIDI file format[1] to save
-additional space for a resource constrained system, and is also used in the
-later Extensible Music Format (XMF). A VLQ is essentially a base-128
-representation of an unsigned integer with the addition of the eighth bit
-to mark continuation of bytes. See the example below.
+Una cantidad de longitud variable (VLQ) es un código universal que utiliza 
+un número arbitrario de octetos binarios (bytes de ocho bits) para 
+representar un número entero arbitrariamente grande. Se definió para su 
+uso en el formato de archivo estándar MIDI[1] para ahorrar espacio 
+adicional para un sistema con recursos limitados y también se utiliza 
+en el formato de música extensible posterior (XMF). Una VLQ es esencialmente 
+una representación en base 128 de un número entero sin signo con la adición 
+del octavo bit para marcar la continuación de los bytes. Mira el ejemplo a 
+continuación.
 
 	Int:    16384
 	IntHex: 0x00004000
@@ -100,31 +105,32 @@ to mark continuation of bytes. See the example below.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Lets say I want to represent the number 3435 in VLQ. 3435 in
-binary is 110101101011. We can not fit this in a byte. So we will
-chop it up from the end in 7-bit blocks.
+Digamos que quiero representar el número 3435 en VLQ. 3435 en binario es 
+110101101011. No podemos ajustarlo en un byte. Entonces, lo dividiremos 
+desde el final en bloques de 7 bits.
 
-    Septet	7	6	5	4	3	2	1
+    Sépteto	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-Now we prepend all but the last with a 1-bit to indicate that an octet
-follows and prepend a 0-bit to the last, signalling the final octet.
+Ahora agregamos un bit de 1 a todos menos al último para indicar que 
+sigue un octeto y agregamos un bit de 0 al último, señalando el octeto 
+final.
 
-    Octet   8	7	6	5	4	3	2	1
+    Octeto   8	7	6	5	4	3	2	1
     #1      0	1	1	0	1	0	1	1
     #2      1	0	0	1	1	0	1	0
 
-Finally we concatenate them, most significant octet first, into
+Finalmente, los concatenamos, primero el octeto más significativo, en
 
-Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
+Codificado: 10011010 01101011  En Hexadecimal: 0x9A 0x6B
 
-*Extra* *Resources:*
+*Recursos* *Adicionales:*
 
 - [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
 - [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
-*For* *an* *excellent* *implementation* *of* *this* *algorithm* *look* *here:*
+*Para* *una* *excelente* *implementación* *de* *este* *algoritmo,* *mira* *aquí:*
 
 - [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
