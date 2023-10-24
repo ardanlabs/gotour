@@ -3,8 +3,8 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Αυτό το δείγμα προγράμματος παρουσιάζει ο τρόπος συγγραφής μιας δυαδικής αναζήτησης
-// χρησιμοποιώντας μια αναδρομική προσέγγιση.
+// Αυτό το δείγμα προγράμματος παρουσιάζει ο τρόπος συγγραφής μιας δυαδικής
+// αναζήτησης, χρησιμοποιώντας μια αναδρομική προσέγγιση.
 package main
 
 import (
@@ -33,7 +33,7 @@ func binarySearchRecursive(sortedList []int, target int, leftIdx int, rightIdx i
 	// Υπολογίστε τον μεσαίο δείκτη της λίστα.
 	midIdx := (leftIdx + rightIdx) / 2
 
-	// Ελέξτε μέχρι η leftIdx είναι μικρότερη ή ίση με την rightIdx.
+	// Ελέγξτε μέχρι η leftIdx είναι μικρότερη ή ίση με την rightIdx.
 	if leftIdx <= rightIdx {
 
 		switch {
@@ -42,7 +42,7 @@ func binarySearchRecursive(sortedList []int, target int, leftIdx int, rightIdx i
 		case sortedList[midIdx] == target:
 			return midIdx, nil
 
-		// Αν η τιμή είναι μεγαλύτερη από τον στόχο, διαιρέστε την λίστα
+		// Αν η τιμή είναι μεγαλύτερη από τον στόχο, διαιρέστε την λίστα,
 		// μετακινώντας την rightIdx εντός της λίστας.
 		case sortedList[midIdx] > target:
 			return binarySearchRecursive(sortedList, target, leftIdx, midIdx-1)

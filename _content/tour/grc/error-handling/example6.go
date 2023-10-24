@@ -3,7 +3,8 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγμα προγράμματος προκειμένου να παρουσιαστεί πως γίνεται το περιτύλιγμα σφαλμάτων με την βασική βιβλιοθήκη.
+// Δείγμα προγράμματος, προκειμένου να παρουσιαστεί πως γίνεται το περιτύλιγμα
+// σφαλμάτων με την βασική βιβλιοθήκη.
 package main
 
 import (
@@ -55,7 +56,8 @@ func main() {
 	}
 }
 
-// Η firstCall κάνει την κλήση σε μια δεύτερη συνάρτηση και ενθυλακώνει το όποιο σφάλμα.
+// Η firstCall κάνει την κλήση σε μια δεύτερη συνάρτηση και ενθυλακώνει
+// το όποιο σφάλμα.
 func firstCall(i int) error {
 	if err := secondCall(i); err != nil {
 		return fmt.Errorf("firstCall->secondCall(%d) : %w", i, err)
@@ -63,7 +65,8 @@ func firstCall(i int) error {
 	return nil
 }
 
-// Η secondCall κάνει την κλήση σε μια τρίτη συνάρτηση και ενθυλακώνει το όποιο σφάλμα.
+// Η secondCall κάνει την κλήση σε μια τρίτη συνάρτηση και ενθυλακώνει
+// το όποιο σφάλμα.
 func secondCall(i int) error {
 	if err := thirdCall(); err != nil {
 		return fmt.Errorf("secondCall->thirdCall() : %w", err)
@@ -71,7 +74,7 @@ func secondCall(i int) error {
 	return nil
 }
 
-// Η thirdCall δημιουργεί μια τιμή error την οποία θα επιβεβαιώσουμε.
+// Η thirdCall δημιουργεί μια τιμή error, την οποία θα επιβεβαιώσουμε.
 func thirdCall() error {
 	return &AppError{99}
 }

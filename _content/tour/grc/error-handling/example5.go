@@ -3,7 +3,8 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγμα προγράμματος προκειμένου να παρουσιαστεί αν η κλάση μπορεί να εντοπίσει το πρόβλημα.
+// Δείγμα προγράμματος, προκειμένου να παρουσιαστεί αν η κλάση μπορεί να
+// εντοπίσει το πρόβλημα.
 package main
 
 import (
@@ -14,7 +15,6 @@ import (
 // Ο customError είναι απλά ένας κενός struct.
 type customError struct{}
 
-// Η Error υλοποιεί την διεπαφή error.
 // Η Error υλοποιεί την διεπαφή error.
 func (c *customError) Error() string {
 	return "Find the bug."

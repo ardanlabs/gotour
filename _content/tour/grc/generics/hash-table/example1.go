@@ -6,7 +6,7 @@
 // Αυτός ο κώδικας παρέχεται από τον Matt Layher (@mdlayher)
 // https://mdlayher.com/blog/go-generics-draft-design-building-a-hashtable/#a-generic-hashtable
 
-// Δείγμα προγράμματος προκειμένου να παρουσιαστεί ο τρόπος συγγραφής
+// Δείγμα προγράμματος, προκειμένου να παρουσιαστεί ο τρόπος συγγραφής
 // ενός πίνακα κατακερματισμού γενικού προγραμματισμού.
 package main
 

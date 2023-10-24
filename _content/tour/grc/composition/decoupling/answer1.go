@@ -3,21 +3,23 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Χρησιμοποιώντας το πρότυπο, δηλώστε ένα σύνολο πραγματικών τύπων που υλοποιούν ένα σύνολο
-// προκαθορισμένων τύπων διεπαφών. Στην συνέχεια, δημιουργείστε τιμές αυτών των τύπων και
-// χρησιμοποιείστε τις προκειμένου να ολοκληρώσετε ένα σύνολο από προκαθορισμένες ενέργειες.
+// Χρησιμοποιώντας το πρότυπο, δηλώστε ένα σύνολο πραγματικών τύπων, που υλοποιούν
+// ένα σύνολο προκαθορισμένων τύπων διεπαφών. Στην συνέχεια, δημιουργείστε τιμές
+// αυτών των τύπων και χρησιμοποιήστε τις, προκειμένου να ολοκληρώσετε ένα σύνολο
+// από προκαθορισμένες ενέργειες.
 package main
 
 // Προσθέστε δηλώσεις εισαγωγής (import).
 import "fmt"
 
-// Ο administrator αναπαριστά ένα πρόσωπο ή άλλη οντότητα που είναι ικανοί
+// Ο administrator αναπαριστά ένα πρόσωπο ή άλλη οντότητα, που είναι ικανοί
 // να διαχειρίζονται υποδομές υλικού και λογισμικού.
 type administrator interface {
 	administrate(system string)
 }
 
-// Ο developer αναπαριστά ένα πρόσωπο ή άλλη οντότητα που μπορούν να γράφουν λογισμικό.
+// Ο developer αναπαριστά ένα πρόσωπο ή άλλη οντότητα που μπορεί να γράφει
+// λογισμικό.
 type developer interface {
 	develop(system string)
 }
@@ -62,19 +64,21 @@ func (l *devlist) Dequeue() developer {
 
 // =============================================================================
 
-// Δηλώστε έναν πραγματικό τύπο με το όνομα sysadmin με ένα πεδίο name τύπου συμβολοσειράς.
+// Δηλώστε έναν πραγματικό τύπο με το όνομα sysadmin με ένα πεδίο name
+// τύπου συμβολοσειράς.
 type sysadmin struct {
 	name string
 }
 
-// Δηλώστε μια μέθοδο τύπου με το όνομα administrate για τον τύπο sysadmintype, που υλοποιεί
-// την διεπαφή administrator. Η administrate θα πρέπει να τυπώνει το πεδίο name του
-// sysadmin, όπως επίσης και το σύστημα το οποίο διαχειρίζεται.
+// Δηλώστε μια μέθοδο τύπου με το όνομα administrate για τον τύπο sysadmintype,
+// που υλοποιεί την διεπαφή administrator. Η administrate θα πρέπει να τυπώνει
+// το πεδίο name του sysadmin, όπως επίσης και το σύστημα το οποίο διαχειρίζεται.
 func (s *sysadmin) administrate(system string) {
 	fmt.Println(s.name, "is administering", system)
 }
 
-// Δηλώστε έναν πραγματικό τύπο με το όνομα programmer με ένα πεδίο name τύπου συμβολοσειράς.
+// Δηλώστε έναν πραγματικό τύπο με το όνομα programmer με ένα πεδίο name τύπου
+// συμβολοσειράς.
 type programmer struct {
 	name string
 }
@@ -111,14 +115,15 @@ func main() {
 	devs.Enqueue(&programmer{"Steve"})
 
 	// Δημιουργείστε μια μεταβλητή με το όνομα cmp τύπου company, και δώστε
-	// αρχική τιμή προσλαμβάνονατς (dequeuing) έναν administrator από τον admins και
+	// αρχική τιμή προσλαμβάνονατς (dequeuing) έναν administrator από τον
+	// admins και έναν developer από τον devs.
 	cmp := company{
 		administrator: admins.Dequeue(),
 		developer:     devs.Dequeue(),
 	}
 
-	// Με την Enqueue προσθέστε την τιμή company και στις δύο λίστες καθώς ο company
-	// υλοποιεί κάθε διεπαφή.
+	// Με την Enqueue προσθέστε την τιμή company και στις δύο λίστες, καθώς ο
+	// company υλοποιεί κάθε διεπαφή.
 	admins.Enqueue(&cmp)
 	devs.Enqueue(&cmp)
 
@@ -135,19 +140,20 @@ func main() {
 	// Προσπελάστε επαναλληπτικά τις εργασίες.
 	for _, task := range tasks {
 
-		// Ελέγξτε αν η εργασία χρειάζεται έναν administrator διαφορετικά χρησιμοποιείστε έναν developer.
+		// Ελέγξτε αν η εργασία χρειάζεται έναν administrator διαφορετικά
+		// χρησιμοποιήστε έναν developer.
 		if task.needsAdmin {
 
-			// Με την Dequeue απομακρύνετε μια τιμή administrator από την λίστα admins και
-			// καλέστε την μέθοδο τύπου administrate.
+			// Με την Dequeue απομακρύνετε μια τιμή administrator από την
+			// λίστα admins και καλέστε την μέθοδο τύπου administrate.
 			adm := admins.Dequeue()
 			adm.administrate(task.system)
 
 			continue
 		}
 
-		// Με την Dequeue απομακρύνετε μια τιμή developer από την λίστα devs και
-		// καλέστε την μέθοδο τύπου develop.
+		// Με την Dequeue απομακρύνετε μια τιμή developer από την λίστα
+		// devs και καλέστε την μέθοδο τύπου develop.
 		dev := devs.Dequeue()
 		dev.develop(task.system)
 	}

@@ -3,7 +3,8 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγμα προγράμματος που παρουσιάζει πως επιδεικνύεται περισσότερη ακρίβεια στον σχεδιασμό API.
+// Δείγμα προγράμματος, που παρουσιάζει πως επιδεικνύεται περισσότερη ακρίβεια
+// στον σχεδιασμό API.
 package main
 
 import (
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-// Ο Data είναι η δομή των δεδομένων που αντιγράφουμε.
+// Ο Data είναι η δομή των δεδομένων, που αντιγράφουμε.
 type Data struct {
 	Line string
 }
@@ -33,13 +34,13 @@ type Storer interface {
 
 // =============================================================================
 
-// Ο Xenia είναι ένα σύστημα από το οποίο χρειάζεται να αντλήσουμε δεδομένα.
+// Ο Xenia είναι ένα σύστημα, από το οποίο χρειάζεται να αντλήσουμε δεδομένα.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
 }
 
-// Η Pull γνωρίζει πως να αντλεί δεδομένα από τον Xenia.
+// Η Pull γνωρίζει, πως να αντλεί δεδομένα από τον Xenia.
 func (*Xenia) Pull(d *Data) error {
 	switch rand.Intn(10) {
 	case 1, 9:
@@ -55,7 +56,7 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Ο Pillar είναι ένα σύστημα στο οποίο χρειάζεται να αποθηκεύσουμε δεδομένα.
+// Ο Pillar είναι ένα σύστημα, στο οποίο χρειάζεται να αποθηκεύσουμε δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
@@ -69,7 +70,7 @@ func (*Pillar) Store(d *Data) error {
 
 // =============================================================================
 
-// Η pull γνωρίζει πως να αντλεί δεδομένα από κάθε Puller.
+// Η pull γνωρίζει πως να αντλεί δεδομένα, από κάθε Puller.
 func pull(p Puller, data []Data) (int, error) {
 	for i := range data {
 		if err := p.Pull(&data[i]); err != nil {
@@ -80,7 +81,7 @@ func pull(p Puller, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// η store γνωρίζει πως να αποθηκεύει δεδομένα σε κάθε Storer.
+// Η store γνωρίζει πως να αποθηκεύει δεδομένα, σε κάθε Storer.
 func store(s Storer, data []Data) (int, error) {
 	for i := range data {
 		if err := s.Store(&data[i]); err != nil {
@@ -91,7 +92,7 @@ func store(s Storer, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα από κάθε σύστημα.
+// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα, από κάθε σύστημα.
 func Copy(p Puller, s Storer, batch int) error {
 	data := make([]Data, batch)
 

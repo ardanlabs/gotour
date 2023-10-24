@@ -3,7 +3,7 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγμα προγράμματος προκειμένου να παρουσιάσει την σύνθεση διεπαφών.
+// Δείγμα προγράμματος, προκειμένου να παρουσιάσει την σύνθεση διεπαφών.
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// Ο Data είναι η δομή των δεομένων που αντιγράφουμε.
+// Ο Data είναι η δομή των δεομένων, που αντιγράφουμε.
 type Data struct {
 	Line string
 }
@@ -31,7 +31,7 @@ type Storer interface {
 	Store(d *Data) error
 }
 
-// Ο PullStorer δηλώνει συμπεριφορά τόσο για άντληση όσο και για αποθήκευση.
+// Ο PullStorer δηλώνει συμπεριφορά, τόσο για άντληση όσο και για αποθήκευση.
 type PullStorer interface {
 	Puller
 	Storer
@@ -39,7 +39,7 @@ type PullStorer interface {
 
 // =============================================================================
 
-// Ο Xenia είναι ένα σύστημα από το οποίο θέλουμε να αντλούμε δεδομένα.
+// Ο Xenia είναι ένα σύστημα, από το οποίο θέλουμε να αντλούμε δεδομένα.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
@@ -61,7 +61,7 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Ο Pillar είναι ένα σύστημα στο οποίο πρέπει να αποθηκεύουμε δεδομένα.
+// Ο Pillar είναι ένα σύστημα, στο οποίο πρέπει να αποθηκεύουμε δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
@@ -75,7 +75,7 @@ func (*Pillar) Store(d *Data) error {
 
 // =============================================================================
 
-// Ο System συνδυάζει έναν Xenia και έναν Pillar σε ένα κοινό σύστημα.
+// Ο System συνδυάζει έναν Xenia και έναν Pillar, σε ένα κοινό σύστημα.
 type System struct {
 	Xenia
 	Pillar
@@ -105,7 +105,7 @@ func store(s Storer, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα από κάθε σύστημα.
+// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα, από κάθε σύστημα.
 func Copy(ps PullStorer, batch int) error {
 	data := make([]Data, batch)
 

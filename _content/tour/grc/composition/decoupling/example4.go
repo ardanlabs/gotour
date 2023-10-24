@@ -3,7 +3,8 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγμα προγράμματος που παρουσιάζει την αποσύνδεση με την χρήση σύνθεση διεπαφών.
+// Δείγμα προγράμματος, που παρουσιάζει την αποσύνδεση, με την χρήση σύνθεσης
+// διεπαφών.
 package main
 
 import (
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-// Ο Data είναι η δομή δεδομένων που αντιγράφουμε.
+// Ο Data είναι η δομή δεδομένων, που αντιγράφουμε.
 type Data struct {
 	Line string
 }
@@ -31,7 +32,7 @@ type Storer interface {
 	Store(d *Data) error
 }
 
-// Ο PullStorer δηλώνει συμπεριφορά τόσο για άντληση όσο και για αποθήκευση.
+// Ο PullStorer δηλώνει συμπεριφορά, τόσο για άντληση όσο και για αποθήκευση.
 type PullStorer interface {
 	Puller
 	Storer
@@ -39,7 +40,7 @@ type PullStorer interface {
 
 // =============================================================================
 
-// Ο Xenia είναι ένα σύστημα από το οποίο χρειάζεται να αντλήσουμε δεδομένα.
+// Ο Xenia είναι ένα σύστημα, από το οποίο χρειάζεται να αντλήσουμε δεδομένα.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
@@ -61,7 +62,7 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Ο Pillar είναι ένα σύστημα στο οποίο θέλουμε αν αποθηκεύσουμε δεδομένα.
+// Ο Pillar είναι ένα σύστημα, στο οποίο θέλουμε αν αποθηκεύσουμε δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
@@ -75,7 +76,7 @@ func (*Pillar) Store(d *Data) error {
 
 // =============================================================================
 
-// Ο System συνδυάζει Pullers και Stores σε ένα σύστημα.
+// Ο System συνδυάζει Pullers και Stores, σε ένα σύστημα.
 type System struct {
 	Puller
 	Storer
@@ -83,7 +84,7 @@ type System struct {
 
 // =============================================================================
 
-// η pull γνωρίζει πως να αντλεί δεδομένα από κάθε Puller.
+// Η pull γνωρίζει, πως να αντλεί δεδομένα από κάθε Puller.
 func pull(p Puller, data []Data) (int, error) {
 	for i := range data {
 		if err := p.Pull(&data[i]); err != nil {
@@ -94,7 +95,7 @@ func pull(p Puller, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// η store γνωρίζει πως να αποθηκεύει δεδομένα σε κάθε Storer.
+// Η store γνωρίζει πως να αποθηκεύει δεδομένα σε κάθε Storer.
 func store(s Storer, data []Data) (int, error) {
 	for i := range data {
 		if err := s.Store(&data[i]); err != nil {
@@ -105,7 +106,7 @@ func store(s Storer, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα από κάθε σύστημα.
+// Η Copy γνωρίζει πως να αντλεί και να αποθηκεύει δεδομένα, από κάθε σύστημα.
 func Copy(ps PullStorer, batch int) error {
 	data := make([]Data, batch)
 

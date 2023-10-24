@@ -3,7 +3,7 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// Δείγγμα προγράμματος που παρουσιάζει την αποσύνδεση με διεπαφές.
+// Δείγμα προγράμματος, που παρουσιάζει την αποσύνδεση με διεπαφές.
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// Ο Data είναι η δομή δεδομένων που αντιγράφουμε.
+// Ο Data είναι η δομή δεδομένων, που αντιγράφουμε.
 type Data struct {
 	Line string
 }
@@ -33,7 +33,7 @@ type Storer interface {
 
 // =============================================================================
 
-// Ο Xenia είναι ένα σύστημα από το οποίο θέλουμε να αντλήσουμε δεδομένα.
+// Ο Xenia είναι ένα σύστημα, από το οποίο θέλουμε να αντλήσουμε δεδομένα.
 type Xenia struct {
 	Host    string
 	Timeout time.Duration
@@ -55,7 +55,7 @@ func (*Xenia) Pull(d *Data) error {
 	}
 }
 
-// Π Pillar είναι ένα σύστημα στο οποίο πρέπει να αποθηκεύσουμε δεδομένα.
+// Π Pillar είναι ένα σύστημα, στο οποίο πρέπει να αποθηκεύσουμε δεδομένα.
 type Pillar struct {
 	Host    string
 	Timeout time.Duration
@@ -88,7 +88,7 @@ func pull(p Puller, data []Data) (int, error) {
 	return len(data), nil
 }
 
-// Η store γνωρίζει πως να αποθηκεύει δεδομένα σε οποιοδήποτε Storer.
+// Η store γνωρίζει πως να αποθηκεύει δεδομένα, σε οποιοδήποτε Storer.
 func store(s Storer, data []Data) (int, error) {
 	for i := range data {
 		if err := s.Store(&data[i]); err != nil {
