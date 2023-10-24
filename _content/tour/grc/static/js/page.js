@@ -1,4 +1,4 @@
-window.transport = "{{.Transport}}()"; // TODO: Code inside double quotes was originally 'naked', giving out warnings; please, *verify* that the addition of the double quotes is valid.
+window.transport = {{.Transport}}();
 window.socketAddr = "{{.SocketAddr}}";
 
 // highlight applies a highlight effect to a specific element determined by
