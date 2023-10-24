@@ -1,35 +1,31 @@
-Struct Types
-Struct types are a way of creating complex types that group fields of data together.
+结构体类型
+结构体类型是一种将数据字段组合在一起来创建复杂类型的方式
 
-* Struct Types
+* 结构体类型
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][观看视频]]
+- 需要经济支持, 请申请我们的奖学金 [[https://www.ardanlabs.com/scholarship/][申请表]]
 
-Struct types are a way of creating complex types that group fields of data together.
-They are a great way of organizing and sharing the different aspects of the data
-your program consumes.
+结构体类型是一种将不同字段的数据组合在一起来创建复杂类型的方式，非常适用于组织和共享程序所需的不同数据。
 
-A computer architecture’s potential performance is determined predominantly by its
-word length (the number of bits that can be processed per access) and, more importantly,
-memory size, or the number of words that it can access.
 
-** Code Review
+计算机体系结构的潜在性能主要由其字长（每次访问可处理的位数）或者说更重要的是内存大小，即它可以访问的字数来确定。
 
-- *Example* *1:* Declare, create and initialize struct types.
-- *Example* *2:* Anonymous struct types.
-- *Example* *3:* Named vs Unnamed types. 
-- *Example* *4:* Struct type alignments
+** 代码审查
 
-.play struct-types/example1.go
-.play struct-types/example2.go
-.play struct-types/example3.go
-.play struct-types/example4.go
+- *例子* *1:* 声明，创建和初始化结构体。
+- *例子* *2:* 匿名结构体。
+- *例子* *3:* 有名类型 vs 无名类型。
+- *例子* *4:* 结构体数据对齐
 
-** Struct and Construction Mechanics
+.play struct-types/例子1.go
+.play struct-types/例子2.go
+.play struct-types/例子3.go
+.play struct-types/例子4.go
 
-This declaration represents a concrete user-defined type as a composite of
-different fields and types.
+** 结构体的创建机制
+
+下面的这个声明表示一个用户定义的具体类型, 名为example，它是由不同的字段和具体类型组合而成的
 
     type example struct {
         flag    bool
@@ -37,18 +33,17 @@ different fields and types.
         pi      float32
     }
 
-Declare a variable of type example and initialize it to its zero value state.
+声明example类型的变量，并且初始化为这个类型的零值。
 
     var e1 example
 
     fmt.Printf("%+v\n", e1)
 
-Output:
-    
+输出:
+
     {flag:false counter:0 pi:0}
 
-Declare a variable of type example not set to its zero value state by using literal
-construction syntax.
+声明example类型的变量，并通过字面量来赋值。
 
     e2 := example{
         flag:    true,
@@ -60,14 +55,14 @@ construction syntax.
     fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+输出:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-Declare a variable of an unnamed literal type set to its non-zero value state
-using literal construction syntax.
+
+使用字面量来创建一个匿名类型, 然后用此类型来声明变量，并通过字面量来赋值。
 
     e3 := struct {
         flag    bool
@@ -83,21 +78,17 @@ using literal construction syntax.
     fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+输出:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-The idea of literal construction is just that, to construct something literally
-without a name.
+使用字面量主要是为了创建匿名类型，可以用`var`关键字来赋零值，或使用`{}`来赋非零值。
 
-You should use var for zero value and the short variable declaration operator with
-the { } syntax for non-zero value construction.
+** 对齐和填充
 
-** Padding and Alignment
-
-How much memory is allocated for a value of type example?
+下面类型的值会占用多少内存？
 
     type example struct {
         flag    bool
@@ -105,17 +96,15 @@ How much memory is allocated for a value of type example?
         pi      float32
     }
 
-A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
-and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
-is a padding byte sitting between the flag and counter fields for the reason of alignment.
+一个布尔类型（bool）占用1字节，int16占用2字节，float32占用4字节。将它们相加，总共是7字节。
+然而，实际的答案是8字节，这是因为为了保持内存对齐，位于标志字段和计数字段之间有一个填充字节。
 
 .image /tour/eng/static/img/f1.png
 
-The idea of alignment is to allow the hardware to read memory more efficiently
-by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+对齐的概念是为了允许硬件更高效地读取内存，通过将内存放置在特定的对齐边界上。
+编译器负责处理对齐边界的机制，因此不需要手动处理。
 
-Depending on the size of a particular field and its placement in the struct, Go
-determines the padding you need.
+根据特定字段的大小和其在结构体中的位置，Go 决定所需的填充。
 
     type example2 struct {
         flag    bool
@@ -124,8 +113,7 @@ determines the padding you need.
         pi      float32
     }
 
-In this example, I’ve added a new field called `flag2` between the counter and pi
-fields. This causes more padding inside the struct.
+在这个示例中，我在counter字段和pi字段之间添加了一个新字段，名为 flag2。这导致结构体内部有更多的填充。
 
     type example2 struct {
         flag    bool     // 0xc000100020 <- Starting Address
@@ -138,29 +126,24 @@ fields. This causes more padding inside the struct.
         pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
-This is how the alignment and padding play out if a value of type example2 starts
-at address 0xc000100020. The flag field represents the starting address and is
-only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
-must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
-address that is a multiple of 2. This requires the counter field to start at address
-0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+这是当类型为 example2 的值从地址0xc000100020开始时，对齐和填充的工作方式。
+flag字段代表起始地址，大小为1字节。由于counter字段需要2字节的分配空间，
+它必须放置在内存上的2字节对齐位置，这意味着它需要位于2的倍数地址上。
+这要求counter字段从地址0xc000100022开始。这在flag和counter字段之间创建了1字节的间隙。
 
 .image /tour/eng/static/img/f2.png
 
-The `flag2` field is a bool and can fall at the next address 0xc000100024. The
-final field is pi and requires 4 bytes of allocation so it needs to fall on a
-4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
-means 3 more padding bytes are needed to maintain a proper alignment. This results
-in a value of type example2 requiring 12 bytes of total memory allocation.
+flag2 字段是一个布尔类型，可以位于下一个地址0xc000100024。最后一个字段是 pi，
+需要4字节的分配空间，因此它需要位于4字节对齐的位置。
+4字节值的下一个地址是0xc000100028。这意味着需要额外的3个填充字节以保持正确的对齐。
+这导致类型为 example2 的值需要总共分配12字节的内存空间。
 
-The largest field in a struct represents the alignment boundary for the entire
-struct. In this case, the largest field is 4 bytes so the starting address for this
-struct value must be a multiple of 4. You can see the address 0xc000100020 is a
-multiple of 4.
+在结构体中，最大的字段代表整个结构体的对齐边界。
+在这种情况下，最大的字段是4字节，因此这个结构体值的起始地址必须是4的倍数。
+可以看到地址0xc000100020是4的倍数。
 
-If you need to minimize the amount of padding bytes, you must lay out the fields from
-highest allocation to lowest allocation. This will push any necessary padding bytes
-down to the bottom of the struct and reduce the total number of padding bytes necessary.
+如果需要最小化填充字节数，必须将字段从分配最大的字段到分配最小的字段的方式进行布局。
+这将把任何必要的填充字节推到结构体的底部，并减少所需的总填充字节数。
 
     type example struct {
         pi      float32  // 0xc000100020 <- Starting Address
@@ -169,35 +152,28 @@ down to the bottom of the struct and reduce the total number of padding bytes ne
         flag2   bool     // 0xc000100027 <- 1 byte alignment
     }
 
-After the reordering of the fields, the struct value only requires 8 bytes of
-allocation and not 12 bytes. Since all the fields allow the struct value to fall
-on a 4-byte alignment, no extra padding bytes are necessary.
+在字段重新排序后，结构体值只需要8字节的分配，而不是12字节。由于所有字段都允许结构体值以4字节对齐的方式放置，因此不需要额外的填充字节。
 
 .image /tour/eng/static/img/f3.png
 
-** Assigning Values
+** 赋值
 
-If you have two different named types that are identical in structure, you can't assign
-a value of one to the other.
+如果有两个在结构上完全相同的不同命名类型，不能将一个类型的值赋给另一个类型。
 
-For example, if the types example1 and example2 are declared using the same exact
-declaration and we initialize two variables.
+例如，如果使用完全相同的声明来声明类型 example1 和 example2，然后初始化两个变量。
 
     var ex1 example1
     var ex2 example2
 
-You can’t assign these two variables to each other since they are of different named
-types. The fact that they are identical in structure is irrelevant. 
+不能将这两个变量互相赋值，因为它们属于不同的命名类型。它们在结构上完全相同是无关紧要的。
 
-    ex1 = ex2  // Not allowed, compiler error
+    ex1 = ex2  // 编译错误
 
-To perform this assignment, you would have to use conversion syntax and since they
-are identical in structure, the compiler will allow this.
+一定要赋值的话, 可以使用类型转换，由于它们在结构上完全相同，编译器会允许这种操作。
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2)  // 无编译错误
 
-However, if ex2 was changed to be declared as an unnamed type using the same exact
-declaration as ex1, no conversion syntax would be required.
+然而，如果 ex2 的声明被更改为使用与 ex1 完全相同的声明的未命名类型，就不需要使用转换语法。
 
     var ex2 struct {
         flag    bool
@@ -205,41 +181,38 @@ declaration as ex1, no conversion syntax would be required.
         pi      float32
     }
 
-    ex1 = ex2  // Allowed, NO need for conversion syntax
+    ex1 = ex2  // 无需类型转化
 
-The compiler will allow this assignment without the need for conversion.
+在这种情况下，编译器将允许进行这种赋值，无需进行转换。
 
-** Notes
+** 简明要点
 
-- We can use the struct literal form to initialize a value from a struct type.
-- The dot (.) operator allows us to access individual field values.
-- We can create anonymous structs.
+- 我们可以使用结构体字面形式来初始化结构类型一个值。
+- 点号 (.) 运算符允许我们访问各个字段的值。
+- 我们可以创建匿名结构体。
 
-** Quotes
+** 引用
 
-"Implicit conversion of types is the Halloween special of coding. Whoever thought
-of them deserves their own special hell." - Martin Thompson
+"在编程中，类型的隐式转换就像万圣节特别节目一样令人头痛。想出它们的人可以下一个特别的地狱。"
+- Martin Thompson
 
-** Extra Reading
+** 额外阅读
 
-- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
-- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
-- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
-- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][理解Go类型]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Go面向对象编程]] - William Kennedy
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][不易的数据填充]] - Dave Cheney
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][数据结构对齐，填充和数据打包]]
+- [[http://www.catb.org/esr/structure-packing][数据结构打包的艺术]] - Eric S. Raymond
 
-* Exercises
+* 练习
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+使用模版来完成练习，有提供答案供参考。
 
-** Exercise 1
+** 练习 1
 
-*Part* *A:* Declare a struct type to maintain information about a user (name,
-email and age). Create a value of this type, initialize with values and display
-each field.
+*任务* *A:* 声明一个结构体类型来存储有关用户的信息（姓名、电子邮件和年龄）。创建一个此类型的值，用值初始化，并显示每个字段。
 
-*Part* *B:* Declare and initialize an anonymous struct type with the same three
-fields. Display the value.
+*任务* *B:* 声明并初始化一个具有相同三个字段的匿名结构类型。显示其值。
 
-.play struct-types/exercise1.go
-.play struct-types/answer1.go
+.play struct-types/练习1.go
+.play struct-types/答案1.go
