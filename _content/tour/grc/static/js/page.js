@@ -113,7 +113,7 @@ function setLanguageOptionBasedOnUrl() {
 // replaceLanguageInUrl takes a URL and a new language as arguments,
 // and returns a new URL with the language segment replaced by the new language.
 function replaceLanguageInUrl(url, newLanguage) {
-    return url.replace(/(\/tour\/)(eng|rus|per|grc|por)(\/)/, `$1${newLanguage}$3`);
+    return url.replace(/(\/tour\/)(eng|rus|per|grc|por|pol)(\/)/, `$1${newLanguage}$3`);
 }
 
 window.onload = function() {
