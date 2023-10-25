@@ -111,6 +111,7 @@ func Main() {
 
 	porUIContent, porIndex := addLanguage("tour/por/")
 	defer porIndex.Close()
+
 	// -------------------------------------------------------------------------
 	// Start Web Service
 

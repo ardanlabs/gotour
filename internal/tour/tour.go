@@ -23,6 +23,18 @@
 	   - _content/tour/[new_lang_code]/template/index.tmpl:42 : Translate the title to the new language.
 	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
 
+	## Integrating New Language
+	1. Update replace statement in all languages
+	   - _content/tour/[new_lang_code]/static/js/page.js : return url.replace(/(\/tour\/)(eng|rus|per|grc|por|[new_lang_code])(\/)/, `$1${newLanguage}$3`);
+
+	2. Change Patch Number in all JS and Template files for all languages
+	   - _content/tour/[new_lang_code]/welcome.article
+	   - _content/tour/[new_lang_code]/static/partials/list.html
+	   - _content/tour/[new_lang_code]/template/index.tmpl
+
+	3. Update Language switch in all languages
+	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : <option value="[new_lang_code]">[new_lang]</option>
+
 	## Testing
 	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
 */
