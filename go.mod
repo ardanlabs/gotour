@@ -1,6 +1,6 @@
 module github.com/ardanlabs/gotour
 
-go 1.21
+go 1.21.0
 
 require (
 	github.com/blevesearch/bleve/v2 v2.3.10
