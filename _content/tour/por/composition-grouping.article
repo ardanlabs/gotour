@@ -1,0 +1,182 @@
+Agrupamento com Tipos
+É importante lembrar que em Go os conceitos de subtipagem ou subclasse realmente não existem e esses padrões de design devem ser evitados.
+
+* Agrupamento com Tipos
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao Vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+É importante lembrar que em Go os conceitos de subtipagem ou subclasse realmente não existem e esses padrões de design devem ser evitados.
+
+** Revisão de Código
+
+- *Exemplo* *1:* Agrupamento por Estado
+- *Exemplo* *2:* Agrupamento por Comportamento
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Agrupando Diferentes Tipos de Dados
+
+É importante lembrar que em Go os conceitos de subtipagem ou subclasse realmente não existem e esses padrões de design devem ser evitados.
+
+O código seguinte é um anti-padrão que você não deve seguir nem implementar.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+O tipo Animal é declarado como um tipo base que tenta definir dados que são comuns a todos os animais. Você também tenta fornecer algum comportamento comum a um animal.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+A maioria dos animais tem a capacidade de se comunicar de alguma forma. No entanto, tentar aplicar esse comportamento comum a apenas um animal não faz sentido. Neste ponto, você não tem ideia de que som esse animal faz, então você escreve "UGH".
+
+    type Dog struct {
+        Animal
+        PackFactor int
+    }
+
+Agora os problemas reais começam. Estou tentando usar a incorporação (embedding) para fazer com que um Cachorro seja tudo o que um Animal é e mais. À primeira vista, isso parecerá funcionar, mas haverá problemas. Dito isso, um Cachorro tem uma maneira específica de se comunicar.
+
+    func (d *Dog) Speak() {
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+Na implementação do método `Speak`, você pode substituir "UGH" por "Woof". Isso é específico para como um cachorro se comunica.
+
+    type Cat struct {
+        Animal
+        ClimbFactor int
+    }
+
+Se você vai ter um Cachorro que representa um Animal, então você também precisa ter um Gato. Usando a incorporação (embedding), um Gato é tudo o que um Animal é e mais.
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+Na implementação do método `Speak`, você pode substituir "UGH" por "Meow". Isso é específico para como um gato se comunica.
+
+Tudo parece estar bem, e parece que a incorporação (embedding) está fornecendo a mesma funcionalidade que a herança em outras linguagens. Então, você tenta agrupar cães e gatos pelo fato de terem um DNA comum de serem animais.
+
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+Quando você tenta fazer isso, o compilador reclama que um Cachorro e um Gato não são um Animal, e isso é verdade. A incorporação (embedding) não é a mesma coisa que a herança, e este é o padrão do qual preciso me afastar. Um Cachorro é um Cachorro, um Gato é um Gato e um Animal é um Animal. Não posso passar Cachorros e Gatos como se fossem Animais, porque não são.
+
+Esse tipo de mecanismo também não é muito flexível. Requer configuração por parte do desenvolvedor, e a menos que você tenha acesso ao código, não pode fazer alterações de configuração ao longo do tempo.
+
+Se esta não é a forma de construir uma coleção de Cachorros e Gatos, como podemos fazer isso em Go? Não se trata de agrupar por DNA comum, trata-se de agrupar por comportamento comum. O comportamento é a chave.
+
+    type Speaker interface {
+        Speak()
+    }
+
+
+Se você usar uma interface, poderá definir o conjunto comum de métodos comportamentais que deseja agrupar diferentes tipos de dados.
+
+    speakers := []Speaker{
+        &Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+No novo código, agora você pode agrupar Cachorros e Gatos com base no conjunto comum de comportamentos, que é o fato de que Cachorros e Gatos podem se comunicar.
+
+Na verdade, o tipo Animal é realmente uma poluição de tipos, porque declarar um tipo apenas para compartilhar um conjunto de estados comuns é um indício de código ruim e deve ser evitado.
+
+    type Dog struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Cat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+Neste caso específico, você preferiria ver o tipo Animal removido e os campos copiados e colados nos tipos Dog e Cat. Mais tarde, você terá notas sobre padrões melhores que eliminam esses cenários de acontecerem.
+
+Aqui estão os problemas de código do código original:
+
+- O tipo Animal fornece uma camada de abstração de estado reutilizável.
+- O programa nunca precisa criar ou usar exclusivamente um valor do tipo Animal.
+- A implementação do método Speak para o tipo Animal é generalizada.
+- O método Speak para o tipo Animal nunca será chamado.
+
+Diretrizes para declarar tipos:
+
+- Declare tipos que representem algo novo ou único.
+- Não crie aliases (apelidos) apenas para melhorar a legibilidade.
+- Valide se um valor de qualquer tipo é criado ou usado por si só.
+- Incorpore (embed) tipos não porque você precisa do estado, mas porque você precisa do comportamento.
+- Se você não está pensando em comportamento, está se limitando ao design que não pode ser expandido no futuro sem mudanças em cascata no código.
+- Questione tipos que são aliases ou abstrações para um tipo existente.
+- Questione tipos cujo único propósito é compartilhar um conjunto comum de estados.
+
+** Não Projete com Interfaces
+
+Infelizmente, muitos desenvolvedores tentam resolver problemas de forma abstrata desde o início. Eles se concentram imediatamente em interfaces, o que leva à poluição de interfaces. Como desenvolvedor, você opera em um de dois modos: programador e depois engenheiro.
+
+Quando você está programando, está focado em fazer um trecho de código funcionar. Tentando resolver o problema e derrubar barreiras. Provar que suas ideias iniciais funcionam. Isso é tudo o que importa nesse momento. Essa programação deve ser feita de forma concreta e nunca estará pronta para produção.
+
+Uma vez que você tenha um protótipo de código que resolve o problema, você precisa mudar para o modo de engenharia. É necessário se concentrar em como escrever o código em um nível micro para semântica de dados e legibilidade, e também em um nível macro para modelos mentais e manutenibilidade. Além disso, é necessário focar em erros e estados de falha.
+
+Esse trabalho é feito em um ciclo de refatoração. Refatoração para legibilidade, eficiência, abstração e testabilidade. A abstração é apenas uma das várias refatorações que precisam ser realizadas. Isso funciona melhor quando você começa com um trecho de código concreto e, em seguida, DESCOBRE as interfaces necessárias. Não aplique abstrações a menos que sejam absolutamente necessárias.
+
+Cada problema que você resolve com código é um problema de dados que requer que você escreva transformações de dados. Se você não entende os dados, você não entende o problema. Se você não entende o problema, não pode escrever nenhum código. Começar com uma solução concreta baseada em estruturas de dados concretas é crucial. Como disse Rob Pike:
+
+"Os dados dominam. Se você escolheu as estruturas de dados certas e organizou as coisas bem, os algoritmos quase sempre serão autoevidentes." - Rob Pike
+
+Quando a abstração é necessária? Quando você identifica um ponto no código em que os dados podem mudar e deseja minimizar os efeitos cascata que resultariam disso. Você pode usar a abstração para tornar o código testável, mas deve tentar evitá-la, se possível. As melhores funções testáveis são aquelas que recebem dados brutos e retornam dados brutos. Não deve importar de onde os dados vêm ou para onde vão.
+
+No final, comece com uma solução concreta para cada problema, mesmo que a maior parte seja apenas programação. Em seguida, descubra as interfaces que são absolutamente necessárias para o código hoje.
+
+"Não projete com interfaces, descubra-as." - Rob Pike
