@@ -11,7 +11,7 @@ value('tableOfContents', [{
     'id': 'welcome',
     'title': '',
     'description': `<p>Jest to materiał dla każdego programisty na średnim poziomie, który ma już pewne doświadczenie z innymi językami programowania i chce nauczyć się Go. Wierzymy, że ten materiał jest idealny dla każdego, kto chce szybko rozpocząć naukę Go lub chce dokładniej zrozumieć język i jego elementy wewnętrzne.</p>
-    <p><b>Pierwszy raz, gdy uruchamiasz przykład, może minąć trochę czasu, zanim zostanie on zakończony. Wynika to z tego, że usługa wycieczkowa może nie być uruchomiona. Proszę daj jej trochę czasu na zakończenie.</b></p>
+    <p><b>Za pierwszym razem, gdy uruchamiasz dany przykład, może minąć trochę czasu zanim zostanie on zakończony. Wynika to z tego, że usługa wycieczkowa po Go, może nie być aktualnie uruchomiona. Daj jej trochę czasu na zakończenie.</b></p>
     `,
     'lessons': [
         'welcome',
@@ -20,7 +20,7 @@ value('tableOfContents', [{
     'id': 'language-mechanics',
     'title': 'Mechanika języka',
     'description': `
-        <p>Ten materiał obejmuje składnię języka, idiomatykę, implementację i specyfikację języka. Po ukończeniu tego materiału zrozumiesz mechanikę języka oraz jego mechaniczne sympatie wobec sprzętu i systemu operacyjnego.</p>
+        <p>Ten materiał obejmuje składnię języka, idiomatykę, implementację i specyfikację języka. Po ukończeniu tego materiału zrozumiesz mechanikę języka oraz jego mechaniczne zależności wobec sprzętu i systemu operacyjnego.</p>
         `,
     'lessons': [
         'variables',
@@ -54,7 +54,7 @@ value('tableOfContents', [{
     'id': 'concurrency',
     'title': 'Współbieżność',
     'description': `
-        <p>Ten materiał obejmuje wszystkie aspekty współbieżności języka. Po ukończeniu tego materiału zrozumiesz mechanikę współbieżności języka oraz jego mechaniczne sympatie wobec sprzętu i systemu operacyjnego w kontekście współbieżności.</p>
+        <p>Ten materiał obejmuje wszystkie aspekty współbieżności języka. Po ukończeniu tego materiału zrozumiesz mechanikę współbieżności języka oraz jego mechaniczne zależności wobec sprzętu i systemu operacyjnego w kontekście współbieżności.</p>
        `,
     'lessons': [
         'goroutines',
