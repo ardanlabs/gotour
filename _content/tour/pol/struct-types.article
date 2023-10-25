@@ -1,0 +1,240 @@
+Typ struktury
+Typy struktur dają możliwość tworzenia złożonych typów, poprzez grupowanie różnych typów danych.
+
+* Struktury
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+
+Typy struktur (struct) są sposobem tworzenia złożonych typów, które grupują pola
+danych w jedną całość. Są doskonałym narzędziem do organizowania i udostępniania
+złożonych danych, które wykorzystuje program.
+
+Potencjalna wydajność architektury komputerowej jest głównie determinowana przez
+jej długość słowa (liczbę bitów, które można przetwarzać w jednym dostępie), i co ważniejsze
+przez rozmiar pamięci, czyli liczbę słów, do których ma dostęp.
+
+** Przegląd kodu
+
+- *Example* *1:* Deklaruj, twórz, inicjalizuj struktury danych.
+- *Example* *2:* Struktury anonimowe.
+- *Example* *3:* Typy nazywane oraz typy bez nazwy.
+- *Example* *4:* Uporządkowanie typów struktury.
+
+.play struct-types/example1.go
+.play struct-types/example2.go
+.play struct-types/example3.go
+.play struct-types/example4.go
+
+** Struktury i mechanizmy ich konstrukcji
+
+Ta deklaracja reprezentuje konkretny typ, zdefiniowany przez użytkownika jako kompozycja różnych pól i typów.
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Zadeklaruj zmienną typu "example" i zainicjuj ją do jej stanu zerowego.
+
+    var e1 example
+
+    fmt.Printf("%+v\n", e1)
+
+Wynik:
+    
+    {flag:false counter:0 pi:0}
+
+Zadeklaruj zmienną typu 'example' z nieustawionym stanem zerowym poprzez skorzystanie z
+składni literałowej.
+
+    e2 := example{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e2.flag)
+    fmt.Println("Counter", e2.counter)
+    fmt.Println("Pi", e2.pi)
+
+Wynik:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+Zadeklaruj zmienną typu bez nazwy (unnamed literal type), ustawioną w jej stan niezerowy, używając literałowej składni konstrukcji.
+
+    e3 := struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e3.flag)
+    fmt.Println("Counter", e3.counter)
+    fmt.Println("Pi", e3.pi)
+
+Wynik:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+Idea konstrukcji literałowej polega dokładnie na tym, aby dosłownie coś skonstruować, bez nadawania nazwy.
+
+Należy używać słowa kluczowego "var" do inicjowania zmiennych stanem zerowym (zero value), a operatora krótkiej
+deklaracji z notacją {} do konstrukcji zmiennych z wartościami niezerowymi.
+
+** Dopełnienie i wyrównanie
+
+Ile pamięci jest przydzielanej dla wartości typu example?
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Typ bool zajmuje 1 bajt, int16 to 2 bajty, a float32 to 4 bajty. Dodając to razem,
+dostajemy 7 bajtów. Jednakże faktyczna odpowiedź to 8 bajtów. Dlaczego?
+Ponieważ między polami 'flag' a 'counter' znajduje się dodatkowy bajt wypełnienia w celu zachowania odpowiedniego wyrównania.
+
+.image /tour/eng/static/img/f1.png
+
+Idea wyrównania (alignment) polega na umożliwieniu sprzętowi efektywniejszego odczytywania pamięci poprzez
+wyrównywanie pamięci do określonych granic. Kompilator zajmuje się mechaniką wyrównania,
+więc użytkownik nie musi się tym martwić.
+
+W zależności od rozmiaru konkretnego pola i jego umieszczenia w strukturze (struct),
+język Go określa, ile potrzebujesz bajtów wypełnienia (padding).
+
+    type example2 struct {
+        flag    bool
+        counter int16
+        flag2   bool
+        pi      float32
+    }
+
+W tym przykładzie dodałem nowe pole o nazwie flag2 pomiędzy polami counter, a pi.
+To powoduje dodatkowe wypełnienie (padding) wewnątrz struktury.
+
+    type example2 struct {
+        flag    bool     // 0xc000100020 <- Adres startowy
+                byte     // 0xc000100021 <- 1 bajt dopełnienia
+        counter int16    // 0xc000100022 <- 2 bajty wyrównania
+        flag2   bool     // 0xc000100024 <- 1 bajt wyrównania
+                byte     // 0xc000100025 <- 1 bajt dopełnienia
+                byte     // 0xc000100026 <- 1 bajt dopełnienia
+                byte     // 0xc000100027 <- 1 bajt dopełnienia
+        pi      float32  // 0xc000100028 <- 4 bajty wyrównania
+    }
+
+
+Tak wygląda sposób, w jaki wyrównanie i wypełnienie (alignment and padding) mają znaczenie,
+jeśli wartość typu example2 zaczyna się pod adresem 0xc000100020. Pole flag reprezentuje
+początkowy adres i ma tylko 1 bajt. Ponieważ pole counter wymaga alokacji 2 bajtów, musi być
+umieszczone w pamięci na wyrównaniu 2-bajtowym, co oznacza, że musi znajdować się pod adresem
+będącym wielokrotnością liczby 2. To wymaga, aby pole counter zaczynało się pod adresem 0xc000100022.
+Tworzy to 1-bajtową przerwę między polami flag a counter.
+
+.image /tour/eng/static/img/f2.png
+
+Pole flag2 to typ bool i może znaleźć się pod następnym adresem 0xc000100024. Ostatnie pole to
+pi i wymaga alokacji 4 bajtów, więc musi być umieszczone na wyrównaniu 4-bajtowym. Następny adres
+dla wartości 4-bajtowej to 0xc000100028. Oznacza to, że potrzebne są dodatkowe 3 bajty wypełnienia,
+aby zachować odpowiednie wyrównanie. W rezultacie wartość typu example2 wymaga łącznie 12 bajtów pamięci.
+
+Największe pole w strukturze określa granicę wyrównania (alignment boundary) dla całej struktury.
+W tym przypadku największym polem jest 4 bajty, dlatego też początkowy adres tej wartości struktury
+musi być wielokrotnością liczby 4. Można więc zauważyć, że adres 0xc000100020 jest wielokrotnością liczby 4.
+
+Jeśli chcesz zminimalizować ilość bajtów wypełnienia, musisz układać pola od największej alokacji
+do najmniejszej alokacji. Spowoduje to, że ewentualne niezbędne bajty wypełnienia zostaną przesunięte
+na dół struktury i zmniejszy się całkowitą liczbę potrzebnych bajtów wypełnienia.
+
+    type example struct {
+        pi      float32  // 0xc000100020 <- Adres startowy
+        counter int16    // 0xc000100024 <- 2 bajty wyrównania
+        flag    bool     // 0xc000100026 <- 1 bajt wyrównania
+        flag2   bool     // 0xc000100027 <- 1 bajt wyrównania
+    }
+
+Po zmianie kolejności pól, wartość struktury wymaga tylko 8 bajtów alokacji, a nie 12 bajtów.
+Ponieważ wszystkie pola pozwalają na osadzenie wartości struktury na wyrównaniu 4-bajtowym,
+nie są potrzebne dodatkowe bajty wypełnienia.
+
+.image /tour/eng/static/img/f3.png
+
+** Przypisywanie wartości
+
+Jeśli mamy dwie różnie nazwane typy, które są identyczne pod względem struktury, to nie można
+będzie przypisać wartości jednego do drugiego.
+
+Na przykład, jeśli typy example1 i example2 są zadeklarowane dokładnie tak samo, i inicjalizujemy dwie zmienne.
+
+    var ex1 example1
+    var ex2 example2
+
+To nie można przypisać tych dwóch zmiennych do siebie, ponieważ są różnymi typami.
+To, że są identyczne pod względem struktury, jest bez znaczenia.
+
+    ex1 = ex2  // Niedozwolone, błąd kompliacji
+
+Aby wykonać takie przypisanie, musisz użyć składni konwersji (conversion syntax), kompilator zezwoli na konwersję ponieważ
+są one identyczne pod względem struktury.
+
+    ex1 = example1(ex2)  // Dozwolone, brak błędu kompilacji
+
+Jednakże, jeśli ex2 zostało zmienione i zadeklarowane jako typ bez nazwy (unnamed type),
+używając dokładnie tej samej deklaracji co ex1, wtedy nie będzie wymagana składnia konwersji.
+
+    var ex2 struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+    ex1 = ex2  // Dozwolone, nie ma potrzeby konwersji
+
+Kompilator zezwoli na to przypisanie bez konieczności użycia konwersji.
+
+** Notatki
+
+- Możemy użyć formy literałowej struktury do zainicjowania wartości z typu struktury.
+- Operator kropki (.) pozwala nam uzyskiwać dostęp do poszczególnych wartości pól.
+- Możemy tworzyć struktury anonimowe.
+
+** Cytaty
+
+"Niejawna konwersja typów to specjalność Halloween w programowaniu. Ten, kto na nią wpadł,
+zasługuje na swoje własne specjalne piekło." - Martin Thompson
+
+** Dodatkowe materiały
+
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
+- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj typ struktury do przechowywania informacji o użytkowniku (imię, email i wiek).
+Utwórz wartość tego typu, zainicjuj ją danymi i wyświetl każde pole.
+
+*Część* *B:* Zadeklaruj i zainicjuj anonimowy typ struktury z tymi samymi trzema polami. Wyświetl wartość.
+
+.play struct-types/exercise1.go
+.play struct-types/answer1.go

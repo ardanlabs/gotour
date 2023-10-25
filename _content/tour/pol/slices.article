@@ -1,0 +1,505 @@
+Kawałki (Slices)
+Kawałki są niezwykle ważną strukturą danych w języku Go. Stanowią one podstawę tego, w jaki sposób zarządzamy i manipulujemy danymi w sposób elastyczny, wydajny i dynamiczny. Dla wszystkich programistów Go bardzo istotne jest zrozumienie ich działania i sposobów użycia.
+
+* Kawałki
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Kawałki (slices) są niezwykle ważną strukturą danych w języku Go. Stanowią one
+podstawę tego, w jaki sposób zarządzamy i manipulujemy danymi w sposób elastyczny,
+wydajny i dynamiczny. Dla wszystkich programistów Go bardzo istotne jest zrozumienie ich
+działania i sposobów użycia.
+
+.image /tour/eng/static/img/sl1.png
+
+** Przegląd kodu
+
+- *Przykład* *1:* Deklarowanie i długość
+- *Przykład* *2:* Typy odwołania
+- *Przykład* *3:* Dodawanie kawałków
+- *Przykład* *4:* Wyodrębnianie kawałków z kawałków
+- *Przykład* *5:* Kawałki i odwołania
+- *Przykład* *6:* Łańcuchy znaków i kawałki
+- *Przykład* *7:* Funkcje zmiennych argumentów
+- *Przykład* *8:* Mechanika działania pętli range
+- *Przykład* *9:* Efektywne przechodzenie (trawersowanie) danych
+- *Przykład* *10:* Wycinanie trzech indeksów
+
+.play slices/example1.go
+.play slices/example2.go
+.play slices/example3.go
+.play slices/example4.go
+.play slices/example5.go
+.play slices/example6.go
+.play slices/example7.go
+.play slices/example8.go
+.play slices/example9.go 
+.play slices/example10.go
+
+** Konstrukcja kawałków
+
+Konstruowanie kawałka (slice) można wykonać na kilka sposobów.
+
+    // Kawałek (slice) typu string ustawiony w swoim stanie zerowym.
+    var slice []string
+
+    // Kawałek (slice) typu string ustawiony w swoim pustym stanie.
+    slice := []string{}
+
+    // Kawałek (slice) typu string ustawiony z długością i pojemnością wynoszącą 5.
+    slice := make([]string, 5)
+
+    // Kawałek (slice) typu string ustawiony z długością i pojemnością wynoszącą 8.
+    slice := make([]string, 5, 8)
+
+    // Kawałek (slice) typu string ustawiony z wartościami, przy długości i pojemności wynoszącej 5.
+    slice := []string{"A", "B", "C", "D", "E"}
+
+Możesz zauważyć, że wbudowana funkcja `make` pozwala mi na wcześniejszą alokację zarówno długości,
+jak i pojemności dla tablicy bazowej. Jeśli kompilator zna rozmiar w czasie kompilacji, to tablica
+bazowa może być konstruowana na stosie.
+
+** Długość kawałka (slice) w porównaniu do pojemności
+
+Długość kawałka (slice) reprezentuje liczbę elementów, które można odczytywać i zapisywać.
+Pojemność (capacity) reprezentuje całkowitą liczbę elementów istniejących w tablicy bazowej od pozycji wskaźnika.
+
+Dzięki syntaktycznemu 'cukrowi', kawałki (slices) wyglądają i działają podobnie jak tablice.
+
+    slice := make([]string, 5)
+    slice[0] = "Apple"
+    slice[1] = "Orange"
+    slice[2] = "Banana"
+    slice[3] = "Grape"
+    slice[4] = "Plum"
+
+Można odróżnić konstrukcję tablicy od konstrukcji kawałka (slice), ponieważ rozmiar tablicy
+jest znany w czasie kompilacji, a kawałka (slice) niekoniecznie.
+
+Jeśli spróbujesz uzyskać dostęp do elementu poza długością kawałka (slice), otrzymasz błąd wykonania (runtime error).
+
+    slice := make([]string, 5)
+    slice[5] = "Raspberry"
+
+Błąd kompilacji:
+
+    Error: panic: runtime error: index out of range slice[5] = "Runtime error"
+
+W tym przykładzie długość kawałka wynosi 5, a próbuję uzyskać dostęp do 6 elementu - który nie istnieje.
+
+** Wytyczne semantyczne dotyczące kawałków (slices)
+
+Jako wytyczna, jeśli pracuję z danymi w postaci kawałka (slice), to używam
+semantyki wartościowej do przenoszenia danych w moim programie. Obejmuje to
+deklarowanie pól w typie.
+
+    func Foo(data []byte) []byte
+
+    type Foo struct {
+        X []int
+        Y []string
+        Z []bool
+    }
+
+To dotyczy wszystkich wewnętrznych struktur danych w języku Go (kawałków, map, kanałów, interfejsów i funkcji).
+
+Jednym z powodów przejścia do semantyki wskaźnikowej jest potrzeba udostępnienia
+kawałka (slice) dla operacji dekodowania lub odkodowania (unmarshaling). Użycie
+wskaźników do tych rodzajów operacji jest akceptowalne, ale jeśli nie jest to oczywiste,
+należy to udokumentować.
+
+** Układ ciągłego dostępu do pamięci
+
+Idea kawałków (slice) polega na posiadaniu tablicy, która jest najbardziej efektywną strukturą danych pod względem sprzętu.
+Jednak nadal potrzebujesz możliwości dynamicznego i efektywnego zarządzania ilością danych w trakcie działania programu oraz przyszłego rozwoju.
+
+    func main() {
+        slice := make([]string, 5, 8)
+        slice[0] = "Apple"
+        slice[1] = "Orange"
+        slice[2] = "Banana"
+        slice[3] = "Grape"
+        slice[4] = "Plum"
+
+        inspectSlice(slice)
+    }
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i := range slice {
+            fmt.Printf("[%d] %p %s\n", i, &slice[i], slice[i])
+        }
+    }
+
+Wynik:
+
+    Length[5] Capacity[8]
+    [0] 0xc00007e000 Apple
+    [1] 0xc00007e010 Orange
+    [2] 0xc00007e020 Banana
+    [3] 0xc00007e030 Grape
+    [4] 0xc00007e040 Plum
+
+Funkcja inspectSlice pokazuje, że kawałek (slice) faktycznie ma ciągłą tablicę
+bazową z przewidywalnym krokiem (stride). Pokazuje także, że długość (length)
+i pojemność (capacity) kawałka mogą być różne. Zauważ, że funkcja print
+iteruje tylko przez długość kawałka.
+
+** Dodawanie elementów do kawałków (slices)
+
+Język Go dostarcza wbudowaną funkcję o nazwie append, która służy do
+dodawania wartości do istniejącego kawałka (slice).
+
+    var data []string
+
+    for record := 1; record <= 102400; record++ {
+        data = append(data, fmt.Sprintf("Rec: %d", record))
+    }
+
+Funkcja append działa z kawałkiem (slice) nawet wtedy, gdy kawałek jest zainicjowany
+w swoim stanie zerowym. To, co jest interesujące w projektowaniu interfejsu API funkcji append,
+to sposób, w jaki używa semantyki wartościowej do mutowania danych. Funkcja append
+tworzy swoją własną kopię wartości kawałka, mutuje swoją własną kopię, a następnie
+zwraca kopię zmienioną do wywołującego.
+
+Dlaczego interfejs API jest zaprojektowany w ten sposób? To dlatego, że idiomatem w języku
+Go jest używanie semantyki wartościowej do przenoszenia wartości kawałka (slice) w obrębie
+programu. To zasada, która musi być nadal respektowana nawet podczas operacji mutacji.
+Ponadto, mutacja semantyki wartościowej jest najbezpieczniejszym sposobem przeprowadzania
+mutacji, ponieważ mutacja jest wykonywana na kopii danych funkcji w izolacji.
+
+Funkcja append zawsze zachowuje ciągły blok pamięci dla tablicy bazowej kawałka (slice), nawet
+po jego rozszerzeniu. To jest istotne z punktu widzenia sprzętu.
+
+.image /tour/eng/static/img/sl2.png
+
+Za każdym razem, gdy jest wywoływana funkcja append, sprawdza ona, czy długość (length) i pojemność
+(capacity) kawałka (slice) są takie same czy nie. Jeśli są takie same, oznacza to, że w tablicy
+bazowej nie ma już miejsca na nową wartość. W takim przypadku funkcja append tworzy nową tablicę bazową
+(podwajając jej rozmiar lub zwiększając o 25%) i kopiuje wartości ze starej tablicy do nowej.
+Wtedy nowa wartość może być dołączona.
+
+.image /tour/eng/static/img/sl3.png
+
+Jeśli długość (length) i pojemność (capacity) nie są takie same, oznacza to, że istnieje dodatkowy
+element pojemności dostępny do dołączenia. Element zostaje pobrany z pojemności i dodany do długości
+kawałka (slice). Dzięki temu operacja dołączania (append) jest bardzo wydajna.
+
+Kiedy tablica bazowa ma 1024 elementy pojemności lub mniej, nowe tablice bazowe są tworzone przez
+podwajanie rozmiaru istniejącej tablicy. Po przekroczeniu 1024 elementów pojemności, wzrost zachodzi o 25%.
+
+*NOTE:* *Sposób* *w* *jaki* *funkcja* *append* *zwiększa* *pojemność* *tablicy* *bazowej*
+*zmienił* *się* *od* *wersji* *Go* *1.18.*
+
+- [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
+
+** Operacje na kawałkach (slices) innych kawałków
+
+Kawałki (slices) pozwalają uniknąć dodatkowych kopii i alokacji na stercie (heap) tablicy
+bazowej, gdy potrzebujemy izolować pewne elementy tablicy bazowej do różnych operacji.
+
+Składnia cięcia (slicing) reprezentuje notację listy [a:b], co oznacza, że zawiera
+elementy od indeksu a do b, ale nie zawiera samego b.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+
+Zmienna slice2 jest nową wartością kawałka (slice), która teraz współdzieli tę samą
+tablicę bazową, co slice1. Jednak slice2 pozwala tylko na dostęp do elementów o indeksie 2 i 3 (C i D)
+oryginalnej tablicy bazowej kawałka. Długość slice2 wynosi 2, a nie 5 jak w przypadku
+slice1, a pojemność wynosi 3, ponieważ od tej pozycji wskaźnika znajduje się teraz 3 elementy.
+
+.image /tour/eng/static/img/sl4.png
+
+Lepszym sposobem myślenia o cięciu (slicing) jest skupienie się na długości za
+pomocą tej notacji [a:a+len], oznacza ona indeks a do a plus długość. To pomaga
+zmniejszyć błędy przy obliczaniu nowych kawałków (slices).
+
+Korzystając z tej funkcji inspect.
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i, s := range slice {
+            fmt.Printf("[%d] %p %s\n",
+                i,
+                &slice[i],
+                s)
+        }
+    }
+
+Możesz zobaczyć powyższe założenia w akcji.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 C     <-- TO SAMO CO W INDEKSIE 2 W KAWAŁKU 1
+    [1] 0xc00007e030 D     <-- TO SAMO CO W INDEKSIE 3 W KAWAŁKU 1
+
+Zauważ, że oba różne kawałki (slices) współdzielą tę samą tablicę bazową. Możesz to zobaczyć, porównując adresy.
+
+W tym przypadku nie ma alokacji. Kompilator zna rozmiar tablicy bazowej kawałka (slice1) w czasie kompilacji.
+Przekazywanie kopii wartości kawałka do funkcji inspectSlice utrzymuje wszystko na stosie.
+
+** Mutacje w tablicy bazowej
+
+Kiedy używasz slice2 do zmiany wartości ciągu znaków o indeksie 0, każda wartość kawałka (slice), która
+współdzieli tę samą tablicę bazową (gdzie adres dla tego indeksu jest częścią długości tego kawałka), zobaczy tę zmianę.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2[0] = "CHANGED"
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 CHANGED
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 CHANGED
+    [1] 0xc00007e030 D
+
+Zawsze musisz być świadomy, kiedy modyfikujesz wartość na pozycji indeksu, jeśli
+tablica bazowa jest współdzielona z innym kawałkiem (slicem).
+
+.image /tour/eng/static/img/sl5.png
+
+Co się stanie, jeśli użyjesz wbudowanej funkcji append?
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 CHANGED
+    Length[3] Capacity[3]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+    [2] 0xc00007e040 CHANGED
+
+Funkcja append tworzy ten sam efekt uboczny, ale jest on ukryty. W tym przypadku
+zwiększenie długości w slice2 spowodowało zmianę wartości pod adresem 0xc00007e040.
+Niestety slice1 miało już ten adres jako część swojej długości.
+
+.image /tour/eng/static/img/sl6.png
+
+Jednym ze sposobów uniknięcia efektu ubocznego jest użycie cięcia trójindeksowego
+podczas konstrukcji slice2, aby długość i pojemność wynosiły 2.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[2]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+
+Składnia dla cięcia trójindeksowego to [a:b:c], gdzie b i c powinny być takie
+same, ponieważ [a-b] ustawia długość, a [a-c] ustawia pojemność. Teraz
+długość i pojemność slice2 są takie same.
+
+Teraz ponownie możesz używać wbudowanej funkcji append, tak jak wcześniej.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[3] Capacity[4]
+    [0] 0xc000016080 C
+    [1] 0xc000016090 D
+    [2] 0xc0000160a0 CHANGED
+
+Zauważ, że po wywołaniu funkcji append, slice2 ma nową tablicę bazową.
+
+.image /tour/eng/static/img/sl7.png
+
+Można to zauważyć, porównując adresy każdego kawałka. W tym przypadku
+mutacja na slice2 nie spowodowała efektu ubocznego na slice1.
+
+** Kopiowanie kawałków (slices) ręcznie
+
+Istnieje wbudowana funkcja o nazwie copy, która umożliwia płytkie kopiowanie
+kawałków (slices). Ponieważ ciąg znaków ma tablicę bazową bajtów, które są
+niemutowalne, można go użyć jako źródła, ale nigdy jako celu kopiowania.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice3 := make([]string, len(slice1))
+    copy(slice3, slice1)
+
+    inspectSlice(slice1)
+    inspectSlice(slice3)
+
+Wynik:
+
+    Length[5] Capacity[5]
+    [0] 0xc00005c050 A
+    [1] 0xc00005c060 B
+    [2] 0xc00005c070 C
+    [3] 0xc00005c080 D
+    [4] 0xc00005c090 E
+    Length[5] Capacity[5]
+    [0] 0xc00005c0a0 A
+    [1] 0xc00005c0b0 B
+    [2] 0xc00005c0c0 C
+    [3] 0xc00005c0d0 D
+    [4] 0xc00005c0e0 E
+
+O ile docelowy kawałek (slice) ma odpowiedni typ i długość, wbudowana funkcja copy może wykonać płytką kopię.
+
+** Kawałki (slices) używają semantyki wskaźnikowej
+
+Warto pamiętać, że nawet jeśli używasz semantyki wartościowej do przenoszenia kawałka (slice) po
+programie, podczas odczytywania i zapisywania kawałka, korzystasz z semantyki wskaźnikowej. Dzielenie
+poszczególnych elementów kawałka z różnymi częściami programu może powodować niepożądane efekty uboczne.
+
+    // Construct a slice of 1 user, set a pointer to that user,
+    // use the pointer to update likes.
+
+    users := make([]user, 1)
+    ptrUsr0 := &users[0]
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Wynik:
+
+    User: 0 Likes: 1
+
+
+Kawałek (slice) jest używany do przechowywania kolekcji użytkowników. Następnie wskaźnik
+jest ustawiany na pierwszego użytkownika i używany do aktualizacji polubień. Wynik pokazuje,
+że używanie wskaźnika działa.
+
+.image /tour/eng/static/img/sl8.png
+
+Następnie do kolekcji zostaje dodany nowy użytkownik, a wskaźnik jest
+ponownie używany, aby dodać polubienie do pierwszego użytkownika.
+
+    // Append a new user to the collection. Use the pointer again
+    // to update likes.
+
+    users = append(users, user{})
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Output:
+
+    User: 0 Likes: 1
+    User: 1 Likes: 0
+
+
+Jednakże, ponieważ funkcja append zastąpiła tablicę bazową nową, wskaźnik aktualizuje starą tablicę bazową,
+a polubienia zostają utracone. Wynik pokazuje, że polubienia dla pierwszego użytkownika nie zostały zwiększone.
+
+.image /tour/eng/static/img/sl9.png
+
+Trzeba uważać, czy kawałek (slice) będzie używany w operacji append podczas działania programu. Sposób,
+w jaki dzielisz kawałek, musi być uwzględniony. Dzielenie pojedynczych indeksów może nie być najlepszym pomysłem.
+Dzielenie całego kawałka również może nie działać, gdy jest używane append. Prawdopodobnie lepszym rozwiązaniem
+jest używanie kawałka jako pola w strukturze i dzielenie wartości struktury.
+
+** Efektywność przeglądania liniowego
+Piękno kawałka (slice) polega na jego zdolności do wykonywania liniowego trawersowania,
+które wspomaga obsługę i dzielenie danych korzystając z semantyki wartościowej,
+po to aby zminimalizować alokacje na stercie (heap).
+
+    x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
+
+    a := x[0]
+    b := binary.LittleEndian.Uint16(x[1:3])
+    c := binary.LittleEndian.Uint16(x[3:5])
+    d := binary.LittleEndian.Uint32(x[5:9])
+
+    println(a, b, c, d)
+
+Kod wykonuje liniowe trawersowanie, tworząc wartości kawałka (slice), które
+odczytują różne sekcje tablicy bajtów od początku do końca.
+
+.image /tour/eng/static/img/sl10.png
+
+Wszystkie dane w tym kodzie pozostają na stosie. Nie są kopiowane dodatkowe
+kopie danych znajdujących się w kawałku (slice) bajtów.
+
+** Notatki
+
+- Kawałki (slices) są jak dynamiczne tablice z specjalną, wbudowaną funkcjonalnością.
+- Istnieje różnica między długością a pojemnością kawałka (slice), a każda z nich ma swoje zadanie.
+- Kawałki pozwalają na wielokrotne "widoki" tego samego podstawowego zestawu danych.
+- Kawałki mogą rosnąć dzięki wbudowanej funkcji append.
+
+** Dodatkowe materiały
+
+- [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
+- [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
+- [[https://blog.golang.org/slices][Arrays, slices (and strings): The mechanics of 'append']] - Rob Pike        
+- [[https://www.ardanlabs.com/blog/2013/08/understanding-slices-in-go-programming.html][Understanding Slices in Go Programming]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/08/collections-of-unknown-length-in-go.html][Collections Of Unknown Length in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html][Iterating Over Slices In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/slices-of-slices-of-slices-in-go.html][Slices of Slices of Slices in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/12/three-index-slices-in-go-12.html][Three-Index Slices in Go 1.2]] - William Kennedy    
+- [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
+- [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
+			 
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zdeklaruj pusty kawałek (slice) liczb całkowitych. Utwórz pętlę,
+która dodaje 10 wartości do kawałka (slice). Następnie przeiteruj przez ten kawałek (slice) i wyświetl każdą z wartości.
+
+*Część* *B:* Zadeklaruj kawałek (slice) zawierający pięć ciągów znaków i zainicjuj go literałami ciągów znaków.
+Wyświetl wszystkie elementy. Następnie utwórz kawałek (slice) na podstawie indeksów jeden i dwa, a następnie wyświetl pozycję
+indeksu i wartość każdego elementu w nowym kawałku (slice).
+
+.play slices/exercise1.go		  
+.play slices/answer1.go

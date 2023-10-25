@@ -1,0 +1,159 @@
+Typy podstawowe
+Możesz zadeklarować typ ogólny, używając typu podstawowego.
+
+* Typy Generyczne - podstawowe typy
+
+Możesz zadeklarować typ ogólny, używając typu podstawowego.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Konkretny typ wektora
+- *Example* *2*: Interfejsowy typ wektora
+- *Example* *3*: Generyczny typ wektora
+
+.play generics/underlying-types/example1.go
+.play generics/underlying-types/example2.go
+.play generics/underlying-types/example3.go
+
+** Wytłumaczenie
+
+Co byś chciał zadeklarować własny ogólny typ, używając typu podstawowego?
+
+    type vector[T any] []T
+
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Ten przykład przedstawia ogólny typ wektora, który ogranicza konstrukcję wektora do jednego
+typu danych. Użycie nawiasów kwadratowych oznacza, że typ T jest ogólnym typem, który
+zostanie określony w czasie kompilacji. Użycie ograniczenia "any" oznacza brak ograniczenia
+co do tego, jaki typ T może przyjąć.
+
+Ostatnia metoda jest deklarowana jako odbiorca wartości typu vector[T], aby reprezentować
+wartość typu vector z podstawowym fragmentem pewnego typu T. Metoda zwraca wartość tego
+samego typu T.
+
+    func main() {
+        fmt.Print("vector[int] : ")
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if i < 0 {
+            fmt.Print("negative integer: ")
+        }
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
+        fmt.Print("vector[string] : ")
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if !utf8.ValidString(s) {
+            fmt.Print("non-valid string: ")
+        }
+
+        fmt.Printf("value: %q\n", s)
+    }
+
+Wynik:
+
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
+
+Tak można skonstruować wartość typu vector z podstawowym typem int,
+gdy ustawiamy wartości w wektorze podczas konstrukcji. Ważnym aspektem
+tego kodu są wywołania konstrukcyjne.
+
+    // Konstrukcja na podstawie wartości zerowej
+    var vGenInt vector[int]
+    var vGenStr vector[string]
+    
+    // Konstrukcja na podstawie wartości niezerowej
+    vGenInt := vector{10, -1}
+    vGenStr := vector{"A", "B", string([]byte{0xff})}
+
+Jeśli chodzi o konstruowanie tych ogólnych typów do ich wartości zerowej, kompilator
+nie jest w stanie wywnioskować typu. Jednak w przypadkach, gdzie występuje inicjalizacja
+podczas konstrukcji, kompilator może wywnioskować typ.
+
+W specyfikacji języka istnieje aspekt związany z konstrukcją ogólnego typu
+do stanu wartości zerowej.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Należy skupić się na deklaracji metody dla ostatniej metody i na tym, jak metoda zwraca
+wartość ogólnego typu T. W pierwszym przypadku zwracane jest wartość zerowa dla typu T.
+Obecna implementacja dostarcza dwie rozwiązania dla tego kodu. Pierwsze rozwiązanie
+już widzisz. Zmienna o nazwie "zero" jest konstruowana do stanu wartości zerowej typu T,
+a następnie ta zmienna jest używana do zwrócenia wyniku.
+
+Inną opcją jest użycie wbudowanej funkcji "new" i dereferencji zwróconego wskaźnika w instrukcji "return".
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        if len(v) == 0 {
+            return *new(T), errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Wersja ostatniej metody używa wbudowanej funkcji "new" do konstrukcji wartości zerowej oraz
+dereferencji zwróconego wskaźnika, aby spełnić typ zwracany T.
+
+Uwaga: Możesz zapytać, dlaczego nie użyć T{} do wykonania konstrukcji wartości zerowej?
+Problem polega na tym, że ta składnia nie działa ze wszystkimi typami,
+takimi jak typy skalarne (int, string, bool). Dlatego nie jest to dobra opcja.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zdeklaruj typ ogólny o nazwie keymap, który używa podstawowego typu map z kluczem typu string i
+wartością jakiegoś typu T. Zadeklaruj metodę o nazwie set, która przyjmuje klucz typu
+string i wartość typu T. Zadeklaruj także metodę o nazwie get, która przyjmuje klucz
+typu string i zwraca wartość typu T, oraz true lub false, w zależności czy klucz zostanie znaleziony.
+Następnie napisz funkcję main, która używa tych metod.
+
+.play generics/underlying-types/exercise1.go 
+.play generics/underlying-types/answer1.go

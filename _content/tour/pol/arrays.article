@@ -1,0 +1,428 @@
+Tablice
+Tablice (ang. Arrays) to specjalna struktura danych w języku Go, która pozwala na przydzielenie ciągłych bloków pamięci o stałym rozmiarze.
+
+* Tablice
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Tablice są specjalną strukturą danych w Go, która umożliwia przydzielenie
+ciągłych bloków pamięci o stałym rozmiarze. Tablice w Go mają pewne specjalne
+cechy związane z tym, jak są deklarowane i traktowane jako typy.
+
+** Przegląd kody
+
+- *Przykład* *1:* Deklaruj, inicjalizuj i iteruj
+- *Przykład* *2:* Różne typy tablic
+- *Przykład *3:* Ciągła alokacja pamięci
+- *Przykład* *4:* Mechanika zakresu (Range)
+
+.play arrays/example1.go
+.play arrays/example2.go
+.play arrays/example3.go
+.play arrays/example4.go
+
+** Deklarowanie i inicjowanie wartości
+
+Zadeklaruj tablicę pięciu łańcuchów znaków zainicjowaną do stanu zerowego.
+
+    var strings [5]string
+
+Warto zauważyć, że string w Go jest strukturą danych typu immutable, składającą
+się z dwóch słów. Pierwsze słowo reprezentuje wskaźnik do tablicy bajtów
+podstawowej, a drugie słowo określa łączną ilość bajtów w tej tablicy.
+W przypadku tablicy zainicjowanej do stanu zerowego, każdy element tablicy
+string ma ustawione pierwsze słowo na nil i drugie słowo na 0.
+
+.image /tour/eng/static/img/a1.png
+
+** Przypisywanie łańcucha znaków
+
+Co się stanie po przypisaniu łańcucha do innego łańcucha?
+
+    strings[0] = "Apple"
+
+Kiedy łańcuch znaków jest przypisany do innego łańcucha znaków, dwuelementowa wartość
+jest kopiowana, co powoduje, że dwa różne łańcuchy znaków dzielą tę samą tablicę podstawową.
+
+.image /tour/eng/static/img/a2.png
+
+Koszt skopiowania ciągu znaków jest taki sam, niezależnie od jego rozmiaru,
+wynosi to kopię dwóch słów.
+
+** Iteracja po kolekcjach
+
+Go udostępnia dwie różne semantyki do iteracji po kolekcjach. Można iterować,
+używając semantyki wartościowej lub semantyki wskaźnika.
+
+    // Iteracja semantyką wartościową
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+
+    // Iteracja semantyką wskaźnikową
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Podczas korzystania z iteracji semantyki wartościowej dzieją się dwie rzeczy.
+Po pierwsze, kolekcja, którą iterujesz, zostaje skopiowana, a iteracja odbywa
+się na kopii. W przypadku tablicy kopia może być kosztowna, ponieważ kopiowana
+jest cała tablica. W przypadku wycinka (slice) nie ma rzeczywistego kosztu,
+ponieważ kopiowana jest tylko wewnętrzna wartość wycinka, a nie tablica podstawowa.
+Po drugie, otrzymujesz kopię każdego elementu, który jest iterowany.
+
+Korzystając z semantyki wskaźnikowej, iterujesz po oryginalnej kolekcji i masz dostęp
+do każdego elementu skojarzonego z tą kolekcją bezpośrednio.
+
+** Iteracja semantyką wartościową
+
+Poniżej kod i wynik działania:
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+Wynik:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Zmienna strings to tablica 5 ciągów znaków. Pętla iteruje po każdym ciągu
+znaków w kolekcji i wyświetla pozycję indeksu i wartość ciągu. Ponieważ
+to jest iteracja semantyką wartości, pętla for range iteruje na swojej
+własnej kopii tablicy i w każdej iteracji zmienna fruit jest kopią każdego
+ciągu znaków (struktury danych dwóch słów).
+
+Zauważ, jak zmienna fruit jest przekazywana do funkcji print za pomocą
+semantyki wartości. Funkcja print otrzymuje własną kopię wartości ciągu znaków.
+W momencie, gdy ciąg znaków jest przekazywany do funkcji print, istnieje
+4 kopie wartości ciągu znaków (tablica, kopia płytki, zmienna fruit i
+kopia funkcji print). Wszystkie 4 kopie dzielą tę samą tablicę bajtów.
+
+.image /tour/eng/static/img/a3.png
+
+Tworzenie kopii wartości ciągu znaków jest ważne, ponieważ zapobiega to
+ucieczce wartości ciągu znaków na stertę. Dzięki temu eliminuje się
+nieproduktywne alokacje na stercie.
+
+** Iteracja semantyką wskaźnikową
+
+Poniżej kod i wynik działania:
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Wynik:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Jeszcze raz, zmienna strings to tablica pięciu ciągów znaków. Pętla iteruje po
+każdym ciągu znaków w kolekcji i wyświetla pozycję indeksu oraz wartość ciągu
+znaków. Ponieważ to jest iteracja semantyki wskaźnikowej, pętla for range iteruje
+bezpośrednio po tablicy strings, a podczas każdej iteracji wartość ciągu znaków
+dla każdej pozycji indeksu jest dostępna bezpośrednio w wywołaniu funkcji print.
+
+** Różne typy tablic
+
+Interesujące jest to, jakie komunikaty o błędach dostarcza kompilator, gdy
+próbujemy przypisywać tablice o tych samych typach, ale różnych rozmiarach.
+
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
+
+    five = four
+
+Błąd kompilacji:
+
+    cannot use four (type [4]int) as type [5]int in assignment
+
+W tym przypadku deklarujesz tablicę o rozmiarze 4 i 5 liczb całkowitych zainicjowanych
+do stanu o wartości zerowej. Następnie próbujesz przypisać je sobie nawzajem, a kompilator
+mówi: "nie można użyć four (typ [4]int) jako typu [5]int w przypisaniu".
+
+Warto zrozumieć, co mówi kompilator. Oznacza to, że tablica składająca się z 4 liczb
+całkowitych i tablica składająca się z 5 liczb całkowitych reprezentują dane różnych typów.
+Rozmiar tablicy stanowi część jej informacji typu. W Go rozmiar tablicy musi być znany
+na etapie kompilacji.
+
+** Ciągla alokacja pamięci
+
+Chcesz udowodnić, że tablica zapewnia ciągły układ pamięci.
+
+    five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
+
+    for i, v := range five {
+        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+            v, &v, &five[i])
+    }
+
+Wynik:
+
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+
+Tutaj deklarujesz tablicę z 5 ciągami zainicjowanymi wartościami. Następnie używasz
+wartościowej iteracji, aby wyświetlić informacje o każdym ciągu. Wynik pokazuje każdą
+pojedynczą wartość ciągu, adres zmiennej v oraz adres każdego elementu w tablicy.
+
+Możesz zobaczyć, że tablica jest ciągłym blokiem pamięci, a ciąg to struktura
+danych o rozmiarze dwóch słów lub 16 bajtów w architekturze 64-bitowej. Adres
+każdego elementu jest odległy o 16 bajtów.
+
+Fakt, że zmienna v ma ten sam adres podczas każdej iteracji, wzmacnia zrozumienie,
+że v to zmienna lokalna typu string, która zawiera kopię każdej wartości ciągu
+podczas iteracji.
+
+** Pamięć podręcza CPU
+
+Istnieje wiele mechanicznych różnic między procesorami i ich konstrukcją. W tej
+sekcji omówimy ogólny model procesora oraz semantykę, która jest stosunkowo taka
+sama we wszystkich procesorach. Zrozumienie tej semantyki dostarczy ci dobrego
+modelu mentalnego dotyczącego działania procesora i pozwoli na lepsze zrozumienie
+jego działania.
+
+Każdy rdzeń w procesorze ma własną lokalną pamięć podręczną (L1 i L2) oraz wspólną
+pamięć podręczną (L3) do przechowywania i dostępu do danych i instrukcji. Wątki
+sprzętowe w każdym rdzeniu mogą uzyskiwać dostęp do swoich lokalnych pamięci podręcznych
+L1 i L2. Dane z pamięci L3 lub głównej pamięci muszą być skopiowane do pamięci podręcznej
+L1 lub L2 w celu dostępu.
+
+.image /tour/eng/static/img/a4.png
+
+Koszt opóźnienia dostępu do danych, które znajdują się w różnych pamięciach podręcznych,
+zmienia się od najniższego do najwyższego: L1 -> L2 -> L3 -> główna pamięć. Jak powiedział
+Scott Meyers: "Jeśli wydajność ma znaczenie, to łączna ilość pamięci, którą masz, to łączna
+ilość pamięci podręcznej. Główna pamięć jest tak wolna w dostępie, że praktycznie rzecz biorąc,
+można by ją zignorować."
+
+Wydajność dzisiaj zależy od tego, jak efektywnie dane przepływają przez sprzęt. Jeśli każdy
+fragment danych, którego potrzebuje sprzęt (w danym momencie), znajduje się tylko w głównej
+pamięci, moje programy będą działać wolniej w porównaniu do sytuacji, w której dane są już
+obecne w pamięci L1 lub L2.
+
+    3GHz(3 miliardy cykli zegara na sekundę) * 4 instrukcje na cykl = 12 instrukcji na ns!
+
+    1 ns ............. 1 ns .............. 12 instrukcji  (jeden)
+    1 µs ......... 1,000 ns .......... 12,000 instrukcji  (tysiąc)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instrukcji  (milion)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instrukcji  (miliard)
+
+    Zdefiniowane opóźnienia
+    L1 pamięć podręczna ......................... 0.5 ns ...................  6 ins
+    L2 pamięć podręczna ........................... 7 ns ................... 84 ins
+    Pamięć główna................................ 100 ns ................. 1200 ins
+
+Jak napisać kod, który gwarantuje, że dane potrzebne do wykonania instrukcji zawsze
+znajdują się w pamięci podręcznej L1 lub L2? Musisz napisać kod, który jest mechanicznie
+zgodny z mechanizmem prefetcher procesora. Prefetcher stara się przewidzieć, jakie dane
+będą potrzebne, zanim instrukcje poproszą o te dane, dzięki czemu dane są już obecne w
+pamięci podręcznej L1 lub L2.
+
+Istnieją różne poziomy dostępu do pamięci w zależności od tego, gdzie zachodzi dostęp.
+Twój kod może czytać/zapisywać bajt pamięci jako najmniejszą jednostkę dostępu do pamięci.
+Jednak z perspektywy systemów pamięci podręcznej jednostką granularności jest blok o
+rozmiarze 64 bajtów, zwany linią pamięci podręcznej (cache line).
+
+Prefetcher działa najlepiej, gdy wykonywane instrukcje tworzą przewidywalne wzorce dostępu
+do pamięci. Jednym ze sposobów stworzenia przewidywalnego wzorca dostępu do pamięci jest
+skonstruowanie ciągłego bloku pamięci i następnie iterowanie po tej pamięci, wykonując
+liniowy przebieg z przewidywalnym krokiem.
+
+Tablica jest najważniejszą strukturą danych dla sprzętu, ponieważ obsługuje przewidywalne
+wzorce dostępu. Jednak w Go najważniejszą strukturą danych jest slice. Slicey w Go używają
+tablicy jako struktury bazowej.
+
+Po utworzeniu tablicy każdy element jest równie oddalony od następnego lub poprzedniego elementu.
+Podczas iteracji po tablicy zaczynasz przechodzić od jednej linii pamięci podręcznej do kolejnej,
+utrzymując przewidywalny krok. Prefetcher wykryje ten przewidywalny wzorzec dostępu do danych i
+zacznie wydajnie ściągać dane do procesora, zmniejszając tym samym opóźnienia kosztów dostępu do
+danych.
+
+Wyobraź sobie, że masz dużą macierz kwadratową pamięci i listę połączonych węzłów, która odpowiada
+liczbie elementów w macierzy. Jeśli wykonasz przejście po liście połączonej i następnie przejdziesz
+przez macierz w obie strony (kolumnowo i wierszowo), jak będzie się różnić wydajność różnych tras?
+
+    func RowTraverse() int {
+        var ctr int
+        for row := 0; row < rows; row++ {
+            for col := 0; col < cols; col++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+Przechodzenie wierszowe (row traverse) będzie miało najlepszą wydajność, ponieważ przechodzi przez pamięć,
+blokami cache line połączonymi ze sobą, co tworzy przewidywalny wzorzec dostępu. Cache line mogą być
+wcześniej przewidziane i skopiowane do pamięci podręcznej L1 lub L2, zanim dane będą potrzebne.
+
+    func ColumnTraverse() int {
+        var ctr int
+        for col := 0; col < cols; col++ {
+            for row := 0; row < rows; row++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+Przechodzenie kolumnowe (column traverse) jest najgorsze o rząd wielkości, ponieważ ten wzorzec dostępu
+przekracza granice stron systemu operacyjnego (OS page boundaries) przy każdym dostępie do pamięci.
+To powoduje brak przewidywalności dla wcześniejszego przewidywania cache line i staje się praktycznie
+dostępem do losowej pamięci.
+
+    func LinkedListTraverse() int {
+        var ctr int
+        d := list
+        for d != nil {
+            if d.v == 0xFF {
+                ctr++
+            }
+            d = d.p
+        }
+        return ctr
+    }
+
+Lista połączona (linked list) jest dwukrotnie wolniejsza od przekładu wierszy (row traversal),
+głównie dlatego, że występują tam cache line misses, ale mniej TLB (Translation Lookaside Buffer)
+misses. Większość węzłów połączonych na liście istnieje w tych samych stronach OS.
+
+    BenchmarkLinkListTraverse-16    128      28738407 ns/op
+    BenchmarkColumnTraverse-16       30     126878630 ns/op
+    BenchmarkRowTraverse-16         310      11060883 ns/op
+
+** Bufor mikroprocesorowej pamięci
+
+Każdy działający program otrzymuje pełne mapowanie pamięci wirtualnej od systemu operacyjnego i myśli,
+że dysponuje całą pamięcią fizyczną na maszynie. Niemniej jednak pamięć fizyczna musi być dzielona
+między wszystkie uruchomione programy. System operacyjny dzieli pamięć fizyczną, dzieląc ją na strony i
+mapując strony na pamięć wirtualną dla dowolnie działającego programu. Każdy system operacyjny może
+określić rozmiar strony, ale rozmiary 4k, 8k i 16k są rozsądnymi i powszechnymi rozmiarami.
+
+TLB to mały bufor wewnątrz procesora, który pomaga zmniejszyć opóźnienia w tłumaczeniu adresu wirtualnego
+na adres fizyczny w ramach strony systemu operacyjnego i przesunięcia wewnątrz strony. Brak trafienia w
+pamięć podręczną TLB może powodować duże opóźnienia, ponieważ teraz sprzęt musi czekać, aż system operacyjny
+przejrzy swoją tabelę stron, aby znaleźć odpowiednią stronę dla danego adresu wirtualnego. Jeśli program
+działa na maszynie wirtualnej (na przykład w chmurze), to najpierw trzeba przejrzeć tabelę stron maszyny
+wirtualnej.
+
+Pamiętaj to, co zostało powiedziane:
+
+Lista połączona jest dwukrotnie wolniejsza niż przekład wierszy głównie dlatego, że występują tam braki w
+cache line, ale mniej braków TLB (wyjaśnionych dalej). Większość węzłów połączonych na liście istnieje w
+tych samych stronach systemu operacyjnego.
+
+LinkedList jest o rzędy wielkości szybszy niż przekład kolumny ze względu na dostęp do TLB. Mimo że są
+tam braki w cache line w trakcie trawersowania listy połączonej, ponieważ większość pamięci grupy węzłów
+znajdzie się w tej samej stronie, opóźnienia TLB nie wpływają na wydajność. Dlatego też, dla programów
+korzystających z dużej ilości pamięci, takich jak aplikacje oparte na DNA, można rozważyć użycie dystrybucji
+systemu Linux skonfigurowanej z rozmiarami stron rzędu megabajtów lub dwóch pamięci.
+
+Wszystko to podkreśla, jak ważne jest podejście oparte na danych. Efektywny algorytm musi uwzględniać sposób
+dostępu do danych. Pamiętaj, że wydajność dzisiaj zależy od tego, jak efektywnie można dostarczyć dane do procesora.
+
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
+
+** Notatki pamięci podręcznej procesora
+
+.html arrays/array_list.html
+
+** Dodatkowe diagramy
+
+*Określone* *Czasy* *Opóźnień*
+
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    Branch mispredict ............................ 5 ns ................... 60 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Mutex lock/unlock ........................... 25 ns .................. 300 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins           
+    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
+    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
+    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
+    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
+    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
+    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
+    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
+    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
+    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+
+*Wykres* *Czasów* *Opóźnień* *Pamięci* *Podręcznej*
+
+.image /tour/eng/static/img/cache_latencies_graph.png
+
+** Dodatkowe materiały
+
+*CPU* *Cache* */* *Pamięć*
+
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
+- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
+
+*Projektowanie* *Zorientowane* *Na* *Dane*
+
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
+- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+
+** Notatki
+
+- Jeśli nie rozumiesz danych, to nie rozumiesz problemu.
+- Jeśli nie rozumiesz kosztu rozwiązania problemu, nie możesz rozważać go logicznie.
+- Jeśli nie rozumiesz sprzętu, nie możesz rozważać kosztu rozwiązania problemu.
+- Tablice to struktury danych o stałej długości, które nie mogą zmieniać się.
+- Tablice o różnych rozmiarach są traktowane jako różne typy.
+- Pamięć jest alokowana jako blok o ciągłej lokalizacji.
+- Go daje kontrolę nad przestrzenną lokalizacją.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zadeklaruj tablicę zawierającą 5 ciągów znaków, gdzie każdy element jest zainicjowany na wartość zero.
+Następnie zadeklaruj drugą tablicę 5 ciągów znaków i zainicjuj ją za pomocą literałów ciągów znaków.
+Przypisz drugą tablicę do pierwszej i wyświetl wynik pierwszej tablicy. Wyświetl wartość ciągu znaków
+oraz adres każdego elementu.
+
+.play arrays/exercise1.go
+.play arrays/answer1.go

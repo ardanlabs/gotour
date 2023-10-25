@@ -1,0 +1,137 @@
+Typy strukturalne
+Możesz zadeklarować typ generyczny, używając typu strukturalnego.
+
+* Typy generyczne - Typy strukturalne
+
+Możesz zadeklarować ogólny typ, używając typu strukturalnego.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Lista łączona
+
+.play generics/struct-types/example1.go
+
+** Wytłumaczenie
+
+Jeśli chciałbyś zadeklarować własny ogólny typ, używając typu strukturalnego, to jak byś to zrobił?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Ten typ strukturalny jest zadeklarowany w celu reprezentacji węzła dla listy łączonej.
+Każdy węzeł zawiera pojedynczy element danych, który jest przechowywany i zarządzany
+przez listę. Użycie nawiasów kwadratowych deklaruje, że typ T jest ogólny i będzie
+określany podczas kompilacji. Użycie ograniczenia "any" oznacza, że nie ma ograniczeń
+co do tego, jakim typem może być T.
+
+Dzięki zadeklarowaniu typu T, pole Data może teraz być zdefiniowane jako pole jakiegoś typu T,
+które zostanie określone później. Pola next i prev muszą wskazywać na węzeł tego samego
+typu T. Odpowiednio są to wskaźniki do następnego i poprzedniego węzła w liście łączonej.
+Aby nawiązać tę relację, pola są deklarowane jako wskaźniki do węzła, który jest powiązany z
+typem T za pomocą nawiasów kwadratowych.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+
+Drugi typ struktury nosi nazwę "list" i reprezentuje zbiór węzłów, wskazując na pierwszy i ostatni
+węzeł w liście. Te pola muszą wskazywać na węzeł jakiegoś typu T, tak samo jak pola next i prev w typie węzła.
+
+Ponownie, identyfikator T jest definiowany jako typ generyczny (do określenia później), który może zostać
+zastąpiony przez "dowolny" konkretny typ. Następnie pola first i last są deklarowane jako wskaźniki
+do węzła jakiegoś typu T, przy użyciu składni z nawiasami kwadratowymi.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+Jest to implementacja metody o nazwie "add" dla typu "list". Nie jest wymagane formalne
+deklarowanie typu generycznego "list" (jak w przypadku funkcji), ponieważ metoda jest związana z
+listą za pomocą odbiornika. Odbiornik metody "add" jest deklarowany jako wskaźnik do listy
+pewnego typu T, a zwracany jest jako wskaźnik do węzła tego samego typu T.
+
+Kod po konstrukcji węzła zawsze będzie taki sam, niezależnie od tego, jakiego rodzaju
+dane są przechowywane w liście, ponieważ jest to tylko manipulacja wskaźnikami. To tylko
+konstrukcja nowego węzła jest wpływana przez typ danych, które zostaną zarządzane. Dzięki
+ogólnym typom konstrukcja węzła może być związana z typem T, który zostaje zastąpiony
+później podczas kompilacji.
+
+Bez ogólnych typów cała ta metoda musiałaby być zduplikowana, ponieważ konstrukcja węzła
+musiałaby być zakodowana na stałe do znanego, zadeklarowanego typu przed kompilacją.
+Ponieważ ilość kodu (dla całej implementacji listy), który musi się zmienić w przypadku
+różnych typów danych, jest bardzo mała, możliwość deklaracji węzła i listy do zarządzania
+danymi jakiegoś typu T redukuje koszty duplikacji i utrzymania kodu.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Przechowaj wartości typu "user" w liście.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Przechowaj wskaźniki typu "user" w liście.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Wynik:
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+Oto mała aplikacja. Zadeklarowany jest typ o nazwie "user", a następnie lista jest tworzona w swoim
+zerowym stanie, aby zarządzać wartościami typu "user". Druga lista jest również tworzona w swoim
+zerowym stanie i zarządza wskaźnikami do wartości typu "user". Jedyna różnica między tymi dwoma
+listami polega na tym, że jedna zarządza wartościami typu "user", a druga wskaźnikami typu "user".
+
+Ponieważ typ "user" jest jawnie określony podczas konstrukcji typu listy, metoda "add" przyjmuje
+wartości typu "user". Ponieważ wskaźnik typu "user" jest jawnie określony podczas konstrukcji
+typu listy, metoda "add" przyjmuje wskaźniki typu "user".
+
+Możesz zobaczyć w wyniku działania programu, że pole "Data" dla węzłów w odpowiednich listach
+odpowiada semantyce danych użytych podczas konstrukcji.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zadeklaruj generyczny typ o nazwie stack, który używa struktury z pojedynczym polem o nazwie data zadeklarowanym
+jako slice pewnego typu T. Zadeklaruj metodę o nazwie push, która przyjmuje wartość pewnego typu T i dodaje tę
+wartość do slice'a. Zadeklaruj metodę o nazwie pop, która zwraca ostatnią dodaną wartość pewnego typu T do slice'a
+oraz błąd. Następnie napisz funkcję główną, która używa tych metod.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go
