@@ -1,0 +1,143 @@
+Struktury danych
+Ta sekcja zawiera przykłady dotyczące struktur danych.
+
+* Tablica z haszowaniem / tablica mieszająca (Hash Map)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Ten przykładowy program implementuje podstawową tablicę mieszającą.
+
+- Funkcja hashKey(klucz) zwraca liczbę z zakresu od 0 do len(kubełki)-1.
+
+- Używamy fragmentu wpisów jako kubełka do obsługi przypadków, gdy dwa lub więcej kluczy jest hashowane dla tego samego kubełka.
+
+- Więcej informacji można znaleźć pod adresem [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
+
+*Diagram*
+
+    W przypadku tablicy mieszającej dane są indeksowane według kubełka,
+    a następnie pozycji wewnątrz kubełka.
+
+    hashKey(klucz) ────────────┐
+                               │
+                               ▽
+     ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+     │    │     │     │     │     │     │     │     │  ◁── kubełek
+     └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+             │                 │
+             ▽                 ▽
+       ┌─────────────────┐   ┌─────────────────┐
+       │ klucz │ wartość │   │ klucz │ wartość │  ◁── wpis
+       ├─────────────────┤   ├─────────────────┤
+       │ klucz │ wartość │   │ klucz │ wartość │
+       ├─────────────────┤   └─────────────────┘
+       │ klucz │ wartość │
+       ├─────────────────┤
+       │ klucz │ wartość │
+       ├─────────────────┤
+       │ klucz │ wartość │
+       └─────────────────┘
+
+.play algorithms/data/hash_map.go
+
+* Lista wiązana
+
+Ten przykładowy program implementuje podstawową podwójną listę wiązaną.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
+
+*Diagram*
+
+    W przypadku listy jednokierunkowej, wartości są ze sobą powiązane w różnej kolejności za pomocą wskaźników.
+
+    ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+    │ Wartość │ ◁─▷ │ Wartość │ ◁─▷ │ Wartość │ ◁─▷ │ Wartość │ ◁─▷ │ Wartość │
+    └─────────┘     └─────────┘     └─────────┘     └─────────┘     └─────────┘
+         △                                                                △
+         │                                                                │
+         ─────────────────────────          ───────────────────────────────
+                                  │        │
+                                  │        │
+                           ┌─────────────────────┐
+                           │ Pierwszy │  Ostatni │
+                           └─────────────────────┘
+
+.play algorithms/data/list.go
+
+* Kolejka
+
+Ten przykładowy program implementuje podstawową kolejkę cykliczną.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]]
+
+*Diagram*
+
+    W kolejce cyklicznej, pierwsza wartość na wejściu jest pierwszą wartością na wyjściu.
+
+               ┌──────────────────────────────────────────┐
+    ┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+    │ V06 │ ─▷ │ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ │ ─▷ │ V01 │
+    └─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
+               └──────────────────────────────────────────┘
+
+.play algorithms/data/queue_circular.go
+
+* Stos
+
+Ten przykładowy program implementuje podstawowy stos.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Stack_(abstract_data_type)][https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]]
+
+*Diagram*
+
+    W stosie, pierwsza wartość na wejściu jest ostatnią na wyjściu.
+
+           ┌─────┐
+           │ V05 │
+           └─────┘
+              │
+              ▽          ┌─────┐
+        ┌───────────┐ ─▷ │ V04 │
+        │  ┌─────┐  │    └─────┘
+        │  │ V03 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V02 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V01 │  │
+        │  └─────┘  │
+        └───────────┘
+
+.play algorithms/data/stack.go
+
+* Drzewo binarne
+
+Ten przykładowy program implementuje drzewo binarne.
+
+- See more at [[https://en.wikipedia.org/wiki/Binary_tree][https://en.wikipedia.org/wiki/Binary_tree]]
+
+*Diagram*
+
+    W przypadku drzewa binarnego dane są indeksowane po lewej lub
+    prawej stronie drzewa. Wraz z dodawaniem każdego węzła drzewo jest wyważane.
+
+      0     1     2     3     4     5     6    ◁─ Kolejność wstawiania
+    ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 65 ││ 45 ││ 35 ││ 75 ││ 85 ││ 78 ││ 95 │
+    └────┘└────┘└────┘└────┘└────┘└────┘└────┘
+
+                   ┌────┐
+                   │ 75 │                      ◁─ Finałowe drzewo
+                   └────┘
+                 /        \
+           ┌────┐          ┌────┐
+           │ 45 │          │ 85 │
+           └────┘          └────┘
+           /    \          /    \
+       ┌────┐  ┌────┐  ┌────┐  ┌────┐
+       │ 35 │  │ 65 │  │ 78 │  │ 95 │
+       └────┘  └────┘  └────┘  └────┘
+
+.play algorithms/data/tree_binary.go

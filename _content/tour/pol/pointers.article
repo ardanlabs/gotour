@@ -1,0 +1,327 @@
+Wskaźniki
+Wskaźniki służą do udostępniania wartości między granicami programu.
+
+* Wskaźniki
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Wskaźniki służą do udostępniania wartości między granicami programu. Istnieje
+kilka rodzajów granic programowych. Najczęstszą z nich jest granica między wywołaniami
+funkcji. Istnieje także granica między goroutines (wirtualnymi wątkami Go), do których dotrzemy później.
+
+** Przegląd kodu
+
+- *Example* *1:* Przekazywanie przez wartość
+- *Example* *2:* Dzielenie danych I
+- *Example* *3:* Dzielenie danych II
+- *Example* *4:* Analiza ucieczki (Escape Analysis)
+- *Example* *5:* Rozszerzanie stosu
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+Kiedy program w języku Go rozpoczyna działanie, środowisko uruchomieniowe Go tworzy goroutine.
+Goroutine są lekkimi wątkami na poziomie aplikacji, posiadającymi wiele z tych samych semantyk,
+co wątki systemu operacyjnego. Ich zadaniem jest zarządzanie fizycznym wykonywaniem odrębnego
+zestawu instrukcji. Każdy program w języku Go ma co najmniej 1 Goroutine, którą nazywa się główną Goroutine.
+
+Każda goroutine otrzymuje swój własny blok pamięci nazywany stosem. Każdy stos
+zaczyna się od alokacji o rozmiarze 2048 bajtów (2 kilobajty). Oczywicie jest to bardzo
+niewielki rozmiar, jednakże stosy mogą rosnąć w miarę upływu czasu.
+
+.image /tour/eng/static/img/p1.png
+
+Za każdym razem, gdy jest wywoływana funkcja, alokowany jest blok przestrzeni na stosie,
+aby pomóc Goroutine wykonać instrukcje związane z tą funkcją. Każdy indywidualny blok pamięci
+nazywany jest ramką (frame).
+
+Rozmiar ramki dla danej funkcji jest obliczany w czasie kompilacji. Żadna wartość nie może być
+konstruowana na stosie, chyba że kompilator zna rozmiar tej wartości w czasie kompilacji. Jeśli
+kompilator nie zna rozmiaru wartości w czasie kompilacji, wartość musi być konstruowana na stercie (heap).
+ 
+Stosy są samoczyszczące, a zerowa wartość pomaga w inicjalizacji stosu. Za każdym razem, gdy wywołujesz
+funkcję i alokowana jest ramka pamięci, pamięć dla tej ramki jest inicjowana, dlatego stos jest samoczyszczący.
+Po zakończeniu funkcji, pamięć dla ramki jest pozostawiana bez zmian, ponieważ nie wiadomo, czy ta pamięć
+będzie potrzebna ponownie. Inicjowanie pamięci przy powrocie z funkcji byłoby nieefektywne.
+
+*Przekazywanie* *Przez* *Wartość*
+
+Wszystkie dane w programie są przekazywane przez wartość. Oznacza to, że gdy dane są przekazywane
+przez granice programu, każdej funkcji lub goroutine przekazywana jest jej własna kopia danych. Istnieją
+dwa rodzaje danych, z którymi będziesz pracować: sama wartość (int, string, użytkownik) lub adres
+wartości. Adresy to dane, które muszą być kopiowane i przechowywane przez granice programu.
+
+Poniższy kod próbuje wyjaśnić to bardziej szczegółowo.
+
+    func main() {
+
+        // Zadeklaruj zmienną typu int o wartości 10.
+        count := 10
+
+        // Aby uzyskać adres wartości, użyj operatora &.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Przekaż kopię wartości count (co jest w pudełku) do funkcji increment1
+        increment1(count)
+
+        // Wypisz wartość i adres count.
+        // Wartość samego count nie zmienia się po wywołaniu funkcji.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Przekaż kopię adresu count (gdzie jest pudełko) do funkcji increment2. To nadal jest uważane za przekazanie
+        // przez wartość, a nie przez referencję, ponieważ adresy są wartościami.
+        increment2(&count)
+
+        // Wypisz wartość i adres count.
+        // Wartość vount zmieniała się po wywołaniu funkcji increment2.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1 deklaruje funkcję, która przyjmuje swoją własną kopię wartości całkowitej.
+    func increment1(inc int) {
+
+        // Zwiększ lokalną kopię wartości całkowitej przekazanej przez wywołującego.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2 deklaruje funkcję, która przyjmuje swoją własną
+    // kopię wskaźnika wskazującego na wartość całkowitą. Zmienne
+    // wskaźnikowe są typami literałowymi i są deklarowane przy użyciu *.
+    func increment2(inc *int) {
+
+        // Zwiększ wartość całkowitą wywołującego poprzez wskaźnik.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+Wynik:
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** Notatki
+
+- Używaj wskaźników do udostępniania danych.
+- Wartości w Go są zawsze przekazywane przez wartość.
+- "Wartość", to co znajduje się w pudełku. "Adres", ( & ), to miejsce, gdzie jest pudełko.
+- Operator ( * ) deklaruje zmienną wskaźnikową oraz "Wartość, na którą wskazuje ten wskaźnik".
+
+** Analiza ucieczki (Escape Analysis)
+
+Algorytm, który kompilator używa do określenia, czy wartość powinna być tworzona na stosie
+czy na stercie, nazywa się "analizą ucieczki" (escape analysis). Nazwa tego algorytmu może sugerować,
+że wartości są początkowo tworzone na stosie, a następnie uciekają (lub przechodzą) na stertę,
+gdy jest to konieczne. Jednakże nie jest to prawdą. Tworzenie wartości odbywa się tylko raz,
+a algorytm analizy ucieczki decyduje, gdzie to będzie (stos czy sterta). Jedynie tworzenie na
+stercie jest nazywane alokacją w języku Go.
+
+Zrozumienie analizy ucieczki polega na zrozumieniu własności wartości. Idea polega na tym,
+że jeśli wartość jest tworzona w zakresie funkcji, to ta funkcja jest właścicielem tej wartości.
+Następnie pojawia się pytanie: czy wartość, która jest tworzona, musi nadal istnieć, gdy
+funkcja będąca właścicielem zakończy działanie? Jeśli odpowiedź brzmi "nie", to wartość może
+być tworzona na stosie. Jeśli odpowiedź brzmi "tak", to wartość musi być tworzona na stercie.
+
+Uwaga: Zasada własności jest dobrym podstawowym kryterium do identyfikowania kodu,
+który powoduje alokacje. Jednakże musisz zdawać sobie sprawę, że analiza ucieczki
+ma pewne wady, które mogą prowadzić do nieoczywistych alokacji. Ponadto, algorytm
+wykorzystuje możliwości optymalizacji kompilatora w celu oszczędności alokacji.
+
+    // "user" reprezentuje użytkownika w systemie.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+Funkcja "stayOnStack" używa semantyki wartościowej, aby zwrócić wartość użytkownika wywołującemu.
+Innymi słowy, wywołujący otrzymuje swoją własną kopię tworzonej wartości użytkownika.
+
+Kiedy funkcja stayOnStack jest wywoływana i zwraca wynik, wartość użytkownika, którą tworzy, nie musi już istnieć,
+ponieważ wywołujący otrzymuje swoją własną kopię. Dlatego tworzenie wartości użytkownika wewnątrz funkcji stayOnStack
+może odbywać się na stosie, bez konieczności alokacji na stercie.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+Funkcja "escapeToHeap" używa semantyki wskaźnikowej, aby zwrócić wartość użytkownika
+wywołującemu. Innymi słowy, wywołujący otrzymuje współdzielony dostęp (adres)
+do tworzonej wartości użytkownika.
+
+Kiedy funkcja "escapeToHeap" jest wywoływana i zwraca wynik, wartość użytkownika którą tworzy - nadal musi istnieć,
+ponieważ wywołujący otrzymuje współdzielony dostęp do tej wartości. Dlatego tworzenie wartości użytkownika wewnątrz
+funkcji "escapeToHeap" nie może odbywać się na stosie; musi być alokowane na stercie. To wiąże się z alokacją pamięci.
+
+Pomyśl o tym, co by się stało, gdyby wartość użytkownika w ostatnim przykładzie
+była tworzona na stosie przy użyciu semantyki wskaźnikowej w zwracanej wartości.
+
+.image /tour/eng/static/img/p2.png
+
+Wywołujący otrzymałby kopię adresu ze stosu z ramki poniżej, co skutkowałoby utratą integralności.
+Po powrocie kontroli do funkcji wywołującej, pamięć na stosie gdzie istnieje wartość użytkownika,
+staje się ponownie dostępna do ponownego użycia. W momencie, gdy funkcja wywołująca dokonuje
+kolejnego wywołania funkcji, tworzony jest nowy stos i pamięć zostanie nadpisana, co zniszczy
+współdzieloną wartość.
+
+
+To dlatego warto rozważać, że stos jest samoczyszczący. Inicjalizacja zerową wartością pomaga
+w czyszczeniu każdej ramki stosu, która jest potrzebna, bez konieczności użycia Garbage Collector.
+Stos jest samoczyszczący, ponieważ ramka jest alokowana i inicjowana podczas wykonywania
+każdego wywołania funkcji. Czyszczenie stosu odbywa się podczas wywołań funkcji, a nie na etapie
+ich zakończenia, ponieważ kompilator nie wie, czy pamięć na stosie będzie kiedykolwiek ponownie potrzebna.
+
+Analiza ucieczki decyduje, czy wartość jest tworzona na stosie (domyślnie) czy na stercie (ucieka).
+W przypadku funkcji stayOnStack przekazujesz kopię wartości wywołującemu, więc jest bezpieczne
+przechowywanie wartości na stosie. W przypadku funkcji escapeToHeap przekazujesz kopię adresu
+wartości wywołującemu (współdzieląc w górę stosu), więc nie jest bezpieczne przechowywanie wartości na stosie.
+
+Istnieje wiele drobnych szczegółów związanych z analizą ucieczki, więc aby dowiedzieć się więcej,
+przeczytaj wpis w rozdziale 14 zatytułowany "Mechanizmy analizy ucieczki".
+
+Uwaga: W wersji 1.17 języka Go zmieniono interfejs binarny aplikacji (ABI - Application Binary Interface),
+aby wprowadzić nowy sposób przekazywania argumentów wejściowych i wyjściowych funkcji za pomocą rejestrów,
+a nie pamięci na stosie. Ta zmiana jest dostępna dla systemów Linux, MacOS i Windows na architekturze 64-bitowej x86.
+Oznacza to, że niektóre argumenty funkcji nie będą kopiowane na stosie, ale niektóre mogą, w zależności od
+wykonalności użycia rejestrów. To nie zmienia żadnych semantyk opisanych w tym rozdziale.
+
+** Notatki
+
+- Wartość może być referencjonowana po zakończeniu działania funkcji, która ją konstruuje.
+- Kiedy kompilator stwierdza, że wartość jest zbyt duża, aby zmieścić się na stosie.
+- Kiedy kompilator nie zna rozmiaru wartości w czasie kompilacji.
+- Kiedy wartość jest odłączona poprzez użycie funkcji lub wartości interfejsu.
+
+** Semantyka zbierania śmieci (garbage collection)
+
+Po utworzeniu wartości na stercie, musi zaangażować się Garbage Collector (GC).
+Najważniejszą częścią GC jest algorytm regulacji (pacing algorithm). Określa on częstotliwość/tempo,
+z jaką GC musi działać, aby utrzymać najmniejszą możliwą stertę w połączeniu z najlepszą wydajnością aplikacji.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** Stos vs Sterta
+
+"Stos służy do danych, które muszą istnieć tylko przez czas trwania funkcji,
+która je tworzy, i jest odzyskiwany bez żadnych kosztów po zakończeniu działania funkcji.
+Sterta natomiast służy do danych, które muszą istnieć po zakończeniu działania funkcji,
+która je tworzy, i jest odzyskiwana poprzez czasami kosztowną operację czyszczenia śmieci (garbage collection)." - Ayan George
+
+** Zwiększanie stosu
+
+Rozmiar każdej ramki dla każdej funkcji jest obliczany w czasie kompilacji. Oznacza to,
+że jeśli kompilator nie zna rozmiaru wartości w czasie kompilacji, wartość musi być
+tworzona na stercie. Przykładem tego jest użycie wbudowanej funkcji make do
+tworzenia wycinka (slice), którego rozmiar jest oparty na zmiennej.
+
+    b := make([]byte, size) // Tablica podstawowa (backing array) jest alokowana na stercie.
+
+Go używa ciągłej implementacji stosu (contiguous stack), aby określić, jak stosy rosną i kurczą się.
+Jedną z alternatyw, które Go mogło wykorzystać, jest segmentowana implementacja stosu (segmented stack),
+która jest używana przez niektóre systemy operacyjne.
+
+Każde wywołanie funkcji jest poprzedzone pewnym wstępnym pytaniem: "Czy jest wystarczająco dużo miejsca
+na stosie dla tej nowej ramki?". Jeśli odpowiedź brzmi "tak", to nie ma problemu i ramka zostaje
+zaalokowana i zainicjowana. Jeśli odpowiedź brzmi "nie", to konieczne jest utworzenie nowego,
+większego stosu i skopiowanie pamięci ze starego na nowy stos. Wymaga to aktualizacji wskaźników,
+które odnoszą się do pamięci na stosie. Korzyści wynikające z ciągłej pamięci i liniowych przeszukiwań z
+wykorzystaniem nowoczesnego sprzętu stanowią pewną rekompensatę za koszty kopiowania.
+
+Ze względu na użycie ciągłych stosów (contiguous stacks), żadna gorutyna nie może mieć
+wskaźnika do stosu innej gorutyny. To spowodowałoby zbyt duże obciążenie dla środowiska
+uruchomieniowego (runtime), aby śledzić każdy wskaźnik do każdego stosu i
+dostosowywać te wskaźniki do nowego położenia.
+
+** Dodatkowe materiały
+
+**Mechanika* *Wskaźników*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+
+*Stosy*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+
+*Analiza* *Ucieczki* *oraz* *Optymalizacja*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+
+*Zbieranie* *Śmieci*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+
+*Optymalizacje* *Statycznego* *Jednokrotnego* *Przypisania*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj i zainicjuj zmienną typu int wartością 20.
+Wyświetl 'adres' oraz 'wartość' zmiennej.
+
+*Część* *B:* Zadeklaruj i zainicjuj zmienną wskaźnikową typu int, która wskazuje na
+ostatnią zmienną, którą właśnie utworzyłeś. Wyświetl 'adres', 'wartość' oraz 'wartość, na którą wskazuje wskaźnik'.
+
+** Ćwiczenie 2
+
+Zadeklaruj typ struktury i utwórz wartość tego typu. Zadeklaruj funkcję,
+która może zmieniać wartość jednego z pól tej struktury. Wyświetl wartość
+przed i po wywołaniu tej funkcji.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go
