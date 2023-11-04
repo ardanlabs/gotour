@@ -1,0 +1,226 @@
+Grupowanie z typami
+Warto pamiętać, że w Go koncepcje podtypów lub podklas naprawdę nie istnieją, i tych wzorców projektowych należy unikać.
+
+* Grupowanie z typami
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Warto pamiętać, że w Go koncepcje podtypów lub podklas naprawdę nie istnieją, i tych wzorców projektowych należy unikać.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Grupowanie przez stan
+- *Przykład* *2:* Grupowanie przez zachowanie
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Grupowanie różnych typów danych
+
+Warto pamiętać, że w Go koncepcje podtypowania lub podklasowania naprawdę nie istnieją,
+i te wzorce projektowe powinny być unikane.
+
+Poniższy przykład to antywzorzec, którego nie powinieneś stosować ani implementować.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+Typ Animal jest deklarowany jako typ bazowy, który próbuje zdefiniować dane
+wspólne dla wszystkich zwierząt. Sprawiasz, że próbujesz również dostarczyć
+pewne wspólne zachowanie dla zwierząt.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+Większość zwierząt ma zdolność do wydawania dźwięków w jakiś sposób. Jednak
+próba zastosowania tego wspólnego zachowania tylko do zwierzęcia nie ma sensu.
+W tym momencie nie wiesz, jaki dźwięk wydaje to zwierzę, więc zapisujesz "UGH".
+
+    type Dog struct {
+        Animal
+        PackFactor int
+    }
+
+Teraz zaczynają się prawdziwe problemy. Próbujesz użyć osadzania, aby uczynić
+Psa wszystkim, czym jest Zwierzę, a także czymś więcej. Na pierwszy rzut oka
+może to wydawać się działać, ale pojawią się problemy. Niemniej jednak, Pies ma
+konkretny sposób wydawania dźwięków.
+
+    func (d *Dog) Speak() {
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+W implementacji metody Speak możesz zastąpić "UGH" na "Woof". Jest to specyficzne
+dla tego, jak pies wydaje dźwięki.
+
+    type Cat struct {
+        Animal
+        ClimbFactor int
+    }
+
+Jeśli chcemy, aby Pies reprezentował Zwierzę, to musimy również mieć Koty. Dzięki
+użyciu embedding, Kot posiada wszystkie cechy Zwierzęcia, a także dodatkowe.
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+W implementacji metody Speak, możesz zamienić UGH na Meow. To specyficzne dla sposobu,
+w jaki koty wydają dźwięki.
+
+Wszystko wydaje się w porządku, i wydaje się, że embedding zapewnia taką samą
+funkcjonalność, jak dziedziczenie w innych językach programowania. Następnie
+próbujesz grupować psy i koty na podstawie faktu, że mają wspólne dziedzictwo jako Zwierzęta.
+
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+Kiedy próbujesz to zrobić, kompilator sygnalizuje, że Pies i Kot nie są Zwierzętami,
+i to jest prawdą. Embedding nie jest tym samym co dziedziczenie, i to jest wzorzec,
+którego powinieneś unikać. Pies to Pies, Kot to Kot, a Zwierzę to Zwierzę. Nie można
+przekazywać Psa i Kota tak, jakby byli Zwierzętami, ponieważ nimi nie są.
+
+Ten rodzaj mechanizmu nie jest również bardzo elastyczny. Wymaga konfiguracji przez
+programistę, i dopóki masz dostęp do kodu, nie możesz wprowadzać zmian w
+konfiguracji w miarę upływu czasu.
+
+Jeśli to nie jest sposób, w jaki możemy tworzyć kolekcje Psów i Kotów w Go,
+to jak możemy to zrobić? Chodzi o grupowanie przez wspólne zachowanie,
+a zachowanie jest kluczem.
+
+    type Speaker interface {
+        Speak()
+    }
+
+Jeśli używasz interfejsu, możesz zdefiniować wspólny zestaw metod, które reprezentują
+zachowanie, które chcesz grupować w różne typy danych.
+
+    speakers := []Speaker{
+        &Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+W nowym kodzie możesz teraz grupować psy i koty na podstawie ich wspólnego
+zestawu zachowań, czyli faktu, że psy i koty potrafią mówić.
+
+W rzeczywistości typ Animal jest rodzajem zanieczyszczenia typów, ponieważ
+deklarowanie typu tylko po to, aby udostępnić zestaw wspólnych stanów,
+jest złym rozwiązaniem i powinno być unikane.
+
+    type Dog struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Cat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+W tym konkretnym przypadku wolałbyś zobaczyć usunięcie typu Animal, a pola skopiowane i
+wklejone do typów Dog i Cat. Wkrótce pojawią się informacje o lepszych wzorcach
+eliminujących te scenariusze.
+
+Oto problemy w kodzie źródłowym:
+
+- Typ Animal dostarcza warstwę abstrakcyjną do ponownego użycia stanu.
+- Program nigdy nie musi tworzyć ani wyłącznie używać wartości typu Animal.
+- Implementacja metody Speak dla typu Animal jest ogólna.
+- Metoda Speak dla typu Animal nigdy nie zostanie wywołana.
+
+Wskazówki dotyczące deklarowania typów:
+
+- Deklaruj typy, które reprezentują coś nowego lub unikalnego.
+- Nie twórz aliasów tylko dla czytelności.
+- Zweryfikuj, że wartość dowolnego typu jest tworzona lub używana samodzielnie.
+- Osadzaj typy nie dlatego, że potrzebujesz stanu, ale dlatego, że potrzebujesz zachowania.
+- Jeśli nie myślisz o zachowaniach, zamykasz się w projekcie, którego nie możesz rozwijać w przyszłości bez kaskadowych zmian w kodzie.
+- Kwestionuj typy, które są aliasami lub abstrakcjami dla istniejącego typu.
+- Kwestionuj typy, których jedynym celem jest współdzielenie wspólnego zestawu stanów.
+
+** Nie projektuj z interfejsami
+
+Niestety, zbyt wielu programistów próbuje rozwiązać problemy w sposób abstrakcyjny. Skupiają się od
+razu na interfejsach, co prowadzi do zanieczyszczenia interfejsami. Jako programista działasz w
+jednym z dwóch trybów: jako programista, a potem jako inżynier.
+
+Gdy programujesz, skupiasz się na przekonaniu się, że kawałek kodu działa. Próbujesz rozwiązać
+problem i przełamać bariery. Dowodzisz, że twoje początkowe pomysły działają. To jest to, co
+naprawdę się liczy. Programowanie to praca z konkretnymi rozwiązaniami, które nigdy nie są
+gotowe do użycia w produkcji.
+
+Gdy masz prototyp kodu, który rozwiązuje problem, musisz przejść w tryb inżynierii. Skupiasz się
+na tym, jak napisać kod na poziomie mikro dla semantyki danych i czytelności, a następnie na
+poziomie makro dla modeli mentalnych i możliwości utrzymania. Musisz również zwrócić uwagę na
+błędy i stany awarii.
+
+Ta praca polega na cyklu refaktoryzacji. Refaktoryzacja dotyczy czytelności, efektywności,
+abstrakcji i testowalności. Abstrakcja to tylko jedna z wielu refaktoryzacji, które trzeba
+przeprowadzić. Działa najlepiej, gdy zaczynasz od konkretnego kawałka kodu i ODKRYWASZ
+interfejsy, które są potrzebne. Nie stosuj abstrakcji, chyba że jest to absolutnie konieczne.
+
+Każdy problem rozwiązujesz kodem, który jest problemem danych, wymagającym napisania
+przekształceń danych. Jeśli nie rozumiesz danych, nie rozumiesz problemu. Jeśli nie
+rozumiesz problemu, nie możesz napisać kodu. Zacznij od konkretnego rozwiązania
+opartego na konkretnych strukturach danych. Jak powiedział Rob Pike:
+
+"Dane dominują. Jeśli wybierzesz właściwe struktury danych i dobrze zorganizujesz rzeczy, to algorytmy prawie zawsze będą oczywiste". - Rob Pike
+
+Kiedy jest potrzebna abstrakcja? Gdy zauważasz miejsce w kodzie, w którym dane mogą się
+zmieniać i chcesz zminimalizować kaskadowe efekty zmian w kodzie. Abstrakcję można
+wykorzystać do ułatwienia testowania kodu, ale należy starać się jej unikać, jeśli
+to możliwe. Najlepsze funkcje do testowania to funkcje, które przyjmują surowe dane i
+zwracają surowe dane. Nie powinno mieć znaczenia, skąd pochodzą dane ani gdzie idą.
+
+Na koniec zacznij od konkretnej rozwiązania każdego problemu, nawet jeśli większość z
+tego to tylko programowanie. Następnie odkryj interfejsy, które są absolutnie niezbędne do kodu dzisiaj.
+
+"Nie projektuj z interfejsami, odkrywaj je" - Rob Pike.

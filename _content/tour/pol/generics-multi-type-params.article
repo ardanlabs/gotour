@@ -1,0 +1,36 @@
+Parametry wielotypowe
+Nie jesteś ograniczony do używania tylko jednego rodzaju generycznego na raz.
+
+* Typy generyczne - parametry wielotypowe
+
+Nie jesteś ograniczony do używania tylko jednego rodzaju generycznego na raz.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Wyświetl funkcję
+
+.play generics/multi-type-params/example1.go
+
+** Wytłumaczenie
+
+    func Print[L any, V fmt.Stringer](labels []L, vals []V) {
+        for i, v := range vals {
+            fmt.Println(labels[i], v.String())
+        }
+    }
+
+Funkcja Print przyjmuje kolekcję pewnego typu L oraz kolekcję pewnego typu V.
+Typ L może być dowolny, ale typ V jest ograniczony do wartości, które potrafią
+być przekształcane na ciągi znaków. Kolekcja pewnego typu V jest iterowana i
+wypisywana z odpowiadającym jej etykietą z kolekcji typu L.
+
+Nazwa ogólnego typu może być dowolna. Konwencja nazewnicza dla ogólnych
+typów jest czymś, co wymaga lepszego określenia w celu określenia najlepszych
+praktyk. Na razie postaraj się trzymać pojedynczych wielkich liter, jeśli to
+sprzyja czytelności.

@@ -1,0 +1,37 @@
+Parâmetros Multitipo
+Você não está restrito a usar somente um tipo genérico por vez.
+
+* Generics - Parâmetros Multitipo
+
+Você não está restrito a usar somente um tipo genérico por vez.
+
+** Vídeo
+
+Assista à palestra que dei sobre Generics, que mostra todos os
+exemplos que estão nesta seção do Tour.
+
+.html generics-video.html
+
+** Revisão de Código
+
+- *Exemplo* *1*: Função Print
+
+.play generics/multi-type-params/example1.go
+
+** Explicação
+
+    func Print[L any, V fmt.Stringer](labels []L, vals []V) {
+        for i, v := range vals {
+            fmt.Println(labels[i], v.String())
+        }
+    }
+
+A função Print aceita uma coleção de algum tipo L e uma coleção de algum tipo V.
+O tipo L pode ser qualquer coisa, mas o tipo V é limitado à valores que possuem
+o método String. A coleção de algum tipo V é iterada e impressa com seu correspondente
+rótulo da coleção do tipo L.
+
+O nome do tipo genérico pode ser qualquer coisa. A convenção de nomenclatura para
+tipos genéricos é algo que precisa ser definido melhor para melhores práticas.
+Por enquanto, tente limitar-se a uma única letra maiúscula quando isso funcionar
+para a legibilidade.

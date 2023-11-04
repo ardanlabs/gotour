@@ -1,0 +1,141 @@
+Tipo Struct
+Você pode declarar um tipo genérico usando um tipo struct.
+
+* Generics - Struct Tipo
+
+Você pode declarar um tipo genérico usando um tipo struct.
+
+** Vídeo
+
+Assista à palestra que dei sobre Generics, que mostra todos os
+exemplos nesta seção do Tour.
+
+.html generics-video.html
+
+** Revisão de código
+
+- *Exemplo* *1*: Lista Encadeada, ou Lista Ligada
+
+.play generics/struct-types/example1.go
+
+** Explicado
+
+E se você quisesse declarar seu próprio tipo genérico usando um tipo struct?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Este tipo struct é declarado para representar um node da lista encadeada. Cada nó
+contém um dado individual que é armazenado e gerenciado pela lista. O uso
+de colchetes declara que o tipo T é um tipo genérico a ser determinado em
+tempo de compilação. O uso da restrição "any" descreve que não há restrição
+que tipo T pode se tornar.
+
+Com o tipo T declarado, o campo Data agora pode ser definido como um campo de algum tipo T para
+ser determinado posteriormente. Os campos next e prev precisam apontar para um node do mesmo
+tipo T. Estes são os ponteiros para o node seguinte e anterior na lista ligada,
+respectivamente. Para fazer esta conexão, os campos são declarados como ponteiros para um node
+que está vinculado ao tipo T através do uso de colchetes.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+O segundo tipo struct é denominado list e representa uma coleção de nodes
+apontando para o primeiro e o último node de uma lista. Esses campos precisam apontar para um node de
+algum tipo T, assim como os campos next e prev do tipo node.
+
+Mais uma vez, o identificador T é definido como um tipo genérico (a ser determinado posteriormente)
+que pode ser substituído por "any" tipo concreto. Então o primeiro e o último campos são
+declarados como ponteiros para um node de algum tipo T usando a sintaxe de colchetes.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+Esta é uma implementação de um método chamado add para o tipo list. Não é necessária a declaração de nenhum tipo genérico 
+formal da list (como acontece com funções), pois o método está vinculado à lista por meio do receiver. 
+O receiver do método add é declarado como um ponteiro para uma lista de algum tipo T e
+o retorno é declarado como um ponteiro para um node do mesmo tipo T.
+
+O código após a construção de um node será sempre o mesmo, independente de
+que tipo de dados está sendo armazenado na lista, já que isso é apenas manipulação do ponteiro.
+É apenas a construção de um novo node que é afetada pelo tipo de dados que irá
+ser gerenciado. Graças a generics, a construção de um node pode ser vinculada ao tipo T
+que é substituído posteriormente em tempo de compilação.
+
+Sem generics, todo este método precisaria ser duplicado, uma vez que o
+a construção de um node precisaria ser codificada para um tipo conhecido e declarado antes
+para compilação. Como a quantidade de código (para toda a implementação da lista) que
+precisa mudar para diferentes tipos de dados é muito pequena, sendo capaz de declarar um nó
+e lista para gerenciar dados de algum tipo T reduz o custo de duplicação de código e
+manutenção.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Store values of type user into the list.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Store pointers of type user into the list.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Resultado:
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+Aqui está um pequeno programa. Um tipo chamado user é declarado e então uma lista é
+construída, em seu estado de "zero value", para gerenciar valores do tipo user. Uma segunda lista é
+então construído para seu estado de "zero value" e esta lista gerencia ponteiros para valores do
+tipo user. A única diferença entre essas duas listas é que uma gerencia valores do
+tipo user e a outra ponteiros do tipo user.
+
+Como o tipo user é especificado explicitamente durante a construção do tipo list, o método add, 
+por sua vez, aceita valores do tipo user. Como um ponteiro do tipo user é explicitamente
+especificado durante a construção do tipo de lista, o método add aceita ponteiros do tipo user.
+
+Você pode ver na saída do programa, o campo Data para os node nas respectivas
+listas corresponde à semântica dos dados usada na construção.
+
+* Exercícios
+
+Use o template como ponto de partida para concluir os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+Declare um tipo genérico chamado stack que usa uma struct com um único
+campo denominado data, declarado como um slice de algum tipo T. Declare um método
+chamado push que aceita um valor de algum tipo T e acrescenta o valor ao slice.
+Declare um método chamado pop que retorne o último valor de
+algum tipo T que foi acrescentado ao slice e um erro. Então escreva uma função main que usa os métodos.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go
