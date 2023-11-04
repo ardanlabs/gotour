@@ -1,0 +1,359 @@
+مدیریت خطا
+مدیریت خطا برای ساخت برنامه‌های شما قابل اعتماد، قابل اعتماد و محترمانه نسبت به کسانی که به آن‌ها وابسته هستند، حیاتی است.
+
+* طراحی مدیریت خطا
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+یکی از جنبه‌های مهمی در فرآیند مهندسی، صداقت است. در مرکز صداقت، مدیریت خطا قرار دارد. زمانی که به Go می‌آید، مدیریت خطا نباید یک استثناء باشد که بعداً یا در جای دیگری در کد مدیریت شود. این بخشی از مسیر اصلی است و باید یک تمرکز اصلی باشد.
+
+توسعه‌دهندگان مسئولیت دارند که متن کافی در مورد هر خطایی را برگردانند تا کاربر بتواند تصمیم مطلعانه‌ای در مورد نحوه ادامه کار بگیرد. مدیریت یک خطا درباره سه چیز است: ثبت خطا، انتقال خطا به دیگرجاهای کد نشان ندهد، و تعیین کند که آیا Goroutine/برنامه باید متوقف شود یا خیر.
+
+در Go، خطاها فقط مقادیر هستند، بنابراین می‌توانند هر چیزی باشند که نیاز دارید. آنها می‌توانند هر وضعیت یا رفتاری را حفظ کنند.
+
+** مرور کد
+
+- *مثال* *1:* مقادیر خطای پیش‌فرض
+- *مثال* *2:*  متغیرهای خطا
+- *مثال* *3:* Type As Context
+- *مثال* *4:*  رفتار به عنوان Context   
+- *مثال* *5:*  پیدا کردن باگ
+- *مثال* *6:* پوشاندن خطاها با stdlib
+
+.play error-handling/example1.go
+.play error-handling/example2.go
+.play error-handling/example3.go
+.play error-handling/example4.go
+.play error-handling/example5.go
+.play error-handling/example6.go
+
+** مبانی مدیریت خطا
+
+رابط خطا به زبان داخلی تعبیه شده است.
+
+    // http://golang.org/pkg/builtin/#error
+    type error interface {
+        Error() string
+    }
+
+دلیل این موضوع این است که به عنوان یک شناسه غیر قابل صدور به نظر می‌آید. هر مقدار محسوس که این رابط را پیاده‌سازی می‌کند، می‌تواند به عنوان مقدار خطا مورد استفاده قرار گیرد.
+
+یک جنبه مهم در Go این است که مدیریت خطا از طریق این رابط در یک حالت جداگانه انجام می‌شود. دلیل اصلی این امر این است که مدیریت خطا یک جنبه از برنامه من است که بیشتر به تغییر و بهبود حساس است. این رابط نوعی است که برنامه‌های Go باید از آن به عنوان نوع بازگشتی برای مدیریت خطا استفاده کنند.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    type errorString struct {
+        s string
+    }
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func (e *errorString) Error() string {
+        return e.s
+    }
+
+این ارزش خطای بیشترین استفاده در برنامه‌های Go است. در بسته errors از کتابخانه استاندارد اعلام شده است. توجه کنید که نوع آن غیر قابل صدور است و یک فیلد غیر قابل صدور دارد که یک رشته است. همچنین می‌توانید ببینید که نحوه استفاده از معنای اشاره‌گر برای پیاده‌سازی رابط خطا استفاده شده است. این به معنای این است که فقط آدرس‌ها به مقادیر این نوع می‌توانند درون رابط به اشتراک گذاشته و ذخیره شوند. این متد فقط رشته خطا را برمی‌گرداند.
+
+مهم است به خاطر بیاورید که پیاده‌سازی متد Error به منظور پیاده‌سازی رابط و برای ثبت وقوع خطا استفاده می‌شود. اگر کاربری نیاز به تجزیه رشته ای که از این متد برگشت داده شده است داشته باشد، شما نتوانسته‌اید به کاربر مقدار مناسبی از متن را برای تصمیم اطلاع‌داری ارائه دهید.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func New(text string) error {
+        return &errorString{text}
+    }
+
+تابع New نحوه ساخت یک خطا با استفاده از نوع محسوس errorString است. توجه داشته باشید که تابع خطا را با استفاده از رابط خطا برمی‌گرداند. همچنین توجه کنید که از معنای اشاره‌گر هم استفاده شده است.
+
+    func main() {
+        if err := webCall(); err != nil {
+            fmt.Println(err)
+            return
+        }
+        fmt.Println("Life is good")
+    }
+
+    func webCall() error {
+        return New("bad request")
+    }
+
+زمینه (Context) در مورد خطاها بسیار مهم است. هر خطا باید متن کافی را فراهم کند تا فراخواننده قادر به انجام تصمیم اطلاع‌داری در مورد وضعیت گوروتین/برنامه باشد. در این مثال، تابع webCall یک خطا با پیام "Bad Request" برمی‌گرداند. در تابع اصلی، یک فراخوانی به webCall انجام می‌شود و سپس یک بررسی انجام می‌شود تا ببینیم آیا در فراخوانی خطایی رخ داده است یا خیر.
+
+    if err := webCall(); err != nil {
+        fmt.Println(err)
+        return
+    }
+
+کلید برای بررسی شرط err != nil است. این شرط درخواست می‌کند که آیا یک مقدار محسوس درون مقدار رابط err ذخیره شده است یا نه. زمانی که مقدار رابط یک مقدار محسوس را ذخیره می‌کند، یک خطا وجود دارد. در این مورد، متن کافی به معنای واقعی کمی است که یک مقدار محسوس وجود دارد، اهمیتی ندارد که مقدار محسوس چیست.
+
+اگر اهمیت دارد که بدانیم چه مقدار خطایی درون متغیر رابط err وجود دارد، آنگاه متغیرهای خطا یک گزینه خوب هستند.
+
+    var (
+        ErrBadRequest = errors.New("Bad Request")
+        ErrPageMoved = errors.New("Page Moved")
+    )
+
+متغیرهای خطا یک مکانیزم را فراهم می‌کنند تا شناسایی کنند که کدام خطای خاص بازگردانده شده است. آنها دارای اصطلاحی به نام "Err" به عنوان پیشوند هستند و بر اساس نوع محسوس errorString از بسته errors ایجاد می‌شوند.
+
+    func webCall(b bool) error {
+        if b {
+            return ErrBadRequest
+        }
+        return ErrPageMoved
+    }
+
+در این نسخه جدید تابع webCall، تابع یکی از متغیرهای خطا را بازگردانده یا دیگری را. این به فراخواننده اجازه می‌دهد تا تشخیص دهد کدام خطا رخ داده است.
+
+    func main() {
+        if err := webCall(true); err != nil {
+            switch err {
+            case ErrBadRequest:
+                fmt.Println("Bad Request Occurred")
+                return
+
+            case ErrPageMoved:
+                fmt.Println("The Page moved")
+                return
+
+            default:
+                fmt.Println(err)
+                return
+            }
+        }
+
+        fmt.Println("Life is good")
+    }
+
+در این برنامه پس از انجام فراخوانی به webCall، می‌توان بررسی کرد تا ببینیم آیا یک مقدار محسوس درون متغیر رابط err ذخیره شده است یا نه. اگر وجود داشته باشد، سپس از یک دستور switch برای تشخیص کدام خطا با مقایسه err با متغیرهای خطای مختلف استفاده می‌شود.
+
+در این مورد، متن خطا بر اساس اینکه کدام متغیر خطا بازگردانده شده است، تعیین می‌شود. اگر یک متغیر خطا کافی از متن نباشد، چه اگر نیاز به بررسی وضعیت ویژه‌ای مثل خطاهای شبکه داشته باشیم؟ در این موارد، یک نوع خطای محسوس سفارشی پاسخ مناسبی است.
+
+    type UnmarshalTypeError struct {
+        Value string
+        Type  reflect.Type
+    }
+
+    func (e *UnmarshalTypeError) Error() string {
+        return "json: cannot unmarshal " + e.Value +
+            " into Go value of type " + e.Type.String()
+    }
+
+این یک نوع خطای محسوس سفارشی است که در بسته json پیاده‌سازی شده است. توجه کنید که نام دارای پسوند "Error" در نام‌گذاری نوع است. همچنین توجه کنید که از معنای اشاره‌گر برای پیاده‌سازی رابط خطا استفاده شده است. همچنین مانند دیگر پیاده‌سازی‌ها، برای ثبت وقوع خطا و نمایش اطلاعات در مورد تمامی فیلدهایی که ذخیره می‌شوند، استفاده می‌شود.
+
+    type InvalidUnmarshalError struct {
+        Type reflect.Type
+    }
+
+    func (e *InvalidUnmarshalError) Error() string {
+        if e.Type == nil {
+            return "json: Unmarshal(nil)"
+        }
+        if e.Type.Kind() != reflect.Ptr {
+            return "json: Unmarshal(non-pointer " + e.Type.String() + ")"
+        }
+        return "json: Unmarshal(nil " + e.Type.String() + ")"
+    }
+
+این یک دومین نوع خطای محسوس سفارشی است که در بسته json یافت می‌شود. پیاده‌سازی متد Error یکم پیچیده‌تر است، اما همچنان فقط برای ثبت وقوع خطا و استفاده از معنای اشاره‌گر است.
+
+    func Unmarshal(data []byte, v interface{}) error {
+        rv := reflect.ValueOf(v)
+        if rv.Kind() != reflect.Ptr || rv.IsNil() {
+            return &InvalidUnmarshalError{reflect.TypeOf(v)}
+        }
+        return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
+    }
+
+در اینجا یک قسمت از تابع Unmarshal نشان داده شده است. توجه کنید که چگونه مقادیر خطای محسوس محسوس در مقدار بازگشتی ساخته می‌شود و از طریق رابط خطا به فراخواننده منتقل می‌شود. ساختار معنای اشاره‌گر در اینجا استفاده می‌شود زیرا در تعریف متد Error از معنای اشاره‌گر استفاده شده است.
+
+زمینه خطا در اینجا بیشتر در مورد نوع خطا ذخیره شده درون رابط خطا است. باید یک راهی وجود داشته باشد تا بتوان تشخیص داد.
+
+    func main() {
+        var u user
+        err := Unmarshal([]byte(`{"name":"bill"}`), u)
+        if err != nil {
+            switch e := err.(type) {
+            case *UnmarshalTypeError:
+                fmt.Printf("UnmarshalTypeError: Value[%s] Type[%v]\n",
+                    e.Value, e.Type)
+            case *InvalidUnmarshalError:
+                fmt.Printf("InvalidUnmarshalError: Type[%v]\n", e.Type)
+            default:
+                fmt.Println(err)
+            }
+            return
+        }
+        fmt.Println("Name:", u.Name)
+    }
+
+یک تصدیق نوع عمومی در داخل دامنه دستور switch کد نویسی است که می‌توانید با آن کد برای آزمایش نوع مقداری که درون مقدار رابط err ذخیره شده است، بنویسید. در اینجا مفهوم زمینه (Context) است و اکنون می‌توانید با دسترسی به تمام وضعیت‌های خطا، آزمایش کنید و اقداماتی انجام دهید.
+
+با این حال، این یک مشکل ایجاد می‌کند. دیگر من جدا نیستم از مقدار خطای محسوس. این بدان معناست که اگر مقدار خطای محسوس تغییر کند، کد من ممکن است خراب شود. قسمت زیبای استفاده از رابط برای مدیریت خطا، جدا شدن از تغییرات مخرب است.
+
+اگر مقدار خطای محسوس دارای یک مجموعه متد باشد، می‌توانید از یک رابط برای بررسی نوع استفاده کنید. به عنوان مثال، بسته net دارای بسیاری از انواع خطای محسوس مختلف است که متدهای مختلفی پیاده‌سازی می‌کنند. یکی از متد‌های معمولی به نام Temporary است. این متد به کاربر این امکان را می‌دهد که بررسی کند که آیا خطای شبکه بحرانی است یا فقط یک مشکل است که به تنهایی قابل بازیابی است.
+
+    type temporary interface {
+        Temporary() bool
+    }
+
+    func (c *client) BehaviorAsContext() {
+        for {
+            line, err := c.reader.ReadString('\n')
+            if err != nil {
+                switch e := err.(type) {
+                case temporary:
+                    if !e.Temporary() {
+                        log.Println("Temporary: Client leaving chat")
+                        return
+                    }
+                default:
+                    if err == io.EOF {
+                        log.Println("EOF: Client leaving chat")
+                        return
+                    }
+                    log.Println("read-routine", err)
+                }
+            }
+            fmt.Println(line)
+        }
+    }
+
+در این کد، فراخوانی ReadString ممکن است با یک خطا از بسته net شکست بخورد. در این مورد، یک رابط تعریف شده که نمایانگر رفتار مشترکی است که یک مقدار خطای محسوس خاص می‌تواند پیاده‌سازی کند. سپس با یک تصدیق نوع عمومی، شما آزمایش می‌کنید که آیا این رفتار وجود دارد و می‌توانید به آن دسترسی داشته باشید. بهترین بخش این است که در حالت جدا شده با مدیریت خطا باقی می‌مانید.
+
+** همیشه از رابط خطا استفاده کنید
+
+یک اشتباهی که توسعه‌دهندگان Go می‌توانند انجام دهند این است که از نوع خطای محسوس و نه رابط خطا برای نوع بازگشتی برای مدیریت خطا استفاده کنند. اگر چنین کنند، اتفاقات بدی ممکن است رخ دهد.
+
+    type customError struct{}
+
+    func (c *customError) Error() string {
+        return "Find the bug."
+    }
+
+    func fail() ([]byte, *customError) {
+        return nil, nil
+    }
+
+    func main() {
+        var err error
+        if _, err = fail(); err != nil {
+            log.Fatal("Why did this fail?")
+        }
+        log.Println("No Error")
+    }
+
+Output:
+
+    چرا این کد فکر می‌کند که خطا وجود دارد؟
+    
+    چرا این کد فکر می‌کند که خطا وجود دارد وقتی تابع fail مقدار nil را برای خطا برمی‌گرداند؟ دلیل این امر این است که تابع fail از نوع خطای محسوس و نه رابط خطا استفاده می‌کند. در این مورد، یک اشاره‌گر nil از نوع customError درون متغیر err ذخیره شده است. این با یک مقدار رابطی nil از نوع error یکسان نیست.
+
+** مدیریت خطاها
+
+مدیریت خطاها بیشتر مورد مکالمه مهندسی سطح ماکرو است. در دنیای من، مدیریت خطا به معنای این است که خطا در تابعی که خطا را مدیریت می‌کند متوقف می‌شود، خطا با متن کامل ثبت می‌شود و خطا برای شدت آن بررسی می‌شود. براساس شدت و قابلیت بازیابی، تصمیمی برای بازیابی، ادامه دادن یا خاموش کردن گرفته می‌شود.
+
+یک مشکل این است که همه توابع قادر به مدیریت خطا نیستند. یک دلیل ممکن این است که همه توابع مجاز به ثبت وقوع خطا نیستند. چه اتفاقی می‌افتد وقتی یک خطا به بالا در توده فراخوانی منتقل می‌شود و توسط تابعی که آن را دریافت می‌کند نمی‌تواند مدیریت شود؟ یک خطا باید با متنی که تابعی که در نهایت آن را مدیریت می‌کند، بتواند به درستی مدیریت کند، محاصره شود.
+
+    package main
+
+    import (
+        "errors"
+        "fmt"
+    )
+
+    type AppError struct {
+        State int
+    }
+
+    func (ae *AppError) Error() string {
+        return fmt.Sprintf("App Error, State: %d", ae.State)
+    }
+
+    func IsAppError(err error) bool {
+        var ae *AppError
+        return errors.As(err, &ae)
+    }
+
+    func GetAppError(err error) *AppError {
+        var ae *AppError
+        if !errors.As(err, &ae) {
+            return nil
+        }
+        return ae
+    }
+
+    func main() {
+        if err := firstCall(10); err != nil {
+
+            // Check if the error is an AppError.
+            if IsAppError(err) {
+                ae := GetAppError(err)
+                fmt.Printf("Is AppError, State: %d\n", ae.State)
+            }
+
+            fmt.Print("\n********************************\n\n")
+
+            // Display the error using the implementation of
+            // the error interface.
+            fmt.Printf("%v\n", err)
+        }
+    }
+
+    func firstCall(i int) error {
+        if err := secondCall(i); err != nil {
+            return fmt.Errorf("secondCall(%d) : %w", i, err)
+        }
+        return nil
+    }
+
+    func secondCall(i int) error {
+        return &AppError{99}
+    }
+
+خروجی:
+
+    Is AppError, State: 99
+
+    ********************************
+
+    secondCall(10) : App Error, State: 99
+
+** یادداشت‌ها
+
+- از مقدار خطای پیش‌فرض برای پیام‌های استاتیک و ساده فرمت‌شده استفاده کنید.
+- ایجاد و بازگرداندن متغیرهای خطا برای کمک به تمیزشناسی خطاهای خاص تماس‌گیرنده.
+- ایجاد انواع خطای سفارشی زمانی مناسب است که زمینه خطا پیچیده‌تر باشد.
+- مقادیر خطا در Go ویژگی خاصی ندارند، بلکه همانند سایر مقادیر هستند و بنابراین شما تمام زبان را در دسترس دارید.
+
+** نقل قول‌ها
+
+"سیستم‌ها نمی‌توانند با فرض اینکه انسان‌ها قادر به نوشتن میلیون‌ها خط کد بدون اشتباه باشند، توسعه داده شوند، و تنها اشکال‌زدایی یک راه کار کارآمد برای توسعه سیستم‌های قابل اطمینان نیست." - آل آهو (سازنده AWK)
+
+** مطالعات اضافی
+
+- [[https://go.dev/blog/error-handling-and-go][Error handling and Go]]
+- [[https://go.dev/blog/go1.13-errors][Working with Errors in Go 1.13]]
+- [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Error Handling In Go, Part I]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/11/error-handling-in-go-part-ii.html][Error Handling In Go, Part II]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/05/design-philosophy-on-logging.html][Design Philosophy On Logging]] - William Kennedy    
+- [[https://clipperhouse.com/bugs-are-a-failure-of-prediction/][Bugs are a failure of prediction]] - Matt Sherman    
+- [[https://dave.cheney.net/2014/12/24/inspecting-errors][Inspecting errors]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully][Don’t just check errors, handle them gracefully]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package][Stack traces and the errors package]] - Dave Cheney    
+- [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Error handling in Upspin]] - Rob Pike    
+- [[https://rauljordan.com/why-go-error-handling-is-awesome/][Why Go's Error Handling is Awesome]] - Raul Jordan
+   
+** تمرین‌ها
+
+از الگو به عنوان نقطه شروع برای تکمیل تمرین‌ها استفاده کنید. یک راه حل ممکن نیز ارائه شده است.
+
+** تمرین 1
+
+دو متغیر خطایی بنام ErrInvalidValue و دیگری به نام ErrAmountTooLarge ایجاد کنید. پیام استاتیک مناسب را برای هر متغیر ارائه دهید. سپس یک تابع به نام checkAmount بنویسید که یک مقدار از نوع float64 را بپذیرد و یک مقدار خطا برگرداند. مقدار را برای صفر بودن بررسی کنید و اگر صفر باشد، ErrInvalidValue را برگردانید. مقدار را برای بیشتر از 1,000 دلار بودن بررسی کنید و اگر بله باشد، ErrAmountTooLarge را برگردانید. یک تابع اصلی بنویسید تا تابع checkAmount را فراخوانی کند و مقدار خطای برگشتی را بررسی کند. یک پیام مناسب را در صفحه نمایش نمایش دهید.
+
+.play error-handling/exercise1.go
+.play error-handling/answer1.go
+
+** تمرین 2
+
+یک نوع خطای سفارشی به نام appError ایجاد کنید که شامل سه فیلد باشد: err error، message string و code int. رابط خطا را پیاده‌سازی کرده و با استفاده از این سه فیلد پیام خود را ارائه دهید. یک متد دوم به نام temporary پیاده‌سازی کنید که وقتی مقدار فیلد code برابر با 9 باشد، مقدار false را برگرداند. تابعی به نام checkFlag بنویسید که یک مقدار bool بپذیرد. اگر مقدار false باشد، یک اشاره‌گر به نوع خطای سفارشی خود را با مقداری دلخواه ایجاد کرده و برگرداند. اگر مقدار true باشد، یک خطای پیش‌فرض برگردانید. یک تابع اصلی بنویسید تا تابع checkFlag را فراخوانی کرده و خطا را با استفاده از رابط temporary بررسی کند.
+
+.play error-handling/exercise2.go
+.play error-handling/answer2.go

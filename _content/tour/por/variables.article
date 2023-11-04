@@ -1,0 +1,166 @@
+Variáveis
+Variáveis estão no coração da linguagem e fornecem a capacidade de ler e escrever na memória.
+
+* Variáveis
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista o Vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+Variáveis estão no coração da linguagem e fornecem a capacidade de ler
+e escrever na memória. Em Go, o accesso à memória é "type safe". Isso quer dizer que o compilador
+leva o tipo a sério e não nos permitirá usar variáveis fora do escopo
+que elas são declaradas.
+
+** Revisão de Código
+
+- *Exemplo* *1*: Programa de exemplo que mostra como declarar variáveis.
+
+.play variables/example1.go
+
+** Tipos Básicos
+Tipos fornecem integridade e legibilidade fazendo 2 perguntas:
+
+- Qual é a quantidade de memória a ser alocada? (por exemplo, 1, 2, 4, 8 bytes)
+- O que essa memória representa? (por exemplo, int, uint, bool,..)
+
+Tipos podem ser específicos para uma precisão como int32 ou int64:
+
+- uint8 representa um inteiro sem sinal com 1 byte de alocação
+- int32 representa um inteiro com sinal com 4 bytes de alocação.
+
+Quando você declara um tipo usando um tipo que não especifique precisão (uint, int), o tamanho do valor é baseado na
+arquitetura utilizada para compilar o programa.
+
+- Arquitetura de 32 bits: int representa um inteiro com sinal com 4 bytes de alocação de memória
+- Arquitetura de 64 bits: int representa um inteiro com sinal com 8 bytes de alocação de memória
+
+** Tamanho de Palavra
+
+O tamanho de palavra representa a quantidade de memória que deve ser alocada para armazenar
+inteiros e ponteiros em determinada arquitetura. Por exemplo:
+
+- Arquitetura de 32 bits: o tamanho da palavra é de 4 bytes de alocação de memória
+- Arquitetura de 64 bits: o tamanho da palavra é de 8 bytes de alocação de memória
+
+Isso é importante porque Go possui estruturas de dados internas (maps, channels, slices,
+interfaces, e funções) que armazenam inteiros e ponteiros. O tamanho dessas estruturas
+de dados é baseado na arquitetura usada para compilar o programa.
+
+Em Go, a quantidade de memória alocada para um valor do tipo int, um ponteiro, ou uma palavra
+será sempre a mesma na mesma arquitetura.
+
+** Conceito de Zero Value
+Cada valor que você constrói em Go é inicializado pelo menos no seu estado de "zero value",
+a menos que você especifique o valor de inicilização na construção. O zero value é a configuração
+de cada bit em cada byte como zero.
+
+Isso é feito para integridade dos dados e não é grátis. Leva tempo para empurrar
+elétrons através da máquina para redefinir esses bits, mas você deve sempre priorizar
+integridade em detrimento de desempenho.
+
+    Type               Zero Value
+    Boolean            false
+    Integer            0
+    Float              0
+    Complex            0i
+    String             "" (empty)
+    Pointer            nil
+
+** Declaração e Inicialização
+A palavra var pode ser usada para construir valores em seu estado de zero value para todos os tipos.
+
+    var a int
+    var b string
+    var c float64
+    var d bool
+
+    fmt.Printf("var a int \t %T [%v]\n", a, a)
+    fmt.Printf("var b string \t %T [%v]\n", b, b)
+    fmt.Printf("var c float64 \t %T [%v]\n", c, c)
+    fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
+
+Resultado:
+
+    var a int    	int [0]
+    var b string 	string []
+    var c float64	float64 [0]
+    var d bool   	bool [false]
+
+Strings usam o conjunto de caracteres UTF8, mas são apenas uma coleção de bytes.
+
+Uma string é uma strutura de dados de duas palavras em Go:
+
+- A primeira palavra representa um ponteiro para um array de bytes de apoio
+- A segunda palavra representa o comprimento ou o número de bytes no array de apoio
+- Se a string estiver definida para seu zero value, então a primeira palavra é nil e a segunda palavra é 0.
+
+Usando o operador de declaração de variávle curto, você pode declarar, construir, e
+inicializar um valor, tudo ao mesmo tempo.
+
+    aa := 10       // int [10]
+    bb := "hello"  // string [hello]
+    cc := 3.14159  // float64 [3.14159]
+    dd := true     // bool [true]
+
+    fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
+    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
+    fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
+
+Resultado:
+
+    aa := 10         int [10]
+    bb := "hello"    string [hello]
+    cc := 3.14159    float64 [3.14159]
+    dd := true       bool [true]
+
+** Conversão vs Casting
+
+Go não tem casting, mas sim conversão. Em vez de dizer para o compilador mapear
+um conjunto de bytes para uma representação diferente, os bytes precisam ser
+copiados para uma nova localização da memória para a nova representação.
+
+    aaa := int32(10)
+    fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
+
+    Resultado:
+    aaa := int32(10) int32 [10]
+
+Go tem um pacote na biblioteca padrão chamado unsafe se você precisar executar uma
+operação de casting real. Você realmete deve evitar isso e ser honesto consigo mesmo
+sobre o por quê está considerando usá-lo. Fazer uma conversão fornece o nível mais alto
+de integridade para esses tipos de operações.
+
+** Notas
+
+- O propósito de todos os programas e todas as partes desses programas é transformar dados de uma forma para outra.
+- Código primáriamente aloca, lê e grava na memória.
+- Entender tipo é crucial para escrever bom código e compreender código.
+- Se você não entende os dados, você não entende o problema.
+- Você entende melhor o problema ao entender os dados.
+- Quando declarar variáveis com sues zero values, use a palavra var.
+- Quando declarar e inicializar variáveis, use o operador de declaração de variável curto.
+
+** Leitura Extra
+
+- [[http://golang.org/ref/spec#Boolean_types][Tipos Básicos]]    
+- [[https://golang.org/doc/effective_go.html#variables][Variáveis]]    
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
+
+* Exercícios
+
+Use o modelo como um ponto de partida para completar os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+*Parte* *A:* Declare três variáveis que são inicializadas com seu zero value e
+três declaradas com um valor literal. Declare variáveis do tipo string, int e bool.
+Exiba os valores dessas variáveis.
+
+*Parte* *B:* Declare uma nova variável do tipo float32 e inicialize a variável
+convertendo o valor literal de Pi (3.14).
+
+.play variables/exercise1.go
+.play variables/answer1.go

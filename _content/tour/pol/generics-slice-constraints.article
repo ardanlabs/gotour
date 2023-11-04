@@ -1,0 +1,123 @@
+Ograniczenia dla kawałków (slices)
+Bywa, że potrzebujesz ograniczyć rodzaj generycznego typu do jedynie kawałków (slices).
+
+* Typy generyczne - ograniczenia dla kawałków (slices)
+
+Mogą być sytuacje, w których konieczne jest ograniczenie generycznego typu do tylko kawałków (slices).
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Przykład* *1*: Funkcja "Operate"
+
+.play generics/slice-constraints/example1.go
+
+** Wytłumaczenie
+
+W tym przypadku zdefiniowany przez użytkownika typ "Numbers" ma podstawowy typ, którym jest
+slice liczb całkowitych (integers).
+
+    type Numbers []int
+
+Kompilator pozwala na konwersję zmiennych opartych na kawałkach liczb całkowitych na zmienne
+typu "Numbers". Jest to zazwyczaj pożądane zachowanie. Dzięki tej funkcjonalności można
+napisać ogólną funkcję, która może operować na kawałkach (slicach), respektując ich podstawowy typ.
+
+    type operateFunc[T any] func(t T) T
+
+    func operate[T any](slice []T, fn operateFunc[T]) []T {
+        ret := make([]T, len(slice))
+            for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+W funkcji operate deklarowany jest ogólny typ T, który może być czymkolwiek. Typ ten jest
+używany do zadeklarowania parametru o nazwie "slice", który przyjmuje slice tego samego
+typu T. Funkcja ta akceptuje także ogólną funkcję o tym samym typie T i zwraca również
+slice typu T.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        return numbers
+    }
+
+Wynik:
+
+    []int
+
+Funkcja Double akceptuje wartość typu Numbers i przekazuje tę wartość do
+funkcji operate. W tym przypadku kompilator wykorzystuje typ podstawowy
+dla typu T i wartość Numbers może zostać przekazana do funkcji. Jednakże,
+to co jest zwracane to slice typu int, jak widać w wynikach.
+
+Jeśli chcesz upewnić się, że funkcja operate akceptuje tylko wartość
+typu Numbers i zwraca ją, możesz dokonać następujących zmian.
+
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+Ten interfejs deklaruje ograniczenie, które ogranicza generyczny typ do
+rzeczywistego kawałka (slice) jakiegoś typu T. Użycie elementu przybliżenia ~ ogranicza
+wszystkie typy, których typ bazowy to T. Dzięki temu interfejsowi możesz zmienić funkcję operate.
+
+    type operateFunc[T any] func(t T) T
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+    // func operate[T any](slice []T, fn operateFunc[T]) []T {
+    //     ret := make([]T, len(slice))
+    //     for i, v := range slice {
+    //         ret[i] = fn(v)
+    //     }
+    //     return ret
+    // }
+
+    func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
+        ret := make(S, len(slice))
+        for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+Teraz zmień funkcję operate tak, aby deklarowała dwa generyczne typy. Typ S,
+który reprezentuje wartość slice pewnego typu T, oraz T, który jest typem,
+który może być czymkolwiek. Funkcja zwraca wartość typu S.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        
+        return numbers
+    }
+
+Wynik:
+
+    main.Numbers
+
+Tym razem, kiedy przekazujesz wartość Numbers do funkcji operate, zwracany slice
+ma typ Numbers. Pomija się typ bazowy i szanuje się zdefiniowany przez użytkownika typ.

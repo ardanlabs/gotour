@@ -1,0 +1,144 @@
+Identificadores Exportados
+Exportação fornece a capacidade de declarar se um identificador é acessível ao código fora do pacote em que foi declarado.
+
+* Identificadores Exportados
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de assistência financeira, use nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudo]]
+
+Exportar fornece a capacidade de declarar se um identificador é acessível ao código
+fora do pacote em que está declarado.
+
+** Revisão de código
+
+- *Exemplo* *1:* Declarar e acessar identificadores exportados
+- *Exemplo* *2:* Declarar identificadores e restrições não exportados
+- *Exemplo* *3:* Acessar valores de identificadores não exportados
+- *Exemplo* *4:* Campos do tipo struct não exportados
+- *Exemplo* *5:* Tipos embedded não exportados
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Funcionamento da Exportação
+
+Um pacote é a unidade básica do código compilado em Go. 
+Ele representa uma unidade física de código compilado, geralmente como uma biblioteca compilada no sistema operacional hospedeiro. 
+A exportação determina o acesso aos identificadores através dos limites do package.
+
+
+    package counters
+
+    type AlertCounter int
+
+Neste caso, a letra maiúscula está sendo usada para nomear o tipo AlterCounter, 
+o tipo é exportado e pode ser referenciado diretamente por código fora do pacote counters.
+
+    package counters
+
+    type alertCounter int
+
+Agora que você alterou o nome do tipo para começar com uma letra minúscula, o tipo não foi exportado. 
+Isso significa que apenas o código dentro do pacote counters pode fazer referência direta a esse tipo.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Mesmo que o código acima possua a sintaxe correta e seja compilado, não há valor nele. 
+Retornar um valor de um tipo não exportado é confuso, pois quem chama 
+(que provavelmente existirá em um pacote diferente) não pode fazer referência direta ao nome do tipo.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+Neste caso, a função main no pacote main chama a função counters.New com sucesso 
+e o compilador pode declarar e construir uma variável do tipo não exportado. Isso não 
+significa que você deva fazer isso nem significa que você está recebendo alguma proteção real para isso. 
+Isso deve ser evitado e, se New retornar um valor, ele deverá ser do tipo exportado.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+Quando se trata de campos em uma struct, a primeira letra declara se o campo é
+acessível ao código fora do pacote em que está declarado. Nesse caso, Name e ID estão acessíveis, 
+mas password não. É idiomático separar campos exportados e não 
+exportados dessa maneira, se isso for razoável ou prático. Normalmente todos os 
+campos seriam um ou outro.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+Neste cenário, mesmo que o tipo user não seja exportado, ele possui dois campos
+exportados. Isso significa que quando o tipo user é incorporado ao tipo Manager, exportado, 
+os campos do user são promovidos e estão acessíveis. É comum ter tipos que não são 
+exportados com campos exportados porque o pacote reflection só pode 
+operar em campos exportados. Os Marshallers não funcionarão de outra maneira.
+
+O exemplo cria uma situação ruim onde o código fora do pacote user pode construir 
+um Manager, mas como o tipo user incorporado não é exportado, os campos para 
+esse tipo podem ser inicializados. Isso cria problemas de construção parcial
+que levarão a bugs. Você precisa ser consistente ao exportar ou não exportar.
+
+** Notas
+
+- O código em go é compilado em pacotes e depois vinculados.
+- Os identificadores são exportados (ou permanecem não exportados) com base em letras maiúsculas e minúsculas.
+- Importamos pacotes para acessar identificadores exportados.
+- Qualquer pacote pode usar um valor de tipo não exportado, mas isso é chato de usar.
+
+** Leitura Extra
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy
+
+* Exercícios
+
+Use o template como ponto de partida para concluir os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+*Parte* *A:* Crie um pacote chamado toy com uma única struct exportada chamado Toy.
+Adicione os campos exportados Name e Weight. Em seguida, adicione dois campos não exportados chamados onHand
+e sold. Declare uma "factory function" chamada New para criar valores do tipo toy e aceitar
+parâmetros para os campos exportados. Em seguida, declare métodos que retornem e atualizem valores
+para os campos não exportados.
+
+*Parte* *B:* Crie um programa que importe o pacote toy. Use a função New para
+criar um valor do tipo Toy. Em seguida, use os métodos para definir o acumulador e exibir o
+valores do campo desse valor de toy.
+
+
+.play exporting/exercise1.go
+.play exporting/answer1.go
