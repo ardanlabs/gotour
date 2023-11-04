@@ -1,0 +1,181 @@
+Stałe
+Jednym z bardziej unikalnych cech języka Go jest sposób, w jaki implementowane są stałe.
+
+* Stałe
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Jedną z bardziej unikalnych cech języka Go jest sposób, w jaki są implementowane stałe.
+Zasady dotyczące stałych określone w specyfikacji języka są unikalne dla Go. Zapewniają
+one elastyczność potrzebną w celu zachowania czytelności i intuicyjności naszego kodu,
+jednocześnie zachowując bezpieczeństwo typów.
+
+Stałe mogą być typowane lub beztypowe. W przypadku beztypowej stałej, jest ona uważana
+za pewien rodzaj. Stałe tego rodzaju mogą być implicitynie konwertowane przez kompilator.
+Cały ten proces zachodzi podczas kompilacji, a nie podczas działania programu.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Deklaracja i inicjalizacja stałych
+- *Przykład* *2:* Równoległy system typów (Kind) (brakujący)
+- *Przykład* *3:* Iota
+- *Przykład* *4:* Konwersja domyślna
+
+.play constants/example1.go
+.play constants/example2.go
+.play constants/example3.go
+.play constants/example4.go
+
+    const ui = 12345     // rodzaj: integer
+    const uf = 3.141592  // rodzaj: floating-point
+
+Niesprecyzowane stałe numeryczne mają precyzję wynoszącą 256 bitów,
+zgodnie z definicją w specyfikacji języka Go. Są one oparte na "kind" (rodzaju).
+
+    const ti int     = 12345     // typ: int
+    const tf float64 = 3.141592  // typ: float64
+
+Typed constants still use the constant type system, but their precision is restricted.
+
+    const myUint8 uint8 = 1000 // Błąd kompilacji: constant 1000 overflows uint8
+
+To nie działa, ponieważ liczba 1000 jest zbyt duża, aby zmieścić się w uint8.
+
+    var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
+
+
+Arytmetyka stałych obsługuje różne rodzaje stałych. Promocja rodzaju jest
+używana do obsługi tych różnych przypadków. Wszystko to dzieje się w sposób
+niejawnie. Zmienna "answer" w tym przykładzie będzie typu float64 i będzie
+reprezentować 0,999 z precyzją 64 bitów.
+
+    const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
+
+Trzecia stała będzie rodzaju float i będzie reprezentować 1/3 z precyzją 256 bitów.
+
+    const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
+
+Stała zero będzie rodzaju liczbowego (integer) i ustawiona na 0, ponieważ dzielenie całkowite nie pozostawia reszty.
+
+    const one int8 = 1
+    const two = 2 * one  // int8(2) * int8(1)
+
+To jest przykład arytmetyki stałych między stałymi typowanymi a nietypowanymi.
+W tym przypadku stała typowana promuje się nad stałą rodzaju. Oba stałe będą
+typu int8 i ustawione na 2.
+
+    const maxInt = 9223372036854775807
+
+To jest maksymalna wartość liczby całkowitej dla 64-bitowej liczby całkowitej.
+
+    const bigger = 9223372036854775808543522345
+
+Większa stała ma znacznie większą wartość niż 64-bitowa liczba całkowita,
+ale może być przechowywana w stałej rodzaju "int", ponieważ stałe rodzaju
+"int" nie są ograniczone do 64 bitów precyzji.
+
+    const bigger int64 = 9223372036854775808543522345
+
+Błąd kompilacji:
+
+    constant 9223372036854775808543522345 overflows int64
+
+Jednak jeśli "bigger" byłoby stałą typu "int64", to kod nie zostałby skompilowany.
+
+** IOTA
+
+IOTA umożliwia ustawianie kolejnych stałych całkowitoliczbowych. Nazwa ta być może
+pochodzi od funkcji całkowitoliczbowej ⍳ w języku programowania APL. W APL
+funkcja ⍳ (reprezentowana przez dziewiątą literę alfabetu greckiego, iota)
+służy do tworzenia tablicy z kolejnymi liczbami całkowitymi o wartościach
+rosnących, rozpoczynając od zera i o określonej długości.
+
+    const (
+        A1 = iota  // 0 : Start at 0
+        B1 = iota  // 1 : Increment by 1
+        C1 = iota  // 2 : Increment by 1
+    )
+    fmt.Println(A1, B1, C1)
+
+Wynik:
+
+    0 1 2
+
+Słowo kluczowe "iota" działa wewnątrz bloku stałych i zaczyna z wartością 0.
+Następnie, dla każdej kolejnej stałej zadeklarowanej w tym bloku, "iota" zwiększa się o 1.
+
+    const (
+        A2 = iota  // 0 : Start at 0
+        B2         // 1 : Increment by 1
+        C2         // 2 : Increment by 1
+    )
+    fmt.Println(A2, B2, C2)
+
+Wynik:
+
+    0 1 2
+
+Nie musisz powtarzać użycia słowa kluczowego "iota". Następujący po sobie charakter stałych
+całkowitych jest przyjmowany jako reguła, gdy zastosowane jest "iota".
+
+    const (
+        A3 = iota + 1  // 1 : 0 + 1
+        B3             // 2 : 1 + 1
+        C3             // 3 : 2 + 1
+    )
+    fmt.Println(A3, B3, C3)
+
+Wynik:
+
+    1 2 3
+
+Jeśli nie chcesz zastosować wzoru matematycznego, możesz wykonać pewne obliczenia,
+a następnie te obliczenia zostaną ponownie zastosowane przy wzrastającej wartości "iota".
+
+    const (
+        Ldate= 1 << iota  //  1 : Przesunięcie 1 w lewo o 0.  0000 0001
+        Ltime             //  2 : Przesunięcie 1 w lewo o 1.  0000 0010
+        Lmicroseconds     //  4 : Przesunięcie 1 w lewo o 2.  0000 0100
+        Llongfile         //  8 : Przesunięcie 1 w lewo o 3.  0000 1000
+        Lshortfile        // 16 : Przesunięcie 1 w lewo o 4.  0001 0000
+        LUTC              // 32 : Przesunięcie 1 w lewo o 5.  0010 0000
+    )
+
+    fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
+
+Wynik:
+
+    1 2 4 8 16 32
+
+Możesz wykorzystać tę funkcję do ustawiania flag, podobnie jak pakiet log robi to
+dla flag. W tym przypadku operacje bitowe są stosowane z rosnącymi wartościami
+iota do obliczania wartości flag.
+
+** Notatki
+
+- Stałe nie są zmiennymi.
+- Istnieją tylko podczas kompilacji.
+- Stałe nieustalone (untyped) mogą być bezproblemowo konwertowane, gdzie stałe ustalone (typed) i zmienne nie.
+- Pomyśl o stałych nieustalonych jako posiadających "Kind" (rodzaj), a nie "Type" (typ).
+- Dowiedz się o konwersjach jawnego i niejawnego typu.
+- Zobacz potęgę stałych i ich zastosowanie w standardowej bibliotece.
+
+** Dodatkowe materiały
+
+- [[https://golang.org/ref/spec#Constants][Constants specification]]    
+- [[https://blog.golang.org/constants][Constants]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
+		
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj stałą nieustaloną (untyped) i ustaloną (typed) oraz wyświetl ich wartości.
+
+*Część* *B:* Podziel dwie stałe literałowe (constants) i przypisz wynik do zmiennej ustalonej (typed), a następnie wyświetl wartość.
+
+.play constants/exercise1.go
+.play constants/answer1.go

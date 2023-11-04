@@ -1,0 +1,142 @@
+Konwersje typów i asercje
+Dowiedz się, jak działają konwersje typów i asercje.
+
+* Konwersje typów i asercje
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Konwersja typu pozwala na zmianę danych z jednego typu na inny typ. Asercja typu pozwala zapytać,
+czy wartość danego typu jest przechowywana wewnątrz interfejsu.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Konwersje interfejsów
+- *Przykład* *2:* Asercje typu w czasie wykonania
+- *Przykład* *3:* Zmiany zachowań
+
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+** Niejawne konwersje interfejsów
+
+Jak widzieliście w ostatnim przykładzie, wartość interfejsu jednego typu może być przekazywana
+do innego typu interfejsu, jeśli konkretne wartości przechowywane wewnątrz interfejsu
+implementują oba zachowania. To można uznać za niejawne przekształcenie interfejsu,
+ale lepiej jest myśleć o tym, jak konkretne dane są przenoszone przez interfejsy w stanie zdekouplowanym.
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Mając te trzy interfejsy, gdzie MoveLocker to kompozycja Mover i Locker.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+I z danym konkretnym typem bike, który implementuje wszystkie trzy interfejsy. Co możesz zrobić?
+
+    var ml MoveLocker
+    var m Mover
+
+Możesz skonstruować wartość typu MoveLocker i Mover do ich stanu zero. Są to wartości interfejsowe,
+które są rzeczywiście bezwartościowe.
+
+    ml = bike{}
+
+Następnie możesz skonstruować wartość typu bike do stanu zero i przypisać jej kopię do zmiennej
+MoveLocker o nazwie "ml". To jest możliwe, ponieważ bike implementuje wszystkie trzy zachowania,
+a kompilator widzi, że implementacja istnieje.
+
+    m = ml
+
+Możesz następnie przypisać zmienną MoveLocker "ml" do zmiennej "m" typu Mover. To jest możliwe,
+ponieważ przypisujesz nie samą wartość interfejsu "ml", ale konkretną wartość przechowywaną w "ml",
+która jest wartością typu bike. Kompilator wie, że każda konkretne wartość przechowywana w "ml"
+musi również implementować interfejs "Mover".
+
+Jednak to przypisanie nie jest ważne.
+
+    ml = m
+
+Wynik:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+Nie możesz przypisać zmiennej "Mover" "m" z powrotem do zmiennej "MoverLocker" "ml", ponieważ
+kompilator może jedynie zagwarantować, że konkretne wartości przechowywane w "m" potrafią się
+poruszać (implementują interfejs "Mover"). Nie jest w stanie na etapie kompilacji określić,
+czy konkretne wartości w "m" potrafią także blokować i odblokowywać (implementować interfejsy
+"Locker" i "Unlocker").
+
+** Mechanika asercji typu
+
+Asercja typu pozwala na pytanie o to, czy w interfejsie przechowywana jest wartość danego
+typu w trakcie działania programu. To widoczne jest w składni "m.(bike)".
+
+    b := m.(bike)
+    ml = b
+
+W tym przypadku pytasz, czy w danym momencie wykonania kodu w zmiennej "m" przechowywana
+jest wartość typu "bike". Jeśli tak, zmienna "b" otrzymuje kopię tej wartości. Następnie
+kopię można przekopiować do zmiennej interfejsowej "ml".
+
+Jeśli w zmiennej interfejsowej nie ma wartości typu "bike", program zgłasza wyjątek.
+Jest to pożądane, jeśli zawsze tam powinna znajdować się wartość typu "bike". Co jednak,
+jeśli istnieje szansa, że jej tam nie będzie i jest to zgodne z oczekiwaniami?
+Wówczas potrzebujesz drugiej formy asercji typu.
+
+    b, ok := m.(bike)
+
+W tej formie, jeśli "ok" wynosi true, to w zmiennej interfejsowej przechowywana jest
+wartość typu "bike". Jeśli "ok" wynosi false, oznacza to, że takiej wartości tam
+nie ma i program nie zgłasza błędu. Zmienna "b" pozostaje typu "bike",
+ale zostaje zainicjowana jako jej wartość zerowa.
+
+    func main() {
+        mvs := []fmt.Stringer{
+            Car{},
+            Cloud{},
+        }
+
+        for i := 0; i < 10; i++ {
+            rn := rand.Intn(2)
+
+            if v, is := mvs[rn].(Cloud); is {
+                fmt.Println("Got Lucky:", v)
+                continue
+            }
+
+            fmt.Println("Got Unlucky")
+        }
+    }
+
+Zakładając, że w programie zdefiniowane są dwa typy o nazwach "Car" i "Cloud", które
+implementują interfejs "fmt.Stringer", można utworzyć kolekcję, która pozwala przechowywać
+wartości obu typów "Car" i "Cloud". Następnie, 10 razy losowo wybierasz liczbę od 0 do 1 i
+wykonujesz asercję typu, aby sprawdzić, czy wartość w tym losowym indeksie zawiera wartość
+typu "Cloud". Ponieważ istnieje możliwość, że nie jest to typ "Cloud",
+druga forma asercji typu jest tutaj kluczowa.

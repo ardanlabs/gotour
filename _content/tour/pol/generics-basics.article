@@ -1,0 +1,118 @@
+Podstawy
+Naucz się jak pisać podstawową generyczną funkcję drukującą (print).
+
+* Typy generyczne - Podstawy
+
+Naucz się jak pisać podstawową generyczną funkcję drukującą (print).
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Konkretna impelementacja print
+- *Example* *2*: Implementacja print przy użyciu typu asercji
+- *Example* *3*: Implementacja print przy użyciu refleksji
+- *Example* *4*: Impelemntacja print przy użyciu typu generycznego
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Wytłumaczenie
+
+Jeśli chcesz napisać pojedynczą funkcję drukującą, która może wyświetlić kawałek (slice) dowolnego typu i nie
+używać refleksji, można skorzystać z nowego składni ogólnych typów (generics) w języku Go.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Oto implementacja pojedynczej funkcji print, która może wyświetlić ciąg (slice) dowolnego typu,
+korzystając z nowej składni typów generycznych. To co jest fajne w tej składni, to fakt,
+że kod wewnątrz funkcji może korzystać ze składni i wbudowanych funkcji, które działałyby z
+konkretnym typem. Nie jest to możliwe w przypadku korzystania z pustego interfejsu do pisania kodu generycznego.
+
+There needs to be a way to tell the compiler that you won’t be declaring type T explicitly, but it
+has to be determined by the compiler at compile time. The new syntax uses square
+brackets for this. The brackets define a list of generic type identifiers that represent
+types specific to the function that need to be determined at compile time. It’s how you
+tell the compiler that types with these names won’t be declared before the program
+is compiled. These types need to be figured out at compile time.
+
+Musi być sposób na powiedzenie kompilatorowi, że nie będziesz deklarować typu T explicite,
+ale ma być on określony przez kompilator w czasie kompilacji. Nowa składnia używa nawiasów
+kwadratowych do tego celu. Nawiasy kwadratowe definiują listę identyfikatorów ogólnych typów,
+które reprezentują typy specyficzne dla funkcji, które muszą być określone w czasie kompilacji.
+To właśnie mówi kompilatorowi, że typy o tych nazwach nie zostaną zadeklarowane przed
+kompilacją programu. Te typy muszą zostać określone w czasie kompilacji.
+
+Uwaga: Możesz mieć wiele identyfikatorów ogólnych typów zdefiniowanych wewnątrz nawiasów kwadratowych,
+choć w bieżącym przykładzie używany jest tylko jeden. Przykład: [T, S, R any].
+
+Możesz nadać tym identyfikatorom ogólnym typów dowolne nazwy, które ułatwią czytelność kodu.
+W tym przypadku kod używa wielkiej litery T, aby opisać, że przekażemy ciąg (slice) pewnego typu T
+(który zostanie określony w czasie kompilacji). To jest idiom, aby używać pojedynczych wielkich
+liter w przypadku kolekcji, i jest to konwencja sięgająca do starszych języków programowania,
+takich jak C++ i Java.
+
+W nawiasach kwadratowych używane jest także słowo "any". Oznacza to ograniczenie, jakie może mieć typ T.
+Kompilator wymaga, aby wszystkie ogólne typy miały dobrze określone ograniczenie. Ograniczenie "any"
+jest predefiniowane przez kompilator i oznacza, że nie ma ograniczeń co do tego, jaki może być typ T.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+
+To jest sposób, na wywoływanie funkcji generycznej print, gdzie informacje o typie T są jawne i dostarczane
+na etapie wywołania. Składnia odzwierciedla koncepcję, że deklaracja funkcji func name[T any](slice []T)
+definiuje dwie grupy parametrów. Pierwszy zestaw to typ, który odpowiada odpowiednim identyfikatorom ogólnych typów,
+a drugi zestaw to dane, które odpowiadają odpowiednim zmiennym wejściowym.
+
+Na szczęście, kompilator potrafi wywnioskować typ i eliminować potrzebę jawnego przekazywania informacji o
+typie na etapie wywołania.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Ten kod pokazuje, jak można wywoływać generyczną funkcję print bez konieczności jawnej przekazywania
+informacji o typie. Na etapie wywołania funkcji kompilator jest w stanie zidentyfikować typ,który
+należy użyć dla T i skonstruować konkretne wersje funkcji obsługujące kawałki (slices) tego typu.
+Kompilator ma zdolność wyciągania wniosków co do typu na podstawie dostępnych informacji na
+etapie wywołania, opierając się na przekazywanych danych.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zaimplementuj ogólną funkcję o nazwie 'marshal', która może przyjąć dowolną wartość i
+przekształcić tę wartość w format JSON, zwracając JSON i błąd. Zadeklaruj strukturę o
+nazwie 'User' z dwoma polami: 'Name' i 'Age'. Następnie stwórz wartość typu 'User' i
+przekaż ją do ogólnej funkcji 'marshal'.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

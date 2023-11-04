@@ -1,0 +1,109 @@
+Zachowanie jako ograniczenie
+Każdy typ generyczny wymaga zadeklarowania ograniczenia, aby kompilator wiedział, jakie konkretne podstawienia typów może zaakceptować lub odrzucić w czasie kompilacji.
+
+* Typy generyczne - zachowanie jako ograniczenie
+
+Każdy typ generyczny wymaga zadeklarowania ograniczenia, aby kompilator wiedział,
+jakie konkretne podstawienia typów może zaakceptować lub odrzucić w czasie kompilacji.
+Jest to wymagane nawet jeśli nie ma rzeczywistego ograniczenia co do tego,
+jakiego typu generycznego można użyć, stąd predeklarowany identyfikator ograniczenia any.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Konkretna funkcja stringify
+- *Example* *2*: Typ asercji funkcji stringify
+- *Example* *3*: Interfejs funkcji stringify
+- *Example* *4*: Generyczna funkcja stringify
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Wytłumaczenie
+
+Dość ciekawy fakt, że koncepcja ograniczenia (constraint) już istnieje w języku.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+Kod definiuje konkretne typy danych, takie jak User, i implementuje metodę o
+nazwie String, która zwraca nazwę użytkownika. Następnie deklarowany jest
+interfejs o nazwie Stringer, który deklaruje jedno zachowanie, czyli metodę
+String, która zwraca ciąg znaków. Dzięki zaimplementowanej dla typu User
+metody, można powiedzieć, że konkretny typ User implementuje interfejs
+Stringer przy użyciu semantyki wartości (value semantics).
+
+Funkcja Concrete jest po prostu funkcją, która akceptuje konkretne dane na
+podstawie ich rodzaju. Funkcja Polymorphic działa w sposób podobny,
+ale przyjmuje konkretne dane na podstawie ich zdolności do wykonywania
+określonych operacji. To jest podstawowa różnica między funkcją konkretną a
+polimorficzną. Jedna jest ograniczona do jednego typu danych, a druga nie.
+Jednak istnieje ograniczenie co do tego, jakie konkretne dane można
+przekazać do funkcji polimorficznej.
+
+Interfejs Stringer definiuje to ograniczenie poprzez deklarację zestawu
+zachowań, które konkretne dane muszą umieć wykazywać. Gdy jest on stosowany
+jako typ wejściowy, kompilator może zagwarantować, że ograniczenie
+dotyczące zachowań zostanie spełnione za każdym razem, gdy funkcja jest wywoływana.
+
+Istnieją funkcje generyczne które będą wymagały tego samego typu ograniczenia zachowań
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Oto ogólna funkcja o nazwie stringify. Przyjmuje ona ciąg (slice) pewnego typu T i
+zwraca ciąg (slice) wartości łańcuchowych, które zawierają zapis w postaci łańcucha
+każdej wartości z kolekcji wejściowej. Kluczem do działania tej funkcji jest wywołanie
+metody String dla każdej wartości typu T.
+
+Problem polega na tym, że kompilator musi wiedzieć i zweryfikować, czy wartości
+typu T faktycznie posiadają metodę o nazwie String. W momencie deklaracji ogólnego
+typu T, jako ograniczenie (constraint) dostarczony jest interfejs fmt.Stringer.
+Dzięki temu kompilator wie, że ma sprawdzić, czy metoda ta istnieje w przypadku
+każdej wartości przekazywanej do funkcji.
+
+To doskonałe rozwiązanie, ponieważ interfejs jest używany ponownie do tego
+samego celu, a język nie potrzebuje nowego słowa kluczowego.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zaimplementuj ogólną funkcję o nazwie marshal, która może przekształcać dane do formatu JSON,
+ale akceptuje tylko wartości, które implementują interfejs json.Marshaler.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go

@@ -1,0 +1,85 @@
+Poluição de Interface
+A poluição de interfaces ocorre pelo fato de as pessoas estarem projetando software com interfaces em vez de descobri-las.
+
+* Poluição de Interface
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+A poluição de interfaces ocorre pelo fato de as pessoas estarem projetando software com interfaces em vez de descobri-las.
+
+** Revisão de Código
+
+- *Example* *1:* Crie Poluição de Interface
+- *Example* *2:* Remova Poluição de Interface
+
+.play composition/pollution/example1.go
+.play composition/pollution/example2.go
+
+** Poluição de Interface
+
+A poluição de interfaces ocorre porque as pessoas estão projetando software com interfaces 
+em vez de descobri-las. Você deve primeiro projetar uma solução concreta para o problema. 
+Em seguida, você pode descobrir onde o programa precisa ser polimórfico, se for o caso.
+
+Aqui estão algumas coisas que ouvi de outros desenvolvedores.
+
+"Estou usando interfaces porque precisamos usar interfaces".
+
+Não. Não é necessário usar interfaces. Usamos interfaces quando é prático e razoável fazê-lo. 
+Há um custo no uso de interfaces: um nível de indireção e alocação quando armazenamos valores 
+concretos dentro delas. A menos que o custo da alocação compense o que estou ganhando com o 
+desacoplamento, você não deveria estar usando interfaces.
+
+"Eu preciso ser capaz de testar meu código, então preciso usar interfaces".
+
+Não. Você deve projetar minha API para o usuário em primeiro lugar, não para meus testes. 
+Se a API não for testável, você deve questionar se ela é utilizável. Existem diferentes 
+camadas de APIs também. As APIs de nível mais baixo, não exportadas, podem e devem se 
+concentrar na testabilidade. As APIs de nível mais alto, exportadas, precisam se concentrar 
+na usabilidade.
+
+Funções que aceitam dados brutos como entrada e retornam dados brutos como saída são as mais 
+testáveis. Separe a transformação de dados de onde os dados vêm e para onde eles estão indo. 
+Isso é um exercício de refatoração que você precisa realizar durante o ciclo de codificação 
+de engenharia.
+
+Abaixo, há um exemplo que cria poluição de interfaces ao usar uma interface de maneira inadequada 
+quando ela não é necessária.
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+A interface Server define um contrato para servidores TCP. O problema aqui é 
+que você não precisa de um contrato, você precisa de uma implementação. Haverá 
+apenas uma implementação, especialmente porque você é quem está implementando. 
+Você não precisa que outra pessoa o faça por você.
+
+Além disso, esta interface é baseada em um substantivo e não em um verbo. Tipos 
+concretos são substantivos, pois representam o problema concreto. Interfaces 
+descrevem o comportamento e Server não é um comportamento.
+
+Aqui estão algumas maneiras de identificar a poluição de interfaces:
+
+- Um pacote declara uma interface que corresponde a toda a API de seu próprio tipo concreto.
+- As interfaces são exportadas, mas os tipos concretos que implementam a interface não são exportados.
+- A função de fábrica para o tipo concreto retorna o valor da interface com o valor do tipo concreto não exportado dentro.
+- A interface pode ser removida e nada muda para o usuário da API.
+- A interface não está desacoplando a API de possíveis alterações.
+
+Diretrizes em relação à poluição de interfaces:
+
+Use uma interface:
+
+- Quando os usuários da API precisam fornecer um detalhe de implementação.
+- Quando as APIs têm múltiplas implementações que precisam ser mantidas.
+- Quando partes das APIs que podem mudar foram identificadas e exigem desacoplamento.
+
+Questione uma interface:
+
+- Quando seu único propósito é escrever APIs testáveis (escreva APIs utilizáveis primeiro).
+- Quando ela não está fornecendo suporte para que a API se desacople de possíveis alterações.
+- Quando não está claro como a interface melhora o código.
