@@ -1,0 +1,17 @@
+<div class="search" ng-controller="SearchController">
+    <div class="search-input-container">
+        <form ng-submit="performSearch()" class="search-form">
+            <input type="text" ng-model="searchTerm" placeholder="Type your search" class="search-input">
+        </form>
+    </div>
+    <ul>
+        <li ng-repeat="result in searchResults" id="search-l-{{l}}">
+            <ul>
+                <li ng-repeat="p in result.Pages" class="search-lesson search-page">
+                    <a href="/tour/pol/{{result.Key}}/{{$index+1}}" ng-click="hideSearch()">{{p.Title}}</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <div class="click-catcher-search" ng-click="hideSearch()"></div>
+</div>

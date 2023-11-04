@@ -1,0 +1,157 @@
+Tipos Subjacents
+Você pode declarar um tipo genérico usando um tipo subjacente.
+
+* Generics - Underlying Types
+
+Você pode declarar um tipo genérico usando um tipo subjacente.
+
+** Vídeo
+
+Assista à palestra que dei sobre `Generics`, que o guiará por todos os exemplos desta seção do Tour.
+
+.html generics-video.html
+
+** Revisão de Código
+
+- *Exemplo* *1*: Tipo de vetor concreto
+- *Exemplo* *2*: Tipo de vetor de interface
+- *Exemplo* *3*: Tipo de vetor genérico
+
+.play generics/underlying-types/example1.go
+.play generics/underlying-types/example2.go
+.play generics/underlying-types/example3.go
+
+** Explicação
+
+E se você quisesse declarar seu próprio tipo genérico usando um tipo subjacente?
+
+    type vector[T any] []T
+
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Este exemplo mostra um tipo genérico de vetor que restringe a construção de um vetor
+a um único tipo de dado. O uso de colchetes quadrados declara que o tipo T é um tipo genérico
+a ser determinado em tempo de compilação. O uso da restrição `any` descreve que não há restrição 
+sobre o que o tipo T pode se tornar.
+
+O último método é declarado com um receptor de valor do tipo vetor[T] para representar um valor
+do tipo vetor com uma fatia subjacente de algum tipo T. O método retorna um valor desse mesmo tipo T.
+
+    func main() {
+        fmt.Print("vector[int] : ")
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if i < 0 {
+            fmt.Print("negative integer: ")
+        }
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
+        fmt.Print("vector[string] : ")
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if !utf8.ValidString(s) {
+            fmt.Print("non-valid string: ")
+        }
+
+        fmt.Printf("value: %q\n", s)
+    }
+
+Resultado:
+
+    vector[int] : número inteiro negativo: valor: -1
+    vector[string] : sequência de caracteres inválida: valor: "\xff"
+
+Isso é como construir um valor do tipo vector com um tipo subjacente de int quando eu vou
+definir valores no vetor na construção. Um aspecto importante deste código são as chamadas de construção.
+
+    // Zero Value Construction
+    var vGenInt vector[int]
+    var vGenStr vector[string]
+    
+    // Non-Zero Value Construction
+    vGenInt := vector{10, -1}
+    vGenStr := vector{"A", "B", string([]byte{0xff})}
+
+Quando se trata de construir esses tipos genéricos até o valor zero, não é possível para o
+compilador inferir o tipo. No entanto, em casos em que há inicialização durante a construção,
+o compilador pode inferir o tipo.
+
+Existe um aspecto da especificação que se concentra na construção de um tipo genérico
+até seu estado de zero value.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Você precisa se concentrar na declaração do método para o último método e como o método retorna um valor
+do tipo genérico T. No primeiro retorno, é uma situação em que você precisa retornar o valor zero para o tipo T.
+A implementação atual fornece duas soluções para escrever este código. A primeira solução que você já viu.
+Uma variável chamada "zero" é construída em seu estado de valor zero do tipo T e, em seguida, essa variável
+é usada para o retorno.
+
+A outra opção é usar a função built-in `new` e desreferenciar o ponteiro retornado na declaração de retorno.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        if len(v) == 0 {
+            return *new(T), errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Essa versão do último método está usando a função built-in `new` para a construção
+do `zero value` e a desreferenciação do ponteiro retornado para satisfazer o tipo de retorno T.
+
+Observação: Você pode se perguntar por que não usar `T{}` para realizar a construção do `zero value`?
+O problema é que essa sintaxe não funciona com todos os tipos, como os tipos escalares (int, string, bool).
+Portanto, não é uma opção.
+
+* Exercícios
+
+Use o template como ponto de partida para concluir os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+Declare um tipo genérico chamado `keymap` que utiliza um tipo subjacente de `map` com uma chave do
+tipo `string` e um valor de algum tipo `T`. Declare um método chamado `set` que aceita uma chave do tipo
+`string` e um valor do tipo `T`. Declare um método chamado `get` que aceita uma chave do tipo `string` e
+retorna um valor do tipo `T` e `true` ou `false` se a chave for encontrada. Em seguida, escreva uma função
+`main` que utilize os métodos.
+
+.play generics/underlying-types/exercise1.go 
+.play generics/underlying-types/answer1.go

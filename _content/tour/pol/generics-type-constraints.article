@@ -1,0 +1,120 @@
+Typ jako ograniczenie
+Jest to nowa koncepcja w języku Go, gdzie ograniczenie może być oparte na zestawie konkretnych typów.
+
+* Typ generyczny - Typ jako ograniczenie
+
+To jest nowa koncepcja w Go, gdzie ograniczenie może być oparte na zestawie konkretnych typów.
+Działa to tylko w kontekście typów generycznych.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Ograniczenie oparte na typie
+- *Example* *2*: Ograniczenie typu predeklarowanego 'comparable'
+- *Example* *3*: Mieszanie ograniczeń typu i zachowań
+
+.play generics/type-constraints/example1.go
+.play generics/type-constraints/example2.go
+.play generics/type-constraints/example3.go
+
+** Wytłumaczenie
+
+Funkcje ogólne tworzą nowy rodzaj ograniczenia, które nie może być rozwiązane
+przez deklarację zestawu metod o określonym zachowaniu.
+
+    func Add[T ???](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Oto funkcja ogólna, która chce przyjąć dwie wartości jakiegoś typu T, dodać je do siebie,
+a następnie zwrócić sumę z powrotem do wywołującego. To ciekawy problem, ponieważ kompilator
+musi ograniczyć wywołanie funkcji tylko do wartości, które można użyć w operacji dodawania.
+Obecnie nie ma mechanizmu do deklarowania tego rodzaju ograniczeń.
+
+Decyzja polegała na kontynuowaniu używania interfejsu do deklarowania ograniczenia i dodaniu czegoś nowego.
+
+    type addOnly interface {
+        string | int | int8 | int16 | int32 | int64 | float64
+    }
+
+Możesz zadeklarować interfejs, który definiuje zestaw typów tworzących ograniczenie,
+a następnie zastosować ten interfejs do funkcji ogólnej.
+
+    func Add[T addOnly](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Teraz kompilator może zweryfikować, czy zestaw typów jest zgodny z operacjami,
+które funkcja musi wykonywać na wartościach tych typów. Kiedy interfejs używa
+wbudowanych typów, interfejsy te są wielokrotnego użytku w różnych pakietach.
+Jeśli lista typów reprezentuje użytkowe typy zdefiniowane w pakiecie,
+musisz pamiętać, że ogólne funkcje są związane z typami pakietu i niczym więcej.
+
+Interfejsy z deklarowanym zestawem typów nie mogą być używane w tradycyjnych
+funkcjach polimorficznych. W rzeczywistości nie miałoby to sensu, ale jest to zmiana,
+która może nieco różnić się od koncepcji języka Go, ponieważ to zmiana w
+interfejsie nie jest ortogonalna.
+
+Jednym z pomysłów jest wprowadzenie predeklarowanych identyfikatorów dla powszechnych ograniczeń operacyjnych.
+
+    func index[T comparable](list []T, find T) int {
+        for i, v := range list {
+            if v == find {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Ograniczenie "comparable" jest deklarowane przez język i narzuca ograniczenie,
+że typy muszą być zdolne do użycia w instrukcji porównania. W tym przykładzie
+zarówno v, jak i find są zmiennymi typu T i są porównywane. Istnieje pomysł,
+że pakiet w standardowej bibliotece Go mógłby dostarczać wspólny zestaw ograniczeń.
+
+Nie ma ograniczenia, aby interfejs mógł być deklarowany zarówno z zestawem typów,
+jak i zestawem metod o określonym zachowaniu.
+
+    type matcher[T any] interface {
+        type person, food
+        match(v T) bool
+    }
+        
+    func match[T matcher[T]](list []T, find T) int {
+        for i, v := range list {
+            if v.match(find) {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Deklarowany jest ogólny interfejs, w którym T to typ wartości, która ma być
+przekazywana do metody o nazwie "match". Interfejs ogranicza swoje użycie
+tylko do wartości zdefiniowanych przez użytkownika typów "person" i "food".
+
+
+Kiedy przyjrzysz się funkcji "match", nie ma oczywistej potrzeby ograniczać
+funkcji tylko do typów "person" i "food". Jeśli tak jest, to funkcja "match"
+powinna być tradycyjną funkcją polimorficzną, a nie ogólną (generyczną).
+Jeśli istnieje ważny powód, można użyć ogólnej funkcji do zastosowania tego rodzaju ograniczenia.
+
+Jako dodatkowa uwaga, nie jest pewne, czy ta funkcjonalność jest konieczna lub ma sens.
+To jest coś, nad czym społeczność będzie musiała pracować i wypracować rozwiązania w ciągu czasu.
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zaimplementuj ogólną funkcję o nazwie 'copyfy', która jest ograniczona do tworzenia kopii cięć typu string lub int.
+
+.play generics/type-constraints/exercise1.go 
+.play generics/type-constraints/answer1.go

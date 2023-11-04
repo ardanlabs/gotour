@@ -1,0 +1,91 @@
+Symulowanie (mockowanie)
+Ponieważ kompilator może przeprowadzać analizę statyczną kodu, aby określić, czy konkretna wartość implementuje interfejs, programista deklarujący typ konkretny nie musi dostarczać interfejsów także.
+
+* Symulowanie (mockowanie)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Najlepszym sposobem wykorzystania wbudowywania (embedding) jest wzorzec projektowania kompozycji (compositional design pattern).
+Pomysł polega na tworzeniu większych typów poprzez łączenie mniejszych typów i skupianie się na kompozycji zachowań.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Symulowanie
+
+.play composition/mocking/example1.go
+
+** Interface Ownership
+
+Jedną z różnic między językiem Go a innymi językami jest idea konwencji nad konfiguracją. Uwidacznia to się w tym, jak Go
+obsługuje zgodność interfejsu. Ponieważ kompilator jest w stanie wykonać statyczną analizę kodu w celu ustalenia,
+czy konkretna wartość implementuje interfejs, to programista deklarujący typ konkretny nie musi dostarczać interfejsów.
+
+    package pubsub
+
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // ZAŁÓŻ, ŻE ISTNIEJE KONKRETNA IMPLEMENTACJA.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // ZAŁÓŻ, ŻE ISTNIEJE KONKRETNA IMPLEMENTACJA.
+        return nil
+    }
+
+Właśnie zaimplementowałeś nowe API, które dostarcza konkretną implementację publikacji i subskrypcji.
+Nie dostarczasz interfejsów, ponieważ to API nie ich potrzebuje. To jest pojedyncza konkretna implementacja.
+
+Co zrobić, jeśli programista aplikacji, który chce użyć tego nowego API, potrzebuje interfejsu, ponieważ
+musi przechowywać tę implementację w trakcie testów? W języku Go ten programista może zadeklarować
+interfejs, a kompilator będzie potrafił stwierdzić zgodność.
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // DODAJ MOJĄ IMITACJĘ DLA WYWOŁANIA PUBLISH.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // DODAJ MOJĄ IMITACJĘ DLA WYWOŁANIA SUBSCRIBE.
+        return nil
+    }
+
+Ten kod w głównym pakiecie deklaruje interfejs. Interfejs ten reprezentuje API, które aplikacja
+wkorzystuje z pakietu pubsub. Programista zaimplementował własną implementację pubsub do celów testowych.
+Kluczowe jest to, że programista aplikacji nie korzysta bezpośrednio z żadnej implementacji konkretnego
+typu, ale odseparowuje się poprzez własny interfejs.
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+W celu przedstawienia przykładu, funkcja main tworzy kolekcję zainicjowaną implementacją pubsub i implementacją
+mock. Umożliwia to interfejs wydawcy. Następnie implementowana jest pętla for range, aby pokazać, jak
+kod aplikacji jest odseparowany od jakiejkolwiek konkretnej implementacji.

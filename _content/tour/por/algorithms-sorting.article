@@ -1,0 +1,179 @@
+Operações de ordenação
+Esta seção fornece exemplos de operações de ordenação.
+
+* Bubble Sort
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+O programa de exemplo implementa uma função que realiza o bubble sort em um conjunto de números inteiros.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Bubble_sort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagrama*
+
+    Bubble sort é um algoritmo simples de ordenação que percorre repetidamente a lista de entrada elemento por elemento, 
+    comparando o elemento atual com o próximo e trocando seus valores, se necessário.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Array inicial
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── Após a primeira iteração
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Após a segunda iteração/ Ordenado
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Insertion Sort
+
+O programa de exemplo implementa uma função que realiza a ordenação por inserção (insertion sort)
+em um conjunto de números inteiros.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Insertion_sort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagrama*
+    A ordenação por inserção itera o mesmo número de vezes que o comprimento da array menos um. 
+    Para uma array com 5 números, a ordenação iterará 4 vezes. 
+    Começando no índice 1, a ordenação move esse número para a esquerda, colocando-o em uma posição ordenada.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Array inicial
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Mova [1]=30 para a esquerda
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Após a primeira iteração
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Mova [2]=05 para a esquerda
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Após a segunda iteração
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁── Mova [3]=25 para a esquerda
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Após a terceira iteração
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁── Mova [4]=15 para a esquerda
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Após a quarta iteração
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Ordenado
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Heap Sort
+
+O programa de exemplo implementa uma função que realiza a ordenação por heap em um conjunto de números inteiros.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagrama*
+
+A ordenação por heap divide sua entrada em uma array ordenada e uma não ordenada. 
+O algoritmo encolhe iterativamente a região não ordenada, extraindo o elemento maior dela e inserindo-o na array ordenada. 
+O algoritmo é executado em duas fases.
+
+    Fase I  
+    Divide a lista ao meio e trabalha com a metade frontal da lista, 
+    movendo o maior valor que encontramos para a parte da frente da lista e depois o segundo maior.
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Array inicial
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁── Verifique [1]=16 < [4]=73 : Troque
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Após a primeira iteração
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁── Verifique [0]=63 < [3]=71 : Troque
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Após segunda iteração
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁── Fase I Completa
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Fase II  
+    Pegue a lista e comece a mover os números para fora e para uma nova lista ordenada. 
+    Pegue o número na primeira posição e remova-o para a nova lista, que conterá a ordenação final. 
+    Em seguida, mova novamente o maior número que encontrarmos para a parte da frente da lista.
+
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Array inicial
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── Após a primeira iteração
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── Mova 73 para fora e 71 para frente
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁── Após a segunda iteração
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁── Mova 71 para fora e 63 para frente
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Após a terceira iteração
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁── Mova 71 para fora e 40 para frente
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── Após a quarta iteração
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁── Mova 71 para fora e 16 para frente
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Após a quinta iteração
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁── Mova 16 para fora / Ordenado
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Quick Sort
+
+O programa de exemplo implementa uma função que realiza a ordenação rápida (Quick sort)
+em um conjunto de números inteiros.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagrama*
+
+   O Quicksort é um algoritmo de divisão e conquista. 
+   Funciona selecionando um elemento 'pivô' da array e particionando os outros elementos em duas sub-arrays, 
+   de acordo com se são menores ou maiores que o pivô.
+    -------------------------------------------------------------------
+    Exemplo 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Array inicial
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Pivô de valor 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Ordenar elementos 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── Primeira ordenação completa
+    └────┘└────┘└────┘└────┘└────┘
+
+    Os dois últimos elementos estão ordenados; concentre-se nos três primeiros.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Pivô de valor 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Ordenado
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Exemplo 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Array inicial
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Pivô de valor 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Ordenar elementos 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── Primeira ordenação completa
+    └────┘└────┘└────┘└────┘└────┘
+
+    Primeiro elemento está ordenado, foco nos últimos quatro.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pivô de valor 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Segunda Ordenação Concluída
+    └────┘└────┘└────┘└────┘└────┘
+
+     Os dois primeiros elementos estão ordenados, foco nos últimos três.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Pivô de valor 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Terceira Ordenação Concluída
+    └────┘└────┘└────┘└────┘└────┘
+
+    Os três primeiros elementos estão ordenados, foco nos últimos dois.
+
+    ┌────┐┌────┐ ◁── Pivô de valor 59
+    │ 73 ││ 59 │ ◁── Terceira Ordenação Concluída
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Ordenado
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

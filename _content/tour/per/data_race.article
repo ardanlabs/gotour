@@ -1,0 +1,496 @@
+تداخل داده‌ها (Data Races)
+تداخل داده، زمانی رخ می‌دهد که دو یا بیشتر گوروتین سعی در خواندن و نوشتن به منبع یکسان در همان زمان داشته باشند.
+
+* Data Races
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+یک تداخل داده وقتی رخ می‌دهد زمانی که دو یا بیشتر گوروتین تلاش می‌کنند که به همان مکان حافظه دسترسی پیدا کنند، در حالی که حداقل یک گوروتین عملیات نوشتن انجام می‌دهد. زمانی که این اتفاق می‌افتد، امکان پیش‌بینی نتیجه وجود ندارد. این نوع اشکالات سخت به دلیل این هستند که مشکلاتی ایجاد می‌کنند که همیشه به صورت تصادفی ظاهر می‌شوند.
+
+این حدود 8 دقیقه از سخنرانی اسکات مایرز بسیار عالی است که می‌توانید در اینجا گوش کنید: [لینک سخنرانی](insert_link_here)
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care 30:09-38:30]]
+
+** بررسی کد
+
+
+- *مثال* *1:* Data Race
+- *مثال* *2:* Atomic افزایش‌های
+- *مثال* *3:* Mutex
+- *مثال* *4:* خواندن/نوشتن Mutex
+- *مثال* *5:* Map Data Race
+- *مثال* *1:* Interface براساس Race Condition
+
+.play data_race/example1.go
+.play data_race/example2.go     
+.play data_race/example3.go
+.play data_race/example4.go
+.play data_race/example5.go
+.play data_race/example6.go
+
+** مثال تداخل داده
+
+این یک مثال عالی از تداخل داده است و نشان می‌دهد که چگونه می‌توانند سال‌ها پنهان بمانند و در نهایت در زمان‌های عجیب ظاهر شوند و به فساد داده منجر شوند.
+
+var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    value := counter
+                    value++
+                    counter = value
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+این برنامه دو گوروتین ایجاد می‌کند که هرکدام به یک متغیر صحیح مشترک دسترسی پیدا می‌کنند و متغیر را دوبار افزایش می‌دهند. گوروتین عملیات خواندن، اصلاح و نوشتن را در مقابل وضعیت مشترک به صورت دستی انجام می‌دهد.
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+می‌توانید دسترسی به وضعیت مشترک را در داخل حلقه for ببینید. هنگامی که این برنامه را بسازید و اجرا کنید، هر بار جواب درستی به مقدار ۴ دریافت می‌کنید.
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+چگونه این کار می‌کند؟
+
+    G1                            Shared State: 0                            G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Write:  1                         Shared State: 1
+    Context Switch 
+                                                                      Read: 1
+                                                                    Modify: 2
+                                    Shared State: 2                  Write: 2
+                                                               Context Switch 
+    Read:   2
+    Modify: 3
+    Write:  3                         Shared State: 3
+    Terminate
+                                                                      Read: 3
+                                                                    Modify: 4
+                                    Shared State: 4                  Write: 4
+                                                                    Terminate
+    ----------------------------------------------------------------------------
+
+عملیات‌های خواندن، اصلاح و نوشتن بدون وقفه انجام می‌شوند. فقط به این دلیل که جواب صحیحی دریافت می‌کنم، به این معنا نیست که مشکلی وجود ندارد. اگر یک دستور log به وسط عملیات خواندن، اصلاح و نوشتن اضافه کنید، چه اتفاقی می‌افتد؟
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                log.Println("logging")     <-- Add Logging Here
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+اگر این برنامه را اجرا کنید، دیگر نتیجه یکسانی که 4 بود، نخواهید گرفت. حالا جوابی به مقدار 2 دریافت می‌کنید.
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+
+چه اتفاقی می‌افتد؟ شما به یک باگ تداخل داده برخورد کرده‌اید که قبلاً وجود داشت، اما رخ نمی‌داد. فراخوانی log در حال حاضر باعث می‌شود که برنامه‌ای بین دو گوروتین در زمان نامناسب تغییر کانتکست دهد.
+
+    G1                                Shared State: 0                         G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Context Switch
+                                                                        Read:   0
+                                                                        Modify: 1
+                                                                   Context Switch 
+    Write:  1                         Shared State: 1
+    Read:   1
+    Modify: 2
+    Context Switch
+                                    Shared State: 1                     Write:  1
+                                                                        Read:   1
+                                                                        Modify: 2
+                                                                    Context Switch 
+    Write:  2                         Shared State: 2
+    Terminate
+                                    Shared State: 2                     Write:  2
+                                                                        Terminate
+    ----------------------------------------------------------------------------
+
+
+بعد از عملیات اصلاح، یک تغییر کانتکست انجام می‌شود. سه عملیات دیگر دیگر به صورت پیوسته انجام نمی‌شوند و گوروتین 2 در پایان عملیات نوشتن، مقدار محلی اش را به اشتباه دارای مقدار نادرست می‌کند. شما خوش شانس هستید که این موضوع هر بار رخ می‌دهد و می‌توانید آن را مشاهده کنید. اما به طور معمول یک تداخل داده مانند این به صورت "تصادفی" رخ می‌دهد و تا زمانی که خیلی دیر نشده باشد، امکان شناختن آن وجود ندارد. خوشبختانه، Go یک تشخیص‌دهنده تداخل داده دارد که به شما کمک می‌کند تداخل‌های داده را پیدا کنید.
+
+** تشخیص تداخل (Race Detection)
+
+چندین روش برای فعال‌سازی تشخیص تداخل وجود دارد. شما می‌توانید از آن با دستور run، build و test استفاده کنید. اگر از آن با دستور build استفاده می‌کنید، باید به یاد داشته باشید که برنامه را اجرا کنید. آنها می‌گویند که یک باینری ابزاری می‌تواند عملکرد برنامه‌ام را تا حدود 20٪ کاهش دهد.
+
+    $ go build -race
+    $ ./example1
+
+پرچم -race به شما این امکان را می‌دهد که برنامه را با تشخیص‌دهنده تداخل داده ابزاری کنید. احتمالاً بیشتر از آن با "go test" استفاده خواهید کرد، اما در این مثال شما باید باینری را ابزاری کنید و سپس آن را اجرا کنید.
+
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    ==================
+    WARNING: DATA RACE
+    Write at 0x000001278d88 by goroutine 8:
+    main.main.func1()
+        /data_race/example1/example1.go:41 +0xa6
+
+    Previous read at 0x000001278d88 by goroutine 7:
+    main.main.func1()
+        /data_race/example1/example1.go:38 +0x4a
+
+    Goroutine 8 (running) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+
+    Goroutine 7 (finished) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+    ==================
+    2021/02/01 17:30:52 logging
+    Final Counter: 2
+    Found 1 data race(s)
+
+می‌توانید ببینید که هنگام اجرای برنامه یک تداخل تشخیص داده شد. این اتفاق بدون در نظر گرفتن دستور log هم رخ می‌دهد. وقتی یک تداخل تشخیص داده می‌شود، برنامه خطا می‌دهد و این ردیابی را ارائه می‌دهد. ردیابی نشان می‌دهد کجا دسترسی بدون هماهنگی به همان وضعیت مشترک انجام شده است و حداقل یک دسترسی به نوشتن بوده است.
+
+در این ردیابی، یک گوروتین در خط 41 یک عملیات نوشتن را در آدرس 0x000001278d88 انجام داد و در همان آدرس، یک دسترسی بدون هماهنگی توسط یک گوروتین دیگر در خط 38 صورت گرفت. هر دو گوروتین در خط 36 ایجاد شدند.
+
+    36 go func() {
+    37     for i := 0; i < 2; i++ {
+    38         value := counter
+    39         value++
+    40         log.Println("logging")
+    41         counter = value
+    42     }
+    43     wg.Done()
+    44 }()
+
+می‌توانید به وضوح دسترسی بدون هماهنگی به خواندن و نوشتن را ببینید. به عنوان یک نکته جانبی، عملیات پلاس‌پلاس در خط 39 نیز تداخل داده خواهد بود اگر کد به متغیر شمارنده دسترسی داشته باشد. عملیات پلاس‌پلاس در واقعیت یک عملیات خواندن، اصلاح و نوشتن در زیرین است و سیستم عامل می‌تواند به راحتی در وسط آن تغییر کانتکست دهد.
+
+پس چگونه می‌توانید کد را اصلاح کنید تا مطمئن شوید که تداخل داده را حذف کرده‌اید؟ دو ابزار می‌توانید استفاده کنید، دستورات اتمیک و میوتکس (Mutex).
+
+** اتمیک (Atomics)
+
+اتمیک‌ها همگام‌سازی را در سطح سخت‌افزار ارائه می‌دهند. به همین دلیل، تا کلمات و نیمه‌کلمات داده محدود می‌شود. بنابراین، برای شمارنده‌ها یا مکانیزم‌های سریع تعویض عالی هستند. API‌های WaitGroup از اتمیک‌ها استفاده می‌کنند.
+
+برای اعمال اتمیک‌ها به کد، چه تغییراتی نیاز دارید؟
+
+    var counter int32                             <-- CHANGED
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    atomic.AddInt32(&counter, 1)  <-- CHANGED
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+شما فقط باید چند کار انجام دهید. اولاً، متغیر شمارنده را به یک عدد صحیح مبتنی بر دقت تغییر دهید. می‌توانید این تغییر را در بالای لیست کد مشاهده کنید. توابع اتمیک فقط با اعداد صحیح مبتنی بر دقت کار می‌کنند. دوماً، کد خواندن، اصلاح و نوشتن دستی را برای یک فراخوانی از atomic.AddInt32 حذف کنید. این یک فراخوانی همه‌چیز را پوشش می‌دهد.
+
+تمام توابع مرتبط با بسته اتمیک آدرس وضعیت مشترک را برای همگام‌سازی می‌گیرند. همگام‌سازی فقط در سطح آدرس اتفاق می‌افتد. بنابراین، گوروتین‌های مختلفی که توابع یکسانی را فراخوانی می‌کنند، اما در آدرس‌های مختلف، همگام‌سازی نخواهند شد.
+
+API اتمیک‌ها به شکل زیر است:
+
+    func AddInt32(addr *int32, delta int32) (new int32)
+    func AddInt64(addr *int64, delta int64) (new int64)
+    func AddUint32(addr *uint32, delta uint32) (new uint32)
+    func AddUint64(addr *uint64, delta uint64) (new uint64)
+    func AddUintptr(addr *uintptr, delta uintptr) (new uintptr)
+
+    func CompareAndSwapInt32(addr *int32, old, new int32) (swapped bool)
+    func CompareAndSwapInt64(addr *int64, old, new int64) (swapped bool)
+    func CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapped bool)
+    func CompareAndSwapUint32(addr *uint32, old, new uint32) (swapped bool)
+    func CompareAndSwapUint64(addr *uint64, old, new uint64) (swapped bool)
+    func CompareAndSwapUintptr(addr *uintptr, old, new uintptr) (swapped bool)
+
+    func LoadInt32(addr *int32) (val int32)
+    func LoadInt64(addr *int64) (val int64)
+    func LoadPointer(addr *unsafe.Pointer) (val unsafe.Pointer)
+    func LoadUint32(addr *uint32) (val uint32)
+    func LoadUint64(addr *uint64) (val uint64)
+    func LoadUintptr(addr *uintptr) (val uintptr)
+
+    func StoreInt32(addr *int32, val int32)
+    func StoreInt64(addr *int64, val int64)
+    func StorePointer(addr *unsafe.Pointer, val unsafe.Pointer)
+    func StoreUint32(addr *uint32, val uint32)
+    func StoreUint64(addr *uint64, val uint64)
+    func StoreUintptr(addr *uintptr, val uintptr)
+
+    func SwapInt32(addr *int32, new int32) (old int32)
+    func SwapInt64(addr *int64, new int64) (old int64)
+    func SwapPointer(addr *unsafe.Pointer, new unsafe.Pointer) (old unsafe.Pointer)
+    func SwapUint32(addr *uint32, new uint32) (old uint32)
+    func SwapUint64(addr *uint64, new uint64) (old uint64)
+    func SwapUintptr(addr *uintptr, new uintptr) (old uintptr)
+
+    type Value
+        func (v *Value) Load() (x interface{})
+        func (v *Value) Store(x interface{})
+
+می‌بینید که پارامتر اول همیشه آدرس یک عدد صحیح مبتنی بر دقت یا اشاره‌گر است. همچنین یک نوع به نام "Value" وجود دارد که یک مقدار همگام با یک API کوچک فراهم می‌کند.
+
+** میوتکس‌ها (Mutexes)
+
+اگر می‌خواستید سه خط کدی که داشتید را حفظ کنید، اتمیک‌ها کار نخواهند کرد. در این صورت، نیاز دارید به یک میوتکس. میوتکس به من اجازه می‌دهد یک گروه از کد را به‌طوری بسته‌بندی کنم که تنها یک گوروتین در هر زمان می‌تواند آن کد را اجرا کند.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex                    <-- CHANGED
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    mu.Lock()                <-- CHANGED
+                    {
+                        value := counter
+                        value++
+                        counter = value
+                    }
+                    mu.Unlock()              <-- CHANGED
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+تغییراتی متعدد در این کد نسبت به نسخه اصلی وجود دارد. شما ساختار متغیر mu را به عنوان یک میوتکس با مقدار صفر آن اضافه کردید. سپس درون حلقه for، فراخوانی‌های Lock و Unlock را با یک بلوک کد مصنوعی اضافه کردید. درون بلوک کد، کدی که نیاز به همگام‌سازی دارد، قرار دارد. بلوک کد برای خوانایی استفاده می‌شود.
+
+با این کد در مکان، برنامه‌ریز فقط به یک گوروتین اجازه می‌دهد که وارد بلوک کد شود. مهم است که بفهمید که یک میوتکس یک صف نیست. گوروتین اولی که Lock را فراخوانی می‌کند، لزوماً گوروتین اولی نیست که قفل را می‌گیرد. البته یک الگوریتم مبتنی بر عدالت وجود دارد، اما این کار به عمد انجام می‌شود تا افراد میوتکس را به عنوان صف استفاده نکنند.
+
+مهم است که به یاد داشته باشید که Lock فشار پشتیبانی ایجاد می‌کند، بنابراین هر چه زمان بیشتری از Lock به Unlock طول می‌کشد، فرصت بیشتری برای گوروتین‌ها به انتظار نوبت‌شان رفتن وجود دارد. اگر فراموش کنید Unlock را فراخوانی کنید، آن‌همه گوروتین‌های در انتظار به وضعیت بن‌بست می‌روند. به همین دلیل حائز اهمیت است که فراخوانی Lock و Unlock در همان تابع انجام شود. مطمئن شوید که حداقل همگام‌سازی مورد نیاز را در بلوک کد انجام می‌دهید، اما حداقل.
+
+این کد بسیار بد است که در آن کسی سعی دارد به سرعت وارد و خارج از Lock شود تا واقعاً همگام‌سازی را از دست دهد و تشخیص‌دهنده تداخل حتی نتواند مشکل را کشف کند.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    var value int
+                    mu.Lock()              <-- Bad Use Of Mutex
+                    {
+                        value = counter
+                    }
+                    mu.Unlock()
+
+                    value++
+
+                    mu.Lock()              <-- Bad Use Of Mutex
+                    {
+                        counter = value
+                    }
+                    mu.Unlock()
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+به عنوان یک رهنمود عمومی، اگر در یک تابع دو بار فراخوانی Lock از همان میوتکس را ببینید، باید مرور کد را متوقف کنید. احتمالاً یک اشتباه یا پیچیدگی اضافی وجود دارد. در این مورد، فراخوانی‌های خواندن و نوشتن همگام‌سازی می‌شوند، اما دو گوروتین ممکن است در خط value++ با همان مقدار قرار بگیرند. تداخل داده هنوز وجود دارد و تشخیص‌دهنده تداخل در پیدا کردن آن ناتوان است.
+
+** میوتکس‌های خواندن/نوشتن (Read/Write Mutexes)
+
+یک نوع دوم از میوتکس به نام میوتکس خواندن/نوشتن وجود دارد. این به من اجازه می‌دهد که قفل‌ها را در اطراف عملیات‌های خواندن و نوشتن جدا کنم. این مهم است زیرا خواندن داده تهدیدی ایجاد نمی‌کند مگر اینکه یک گوروتین در همان زمان سعی در نوشتن کند. بنابراین، این نوع میوتکس اجازه می‌دهد تا چندین گوروتین به طور همزمان از حافظه همان اطلاعات خوانده شود. به محض درخواست قفل نوشتن، خواندها دیگر صادر نمی‌شوند، نوشتن انجام می‌شود، و بعداً خواندها می‌توانند دوباره شروع به کار کنند.
+
+    package main
+
+    import (
+        "fmt"
+        "math/rand"
+        "sync"
+        "time"
+    )
+
+    var data []string
+    var rwMutex sync.RWMutex
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(1)
+
+        go func() {
+            for i := 0; i < 10; i++ {
+                writer(i)
+            }
+            wg.Done()
+        }()
+
+        for i := 0; i < 8; i++ {
+            go func(id int) {
+                for {
+                    reader(id)
+                }
+            }(i)
+        }
+
+        wg.Wait()
+        fmt.Println("Program Complete")
+    }
+
+    func writer(i int) {
+        rwMutex.Lock()
+        {
+            time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+            fmt.Println("****> : Performing Write")
+            data = append(data, fmt.Sprintf("String: %d", i))
+        }
+        rwMutex.Unlock()
+    }
+
+    func reader(id int) {
+        rwMutex.RLock()
+        {
+            time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
+            fmt.Printf("%d : Performing Read : Length[%d]\n", id, len(data))
+        }
+        rwMutex.RUnlock()
+    }
+
+می‌بینید که از یک میوتکس خواندن/نوشتن استفاده شده است که در آن 8 گوروتین دقیقاً در فاصله 10 میلی‌ثانیه از یکدیگر طول یک اسلایس را می‌خوانند و 1 گوروتین دیگر در مدت زمان 100 میلی‌ثانیه برای افزودن یک مقدار (نوشتن) به اسلایس بیدار می‌شود.
+
+کلید اینجا به اجرای توابع نویسنده و خواننده است. توجه داشته باشید که برای نویسنده از Lock و برای خواننده از RLock استفاده می‌شود. یکی از بزرگ‌ترین اشتباهاتی که می‌توانید در اینجا انجام دهید، ترکیب نادرست فراخوانی‌های Unlock با نسخه اشتباه باشد. داشتن یک Lock با RUnlock هیچ‌وقت به خوبی پایان نمی‌یابد.
+
+    7 : Performing Read : Length[0]
+    5 : Performing Read : Length[0]
+    0 : Performing Read : Length[0]
+    3 : Performing Read : Length[0]
+    7 : Performing Read : Length[0]
+    2 : Performing Read : Length[0]
+    1 : Performing Read : Length[0]
+    ****> : Performing Write
+    0 : Performing Read : Length[1]
+    5 : Performing Read : Length[1]
+    3 : Performing Read : Length[1]
+    6 : Performing Read : Length[1]
+    7 : Performing Read : Length[1]
+    4 : Performing Read : Length[1]
+    1 : Performing Read : Length[1]
+    2 : Performing Read : Length[1]
+    ****> : Performing Write
+    7 : Performing Read : Length[2]
+    1 : Performing Read : Length[2]
+    3 : Performing Read : Length[2]
+
+خروجی نشان می‌دهد که چگونه چندین گوروتین در همان زمان خواندن می‌کنند، اما تمامی خواندن‌ها وقتی که عملیات نوشتن انجام می‌شود متوقف می‌شوند.
+
+** یادداشت‌ها
+
+- گوروتین‌ها نیاز به هماهنگی و همگام‌سازی دارند.
+- زمانی که دو یا چند گوروتین سعی در دسترسی به منبع مشترک دارند، تداخل داده داریم.
+- توابع اتمیک و میوتکس‌ها می‌توانند پشتیبانی مورد نیاز را فراهم کنند.
+
+** همگرایی حافظه نهان و به‌اشتباه به اشتراک‌گذاری (Cache Coherency and False Sharing)
+
+این محتوا توسط Scott Meyers از سخنرانی او در سال ۲۰۱۴ در مراسم Dive ارائه شده است.
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care (30:09-38:30)]]  
+[[https://github.com/ardanlabs/gotraining/blob/master/topics/go/testing/benchmarks/falseshare/README.md][Code Example]]
+
+.image /tour/eng/static/img/figure1_data_race.png
+
+** یادداشت‌های همگرایی حافظه نهان و به اشتراک‌گذاری اشتباه
+
+- دسترسی به حافظه توسط رشته‌ها مهم است.
+- اگر الگوریتم شما مقیاس‌پذیر نیست، به دنبال مشکلات به اشتراک‌گذاری اشتباهی بگردید.
+
+** خواندن بیشتر
+
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter    
+- [[https://golang.org/ref/mem][The Go Memory Model]]    
+- [[http://blog.golang.org/race-detector][Introducing the Go Race Detector]] - Dmitry Vyukov and Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - William Kennedy    
+- [[https://golang.org/doc/articles/race_detector.html][Data Race Detector]]    
+
+* تمرین‌ها
+
+از الگو به عنوان نقطه شروع برای انجام تمرین‌ها استفاده کنید. یک راه‌حل ممکن ارائه شده است.
+
+** تمرین 1
+
+با توجه به برنامه زیر، از تشخیص‌دهنده تداخل برای پیدا کردن و تصحیح تداخل داده استفاده کنید.
+
+.play data_race/exercise1.go
+.play data_race/answer1.go

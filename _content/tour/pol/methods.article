@@ -1,0 +1,431 @@
+Metody
+Funkcja jest nazywana metodą, gdy ma zdefiniowany odbiorcę (receiver).
+
+* Metody
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Funkcja jest nazywana metodą, gdy posiada deklarowanego odbiorcę (receiver).
+Odbiorca to parametr zadeklarowany między słowem kluczowym func a nazwą funkcji.
+
+** Przegląd kodu
+
+- *Example* *1:* Zadeklaruj i zdefiniuj zachowanie odbiorcy
+- *Example* *2:* Metody imienne
+- *Example* *3:* Zmienne funkcji/metody
+- *Example* *4:* Typy funkcji
+- *Example* *5:* Semantyka wartości i wskaźników
+
+.play methods/example1.go
+.play methods/example2.go
+.play methods/example3.go
+.play methods/example4.go
+.play methods/example5.go
+
+** Deklaracje metod
+
+
+Istnieją dwa rodzaje odbiorców: odbiorniki wartości (value receivers) do implementacji semantyki wartości (value semantics)
+oraz odbiorniki wskaźników (pointer receivers) do implementacji semantyki wskaźników (pointer semantics).
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func (u *user) changeEmail(email string) {
+        u.email = email
+        fmt.Printf("Changed User Email To %s\n", email)
+    }
+
+Funkcja notify jest zaimplementowana z użyciem odbiorcy poprzez wartość (value receiver).
+Oznacza to, że metoda działa w oparciu o semantykę wartości i operuje na własnej
+kopii wartości używanej do wywołania.
+
+Funkcja changeEmail jest zaimplementowana z użyciem odbiorcy poprzez wskaźnik (pointer receiver).
+Oznacza to, że metoda działa w oparciu o semantykę wskaźników i operuje na wspólnym dostępie
+do wartości używanej do wywołania.
+
+Poza kilkoma wyjątkami, zestaw metod dla danego typu nie powinien zawierać mieszanki odbiorców poprzez
+wartości i wskaźniki. Spójność semantyki danych jest krytycznie ważna, a to dotyczy również deklaracji metod.
+
+** Wywoływanie metod
+
+Podczas dokonywania wywołania metody, kompilatorowi nie zależy na dokładnym dopasowaniu semantyki danych wartości,
+używanej do wywołania do semantyki danych odbiorcy. Kompilator po prostu oczekuje wartości lub wskaźnika tego samego typu.
+
+    bill := user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+Można zauważyć, że wartość typu user jest konstruowana i przypisywana do zmiennej bill. W przypadku wywołania notify,
+zmienna bill odpowiada typowi odbiorcy, który używa odbiorcy poprzez wartość (value receiver). W przypadku wywołania changeEmail,
+zmienna bill nie odpowiada typowi odbiorcy, który używa odbiorcy poprzez wskaźnik (pointer receiver). Jednakże kompilator
+akceptuje wywołanie metody i udostępnia zmienną bill dla metody. Go dostosuje się, aby dokonać wywołania.
+
+To działa w ten sam sposób, gdy zmienna używana do wykonania wywołania jest zmienną wskaźnikową (pointer variable).
+W języku Go kompilator również dopasowuje typ wskaźnika do odpowiedniego typu odbiorcy, jeśli to jest możliwe.
+
+    bill := &user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+
+W tym przypadku zmienna bill jest zmienną wskaźnikową do wartości typu user. Ponownie, w języku Go kompilator
+dostosowuje się, aby dokonać wywołania metody przy wywoływaniu metody notify. Jest to częścią elastyczności i ułatwień,
+jakie oferuje język Go w obszarze obsługi odbiorców (receivers) i wywołań metod.
+
+Jeśli Go nie dostosowywałby się, to oto co musiałbyś zrobić, aby wykonać te same wywołania metod.
+
+    bill := user{"Bill", "bill@email.com"}
+    (&bill).changeEmail("bill@hotmail.com")
+
+    bill := &user{"Bill", "bill@email.com"}
+    (*bill).notify()
+
+Cieszę się, że nie trzeba tego robić, aby wywoływać metody w języku Go.
+
+** Zasady semantyki danych dla typów wewnętrznych
+
+Jeśli pracujesz z danymi, które są typem wewnętrznym (slice, map, kanał, funkcja, interfejs),
+używaj semantyki wartości (value semantics), aby przemieszczać dane w programie. To obejmuje deklarowanie
+pól na typie. Jednak podczas odczytu i zapisu musisz pamiętać, że używam semantyki wskaźników (pointer semantics).
+
+    type IP []byte
+    type IPMask []byte
+
+Te typy są deklarowane w pakiecie net, który jest częścią standardowej biblioteki języka Go. Są one deklarowane z
+typem podstawowym będącym slice'em bajtów (slice of bytes). Z tego powodu te typy stosują się do wytycznych
+dotyczących typów wewnętrznych (internal types).
+
+    func (ip IP) Mask(mask IPMask) IP {
+        if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
+            mask = mask[12:]
+        }
+        if len(mask) == IPv4len && len(ip) == IPv6len &&
+            bytesEqual(ip[:12], v4InV6Prefix) {
+            ip = ip[12:]
+        }
+        n := len(ip)
+        if n != len(mask) {
+            return nil
+        }
+        out := make(IP, n)
+        for i := 0; i < n; i++ {
+            out[i] = ip[i] & mask[i]
+        }
+        return out
+    }
+
+W przypadku metody Mask, semantyka wartości jest używana zarówno dla odbiorcy, parametru, jak i argumentu zwracanego.
+Ta metoda przyjmuje swoją własną kopię wartości typu Mask, modyfikuje tę kopię, a następnie zwraca kopię zmodyfikowanej wartości.
+Ta metoda korzysta z mutacji semantyki wartości. To nie jest przypadkowe ani losowe działanie.
+
+Funkcja może decydować, jakie dane wejściowe i wyjściowe są jej potrzebne. To, o czym nie może decydować,
+to semantyka danych dotycząca tego w jaki sposób dane przepływają na wejście lub wyjście. To dane determinują
+tę decyzję, a funkcja musi się dostosować. Dlatego metoda Mask implementuje API mutacji semantyki wartości.
+Metoda ta musi respektować sposób, w jaki slice jest projektowany do przemieszczania się w programie.
+
+    func ipEmptyString(ip IP) string {
+        if len(ip) == 0 {
+            return ""
+        }
+        return ip.String()
+    }
+
+Funkcja ipEmptyString również korzysta z semantyki wartości zarówno dla wejścia, jak i wyjścia.
+Funkcja ta przyjmuje swoją własną kopię wartości typu IP i zwraca wartość typu string.
+Nie używa semantyki wskaźników, ponieważ semantyka danych jest narzucana przez dane, a nie przez funkcję.
+
+Jednym wyjątkiem od używania semantyki wartości jest sytuacja, w której potrzebujesz udostępnić slice lub
+mapę funkcji, która wykonuje unmarshaling lub dekodowanie danych. W takim przypadku może być konieczne
+użycie semantyki wskaźników, aby współdzielić dane między funkcjami i umożliwić modyfikację tych
+danych przez funkcję dekodującą lub unmarshaling.
+
+** Zasady semantyki danych dla typów strukturalnych
+
+Jako wytyczną, jeśli pracujesz z typem strukturalnym, musisz zastanowić się, co dokładnie reprezentują te dane,
+aby podjąć decyzję. Ogólną zasadą jest pytanie, czy struktura reprezentuje dane czy interfejs (API).
+Jeśli struktura reprezentuje dane, użyj semantyki wartości (value semantics). Jeśli struktura reprezentuje interfejs,
+użyj semantyki wskaźników (pointer semantics).
+
+    type Time struct {
+        sec  int64
+        nsec int32
+        loc  *Location
+    }
+
+Oto struktura Time z pakietu time. Jeśli uważasz, że Time reprezentuje dane,
+to dla tej struktury należy stosować semantykę wartości (value semantics).
+
+
+Gdy analizujesz istniejący kod źródłowy i chcesz dowiedzieć się, jaką semantykę danych wybrał programista,
+poszukaj funkcji fabrycznych (factory functions). Typ zwracany przez funkcję fabryczną powinien określać
+wybraną przez programistę semantykę danych.
+
+    func Now() Time {
+        sec, nsec := now()
+        return Time{sec + unixToInternal, nsec, Local}
+    }
+
+Funkcja Now jest funkcją fabryczną do tworzenia wartości typu Time. Jeśli spojrzysz na jej wynik,
+używa ona semantyki wartości. To mówi nam, że powinniśmy używać semantyki wartości dla wartości typu Time,
+co oznacza, że każda funkcja otrzymuje swoją własną kopię wartości Time. Pola w strukturach powinny być
+deklarowane jako wartości typu Time.
+
+    func (t Time) Add(d Duration) Time {
+        t.sec += int64(d / 1e9)
+        nsec := int32(t.nsec) + int32(d%1e9)
+        if nsec >= 1e9 {
+            t.sec++
+            nsec -= 1e9
+        } else if nsec < 0 {
+            t.sec--
+            nsec += 1e9
+        }
+        t.nsec = nsec
+        return t
+    }
+
+Metoda Add wykonuje operację mutacji i dokładniej przyjrzymy się, zobaczysz, że funkcja korzysta z
+semantyki wartości w przypadku mutacji. Metoda Add otrzymuje swoją własną kopię wartości Time użytej
+do wywołania, dokonuje mutacji swojej własnej kopii, a następnie zwraca kopię z powrotem do wywołującego.
+Ponownie, jest to najbezpieczniejszy sposób wykonania operacji mutacji.
+
+    func div(t Time, d Duration) (qmod2 int, r Duration) {}
+
+Oto kolejny przykład, w którym funkcja div przyjmuje wartości typu Time i Duration (int64),
+a następnie zwraca wartości typu int i Duration. Semantyka wartości (value semantics)
+jest używana zarówno dla typu Time, jak i dla wszystkich wbudowanych typów.
+Typ Duration ma typ podstawowy int64.
+
+    func (t *Time) UnmarshalBinary(data []byte) error {}
+    func (t *Time) GobDecode(data []byte) error {}
+    func (t *Time) UnmarshalJSON(data []byte) error {}
+    func (t *Time) UnmarshalText(data []byte) error {}
+
+Te cztery metody z pakietu Time wydają się łamać zasady spójności semantyki danych.
+Używają semantyki wskaźników, dlaczego? Ponieważ implementują interfejs, gdzie sygnatura metody jest zablokowana.
+Ponieważ implementacja wymaga mutacji, semantyka wskaźników jest jedynym wyborem.
+
+Oto wytyczna: Jeśli używana jest semantyka wartości, możesz przejść na semantykę wskaźników dla niektórych funkcji,
+pod warunkiem, że nie pozwolisz, aby dane w pozostałym łańcuchu wywołań wróciły do semantyki wartości.
+Po przejściu na semantykę wskaźników, wszystkie przyszłe wywołania od tego momentu muszą przestrzegać
+semantyki wskaźników. Nigdy, przenigdy, nigdy nie można przechodzić z semantyki wskaźników na
+semantykę wartości. Kopiowanie wartości, na którą wskazuje wskaźnik, nigdy nie jest bezpieczne.
+
+    func Open(name string) (file *File, err error) {
+        return OpenFile(name, O_RDONLY, 0)
+    }
+
+Funkcja Open z pakietu os pokazuje, że w przypadku użycia wartości typu File,
+stosowana jest semantyka wskaźników. Wartości typu File powinny być współdzielone i nigdy nie powinny być kopiowane.
+
+    func (f *File) Chdir() error {
+        if f == nil {
+            return ErrInvalid
+        }
+        if e := syscall.Fchdir(f.fd); e != nil {
+            return &PathError{"chdir", f.name, e}
+        }
+        return nil
+    }
+
+Metoda Chdir używa odbiorcy poprzez wskaźnik (pointer receiver), mimo że ta metoda nie dokonuje
+mutacji wartości typu File. Dzieje się tak, ponieważ wartości typu File powinny być
+współdzielone i nie mogą być kopiowane.
+
+    func epipecheck(file *File, e error) {
+        if e == syscall.EPIPE {
+            if atomic.AddInt32(&file.nepipe, 1) >= 10 {
+                sigpipe()
+            }
+        } else {
+            atomic.StoreInt32(&file.nepipe, 0)
+        }
+    }
+
+Funkcja epipecheck również akceptuje wartości typu File z użyciem semantyki wskaźników (pointer semantics).
+To może sugerować, że wartości typu File powinny być współdzielone i unikane jest ich kopiowanie.
+
+** Metody to po prostu funkcje
+
+Metody to naprawdę po prostu funkcje, które dostarczają syntaktycznego cukru,
+aby umożliwić danym wykazywanie określonych zachowań.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Zadeklarowany został typ oraz dwie metody. Metoda displayName używa semantyki wartości (value semantics),
+natomiast metoda setAge używa semantyki wskaźników (pointer semantics).
+
+Uwaga: W języku Go nie implementuje się setterów i getterów. Nie są one API z właściwym celem,
+a w tych przypadkach lepiej jest eksportować pola (fields), jeśli jest taka potrzeba.
+    
+    d := data{
+        name: "Bill",
+    }
+
+    d.displayName()
+    d.setAge(21)
+
+Wartość typu data jest konstruowana, a następnie wywoływane są metody.
+
+    data.displayName(d)
+    (*data).setAge(&d, 21)
+
+Ponieważ metody są w rzeczywistości po prostu funkcjami z syntaktycznym cukrem, metody mogą być wywoływane jak funkcje.
+Możesz zauważyć, że odbiorca (receiver) to tak naprawdę parametr, który jest pierwszym parametrem. Kiedy wywołujesz metodę,
+kompilator przekształca to w wywołanie funkcji pod spodem.
+
+Uwaga: Nie wywołuj metod w ten sposób, możesz jednakże zobaczyć tę składnię w komunikatach narzędziowych (tooling messages).
+
+** Zrozum zachowanie kodu
+
+Jeśli znasz semantykę danych, która jest używana, to znasz zachowanie kodu. Jeśli znasz zachowanie kodu,
+to znasz koszty kodu. Kiedy już znasz koszty, to możesz inżynierować (optymalizować) kod.
+
+Biorąc pod uwagę ten typ i zestaw metod.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Możesz napisać następujący kod.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f1 := d.displayName
+        f1()
+        d.name = "Joan"
+        f1()
+    }
+
+Wynik:
+
+    My Name Is Bill
+    My Name Is Bill
+
+Rozpoczynasz od konstruowania wartości typu Data i przypisujesz ją do zmiennej d.
+Następnie bierzesz metodę displayName, związaną z d, i przypisujesz ją do zmiennej
+o nazwie f1. To nie jest wywołanie metody, ale przypisanie, które tworzy poziom
+pośrednictwa. Funkcje są wartościami w języku Go i należą do zbioru typów wewnętrznych.
+
+Po dokonaniu przypisania możesz wywoływać metodę pośrednio, korzystając z zmiennej f1.
+To spowoduje wyświetlenie nazwy "Bill". Następnie zmieniasz dane, więc teraz nazwa to "Joan",
+i ponownie wywołujesz metodę poprzez zmienną f1. Jednak nie widzisz zmiany,
+a na wyjściu jest ponownie "Bill". Dlaczego?
+
+.image /tour/eng/static/img/m1.png
+
+To ma związek z semantyką danych, która jest używana. Metoda displayName używa odbiornika wartości,
+dlatego w grę wchodzi semantyka wartości.
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+To oznacza, że zmienna f1 utrzymuje i działa na swojej własnej kopii d.
+Dlatego wywołanie metody poprzez zmienną f1 zawsze będzie korzystać z kopii,
+która jest chroniona przed zmianami. To jest dokładnie to, czego oczekuje się
+od semantyki wartości (value semantics).
+
+Teraz zrobisz to samo, ale z metodą setAge.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f2 := d.setAge
+        f2(45)
+        d.name = "Sammy"
+        f2(45)
+    }
+
+Wynik:
+
+    Bill Is Age 45
+    Sammy Is Age 45
+
+This time the setAge method is assigned to the variable f2. Once again, the
+method is executed indirectly through the f2 variable passing 45 for Bill’s age.
+Then Bill’s name is changed to Sammy and the f2 variable is used again to make the
+call. This time you see the name has changed.
+
+.image /tour/eng/static/img/m2.png
+
+Tym razem metoda setAge jest przypisana do zmiennej f2. Ponownie metoda jest wywoływana
+pośrednio za pomocą zmiennej f2, przekazując wartość 45 jako wiek dla Billa. Następnie
+zmienione zostaje imię Billa na "Sammy", a zmienna f2 jest ponownie używana do wykonania
+wywołania. Tym razem widzisz, że imię zostało zmienione.
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Bez znajomości semantyki danych, nie będziesz wiedział, jakie jest zachowanie kodu.
+Te semantyki danych są rzeczywiste i wpływają na zachowanie programu.
+
+** Notatki
+
+- Metody to funkcje, które deklarują zmienną odbiorcy (receiver).
+- Odbiorcy wiążą metodę z danym typem i mogą korzystać zarówno z semantyki wartości (value) jak i wskaźników (pointer).
+- Semantyka wartości oznacza, że kopia wartości jest przekazywana przez granice programu.
+- Semantyka wskaźników oznacza, że kopia adresu wartości jest przekazywana przez granice programu.
+- Trzymaj się jednej semantyki dla danego typu i bądź konsekwentny.
+
+** Cytaty
+
+"Metody są prawidłowe wtedy, gdy jest praktyczne lub uzasadnione, aby pewna część danych udostępniała pewne funkcje (zdolności)." - William Kennedy
+
+** Dodatkowe materiały
+
+- [[https://golang.org/doc/effective_go.html#methods][Methods]]    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
+		 
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Zadeklaruj strukturę reprezentującą zawodnika baseballowego. Obejmuje ona pola: name (imię),
+atBats (liczba podejść do odbicia) i hits (liczba trafionych odbić).
+Zadeklaruj metodę obliczającą średnią uderzeń zawodnika. Formuła to Hits / AtBats.
+Zadeklaruj wycinek (slice) tego typu i zainicjuj go kilkoma zawodnikami.
+Iteruj po wycinku, wyświetlając imiona zawodników oraz ich średnie uderzeń.
+
+.play methods/exercise1.go
+.play methods/answer1.go

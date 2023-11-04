@@ -1,0 +1,181 @@
+Operacje sortowania
+Ta sekcja zawiera przykłady operacji sortowania.
+
+* Sortowanie bąbelkowe
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Przykładowy program implementuje funkcję, która przeprowadza sortowanie bąbelkowe dla zbioru liczb całkowitych.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Bubble_sort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagram*
+
+		Sortowanie bąbelkowe to prosty algorytm sortowania, który wielokrotnie
+		przechodzi przez listę wejściową element po elemencie, porównując
+		bieżący element z następnym i zamieniając ich wartości, jeśli jest to konieczne.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Tablica początkowa
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── Po pierwszej iteracji
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── po drugiej iteracji / Posortowane
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Sortowanie przez wstawianie
+
+Przykładowy program implementuje funkcję, która przeprowadza sortowanie przez wstawanie na zbiorze liczb całkowitych.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Insertion_sort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagram*
+
+		Sortowanie przez wstawianie iteruje tyle samo razy, ile wynosi długość
+		tablicy minus jeden. Dla tablicy 5 liczbowej sortowanie będzie iterować 4 razy.
+		Począwszy od indeksu 1, sortowanie przenosi tę liczbę w lewo, umieszczając
+		ją w posortowanej pozycji.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tablica początkowa
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Przesuń [1]=30 w lewo
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Po pierwszej iteracji
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Przesuń [2]=05 w lewo
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Po pierwszej iteracji
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁── Przesuń [3]=25 w lewo
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Po pierwszej iteracji
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁── Przesuń [4]=15 w lewo
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Po pierwszej iteracji
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Posortowane
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Sortowanie przez kopcowanie
+
+Przykładowy program implementuje funkcję, która przeprowadza sortowanie przez kopcowanie na zbiorze liczb całkowitych.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagram*
+
+Sortowanie przez kopcowanie dzieli swoje dane wejściowe na posortowaną i nieposortowaną tablicę.
+Algorytm iteracyjnie zmniejsza obszar nieposortowany, wydobywając z niego największy element i
+wstawiaja go do posortowanej tablicy. Algorytm działa w dwóch fazach.
+
+    Faza I
+    Podziel listę na pół i pracuj z pierwszą połową listy, przenosząc
+    największą znalezioną wartość na początek listy, a następnie
+    drugą największą.
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Tablica początkowa
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁── Sprawdź [1]=16 < [4]=73 : Zamiana
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Po pierwszej iteracji
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁── Sprawdź [0]=63 < [3]=71 : Zamiana
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Po drugiej iteracji
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁── Sprawdź, I faza Skończona
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Phase II  
+    Weź listę i zacznij przenosić liczby do nowej posortowanej listy. Weź liczbę z pierwszej
+    pozycji i przenieś ją do nowej listy, która będzie zawierać ostateczne sortowanie. Następnie
+    ponownie przenieś największą znalezioną liczbę na początek listy.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Tablica początkowa
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── Po pierwszej iteracji
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── Przenieś 73 na zewnątrz, a 71 na przód.
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁── Po drugiej iteracji
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁── Przenieś 71 na zewnątrz, a 63 na przód.
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Po trzeciej iteracji
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁── Przenieś 63 na zewnątrz, a 40 na przód.
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── Po czwartej iteracji
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁── Przenieś 40 na zewnątrz, a 16 na przód.
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Po piątej iteracji
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁── Przenieś 16 na zewnątrz / Posortowane
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Sortowanie szybkie
+
+Przykładowy program implementuje funkcję, która przeprowadza szybkie sortowanie na zbiorze liczb całkowitych.
+
+- Zobacz więcej na [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagram*
+
+    QuickSort to algorytm dziel i zwyciężaj. Działa poprzez wybieranie elementu 'piwotowego'
+    z tablicy i dzielenie pozostałych elementów na dwie podtablice, w zależności od tego,
+    czy są mniejsze lub większe od piwotu.
+
+    -------------------------------------------------------------------
+    Example 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tablica początkowa
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Wartość piwotu to 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sortuj elementy 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── Pierwsze sortowanie zakończone
+    └────┘└────┘└────┘└────┘└────┘
+
+    Ostatnie dwie elementy są posortowane, skoncentruj się na pierwszych trzech.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Wartość piwotu 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Posortowane
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Example 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tablica początkowa
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Wartość piwotu 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sortuj elementy 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pierwsze sortowanie zakończone
+    └────┘└────┘└────┘└────┘└────┘
+
+    Pierwszy element jest posortowany, skup się na ostatnich czterech.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Wartość piwotu 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Drugie sortowanie zakończone
+    └────┘└────┘└────┘└────┘└────┘
+
+     Pierwsze dwa elementy są posortowane, skup się na ostatnich trzech.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Wartość piwotu 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Trzecie sortowanie zakończone
+    └────┘└────┘└────┘└────┘└────┘
+
+    Pierwsze trzy elementy są posortowane, skup się na ostatnich dwóch.
+
+    ┌────┐┌────┐ ◁── Wartość piwotu 59
+    │ 73 ││ 59 │ ◁── Trzecie sortowanie zakończone
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Posortowane
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

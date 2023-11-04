@@ -14,7 +14,9 @@
 
 package boltdb
 
-import "encoding/json"
+import (
+	"github.com/blevesearch/bleve/v2/util"
+)
 
 type stats struct {
 	s *Store
@@ -22,5 +24,5 @@ type stats struct {
 
 func (s *stats) MarshalJSON() ([]byte, error) {
 	bs := s.s.db.Stats()
-	return json.Marshal(bs)
+	return util.MarshalJSON(bs)
 }
