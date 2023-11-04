@@ -1,22 +1,22 @@
-Fun Problems
-This section contains a set fun code challenges that showcase some of the capabilities offered by Go.
+Những thử thách vui
+Phần này cung cấp một số thử thách code thú vị để giới thiệu một vài chức năng được cung cấp bởi Go.
 
-* Sleeping Barber Problem
+* Thợ cắt tóc ngủ gật
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/][Đơn xin Học bổng]] của chúng tôi.
 
-This sample program implements the sleeping barber problem.
+Chương trình ví dụ này sẽ xây dựng một bài tập về Thợ cắt tóc ngủ gật.
 
-- See more at [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+- Xem thêm tại [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-There is one barber in the barber shop, one barber chair and `n` chairs for
-waiting customers. If there are no customers, the barber sits down in the
-barber chair and takes a nap. An arriving customer must wake the barber.
-Subsequent arriving customers take a waiting chair if any are empty or
-leave if all chairs are full.
+Có một thợ cắt tóc trong tiệm, một chiếc ghế cắt tóc và `n` chiếc ghế cho
+khách hàng đang đợi. Nếu không có khách, người thợ cắt tóc sẽ ngồi vào
+ghế cắt tóc và ngủ trưa. Một khách hàng đến phải đánh thức thợ cắt tóc.
+Những khách hàng đến tiếp theo sẽ ngồi vào ghế đợi nếu có ghế trống hoặc
+bỏ đi nếu tất cả các ghế đã đầy.
 
-*Output:*
+*Đầu ra:*
 
     Opening the shop
     Barber ready to work
@@ -40,37 +40,58 @@ leave if all chairs are full.
     Barber finished customer "cust-4"
     Shop closed
 
-.play algorithms/fun/barber.go
+    Mở cửa tiệm
+    Thợ cắt tóc sẵn sàng làm việc
+    Khách hàng "cust-1" bước vào tiệm
+    Khách hàng "cust-1" ngồi vào ghế chờ
+    Thợ cắt tóc phục vụ khách hàng "cust-1"
+    Thợ cắt tóc cắt xong cho khách hàng "cust-1"
+    Thợ cắt tóc ngủ trưa
+    Khách hàng "cust-2" bước vào tiệm
+    Khách hàng "cust-2" ngồi vào ghế chờ
+    Thợ cắt tóc phục vụ khách hàng "cust-2"
+    Khách hàng "cust-3" bước vào tiệm
+    Khách hàng "cust-3" ngồi vào ghế chờ
+    Thợ cắt tóc cắt xong cho khách hàng "cust-2"
+    Thợ cắt tóc phục vụ khách hàng "cust-3"
+    Khách hàng "cust-4" bước vào tiệm
+    Khách hàng "cust-4" ngồi vào ghế chờ
+    Cửa tiệm ngừng nhận khách
+    Thợ cắt tóc cắt xong cho khách hàng "cust-3"
+    Thợ cắt tóc phục vụ khách hàng "cust-4"
+    Thợ cắt tóc cắt xong cho khách hàng "cust-4"
+    Tiệm nghỉ
 
-* Frequency
+.chạy algorithms/fun/barber.go
 
-This sample programs shows you how to implement a function that can find
-the frequency of a given rune that is used in a specified sentence.
+* Tần suất
 
-- Sequential: A linear algorithm to perform a rune count.
-- Concurrent: A concurrent algorithm to perform a rune count.
+Chương trình ví dụ này chỉ cho bạn cách triển khai một hàm để tìm
+tần suất của một chữ cổ (rune) nhất định được sử dụng trong một câu cụ thể.
 
-.play algorithms/fun/freq_sequential.go
-.play algorithms/fun/freq_concurrent.go
+- Tuần tự: Một thuật toán tuyến tính để thực hiện việc đếm chữ rune.
+- Đồng thời: Một thuật toán đồng thời để thực hiện việc đếm chữ rune.
 
-*  Variable Length Quantity encoding/decoding.
+.chạy algorithms/fun/freq_sequential.go
+.chạy algorithms/fun/freq_concurrent.go
 
-This sample program showcases how Go can be leveraged to implement variable length quantity encoding/decoding.
+*  Mã hóa/ giải mã Đại lượng biến thiên (Variable Length Quantity - VLQ).
 
-- See more at [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+Chương trình ví dụ này giới thiệu cách tận dụng Go để triển khai mã hóa/ giải mã số VLQ.
 
-In short, the goal of this encoding is to save encode integer values in
-a way that would save bytes. Only the first 7 bits of each byte is significant
-(right-justified; sort of like an ASCII byte). So, if you have a 32-bit value,
-you have to unpack it into a series of 7-bit bytes. Of course, you will have
-a variable number of bytes depending upon your integer. To indicate which
-is the last byte of the series, you leave bit #7 clear. In all of the
-preceding bytes, you set bit #7.
+- Xem thêm tại [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-So, if an integer is between 0-127, it can be represented as one byte. The
-largest integer allowed is 0FFFFFFF, which translates to 4 bytes variable
-length. Here are examples of delta-times as 32-bit values, and the variable
-length quantities that they translate to:
+Nói ngắn gọn, mục tiêu của việc mã hóa này là lưu các giá trị số nguyên mã hóa
+theo một cách có thể tiết kiệm byte. Chỉ 7 bit đầu tiên của mỗi byte là có ý nghĩa
+(căn lề phải; giống như một mã ASCII). Vì vậy, nếu bạn có giá trị 32 bit, bạn phải
+giải nén nó thành một chuỗi byte 7 bit. Tất nhiên, bạn sẽ có số byte thay đổi
+tùy theo số nguyên của bạn. Để chỉ ra cái nào là byte cuối cùng của chuỗi,
+bạn để trống bit thứ 7. Trong tất cả các byte đứng trước, bạn cài đặt bit thứ 7.
+
+Vì vậy, nếu một số nguyên nằm trong khoảng 0-127, nó có thể được biểu diễn
+dưới dạng một byte. Số nguyên lớn nhất được cho phép là 0FFFFFFF, chuyển thành
+số VLQ 4 byte. Dưới đây là ví dụ về sự chuyển đổi từ giá trị 32 bit sang
+số VLQ:
 
     NUMBER        VARIABLE QUANTITY
     00000000              00
@@ -86,13 +107,12 @@ length quantities that they translate to:
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-A variable-length quantity (VLQ) is a universal code that uses an arbitrary
-number of binary octets (eight-bit bytes) to represent an arbitrarily large
-integer. It was defined for use in the standard MIDI file format[1] to save
-additional space for a resource constrained system, and is also used in the
-later Extensible Music Format (XMF). A VLQ is essentially a base-128
-representation of an unsigned integer with the addition of the eighth bit
-to mark continuation of bytes. See the example below.
+Đại lượng biến thiên (VLQ) là một mã phổ quát sử dụng một số octet nhị phân (tám bit)
+tùy ý để biểu thị một giá trị số nguyên lớn tùy ý. Nó được xác định để sử dụng ở
+định dạng tệp MIDI tiêu chuẩn[1] để tiết kiệm thêm không gian cho một hệ thống
+có tài nguyên hạn chế và sau này cũng được sử dụng trong Định dạng nhạc mở rộng (XMF).
+VLQ về cơ bản là base-128 biểu diễn một số nguyên không dấu có thêm bit thứ tám
+để đánh dấu sự tiếp tục của byte. Xem ví dụ dưới đây.
 
 	Int:    16384
 	IntHex: 0x00004000
@@ -100,32 +120,34 @@ to mark continuation of bytes. See the example below.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Lets say I want to represent the number 3435 in VLQ. 3435 in
-binary is 110101101011. We can not fit this in a byte. So we will
-chop it up from the end in 7-bit blocks.
+Giả sử ta muốn biểu thị số 3435 trong VLQ. 3435 ở nhị phân
+là 110101101011. Chúng tôi không thể khớp giá trị này trong một byte.
+Vì vậy chúng tôi sẽ cắt nó thành khối 7 bit tính từ cuối lên.
 
-    Septet	7	6	5	4	3	2	1
+    Khối	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-Now we prepend all but the last with a 1-bit to indicate that an octet
-follows and prepend a 0-bit to the last, signalling the final octet.
+Bây giờ chúng ta thêm vào trước tất cả khối (trừ khối cuối cùng)
+một bit giá trị 1 để chỉ ra rằng có một octet theo sau và
+thêm bit giá trị 0 vào khối cuối cùng, báo hiệu đó là octet cuối cùng.
 
     Octet   8	7	6	5	4	3	2	1
     #1      0	1	1	0	1	0	1	1
     #2      1	0	0	1	1	0	1	0
 
-Finally we concatenate them, most significant octet first, into
+Cuối cùng, chúng ta ghép chúng lại, octet quan trọng nhất đứng trước,
+chuyển đổi thành:
 
-Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
+Số ban đầu: 10011010 01101011  ToHex: 0x9A 0x6B
 
-*Extra* *Resources:*
+*Tài liệu* *bổ sung:*
 
 - [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
 - [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
-*For* *an* *excellent* *implementation* *of* *this* *algorithm* *look* *here:*
+*Một* *cách* *triển khai* *tuyệt vời* *cho* *thuật toán* *này* *ở* *đây:*
 
 - [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
-.play algorithms/fun/vlq.go
+.chạy algorithms/fun/vlq.go
