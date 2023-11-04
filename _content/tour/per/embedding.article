@@ -1,0 +1,187 @@
+واردکردن (Embedding)
+نوع‌های واردکردن، قسمت نهایی از اشتراک و بازاستفاده از وضعیت و رفتار بین انواع را فراهم می‌کنند.
+
+* واردکردن (Embedding)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+
+انواع واردکردن (Embedding types) قسمت نهایی از به اشتراک گذاشتن و بازاستفاده از وضعیت و رفتار بین انواع را فراهم می‌کنند. از طریق استفاده از ارتقاء داخلی از نوع داخلی، می‌توان به طور مستقیم به فیلدها و متدهای نوع داخلی توسط مراجعه‌های نوع خارجی دسترسی داشت.
+
+** مرور کد
+
+- *مثال* *1:* تعریف فیلدها		   
+- *مثال* *2:*  انواع واردکردن
+- *مثال* *3:* انواع واردکرده و اینترفیس ها
+- *مثال* *4:* اجرای اینترفیس های نوع خارجی و داخلی
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+** مکانیک‌های واردکردن
+
+این مثال اول واردکردن را نشان نمی‌دهد، فقط تعریف دو نوع ساختاری است که به عنوان یک فیلد از یک نوع به نوع دیگر کار می‌کنند.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        person user        // NOT Embedding
+        level  string
+    }
+
+این واردکردن است.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        user               // Value Semantic Embedding
+        level  string
+    }
+
+فیلد شخص حذف شده و فقط نام نوع باقی مانده است. همچنین می‌توانید از نحوه‌های اشاره‌گری برای واردکردن یک نوع استفاده کنید.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        *user              // Pointer Semantic Embedding
+        level  string
+    }
+
+در این مورد، یک اشاره‌گر از نوع وارد شده است. در هر دو مورد، دسترسی به مقدار واردشده از طریق استفاده از نام نوع انجام می‌شود.
+
+بهترین راه برای درک واردکردن این است که نوع کاربر را به عنوان یک نوع داخلی و admin را به عنوان یک نوع خارجی در نظر بگیرید. این رابطه نوع داخلی/خارجی دقیقاً آن چیزی است که جادویی است، زیرا با واردکردن، همه چیز مرتبط با نوع داخلی (هم فیلدها و هم متدها) می‌توانند به نوع خارجی ارتقاء یابند.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    type admin struct {
+        *user              // Pointer Semantic Embedding
+        level  string
+    }
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Outer type promotion
+    }
+
+خروجی:
+
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
+
+هنگامی که یک متد با نام notify به نوع کاربر اضافه می‌کنید و سپس یک تابع اصلی کوچک ایجاد می‌کنید، می‌بینید که خروجی یکسان است، بگیرید که متد notify را از طریق مقدار اشاره‌گر داخلی مستقیماً فراخوانی کنید یا از طریق مقدار نوع خارجی. متد notify که برای نوع کاربر اعلام شده است، به طور مستقیم توسط مقدار نوع admin قابل دسترسی است.
+
+اگرچه این مانند ارث‌بری به نظر می‌رسد، باید مراقب باشید. این موضوع درباره بازاستفاده از وضعیت نیست، بلکه درباره ارتقاء رفتار است.
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+اکنون شما یک رابط و یک تابع چندشکلی اضافه می‌کنید که هر مقدار محسوسی را که مجموعه کامل متدهای رفتار تعریف شده توسط رابط notifier پیاده‌سازی کند، قبول می‌کند. که فقط یک متد به نام notify است.
+
+به دلیل واردکردن و ارتقاء، مقادیر نوع admin اکنون رابط notifier را پیاده‌سازی می‌کنند.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+خروجی:
+
+    ارسال ایمیل کاربر به john smith <john@yahoo.com>
+
+شما می‌توانید آدرس مقدار admin را به تابع چندشکلی بفرستید، چرا که واردکردن رفتار notify را تا نوع admin ارتقاء می‌دهد.
+
+    type admin struct {
+        *user  // Pointer Semantic Embedding
+        level  string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+زمانی که نوع خارجی یک متد را که قبلاً توسط نوع داخلی پیاده‌سازی شده است، پیاده‌سازی می‌کند، ارتقاء انجام نمی‌شود.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+خروجی:
+
+    ارسال ایمیل ادمین به john smith <john@yahoo.com>
+
+می‌بینید که متد نوع خارجی اکنون اجرا می‌شود.
+
+** یادداشت‌ها
+
+- انواع واردکردن به ما اجازه می‌دهند تا وضعیت یا رفتار را بین انواع به اشتراک بگذاریم.
+- نوع داخلی هیچ‌گاه هویت خود را از دست نمی‌دهد.
+- این ارث‌بری نیست.
+- از طریق ارتقاء، فیلدها و متدهای نوع داخلی از طریق نوع خارجی قابل دسترسی هستند.
+- نوع خارجی می‌تواند رفتار نوع داخلی را نادیده بگیرد.
+
+** مطالعه اضافی
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+
+* تمرین‌ها
+
+از الگو به عنوان نقطه شروع برای انجام تمرین‌ها استفاده کنید. یک راه‌حل ممکن ارائه شده است.
+
+** تمرین 1
+
+کد را از الگو ویرایش کنید. یک نوع جدید به نام CachingFeed اضافه کنید که Feed را به عنوان یک نوع داخلی شامل می‌شود و متد Fetch را تغییر می‌دهد.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go
