@@ -51,11 +51,6 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.engContent); err != nil {
 			log.Println(err)
 		}
-	case "/tour/rus/":
-		log.Println("render russian tour")
-		if err := renderUI(w, rot.rusContent); err != nil {
-			log.Println(err)
-		}
 	case "/tour/grc/":
 		log.Println("render greek tour")
 		if err := renderUI(w, rot.grcContent); err != nil {
@@ -74,6 +69,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "/tour/pol/":
 		log.Println("render polish tour")
 		if err := renderUI(w, rot.polContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/rus/":
+		log.Println("render russian tour")
+		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
 		}
 	default:
