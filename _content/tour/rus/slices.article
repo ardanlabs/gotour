@@ -1,29 +1,29 @@
-Slices
-Slices are an incredibly important data structure in Go. They form the basis for how we manage and manipulate data in a flexible, performant, and dynamic way. It's very beneficial for all Go programmers to learn how slices work, and how to use them.
+Срезы
+Срезы - чрезвычайно важная структура данных в Go. Они лежат в основе гибкого, эффективного и динамичного управления и манипулирования данными. Всем программистам Go очень полезно знать, как работают срезы и как ими пользоваться.
 
-* Slices
+* Срезы
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-Slices are an incredibly important data structure in Go. They form the basis for
-how we manage and manipulate data in a flexible, performant, and dynamic way. It's
-very beneficial for all Go programmers to learn how slices work, and how to use them.
+Срезы - чрезвычайно важная структура данных в Go. Они лежат в основе гибкого, эффективного и
+динамичного управления и манипулирования данными. Всем программистам Go очень полезно знать,
+как работают срезы и как ими пользоваться.
 
 .image /tour/eng/static/img/sl1.png
 
-** Code Review 
+** Обзор кода
 
-- *Example* *1:* Declare and Length
-- *Example* *2:* Reference Types
-- *Example* *3:* Appending slices
-- *Example* *4:* Taking slices of slices
-- *Example* *5:* Slices and References
-- *Example* *6:* Strings and slices
-- *Example* *7:* Variadic functions
-- *Example* *8:* Range mechanics
-- *Example* *9:* Efficient Traversals
-- *Example* *10:* Three index slicing
+- *Пример* *1:* Объявление и Длина
+- *Пример* *2:* Типы ссылок
+- *Пример* *3:* Добавление к срезам
+- *Пример* *4:* Создание срезов из срезов
+- *Пример* *5:* Срезы и ссылки
+- *Пример* *6:* Строки и срезы
+- *Пример* *7:* Функции с переменным числом параметров
+- *Пример* *8:* Механика функции `range`
+- *Пример* *9:* Эффективные Обходы
+- *Пример* *10:* Трёх-индексовые срезы
 
 .play slices/example1.go
 .play slices/example2.go
@@ -33,66 +33,67 @@ very beneficial for all Go programmers to learn how slices work, and how to use 
 .play slices/example6.go
 .play slices/example7.go
 .play slices/example8.go
-.play slices/example9.go 
+.play slices/example9.go
 .play slices/example10.go
 
-** Slice Construction
+** Создание среза
 
-Constructing a slice can be done in several ways.
+Создание среза можно выполнить несколькими способами.
 
-    // Slice of string set to its zero value state.
+    // Срез строк, установленный в состояние нулевого значения.
     var slice []string
 
-    // Slice of string set to its empty state.
+    // Пустой срез строк.
     slice := []string{}
 
-    // Slice of string set with a length and capacity of 5.
+    // Срез строк длиной и ёмкостью 5.
     slice := make([]string, 5)
 
-    // Slice of string set with a length of 5 and capacity of 8.
+    // Срез строк, длиной 5 и ёмкостью 8.
     slice := make([]string, 5, 8)
 
-    // Slice of string set with values with a length and capacity of 5.
+    // Срез строк со значениями - длиной и ёмкостью 5.
     slice := []string{"A", "B", "C", "D", "E"}
 
-You can see the built-in function make allows me to pre-allocate both length and
-capacity for the backing array. If the compiler knows the size at compile time,
-the backing array could be constructed on the stack.
+Как вы видите, встроенная функция make позволяет предварительно выделить как длину,
+так и ёмкость базового массива. Если компилятор знает размер на этапе компиляции,
+базовый массив может быть создан в стеке.
 
-** Slice Length vs Capacity
+** Длина среза по сравнению с ёмкостью
 
-The length of a slice represents the number of elements that can be read and
-written to. The capacity represents the total number of elements that exist
-in the backing array from that pointer position.
+Длина среза представляет количество элементов, которые можно читать и записывать.
+Ёмкость представляет общее количество элементов, которые существуют в базовом массиве
+с определённой позиции указателя.
 
-Because of syntactic sugar, slices look and feel like an array.
+Из-за синтаксического сахара срезы выглядят и ощущаются как массивы.
 
     slice := make([]string, 5)
-    slice[0] = "Apple"
-    slice[1] = "Orange"
-    slice[2] = "Banana"
-    slice[3] = "Grape"
-    slice[4] = "Plum"
+    slice[0] = "Яблоко"
+    slice[1] = "Апельсин"
+    slice[2] = "Банан"
+    slice[3] = "Виноград"
+    slice[4] = "Слива"
 
-You can tell the difference between slice and array construction since an array
-has a known size at compile time and slices necessarily don’t.
+Вы можете отличить конструкцию среза и массива, так как у массива известный размер
+на этапе компиляции, в то время как для срезов это не обязательно.
 
-If you try to access an element beyond the slice’s length, you will get a runtime error.
+Если вы попытаетесь получить доступ к элементу за пределами длины среза,
+вы получите ошибку времени выполнения.
 
     slice := make([]string, 5)
     slice[5] = "Raspberry"
 
-Compiler Error:
+Ошибка компилятора:
 
     Error: panic: runtime error: index out of range slice[5] = "Runtime error"
 
-In this example, the length of the slice is 5 and I’m attempting to access the
-6th element, which does not exist.
+В этом примере длина среза составляет 5, и я пытаюсь получить доступ к 6-му элементу,
+который не существует.
 
-** Data Semantic Guideline For Slices
+** Семантическое руководство по данным для срезов
 
-As a guideline, if the data I’m working with is a slice, then use value semantics
-to move the data around my program. This includes declaring fields on a type. 
+В качестве руководства, если данные, с которыми вы работете, являются срезом, то используйте
+семантику значений для перемещения данных внутри программы. Это включает объявление полей в типе.
 
     func Foo(data []byte) []byte
 
@@ -102,17 +103,17 @@ to move the data around my program. This includes declaring fields on a type.
         Z []bool
     }
 
-This goes for all of Go’s internal data structures (slices, maps, channels, interfaces, and functions).
+Это относится ко всем внутренним структурам данных Go (срезам, картам, каналам, интерфейсам и функциям).
 
-One reason to switch to pointer semantics is if you need to share the slice for a
-decoding or unmarshaling operation. Using pointers for these types of operations
-are ok, but document this if it’s not obvious.
+Одна из причин перехода к семантике указателей - это необходимость передачи среза для декодирования
+или десериализации. Использование указателей для этих типов операций допустимо, но если это не очевидно,
+то это нужно документировать.
 
-** Contiguous Memory Layout
+** Смежная структура памяти
 
-The idea behind the slice is to have an array, which is the most efficient data
-structure as it relates to the hardware. However, you still need the ability to be
-dynamic and efficient with the amount of data you need at runtime and future growth.
+Идея среза заключается в использовании массива, который является наиболее эффективной структурой данных
+с точки зрения аппаратного обеспечения. Однако вам все равно нужно сохранять динамичность и эффективность
+принимая во внимание количество данных, необходимых на этапе выполнения и для будущего роста.
 
     func main() {
         slice := make([]string, 5, 8)
@@ -132,7 +133,7 @@ dynamic and efficient with the amount of data you need at runtime and future gro
         }
     }
 
-Output:
+Вывод:
 
     Length[5] Capacity[8]
     [0] 0xc00007e000 Apple
@@ -141,15 +142,14 @@ Output:
     [3] 0xc00007e030 Grape
     [4] 0xc00007e040 Plum
 
-The inspectSlice function shows how a slice does have a contiguous backing array
-with a predictable stride. It also shows how a slice has a length and capacity
-which may be different. Notice how the print function only iterates over the
-length of a slice.
+Функция inspectSlice показывает, что у среза есть смежный базовый массив с предсказуемым
+шагом. Она также показывает, что длина и ёмкость среза могут быть разными.
+Обратите внимание, как функция печати проходит только по длине среза.
 
-** Appending With Slices
+** Добавление к срезам
 
-The language provides a built-in function called append to add values to an
-existing slice.
+Язык Go предоставляет встроенную функцию под названием append для добавления значений
+к существующему срезу.
 
     var data []string
 
@@ -157,67 +157,64 @@ existing slice.
         data = append(data, fmt.Sprintf("Rec: %d", record))
     }
 
-The append function works with a slice even when the slice is initialized to its
-zero value state. The API design of append is what’s interesting because it uses
-value semantic mutation. Append gets its own copy of a slice value, it mutates its
-own copy, then it returns a copy back to the caller.
+Функция append работает со срезом, даже когда срез инициализирован в нулевое состояние.
+Интересным является дизайн API append, потому что он использует семантику значений мутации.
+Append получает свою собственную копию значения среза, он изменяет свою собственную копию,
+а затем возвращает копию обратно вызывающей стороне.
 
-Why is the API designed this way? This is because the idiom is to use value semantics
-to move a slice value around a program. This must still be respected even with a
-mutation operation. Plus, value semantic mutation is the safest way to perform mutation
-since the mutation is being performed on the function’s own copy of the data in isolation.
+Почему API разработан таким образом? Это потому, что идиома состоит в использовании семантики
+значений для передвижения значения среза внутри программы. Это необходимо иметь ввиду,
+даже при операции мутации. Кроме того, семантика мутации значений является самым безопасным
+способом выполнения мутации, поскольку мутация выполняется на собственной копии данных в рамках функции.
 
-Append always maintains a contiguous block of memory for the slice’s backing array,
-even after growth. This is important for the hardware.
+Append всегда сохраняет непрерывный блок памяти для базового массива среза, даже после увеличения.
+Это важно для аппаратного обеспечения.
 
 .image /tour/eng/static/img/sl2.png
 
-Every time the append function is called, the function checks if the length and
-capacity of the slice is the same or not. If it’s the same, it means there is no
-more room in the backing array for the new value. In this case, append creates a
-new backing array (doubling or growing by 25%) and then copies the values from the
-old array into the new one. Then the new value can be appended.
+Каждый раз, когда вызывается функция append, функция проверяет, совпадают длина и ёмкость среза
+или нет. Если они одинаковы, это означает, что для нового значения нет места в базовом массиве.
+В этом случае append создает новый базовый массив (удваивая или увеличивая на 25%), а затем
+копирует значения из старого в новый. После этого новое значение может быть добавлено.
 
 .image /tour/eng/static/img/sl3.png
 
-If it’s not the same, it means that there is an extra element of capacity existing
-for the append. An element is taken from capacity and added to the length of the
-slice. This makes an append operation very efficient.
+Если они не совпадают, это означает, что в массиве есть достаточно ёмкости для добавления
+дополнительного элемента. Одино место из резервной ёмкости используется для добавления значения
+к длине среза. Это делает операцию append очень эффективной.
 
-When the backing array has 1024 elements of capacity or less, new backing arrays
-are constructed by doubling the size of the existing array. Once the backing array
-grows past 1024 elements, growth happens at 25%. 
+Пока ёмкость базового массива не превышает 1024 элементов, новые базовые массивы конструируются,
+удваивая размер существующего массива. После того как базовый массив превысит 1024 элемента,
+увеличение происходит на 25%.
 
-*NOTE:* *How* *the* *append* *function* *grows* *the* *capacity* *of* *the*
-*backing* *array* *has* *changed* *since* *Go* *1.18.*
+*ЗАМЕЧАНИЕ:* *То* *как* *функция* *append* *изменяет* *емкость* *исходного* *массива,*
+*изменилось* *с* *версии* *Go* *1.18.*
 
 - [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
 
-** Slicing Slices
+** Создание срезов из срезов
 
-Slices provide the ability to avoid extra copies and heap allocations of the backing
-array when needing to isolate certain elements of the backing array for different
-operations.
+Срезы дают возможность избежать дополнительного копированя и выделения памяти
+для основного массива, когда нужно выделить определенные элементы основного массива
+для различных операций.
 
-The slicing syntax represents the list notation [a:b) which means, include
-elements from index a through b, but not including b.
+Синтаксис срезов можно записать следующим образом [a:b), что означает включить элементы
+с индекса a до b, но не включая b.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
 
-The variable slice2 is a new slice value that is now sharing the same backing
-array that slice1 is using. However, slice2 only allows you to access the elements
-at index 2 and 3 (C and D) of the original slice’s backing array. The length of
-slice2 is 2 and not 5 like in slice1 and the capacity is 3 since there are now
-3 elements from that pointer position.
+Переменная slice2 - это новое значение среза, которое сейчас разделяет тот же исходный
+массив, что и slice1. Однако slice2 позволяет обращаться только к элементам с индексами
+2 и 3 (C и D) исходного массива среза. Длина slice2 равна 2, а не 5, как в slice1, а
+емкость равна 3, так как сейчас есть 3 элемента с этой позиции указателя.
 
 .image /tour/eng/static/img/sl4.png
 
-A better way to think about slicing is to focus on the length using this notation
-[a:a+len]  index a through a plus the length. This will reduce errors in
-calculating new slices.
+Лучше всего думать о срезе, фокусируясь на длине с помощью следующей нотации
+[a:a+len] - индекс `a` плюс длина.
 
-Using this inspect function.
+Используя функцию inspect:
 
     func inspectSlice(slice []string) {
         fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
@@ -229,14 +226,14 @@ Using this inspect function.
         }
     }
 
-You can see this in action.
+Вы можете увидеть это в действии:
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -245,21 +242,21 @@ Output:
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
     Length[2] Capacity[3]
-    [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
-    [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
+    [0] 0xc00007e020 C     <-- ТОТ ЖЕ ИНДЕКС, ЧТО И 2 В СРЕЗЕ 1
+    [1] 0xc00007e030 D     <-- ТОТ ЖЕ ИНДЕКС, ЧТО И 3 В СРЕЗЕ 1
 
-Notice how the two different slices are sharing the same backing array. You can
-see this by comparing addresses.
+Обратите внимание, что два разных среза используют один и тот же исходный массив.
+В этом можно убедиться, сравнив адреса.
 
-The nice thing here is there are no allocations. The compiler knows the size of
-the backing array for slice1 at compile time. Passing a copy of the slice value
-down into the inspectSlice function keeps everything on the stack.
+Здесь хорошо то, что не происходит выделения памяти на куче. Компилятор знает размер
+исходного массива для slice1 на этапе компиляции. Передача копии значения среза
+в функцию inspectSlice позволяет хранить все значения на стеке.
 
-** Mutations To The Backing Array
+** Изменения исходного массива
 
-When you use slice2 to change the value of the string at index 0, any slice value
-that is sharing the same backing array (where the address for that index is part
-of that slice’s length) will see the change.
+Когда вы используете slice2 для изменения значения строки по индексу 0, любое значение
+среза, которое использует тот же исходный массив (где адрес для этого индекса является
+частью длины среза), увидит изменение.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -267,7 +264,7 @@ of that slice’s length) will see the change.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -279,12 +276,12 @@ Output:
     [0] 0xc00007e020 CHANGED
     [1] 0xc00007e030 D
 
-You always have to be aware when you are modifying a value at an index position if
-the backing array is being shared with another slice.
+Важно всегда сохранять бдительность, при изменении значений посредством индексов,
+в ситуациях когда исходный массив используется другим срезом.
 
 .image /tour/eng/static/img/sl5.png
 
-What if you use the built-in function append instead?
+Что если вы вместо этого используете встроенную функцию append?
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
@@ -292,7 +289,7 @@ What if you use the built-in function append instead?
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -305,22 +302,21 @@ Output:
     [1] 0xc00007e030 D
     [2] 0xc00007e040 CHANGED
 
-The append function creates the same side effect, but it’s hidden. In this case,
-bringing in more length from capacity for slice2 has caused the value at address
-0xc00007e040 to be changed. Unfortunately, slice1 had this address already as
-part of its length.
+Функция append создает тот же побочный эффект, но он скрыт. В этом случае,
+увеличение длины slice2 за счёт емкости привело к изменению значения
+по адресу 0xc00007e040. К сожалению, slice1 уже использовал этот адрес в своей длине.
 
 .image /tour/eng/static/img/sl6.png
 
-One way to avert the side effect is to use a three index slice when constructing
-slice2 so the length and capacity is the same at 2.
+Один из способов избежать побочного эффекта - создании slice2 используя нотацию среза
+с тремя индексами, чтобы длина и емкость были одинаковыми на уровне 2.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -332,11 +328,11 @@ Output:
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
-The syntax for a three index slice is [a:b:c] when b and c should be the same
-since [a-b] sets the length and [a-c] sets the capacity. Now the length and
-capacity of slice2 is the same.
+Трёх-индексовый синтаксис для создания среза [a:b:c], когда b и c должны быть одинаковы,
+так как [a-b] задает длину и [a-c] задает емкость. Теперь длина и емкость
+slice2 одинаковы.
 
-Now you use the built-in function append again like before.
+Теперь снова используйте встроенную функцию append:
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4:4]
@@ -344,7 +340,7 @@ Now you use the built-in function append again like before.
     inspectSlice(slice1)
     inspectSlice(slice2)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00007e000 A
@@ -357,18 +353,18 @@ Output:
     [1] 0xc000016090 D
     [2] 0xc0000160a0 CHANGED
 
-Notice after the call to append, slice2 has a new backing array.
+Обратите внимание, после вызова append, у slice2 появился новый исходный массив.
 
 .image /tour/eng/static/img/sl7.png
 
-This can be seen by comparing the addresses of each slice. In this case, the
-mutation against slice2 didn’t cause a side effect against slice1.
+Это видно при сравнении адресов срезов. В этом случае изменение значений
+в slice2 не вызвала побочного эффекта для slice1.
 
-** Copying Slices Manually
+** Ручное копирование срезов
 
-There is a built-in function named copy that will allow for the shallow copying
-of slices. Since a string has a backing array of bytes that are immutable, it
-can be used as a source but never a destination.
+Есть встроенная функция copy, которая позволяет выполнять поверхностное копирование
+срезов. Так как строка имеет исходный массив байтов, которые неизменны, она
+может использоваться в качестве источника, но не приёмника.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice3 := make([]string, len(slice1))
@@ -377,7 +373,7 @@ can be used as a source but never a destination.
     inspectSlice(slice1)
     inspectSlice(slice3)
 
-Output:
+Вывод:
 
     Length[5] Capacity[5]
     [0] 0xc00005c050 A
@@ -392,18 +388,18 @@ Output:
     [3] 0xc00005c0d0 D
     [4] 0xc00005c0e0 E
 
-As long as the destination slice has the proper type and length, the built-in
-function copy can perform a shallow copy.
+Пока у приёмника есть правильный тип и длина, встроенная функция copy может
+выполнить поверхностное копирование.
 
-** Slices Use Pointer Semantic Mutation
+** Срезы используют мутацию семантики указателя
 
-It’s important to remember that even though you use value semantics to move a slice
-around the program, when reading and writing a slice, You are using pointer semantics.
-Sharing individual elements of a slice with different parts of my program can
-cause unwanted side effects.
+Важно помнить, что даже если вы используете семантику значения для перемещения
+среза по программе, при чтении и записи среза вы используете семантику указателя.
+Совместное использование отдельных элементов среза различными частями программы может
+привести к нежелательным побочным эффектам.
 
-    // Construct a slice of 1 user, set a pointer to that user,
-    // use the pointer to update likes.
+    // Создаём срез для 1 user, устанавливаем указатель на этого пользователя,
+    // используем указатель для обновления лайков.
 
     users := make([]user, 1)
     ptrUsr0 := &users[0]
@@ -417,17 +413,17 @@ Output:
 
     User: 0 Likes: 1
 
-A slice is used to maintain a collection of users. Then a pointer is set to the
-first user and used to update likes. The output shows that using the pointer is
-working.
+Слайс используется для хранения коллекции пользователей. Затем указатель устанавливается
+на первого пользователя и используется для обновления лайков. Результат показывает,
+что использование указателя работает.
 
 .image /tour/eng/static/img/sl8.png
 
-Then a new user is appended to the collection and the pointer is used again to
-add a like to the first user. 
+Затем к коллекции добавляется новый пользователь, и указатель снова используется для
+добавления лайка первому пользователю.
 
-    // Append a new user to the collection. Use the pointer again
-    // to update likes.
+    // Добавить нового пользователя в коллекцию. Снова используйте указатель
+    // для обновления лайков.
 
     users = append(users, user{})
     ptrUsr0.likes++
@@ -441,23 +437,22 @@ Output:
     User: 0 Likes: 1
     User: 1 Likes: 0
 
-However, since the append function replaced the backing array with a new one,
-the pointer is updating the old backing array and the likes are lost. The output
-shows the likes for the first user did not increase.
+Однако, поскольку функция append заменила базовый массив на новый, указатель
+обновляет старый базовый массив, и лайки теряются. Результат показывает, что
+лайки первого пользователя не увеличились.
 
 .image /tour/eng/static/img/sl9.png
 
-You have to be careful to know if a slice is going to be used in an append operation
-during the course of a running program. How you share the slice needs to be
-considered. Sharing individual indexes may not be the best idea. Sharing an
-entire slice value may not work either when appending is in operation. Probably
-using a slice as a field in a struct, and sharing the struct value is a better
-way to go.
+Нужно быть осторожным и знать, будет ли слайс использоваться в операции добавления (append)
+во время работы программы. Необходимо обдумать, как вы делитесь слайсом. Делиться отдельными
+индексами может быть не лучшей идеей. Даже делиться значением целого слайса может не работать,
+когда выполняется добавление. Вероятно, лучший способ - использовать слайс как поле в структуре
+и делиться значением структуры.
 
-** Linear Traversal Efficiency
-The beauty of a slice is its ability to allow for performing linear traversals
-that are mechanically sympathetic while sharing data using value semantics to
-minimize heap allocations.
+** Эффективность линейного обхода
+Прелесть слайса заключается в его способности выполнять линейные обходы, которые
+механически симпатичны при использовании семантики значений для минимизации выделения
+памяти в куче.
 
     x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
 
@@ -468,46 +463,46 @@ minimize heap allocations.
 
     println(a, b, c, d)
 
-The code is performing a linear traversal by creating slice values that read
-different sections of the byte array from beginning to end.
+Код выполняет линейный обход, создавая значения слайсов, которые считывают разные секции
+байтового массива от начала до конца.
 
 .image /tour/eng/static/img/sl10.png
 
-All the data in this code stays on the stack. No extra copies of the data inside
-the byte slice are copied.
+Весь код в этом примере остается в стеке. Дополнительные копии данных внутри байтового слайса
+не создаются.
 
-** Notes
+** Примечания
 
-- Slices are like dynamic arrays with special and built-in functionality.
-- There is a difference between a slices length and capacity and they each service a purpose.
-- Slices allow for multiple "views" of the same underlying array.
-- Slices can grow through the use of the built-in function append.
+- Слайсы похожи на динамические массивы с особым встроенным функционалом.
+- Есть разница между длиной и ёмкостью слайса, и каждый из них выполняет свою функцию.
+- Слайсы позволяют создавать несколько "видов" одного базового массива.
+- Слайсы могут увеличиваться с помощью встроенной функции append.
 
-** Extra Reading
+** Дополнительное чтение
 
-- [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
-- [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
-- [[https://blog.golang.org/slices][Arrays, slices (and strings): The mechanics of 'append']] - Rob Pike        
-- [[https://www.ardanlabs.com/blog/2013/08/understanding-slices-in-go-programming.html][Understanding Slices in Go Programming]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/08/collections-of-unknown-length-in-go.html][Collections Of Unknown Length in Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html][Iterating Over Slices In Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/09/slices-of-slices-of-slices-in-go.html][Slices of Slices of Slices in Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/12/three-index-slices-in-go-12.html][Three-Index Slices in Go 1.2]] - William Kennedy    
-- [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
-- [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
-			 
-* Exercises
+- [[https://blog.golang.org/go-slices-usage-and-internals][Использование и внутренности слайсов в Go]] - Эндрю Герранд
+- [[https://blog.golang.org/strings][Строки, байты, руны и символы в Go]] - Роб Пайк
+- [[https://blog.golang.org/slices][Механика функции 'append': массивы, слайсы (и строки) в Go]] - Роб Пайк
+- [[https://www.ardanlabs.com/blog/2013/08/understanding-slices-in-go-programming.html][Понимание слайсов в программировании на Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2013/08/collections-of-unknown-length-in-go.html][Коллекции неизвестной длины в Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html][Итерирование по слайсам в Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2013/09/slices-of-slices-of-slices-in-go.html][Слайсы слайсов в Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2013/12/three-index-slices-in-go-12.html][Трехиндексные слайсы в Go 1.2]] - Уильям Кеннеди
+- [[https://github.com/golang/go/wiki/SliceTricks][Фокусы со Слайсами]]
+- [[https://go-review.googlesource.com/c/go/+/347917][Среда выполнения: Сглаживание формулы роста слайсов]] - Команда Go
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+* Упражнения
 
-** Exercise 1
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Здесь представлен возможный вариант решения.
 
-*Part* *A:* Declare a nil slice of integers. Create a loop that appends 10 values
-to the slice. Iterate over the slice and display each value.
+** Упражнение 1
 
-*Part* *B:* Declare a slice of five strings and initialize the slice with string
-literal values. Display all the elements. Take a slice of index one and two and
-display the index position and value of each element in the new slice.
+*Часть* *А:* Объявите пустой слайс целых чисел. Создайте цикл, который добавляет 10 значений в слайс.
+Проитерируйте по слайсу и отобразите каждое значение.
 
-.play slices/exercise1.go		  
+*Часть* *Б:* Объявите слайс из пяти строк и инициализируйте его строковыми литералами.
+Отобразите все элементы. Возьмите слайс с индексами один и два и отобразите позицию индекса
+и значение каждого элемента в новом слайсе.
+
+.play slices/exercise1.go
 .play slices/answer1.go
