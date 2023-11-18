@@ -117,7 +117,6 @@ func Main() {
 
 	rusUIContent, rusIndex := addLanguage("tour/rus/")
 	defer rusIndex.Close()
-
 	// -------------------------------------------------------------------------
 	// Start Web Service
 
