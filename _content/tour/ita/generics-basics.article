@@ -1,14 +1,14 @@
-Basics
-Learn how to write a basic generic print function.
+Basi
+Impara come scrivere una funzione base di stampa generica.
 
-* Generics - Basics
+* Generics - Basi
 
-Learn how to write a basic generic print function.
+Impara come scrivere una funzione base di stampa generica.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Guarda il discorso che ho tenuto sui Generic che ti guida attraverso tutti gli
+esempi in questa sezione del Tour.
 
 .html generics-video.html
 
@@ -24,10 +24,10 @@ examples in this section of the Tour.
 .play generics/basics/example3.go
 .play generics/basics/example4.go
 
-** Explained
+** Spiegazione
 
-If you want to write a single print function that can output a slice of any given type
-and not use reflection, you can use the new generics syntax.
+Se vuoi scrivere una singola funzione di stampa in grado di produrre una sezione di qualsiasi tipo
+e non usare la reflection, puoi usare la nuova sintassi dei generics.
 
     func print[T any](slice []T) {
         fmt.Print("Generic: ")
@@ -39,32 +39,33 @@ and not use reflection, you can use the new generics syntax.
         fmt.Print("\n")
     }
 
-This is an implementation of a single print function that can output a slice of any
-given type using the new generics syntax. What’s nice about this syntax is that the
-code inside the function can use syntax and built-in functions that would work with
-a concrete type. This is not the case when you use the empty interface to write generic
-code.
+Si tratta di un'implementazione di una singola funzione di stampa che può produrre
+una sezione di qualsiasi tipo utilizzando la nuova sintassi dei Generics.
+La cosa bella di questa sintassi è che il codice all'interno della funzione può utilizzare
+sintassi e funzioni integrate che funzionerebbero con un tipo concreto.
+Questo non è il caso quando si utilizza l'interfaccia vuota per scrivere codice generico.
 
-There needs to be a way to tell the compiler that you won’t be declaring type T explicitly, but it
-has to be determined by the compiler at compile time. The new syntax uses square
-brackets for this. The brackets define a list of generic type identifiers that represent
-types specific to the function that need to be determined at compile time. It’s how you
-tell the compiler that types with these names won’t be declared before the program
-is compiled. These types need to be figured out at compile time.
+Deve esserci un modo per dire al compilatore che non dichiarerai esplicitamente il tipo T,
+ma deve essere determinato dal compilatore in fase di compilazione.
+La nuova sintassi utilizza le parentesi quadre per questo.
+Le parentesi definiscono un elenco di identificatori di tipo generico che rappresentano
+tipi specifici della funzione che devono essere determinati in fase di compilazione.
+È così che tu comunichi al compilatore che i tipi con questi nomi non verranno dichiarati
+prima che il programma venga compilato. Questi tipi devono essere individuati in fase di compilazione.
 
-Note: You can have multiple type identifiers defined inside the brackets though the
-current example is only using one. Ex. [T, S, R any]
+Nota: è possibile definire più identificatori di tipo all'interno delle parentesi tramite
+l'esempio corrente è usato solo uno. Es. [T, S, R any]
 
-You can name these type identifiers anything you want to help with the readability of the
-code. In this case, the code is using the capital letter T to describe that a slice of some type
-T (to be determined at compile time) will be passed in. It's an idiom to use a single
-capitalized letters when it comes to collections and it’s also a convention that goes
-back to older programming languages like C++ and Java.
+Puoi nominare questi identificatori di tipo come preferisci per facilitare la leggibilità del
+codice. In questo caso, il codice utilizza la lettera maiuscola T per descrivere uno slice di qualche tipo
+Verrà passato T (da determinare in fase di compilazione). È un idioma usare una singola
+lettera maiuscola quando si tratta di collezioni ed è anche una convenzione che viene dai
+linguaggi di programmazione più vecchi come C++ e Java.
 
-There is the use of the word any inside the brackets as well. This represents a
-constraint on what type T can be. The compiler requires that all generic types have
-a well defined constraint. The any constraint is predeclared by the compiler and
-states there are no constraints on what type T can be.
+C'è anche l'uso della parola any all'interno delle parentesi.
+Ciò rappresenta un vincolo su quale tipo T può essere.
+Il compilatore richiede che tutti i tipi generici abbiano un vincolo ben definito.
+Il vincolo any è pre dichiarato dal compilatore e afferma che non ci sono vincoli su quale tipo T può essere.
 
     numbers := []int{1, 2, 3}
     print[int](numbers)
@@ -75,14 +76,15 @@ states there are no constraints on what type T can be.
     floats := []float64{1.7, 2.2, 3.14}
     print[float64](floats)
 
-This is how to make calls to the generic print function where the type information
-for T is explicitly provided at the call site. The syntax emulates the idea that the
-function declaration func name[T any](slice []T) defines two sets of parameters.
-The first set is the type that maps to the corresponding type identifiers, and the
-second is the data that maps to the corresponding input variables.
+Ecco come effettuare chiamate alla funzione print generica in cui si trovano le informazioni
+sul tipo T esplicitamente fornito al momento della chiamata.
+La sintassi emula l'idea che la dichiarazione di func name[T any](slice []T)
+definisce due insiemi di parametri.
+Il primo set è il tipo mappato dagli identificatori di tipo corrispondenti,
+il secondo sono i dati che vengono mappati alle variabili di input corrispondenti.
 
-Luckily, the compiler can infer the type and eliminate the need to explicitly pass in
-the type information at the call site.
+Fortunatamente, il compilatore può dedurre il tipo ed eliminare la necessità di passare esplicitamente
+le informazioni al momento della chiamata.
 
     numbers := []int{1, 2, 3}
     print(numbers)
@@ -93,22 +95,23 @@ the type information at the call site.
     floats := []float64{1.7, 2.2, 3.14}
     print(floats)
 
-This code shows how you can call the generic print functions without the need to pass
-the type information explicitly. At the function call site, the compiler is able to
-identify the type to use for T and construct a concrete version of the function to
-support slices of that type. The compiler has the ability to infer the type with the
-information it has at the call site from the data being passed in.
+Questo codice mostra come chiamare le funzioni di stampa generiche senza la necessità di passare
+le informazioni sul tipo in modo esplicito. Nel sito della chiamata di funzione,
+il compilatore è in grado di identificare il tipo da utilizzare per T
+e costruire una versione concreta della funzione per supportare slice di quel tipo.
+Il compilatore ha la capacità di dedurre il tipo con le informazioni in possesso
+al momento della chiamata derivanti dai dati passati.
 
-* Exercises
+* Esercizi
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
 
-** Exercise 1
+** Esercizio 1
 
-Implement a generic function named marshal that can accept any value and
-marshal that value into JSON, returning the JSON and an error. Declare
-a struct type named User with two fields, Name and Age. Then construct a
-value of the User type and pass the value to the generic marshal function.
+Implementa una funzione generica denominata marshal che può accettare qualsiasi valore e
+effettua il marshalling di quel valore in JSON, restituendo il JSON e un errore.
+Dichiara un tipo di struct denominato User con due campi, Name ed Age.
+Quindi costruisci il valore del tipo User e passa il valore alla funzione marshal generica.
 
 .play generics/basics/exercise1.go 
 .play generics/basics/answer1.go
