@@ -1,14 +1,14 @@
-Embedding
-Embedding types provide the final piece of sharing and reusing state and behavior between types.
+Incorporamento
+I tipi di incorporamento forniscono la parte finale della condivisione e del riutilizzo dello stato e del comportamento tra i tipi.
 
-* Embedding
+* Incorporamento
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
 
-Embedding types provide the final piece of sharing and reusing state and behavior
-between types. Through the use of inner type promotion, an inner type's fields and
-methods can be directly accessed by references of the outer type.
+I tipi di incorporamento forniscono la parte finale della condivisione e del riutilizzo dello stato
+e del comportamento tra i tipi. Attraverso l'uso della promozione del tipo interno,
+un tipo interno e un metodo possono accedere direttamente ai riferimenti del tipo esterno.
 
 ** Code Review
 
@@ -22,10 +22,10 @@ methods can be directly accessed by references of the outer type.
 .play embedding/example3.go		   
 .play embedding/example4.go
 
-** Embedding Mechanics
+** Meccanica incorporamento
 
-This first example does not show embedding, just the declaration of two struct
-types working together as a field from one type to the other.
+Questo primo esempio non mostra l'incorporamento, ma solo la dichiarazione di due tipi di struct
+che lavorano insieme come un campo da un tipo all'altro.
 
     type user struct {
         name  string
@@ -49,8 +49,8 @@ This is embedding.
         level  string
     }
 
-The person field is removed and just the type name is left. You can also embed a
-type using pointer semantics.
+Il campo persona viene rimosso e rimane solo il nome del tipo.
+È inoltre possibile incorporare un tipo utilizzando la semantica del puntatore.
 
     type user struct {
         name  string
@@ -62,13 +62,14 @@ type using pointer semantics.
         level  string
     }
 
-In this case, a pointer of the type is embedded. In either case, accessing the
-embedded value is done through the use of the type’s name.
+In questo caso viene incorporato un puntatore del tipo. In entrambi i casi,
+l’accesso al valore incorporato avviene tramite l’uso del nome del tipo.
 
-The best way to think about embedding is to view the user type as an inner type and
-admin as an outer type. It’s this inner/outer type relationship that is magical
-because with embedding, everything related to the inner type (both fields and methods)
-can be promoted up to the outer type. 
+Il modo migliore per pensare all'incorporamento è visualizzare il tipo utente come un tipo interno e
+l'amministratore come un tipo esterno. È questa relazione di tipo interno/esterno ad essere magica
+perché con l'incorporamento, tutto ciò che riguarda il tipo interno (sia i campi che i metodi)
+può essere promosso al tipo esterno.
+
 
     type user struct {
         name  string
@@ -104,13 +105,14 @@ Output:
     Sending user email To john smith<john@yahoo.com>
     Sending user email To john smith<john@yahoo.com>
 
-Once you add a method named notify for the user type and then a small main function.
-You can see the output is the same whether you call the notify method through the inner
-pointer value directly or through the outer type value. The notify method declared for
-the user type is accessible directly by the admin type value.
+Una volta aggiunto un metodo denominato notifica per il tipo user e quindi una piccola funzione main.
+Puoi vedere che l'output è lo stesso sia che chiami il metodo di notifica direttamente tramite il valore del puntatore interno
+o tramite il valore del tipo esterno. Il metodo di notifica dichiarato per il tipo user
+è accessibile direttamente dal valore del tipo admin.
 
-Though this looks like inheritance, you must be careful. This is not about reusing
-state, but about promoting behavior.
+Anche se sembra un'eredità, devi stare attento. Non si tratta di riutilizzare
+lo Stato, ma di promuovere il comportamento.
+
 
     type notifier interface {
         notify()
@@ -120,12 +122,12 @@ state, but about promoting behavior.
         n.notify()
     }
 
-Now you add an interface and a polymorphic function that accepts any concrete value
-that implements the full method set of behavior defined by the notifier interface.
-Which is just a method named notify.
+Ora aggiungi un'interfaccia e una funzione polimorfica che accetta qualsiasi valore concreto
+che implementa l'intero set di comportamenti definito dall'interfaccia notifier.
+Che è composta da un solo metodo chiamato notify.
 
-Because of embedding and promotion, values of type admin now implement the notifier
-interface.
+A causa dell'incorporamento e della promozione, i valori di tipo admin ora implementano l'interfaccia notifier.
+
 
     func main() {
         ad := admin{
@@ -143,8 +145,8 @@ Output:
 
     Sending user email To john smith<john@yahoo.com>
 
-You can send the address of the admin value into the polymorphic function since
-embedding promotes the notify behavior up to the admin type.
+Puoi inviare l'indirizzo del valore admin nella funzione polimorfica poiché
+l'incorporamento promuove il comportamento di notifica fino al tipo admin.
 
     type admin struct {
         *user  // Pointer Semantic Embedding
@@ -157,8 +159,9 @@ embedding promotes the notify behavior up to the admin type.
             a.email)
     }
 
-When the outer type implements a method already implemented by the inner type,
-the promotion doesn’t take place.
+Quando il tipo esterno implementa un metodo già implementato dal tipo interno,
+la promozione non ha luogo.
+
 
     func main() {
         ad := admin{
@@ -176,29 +179,29 @@ Output:
     
     Sending admin email To john smith<john@yahoo.com>
 
-You can see the outer type’s method is now being executed.
+Puoi vedere che il metodo del tipo esterno è ora in esecuzione.
 
-** Notes
+** Note
 
-- Embedding types allow us to share state or behavior between types.
-- The inner type never loses its identity.
-- This is not inheritance.
-- Through promotion, inner type fields and methods can be accessed through the outer type.
-- The outer type can override the inner type's behavior.
+- I tipi di incorporamento ci consente di condividere lo stato o il comportamento tra i tipi.
+- Il tipo interno non perde mai la sua identità.
+- Questa non è eredità.
+- Attraverso la promozione, i metodi del tipo interno possono essere acceduti tramite il tipo esterno.
+- Il tipo esterno può sovrascrivere il comportamento del tipo interno.
 
-** Extra Reading
+
+** Extra letture
 
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
 - [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
 
-* Exercises
+* Esercizi
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
 
-** Exercise 1
+** Esercizio 1
 
-Edit the code from the template. Add a new type CachingFeed which embeds Feed and
-overrides the Fetch method.
+Modifica il codice dal modello. Aggiungi un nuovo tipo CachingFeed che incorpora Feed e sovrascrive il metodo Fetch.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go
