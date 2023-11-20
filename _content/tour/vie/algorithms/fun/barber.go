@@ -53,7 +53,7 @@ type Shop struct {
 
 // OpenShop creates a new shop for business and gets the barber working.
 func OpenShop(maxChairs int) *Shop {
-	fmt.Println("Opening the shop")
+	fmt.Println("Mở cửa tiệm")
 
 	s := Shop{
 		chairs: make(chan customer, maxChairs),
@@ -66,7 +66,7 @@ func OpenShop(maxChairs int) *Shop {
 	go func() {
 		defer s.wgClose.Done()
 
-		fmt.Println("Barber ready to work")
+		fmt.Println("Thợ cắt tóc sẵn sàng làm việc")
 
 		for cust := range s.chairs {
 			s.serviceCustomer(cust)
@@ -97,8 +97,8 @@ func OpenShop(maxChairs int) *Shop {
 // Close prevents any new customers from entering the shop and waits for
 // the barber to finish all existing customers.
 func (s *Shop) Close() {
-	fmt.Println("Closing the shop")
-	defer fmt.Println("Shop closed")
+	fmt.Println("Tiệm ngừng nhận khách")
+	defer fmt.Println("Tiệm nghỉ")
 
 	// Mark the shop closed.
 	atomic.StoreInt32(&s.open, 0)
@@ -111,31 +111,31 @@ func (s *Shop) Close() {
 // =============================================================================
 
 func (s *Shop) serviceCustomer(cust customer) {
-	fmt.Printf("Barber servicing customer %q\n", cust.name)
+	fmt.Printf("Thợ cắt tóc phục vụ khách hàng %q\n", cust.name)
 
 	time.Sleep(time.Duration(rand.Intn(50)) * time.Millisecond)
 
-	fmt.Printf("Barber finished customer %q\n", cust.name)
+	fmt.Printf("Thợ cắt tóc cắt xong cho khách hàng %q\n", cust.name)
 
 	if len(s.chairs) == 0 && atomic.LoadInt32(&s.open) == 1 {
-		fmt.Println("Barber taking a nap")
+		fmt.Println("Thợ cắt tóc ngủ trưa")
 	}
 }
 
 func (s *Shop) newCustomer(name string) error {
 	if atomic.LoadInt32(&s.open) == 0 {
-		fmt.Printf("Customer %q leaves, shop closed\n", name)
+		fmt.Printf("Khách hàng %q rời đi, tiệm nghỉ\n", name)
 		return ErrShopClosed
 	}
 
-	fmt.Printf("Customer %q entered shop\n", name)
+	fmt.Printf("Khách hàng %q bước vào tiệm\n", name)
 
 	select {
 	case s.chairs <- customer{name: name}:
-		fmt.Printf("Customer %q takes a seat and waits\n", name)
+		fmt.Printf("Khách hàng %q ngồi vào ghế chờ\n", name)
 
 	default:
-		fmt.Printf("Customer %q leaves, no seat\n", name)
+		fmt.Printf("Khách hàng %q rời đi, không có ghế chờ\n", name)
 	}
 
 	return nil
