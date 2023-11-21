@@ -1,257 +1,257 @@
 Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
+Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglicht, zusammenhängende Blöcke mit fester Speichergröße zuzuweisen.
 
 * Arrays
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
+Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglicht, zusammenhängende
+Blöcke fester Größe zuzuweisen. Arrays haben in Go einige besondere Eigenschaften in Bezug auf
+wie sie deklariert und als Typen betrachtet werden.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
+- *Beispiel* *1:* Deklarieren, initialisieren und iterieren
+- *Beispiel* *2:* Arrays unterschiedlichen Typs
+- *Beispiel* *3:* Zusammenhängende Speicherzuweisungen
+- *Beispiel* *4:* Bereichsmechanik
 
 .play arrays/example1.go
 .play arrays/example2.go
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
+** Deklarieren und Initialisieren von Werten
 
-Declare an array of five strings initialized to its zero value state.
+Deklarieren Sie ein Array mit fünf Strings, die mit dem Wert Null initialisiert werden.
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
+Eine Zeichenkette ist eine unveränderliche Datenstruktur mit zwei Wörtern, die einen Zeiger auf ein
+Backing-Array von Bytes und die Gesamtzahl der Bytes im Backing-Array darstellt. Da
+dieses Array auf seinen Nullwertstatus gesetzt wird, wird jedes Element auf seinen Nullwert
+Zustand gesetzt. Das bedeutet, dass bei jeder Zeichenkette das erste Wort auf Null und das zweite
+Wort auf 0 gesetzt.
 
 .image /tour/eng/static/img/a1.png
 
-** String Assignments
+** String-Zuweisungen
 
-What happens when a string is assigned to another string?
+Was passiert, wenn eine Zeichenkette einer anderen Zeichenkette zugewiesen wird?
 
-    strings[0] = "Apple"
+    strings[0] = "Apfel"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
+Wenn eine Zeichenkette einer anderen Zeichenkette zugewiesen wird, wird der Zweiwortwert kopiert,
+was dazu führt, dass zwei verschiedene Zeichenkettenwerte das gleiche Backing-Array teilen.
 
 .image /tour/eng/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
+Die Kosten für das Kopieren einer Zeichenkette sind unabhängig von der Größe der Zeichenkette gleich, eine
+Zwei-Wort-Kopie.
 
-** Iterating Over Collections
+** Iteration über Sammlungen
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
+Go bietet zwei verschiedene Semantiken für die Iteration über eine Sammlung. Ich kann iterieren
+mit der Wert-Semantik oder der Zeiger-Semantik.
 
-    // Value Semantic Iteration
-    for i, fruit := range strings {
+    // Wertesemantische Iteration
+    for i, fruit := Bereich strings {
         println(i, fruit)
     }
 
 
-    // Pointer Semantic Iteration
-    for i := range strings {
+    // Semantische Iteration von Zeigern
+    for i := Bereich strings {
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
+Bei der Verwendung der wertesemantischen Iteration geschehen zwei Dinge. Erstens wird die Sammlung, über die ich
+über die ich iteriere, kopiert und Sie iterieren über diese Kopie. Im Falle eines Arrays kann die
+kann die Kopie teuer sein, da das gesamte Array kopiert wird. Im Falle eines Slice,
+gibt es keine wirklichen Kosten, da nur der interne Slice-Wert kopiert wird und nicht das
+Hintergrund-Array kopiert wird. Zweitens erhalten Sie eine Kopie von jedem Element, über das iteriert wird.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
+Bei der semantischen Iteration mit Zeigern iterieren Sie über die ursprüngliche Sammlung und I
+greifen direkt auf jedes mit der Sammlung verbundene Element zu.
 
-** Value Semantic Iteration
+** Wert Semantische Iteration
 
-Given the following code and output.
+Geben Sie den folgenden Code und die folgende Ausgabe ein.
 
-    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    strings := [5]string{"Apfel", "Orange", "Banane", "Traube", "Pflaume"}
     for i, fruit := range strings {
         println(i, fruit)
     }
 
-Output:
+Ausgabe:
 
-    0 Apple
+    0 Apfel
     1 Orange
-    2 Banana
-    3 Grape
-    4 Plum
+    2 Banane
+    3 Weintraube
+    4 Pflaume
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
+Die Variable strings ist ein Array mit 5 Zeichenketten. Die Schleife iteriert über jede Zeichenkette
+in der Sammlung und zeigt die Indexposition und den Wert der Zeichenkette an. Da dies
+wertesemantische Iteration ist, iteriert der for-Bereich über seine eigene flache Kopie
+des Arrays und bei jeder Iteration ist die Fruchtvariable eine Kopie jeder Zeichenkette
+(die Zwei-Wort-Datenstruktur).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes. 
+Beachten Sie, dass die Variable fruit mit Hilfe der Wertesemantik an die Druckfunktion übergeben wird.
+Die Druckfunktion erhält ebenfalls eine eigene Kopie des Zeichenkettenwerts. Zu dem Zeitpunkt
+die Zeichenkette an die Druckfunktion übergeben wird, gibt es 4 Kopien des Zeichenkettenwerts
+(Array, oberflächliche Kopie, Fruchtvariable und die Kopie der Druckfunktion). Alle 4 Kopien
+teilen sich dasselbe Backing-Array aus Bytes.
 
 .image /tour/eng/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
+Die Erstellung von Kopien des Zeichenkettenwerts ist wichtig, da sie verhindert, dass der Zeichenkettenwert
+nicht in den Heap entweicht. Dadurch wird eine unproduktive Zuweisung auf dem Heap vermieden.
 
-** Pointer Semantic Iteration
+** Semantische Iteration von Zeigern
 
-Given the following code and output.
+Geben Sie den folgenden Code und die folgende Ausgabe ein.
 
-    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    strings := [5]string{"Apfel", "Orange", "Banane", "Traube", "Pflaume"}
     for i := range strings {
         println(i, strings[i])
     }
 
-Output:
+Ausgabe:
 
-    0 Apple
+    0 Apfel
     1 Orange
-    2 Banana
-    3 Grape
-    4 Plum
+    2 Banane
+    3 Weintraube
+    4 Pflaume
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
+Auch hier ist die Variable strings ein Array mit 5 Zeichenketten. Die Schleife iteriert über
+jede Zeichenkette in der Sammlung und zeigt die Indexposition und den Wert der Zeichenkette an.
+Da es sich um eine semantische Iteration mit Zeigern handelt, iteriert der for-Bereich direkt über das
+Strings-Array und bei jeder Iteration wird für den Druckaufruf direkt auf den String-Wert für jede Indexposition
+Position direkt für den Druckaufruf abgerufen.
 
-** Different Type Arrays
+** Verschiedene Arten von Arrays
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
+Es ist interessant zu sehen, was der Compiler als Fehler meldet, wenn er
+Arrays desselben Typs, die unterschiedlich lang sind.
 
-    var five [5]int
-    four := [4]int{10, 20, 30, 40}
+    var fünf [5]int
+    vier := [4]int{10, 20, 30, 40}
 
-    five = four
+    fünf = vier
 
-Compiler Error:
+Compiler-Fehler:
 
-    cannot use four (type [4]int) as type [5]int in assignment
+    kann vier (Typ [4]int) nicht als Typ [5]int in einer Zuweisung verwenden
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
+Hier deklarieren Sie ein Array mit 4 und 5 Ganzzahlen, die mit dem Wert Null initialisiert sind.
+Dann versuchen Sie, sie einander zuzuweisen, und der Compiler sagt: "cannot use four
+(Typ [4]int) als Typ [5]int in Zuweisung".
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
+Es ist wichtig, dass Sie sich darüber im Klaren sind, was der Compiler sagt. Er sagt, dass ein
+Array aus 4 Ganzzahlen und ein Array aus 5 Ganzzahlen Daten unterschiedlichen Typs darstellen.
+Die Größe eines Arrays ist Teil der Typinformation. In Go muss die Größe eines Arrays
+zur Kompilierzeit bekannt sein.
 
-** Contiguous Memory Construction
+** Zusammenhängender Speicheraufbau
 
-You want to prove that an array provides a contiguous layout of memory.
+Sie wollen beweisen, dass ein Array ein zusammenhängendes Layout des Speichers bietet.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
     for i, v := range five {
-        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+        fmt.Printf("Wert[%s]\tAdresse[%p] IndexAddr[%p]\n",
             v, &v, &five[i])
     }
 
-Output:
+Ausgabe:
 
-    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
-    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
-    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
-    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
-    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+    Wert[Annie] Adresse[0xc000010250] IndexAddr[0xc000052180]
+    Wert[Betty] Adresse[0xc000010250] IndexAddr[0xc000052190]
+    Wert[Charley] Adresse[0xc000010250] IndexAddr[0xc0000521a0]
+    Wert[Doug] Adresse[0xc000010250] IndexAddr[0xc0000521b0]
+    Wert[Bill] Adresse[0xc000010250] IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
+Hier deklarieren Sie ein Array mit 5 Strings, die mit Werten initialisiert werden. Dann verwenden Sie value
+semantische Iteration, um Informationen über jede Zeichenkette anzuzeigen. Die Ausgabe zeigt
+die Adresse der Variablen v und die Adresse jedes Elements im Array.
+jedes Elements im Array.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
+Sie können sehen, dass das Array ein zusammenhängender Speicherblock ist und dass eine Zeichenkette eine Zwei
+Wort- oder 16-Byte-Datenstruktur auf meiner 64-Bit-Architektur ist. Die Adresse für jedes Element
+ist auf einem 16-Byte-Stride verteilt.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
+Die Tatsache, dass die Variable v bei jeder Iteration die gleiche Adresse hat, verstärkt das
+Verständnis, dass v eine lokale Variable vom Typ String ist, die eine Kopie jedes
+String-Wertes während der Iteration enthält.
 
-** CPU Caches
+** CPU-Caches
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
+Es gibt viele mechanische Unterschiede zwischen den Prozessoren und ihrem Design. In
+diesem Abschnitt werden Sie auf einer hohen Ebene über Prozessoren und die Semantik sprechen, die
+die bei allen relativ gleich ist. Dieses semantische Verständnis wird Ihnen
+ein gutes mentales Modell für die Funktionsweise des Prozessors und die Sympathie, die Sie ihm entgegenbringen können.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a 
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
+Jeder Kern innerhalb des Prozessors hat seinen eigenen lokalen Cache-Speicher (L1 und L2) und einen
+gemeinsamen Cache-Speicher (L3), in dem Daten und Befehle gespeichert und abgerufen werden. Die Hardware
+Threads in jedem Kern können auf ihre lokalen L1- und L2-Caches zugreifen. Daten aus L3 oder dem Hauptspeicher
+Speicher müssen für den Zugriff in den L1- oder L2-Cache kopiert werden.
 
 .image /tour/eng/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
+Die Latenzkosten für den Zugriff auf Daten, die sich in den verschiedenen Caches befinden, ändern sich von
+geringsten zu den höchsten: L1 -> L2 -> L3 -> Hauptspeicher. Wie Scott Meyers sagte: "Wenn Leistung
+zählt, dann ist die Gesamtmenge des Speichers die Gesamtmenge des Cache. Hauptspeicher
+Der Hauptspeicher ist so langsam, dass er praktisch gar nicht vorhanden ist."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
+Bei der Leistung geht es heute darum, wie effizient Daten durch die Hardware fließen. Wenn alle
+Daten, die die Hardware (zu einem bestimmten Zeitpunkt) benötigt, nur im Hauptspeicher vorhanden sind, werden meine
+Programme langsamer laufen, als wenn die Daten bereits in den L1- oder L2-Caches vorhanden sind.
 
-    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+    3GHz(3 Taktzyklen/ns) * 4 Anweisungen pro Zyklus = 12 Anweisungen pro ns!
 
-    1 ns ............. 1 ns .............. 12 instructions  (one) 
-    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
-    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
-    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+    1 ns ............. 1 ns .............. 12 Anweisungen (eine)
+    1 µs ......... 1.000 ns .......... 12.000 Anweisungen (tausend)
+    1 ms ..... 1.000.000 ns ...... 12.000.000 Befehle (Million)
+    1 s .. 1.000.000.000 ns .. 12.000.000.000 Befehle (Milliarde)
 
-    Industry Defined Latencies
-    L1 cache reference ......................... 0.5 ns ...................  6 ins
-    L2 cache reference ........................... 7 ns ................... 84 ins
-    Main memory reference ...................... 100 ns ................. 1200 ins
+    Von der Industrie definierte Latenzen
+    L1-Cache-Referenz ......................... 0,5 ns ...................  6 ns
+    L2-Cache-Referenz ........................... 7 ns ................... 84 ns
+    Hauptspeicher-Referenz ...................... 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache. 
+Wie schreibt man Code, der garantiert, dass die Daten, die zur Ausführung eines Befehls benötigt werden
+immer in den L1- oder L2-Caches vorhanden sind? Sie müssen einen Code schreiben, der mechanisch
+mit dem Prefetcher des Prozessors zusammenarbeitet. Der Prefetcher versucht vorherzusagen, welche
+vorhersagen, welche Daten benötigt werden, bevor die Befehle die Daten anfordern, so dass sie bereits entweder im
+dem L1- oder L2-Cache vorhanden sind.
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
+Es gibt verschiedene Granularitäten des Speicherzugriffs, je nachdem, wo der Zugriff erfolgt
+geschieht. Mein Code kann ein Byte Speicher als kleinste Einheit des Speicherzugriffs lesen/schreiben
+zugreifen. Aus der Sicht der Cache-Systeme beträgt die Granularität jedoch 64 Byte.
+Dieser 64-Byte-Block des Speichers wird als Cache-Zeile bezeichnet.
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
+Der Prefetcher funktioniert am besten, wenn die auszuführenden Anweisungen vorhersehbare
+Zugriffsmuster auf den Speicher erzeugen. Eine Möglichkeit, ein vorhersehbares Zugriffsmuster auf den Speicher zu erzeugen
+ist es, einen zusammenhängenden Speicherblock zu konstruieren und dann über diesen Speicher zu iterieren
+einen linearen Durchlauf mit einem vorhersagbaren Schritt durchzuführen.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
+Das Array ist die wichtigste Datenstruktur für die Hardware, da es
+vorhersehbare Zugriffsmuster unterstützt. Allerdings ist das Slice die wichtigste Datenstruktur
+in Go. Slices in Go verwenden ein darunter liegendes Array.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
+Sobald Sie ein Array aufgebaut haben, ist jedes Element gleich weit vom nächsten oder
+vorherigen Element. Wenn Sie über ein Array iterieren, beginnen Sie, Cache-Zeile für
+verbundene Cache-Zeile in einem vorhersehbaren Schritt. Der Prefetcher wird dieses
+vorhersehbaren Datenzugriffsmuster auf und beginnt, die Daten effizient in den Prozessor zu ziehen
+Prozessor zu ziehen und so die Latenzkosten für den Datenzugriff zu reduzieren.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
+Stellen Sie sich vor, Sie haben eine große quadratische Speichermatrix und eine verknüpfte Liste von Knoten, die der
+der Anzahl der Elemente in der Matrix entspricht. Wenn Sie einen Traversal über die verknüpfte
+Liste durchführen und dann die Matrix in beide Richtungen (Spalte und Zeile) durchlaufen, wie wird
+die Leistung der verschiedenen Traversals vergleichen?
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +265,9 @@ the performance of the different traversals compare?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed. 
+Row Traverse hat die beste Leistung, weil es den Speicher Cache
+Cache-Zeile für Cache-Zeile durchläuft, wodurch ein vorhersehbares Zugriffsmuster entsteht. Cache-Zeilen
+können im Voraus abgerufen und in den L1- oder L2-Cache kopiert werden, bevor die Daten benötigt werden.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,13 +281,13 @@ can be prefetched and copied into the L1 or L2 cache before the data is needed.
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
+Column Traverse ist um eine Größenordnung schlechter, weil dieses Zugriffsmuster
+bei jedem Speicherzugriff die OS-Seitengrenzen überquert. Dies führt zu keiner Vorhersagbarkeit
+für das Prefetching von Cache-Zeilen und wird im Wesentlichen zu einem Speicher mit wahlfreiem Zugriff.
 
     func LinkedListTraverse() int {
         var ctr int
-        d := list
+        d := Liste
         for d != nil {
             if d.v == 0xFF {
                 ctr++
@@ -297,132 +297,132 @@ for cache line prefetching and becomes essentially random access memory.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
+Die verknüpfte Liste ist doppelt so langsam wie die Zeilentraversierung, vor allem weil es Cache
+Zeilenfehler, aber weniger TLB-Fehler (Translation Lookaside Buffer). Ein Großteil der Knoten
+die in der Liste verbunden sind, befinden sich in denselben Betriebssystemseiten.
 
-    BenchmarkLinkListTraverse-16    128      28738407 ns/op
-    BenchmarkColumnTraverse-16       30     126878630 ns/op
-    BenchmarkRowTraverse-16         310      11060883 ns/op
+    BenchmarkLinkListTraverse-16 128 28738407 ns/op
+    BenchmarkColumnTraverse-16 30 126878630 ns/op
+    BenchmarkRowTraverse-16 310 11060883 ns/op
 
-** Translation Lookaside Buffer (TLB)
+** Übersetzungs-Lookaside-Puffer (TLB)
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
+Jedes laufende Programm erhält vom Betriebssystem eine vollständige Speicherabbildung des virtuellen Speichers, und das
+laufende Programm denkt, dass es über den gesamten physischen Speicher des Rechners verfügt. Das ist aber nicht der Fall,
+muss der physische Speicher jedoch mit allen laufenden Programmen geteilt werden. Das Betriebssystem
+teilt den physischen Speicher, indem es den physischen Speicher in Seiten aufteilt und die Seiten
+auf den virtuellen Speicher für ein bestimmtes laufendes Programm. Jedes Betriebssystem kann die Größe einer Seite selbst bestimmen,
+aber 4k, 8k, 16k sind vernünftige und übliche Größen.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
+Der TLB ist ein kleiner Cache innerhalb des Prozessors, der dazu beiträgt, die Latenzzeit bei der
+Übersetzung einer virtuellen Adresse in eine physikalische Adresse im Rahmen einer Betriebssystemseite
+und dem Offset innerhalb der Seite. Ein Fehler im TLB-Cache kann große Latenzzeiten verursachen
+weil die Hardware nun darauf warten muss, dass das Betriebssystem seine Seitentabelle durchsucht, um die richtige Seite für die virtuelle Adresse
+die richtige Seite für die betreffende virtuelle Adresse zu finden. Läuft das Programm auf
+einer virtuellen Maschine läuft (z. B. in der Cloud), muss die Auslagerungstabelle der virtuellen Maschine
+zuerst gescannt werden.
 
-Remember what was said:
+Denken Sie daran, was gesagt wurde:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
+Die verknüpfte Liste ist doppelt so langsam wie der Zeilentraversal, hauptsächlich weil es Cache
+Zeilenfehlern, aber weniger TLB-Fehlern kommt (siehe unten). Ein Großteil der in der Liste verbundenen Knoten
+der Liste verbunden sind, befinden sich innerhalb derselben Betriebssystemseiten.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
+Die LinkedList ist aufgrund des TLB-Zugriffs um Größenordnungen schneller als das Spalten-Traversal.
+TLB-Zugriffs. Auch wenn es beim LinkedList-Traversal zu Cache Line Misses kommt,
+da ein Großteil des Speichers für eine Gruppe von Knoten in derselben Seite landet,
+wirken sich TLB-Latenzen nicht auf die Leistung aus. Dies ist der Grund, warum bei Programmen, die eine
+viel Speicher benötigen, wie DNA-basierte Anwendungen, sollten Sie eine Linux-Distribution verwenden
+von Linux verwenden, die mit Seitengrößen in der Größenordnung von einem oder zwei Megabyte Speicher konfiguriert ist.
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
+Dennoch ist ein datenorientierter Entwurf wichtig. Das Schreiben eines effizienten Algorithmus muss
+berücksichtigen, wie auf die Daten zugegriffen wird. Denken Sie daran, dass es bei der Leistung heute darum geht
+wie effizient man Daten in den Prozessor bringen kann.
 
-- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
-- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU-Caches und warum Sie das interessiert (18:50-20:30)]] - Scott Meyers
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU-Caches und warum Sie das interessiert (44:36-45:40)]] - Scott Meyers
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Leistung durch Cache-Freundlichkeit (4:25-5:48)]] - Damian Gryski
 
-** CPU Cache Notes
+** Hinweise zum CPU-Cache
 
 .html arrays/array_list.html
 
-** Extra Diagrams
+** Extra Diagramme
 
-*Industry* *Defined* *Latencies*
+*Industrie* *Defined* *Latenzen*
 
-    L1 cache reference ......................... 0.5 ns ...................  6 ins
-    Branch mispredict ............................ 5 ns ................... 60 ins
-    L2 cache reference ........................... 7 ns ................... 84 ins
-    Mutex lock/unlock ........................... 25 ns .................. 300 ins
-    Main memory reference ...................... 100 ns ................. 1200 ins           
-    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
-    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
-    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
-    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
-    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
-    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
-    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
-    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
-    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+    L1-Cache-Referenz ......................... 0,5 ns ...................  6 ins
+    Zweigfehlvorhersage ............................ 5 ns ................... 60 ns
+    L2-Cache-Referenz ........................... 7 ns ................... 84 ns
+    Mutex sperren/entsperren ........................... 25 ns .................. 300 ns
+    Hauptspeicher-Referenz ...................... 100 ns ................. 1200 ns
+    Komprimierung von 1K Bytes mit Zippy ............. 3.000 ns (3 µs) ........... 36k ins
+    Senden von 2K Bytes über ein 1-Gbit/s-Netzwerk ....... 20.000 ns (20 µs) ........ 240k ins
+    Zufälliges Lesen von SSDs ........................ 150.000 ns (150 µs) ........ 1.8M ins
+    Lesen von 1 MB sequentiell aus dem Speicher ..... 250.000 ns (250 µs) .......... 3M ins
+    Hin- und Rückfahrt innerhalb desselben Rechenzentrums ...... 500.000 ns (0,5 ms) .......... 6M ins
+    Lesen von 1 MB sequentiell von SSD- ..... 1.000.000 ns (1 ms) ........... 12M ins
+    Festplattensuche ........................... 10.000.000 ns (10 ms) ......... 120M ins
+    1 MB sequentiell von der Festplatte lesen .... 20.000.000 ns (20 ms) ......... 240M ins
+    Senden eines Pakets CA->Niederlande->CA .... 150.000.000 ns (150 ms) ........ 1,8B ins
 
-*Cache* *Latencies* *Image*
+*Cache* *Latenzzeiten* *Bild*
 
 .image /tour/eng/static/img/cache_latencies_graph.png
 
-** Extra Reading
+** Extra Lesen
 
-*CPU* *Caches* */* *Memory*
+*CPU* *Caches* */* *Speicher*
 
-- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
-- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
-- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
-- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
-- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
-- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
-- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
-- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
-- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
-- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
-- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
-- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
-- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
-- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
-- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
-- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU-Caches und warum Sie das interessiert - Video]] - Scott Meyers
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][Ein Crashkurs in moderner Hardware - Video]] - Cliff Click
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Reihe]] - Frank Denneman
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU-Caches und warum Sie das interessiert - Deck]] - Scott Meyers
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting moderner Hardware zur Gewinnung von 'mechanischer Sympathie']] - Martin Thompson
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][Was jeder Programmierer über Speicher wissen sollte]] - Ulrich Drepper
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][Wie CPU-Caches funktionieren und warum]] - Joel Hruska
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Moderne Mikroprozessoren - ein 90-Minuten-Leitfaden]] - Jason Robert Carey Patterson
+- [[http://lwn.net/Articles/252125][Speicher Teil 2: CPU-Caches]] - Ulrich Drepper
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][Das kostenlose Mittagessen ist vorbei]] - Herb Sutter
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Computer für Rechenzentren: Moderne Herausforderungen beim CPU-Design]] - Dick Sites
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirths Gesetz]] - Wikipedia
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Falsches Teilen eliminieren]] - Herb Sutter
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][Der Mythos vom Widder]] - Emil Ernerfeldt
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Verstehen von Transaktions-Hardware-Speicher]] - Gil Gene
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Leistung durch Cache-Freundlichkeit (4:25-5:48)]] - Damian Gryski
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Nirgendwo schneller hinkommen]] - Chandler Carruth
 
-*Data-Oriented* *Design*
+*Datenorientiert* *Design*
 
-- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
-- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
-- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
-- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
-- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
-- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
-- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Datenorientiertes Design und C++]] - Mike Acton
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Effizienz mit Algorithmen, Leistung mit Datenstrukturen]] - Chandler Carruth
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Die Zähmung der Leistungsbestie]] - Klaus Iglberger
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Fallstricke der OOP]] - Tony Albrecht
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Warum Sie Linked Lists vermeiden sollten]] - Bjarne Stroustrup
+- [[http://gamesfromwithin.com/data-oriented-design][Datenorientiertes Design (oder warum Sie sich mit OOP selbst ins Bein schießen)]] - Noel
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][War die objektorientierte Programmierung ein Fehlschlag?]] - Quora
 
-** Notes
+** Anmerkungen
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
+- Wenn man die Daten nicht versteht, versteht man das Problem nicht.
+- Wenn man die Kosten für die Lösung des Problems nicht versteht, kann man nicht über das Problem nachdenken.
+- Wenn man die Hardware nicht versteht, kann man auch nicht über die Kosten für die Lösung des Problems nachdenken.
+- Arrays sind Datenstrukturen mit fester Länge, die sich nicht ändern können.
+- Arrays unterschiedlicher Größe werden als unterschiedliche Typen betrachtet.
+- Speicher wird als zusammenhängender Block zugewiesen.
+- Go gibt Ihnen die Kontrolle über die räumliche Lokalität.
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung
+ist vorhanden.
 
-** Exercise 1
+** Übung 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
+Deklarieren Sie ein Array mit 5 Strings, wobei jedes Element mit dem Wert Null initialisiert wird. Deklarieren Sie
+ein zweites Array mit 5 Strings und initialisiere dieses Array mit literalen Stringwerten. Weisen Sie
+das zweite Array dem ersten zu und zeige die Ergebnisse des ersten Arrays an. Zeigen Sie den
+String-Wert und die Adresse jedes Elements an.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go

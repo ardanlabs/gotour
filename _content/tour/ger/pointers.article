@@ -1,22 +1,22 @@
-Pointers
-Pointers sind da um Werte innerhalb eines Programms zu teilen.
+Zeiger
+Zeiger dienen dem Zweck der gemeinsamen Nutzung von Werten über Programmgrenzen hinweg.
 
-* Pointers
+* Zeiger
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Pointers sind da um Werte innerhalb von Grenzen eines Programms zu teilen.
-Es gibt verschiedene Typen von Grenzen innerhalb eines Programmes. Die Üblichste ist zwischen zwei Funktions-Aufrufen.
-Es gibt auch solche Grenzen zwischen Go-Routines (mehr dazu später).
+Zeiger dienen dem Zweck, Werte über Programmgrenzen hinweg auszutauschen. Es gibt
+verschiedene Arten von Programmgrenzen. Die häufigste ist die zwischen Funktionsaufrufen.
+Es gibt auch eine Grenze zwischen Goroutinen, zu der Sie später Notizen machen werden.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *Beispiel* *1:* Pass by Value
+- *Beispiel* *2:* Gemeinsame Nutzung von Daten I
+- *Beispiel* *3:* Gemeinsame Nutzung von Daten II
+- *Beispiel* *4:* Escape-Analyse
+- *Beispiel* *5:* Stack Grow
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,108 +24,117 @@ Es gibt auch solche Grenzen zwischen Go-Routines (mehr dazu später).
 .play pointers/example4.go
 .play pointers/example5.go
 
-Wenn ein Go Programm aufstartet, erstellt die Go runtime eine Goroutine. 
-Gorotines sind lightweight applikationslevel-technische threads die viel Semantik mit den OS threads teilen.
-Ihr Job ist das Managen der Ausführung eines sets von Instruktionen. Jedes Go Programm hat mindestens 1 Goroutine, diese wird main Goroutine genannt.
+Wenn ein Go-Programm gestartet wird, erstellt die Go-Laufzeitumgebung eine Goroutine. Goroutinen sind
+leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken wie
+System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
+Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die Sie die Haupt-Goroutine nennen.
 
-Jede Goroutine hat ihren eigenen Memory-Block der stack genannt wird. Jeder stack startet als 2048 byte (2k) Allozierung. Dies ist sehr klein, aber stacks können mit der Zeit wachsen
+Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stapel beginnt
+mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stapel können im Laufe der Zeit größer werden.
 
 .image /tour/eng/static/img/p1.png
 
-Jedesmal wenn eine Funktion aufgerufen wird, wird ein Block vom Stack-Space genommen um der Goroutine beim Ausführen der Funktion zu helfen.
-Die einzelnen Memory-Blocks werden Frames genannt.
+Jedes Mal, wenn eine Funktion aufgerufen wird, wird ein Stapelblock belegt, damit die Goroutine
+bei der Ausführung der mit dieser Funktion verbundenen Anweisungen zu helfen. Jeder einzelne Speicherblock
+wird als Frame bezeichnet.
 
-Die Grösse des Frames für einen Funktionsaufruf wird zu compile time berechnet. Kein Wert kann auf dem Stack 
-erstellt werden ohne dass der Compiler seine Grösse zu compile time kennt. Wenn der Compiler die Grösse zu compile time nicht kennt
-muss der WErt auf dem Heap erstellt werden.
+Die Größe eines Rahmens für eine bestimmte Funktion wird zur Kompilierzeit berechnet. Kein Wert
+kann auf dem Stack abgelegt werden, es sei denn, der Compiler kennt die Größe dieses Wertes zur
+Kompilierzeit kennt. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nicht kennt, muss der
+Wert auf dem Heap konstruiert werden.
  
-Stacks räumen sich selber auf und die zero-values helfen bei der Initialiserung des Stacks.
-Jedes Mal wenn eine Funktion aufgerufen wird und ein Frame in den Memory geschrieben wird, wird das Frame initialisiert und so ist räumt sich der Stack
-selber auf. Wenn eine Funktion returned, wird der Speicher für das Frame gelassen, da es unklar ist, ob der Memory-Slog nochmals gebraucht wird. Es wäre ineffizient Speicher bei returns zu initialisieren.
+Stapel sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stapels.
+Jedes Mal, wenn Sie eine Funktion aufrufen und ein Rahmen des Speichers gesperrt wird, wird der Speicher
+für diesen Rahmen initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktion
+wird der Speicher für den Rahmen in Ruhe gelassen, da nicht bekannt ist, ob dieser Speicher
+wieder benötigt wird. Es wäre ineffizient, den Speicher bei der Rückkehr zu initialisieren.
 
-*Per* *Wert* *übergeben* (pass by value)
+*Pass* *By* *Value*
 
-Daten werden im Programm per Wert übergeben(pass by valu). Das heisst, dass wenn Daten im Programm weitergegeben werden, hat jede 
-Funktion oder Go-Routine seine eigene Kopie der Daten. Du wirst mit zwei Arten von Daten arbeit: Dem Wert selber (int, string, user) oder 
-der Adresse des Wertes im Memory. Adressen sind Daten die übergreifend kopiert und gespeichert werden können.
+Alle Daten werden wertmäßig durch das Programm bewegt. Das bedeutet, dass bei der Weitergabe von Daten
+über Programmgrenzen hinweg weitergegeben werden, erhält jede Funktion oder Goroutine ihre eigene Kopie der
+Daten. Es gibt zwei Arten von Daten, mit denen Sie arbeiten werden: den Wert selbst (int,
+string, user) oder die Adresse des Wertes. Adressen sind Daten, die über Programmgrenzen hinweg kopiert
+und über Programmgrenzen hinweg gespeichert werden.
 
-Der folgnede Code erklärt dies genauer:
+Der folgende Code versucht, dies näher zu erläutern.
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
-        count := 10
+        // Deklarieren Sie eine Variable vom Typ int mit einem Wert von 10.
+        Anzahl := 10
 
-        // To get the address of a value, use the & operator.
+        // Um die Adresse eines Wertes zu erhalten, verwenden Sie den Operator &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // Übergeben Sie eine Kopie des "Wertes von" count (was in der Box ist)
+        // an die Funktion increment1.
         increment1(count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        // Drucken Sie den "Wert von" und die "Adresse von" count aus.
+        // Der Wert von count wird sich nach dem Funktionsaufruf nicht mehr ändern.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
-        increment2(&count)
+        // Übergeben Sie eine Kopie der "Adresse von" count (wo sich die Box befindet)
+        // an die Funktion increment2. Dies wird immer noch als Übergabe durch
+        // Wert und nicht als Übergabe per Referenz, da Adressen Werte sind.
+        increment2(&Zahl)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        // Druckt den "Wert von" und die "Adresse von" count aus.
+        // Der Wert von count hat sich nach dem Funktionsaufruf geändert.
         println(
-            "count:\tValue Of[", 
+            "count:\tValue Of[",
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // increment1 deklariert die Funktion so, dass sie ihre eigene Kopie von
+    // und den Integer-Wert.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Inkrementieren der lokalen Kopie des int-Wertes des Aufrufers.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // increment2 deklariert die Funktion so, dass sie ihre eigene Kopie von
+    // einer Adresse, die auf einen Integer-Wert zeigt.
+    // Zeigervariablen sind Literaltypen und werden mit * deklariert.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // Inkrementieren Sie den int-Wert des Aufrufers durch den Zeiger.
         *inc++
         println(
-            "inc2:\tValue Of[", 
-            inc, "]\tAddr Of[", &inc, 
+            "inc2:\tValue Of[",
+            inc, "]\tAddr Of[", &inc,
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+Ausgabe:
 
-    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
-    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
-    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
-    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
-    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+    zählen:  Value Of[ 10 ] Addr Of[ 0xc000050738 ]
+    inc1: Wert von[ 11 ] Adresse von[ 0xc000050730 ]
+    count:  Wert von[ 10 ] Adresse von[ 0xc000050738 ]
+    inc2: Wert von[ 0xc000050738 ] Adresse von[ 0xc000050748 ] Zeigt auf[ 11 ]
+    count:  Wert von[ 11 ] Adresse von[ 0xc000050738 ]
 
-** Notes
-- Benutze Pointers um Daten zu teilen
-- Werte in Go werden immer per Wert übergeben (pass by value)
-- "Value of" was ist in der Box. "Address of" (&), wo ist die Box
-- DEr (*) Operator deklariert eine Pointer Variabel plus den Wert wo der Pointer hinzeigt
+** Anmerkungen
 
-** Flucht-Analyse
+- Verwenden Sie Zeiger, um Daten gemeinsam zu nutzen.
+- Werte in Go werden immer nach Wert übergeben.
+- "Wert von", was in der Box ist. "Adresse von" ( & ), wo sich die Box befindet.
+- Der Operator ( * ) deklariert eine Zeigervariable und den "Wert, auf den der Zeiger zeigt".
+
+** Fluchtanalyse
 
 Der Algorithmus, mit dem der Compiler feststellt, ob ein Wert auf dem Stack oder Heap konstruiert werden sollte
 auf dem Stack oder Heap aufgebaut werden soll, wird "Escape-Analyse" genannt. Der Name des Algorithmus lässt
 klingt, als würden die Werte zuerst auf dem Stack konstruiert und dann bei Bedarf
-auf den Heap, wenn es nötig ist. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
+auf den Heap, wenn nötig. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
 einmal, und der Algorithmus für die Escape-Analyse entscheidet, wo der Wert abgelegt wird (Stack
 oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichnet.
 
-Beim Verständnis der Escape-Analyse geht es darum, den Besitz von Werten zu verstehen. Die Idee dahinter ist,
-wenn ein Wert innerhalb des Bereichs einer Funktion konstruiert wird, dann besitzt diese Funktion
+Beim Verständnis der Fluchtanalyse geht es um das Verständnis von Werteigentum. Die Idee dahinter ist,
+wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann ist diese Funktion
 den Wert besitzt. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
 existieren, wenn die besitzende Funktion zurückkehrt? Wenn die Antwort nein lautet, kann der Wert
 auf dem Stapel konstruiert werden. Lautet die Antwort ja, muss der Wert auf dem
@@ -136,19 +145,19 @@ Zuweisungen verursacht. Sie müssen sich jedoch darüber im Klaren sein, dass di
 zu nicht offensichtlichen Zuweisungen führen kann. Außerdem nutzt der Algorithmus Möglichkeiten, um
 Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
 
-    // user represents a user in the system.
-    type user struct {
-        name  string
+    // user stellt einen Benutzer im System dar.
+    Typ user struct {
+        name string
         email string
     }
 
     func stayOnStack() user {
-        u := user{
-            name:  "Bill",
+        u := Benutzer{
+            Name: "Bill",
             email: "bill@email.com",
         }
 
-        return u
+        zurück u
     }
 
 Die Funktion stayOnStack verwendet die Wertesemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
@@ -160,33 +169,31 @@ nicht mehr zu existieren, da der Aufrufer seine eigene Kopie erhält. Daher
 kann die Konstruktion des Benutzerwerts innerhalb von stayOnStack auf dem Stack erfolgen.
 Keine Zuweisung.
 
-
-    type user struct {
-        name  string
+    Typ user struct {
+        name string
         email string
     }
 
-    func escapeToHeap() *user {
+    func escapeToHeap() *Benutzer {
         u := user{
-            name:  "Bill",
+            Name: "Bill",
             email: "bill@email.com",
         }
 
         return &u
     }
 
-Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert an den Aufrufer zurückzugeben
+Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert zurück
 an den Aufrufer zurückzugeben. Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den
 Benutzerwert, der konstruiert wird.
 
 Wenn die Funktion escapeToHeap aufgerufen wird und zurückkehrt, muss der von ihr konstruierte Benutzerwert
 immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
 Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap nicht
-auf dem Stack, sondern auf dem Heap erfolgen. Ja, Zuweisung.
+nicht auf dem Stack, sondern auf dem Heap erfolgen. Ja Zuweisung.
 
-Überlegen Sie, was passieren würde, wenn der Benutzerwert im letzten Beispiel auf dem Stack konstruiert würde
-auf dem Stack konstruiert würde, wenn die Zeigersemantik bei der Rückkehr verwendet wird.
-
+Überlegen Sie, was passieren würde, wenn der Benutzerwert im letzten Beispiel
+auf dem Stack konstruiert würde, wenn bei der Rückkehr die Zeigersemantik verwendet würde.
 
 .image /tour/eng/static/img/p2.png
 
@@ -196,23 +203,21 @@ Stack, in dem sich der Benutzerwert befindet, wiederverwendbar. In dem Moment, i
 einen weiteren Funktionsaufruf tätigt, wird ein neuer Frame gesliced und der Speicher überschrieben,
 wodurch der gemeinsam genutzte Wert vernichtet wird.
 
-
-Aus diesem Grund wird der Stack als selbstreinigend angesehen. Nullwert-Initialisierung
-trägt dazu bei, dass jeder benötigte Stack-Frame ohne den Einsatz von GC bereinigt werden kann. Der Stapel
+Aus diesem Grund kann man davon ausgehen, dass sich der Stapel selbst bereinigt. Nullwert-Initialisierung
+hilft dabei, dass jeder Stack-Frame, der benötigt wird, ohne den Einsatz von GC bereinigt werden kann. Der Stack
 ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame genommen und initialisiert wird.
 Funktionsaufrufs initialisiert wird. Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei Rückgaben, weil
 der Compiler nicht weiß, ob der Speicher auf dem Stack jemals wieder benötigt wird.
 
-
-Die Escape-Analyse entscheidet, ob ein Wert auf dem Stack (der Standard) oder dem
+Die Escape-Analyse entscheidet, ob ein Wert auf dem Stack (Standard) oder auf dem
 Heap (die Flucht). Mit der Funktion stayOnStack übergebe ich eine Kopie des Wertes
 an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalten. Mit der Funktion escapeToHeap
 übergebe ich eine Kopie der Adresse des Wertes zurück an den Aufrufer (auf dem
 den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
 
+Es gibt viele kleine Details im Zusammenhang mit der Fluchtanalyse.
+lesen Sie den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
 
-Es gibt viele kleine Details, die mit der Escape-Analyse zusammenhängen; um mehr zu erfahren
-lesen Sie den Beitrag in Kapitel 14 mit dem Titel Escape Analysis Mechanics.
 Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert, um
 eine neue Art der Übergabe von Funktionsein- und -ausgangsargumenten unter Verwendung von Registern
 anstelle von Speicher auf dem Stack. Dies ist aktiviert für Linux, MacOS und Windows auf
@@ -220,13 +225,15 @@ den 64-Bit-x86-Architekturen aktiviert. Dies bedeutet, dass einige Funktionsargu
 auf den Stack kopiert werden, aber einige können, abhängig von der Machbarkeit der Verwendung von Registern.
 Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
 
-** Notes
+** Anmerkungen
+
 - Wenn ein Wert referenziert werden kann, nachdem die Funktion, die den Wert konstruiert, zurückkehrt.
 - Wenn der Compiler feststellt, dass ein Wert zu groß ist, um auf den Stack zu passen.
 - Wenn der Compiler die Größe eines Wertes zur Kompilierungszeit nicht kennt.
 - Wenn ein Wert durch die Verwendung von Funktions- oder Schnittstellenwerten entkoppelt ist.
 
-** Garbage Collection Semantics
+** Semantik der Garbage Collection
+
 Sobald ein Wert auf dem Heap aufgebaut ist, muss sich der Garbage Collector (GC)
 beteiligt. Der wichtigste Teil des GC ist der Pacing-Algorithmus. Er bestimmt
 die Häufigkeit/Rate, mit der der GC laufen muss, um einen möglichst kleinen Heap
@@ -234,97 +241,95 @@ in Verbindung mit dem besten Anwendungsdurchsatz zu erhalten.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
-** Stack vs Heap
+** Stack vs. Heap
 
 "Der Stack ist für Daten gedacht, die nur für die Dauer der Funktion, die sie erstellt, bestehen bleiben müssen
 die sie aufbaut, bestehen bleiben müssen, und die ohne Kosten zurückgewonnen werden, wenn die Funktion beendet wird. Der
 Heap ist für Daten, die auch nach Beendigung der Funktion, die sie erstellt, bestehen bleiben müssen,
 und wird durch eine manchmal kostspielige Garbage Collection zurückgewonnen." - Ayan George
 
-** Stack Wachstum 
+** Stapelwachstum
 
 Die Größe der einzelnen Frames für jede Funktion wird zur Kompilierzeit berechnet. Das bedeutet,
 wenn der Compiler die Größe eines Wertes zur Kompilierzeit nicht kennt, muss der Wert
 auf dem Heap konstruiert werden. Ein Beispiel hierfür ist die Verwendung der eingebauten Funktion make, um
 ein Slice zu konstruieren, dessen Größe auf einer Variablen basiert.
 
-    b := make([]byte, size) // Backing array allocates on the heap.
+    b := make([]byte, size) // Backing-Array wird auf dem Heap alloziert.
 
 Go verwendet eine zusammenhängende Stack-Implementierung, um zu bestimmen, wie Stacks wachsen und schrumpfen.
 Eine Alternative, die Go hätte verwenden können, ist eine segmentierte Stack-Implementierung, die
 die von einigen Betriebssystemen verwendet wird.
 
-
 Jeder Funktionsaufruf kommt mit einer kleinen Präambel, die fragt: "Gibt es genug Stack
 Platz für diesen neuen Frame?". Wenn ja, dann ist das kein Problem und der Rahmen wird übernommen und
-initialisiert. Wenn nicht, muss ein neuer, größerer Stack aufgebaut werden und der Speicher auf dem
+initialisiert. Wenn nicht, muss ein neuer, größerer Stapel angelegt werden und der Speicher auf dem
 Speicher des bestehenden Stapels auf den neuen kopiert werden. Dies erfordert Änderungen an
 Zeigern, die auf Speicher auf dem Stack verweisen. Die Vorteile von zusammenhängendem Speicher und
 linearen Traversalen mit moderner Hardware ist der Ausgleich für die Kosten des Kopierens.
 
-
 Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf den Stapel einer anderen Goroutine haben.
-den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, jeden
+den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, jeden Zeiger
 jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
 
+** Extra Lesen
 
-** Extra Reading
+**Zeiger* *Mechanik*
 
-**Pointer* *Mechanics*
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Zeiger vs. Werte]]
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Sprachmechanik bei Stapeln und Zeigern]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Verwendung von Zeigern in Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Zeiger und Speicherzuweisung verstehen]] - William Kennedy
 
-- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
-- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+*Stapel*
 
-*Stacks*
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Vorschlag für einen zusammenhängenden Stapel]]
 
-- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+*Escape* *Analyse* *und* *Inlining*
 
-*Escape* *Analysis* *and* *Inlining*
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape-Analyse-Fehler]]
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler-Optimierungen]]
 
-- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
-- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+*Müll* *Sammlung*
 
-*Garbage* *Collection*
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]]
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Die Lösung des Latenzproblems]]
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent Garbage Collection]]
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminieren von Stack Re-Scanning]]
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor
+- [[https://blog.golang.org/ismmkeynote][Der Weg zu Go: Die Reise von Go's Garbage Collector]] - Rick Hudson
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection in Go: Teil I - Semantik]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection in Go : Teil II - GC Traces]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection in Go : Teil III - GC Pacing]] - William Kennedy
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go-Speicherballast: Wie ich lernte, mir keine Sorgen mehr zu machen und den Heap zu lieben]] - Ross Engers
 
-- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
-- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
-- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
-- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
-- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
-- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
-- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
-- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
-- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
-- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
-- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
-- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+*Statisch* *Einzelne* *Zuweisung* *Optimierungen*
 
-*Static* *Single* *Assignment* *Optimizations*
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Statische Codeanalyse mit SSA]]
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Paket SSA]]
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Compiler-Optimierung verstehen]]
 
-- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
-- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
-- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+* Übungen
 
-* Exercises
 Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
 *Teil* *A:* Deklarieren und initialisieren Sie eine Variable vom Typ int mit dem Wert 20.
-Geben Sie die "Adresse von" und den "Wert von" der Variablen an.
+Zeigen Sie die "Adresse von" und den "Wert" der Variablen an.
 
 *Teil* *B:* Deklarieren und initialisieren Sie eine Zeigervariable vom Typ int, die auf
-die letzte Variable, die Sie gerade erstellt haben. Geben Sie die "Adresse von" , "Wert von" und den
+die letzte Variable zeigt, die Sie gerade erstellt haben. Geben Sie die "Adresse von" , "Wert von" und den
 "Wert, auf den der Zeiger zeigt".
 
 ** Übung 2
 
 Deklarieren Sie einen struct-Typ und erstellen Sie einen Wert dieses Typs. Deklarieren Sie eine Funktion, die
-den Wert eines Feldes in diesem struct-Typ ändern kann. Zeigen Sie den Wert vor
+den Wert eines Feldes in diesem Strukturtyp ändern kann. Zeigen Sie den Wert vor
 und nach dem Aufruf Ihrer Funktion.
 
 .play pointers/exercise1.go

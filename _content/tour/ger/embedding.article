@@ -1,77 +1,78 @@
-Embedding
-Embedding types provide the final piece of sharing and reusing state and behavior between types.
+Einbettung
+Die Einbettung von Typen stellt den letzten Teil der gemeinsamen Nutzung und Wiederverwendung von Zustand und Verhalten zwischen Typen dar.
 
-* Embedding
+* Einbettung
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Embedding types provide the final piece of sharing and reusing state and behavior
-between types. Through the use of inner type promotion, an inner type's fields and
-methods can be directly accessed by references of the outer type.
+Die Einbettung von Typen stellt den letzten Teil der gemeinsamen Nutzung und Wiederverwendung von Zustand und Verhalten
+zwischen Typen. Durch die Verwendung von Inner Type Promotion kann auf die Felder und Methoden eines inneren Typs
+Methoden eines inneren Typs kann durch Referenzen des äußeren Typs direkt zugegriffen werden.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Declaring Fields			   
-- *Example* *2:* Embedding types
-- *Example* *3:* Embedded types and interfaces
-- *Example* *4:* Outer and inner type interface implementations
+- *Beispiel* *1:* Felder deklarieren
+- *Beispiel* *2:* Einbettung von Typen
+- *Beispiel* *3:* Eingebettete Typen und Schnittstellen
+- *Beispiel* *4:* Äußere und innere Typschnittstellenimplementierungen
 	
 .play embedding/example1.go
 .play embedding/example2.go
 .play embedding/example3.go		   
 .play embedding/example4.go
 
-** Embedding Mechanics
 
-This first example does not show embedding, just the declaration of two struct
-types working together as a field from one type to the other.
+** Mechanik der Einbettung
 
-    type user struct {
-        name  string
+Dieses erste Beispiel zeigt keine Einbettung, sondern nur die Deklaration von zwei struct
+Typen, die zusammen als ein Feld von einem Typ zum anderen arbeiten.
+
+    Typ user struct {
+        name string
         email string
     }
 
-    type admin struct {
-        person user        // NOT Embedding
-        level  string
+    Typ admin struct {
+        person user // NOT Embedding
+        level string
     }
 
-This is embedding.
+Dies ist die Einbettung.
 
-    type user struct {
-        name  string
+    Typ user struct {
+        name string
         email string
     }
 
-    type admin struct {
-        user               // Value Semantic Embedding
-        level  string
+    Typ admin struct {
+        user // Wert Semantische Einbettung
+        level string
     }
 
-The person field is removed and just the type name is left. You can also embed a
-type using pointer semantics.
+Das Personenfeld wird entfernt, und es bleibt nur der Typname übrig. Sie können auch einen
+Typ mit Zeiger-Semantik einbetten.
 
-    type user struct {
-        name  string
+    Typ user struct {
+        name string
         email string
     }
 
-    type admin struct {
-        *user              // Pointer Semantic Embedding
-        level  string
+    Typ admin struct {
+        *user // Semantische Einbettung von Zeigern
+        level string
     }
 
-In this case, a pointer of the type is embedded. In either case, accessing the
-embedded value is done through the use of the type’s name.
+In diesem Fall wird ein Zeiger des Typs eingebettet. In beiden Fällen erfolgt der Zugriff auf den
+eingebetteten Wertes erfolgt durch die Verwendung des Typnamens.
 
-The best way to think about embedding is to view the user type as an inner type and
-admin as an outer type. It’s this inner/outer type relationship that is magical
-because with embedding, everything related to the inner type (both fields and methods)
-can be promoted up to the outer type. 
+Die beste Art, über die Einbettung nachzudenken, ist, den Benutzertyp als einen inneren Typ und
+Admin als einen äußeren Typ zu betrachten. Diese Beziehung zwischen innerem und äußerem Typ ist das Magische
+denn mit der Einbettung kann alles, was mit dem inneren Typ zusammenhängt (sowohl Felder als auch Methoden)
+auf den äußeren Typ übertragen werden kann.
 
-    type user struct {
-        name  string
+    Typ user struct {
+        name string
         email string
     }
 
@@ -81,38 +82,38 @@ can be promoted up to the outer type.
             u.email)
     }
 
-    type admin struct {
-        *user              // Pointer Semantic Embedding
-        level  string
+    Typ admin struct {
+        *user // Semantische Einbettung von Zeigern
+        level string
     }
 
     func main() {
         ad := admin{
-            user: &user{
-                name:  "john smith",
+            Benutzer: &Benutzer{
+                name: "john smith",
                 email: "john@yahoo.com",
             },
             level: "super",
         }
 
         ad.user.notify()
-        ad.notify() // Outer type promotion
+        ad.notify() // Äußere Form der Werbung
     }
 
-Output:
+Ausgabe:
 
-    Sending user email To john smith<john@yahoo.com>
-    Sending user email To john smith<john@yahoo.com>
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
 
-Once you add a method named notify for the user type and then a small main function.
-You can see the output is the same whether you call the notify method through the inner
-pointer value directly or through the outer type value. The notify method declared for
-the user type is accessible directly by the admin type value.
+Fügen Sie einmal eine Methode namens notify für den Benutzertyp und dann eine kleine Hauptfunktion hinzu.
+Sie sehen, dass die Ausgabe dieselbe ist, egal ob Sie die notify-Methode über den inneren
+Zeigerwert direkt oder über den Wert des äußeren Typs aufrufen. Die für den Benutzertyp deklarierte notify-Methode
+deklarierte notify-Methode ist direkt über den Wert des Typs admin zugänglich.
 
-Though this looks like inheritance, you must be careful. This is not about reusing
-state, but about promoting behavior.
+Auch wenn dies wie Vererbung aussieht, müssen Sie vorsichtig sein. Hier geht es nicht um die Wiederverwendung
+Zustand, sondern um die Förderung von Verhalten.
 
-    type notifier interface {
+    Typ notifier Schnittstelle {
         notify()
     }
 
@@ -120,17 +121,17 @@ state, but about promoting behavior.
         n.notify()
     }
 
-Now you add an interface and a polymorphic function that accepts any concrete value
-that implements the full method set of behavior defined by the notifier interface.
-Which is just a method named notify.
+Jetzt fügen Sie eine Schnittstelle und eine polymorphe Funktion hinzu, die jeden konkreten Wert akzeptiert
+akzeptiert, der den gesamten Methodensatz des Verhaltens implementiert, der durch die Schnittstelle notifier definiert ist.
+Das ist einfach eine Methode namens notify.
 
-Because of embedding and promotion, values of type admin now implement the notifier
-interface.
+Aufgrund der Einbettung und Heraufstufung implementieren Werte vom Typ admin nun die Schnittstelle Notifier
+Schnittstelle.
 
     func main() {
         ad := admin{
-            user: &user{
-                name:  "john smith",
+            Benutzer: &Benutzer{
+                name: "john smith",
                 email: "john@yahoo.com",
             },
             level: "super",
@@ -139,16 +140,16 @@ interface.
         sendNotification(&ad)
     }
 
-Output:
+Ausgabe:
 
-    Sending user email To john smith<john@yahoo.com>
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
 
-You can send the address of the admin value into the polymorphic function since
-embedding promotes the notify behavior up to the admin type.
+Sie können die Adresse des Admin-Wertes an die polymorphe Funktion senden, da
+die Einbettung das Benachrichtigungsverhalten bis zum Admin-Typ fördert.
 
-    type admin struct {
-        *user  // Pointer Semantic Embedding
-        level  string
+    Typ admin struct {
+        *user // Semantische Einbettung von Zeigern
+        level string
     }
 
     func (a *admin) notify() {
@@ -157,13 +158,13 @@ embedding promotes the notify behavior up to the admin type.
             a.email)
     }
 
-When the outer type implements a method already implemented by the inner type,
-the promotion doesn’t take place.
+Wenn der äußere Typ eine Methode implementiert, die bereits durch den inneren Typ implementiert wurde,
+findet die Beförderung nicht statt.
 
     func main() {
         ad := admin{
-            user: &user{
-                name:  "john smith",
+            Benutzer: &Benutzer{
+                name: "john smith",
                 email: "john@yahoo.com",
             },
             level: "super",
@@ -172,33 +173,33 @@ the promotion doesn’t take place.
         sendNotification(&ad)
     }
 
-Output:
+Ausgabe:
     
-    Sending admin email To john smith<john@yahoo.com>
+    Senden einer Admin-E-Mail an john smith<john@yahoo.com>
 
-You can see the outer type’s method is now being executed.
+Sie sehen, dass die Methode des äußeren Typs jetzt ausgeführt wird.
 
-** Notes
+** Anmerkungen
 
-- Embedding types allow us to share state or behavior between types.
-- The inner type never loses its identity.
-- This is not inheritance.
-- Through promotion, inner type fields and methods can be accessed through the outer type.
-- The outer type can override the inner type's behavior.
+- Durch die Einbettung von Typen können wir den Zustand oder das Verhalten zwischen Typen gemeinsam nutzen.
+- Der innere Typ verliert nie seine Identität.
+- Dies ist keine Vererbung.
+- Durch Promotion kann auf Felder und Methoden des inneren Typs über den äußeren Typ zugegriffen werden.
+- Der äußere Typ kann das Verhalten des inneren Typs außer Kraft setzen.
 
-** Extra Reading
+** Extra Lesen
 
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
-- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, Interfaces und eingebettete Typen in Go]] - William Kennedy
+- [[https://rakyll.org/typesystem/][Einbettung ist keine Vererbung]] - JBD
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-Edit the code from the template. Add a new type CachingFeed which embeds Feed and
-overrides the Fetch method.
+Bearbeiten Sie den Code der Vorlage. Fügen Sie einen neuen Typ CachingFeed hinzu, der Feed einbettet und
+die Fetch-Methode überschreibt.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go

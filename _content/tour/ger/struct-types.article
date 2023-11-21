@@ -1,221 +1,245 @@
-Struct Types
+Strukturtypen
+Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfelder zusammenfassen.
 
-Struct types sind dafür da, komplexe Typen zu erstellen, die Datenfelder gruppieren.
-* Struct Types
+* Strukturtypen
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Video anschauen]]
-- Brauchst Du finanzielle Hilfe [[https://www.ardanlabs.com/scholarship/][Stipendium]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Struct types sind dafür da, komplexe Typen zu erstellen, die Datenfelder gruppieren.
-Sie sind eine gute Art um Daten zu organisieren und teilen und diese einem Programm zur Verfügung zu stellen.
+Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfelder zusammenfassen.
+Sie sind eine gute Möglichkeit, die verschiedenen Aspekte der Daten zu organisieren und gemeinsam zu nutzen
+die Ihr Programm verbraucht.
 
-Das Performance-Potential eines Computers ist vorwiegend durch die word length () und noch wichtiger memory size oder die Anzahl words auf die er zugreifen kann definiert.
+Die potenzielle Leistung einer Computerarchitektur wird in erster Linie bestimmt durch ihre
+Wortlänge (die Anzahl der Bits, die pro Zugriff verarbeitet werden können) und, was noch wichtiger ist,,
+die Speichergröße bzw. die Anzahl der Wörter, auf die sie zugreifen kann.
 
-** Code Review
+** Code-Überprüfung
 
-- *Aufgabe* *1:* Deklariere, kreiere und initializer einen struct type.
-- *Aufgabe* *2:* Anonyme struct typesA.
-- *Aufgabe* *3:* Named vs Unnamed types. 
-- *Aufgabe* *4:* Struct type Anordnung 
+- *Beispiel* *1:* Deklarieren, Erstellen und Initialisieren von struct-Typen.
+- *Beispiel* *2:* Anonyme struct-Typen.
+- *Beispiel* *3:* Benannte vs. unbenannte Typen.
+- *Beispiel* *4:* Strukturtyp-Zuordnungen
 
 .play struct-types/example1.go
 .play struct-types/example2.go
 .play struct-types/example3.go
 .play struct-types/example4.go
 
-** Stuct und Konstruktions-Mechanismen 
-Diese Deklaration representiert einen konkreten benutzerdefinierten Typen als eine Komposition von unterschiedlichen Feldern und Typen.
+** Struktur und Konstruktionsmechanik
+
+Diese Deklaration stellt einen konkreten benutzerdefinierten Typ als eine Zusammensetzung aus
+verschiedenen Feldern und Typen.
 
     type example struct {
-        flag    bool
-        counter int16
-        pi      float32
+        flag bool
+        zähler int16
+        pi float32
     }
 
-Deklariere eine Variabel vom Typen example und initilisiere sie mit ihrem zero value state.
+Deklarieren Sie eine Variable vom Typ example und initialisieren Sie sie mit dem Wert Null.
 
-    var e1 example
+    var e1 Beispiel
 
     fmt.Printf("%+v\n", e1)
 
-Output:
+Ausgabe:
     
     {flag:false counter:0 pi:0}
 
-Deklariere eine Variabel vm Typen example ohne den zero value state zu initialisieren. Benutze dafür die literal construction syntax.
+Deklarieren Sie eine Variable vom Typ example, die nicht auf den Zustand Null gesetzt ist, indem Sie die Literal
+Konstruktionssyntax.
 
-    e2 := example{
-        flag:    true,
+    e2 := Beispiel{
+        flag: true,
         counter: 10,
-        pi:      3.141592,
+        pi: 3.141592,
     }
 
-    fmt.Println("Flag", e2.flag)
-    fmt.Println("Counter", e2.counter)
+    fmt.Println("Flagge", e2.flag)
+    fmt.Println("Zähler", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+Ausgabe:
 
-    Flag true
-    Counter 10
+    Flagge wahr
+    Zähler 10
     Pi 3.141592
 
-Deklariere eine Variabel mit einem unnamed literal type und setze den non-zero value state indem Du die literal construction syntax verwendest.
+Deklarieren Sie eine Variable eines unbenannten Literal-Typs, die auf ihren Nicht-Null-Wert-Zustand
+unter Verwendung der Syntax für die Literalkonstruktion.
 
-    e3 := struct {
-        flag    bool
-        counter int16
-        pi      float32
+    e3 := Struktur {
+        flag bool
+        zähler int16
+        pi float32
     }{
-        flag:    true,
+        flag: true,
         counter: 10,
-        pi:      3.141592,
+        pi: 3.141592,
     }
 
-    fmt.Println("Flag", e3.flag)
-    fmt.Println("Counter", e3.counter)
+    fmt.Println("Flagge", e3.flag)
+    fmt.Println("Zähler", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+Ausgabe:
 
-    Flag true
-    Counter 10
+    Flagge wahr
+    Zähler 10
     Pi 3.141592
 
-Die Idee von literal construction ist etwas wortwörtlich ohne Namen zu konstruieren
+Die Idee der buchstäblichen Konstruktion ist genau das: etwas buchstäblich zu konstruieren
+ohne einen Namen.
 
-Du solltest var für zero value Deklaration verwende. Die Kurz-Deklaration mit der {} Syntax für non-zero value construction.
+Sie sollten var für Nullwerte und den kurzen Variablen-Deklarationsoperator mit
+der { }-Syntax für die Konstruktion von Nicht-Nullwerten.
 
-** Padding and Angleichung
+** Auffüllen und Ausrichten
 
-Wie viel Memory wird für einen Wert vom Typ example alloziert?
+Wie viel Speicher wird für einen Wert des Typs example zugewiesen?
 
     type example struct {
-        flag    bool
-        counter int16
-        pi      float32
+        flag bool
+        zähler int16
+        pi float32
     }
 
-Eine bool ist 1 byte, int16 sin 2 bytes, und float32 sind 4 bytes. Zusammen macht das 7 bytes. 
-Jedoch: DIe Antwort lautet 8 bytes. Der Grund ist es gib ein padding byte zwischen dem flag und counter Feld, damit die Angleichung stimmt.
+Ein bool ist 1 Byte, int16 ist 2 Byte und float32 ist 4 Byte. Wenn man das alles zusammenzählt
+und Sie erhalten 7 Bytes. Die tatsächliche Antwort lautet jedoch 8 Byte. Warum, weil es
+zwischen dem Flag- und dem Zählerfeld ein Auffüllungsbyte befindet, um die Ausrichtung zu gewährleisten.
 
 .image /tour/eng/static/img/f1.png
 
-Die Idee der Angleichung ist, dass die Hardware Memory effizienter auslesen kann,
-indem Memory spezifisch platziert wird. Der Compiler kümmert sich um die Angleichungsmechanik.
+Die Idee der Ausrichtung besteht darin, der Hardware zu ermöglichen, den Speicher effizienter zu lesen
+indem Speicher an bestimmten Ausrichtungsgrenzen platziert wird. Der Compiler kümmert sich um die Mechanik der Ausrichtungsgrenzen, damit Sie sich nicht darum kümmern müssen.
 
-Abhängig von der Grösse eines Feldes und seiner Position im struct, bestimmt Go das padding das gebraucht wird.
+Abhängig von der Größe eines bestimmten Feldes und seiner Platzierung in der Struktur, bestimmt Go
+das benötigte Padding fest.
 
-    type example2 struct {
-        flag    bool
-        counter int16
-        flag2   bool
-        pi      float32
+    Typ example2 struct {
+        flag bool
+        Zähler int16
+        flag2 bool
+        pi float32
     }
 
-In diesem Beispiel, habe ich ein neues Feld namens `flag2` zwischen counter und pi angelegt.
-Dies verursacht mehr padding innerhalb des struct.
+In diesem Beispiel habe ich ein neues Feld namens "Flag2" zwischen den Feldern "Counter" und "Pi
+Feldern. Dies führt zu mehr Füllung innerhalb der Struktur.
 
     type example2 struct {
-        flag    bool     // 0xc000100020 <- Starting Address
-                byte     // 0xc000100021 <- 1 byte padding
-        counter int16    // 0xc000100022 <- 2 byte alignment
-        flag2   bool     // 0xc000100024 <- 1 byte alignment
-                byte     // 0xc000100025 <- 1 byte padding
-                byte     // 0xc000100026 <- 1 byte padding
-                byte     // 0xc000100027 <- 1 byte padding
-        pi      float32  // 0xc000100028 <- 4 byte alignment
+        flag bool // 0xc000100020 <- Startadresse
+                byte // 0xc000100021 <- 1 Byte Auffüllung
+        counter int16 // 0xc000100022 <- 2 Byte Ausrichtung
+        flag2 bool // 0xc000100024 <- 1 Byte Ausrichtung
+                byte // 0xc000100025 <- 1 Byte Auffüllung
+                Byte // 0xc000100026 <- 1 Byte Auffüllung
+                byte // 0xc000100027 <- 1 Byte Auffüllung
+        pi float32 // 0xc000100028 <- 4 Byte Ausrichtung
     }
 
-So sieht die Angleichung und das Padding aus, wenn ein Wert vom Typ example2 bei Adresse 0xc000100020 startet.
-Das flag Feld representier die Start-Adresse und is nur 1 byte gross. Weil das Counter Feld 2 bytes braucht, muss es im
-Memory mit 2-byte angeglichen werden, das heisst es muss auf eine Adresse fallen die ein Vielfaches von 2 ist. 
-Damit muss das coutner Feld bei Adresse 0xc000100020 starten. Dies resultiert in einer 1-byte Lücke zwischen flag und counter.
+So sehen die Ausrichtung und das Auffüllen aus, wenn ein Wert vom Typ example2 an folgender Stelle beginnt
+an der Adresse 0xc000100020 beginnt. Das Flag-Feld stellt die Startadresse dar und ist
+nur 1 Byte groß. Da das Zählerfeld 2 Byte an Zuweisung benötigt, muss es
+muss es mit einer 2-Byte-Ausrichtung im Speicher platziert werden, d. h. es muss auf eine Adresse fallen
+Adresse fallen, die ein Vielfaches von 2 ist. Dies erfordert, dass das Zählerfeld an der Adresse
+0xc000100022 beginnen. Dadurch entsteht eine 1-Byte-Lücke zwischen dem Flag- und dem Zählerfeld.
 
 .image /tour/eng/static/img/f2.png
 
-Das `flag2`Feld ist eine bool und kann auf die nächste Adresse fallen 0xc000100024.
-Das letze Feld ist Pi und braucht 4 bytes, also muss es auf eine 4-byte Angleichung passen. Die nächste Adresse 
-für ein 4byte Wert ist bei 0xc000100028. Das bedeutet plus 3 padding bytes werden gebraucht um eine saubere Angeleichung 
-zu gewährleisten. Dies resultiert in einem Wert von 12 bytes für einen Typ example2.
+Das Feld `Flag2` ist ein bool und kann auf die nächste Adresse 0xc000100024 fallen. Das
+letzte Feld ist pi und erfordert 4 Byte Zuweisung, so dass es auf eine
+4-Byte-Ausrichtung fallen. Die nächste Adresse für einen 4-Byte-Wert liegt bei 0xc000100028. Das
+bedeutet, dass 3 weitere Auffüllungsbytes benötigt werden, um eine korrekte Ausrichtung zu gewährleisten. Dies führt dazu
+dass ein Wert des Typs example2 insgesamt 12 Byte Speicherplatz benötigt.
 
-Das grösste Feld in einem struct representiert die Angleichungsgrenze für das gesamte struct.
-In diesem Fall ist das grösste Feld 4 bytes gross. Damit muss die Start-Adresse für dieses struct ein Vielfaches von 4 sein.
-Du kannst sehen dass die Adresse 0xc000100020 ein Vielfaches von 4 ist.
+Das größte Feld in einer Struktur stellt die Ausrichtungsgrenze für die gesamte
+Struktur. In diesem Fall ist das größte Feld 4 Byte groß, so dass die Startadresse für diesen Strukturwert ein Vielfaches von 4 sein muss.
+Sie sehen, dass die Adresse 0xc000100020 ein Vielfaches von 4 ist.
+Vielfaches von 4.
 
-Wenn Du die Anzahl Padding-bytes minimieren willst, musst Du die Felder so anordnen, dass die höchste Allozierung zuerst 
-kommt und die Kleinste zuletzt. Dies stösst notwendige padding bytes ans Ende des struct und reduziert die Anzahl der Padding-bytes.
+Wenn Sie die Anzahl der Auffüllungsbytes minimieren müssen, müssen Sie die Felder von der
+höchsten Zuweisung zur niedrigsten Zuweisung anordnen. Dadurch werden alle notwendigen Auffüllungsbytes
+an den unteren Rand der Struktur und verringern die Gesamtzahl der erforderlichen Auffüllungsbytes.
 
     type example struct {
-        pi      float32  // 0xc000100020 <- Starting Address
-        counter int16    // 0xc000100024 <- 2 byte alignment
-        flag    bool     // 0xc000100026 <- 1 byte alignment
-        flag2   bool     // 0xc000100027 <- 1 byte alignment
+        pi float32 // 0xc000100020 <- Startadresse
+        counter int16 // 0xc000100024 <- 2 Byte Ausrichtung
+        flag bool // 0xc000100026 <- 1 Byte Ausrichtung
+        flag2 bool // 0xc000100027 <- 1 Byte Ausrichtung
     }
 
-Nach der Neuanordnung der Felder, braucht das struct nur noch 8 bytes anstatt 12.
-Da alle Felder auf eine 4-byte Angleichung fallen, braucht es kein zusätzliches padding byte.
+Nach der Neuordnung der Felder benötigt der struct-Wert nur noch 8 Byte
+Zuweisung und nicht 12 Bytes. Da alle Felder es ermöglichen, dass der struct-Wert
+auf eine 4-Byte-Ausrichtung fallen, sind keine zusätzlichen Auffüllungsbytes erforderlich.
 
 .image /tour/eng/static/img/f3.png
 
 ** Werte zuweisen
 
-Wenn Du zwei verschiedene named types hast, die identisch in ihrer Struktur sind, kann man nicht den Wert des Einen dem Anderen zuweisen.
+Wenn Sie zwei verschiedene benannte Typen haben, die in ihrer Struktur identisch sind, können Sie nicht
+einen Wert des einen dem anderen zuweisen.
 
-Zum Beispiel: Wenn die types example1 und example2 genau gleich deklariert und initialisiert werden.
+Wenn zum Beispiel die Typen example1 und example2 mit der exakt gleichen
+Deklaration deklariert werden und wir zwei Variablen initialisieren.
 
-    var ex1 example1
-    var ex2 example2
+    var ex1 Beispiel1
+    var ex2 beispiel2
 
-Man kann diese nicht gegenseitig zuweisen, weil sie verschiedene named types sind. 
-Die Tatsache dass sie identisch in der Struktur sind, ist irrelevant.
+Sie können diese beiden Variablen nicht einander zuordnen, da sie von unterschiedlichem
+Typen sind. Die Tatsache, dass sie in ihrer Struktur identisch sind, ist irrelevant.
 
-    ex1 = ex2  // Nicht erlaubt, compiler error
+    ex1 = ex2 // Nicht zulässig, Compilerfehler
 
-Um diese Zuweisung zu machen, muss eine Konversion stattfinden. Weil die Struktur dieselbe ist, wird das vom Compiler erlaubt.
+Um diese Zuordnung vorzunehmen, müssten Sie eine Konvertierungssyntax verwenden, und da sie
+von der Struktur her identisch sind, wird der Compiler dies zulassen.
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2) // Erlaubt, KEIN Compilerfehler
 
-Wenn allerdings ex2 zu einem unnamed type geändert wird, braucht es keine Konversion.
+Wenn jedoch ex2 als unbenannter Typ deklariert würde, der genau dieselbe Deklaration wie ex1
+Deklaration wie ex1 deklariert würde, wäre keine Konvertierungssyntax erforderlich.
 
     var ex2 struct {
-        flag    bool
-        counter int16
-        pi      float32
+        flag bool
+        zähler int16
+        pi float32
     }
 
-    ex1 = ex2  // Erlaubt, Keine Notwendigkeit für Konversion
+    ex1 = ex2 // Erlaubt, KEINE Notwendigkeit für Konvertierungssyntax
 
-Der Compiler erlaubt die Zuweisung ohne Konversion.
+Der Compiler erlaubt diese Zuordnung, ohne dass eine Konvertierung erforderlich ist.
 
-** Notizen 
-- Wir können die struct literal form zum initialisiern von struct types brauchen.
-- Der dot (.) Operator erlaubt uns den Zugriff auf individuelle Feld-Wertek
-- Wir können anonyme structs kreieren
+** Anmerkungen
 
-** Quotes
+- Wir können die struct-Literalform verwenden, um einen Wert aus einem struct-Typ zu initialisieren.
+- Der Punkt (.) Operator ermöglicht den Zugriff auf einzelne Feldwerte.
+- Wir können anonyme structs erstellen.
 
-"Implicit conversion of types is the Halloween special of coding. Whoever thought
-of them deserves their own special hell." - Martin Thompson
+** Zitate
 
-** Extra Reading
+"Die implizite Konvertierung von Typen ist das Halloween-Special der Codierung. Wer auch immer sich
+verdient seine eigene spezielle Hölle." - Martin Thompson
 
-- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
-- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
-- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
-- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+** Extra Lesen
 
-* Aufgabe
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Typologie in Go verstehen]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Objektorientiertes Programmieren in Go]] - William Kennedy
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Auffüllen ist schwer]] - Dave Cheney
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Ausrichtung von Strukturelementen, Auffüllen und Packen von Daten]]
+- [[http://www.catb.org/esr/structure-packing][Die verlorene Kunst des Strukturpackens]] - Eric S. Raymond
 
-Benutze das Template als Startpunkt um die Aufgabe zu erfüllen. Eine mögliche Antwort wird bereitgestellt.
+* Übungen
 
-** Aufgabe 1
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-*Teil* *A:* Deklariere ein struct type um Informationen über einen user (name, email, age) zu sammeln.
-Kreiere einen Wert dieses Typen, initialisiere mit Werten und gebe jedes Feld aus.
+** Übung 1
 
-*Teil* *B:* Deklariere und initialisere eine anonymes struct mit denselben 3 Feldern. Gebe die Werte aus.
+*Teil* *A:* Deklarieren Sie einen struct-Typ, um Informationen über einen Benutzer zu erhalten (Name,
+E-Mail und Alter). Erstellen Sie einen Wert dieses Typs, initialisieren Sie ihn mit Werten und zeigen Sie
+jedes Feld.
+
+*Teil* *B:* Deklarieren und initialisieren Sie einen anonymen Strukturtyp mit denselben drei
+Feldern. Zeige den Wert an.
 
 .play struct-types/exercise1.go
 .play struct-types/answer1.go

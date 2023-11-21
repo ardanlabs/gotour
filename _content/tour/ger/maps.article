@@ -1,24 +1,24 @@
-Maps
-A map is a data structure that provides support for storing and accessing data based on a key.
+Karten
+Eine Karte ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten auf der Grundlage eines Schlüssels ermöglicht.
 
-* Maps
+* Karten
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-A map is a data structure that provides support for storing and accessing data
-based on a key. It uses a hash map and bucket system that maintains a contiguous
-block of memory underneath.
+Eine Map ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten
+basierend auf einem Schlüssel. Sie verwendet ein Hash-Map- und Bucket-System, das einen zusammenhängenden
+zusammenhängenden Block des Speichers unterhält.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Declare, write, read, and delete
-- *Example* *2:* Absent keys
-- *Example* *3:* Map key restrictions
-- *Example* *4:* Map literals and range
-- *Example* *5:* Sorting maps by key
-- *Example* *6:* Taking an element's address
-- *Example* *7:* Maps are Reference Types
+- *Beispiel* *1:* Deklarieren, schreiben, lesen und löschen
+- *Beispiel* *2:* Abwesende Schlüssel
+- *Beispiel* *3:* Einschränkungen für Map-Schlüssel
+- *Beispiel* *4:* Map-Literale und Bereich
+- *Beispiel* *5:* Sortieren von Maps nach Schlüssel
+- *Beispiel* *6:* Einnahme der Adresse eines Elements
+- *Beispiel* *7:* Maps sind Referenztypen
 
 .play maps/example1.go
 .play maps/example2.go
@@ -28,152 +28,152 @@ block of memory underneath.
 .play maps/example6.go
 .play maps/example7.go
 
-** Declaring And Constructing Maps
+** Deklarieren und Konstruieren von Karten
 
-Declaring and constructing a map can be done in several ways.
+Das Deklarieren und Konstruieren einer Karte kann auf verschiedene Weise erfolgen.
 
-    type user struct {
-        name     string
+    Typ user struct {
+        name string
         username string
     }
 
-    // Construct a map set to its zero value,
-    // that can store user values based on a key of type string.
-    // Trying to use this map will result in a runtime error (panic).
+    // Konstruieren Sie eine Map, die auf ihren Nullwert gesetzt wird,
+    // die Benutzerwerte basierend auf einem Schlüssel vom Typ String speichern kann.
+    // Der Versuch, diese Map zu verwenden, führt zu einem Laufzeitfehler (Panik).
     var users map[string]user
 
-    // Construct a map initialized using make,
-    // that can store user values based on a key of type string.
-    users := make(map[string]user)
+    // Konstruieren Sie eine mit make initialisierte Map,
+    // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
+    Benutzer := make(map[string]user)
 
-    // Construct a map initialized using empty literal construction,
-    // that can store user values based on a key of type string.
-    users := map[string]user{}
+    // Konstruieren Sie eine Karte, die mit einer leeren Literalkonstruktion initialisiert wird,
+    // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
+    Benutzer := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking.
-The use of the built-in function make and literal construction constructs a map
-ready for use.
+Eine Map, die auf den Wert Null gesetzt ist, ist nicht verwendbar und führt dazu, dass Ihr Programm in Panik gerät.
+Die Verwendung der eingebauten Funktion make und der Konstruktion von Literalen konstruiert eine Map
+bereit zur Verwendung.
 
     func main() {
-        users := make(map[string]user)
+        Benutzer := make(map[string]user)
 
         users["Roy"] = user{"Rob", "Roy"}
-        users["Ford"] = user{"Henry", "Ford"}
-        users["Mouse"] = user{"Mickey", "Mouse"}
-        users["Jackson"] = user{"Michael", "Jackson"}
+        benutzer["Ford"] = benutzer{"Henry", "Ford"}
+        benutzer["Maus"] = benutzer{"Mickey", "Maus"}
+        benutzer["Jackson"] = benutzer{"Michael", "Jackson"}
 
         for key, value := range users {
-            fmt.Println(key, value)
+            fmt.Println(schlüssel, wert)
         }
     }
 
-Output:
+Ausgabe:
 
     Roy {Rob Roy}
     Ford {Henry Ford}
-    Mouse {Mickey Mouse}
+    Maus {Mickey Mouse}
     Jackson {Michael Jackson}
 
-If the built-in function make is used to construct a map, then the assignment operator
-can be used to add and update values in the map. The order of how keys/values are
-returned when ranging over a map is undefined by the spec and up to the compiler to
-implement. 
+Wenn die eingebaute Funktion make zum Aufbau einer Map verwendet wird, kann der Zuweisungsoperator
+zum Hinzufügen und Aktualisieren von Werten in der Map verwendet werden. Die Reihenfolge, in der die Schlüssel/Werte
+zurückgegeben werden, wenn eine Map durchlaufen wird, ist in der Spezifikation nicht definiert und muss vom Compiler
+implementieren.
 
     func main() {
         users := map[string]user{
             "Roy":     {"Rob", "Roy"},
             "Ford":    {"Henry", "Ford"},
-            "Mouse":   {"Mickey", "Mouse"},
+            "Mouse":   {"Mickey", "Maus"},
             "Jackson": {"Michael", "Jackson"},
         }
 
         for key, value := range users {
-            fmt.Println(key, value)
+            fmt.Println(schlüssel, wert)
         }
     }
 
-Output:
+Ausgabe:
 
     Ford {Henry Ford}
     Jackson {Michael Jackson}
     Roy {Rob Roy}
-    Mouse {Mickey Mouse}
+    Maus {Mickey Mouse}
 
-In this case, the output was returned in a different order from how they are
-listed in the construction. The current algorithm for 1.16 will return the results
-in a random order once the number of values reaches a certain limit. Once again,
-this is a compiler implementation that is allowed to change. You can’t depend on it.
+In diesem Fall wurden die Ausgaben in einer anderen Reihenfolge zurückgegeben, als sie
+in der Konstruktion aufgelistet sind. Der aktuelle Algorithmus für 1.16 gibt die Ergebnisse
+in einer zufälligen Reihenfolge zurück, sobald die Anzahl der Werte eine bestimmte Grenze erreicht. Noch einmal,
+ist dies eine Compiler-Implementierung, die sich noch ändern kann. Sie können sich nicht darauf verlassen.
 
-** Lookups and Deleting Map Keys
+** Nachschlagen und Löschen von Map Keys
 
-Once data is stored inside of a map, to extract any data a key lookup is required.
+Sobald die Daten in einer Map gespeichert sind, ist zum Extrahieren der Daten eine Schlüsselabfrage erforderlich.
 
-    user1, exists1 := users["Bill"]
+    user1, exists1 := Benutzer["Bill"]
     user2, exists2 := users["Ford"]
 
-    fmt.Println("Bill:", exists1, user1)
-    fmt.Println("Ford:", exists2, user2)
+    fmt.Println("Rechnung:", existiert1, Benutzer1)
+    fmt.Println("Ford:", existiert2, Benutzer2)
 
-Output:
+Ausgabe:
 
     Bill: false { }
     Ford: true {Henry Ford}
 
-To perform a key lookup, square brackets are used with the map variable. Two
-values can be returned from a map lookup, the value and a boolean that represents
-if the value was found or not. If you don’t need to know this, you can leave the
-"exists" variable out.
+Um eine Schlüsselsuche durchzuführen, werden eckige Klammern mit der Map-Variablen verwendet. Zwei
+Werte zurückgegeben werden: der Wert und ein boolescher Wert, der angibt
+ob der Wert gefunden wurde oder nicht. Wenn Sie dies nicht wissen müssen, können Sie die Variable
+Variable "exists" weglassen.
 
-When a key is not found in the map, the operation returns a value of the map type
-set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
-zero value to determine if a key exists in the map or not since zero value may be
-valid and what was actually stored for the key.
+Wenn ein Schlüssel nicht in der Map gefunden wird, gibt die Operation einen Wert vom Typ Map
+zurück, der auf den Wert Null gesetzt ist. Sie können dies an der Schlüsselabfrage "Bill" sehen. Verwenden Sie nicht
+Nullwert, um festzustellen, ob ein Schlüssel in der Map existiert oder nicht, da der Nullwert gültig sein kann
+gültig sein kann und was tatsächlich für den Schlüssel gespeichert wurde.
 
     delete(users, "Roy")
 
-There is a built-in function named delete that allows for the deletion of data
-from the map based on a key.
+Es gibt eine eingebaute Funktion namens delete, die das Löschen von Daten
+aus der Map auf der Grundlage eines Schlüssels ermöglicht.
 
-** Key Map Restrictions
+** Schlüssel Karteneinschränkungen
 
-Not all types can be used as a key.
+Nicht alle Typen können als Schlüssel verwendet werden.
 
     type slice []user
-    Users := make(map[slice]user)
+    Benutzer := make(map[slice]user)
 
-Compiler Error:
+Compiler-Fehler:
 
-    invalid map key type users
+    ungültiger Map-Schlüsseltyp Benutzer
 
-A slice is a good example of a type that can’t be used as a key. Only values that
-can be run through the hash function are eligible. A good way to recognize types
-that can be a key is if the type can be used in a comparison operation. You can’t
-compare two slice values.
+Ein Slice ist ein gutes Beispiel für einen Typ, der nicht als Schlüssel verwendet werden kann. Nur Werte, die
+die Hash-Funktion durchlaufen können, sind geeignet. Eine gute Möglichkeit, Typen zu erkennen
+die als Schlüssel verwendet werden können, ist, dass der Typ in einer Vergleichsoperation verwendet werden kann. Sie können nicht
+zwei Slice-Werte vergleichen.
 
-** Notes
+** Anmerkungen
 
-- Maps provide a way to store and retrieve key/value pairs.
-- Reading an absent key returns the zero value for the map's value type.
-- Iterating over a map is always random.
-- The map key must be a value that is comparable.
-- Elements in a map are not addressable.
-- Maps are a reference type.
+- Maps bieten eine Möglichkeit zum Speichern und Abrufen von Schlüssel/Wert-Paaren.
+- Das Lesen eines fehlenden Schlüssels gibt den Nullwert für den Wertetyp der Map zurück.
+- Das Iterieren über eine Map ist immer zufällig.
+- Der Map-Schlüssel muss ein Wert sein, der vergleichbar ist.
+- Elemente in einer Map sind nicht adressierbar.
+- Maps sind ein Referenztyp.
 
 ** Links
 
-- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand    
-- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy    
-- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
-- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
+- [[https://blog.golang.org/go-maps-in-action][Go-Karten in Aktion]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Makroansicht der Karteninterna in Go]] - William Kennedy
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Einblick in die Map-Implementierung]] - Keith Randall
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][Wie die Go-Laufzeitumgebung Maps effizient implementiert (ohne Generika)]] - Dave Cheney
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-Declare and make a map of integer values with a string as the key. Populate the
-map with five values and iterate over the map to display the key/value pairs.
+Deklarieren und erstellen Sie eine Karte von Ganzzahlwerten mit einer Zeichenkette als Schlüssel. Füllen Sie die
+Karte mit fünf Werten und führen Sie eine Iteration über die Karte durch, um die Schlüssel/Wertpaare anzuzeigen.
 
 .play maps/exercise1.go
 .play maps/answer1.go

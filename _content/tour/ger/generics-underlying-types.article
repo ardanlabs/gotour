@@ -1,51 +1,51 @@
-Underlying Types
-You can declare a generic type using an underlying type.
+Zugrundeliegende Typen
+Sie können einen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren.
 
-* Generics - Underlying Types
+* Generika - Zugrunde liegende Typen
 
-You can declare a generic type using an underlying type.
+Sie können einen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Schauen Sie sich den Vortrag über Generics an, der Sie durch alle
+Beispiele in diesem Abschnitt der Tour.
 
 .html generics-video.html
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1*: Concrete vector type
-- *Example* *2*: Interface vector type
-- *Example* *3*: Generic vector type
+- *Beispiel* *1*: Konkreter Vektortyp
+- *Beispiel* *2*: Interface-Vektortyp
+- *Beispiel* *3*: Generischer Vektortyp
 
 .play generics/underlying-types/example1.go
 .play generics/underlying-types/example2.go
 .play generics/underlying-types/example3.go
 
-** Explained
+** Erläutert
 
-What if you wanted to declare my own generic type using an underlying type?
+Was wäre, wenn ich meinen eigenen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren wollte?
 
-    type vector[T any] []T
+    Typ Vektor[T beliebig] []T
 
     func (v vector[T]) last() (T, error) {
-        var zero T
+        var null T
         
         if len(v) == 0 {
-            return zero, errors.New("empty")
+            return zero, errors.New("leer")
         }
         
         return v[len(v)-1], nil
     }
 
-This example shows a generic vector type that restricts the construction of a vector
-to a single type of data. The use of square brackets declares that type T is a generic
-type to be determined at compile time. The use of the constraint "any" describes
-there is no constraint on what type T can become.
+Dieses Beispiel zeigt einen generischen Vektortyp, der die Konstruktion eines Vektors
+auf einen einzigen Datentyp beschränkt. Die Verwendung von eckigen Klammern erklärt, dass der Typ T ein generischer Typ ist
+Typ ist, der zur Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt
+dass es keine Beschränkung gibt, was für ein Typ T werden kann.
 
-The last method is declared with a value receiver of type vector[T] to represent a
-value of type vector with an underlying slice of some type T. The method returns a
-value of that same type T.
+Die letzte Methode wird mit einem Werteempfänger vom Typ vector[T] deklariert, um einen
+Wert vom Typ vector mit einem zugrundeliegenden Slice vom Typ T darzustellen. Die Methode gibt einen
+Wert desselben Typs T zurück.
 
     func main() {
         fmt.Print("vector[int] : ")
@@ -58,11 +58,11 @@ value of that same type T.
             return
         }
 
-        if i < 0 {
-            fmt.Print("negative integer: ")
+        wenn i < 0 {
+            fmt.Print("negative ganze Zahl: ")
         }
 
-        fmt.Printf("value: %d\n", i)
+        fmt.Printf("Wert: %d\n", i)
 
         // -------------------------------------------------------------------------
 
@@ -77,86 +77,86 @@ value of that same type T.
         }
 
         if !utf8.ValidString(s) {
-            fmt.Print("non-valid string: ")
+            fmt.Print("nicht gültiger String: ")
         }
 
-        fmt.Printf("value: %q\n", s)
+        fmt.Printf("Wert: %q\n", s)
     }
 
-Output:
+Ausgabe:
 
-    vector[int] : negative integer: value: -1
-    vector[string] : non-valid string: value: "\xff"
+    vector[int] : negative Ganzzahl: Wert: -1
+    vector[string] : nicht gültiger String: Wert: "\xff"
 
-This is how to construct a value of type vector with an underlying type of int when I
-will set values in the vector at construction. An important aspect of this code is the
-construction calls.
+So konstruiere ich einen Wert vom Typ vector mit einem zugrunde liegenden Typ int, wenn ich
+bei der Konstruktion Werte im Vektor setzt. Ein wichtiger Aspekt dieses Codes sind die
+Konstruktionsaufrufe.
 
-    // Zero Value Construction
+    // Nullwert-Konstruktion
     var vGenInt vector[int]
     var vGenStr vector[string]
     
-    // Non-Zero Value Construction
-    vGenInt := vector{10, -1}
+    // Nicht-Nullwert-Konstruktion
+    vGenInt := Vektor{10, -1}
     vGenStr := vector{"A", "B", string([]byte{0xff})}
 
-When it comes to constructing these generic types to their zero value, it’s not
-possible for the compiler to infer the type. However, in cases where there is
-initialization during construction, the compiler can infer the type.
+Wenn es darum geht, diese generischen Typen auf ihren Nullwert zu konstruieren, ist es
+ist es für den Compiler nicht möglich, den Typ zu ermitteln. In den Fällen jedoch, in denen es eine
+Initialisierung während der Konstruktion, kann der Compiler den Typ ableiten.
 
-There is an aspect of the spec that focuses on the construction of a generic type to
-its zero value state.
+Es gibt einen Aspekt der Spezifikation, der sich auf die Konstruktion eines generischen Typs in
+seinem Nullwert-Zustand.
 
-    type vector[T any] []T
+    Typ Vektor[T beliebig] []T
     
     func (v vector[T]) last() (T, error) {
-        var zero T
+        var null T
         
         if len(v) == 0 {
-            return zero, errors.New("empty")
+            return zero, errors.New("leer")
         }
         
         return v[len(v)-1], nil
     }
 
-You need to focus on the method declaration for the last method and how the method
-returns a value of the generic type T. On the first return is a situation where you need
-to return the zero value for type T. The current implementation provides two solutions to write
-this code. The first solution you see already. A variable named zero is constructed to
-its zero value state of type T and then that variable is used for the return.
+Sie müssen sich auf die Methodendeklaration für die letzte Methode konzentrieren und darauf, wie die Methode
+einen Wert des generischen Typs T zurückgibt. Bei der ersten Rückgabe ist eine Situation gegeben, in der Sie
+den Nullwert für den Typ T zurückgeben. Die aktuelle Implementierung bietet zwei Lösungen für die Erstellung von
+diesen Code zu schreiben. Die erste Lösung sehen Sie bereits. Eine Variable mit dem Namen Null wird konstruiert, um
+ihren Nullwert-Zustand des Typs T und dann wird diese Variable für die Rückgabe verwendet.
 
-The other option is to use the built-in function new and dereference the returned
-pointer within the return statement.
+Die andere Möglichkeit ist die Verwendung der eingebauten Funktion new und die Dereferenzierung des zurückgegebenen
+Zeiger innerhalb der Return-Anweisung zu dereferenzieren.
 
-    type vector[T any] []T
+    Typ Vektor[T beliebig] []T
     
     func (v vector[T]) last() (T, error) {
         if len(v) == 0 {
-            return *new(T), errors.New("empty")
+            return *new(T), errors.New("leer")
         }
         
         return v[len(v)-1], nil
     }
 
-This version of the last method is using the built-in function new for zero value
-construction and dereferencing of the returned pointer to satisfy return type T.
+Diese Version der letzten Methode verwendet die eingebaute Funktion new für die Nullwert
+Konstruktion und Dereferenzierung des zurückgegebenen Zeigers, um den Rückgabetyp T zu erfüllen.
 
-Note: You might think why not use T{} to perform zero value construction? The
-problem is this syntax does not work with all types, such as the scalar types (int,
-string, bool). So it’s not an option.
+Hinweis: Man könnte meinen, warum nicht T{} verwenden, um eine Nullwertkonstruktion durchzuführen? Das
+Problem ist, dass diese Syntax nicht mit allen Typen funktioniert, wie z.B. den skalaren Typen (int,
+string, bool). Sie ist also keine Option.
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-Declare a generic type named keymap that uses an underlying type of map
-with a key of type string and a value of some type T. Declare a method
-named set that accepts a key of type string and a value of type T. Declare
-a method named get that accepts a key of type string and return a value of
-type T and true or false if the key is found. Then write a main function
-that uses the methods.
+Deklarieren Sie einen generischen Typ namens keymap, der einen zugrundeliegenden Typ von map verwendet
+mit einem Schlüssel vom Typ string und einem Wert vom Typ T verwendet. Deklarieren Sie eine Methode
+namens set, die einen Schlüssel vom Typ string und einen Wert vom Typ T akzeptiert. Deklarieren Sie
+eine Methode namens get, die einen Schlüssel vom Typ string akzeptiert und einen Wert vom
+Typ T und true oder false zurückgibt, wenn der Schlüssel gefunden wird. Schreiben Sie dann eine Hauptfunktion
+die die Methoden verwendet.
 
 .play generics/underlying-types/exercise1.go 
 .play generics/underlying-types/answer1.go

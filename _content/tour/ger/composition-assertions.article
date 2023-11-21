@@ -1,34 +1,34 @@
-Type Conversions And Assertions
-Learn how type conversations and assertions work.
+Typkonvertierungen und Assertionen
+Erfahren Sie, wie Typumwandlungen und Assertions funktionieren.
 
-* Type Conversions And Assertions
+* Typkonvertierungen und Assertionen
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+Eine Typkonvertierung ermöglicht die Umwandlung von Daten eines Typs in einen anderen Typ. Eine Typ
+Assertion ermöglicht es, die Frage zu stellen, ob ein Wert des angegebenen Typs
+innerhalb einer Schnittstelle gespeichert ist.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *Beispiel* *1:* Schnittstellenkonvertierungen
+- *Beispiel* *2:* Laufzeittyp-Assertionen
+- *Beispiel* *3:* Verhaltensänderungen
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implicit Interface Conversions
+** Implizite Schnittstellenumwandlungen
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+Wie Sie im letzten Beispiel gesehen haben, kann ein Schnittstellenwert eines Typs für einen
+anderen Schnittstellentyp übergeben werden, wenn der in der Schnittstelle gespeicherte konkrete Wert
+beide Verhaltensweisen implementiert. Dies könnte als implizite Schnittstellenumwandlung betrachtet werden, aber es ist
+aber es ist besser, darüber nachzudenken, wie konkrete Daten durch Schnittstellen in einem
+entkoppelten Zustand.
 
-    type Mover interface {
+    Typ Mover Schnittstelle {
         Move()
     }
 
@@ -37,104 +37,104 @@ decoupled state.
         Unlock()
     }
 
-    type MoveLocker interface {
+    Typ MoveLocker Schnittstelle {
         Mover
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+Bei diesen drei Schnittstellen ist MoveLocker die Zusammensetzung von Mover und Locker.
 
-    type bike struct{}
+    Typ Fahrrad Struktur{}
 
-    func (bike) Move() {
-        fmt.Println("Moving the bike")
+    func (Fahrrad) Move() {
+        fmt.Println("Das Fahrrad wird bewegt")
     }
 
-    func (bike) Lock() {
-        fmt.Println("Locking the bike")
+    func (Fahrrad) Sperren() {
+        fmt.Println("Fahrrad abschließen")
     }
 
-    func (bike) Unlock() {
-        fmt.Println("Unlocking the bike")
+    func (Fahrrad) Entriegeln() {
+        fmt.Println("Das Fahrrad aufschließen")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+Und dann gibt es diesen konkreten Typ Fahrrad, der alle drei Schnittstellen implementiert. Was können Sie tun?
 
     var ml MoveLocker
-    var m Mover
+    var m Beweger
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+Sie können einen Wert des Typs MoveLocker und Mover so konstruieren, dass er den Wert Null hat.
+Dies sind Schnittstellenwerte, die wirklich wertlos sind.
 
-    ml = bike{}
+    ml = Fahrrad{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+Dann können Sie einen Wert des Typs bike in seinen Nullwertzustand konstruieren und eine
+Kopie der MoveLocker-Variablen ml zuweisen. Dies ist möglich, weil ein Fahrrad alle drei Verhaltensweisen implementiert
+alle drei Verhaltensweisen implementiert, und der Compiler kann erkennen, dass die Implementierung existiert.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+Sie können dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Dies ist möglich
+weil ich nicht den Schnittstellenwert ml zuweise, sondern den konkreten Wert, der in ml
+von ml, der ein Fahrradwert ist. Der Compiler weiß, dass jeder konkrete Wert, der in
+von ml gespeichert ist, auch die Mover-Schnittstelle implementieren muss.
 
-This assignment however is not valid. 
+Diese Zuordnung ist jedoch nicht gültig.
 
     ml = m
 
-Output:
+Ausgabe:
 
-    cannot use m (type Mover) as type MoveLocker in assignment:
-        Mover does not implement MoveLocker (missing Lock method)
+    kann m (Typ Mover) nicht als Typ MoveLocker in der Zuweisung verwenden:
+        Mover implementiert MoveLocker nicht (fehlende Lock-Methode)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+Sie können die Mover-Variable m nicht zurück an die MoverLocker-Variable ml zuweisen, weil der
+Compiler kann nur garantieren, dass der konkrete Wert, der in m gespeichert ist, weiß, wie man sich bewegt.
+Er weiß zur Kompilierungszeit nicht, ob der konkrete Wert auch weiß, wie man sperrt und aufschließt.
 
-** Type Assertion Mechanics
+** Mechanik der Typbestätigung
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+Mit einer Typ-Assertion können Sie zur Laufzeit die Frage stellen, ob ein Wert des
+gegebenen Typs innerhalb einer Schnittstelle gespeichert. Sie sehen das an der Syntax m.(bike).
 
-    b := m.(bike)
+    b := m.(Fahrrad)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+In diesem Fall fragen Sie, ob zum Zeitpunkt der Ausführung des Codes ein Fahrradwert in m gespeichert ist.
+der Code ausgeführt wird. Wenn ja, dann erhält die Variable b eine Kopie des gespeicherten
+Wertes gespeichert. Diese Kopie kann dann in die Schnittstellenvariable ml kopiert werden.
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+Wenn innerhalb des Schnittstellenwerts kein Fahrradwert gespeichert ist, gerät das Programm in Panik.
+Sie wollen dies, wenn unbedingt ein Fahrradwert gespeichert sein sollte. Was, wenn es eine
+Möglichkeit besteht, dass kein Wert gespeichert ist, und das ist gültig? Dann brauchen Sie die zweite Form der Typbehauptung.
 
-    b, ok := m.(bike)
+    b, ok := m.(Fahrrad)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+In dieser Form ist ein Fahrradwert in der Schnittstelle gespeichert, wenn ok wahr ist. Wenn
+ok falsch ist, gibt es keinen Wert und das Programm gerät nicht in Panik. Die Variable b jedoch
+ist immer noch vom Typ Fahrrad, aber sie wird auf den Wert Null gesetzt.
 
     func main() {
         mvs := []fmt.Stringer{
-            Car{},
-            Cloud{},
+            Auto{},
+            Wolke{},
         }
 
         for i := 0; i < 10; i++ {
             rn := rand.Intn(2)
 
             if v, is := mvs[rn].(Cloud); is {
-                fmt.Println("Got Lucky:", v)
-                continue
+                fmt.Println("Habe Glück gehabt:", v)
+                weiter
             }
 
-            fmt.Println("Got Unlucky")
+            fmt.Println("Pech gehabt")
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+Angenommen, das Programm deklariert zwei Typen namens Auto und Wolke, die jeweils die Schnittstelle
+die Schnittstelle fmt.Stringer implementieren, können Sie eine Auflistung konstruieren, die es Ihnen ermöglicht, einen
+Wert von sowohl Car als auch Cloud speichern können. Dann wählen Sie 10 Mal zufällig eine Zahl zwischen 0 und 1,
+und führen eine Typüberprüfung durch, um festzustellen, ob der Wert an diesem Zufallsindex einen
+Cloud-Wert enthält. Da es möglich ist, dass der Wert nicht vom Typ Cloud ist, ist die zweite Form der Typ
+Behauptung hier entscheidend.

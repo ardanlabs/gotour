@@ -1,82 +1,82 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Slice-Beschränkungen
+Es kann vorkommen, dass Sie den generischen Typ darauf beschränken müssen, nur ein Slice zu sein.
 
-* Generics - Slice Constraints
+* Generika - Slice Constraints
 
-There may be times where you need to constrain the generic type to be only a slice.
+Es kann vorkommen, dass Sie den generischen Typ auf ein Slice beschränken müssen.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Sehen Sie sich den Vortrag an, den ich über Generics gehalten habe und der Sie durch alle
+Beispiele in diesem Abschnitt der Tour.
 
 .html generics-video.html
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1*: Operate function
+- *Beispiel* *1*: Funktion ausführen
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Erläutert
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Hier hat der benutzerdefinierte Typ Numbers einen zugrundeliegenden Typ, der ein Slice von
+Ganzzahlen ist.
 
-    type Numbers []int
+    Typ Zahlen []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+Der Compiler ermöglicht es Ihnen, Variablen, die auf einer Scheibe von Ganzzahlen basieren, zu konvertieren
+mit Variablen des Typs Numbers. Das ist in der Regel gut und das, was Sie wollen.
+Aufgrund dieser Funktionalität können Sie eine generische Funktion schreiben, die mit einer
+Slice unter Berücksichtigung des zugrunde liegenden Typs operieren kann.
 
     type operateFunc[T any] func(t T) T
 
     func operate[T any](slice []T, fn operateFunc[T]) []T {
         ret := make([]T, len(slice))
-            for i, v := range slice {
+            for i, v := Bereich slice {
             ret[i] = fn(v)
         }
         
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Hier deklariert die Funktion operate einen generischen Typ T, der alles sein kann. Der Typ
+wird verwendet, um einen Parameter namens slice zu deklarieren, der ein Slice desselben Typs T annimmt.
+Die Funktion akzeptiert auch eine generische Funktion desselben Typs T und gibt ein Slice
+von T zurück.
 
-    type Numbers []int
+    Typ Zahlen []int
     
     func Double(n Numbers) Numbers {
         fn := func(n int) int {
             return 2 * n
         }
     
-        numbers := operate(n, fn)
-        fmt.Printf("%T", numbers)
-        return numbers
+        Zahlen := operate(n, fn)
+        fmt.Printf("%T", Zahlen)
+        return Zahlen
     }
 
-Output:
+Ausgabe:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+Die Funktion Double akzeptiert einen Wert vom Typ Numbers und übergibt diesen Wert an die Funktion
+Funktion weiter. In diesem Fall nutzt der Compiler den zugrunde liegenden Typ in für den Typ
+T und der Wert Numbers kann an die Funktion übergeben werden. Was jedoch zurückgegeben wird
+ein Slice vom Typ int zurückgegeben, wie in der Ausgabe zu sehen ist.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Wenn Sie sicherstellen wollen, dass nur ein Numbers-Wert übergeben werden kann und von der Funktion operate
+von der Funktion operate zurückgegeben wird, können Sie die folgenden Änderungen vornehmen.
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Diese Schnittstelle deklariert eine Einschränkung zur Beschränkung eines generischen Typs auf ein tatsächliches Slice von
+eines Typs T. Die Verwendung des Näherungselements ~ schränkt auf alle Typen ein, deren
+zugrundeliegende Typ T ist. Mit dieser Schnittstelle können Sie die Funktion operate ändern.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -84,43 +84,43 @@ underlying type is T. With this interface, you can change the operate function.
     }
 
     // func operate[T any](slice []T, fn operateFunc[T]) []T {
-    //     ret := make([]T, len(slice))
-    //     for i, v := range slice {
-    //         ret[i] = fn(v)
-    //     }
-    //     return ret
+    // ret := make([]T, len(slice))
+    // for i, v := Bereich slice {
+    // ret[i] = fn(v)
+    // }
+    // return ret
     // }
 
     func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
         ret := make(S, len(slice))
-        for i, v := range slice {
+        for i, v := Bereich slice {
             ret[i] = fn(v)
         }
         
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Ändern Sie nun die Funktion operate, um zwei generische Typen zu deklarieren. Typ S, der einen
+einen Slice-Wert des Typs T repräsentiert, und T, der ein Typ ist, der alles sein kann. Die Funktion
+Funktion gibt einen Wert vom Typ S zurück.
 
-    type Numbers []int
+    Typ Zahlen []int
     
     func Double(n Numbers) Numbers {
         fn := func(n int) int {
             return 2 * n
         }
     
-        numbers := operate(n, fn)
-        fmt.Printf("%T", numbers)
+        Zahlen := operate(n, fn)
+        fmt.Printf("%T", Zahlen)
         
-        return numbers
+        Zahlen zurückgeben
     }
 
-Output:
+Ausgabe:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+Wenn Sie dieses Mal den Wert Numbers an die Funktion operate übergeben, ist das zurückgegebene Slice
+zurückgegeben wird, vom Typ Numbers. Der zugrunde liegende Typ wird ignoriert und der benutzerdefinierte
+Typ wird beachtet.

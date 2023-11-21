@@ -1,36 +1,36 @@
-Basics
-Learn how to write a basic generic print function.
+Grundlagen
+Lernen Sie, wie man eine grundlegende generische Druckfunktion schreibt.
 
-* Generics - Basics
+* Generika - Grundlagen
 
-Learn how to write a basic generic print function.
+Lernen Sie, wie man eine einfache generische Druckfunktion schreibt.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Schauen Sie sich den Vortrag über Generics an, der Sie durch alle
+Beispiele in diesem Abschnitt der Tour.
 
 .html generics-video.html
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1*: Concrete implementation of print
-- *Example* *2*: Type Assertion implementation of print
-- *Example* *3*: Reflection implementation of print
-- *Example* *4*: Generic implementation of print
+- *Beispiel* *1*: Konkrete Umsetzung von print
+- *Beispiel* *2*: Type Assertion-Implementierung von print
+- *Beispiel* *3*: Reflection-Implementierung von print
+- *Beispiel* *4*: Generische Implementierung von print
 
 .play generics/basics/example1.go
 .play generics/basics/example2.go
 .play generics/basics/example3.go
 .play generics/basics/example4.go
 
-** Explained
+** Erläutert
 
-If you want to write a single print function that can output a slice of any given type
-and not use reflection, you can use the new generics syntax.
+Wenn Sie eine einzelne Druckfunktion schreiben wollen, die ein Slice eines beliebigen Typs ausgeben kann
+ausgeben kann, ohne Reflexion zu verwenden, können Sie die neue generische Syntax verwenden.
 
     func print[T any](slice []T) {
-        fmt.Print("Generic: ")
+        fmt.Print("Generisch: ")
         
         for _, v := range slice {
             fmt.Print(v, " ")
@@ -39,34 +39,34 @@ and not use reflection, you can use the new generics syntax.
         fmt.Print("\n")
     }
 
-This is an implementation of a single print function that can output a slice of any
-given type using the new generics syntax. What’s nice about this syntax is that the
-code inside the function can use syntax and built-in functions that would work with
-a concrete type. This is not the case when you use the empty interface to write generic
-code.
+Dies ist eine Implementierung einer einzelnen Druckfunktion, die ein Slice eines beliebigen Typs ausgeben kann.
+Typs unter Verwendung der neuen generischen Syntax ausgibt. Das Schöne an dieser Syntax ist, dass der
+Code innerhalb der Funktion die Syntax und die eingebauten Funktionen verwenden kann, die auch mit
+einem konkreten Typ. Dies ist nicht der Fall, wenn Sie die leere Schnittstelle verwenden, um generischen
+Code schreiben.
 
-There needs to be a way to tell the compiler that you won’t be declaring type T explicitly, but it
-has to be determined by the compiler at compile time. The new syntax uses square
-brackets for this. The brackets define a list of generic type identifiers that represent
-types specific to the function that need to be determined at compile time. It’s how you
-tell the compiler that types with these names won’t be declared before the program
-is compiled. These types need to be figured out at compile time.
+Es muss eine Möglichkeit geben, dem Compiler mitzuteilen, dass Sie den Typ T nicht explizit deklarieren werden, aber es muss
+muss vom Compiler zur Kompilierzeit bestimmt werden. Die neue Syntax verwendet dazu eckige
+Klammern für diesen Zweck. Die Klammern definieren eine Liste von generischen Typbezeichnern, die für
+Typen darstellen, die für die Funktion spezifisch sind und zur Kompilierzeit bestimmt werden müssen. Auf diese Weise teilen Sie
+dem Compiler mit, dass Typen mit diesen Namen nicht deklariert werden, bevor das Programm
+kompiliert wird. Diese Typen müssen zur Kompilierzeit ermittelt werden.
 
-Note: You can have multiple type identifiers defined inside the brackets though the
-current example is only using one. Ex. [T, S, R any]
+Hinweis: Innerhalb der eckigen Klammern können mehrere Typbezeichner definiert werden, obwohl das
+dieses Beispiel nur einen verwendet. Bsp. [T, S, R beliebig]
 
-You can name these type identifiers anything you want to help with the readability of the
-code. In this case, the code is using the capital letter T to describe that a slice of some type
-T (to be determined at compile time) will be passed in. It's an idiom to use a single
-capitalized letters when it comes to collections and it’s also a convention that goes
-back to older programming languages like C++ and Java.
+Sie können diese Typbezeichner beliebig benennen, um die Lesbarkeit des Codes zu verbessern.
+Codes. In diesem Fall verwendet der Code den Großbuchstaben T, um zu beschreiben, dass ein Slice des Typs
+T (zur Kompilierzeit zu bestimmen) übergeben wird. Es ist ein Idiom, einen einzelnen
+Großbuchstaben zu verwenden, wenn es um Sammlungen geht, und es ist auch eine Konvention, die
+die auf ältere Programmiersprachen wie C++ und Java zurückgeht.
 
-There is the use of the word any inside the brackets as well. This represents a
-constraint on what type T can be. The compiler requires that all generic types have
-a well defined constraint. The any constraint is predeclared by the compiler and
-states there are no constraints on what type T can be.
+Auch innerhalb der Klammern wird das Wort any verwendet. Dies stellt eine
+Einschränkung, welcher Typ T sein kann. Der Compiler verlangt, dass alle generischen Typen eine
+eine gut definierte Einschränkung haben. Die any-Beschränkung wird vom Compiler vordeklariert und
+besagt, dass es keine Beschränkungen dafür gibt, was der Typ T sein kann.
 
-    numbers := []int{1, 2, 3}
+    Zahlen := []int{1, 2, 3}
     print[int](numbers)
 
     strings := []string{"A", "B", "C"}
@@ -75,40 +75,40 @@ states there are no constraints on what type T can be.
     floats := []float64{1.7, 2.2, 3.14}
     print[float64](floats)
 
-This is how to make calls to the generic print function where the type information
-for T is explicitly provided at the call site. The syntax emulates the idea that the
-function declaration func name[T any](slice []T) defines two sets of parameters.
-The first set is the type that maps to the corresponding type identifiers, and the
-second is the data that maps to the corresponding input variables.
+So können Sie die generische Druckfunktion aufrufen, wenn die Typinformationen
+für T explizit an der Aufrufstelle bereitgestellt wird. Die Syntax emuliert die Idee, dass die
+Funktionsdeklaration func name[T any](slice []T) zwei Sätze von Parametern definiert.
+Der erste Satz ist der Typ, der auf die entsprechenden Typbezeichner abgebildet wird, und der
+zweite sind die Daten, die auf die entsprechenden Eingabevariablen abgebildet werden.
 
-Luckily, the compiler can infer the type and eliminate the need to explicitly pass in
-the type information at the call site.
+Glücklicherweise kann der Compiler den Typ ableiten und macht die explizite Übergabe von
+Typinformationen an der Aufrufstelle zu übergeben.
 
-    numbers := []int{1, 2, 3}
-    print(numbers)
+    Zahlen := []int{1, 2, 3}
+    print(zahlen)
     
     strings := []string{"A", "B", "C"}
-    print(strings)
+    print(zeichenketten)
     
     floats := []float64{1.7, 2.2, 3.14}
     print(floats)
 
-This code shows how you can call the generic print functions without the need to pass
-the type information explicitly. At the function call site, the compiler is able to
-identify the type to use for T and construct a concrete version of the function to
-support slices of that type. The compiler has the ability to infer the type with the
-information it has at the call site from the data being passed in.
+Dieser Code zeigt, wie Sie die generischen Druckfunktionen aufrufen können, ohne dass Sie die
+die Typinformationen explizit zu übergeben. An der Stelle des Funktionsaufrufs ist der Compiler in der Lage
+den für T zu verwendenden Typ zu erkennen und eine konkrete Version der Funktion zu konstruieren, die
+Slices dieses Typs zu unterstützen. Der Compiler ist in der Lage, den Typ anhand der
+Informationen, die ihm an der Aufrufstelle vorliegen, aus den übergebenen Daten abzuleiten.
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-Implement a generic function named marshal that can accept any value and
-marshal that value into JSON, returning the JSON and an error. Declare
-a struct type named User with two fields, Name and Age. Then construct a
-value of the User type and pass the value to the generic marshal function.
+Implementieren Sie eine generische Funktion namens marshal, die einen beliebigen Wert annehmen und
+diesen Wert in JSON umwandelt und das JSON sowie einen Fehler zurückgibt. Deklarieren Sie
+einen struct-Typ namens User mit zwei Feldern, Name und Alter. Konstruieren Sie dann einen
+Wert des Typs User und übergeben Sie den Wert an die generische Funktion marshal.
 
 .play generics/basics/exercise1.go 
 .play generics/basics/answer1.go

@@ -1,86 +1,86 @@
-Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+Schnittstellenverschmutzung
+Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen, anstatt sie zu entdecken.
 
-* Interface Pollution
+* Schnittstelle Umweltverschmutzung
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen
+Schnittstellen entwickeln, anstatt sie zu entdecken.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *Beispiel* *1:* Interface Pollution erstellen
+- *Beispiel* *2:* Interface Verschmutzung entfernen
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Interface Pollution
+** Schnittstellenverschmutzung
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen
+Schnittstellen entwerfen, anstatt sie zu entdecken. Sie sollten zuerst eine konkrete Lösung für das
+Problem entwerfen. Dann kann man herausfinden, wo das Programm polymorph sein muss, wenn
+wenn überhaupt.
 
-These are things I’ve heard from other developers.
+Das sind Dinge, die ich von anderen Entwicklern gehört habe.
 
-"I’m using interfaces because we have to use interfaces".
+"Ich verwende Schnittstellen, weil wir Schnittstellen verwenden müssen".
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+Nein. Wir müssen keine Schnittstellen verwenden. Wir verwenden Schnittstellen, wenn es praktisch und
+vernünftig ist, dies zu tun. Die Verwendung von Schnittstellen hat ihren Preis: eine Ebene der Indirektion
+und Zuweisung, wenn wir konkrete Werte in ihnen speichern. Wenn die Kosten der
+Zuweisung nicht wert ist, was ich durch die Entkopplung gewinne, sollten Sie keine Schnittstellen verwenden.
 
-"I need to be able to test my code so I need to use interfaces".
+"Ich muss in der Lage sein, meinen Code zu testen, also muss ich Schnittstellen verwenden".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+Nein. Sie müssen meine API zuerst für den Benutzer entwerfen, nicht für meinen Test. Wenn die API nicht testbar ist,
+sollten Sie hinterfragen, ob sie brauchbar ist. Auch bei APIs gibt es verschiedene Ebenen. Die
+Die nicht exportierten APIs der unteren Ebene können und sollten sich auf die Testbarkeit konzentrieren. Die höheren Ebenen
+exportierten APIs müssen sich auf die Benutzerfreundlichkeit konzentrieren.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+Funktionen, die Rohdaten entgegennehmen und Rohdaten zurückgeben, sind am besten testbar.
+Trennen Sie die Datentransformation davon, woher die Daten kommen und wohin sie
+gehen. Dies ist eine Refactoring-Übung, die Sie während des technischen
+Kodierungszyklus durchführen müssen.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+Nachfolgend ein Beispiel, bei dem Schnittstellenverschmutzung durch unsachgemäße Verwendung einer
+Schnittstelle verwendet wird, wenn diese nicht benötigt wird.
 
-    type Server interface {
-        Start() error
-        Stop() error
+    Typ Server Schnittstelle {
+        Start() Fehler
+        Stop() Fehler
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+Die Server-Schnittstelle definiert einen Vertrag für TCP-Server. Das Problem hier ist, dass ich
+Sie brauchen keinen Vertrag, sondern eine Implementierung. Es wird nur eine Implementierung geben
+geben, zumal Sie derjenige sind, der sie implementiert. Sie brauchen niemanden, der
+der dies für Sie implementiert.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+Außerdem basiert diese Schnittstelle auf einem Substantiv und nicht auf einem Verb. Konkrete Typen sind Substantive
+da sie das konkrete Problem darstellen. Schnittstellen beschreiben das Verhalten und
+Server ist kein Verhalten.
 
-Here are some ways to identify interface pollution:
+Hier sind einige Möglichkeiten, die Verschmutzung von Schnittstellen zu erkennen:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- Ein Paket deklariert eine Schnittstelle, die der gesamten API des eigenen konkreten Typs entspricht.
+- Die Schnittstellen werden exportiert, aber die konkreten Typen, die die Schnittstelle implementieren, werden nicht exportiert.
+- Die Fabrikfunktion für den konkreten Typ gibt den Schnittstellenwert mit dem nicht exportierten Wert des konkreten Typs zurück.
+- Die Schnittstelle kann entfernt werden, ohne dass sich für den Nutzer der API etwas ändert.
+- Die Schnittstelle entkoppelt die API nicht von Änderungen.
 
-Guidelines around interface pollution:
+Leitlinien zur Schnittstellenverschmutzung:
 
-Use an interface:
+Verwenden Sie eine Schnittstelle:
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+- Wenn die Nutzer der API ein Implementierungsdetail bereitstellen müssen.
+- Wenn APIs mehrere Implementierungen haben, die gepflegt werden müssen.
+- Wenn Teile der APIs, die sich ändern können, identifiziert wurden und entkoppelt werden müssen.
 
-Question an interface:
+Hinterfragen Sie eine Schnittstelle:
 
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- Wenn ihr einziger Zweck darin besteht, testbare APIs zu schreiben (schreiben Sie zuerst brauchbare APIs).
+- Wenn sie keine Unterstützung für die API bietet, um sich von Änderungen zu entkoppeln.
+- Wenn nicht klar ist, wie die Schnittstelle den Code besser macht.

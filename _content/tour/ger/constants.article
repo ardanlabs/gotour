@@ -1,180 +1,180 @@
-Constants
-One of the more unique features of Go is how the language implements constants.
+Konstanten
+Eine der einzigartigeren Eigenschaften von Go ist die Art und Weise, wie die Sprache Konstanten implementiert.
 
-* Constants
+* Konstanten
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-One of the more unique features of Go is how the language implements constants.
-The rules for constants in the language specification are unique to Go. They provide
-the flexibility Go needs to make the code we write readable and intuitive while still
-maintaining type safety.
+Eine der besonderen Eigenschaften von Go ist die Art und Weise, wie die Sprache Konstanten implementiert.
+Die Regeln für Konstanten in der Sprachspezifikation sind einzigartig für Go. Sie bieten
+die Flexibilität, die Go braucht, um den Code, den wir schreiben, lesbar und intuitiv zu machen und gleichzeitig
+Typensicherheit zu gewährleisten.
 
-Constants can be typed or untyped. When a constant is untyped, it’s considered to
-be of a kind. Constants of a kind can be implicitly converted by the compiler. This
-all happens at compile time and not at runtime.
+Konstanten können typisiert oder untypisiert sein. Wenn eine Konstante nicht typisiert ist, wird sie als
+einer Art. Konstanten eines Typs können vom Compiler implizit konvertiert werden. Diese
+geschieht zur Kompilierzeit und nicht zur Laufzeit.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Declare and initialize constants		
-- *Example* *2:* Parallel type system (Kind) (missing)
-- *Example* *3:* iota			
-- *Example* *4:* Implicit conversion
+- *Beispiel* *1:* Deklaration und Initialisierung von Konstanten
+- *Beispiel* *2:* Paralleles Typsystem (Kind) (fehlt)
+- *Beispiel* *3:* iota
+- *Beispiel* *4:* Implizite Konvertierung
 
 .play constants/example1.go
 .play constants/example2.go
 .play constants/example3.go
 .play constants/example4.go
 
-    const ui = 12345     // kind: integer
-    const uf = 3.141592  // kind: floating-point
+    const ui = 12345 // Art: Ganzzahl
+    const uf = 3.141592 // Art: Gleitkomma
 
-Untyped numeric constants have a precision of 256 bits as stated by the specification.
-They are based on a kind.
+Untypisierte numerische Konstanten haben eine Genauigkeit von 256 Bit, wie in der Spezifikation angegeben.
+Sie basieren auf einer Art.
 
-    const ti int     = 12345     // type: int
-    const tf float64 = 3.141592  // type: float64
+    const ti int = 12345 // Typ: int
+    const tf float64 = 3.141592 // Typ: float64
 
-Typed constants still use the constant type system, but their precision is restricted.
+Typisierte Konstanten verwenden immer noch das Konstanten-Typ-System, aber ihre Genauigkeit ist eingeschränkt.
 
-    const myUint8 uint8 = 1000 // Compiler Error: constant 1000 overflows uint8
+    const myUint8 uint8 = 1000 // Compilerfehler: Konstante 1000 überläuft uint8
 
-This doesn't work because the number 1000 is too large to store in an uint8.
+Das funktioniert nicht, weil die Zahl 1000 zu groß ist, um sie in einem uint8 zu speichern.
 
-    var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
+    var Antwort = 3 * 0,333 // float64 = KindFloat(3) * KindFloat(0,333)
 
-Constant arithmetic supports the use of different kinds of constants. Kind Promotion
-is used to handle these different scenarios. All of this happens implicitly. The answer
-variable in this example will be of type float64 and represent 0.999 at a precision
-of 64 bits.
+Die Konstantenarithmetik unterstützt die Verwendung verschiedener Arten von Konstanten. Die Art Promotion
+wird verwendet, um diese verschiedenen Szenarien zu behandeln. All dies geschieht implizit. Die Antwort
+Variable in diesem Beispiel ist vom Typ float64 und repräsentiert 0,999 mit einer Genauigkeit
+von 64 Bit.
 
-    const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
+    const third = 1 / 3.0 // KindFloat = KindFloat(1) / KindFloat(3.0)
 
-The third constant will be of kind float and represent 1/3 at a precision of 256 bits.
+Die dritte Konstante ist vom Typ Float und steht für 1/3 mit einer Genauigkeit von 256 Bit.
 
-    const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
+    const zero = 1 / 3 // KindInt = KindInt(1) / KindInt(3)
 
-The zero constant will be of kind integer and set to 0 since integer division has
-no remainder.
+Die Nullkonstante ist vom Typ Ganzzahl und wird auf 0 gesetzt, da die Ganzzahldivision
+keinen Rest hat.
 
-    const one int8 = 1
-    const two = 2 * one  // int8(2) * int8(1)
+    const eins int8 = 1
+    const zwei = 2 * eins // int8(2) * int8(1)
 
-This is an example of constant arithmetic between typed and untyped constants.
-In this case, a constant of a type promotes over a constant of a kind. The two
-constant will be of type int8 and set to 2.
+Dies ist ein Beispiel für Konstantenarithmetik zwischen typisierten und nicht typisierten Konstanten.
+In diesem Fall hat eine Konstante eines Typs Vorrang vor einer Konstante eines Typs. Die beiden
+Konstanten sind vom Typ int8 und werden auf 2 gesetzt.
 
     const maxInt = 9223372036854775807
 
-This is the max integer value for a 64 bit integer.
+Dies ist der maximale ganzzahlige Wert für eine 64-Bit-Ganzzahl.
 
     const bigger = 9223372036854775808543522345
 
-The bigger constant is a much larger value than a 64 bit integer, but it can be
-stored in a constant of kind int since constants of kind int are not limited to
-64 bits of precision.
+Die größere Konstante ist ein viel größerer Wert als eine 64-Bit-Ganzzahl, aber sie kann
+in einer Konstante der Art int gespeichert werden, da Konstanten der Art int nicht auf
+64 Bit Genauigkeit beschränkt sind.
 
-    const bigger int64 = 9223372036854775808543522345
+    const größer int64 = 9223372036854775808543522345
 
-Compiler Error:
+Compiler-Fehler:
 
-    constant 9223372036854775808543522345 overflows int64
+    Konstante 9223372036854775808543522345 Überläufe int64
 
-However, if bigger was a constant of type int64, this would not compile.
+Wäre bigger jedoch eine Konstante vom Typ int64, ließe sich dies nicht kompilieren.
 
 ** IOTA
 
-IOTA provides support for setting successive integer constants. It’s possible the
-name comes from the integer function ⍳ from the programming language APL. In APL,
-the ⍳ function (represented with the ninth letter of the Greek alphabet, iota) is
-used to create a zero-based array of consecutive, ascending integers of a specified
-length.
+IOTA bietet Unterstützung für das Setzen von aufeinanderfolgenden Integer-Konstanten. Es ist möglich, dass der
+Name stammt von der Integer-Funktion ⍳ aus der Programmiersprache APL. In APL,
+wird die Funktion ⍳ (dargestellt durch den neunten Buchstaben des griechischen Alphabets, iota)
+ein nullbasiertes Array aus aufeinanderfolgenden, aufsteigenden ganzen Zahlen einer bestimmten
+Länge.
 
     const (
-        A1 = iota  // 0 : Start at 0
-        B1 = iota  // 1 : Increment by 1
-        C1 = iota  // 2 : Increment by 1
+        A1 = iota // 0 : Beginn bei 0
+        B1 = iota // 1 : Erhöhen um 1
+        C1 = iota // 2 : Erhöhen um 1
     )
     fmt.Println(A1, B1, C1)
 
-Output:
+Ausgabe:
 
     0 1 2
 
-The iota keyword works within a constant block and starts with the value of 0. Then
-for each successive constant declared in the block, iota increments by 1.
+Das Schlüsselwort iota funktioniert innerhalb eines Konstantenblocks und beginnt mit dem Wert 0. Dann
+für jede weitere Konstante, die in dem Block deklariert wird, erhöht sich iota um 1.
 
     const (
-        A2 = iota  // 0 : Start at 0
-        B2         // 1 : Increment by 1
-        C2         // 2 : Increment by 1
+        A2 = iota // 0 : Beginn bei 0
+        B2 // 1 : Erhöhen um 1
+        C2 // 2 : Inkrementierung um 1
     )
     fmt.Println(A2, B2, C2)
 
-Output:
+Ausgabe:
 
     0 1 2
 
-You don’t need to repeat the use of the iota keyword. The successive nature of the
-integer constants are assumed once applied.
+Die Verwendung des Schlüsselworts iota muss nicht wiederholt werden. Die sukzessive Natur der
+ganzzahligen Konstanten wird nach einmaliger Anwendung angenommen.
 
     const (
-        A3 = iota + 1  // 1 : 0 + 1
-        B3             // 2 : 1 + 1
-        C3             // 3 : 2 + 1
+        A3 = iota + 1 // 1 : 0 + 1
+        B3 // 2 : 1 + 1
+        C3 // 3 : 2 + 1
     )
     fmt.Println(A3, B3, C3)
 
-Output:
+Ausgabe:
 
     1 2 3
 
-If you didn’t want to apply a mathematical pattern, you can perform some math and the
-math is reapplied with an increasing value of iota.
+Wenn Sie kein mathematisches Muster anwenden möchten, können Sie eine Berechnung durchführen und die
+Mathematik wird mit einem steigenden Wert von iota erneut angewandt.
 
     const (
-        Ldate= 1 << iota  //  1 : Shift 1 to the left 0.  0000 0001
-        Ltime             //  2 : Shift 1 to the left 1.  0000 0010
-        Lmicroseconds     //  4 : Shift 1 to the left 2.  0000 0100
-        Llongfile         //  8 : Shift 1 to the left 3.  0000 1000
-        Lshortfile        // 16 : Shift 1 to the left 4.  0001 0000
-        LUTC              // 32 : Shift 1 to the left 5.  0010 0000
+        Ldate= 1 << iota // 1 : Verschiebung 1 nach links 0. 0000 0001
+        Ltime // 2 : Verschiebung von 1 nach links 1.  0000 0010
+        Lmicroseconds // 4 : Verschiebung 1 nach links 2.  0000 0100
+        Llongfile // 8 : Verschiebung 1 nach links 3.  0000 1000
+        Lshortfile // 16 : Verschiebung 1 nach links 4.  0001 0000
+        LUTC // 32 : Verschiebung um 1 nach links 5.  0010 0000
     )
 
     fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
 
-Output:
+Ausgabe:
 
     1 2 4 8 16 32
 
-You can use this feature like the Log package does for setting flags. In this case, bit
-operations are being applied with increasing values of iota to calculate flag values.
+Sie können diese Funktion wie das Log-Paket zum Setzen von Flaggen verwenden. In diesem Fall werden Bit
+Operationen mit aufsteigenden Iota-Werten angewandt, um Merkerwerte zu berechnen.
 
-** Notes
+** Anmerkungen
 
-- Constants are not variables.
-- They exist only at compilation.
-- Untyped constants can be implicitly converted where typed constants and variables can't.
-- Think of untyped constants as having a Kind, not a Type.
-- Learn about explicit and implicit conversions.
-- See the power of constants and their use in the standard library.
+- Konstanten sind keine Variablen.
+- Sie existieren nur bei der Kompilierung.
+- Untypisierte Konstanten können implizit konvertiert werden, was bei typisierten Konstanten und Variablen nicht möglich ist.
+- Betrachten Sie untypisierte Konstanten als eine Art, nicht als einen Typ.
+- Erfahren Sie mehr über explizite und implizite Konvertierungen.
+- Sehen Sie die Macht der Konstanten und ihre Verwendung in der Standardbibliothek.
 
-** Extra Reading
+** Extra Lesen
 
-- [[https://golang.org/ref/spec#Constants][Constants specification]]    
-- [[https://blog.golang.org/constants][Constants]] - Rob Pike    
-- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
+- [[https://golang.org/ref/spec#Constants][Konstanten-Spezifikation]]
+- [[https://blog.golang.org/constants][Konstanten]] - Rob Pike
+- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Einführung in numerische Konstanten in Go]] - William Kennedy
 		
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-*Part* *A:* Declare an untyped and typed constant and display their values.
+*Teil* *A:* Deklarieren Sie eine untypisierte und typisierte Konstante und zeigen Sie deren Werte an.
 
-*Part* *B:* Divide two literal constants into a typed variable and display the value.
+*Teil* *B:* Teilen Sie zwei literale Konstanten in eine typisierte Variable und zeigen Sie den Wert an.
 
 .play constants/exercise1.go
 .play constants/answer1.go

@@ -1,32 +1,32 @@
 Mocking
-Since the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+Da der Compiler eine statische Codeanalyse durchführen kann, um festzustellen, ob ein konkreter Wert eine Schnittstelle implementiert, muss der Entwickler, der den konkreten Typ deklariert, nicht auch noch Schnittstellen bereitstellen.
 
-* Mocking
+* Spott
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. The idea is to compose larger types from smaller types and focus on the
-composition of behavior.
+Der beste Weg, die Vorteile der Einbettung zu nutzen, ist das kompositorische Design
+Muster. Die Idee ist, größere Typen aus kleineren Typen zusammenzusetzen und sich auf die
+Komposition des Verhaltens.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Mocking
+- *Beispiel* *1:* Spott
 
 .play composition/mocking/example1.go
 
-** Interface Ownership
+** Eigentum an der Schnittstelle
 
-One thing that is different about Go from other languages is the idea of convention
-over configuration. This really shows itself with how Go handles interface compliance.
-Because the compiler can perform static code analysis to determine if a concrete value
-implements an interface, the developer declaring the concrete type doesn’t need to
-provide interfaces as well.
+Eine Sache, die sich in Go von anderen Sprachen unterscheidet, ist die Idee, dass Konventionen
+vor der Konfiguration. Dies zeigt sich besonders daran, wie Go die Einhaltung von Schnittstellen handhabt.
+Da der Compiler eine statische Codeanalyse durchführen kann, um festzustellen, ob ein konkreter Wert
+eine Schnittstelle implementiert, muss der Entwickler, der den konkreten Typ deklariert, nicht
+Schnittstellen bereitzustellen.
 
-    package pubsub
+    Paket pubsub
 
-    type PubSub struct {
+    Typ PubSub struct {
         host string
     }
 
@@ -37,47 +37,47 @@ provide interfaces as well.
     }
 
     func (ps *PubSub) Publish(key string, v interface{}) error {
-        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        // VORGEBEN, DASS ES EINE BESTIMMTE IMPLEMENTIERUNG GIBT.
         return nil
     }
 
     func (ps *PubSub) Subscribe(key string) error {
-        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        // VORGEBEN, DASS ES EINE BESTIMMTE IMPLEMENTIERUNG GIBT.
         return nil
     }
 
-You've just implemented a new API that provides a concrete implementation for publish
-and subscribe. There are no interfaces being provided because this API does not
-need one. This is a single concrete implementation.
+Sie haben gerade eine neue API implementiert, die eine konkrete Implementierung für Publish
+und abonnieren bietet. Es werden keine Schnittstellen bereitgestellt, da diese API keine
+braucht. Dies ist eine einzige konkrete Implementierung.
 
-What if the application developer wanting to use this new API needs an interface
-because they have the need to mock this implementation during tests? In Go, that
-developer can declare the interface and the compiler can identify the compliance.
+Was ist, wenn der Anwendungsentwickler, der diese neue API verwenden möchte, eine Schnittstelle benötigt
+benötigt, weil er diese Implementierung während der Tests nachbilden muss? In Go kann der
+Entwickler die Schnittstelle deklarieren und der Compiler kann die Konformität erkennen.
 
-    package main
+    Paket Haupt
 
     type publisher interface {
         Publish(key string, v interface{}) error
         Subscribe(key string) error
     }
 
-    type mock struct{}
+    Typ mock struct{}
 
     func (m *mock) Publish(key string, v interface{}) error {
-        // ADD MY MOCK FOR THE PUBLISH CALL.
+        // FÜGE MEINEN MOCK FÜR DEN PUBLISH-AUFRUF HINZU.
         return nil
     }
 
     func (m *mock) Subscribe(key string) error {
-        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        // FÜGE MEIN MOCK FÜR DEN SUBSCRIBE-AUFRUF HINZU.
         return nil
     }
 
-This code in the main package is declaring an interface. This interface represents
-the API that the application is using from the pubsub package. The developer has
-implemented their own pubsub implementation for testing. The key here is that this
-application developer doesn’t use any concrete implementation directly, but decouples
-themselves through their own interface.
+Dieser Code im Hauptpaket deklariert eine Schnittstelle. Diese Schnittstelle repräsentiert
+die API, die die Anwendung aus dem pubsub-Paket verwendet. Der Entwickler hat
+seine eigene pubsub-Implementierung zu Testzwecken implementiert. Der Schlüssel hier ist, dass dieser
+Anwendungsentwickler keine konkrete Implementierung direkt verwendet, sondern sich über
+durch seine eigene Schnittstelle.
 
     func main() {
         pubs := []publisher{
@@ -86,12 +86,12 @@ themselves through their own interface.
         }
 
         for _, p := range pubs {
-            p.Publish("key", "value")
-            p.Subscribe("key")
+            p.Publish("Schlüssel", "Wert")
+            p.Subscribe("Schlüssel")
         }
     }
 
-To provide an example, the main function constructs a collection that is initialized
-with the pubsub implementation and the mock implementation. The publisher interface
-allows this. Then a for range loop is implemented to show how the application code
-is abstracted from any concrete implementation.
+Um ein Beispiel zu geben, konstruiert die Hauptfunktion eine Sammlung, die initialisiert wird
+mit der pubsub-Implementierung und der mock-Implementierung initialisiert wird. Die Publisher-Schnittstelle
+ermöglicht dies. Dann wird eine for range-Schleife implementiert, um zu zeigen, wie der Anwendungscode
+von jeder konkreten Implementierung abstrahiert wird.

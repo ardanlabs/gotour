@@ -1,29 +1,29 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
+Kanäle
+Kanäle ermöglichen es Goroutinen, durch die Verwendung von Signalisierungssemantiken miteinander zu kommunizieren.
 
-* Channels
+* Kanäle
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+Es ist wichtig, einen Kanal nicht als eine Datenstruktur zu betrachten, sondern als einen Mechanismus zur
+Signalisierung. Dies entspricht der Vorstellung, dass man über einen Kanal sendet und empfängt,
+nicht lesen und schreiben. Wenn das Problem, vor dem man steht, nicht mit Signalisierung gelöst werden kann,
+wenn Sie das Wort Signalisierung nicht in den Mund nehmen, müssen Sie die Verwendung von
+Kanälen hinterfragen.
 
-** Code Review
+** Code-Überprüfung
 
-- *Example* *1:* Wait for result
-- *Example* *2:* Fan out
-- *Example* *3:* Wait for task
-- *Example* *4:* Pooling
-- *Example* *5:* Fan out semaphore
-- *Example* *6:* Bounded work pooling
-- *Example* *7:* Drop
-- *Example* *8:* Cancellation
-- *Example* *9:* Retry timeout
-- *Example* *10:* Channel cancellation
+- *Beispiel* *1:* Warten auf das Ergebnis
+- *Beispiel* *2:* Auffächern
+- *Beispiel* *3:* Warten auf Aufgabe
+- *Beispiel* *4:* Pooling
+- *Beispiel* *5:* Semaphor auffächern
+- *Beispiel* *6:* Bounded work pooling
+- *Beispiel* *7:* Drop
+- *Beispiel* *8:* Annullierung
+- *Beispiel* *9:* Retry Timeout
+- *Beispiel* *10:* Kanalabbruch
 
 .play channels/example1.go
 .play channels/example2.go
@@ -36,166 +36,166 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** Kanalmechanik
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+Der Preis für die Garantie auf der Signalisierungsebene ist eine unbekannte Latenzzeit. Der
+Sender weiß nicht, wie lange er warten muss, bis der Empfänger das Signal akzeptiert.
+Das Warten auf den Empfänger führt zu einer Blockierlatenz. In diesem Fall sind unbekannte
+Mengen an blockierender Latenz. Der Sender muss für eine unbekannte Zeitspanne warten,
+bis der Empfänger für den Empfang des Signals bereit ist.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+Warten auf den Empfänger bedeutet mechanisch, dass der Empfangsvorgang vor dem Senden erfolgt.
+dem Senden. Bei Kanälen erfolgt der Empfang Nanosekunden vorher, aber es ist vorher.
+Das bedeutet, dass der Empfänger das Signal entgegennimmt und dann weggeht, so dass der Absender
+nun mit einer Garantie weitermachen kann.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+Was ist, wenn der Prozess nicht für eine unbekannte Zeitspanne warten kann? Was ist, wenn diese Art von
+Latenzzeit nicht funktionieren wird? Dann kann die Garantie nicht auf der Signalisierungsebene liegen, sie muss
+muss außerhalb davon liegen. Die Mechanik dahinter ist, dass das Senden nun vor dem
+vor dem Empfang. Der Sender kann das Signal ausführen, ohne dass der Empfänger
+verfügbar sein muss. Der Sender muss also nicht mehr warten, sondern kann gehen. Irgendwann, so hofft man,
+taucht der Empfänger auf und nimmt das Signal entgegen.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+Dadurch werden zwar die Latenzkosten beim Senden reduziert, aber es entsteht Unsicherheit über die Signale
+die empfangen werden, und damit auch, ob es Probleme mit den Empfängern im Vorfeld gibt.
+Dies kann dazu führen, dass Arbeit angenommen wird, die nie begonnen oder beendet wird. Es
+könnte schließlich zu einem massiven Rückstau und einem Systemabsturz führen.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+Der zweite Punkt, auf den Sie sich konzentrieren sollten, ist, ob Sie mit dem Signal Daten senden müssen. Wenn das Signal
+die Übertragung von Daten erfordert, dann ist die Signalisierung ein 1 zu 1 zwischen Goroutinen.
+Wenn eine neue Goroutine das Signal auch empfangen muss, muss ein zweites Signal gesendet werden.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+Wenn keine Daten mit dem Signal übertragen werden müssen, kann das Signal ein 1-to
+1 oder 1 zu vielen zwischen Goroutinen sein. Die Signalisierung ohne Daten wird hauptsächlich für
+Stornierungen oder Abschaltungen. Dies geschieht durch Schließen des Kanals.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+Der dritte Punkt, auf den man sich konzentrieren sollte, ist der Kanalstatus. Ein Kanal kann sich in einem von 3 Zuständen befinden.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+Ein Kanal kann sich in einem Null-Zustand befinden, indem der Kanal in den Null-Wert-Zustand konstruiert wird.
+Das Senden und Empfangen von Kanälen in diesem Zustand wird blockiert. Dies ist gut für Situationen
+in denen Sie kurzfristige Arbeitsunterbrechungen implementieren möchten.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+Ein Kanal kann mit der eingebauten Funktion make in einen offenen Zustand versetzt werden. Sendungen und
+Empfangen gegen Kanäle in diesem Zustand funktionieren unter den folgenden Bedingungen:
 
-*Unbuffered* *Channels:*
+*Ungepuffert* *Kanäle:*
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+- Garantien auf der Ebene der Signalisierung, wobei der Empfang vor dem Senden erfolgt. Das Senden von
+und Empfangs-Goroutinen müssen im selben Raum und zur selben Zeit zusammenkommen, damit ein
+Signal verarbeitet werden kann.
 
-*Buffered* *Channels:*
+*Gepuffert* *Kanäle:*
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+- Garantien außerhalb der Signalisierungsebene, wobei das Senden vor dem
+Empfang. Wenn der Puffer nicht voll ist, können die Sendungen abgeschlossen werden, sonst werden sie blockiert. Wenn der
+Puffer nicht leer ist, kann der Empfang abgeschlossen werden, sonst blockiert er.
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+Ein Kanal kann mit der eingebauten Funktion close geschlossen werden. Sie brauchen nicht
+müssen einen Kanal nicht schließen, um Speicher freizugeben, sondern nur, um den Zustand zu ändern. Das Senden von
+an einen geschlossenen Kanal führt zu einer Panik, der Empfang an einen geschlossenen Kanal
+kehrt sofort zurück.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+Mit all diesen Informationen können Sie sich auf die Kanalmuster konzentrieren. Die Konzentration auf die Signalisierung
+ist wichtig. Es geht darum, ob Sie eine Garantie auf der Signalisierungsebene benötigen oder nicht,
+aufgrund von Latenzproblemen. Ob Sie Daten mit dem Signal übertragen müssen oder nicht, basierend auf
+der Behandlung von Stornierungen oder nicht. Sie wollen die Syntax in diese Semantik umwandeln.
 
-** Design Guidelines
+** Gestaltungsrichtlinien
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
+- Informieren Sie sich über die [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design]]-Gestaltungsrichtlinien]] für Kanäle.
 
-** Diagrams
+** Diagramme
 
-*Guarantee* *Of* *Delivery*
+*Garantie* *für* die *Lieferung*
 
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+Die "Liefergarantie" basiert auf einer Frage: "Brauche ich eine Garantie, dass
+das von einer bestimmten Goroutine gesendete Signal empfangen wurde?"
 
-.image /tour/eng/static/img/guarantee_of_delivery.png
+.image /tour/eng/static/img/garantie_der_lieferung.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*Signalisierung* *Mit* *Oder* *Ohne* *Daten*
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+Wenn Sie ein Signal "mit" Daten senden wollen, können Sie zwischen drei Kanalkonfigurationen
+Optionen, die Sie je nach der Art der benötigten "Garantie" wählen können.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+Die Signalisierung ohne Daten dient dem Hauptzweck der Annullierung. Sie erlaubt einer
+goroutine einer anderen goroutine zu signalisieren, ihre Arbeit abzubrechen und fortzufahren.
+Die Stornierung kann sowohl mit "ungepufferten" als auch mit "gepufferten" Kanälen implementiert werden.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*Staat*
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+Das Verhalten eines Kanals wird direkt von seinem aktuellen "Zustand" beeinflusst. Der
+Zustand eines Kanals kann `nil`, `open` oder `closed` sein.
 
 .image /tour/eng/static/img/state.png
 
-** Extra Reading
+** Extra Lesen
 
-- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
-- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
-- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand    
-- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy    
-- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
-- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][Das Verhalten von Kanälen]] - William Kennedy
+- [[https://golang.org/ref/mem#tmp_7][Kanalkommunikation]]
+- [[http://blog.golang.org/share-memory-by-communicating][Gemeinsame Erinnerung durch Kommunikation]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][Die Natur von Kanälen in Go]] - William Kennedy
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][Eine Retrospektive zu SEDA]] - Matt Welsh
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Das Verständnis von Kanälen]] - Kavya Joshi
 
-** Buffer Bloat - 2011
+** Pufferblähung - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+Seien Sie vorsichtig bei der Verwendung von großen Puffern, um die Latenzzeit zu verringern.
 
-- Large buffers prevent timely notification of back pressure.
-- They defeat your ability to reduce back pressure in a timely matter.
-- They can increase latency not reduce it.
-- Use buffered channels to provide a way of maintaining continuity.
-- Don't use them just for performance.
-- Use them to handle well defined bursts of data.
-- Use them to deal with speed of light issues between handoffs.
+- Große Puffer verhindern eine rechtzeitige Meldung des Staudrucks.
+- Sie verhindern, dass Sie den Rückstau rechtzeitig abbauen können.
+- Sie können die Latenzzeit erhöhen, anstatt sie zu verringern.
+- Verwenden Sie gepufferte Kanäle, um die Kontinuität zu gewährleisten.
+- Verwenden Sie sie nicht nur aus Leistungsgründen.
+- Verwenden Sie sie, um genau definierte Datenbursts zu verarbeiten.
+- Nutzen Sie sie zur Bewältigung von Problemen mit der Lichtgeschwindigkeit zwischen Übergaben.
 
 *Videos*
 
-- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
-- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dunkle Puffer im Internet]]
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]
 
-* Exercises
+* Übungen
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
-** Exercise 1
+** Übung 1
 
-Write a program where two goroutines pass an integer back and forth ten times.
-Display when each goroutine receives the integer. Increment the integer with each
-pass. Once the integer equals ten, terminate the program cleanly.
+Schreiben Sie ein Programm, in dem zwei Goroutinen eine ganze Zahl zehnmal hin- und herschieben.
+Zeigen Sie an, wann jede Goroutine die ganze Zahl erhält. Erhöhe die ganze Zahl bei jedem
+Durchlauf. Sobald die ganze Zahl zehn beträgt, beende das Programm sauber.
 
-.play channels/exercise1.go 
+.play channels/exercise1.go
 .play channels/answer1.go
 
-** Exercise 2
+** Übung 2
 
-Write a program that uses a fan out pattern to generate 100 random numbers concurrently.
-Have each goroutine generate a single random number and return that number to the main
-goroutine over a buffered channel. Set the size of the buffer channel so no send ever
-blocks. Don't allocate more buffers than you need. Have the main goroutine display each
-random number it receives and then terminate the program.
+Schreiben Sie ein Programm, das mit Hilfe eines Auffächerungsmusters 100 Zufallszahlen gleichzeitig erzeugt.
+Jede Goroutine soll eine einzelne Zufallszahl erzeugen und diese über einen gepufferten Kanal an die Haupt
+goroutine über einen gepufferten Kanal zurück. Legen Sie die Größe des Pufferkanals so fest, dass keine Sendung jemals
+blockiert. Weisen Sie nicht mehr Puffer zu, als Sie brauchen. Lassen Sie die Haupt-Goroutine jede
+jede empfangene Zufallszahl anzeigen und dann das Programm beenden.
 
-.play channels/exercise2.go 
+.play channels/exercise2.go
 .play channels/answer2.go
 
-** Exercise 3
+** Übung 3
 
-Write a program that generates up to 100 random numbers concurrently. Do not send
-all 100 values so the number of sends/receives is unknown.
+Schreiben Sie ein Programm, das bis zu 100 Zufallszahlen gleichzeitig erzeugt. Senden Sie nicht
+nicht alle 100 Werte, so dass die Anzahl der Sende-/Empfangsvorgänge unbekannt ist.
 
-.play channels/exercise3.go 
+.play channels/exercise3.go
 .play channels/answer3.go
  
-** Exercise 4
+** Übung 4
 
-Write a program that generates up to 100 random numbers concurrently using a worker
-pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have
-been collected.
+Schreiben Sie ein Programm, das mit Hilfe eines Worker-Pools bis zu 100 Zufallszahlen gleichzeitig erzeugt
+Pool. Lehnen Sie gerade Werte ab. Weisen Sie die Arbeiter an, abzuschalten, wenn 100 ungerade Zahlen
+gesammelt wurden.
 
-.play channels/exercise4.go 
+.play channels/exercise4.go
 .play channels/answer4.go
