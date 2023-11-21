@@ -27,33 +27,33 @@ Es gibt auch eine Grenze zwischen Goroutinen, zu der Sie später Notizen machen 
 Wenn ein Go-Programm gestartet wird, erstellt die Go-Laufzeitumgebung eine Goroutine. Goroutinen sind
 leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken wie
 System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
-Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die Sie die Haupt-Goroutine nennen.
+Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die Sie die Main-Goroutine nennen.
 
 Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stapel beginnt
 mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stapel können im Laufe der Zeit größer werden.
 
 .image /tour/eng/static/img/p1.png
 
-Jedes Mal, wenn eine Funktion aufgerufen wird, wird ein Stapelblock belegt, damit die Goroutine
+Jedes Mal, wenn eine Funktion aufgerufen wird, wird ein Stapelblock belegt, um der Goroutine
 bei der Ausführung der mit dieser Funktion verbundenen Anweisungen zu helfen. Jeder einzelne Speicherblock
 wird als Frame bezeichnet.
 
-Die Größe eines Rahmens für eine bestimmte Funktion wird zur Kompilierzeit berechnet. Kein Wert
+Die Größe eines Frames für eine bestimmte Funktion wird zur Kompilierzeit berechnet. Kein Wert
 kann auf dem Stack abgelegt werden, es sei denn, der Compiler kennt die Größe dieses Wertes zur
-Kompilierzeit kennt. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nicht kennt, muss der
+Kompilierzeit. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nicht kennt, muss der
 Wert auf dem Heap konstruiert werden.
  
 Stapel sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stapels.
-Jedes Mal, wenn Sie eine Funktion aufrufen und ein Rahmen des Speichers gesperrt wird, wird der Speicher
-für diesen Rahmen initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktion
-wird der Speicher für den Rahmen in Ruhe gelassen, da nicht bekannt ist, ob dieser Speicher
-wieder benötigt wird. Es wäre ineffizient, den Speicher bei der Rückkehr zu initialisieren.
+Jedes Mal, wenn Sie eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
+für diesen Frame initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktion
+wird der Speicher für den Frame in Ruhe gelassen, da nicht bekannt ist, ob dieser Speicher
+wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr zu initialisieren.
 
 *Pass* *By* *Value*
 
 Alle Daten werden wertmäßig durch das Programm bewegt. Das bedeutet, dass bei der Weitergabe von Daten
-über Programmgrenzen hinweg weitergegeben werden, erhält jede Funktion oder Goroutine ihre eigene Kopie der
-Daten. Es gibt zwei Arten von Daten, mit denen Sie arbeiten werden: den Wert selbst (int,
+über Programmgrenzen hinweg, jede Funktion oder Goroutine ihre eigene Kopie der
+Daten erhält. Es gibt zwei Arten von Daten, mit denen Sie arbeiten werden: den Wert selbst (int,
 string, user) oder die Adresse des Wertes. Adressen sind Daten, die über Programmgrenzen hinweg kopiert
 und über Programmgrenzen hinweg gespeichert werden.
 
@@ -62,7 +62,7 @@ Der folgende Code versucht, dies näher zu erläutern.
     func main() {
 
         // Deklarieren Sie eine Variable vom Typ int mit einem Wert von 10.
-        Anzahl := 10
+        count:= 10
 
         // Um die Adresse eines Wertes zu erhalten, verwenden Sie den Operator &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
@@ -120,24 +120,22 @@ Ausgabe:
 ** Anmerkungen
 
 - Verwenden Sie Zeiger, um Daten gemeinsam zu nutzen.
-- Werte in Go werden immer nach Wert übergeben.
-- "Wert von", was in der Box ist. "Adresse von" ( & ), wo sich die Box befindet.
+- Werte in Go werden immer als Wert übergeben.
+- "Value of", was in der Box ist. "Adresse von" ( & ), wo sich die Box befindet.
 - Der Operator ( * ) deklariert eine Zeigervariable und den "Wert, auf den der Zeiger zeigt".
 
 ** Fluchtanalyse
 
-Der Algorithmus, mit dem der Compiler feststellt, ob ein Wert auf dem Stack oder Heap konstruiert werden sollte
-auf dem Stack oder Heap aufgebaut werden soll, wird "Escape-Analyse" genannt. Der Name des Algorithmus lässt
+Der Algorithmus, mit dem der Compiler feststellt, ob ein Wert auf dem Stack oder Heap konstruiert werden soll, wird "Escape-Analyse" genannt. Der Name des Algorithmus
 klingt, als würden die Werte zuerst auf dem Stack konstruiert und dann bei Bedarf
-auf den Heap, wenn nötig. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
+auf den Heap. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
 einmal, und der Algorithmus für die Escape-Analyse entscheidet, wo der Wert abgelegt wird (Stack
 oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichnet.
 
 Beim Verständnis der Fluchtanalyse geht es um das Verständnis von Werteigentum. Die Idee dahinter ist,
-wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann ist diese Funktion
-den Wert besitzt. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
-existieren, wenn die besitzende Funktion zurückkehrt? Wenn die Antwort nein lautet, kann der Wert
-auf dem Stapel konstruiert werden. Lautet die Antwort ja, muss der Wert auf dem
+wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann besitzt diese Funktion den Wert. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
+existiert wenn die Funktion returned. Wenn die Antwort nein lautet, kann der Wert
+auf dem Stapel konstruiert wird. Lautet die Antwort ja, muss der Wert auf dem
 dem Heap konstruiert werden.
 
 Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
@@ -161,13 +159,12 @@ Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
     }
 
 Die Funktion stayOnStack verwendet die Wertesemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
-den Aufrufer zurück. Mit anderen Worten, der Aufrufer erhält seine eigene Kopie des Benutzerwerts, der
+Mit anderen Worten, der Aufrufer erhält seine eigene Kopie des Benutzerwerts, der
 konstruiert wird.
 
-Wenn die Funktion stayOnStack aufgerufen wird und zurückkehrt, muss der von ihr konstruierte Benutzerwert
-nicht mehr zu existieren, da der Aufrufer seine eigene Kopie erhält. Daher
+Wenn die Funktion stayOnStack aufgerufen wird und returned, muss der von ihr konstruierte Benutzerwert
+nicht mehr existieren, da der Aufrufer seine eigene Kopie erhält. Daher
 kann die Konstruktion des Benutzerwerts innerhalb von stayOnStack auf dem Stack erfolgen.
-Keine Zuweisung.
 
     Typ user struct {
         name string
@@ -183,17 +180,17 @@ Keine Zuweisung.
         return &u
     }
 
-Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert zurück
-an den Aufrufer zurückzugeben. Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den
+Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
+Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den
 Benutzerwert, der konstruiert wird.
 
-Wenn die Funktion escapeToHeap aufgerufen wird und zurückkehrt, muss der von ihr konstruierte Benutzerwert
+Wenn die Funktion escapeToHeap aufgerufen wird und returned, muss der von ihr konstruierte Benutzerwert
 immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
-Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap nicht
-nicht auf dem Stack, sondern auf dem Heap erfolgen. Ja Zuweisung.
+Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap 
+nicht auf dem Stack, sondern auf dem Heap erfolgen. 
 
 Überlegen Sie, was passieren würde, wenn der Benutzerwert im letzten Beispiel
-auf dem Stack konstruiert würde, wenn bei der Rückkehr die Zeigersemantik verwendet würde.
+auf dem Stack konstruiert würde, wenn beim Return die Zeigersemantik verwendet würde.
 
 .image /tour/eng/static/img/p2.png
 
@@ -205,12 +202,12 @@ wodurch der gemeinsam genutzte Wert vernichtet wird.
 
 Aus diesem Grund kann man davon ausgehen, dass sich der Stapel selbst bereinigt. Nullwert-Initialisierung
 hilft dabei, dass jeder Stack-Frame, der benötigt wird, ohne den Einsatz von GC bereinigt werden kann. Der Stack
-ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame genommen und initialisiert wird.
-Funktionsaufrufs initialisiert wird. Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei Rückgaben, weil
+ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame gebraucht und initialisiert wird.
+Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei returns, weil
 der Compiler nicht weiß, ob der Speicher auf dem Stack jemals wieder benötigt wird.
 
 Die Escape-Analyse entscheidet, ob ein Wert auf dem Stack (Standard) oder auf dem
-Heap (die Flucht). Mit der Funktion stayOnStack übergebe ich eine Kopie des Wertes
+Heap erstellt wird. Mit der Funktion stayOnStack übergebe ich eine Kopie des Wertes
 an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalten. Mit der Funktion escapeToHeap
 übergebe ich eine Kopie der Adresse des Wertes zurück an den Aufrufer (auf dem
 den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
@@ -222,12 +219,12 @@ Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert
 eine neue Art der Übergabe von Funktionsein- und -ausgangsargumenten unter Verwendung von Registern
 anstelle von Speicher auf dem Stack. Dies ist aktiviert für Linux, MacOS und Windows auf
 den 64-Bit-x86-Architekturen aktiviert. Dies bedeutet, dass einige Funktionsargumente nicht
-auf den Stack kopiert werden, aber einige können, abhängig von der Machbarkeit der Verwendung von Registern.
+auf den Stack kopiert werden. Aber einige können, abhängig von der Machbarkeit der Verwendung von Registern kopiert werden.
 Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
 
 ** Anmerkungen
 
-- Wenn ein Wert referenziert werden kann, nachdem die Funktion, die den Wert konstruiert, zurückkehrt.
+- Wenn ein Wert referenziert werden kann nachdem eine Funktion ihn konstruiert hat, wird der Wert zurückgegeben.
 - Wenn der Compiler feststellt, dass ein Wert zu groß ist, um auf den Stack zu passen.
 - Wenn der Compiler die Größe eines Wertes zur Kompilierungszeit nicht kennt.
 - Wenn ein Wert durch die Verwendung von Funktions- oder Schnittstellenwerten entkoppelt ist.
@@ -235,7 +232,7 @@ Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
 ** Semantik der Garbage Collection
 
 Sobald ein Wert auf dem Heap aufgebaut ist, muss sich der Garbage Collector (GC)
-beteiligt. Der wichtigste Teil des GC ist der Pacing-Algorithmus. Er bestimmt
+darum kümmern. Der wichtigste Teil des GC ist der Pacing-Algorithmus. Er bestimmt
 die Häufigkeit/Rate, mit der der GC laufen muss, um einen möglichst kleinen Heap
 in Verbindung mit dem besten Anwendungsdurchsatz zu erhalten.
 
@@ -244,7 +241,7 @@ in Verbindung mit dem besten Anwendungsdurchsatz zu erhalten.
 ** Stack vs. Heap
 
 "Der Stack ist für Daten gedacht, die nur für die Dauer der Funktion, die sie erstellt, bestehen bleiben müssen
-die sie aufbaut, bestehen bleiben müssen, und die ohne Kosten zurückgewonnen werden, wenn die Funktion beendet wird. Der
+und die ohne Kosten zurückgewonnen werden können, wenn die Funktion beendet wird. Der
 Heap ist für Daten, die auch nach Beendigung der Funktion, die sie erstellt, bestehen bleiben müssen,
 und wird durch eine manchmal kostspielige Garbage Collection zurückgewonnen." - Ayan George
 
