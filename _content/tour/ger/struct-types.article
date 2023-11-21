@@ -8,11 +8,11 @@ Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfeld
 
 Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfelder zusammenfassen.
 Sie sind eine gute Möglichkeit, die verschiedenen Aspekte der Daten zu organisieren und gemeinsam zu nutzen
-die Ihr Programm verbraucht.
+die Ihr Programm verwendet.
 
-Die potenzielle Leistung einer Computerarchitektur wird in erster Linie bestimmt durch ihre
-Wortlänge (die Anzahl der Bits, die pro Zugriff verarbeitet werden können) und, was noch wichtiger ist,,
-die Speichergröße bzw. die Anzahl der Wörter, auf die sie zugreifen kann.
+Die potenzielle Leistung einer Computerarchitektur wird in erster Linie durch ihre
+Wortlänge bestimmt (die Anzahl der Bits, die pro Zugriff verarbeitet werden können) und noch wichtiger: 
+durch die Speichergröße bzw. die Anzahl der Wörter, auf die sie zugreifen kann.
 
 ** Code-Überprüfung
 
@@ -28,8 +28,8 @@ die Speichergröße bzw. die Anzahl der Wörter, auf die sie zugreifen kann.
 
 ** Struktur und Konstruktionsmechanik
 
-Diese Deklaration stellt einen konkreten benutzerdefinierten Typ als eine Zusammensetzung aus
-verschiedenen Feldern und Typen.
+Diese Deklaration stellt einen konkreten benutzerdefinierten Typ als eine Zusammensetzung von
+verschiedenen Feldern und Typen dar.
 
     type example struct {
         flag bool
@@ -56,14 +56,14 @@ Konstruktionssyntax.
         pi: 3.141592,
     }
 
-    fmt.Println("Flagge", e2.flag)
-    fmt.Println("Zähler", e2.counter)
+    fmt.Println("flag", e2.flag)
+    fmt.Println("counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
 Ausgabe:
 
-    Flagge wahr
-    Zähler 10
+    flag wahr
+    counter 10
     Pi 3.141592
 
 Deklarieren Sie eine Variable eines unbenannten Literal-Typs, die auf ihren Nicht-Null-Wert-Zustand
@@ -79,21 +79,21 @@ unter Verwendung der Syntax für die Literalkonstruktion.
         pi: 3.141592,
     }
 
-    fmt.Println("Flagge", e3.flag)
-    fmt.Println("Zähler", e3.counter)
+    fmt.Println("flag", e3.flag)
+    fmt.Println("counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
 Ausgabe:
 
-    Flagge wahr
-    Zähler 10
+    flag wahr
+    counter 10
     Pi 3.141592
 
 Die Idee der buchstäblichen Konstruktion ist genau das: etwas buchstäblich zu konstruieren
 ohne einen Namen.
 
 Sie sollten var für Nullwerte und den kurzen Variablen-Deklarationsoperator mit
-der { }-Syntax für die Konstruktion von Nicht-Nullwerten.
+der { }-Syntax für die Konstruktion von Nicht-Nullwerten verwenden.
 
 ** Auffüllen und Ausrichten
 
@@ -106,7 +106,7 @@ Wie viel Speicher wird für einen Wert des Typs example zugewiesen?
     }
 
 Ein bool ist 1 Byte, int16 ist 2 Byte und float32 ist 4 Byte. Wenn man das alles zusammenzählt
-und Sie erhalten 7 Bytes. Die tatsächliche Antwort lautet jedoch 8 Byte. Warum, weil es
+erhalten wir 7 Bytes. Die tatsächliche Antwort lautet jedoch 8 Byte. Warum? Weil es
 zwischen dem Flag- und dem Zählerfeld ein Auffüllungsbyte befindet, um die Ausrichtung zu gewährleisten.
 
 .image /tour/eng/static/img/f1.png
@@ -114,7 +114,7 @@ zwischen dem Flag- und dem Zählerfeld ein Auffüllungsbyte befindet, um die Aus
 Die Idee der Ausrichtung besteht darin, der Hardware zu ermöglichen, den Speicher effizienter zu lesen
 indem Speicher an bestimmten Ausrichtungsgrenzen platziert wird. Der Compiler kümmert sich um die Mechanik der Ausrichtungsgrenzen, damit Sie sich nicht darum kümmern müssen.
 
-Abhängig von der Größe eines bestimmten Feldes und seiner Platzierung in der Struktur, bestimmt Go
+Abhängig von der Größe eines bestimmten Feldes und seiner Platzierung in der Struktur, legt Go
 das benötigte Padding fest.
 
     Typ example2 struct {
@@ -124,8 +124,8 @@ das benötigte Padding fest.
         pi float32
     }
 
-In diesem Beispiel habe ich ein neues Feld namens "Flag2" zwischen den Feldern "Counter" und "Pi
-Feldern. Dies führt zu mehr Füllung innerhalb der Struktur.
+In diesem Beispiel habe ich ein neues Feld namens "flag2" zwischen den Feldern "Counter" und "Pi
+Feldern. Dies führt zu mehr Padding innerhalb der Struktur.
 
     type example2 struct {
         flag bool // 0xc000100020 <- Startadresse
@@ -147,20 +147,19 @@ Adresse fallen, die ein Vielfaches von 2 ist. Dies erfordert, dass das Zählerfe
 
 .image /tour/eng/static/img/f2.png
 
-Das Feld `Flag2` ist ein bool und kann auf die nächste Adresse 0xc000100024 fallen. Das
+Das Feld `flag2` ist ein bool und kann auf die nächste Adresse 0xc000100024 fallen. Das
 letzte Feld ist pi und erfordert 4 Byte Zuweisung, so dass es auf eine
 4-Byte-Ausrichtung fallen. Die nächste Adresse für einen 4-Byte-Wert liegt bei 0xc000100028. Das
 bedeutet, dass 3 weitere Auffüllungsbytes benötigt werden, um eine korrekte Ausrichtung zu gewährleisten. Dies führt dazu
 dass ein Wert des Typs example2 insgesamt 12 Byte Speicherplatz benötigt.
 
 Das größte Feld in einer Struktur stellt die Ausrichtungsgrenze für die gesamte
-Struktur. In diesem Fall ist das größte Feld 4 Byte groß, so dass die Startadresse für diesen Strukturwert ein Vielfaches von 4 sein muss.
+Struktur dar. In diesem Fall ist das größte Feld 4 Byte groß, so dass die Startadresse für diesen Strukturwert ein Vielfaches von 4 sein muss.
 Sie sehen, dass die Adresse 0xc000100020 ein Vielfaches von 4 ist.
-Vielfaches von 4.
 
-Wenn Sie die Anzahl der Auffüllungsbytes minimieren müssen, müssen Sie die Felder von der
+Wenn Sie die Anzahl der Auffüllungsbytes minimieren wollen, müssen Sie die Felder von der
 höchsten Zuweisung zur niedrigsten Zuweisung anordnen. Dadurch werden alle notwendigen Auffüllungsbytes
-an den unteren Rand der Struktur und verringern die Gesamtzahl der erforderlichen Auffüllungsbytes.
+an den unteren Rand der Struktur geschoben und verringern die Gesamtzahl der erforderlichen Auffüllungsbytes.
 
     type example struct {
         pi float32 // 0xc000100020 <- Startadresse
@@ -169,7 +168,7 @@ an den unteren Rand der Struktur und verringern die Gesamtzahl der erforderliche
         flag2 bool // 0xc000100027 <- 1 Byte Ausrichtung
     }
 
-Nach der Neuordnung der Felder benötigt der struct-Wert nur noch 8 Byte
+Nach der Neuanordnung der Felder benötigt der struct-Wert nur noch 8 Byte
 Zuweisung und nicht 12 Bytes. Da alle Felder es ermöglichen, dass der struct-Wert
 auf eine 4-Byte-Ausrichtung fallen, sind keine zusätzlichen Auffüllungsbytes erforderlich.
 
@@ -178,7 +177,7 @@ auf eine 4-Byte-Ausrichtung fallen, sind keine zusätzlichen Auffüllungsbytes e
 ** Werte zuweisen
 
 Wenn Sie zwei verschiedene benannte Typen haben, die in ihrer Struktur identisch sind, können Sie nicht
-einen Wert des einen dem anderen zuweisen.
+einen Wert des Einen dem Anderen zuweisen.
 
 Wenn zum Beispiel die Typen example1 und example2 mit der exakt gleichen
 Deklaration deklariert werden und wir zwei Variablen initialisieren.
@@ -197,7 +196,7 @@ von der Struktur her identisch sind, wird der Compiler dies zulassen.
     ex1 = example1(ex2) // Erlaubt, KEIN Compilerfehler
 
 Wenn jedoch ex2 als unbenannter Typ deklariert würde, der genau dieselbe Deklaration wie ex1
-Deklaration wie ex1 deklariert würde, wäre keine Konvertierungssyntax erforderlich.
+hätte, wäre keine Konvertierungssyntax erforderlich.
 
     var ex2 struct {
         flag bool
@@ -217,8 +216,8 @@ Der Compiler erlaubt diese Zuordnung, ohne dass eine Konvertierung erforderlich 
 
 ** Zitate
 
-"Die implizite Konvertierung von Typen ist das Halloween-Special der Codierung. Wer auch immer sich
-verdient seine eigene spezielle Hölle." - Martin Thompson
+"Die implizite Konvertierung von Typen ist das Halloween-Special der Programmierung. Wer auch immer sich
+das ausgedacht hat, verdient seine eigene Hölle." - Martin Thompson
 
 ** Extra Lesen
 
