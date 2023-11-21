@@ -103,6 +103,9 @@ func Main() {
 	engUIContent, engIndex := addLanguage("tour/eng/")
 	defer engIndex.Close()
 
+	gerUIContent, gerIndex := addLanguage("tour/ger/")
+	defer gerIndex.Close()
+
 	grcUIContent, grcIndex := addLanguage("tour/grc/")
 	defer grcIndex.Close()
 
@@ -120,6 +123,7 @@ func Main() {
 
 	r := root{
 		engContent: engUIContent,
+		gerContent: gerUIContent,
 		grcContent: grcUIContent,
 		perContent: perUIContent,
 		porContent: porUIContent,
