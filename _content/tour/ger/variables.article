@@ -7,9 +7,8 @@ Variablen sind das Herzstück der Sprache und bieten die Möglichkeit, aus dem S
 - Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Variablen sind das Herzstück der Sprache und bieten die Möglichkeit, aus dem Speicher zu lesen
-und in den Speicher zu schreiben. In Go ist der Zugriff auf den Speicher typsicher. Das bedeutet, dass der Compiler
-nimmt den Typ ernst und lässt nicht zu, dass wir Variablen außerhalb des Bereichs, in dem sie
-wie sie deklariert sind.
+und in den Speicher zu schreiben. In Go ist der Zugriff auf den Speicher typsicher. Das bedeutet, der Compiler
+nimmt den Typ ernst und lässt nicht zu, dass wir Variablen außerhalb des Bereichs brauchen in dem sie deklariert wruden.
 
 ** Code-Überprüfung
 
@@ -26,8 +25,9 @@ Typen sorgen für Integrität und Lesbarkeit, indem sie 2 Fragen stellen:
 Typen können spezifisch für eine Genauigkeit wie int32 oder int64 sein:
 
 - uint8 steht für eine ganze Zahl ohne Vorzeichen mit einer Zuweisung von 1 Byte
-- int32 steht für eine ganze Zahl mit Vorzeichen und 4 Byte Zuweisung. Wenn Sie einen Typ deklarieren
-mit einem nicht-präzisionsbasierten Typ (unit, int) deklarieren, richtet sich die Größe des Wertes nach der
+- int32 steht für eine ganze Zahl mit Vorzeichen und 4 Byte Zuweisung. 
+
+Wenn Sie einen Typ deklarieren mit einem nicht-präzisionsbasierten Typ (unit, int), richtet sich die Größe des Wertes nach der
 Architektur, die für die Erstellung des Programms verwendet wird:
 
 - 32-Bit-Bogen: int stellt einen vorzeichenbehafteten int mit 4 Byte Speicherzuweisung dar
@@ -36,26 +36,25 @@ Architektur, die für die Erstellung des Programms verwendet wird:
 ** Wortgröße
 
 Die Wortgröße stellt die Menge an Speicherzuweisung dar, die für die Speicherung von Ganzzahlen
-und Zeigern für eine bestimmte Architektur. Zum Beispiel:
+und Zeigern für eine bestimmte Architektur sind. Zum Beispiel:
 
 - 32-Bit-Bogen: Die Wortgröße beträgt 4 Byte Speicherzuweisung
 - 64-Bit-Bogen: Die Wortgröße beträgt 8 Byte Speicherzuweisung
 
 Dies ist wichtig, da Go über interne Datenstrukturen (Maps, Channels, Slices,
-Schnittstellen und Funktionen), die Ganzzahlen und Zeiger speichern. Die Größe dieser Datenstrukturen
+Schnittstellen und Funktionen), die Ganzzahlen und Zeiger speichert. Die Größe dieser Datenstrukturen
 Strukturen hängt von der Architektur ab, die für die Erstellung des Programms verwendet wird.
 
 In Go ist die Menge an Speicher, die für einen Wert vom Typ int, einen Zeiger oder ein Wort
-auf der gleichen Architektur immer gleich groß sein.
+auf der gleichen Architektur immer gleich groß.
 
 ** Nullwert-Konzept
-Jeder einzelne Wert, den Sie in Go konstruieren, wird mindestens mit seinem Nullwert initialisiert
-es sei denn, Sie geben den Initialisierungswert bei der Konstruktion an. Der Nullwert ist die Einstellung
+Jeder einzelne Wert, den Sie in Go konstruieren, wird mindestens mit seinem Nullwert initialisiert.
+Es sei denn, Sie geben den Initialisierungswert bei der Konstruktion an. Der Nullwert ist die Einstellung
 eines jeden Bits in jedem Byte auf Null.
 
-Dies geschieht aus Gründen der Datenintegrität und ist nicht kostenlos. Es kostet Zeit, Elektronen durch die Maschine zu schicken
-Elektronen durch die Maschine zu schieben, um diese Bits zurückzusetzen, aber Sie sollten immer die Integrität über die
-Leistung.
+Dies geschieht aus Gründen der Datenintegrität und ist nicht kostenlos. Es kostet Zeit, Elektronen durch die Maschine zu schicken, um diese Bits zurückzusetzen, aber Sie sollten immer die Integrität über die
+Leistung stellen.
 
     Typ Null Wert
     Boolescher Wert false
@@ -91,11 +90,10 @@ Eine Zeichenkette ist in Go eine interne Datenstruktur mit zwei Wörtern:
 
 - Das erste Wort stellt einen Zeiger auf ein Backing-Array von Bytes dar
 - Das zweite Wort steht für die Länge bzw. die Anzahl der Bytes in dem unterstützenden Array.
-- Wenn die Zeichenkette auf den Wert Null gesetzt ist, ist das erste Wort Null und das
-zweite Wort gleich 0.
+- Wenn die Zeichenkette auf den Wert Null gesetzt ist, ist das erste Wort Null und das zweite Wort gleich 0.
 
 Mit dem kurzen Variablen-Deklarationsoperator können Sie einen Wert gleichzeitig deklarieren, konstruieren und
-einen Wert gleichzeitig deklarieren, konstruieren und initialisieren.
+einen Wert zuweisen.
 
     aa := 10 // int [10]
     bb := "hallo" // Zeichenkette [hallo]
@@ -114,10 +112,10 @@ Ausgabe:
     cc := 3.14159 float64 [3.14159]
     dd := true bool [true]
 
-** Umwandlung vs. Gießen
+** Umwandlung vs. Casting 
 
 Go kennt kein Casting, sondern eine Konvertierung. Anstatt dem Compiler mitzuteilen, dass er eine
-Satz von Bytes auf eine andere Darstellung abzubilden, müssen die Bytes an einen neuen
+Satz von Bytes auf eine andere Darstellung abbilden soll, müssen die Bytes an einen neuen
 Speicherplatz für die neue Darstellung kopiert werden.
 
     aaa := int32(10)
@@ -126,8 +124,7 @@ Speicherplatz für die neue Darstellung kopiert werden.
     Ausgabe:
     aaa := int32(10) int32 [10]
 
-Go verfügt über ein Paket in der Standardbibliothek namens unsafe, wenn Sie eine
-eine tatsächliche Casting-Operation durchführen müssen. Sie sollten das wirklich vermeiden und sich selbst gegenüber ehrlich sein
+Go verfügt über ein Paket in der Standardbibliothek namens unsafe, für den Fall dass Sie eine tatsächliche Casting-Operation durchführen müssen. Sie sollten das wirklich vermeiden und sich selbst gegenüber ehrlich sein
 warum Sie es verwenden wollen. Die Durchführung einer Konvertierung bietet den höchsten Grad an
 der Integrität für diese Art von Operationen.
 
