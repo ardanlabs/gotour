@@ -1,14 +1,13 @@
-Maps
-A map is a data structure that provides support for storing and accessing data based on a key.
+Mappe
+Una mappa è una struttura dati che fornisce supporto per l'archiviazione e l'accesso ai dati in base a una chiave.
 
-* Maps
+* Mappe
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
 
-A map is a data structure that provides support for storing and accessing data
-based on a key. It uses a hash map and bucket system that maintains a contiguous
-block of memory underneath.
+Una mappa è una struttura dati che fornisce supporto per l'archiviazione e l'accesso ai dati in base a una chiave.
+Utilizza una mappa hash e un sistema di bucket che mantiene un un blocco contiguo di memoria.
 
 ** Code Review
 
@@ -28,9 +27,9 @@ block of memory underneath.
 .play maps/example6.go
 .play maps/example7.go
 
-** Declaring And Constructing Maps
+** Dichiarare e costruire Mappe
 
-Declaring and constructing a map can be done in several ways.
+Dichiarare e costruire una mappa può essere fatto in diversi modi.
 
     type user struct {
         name     string
@@ -50,9 +49,9 @@ Declaring and constructing a map can be done in several ways.
     // that can store user values based on a key of type string.
     users := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking.
-The use of the built-in function make and literal construction constructs a map
-ready for use.
+Una mappa impostata sul valore zero non è utilizzabile e provocherà un panic nel programma.
+L'uso della funzione make incorporata nel linguaggio e la costruzione letterale costruisce una mappa
+pronto per l'uso.
 
     func main() {
         users := make(map[string]user)
@@ -74,10 +73,11 @@ Output:
     Mouse {Mickey Mouse}
     Jackson {Michael Jackson}
 
-If the built-in function make is used to construct a map, then the assignment operator
-can be used to add and update values in the map. The order of how keys/values are
-returned when ranging over a map is undefined by the spec and up to the compiler to
-implement. 
+Se la funzione make è usata per costruire una mappa, allora l'operatore di assegnazione
+può essere utilizzato per aggiungere e aggiornare valori nella mappa. L'ordine di come le chiavi/valori
+sono restituite quando si spazia su una mappa non è definito dalle specifiche
+e dipende dalla implementazione del compilatore.
+
 
     func main() {
         users := map[string]user{
@@ -99,14 +99,14 @@ Output:
     Roy {Rob Roy}
     Mouse {Mickey Mouse}
 
-In this case, the output was returned in a different order from how they are
-listed in the construction. The current algorithm for 1.16 will return the results
-in a random order once the number of values reaches a certain limit. Once again,
-this is a compiler implementation that is allowed to change. You can’t depend on it.
+In questo caso, l'output è stato restituito in un ordine diverso da come sono elencati nella costruzione.
+L'attuale algoritmo per Go 1.16 restituirà i risultati in ordine casuale una volta che
+il numero di valori raggiunge un certo limite.
+Ancora una volta, questa è un'implementazione del compilatore a cui è consentito cambiare. Non puoi dipendere da questo.
 
-** Lookups and Deleting Map Keys
+** Ricerche ed eliminazione delle chiavi della mappa
 
-Once data is stored inside of a map, to extract any data a key lookup is required.
+Una volta archiviati i dati all'interno di una mappa, per estrarre i dati è necessaria una ricerca con la chiave.
 
     user1, exists1 := users["Bill"]
     user2, exists2 := users["Ford"]
@@ -119,24 +119,24 @@ Output:
     Bill: false { }
     Ford: true {Henry Ford}
 
-To perform a key lookup, square brackets are used with the map variable. Two
-values can be returned from a map lookup, the value and a boolean that represents
-if the value was found or not. If you don’t need to know this, you can leave the
-"exists" variable out.
+Per eseguire una ricerca con la chiave, vengono utilizzate parentesi quadre con la variabile map.
+Due valori possono essere restituiti da una ricerca sulla mappa, il valore e
+un valore booleano che rappresenta se il valore è stato trovato o meno.
+Se non hai bisogno di saperlo, puoi tralasciare la variabile "exists".
 
-When a key is not found in the map, the operation returns a value of the map type
-set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
-zero value to determine if a key exists in the map or not since zero value may be
-valid and what was actually stored for the key.
+Quando una chiave non viene trovata nella mappa, l'operazione restituisce un valore del tipo mappa
+impostato al suo stato di valore zero. Puoi vederlo con la ricerca della chiave "Bill". Non utilizzare
+valore zero per determinare se esiste una chiave nella mappa o meno poiché il valore zero potrebbe esserlo
+valido se è stato effettivamente memorizzato per la chiave.
 
     delete(users, "Roy")
 
-There is a built-in function named delete that allows for the deletion of data
-from the map based on a key.
+Esiste una funzione integrata denominata delete che consente
+la cancellazione dei dati dalla mappa in base a una chiave.
 
-** Key Map Restrictions
+** Restrizioni sulla chiave di una mappa
 
-Not all types can be used as a key.
+Non tutti i tipi possono essere usati come chiave.
 
     type slice []user
     Users := make(map[slice]user)
@@ -145,19 +145,20 @@ Compiler Error:
 
     invalid map key type users
 
-A slice is a good example of a type that can’t be used as a key. Only values that
-can be run through the hash function are eligible. A good way to recognize types
-that can be a key is if the type can be used in a comparison operation. You can’t
-compare two slice values.
+Uno slice è un buon esempio di un tipo che non può essere utilizzato come chiave. Solo i valori
+che possono essere eseguiti in una funzione di hash sono idonei. Un buon modo per riconoscere i tipi
+che possono essere una chiave è se il tipo può essere utilizzato in un'operazione di confronto. Non puoi
+confrontare due slice come valori.
 
-** Notes
 
-- Maps provide a way to store and retrieve key/value pairs.
-- Reading an absent key returns the zero value for the map's value type.
-- Iterating over a map is always random.
-- The map key must be a value that is comparable.
-- Elements in a map are not addressable.
-- Maps are a reference type.
+** Note
+
+- Le mappe forniscono un modo per archiviare e recuperare coppie chiave/valore.
+- La lettura di una chiave assente restituisce il valore zero per il tipo di valore della mappa.
+- L'iterazione su una mappa è sempre casuale.
+- La chiave della mappa deve essere un valore comparabile.
+- Gli elementi in una mappa non sono indirizzabili.
+- Le mappe sono un tipo di riferimento.
 
 ** Links
 
@@ -166,14 +167,14 @@ compare two slice values.
 - [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
 - [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
 
-* Exercises
+* Esercizi
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
 
-** Exercise 1
+** Esercizio 1
 
-Declare and make a map of integer values with a string as the key. Populate the
-map with five values and iterate over the map to display the key/value pairs.
+Dichiara e crea una mappa di valori interi con una stringa come chiave. Popola la
+mappa con cinque valori e scorri la mappa per visualizzare le coppie chiave/valore.
 
 .play maps/exercise1.go
 .play maps/answer1.go
