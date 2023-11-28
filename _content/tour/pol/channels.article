@@ -1,0 +1,196 @@
+Kanały
+Kanały (channels) pozwalają gorutynom komunikować się ze sobą przy użyciu semantyki sygnalizacyjnej.
+
+* Kanały
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Ważne jest, aby myśleć o kanale nie jako o strukturze danych, ale jako o mechanizmie sygnalizacji. Zgadza się to z ideą,
+że wysyłasz i odbierasz z kanału, a nie czytasz i zapisujesz. Jeśli problem przed Tobą nie może być rozwiązany
+przy użyciu sygnalizacji, jeśli słowo "sygnalizacja" nie pojawia się w Twoim słowniku, warto zastanowić się nad
+użyciem kanałów.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Oczekiwanie na wynik
+- *Przykład* *2:* Rozgałęzienie
+- *Przykład* *3:* Oczekiwanie na zadanie
+- *Przykład* *4:* Gromadzenie
+- *Przykład* *5:* Rozgałęzienie z ograniczeniem
+- *Przykład* *6:* Gromadzenie z ograniczeniem
+- *Przykład* *7:* Porzucanie
+- *Przykład* *8:* Anulowanie
+- *Przykład* *9:* Próba z ograniczeniem czasu
+- *Przykład* *10:* Anulowanie kanału
+
+.play channels/example1.go
+.play channels/example2.go
+.play channels/example3.go
+.play channels/example4.go
+.play channels/example5.go
+.play channels/example6.go
+.play channels/example7.go
+.play channels/example8.go
+.play channels/example9.go
+.play channels/example10.go
+
+** Mechanika kanałów
+
+Koszt posiadania gwarancji na poziomie sygnalizacji to nieznane opóźnienie. Nadawca nie
+będzie wiedział, jak długo musi czekać, aż odbiorca przyjmie sygnał. Oczekiwanie na
+odbiorcę tworzy opóźnienia blokujące. W tym przypadku mamy do czynienia z nieznanymi
+opóźnieniami blokującymi. Nadawca musi czekać na nieznaną ilość czasu, aż odbiorca
+zostanie dostępny, aby odebrać sygnał.
+
+Oczekiwanie na odbiorcę oznacza, że operacja odbierania zachodzi mechanicznie przed
+operacją wysyłania. W przypadku kanałów odbieranie zachodzi nanosekundy wcześniej,
+ale jest to przed. Oznacza to, że odbiorca przyjmuje sygnał, a następnie oddala się,
+pozwalając nadawcy kontynuować.
+
+Co zrobić, jeśli proces nie może czekać na nieznane opóźnienie? Co zrobić, jeśli tego
+rodzaju opóźnienie nie jest akceptowalne? Wtedy gwarancja nie może być na poziomie
+sygnalizacji, musi być poza nią. Mechanizm działania polega na tym, że teraz operacja
+wysyłania zachodzi przed operacją odbierania. Nadawca może wykonać sygnał, nie oczekując,
+aż odbiorca stanie się dostępny. Nadawca może odejść i nie czekać. Ostatecznie ma nadzieję,
+że odbiorca pojawi się i przyjmie sygnał.
+
+Zmniejsza to koszty opóźnienia na etapie wysyłania, ale wprowadza niepewność co do
+odebrania sygnałów i umożliwia zidentyfikowanie problemów w odbiornikach. To może
+sprawić, że proces przyjmie pracę, która nigdy nie zostanie rozpoczęta lub zakończona.
+W ostateczności może to prowadzić do poważnego spadku wydajności i awarii systemów.
+
+Drugą rzeczą, na którą warto zwrócić uwagę, jest to, czy potrzebujesz przesyłać dane
+razem z sygnałem? Jeśli sygnał wymaga przesyłania danych, to sygnalizacja jest 1 do 1
+między gorutynami. Jeśli nowa gorutyna musi również odebrać sygnał, należy wysłać drugi sygnał.
+
+Jeśli dane nie muszą być przesyłane razem z sygnałem, to sygnał może być 1 do 1 lub 1
+do wielu między gorutynami. Sygnalizacja bez danych jest głównie używana do anulowania
+lub zamykania kanałów.
+
+Trzecią kwestią jest stan kanału. Kanał może znajdować się w jednym z trzech stanów.
+
+Kanał może znajdować się w stanie nil przez skonstruowanie kanału w jego stanie wartości zero.
+Wysyłanie i odbieranie na kanałach w tym stanie będzie blokowane. To dobre rozwiązanie w sytuacjach,
+w których chcesz wdrożyć krótkotrwałe zatrzymanie pracy.
+
+Kanał może znajdować się w stanie otwartym, stosując wbudowaną funkcję make. Wysyłanie i
+odbieranie na kanałach w tym stanie będzie działać w następujących warunkach:
+
+*Kanały* *bez* *bufora:*
+
+- Gwarancje na poziomie sygnalizacji, z odebraniem następującym przed wysłaniem. Wysyłające i
+odbierające gorutyny muszą spotkać się w przestrzeni i czasie, aby sygnał został przetworzony.
+
+*Kanały* *z* *buforem:*
+
+- Gwarancje poza poziomem sygnalizacji, z wysłaniem następującym przed odbiorem. Jeśli bufor
+nie jest pełny, wysyłki zostaną zakończone, w przeciwnym razie będą zablokowane. Jeśli bufor
+nie jest pusty, odbiory zostaną zakończone, w przeciwnym razie zostaną zablokowane.
+
+Kanał może znajdować się w stanie zamkniętym, stosując wbudowaną funkcję close. Nie musisz zamykać
+kanału, aby zwolnić pamięć; close służy do zmiany stanu. Wysyłanie na zamkniętym kanale spowoduje panic,
+natomiast odbieranie z zamkniętego kanału zwróci natychmiast wynik.
+
+Wszystkie te informacje pozwalają się skupić na wzorcach kanałów. Skupienie się na sygnalizacji
+jest ważne. Idea polega na określeniu, czy potrzebujesz gwarancji na poziomie sygnalizacji,
+w zależności od kwestii dotyczących opóźnień. Jeśli potrzebujesz przesyłać dane wraz z sygnałem lub nie,
+w zależności od obsługi anulowań lub ich braku. Chcesz przekształcić składnię na te semantyki.
+
+** Wytyczne projektowania
+
+- Dowiedz się więcej o [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][wytycznych projektowania]] dla kanałów.
+
+** Diagramy
+
+*Gwarancja* *dostarczenia*
+
+Gwarancja dostarczenia opiera się na jednym pytaniu: "Czy potrzebuję gwarancji, że sygnał
+wysłany przez określoną gorutynę został odebrany?"
+
+.image /tour/eng/static/img/guarantee_of_delivery.png
+
+*Sygnalizacja* *z* *lub* *bez* *danych*
+
+Gdy zamierzasz sygnalizować z danymi, masz trzy opcje konfiguracji kanału do wyboru,
+w zależności od rodzaju gwarancji, jakiej potrzebujesz.
+
+.image /tour/eng/static/img/signaling_with_data.png
+
+Sygnalizowanie bez danych służy głównie celom anulowania. Pozwala jednej gorutynie poinformować
+inną gorutynę o anulowaniu jej działania i przejściu do innych zadań. Anulowanie można zaimplementować
+zarówno przy użyciu kanałów niebuforowanych, jak i buforowanych.
+
+.image /tour/eng/static/img/signaling_without_data.png
+
+*Stan*
+
+Zachowanie kanału jest bezpośrednio wpływane przez jego aktualny stan. Stan kanału może być nil, otwarty lub zamknięty.
+
+.image /tour/eng/static/img/state.png
+
+** Dodatkowe materiały
+
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
+- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
+- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy    
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
+
+** Buffer Bloat - 2011
+
+Bądź ostrożny, korzystając z dużych buforów z myślą o redukcji opóźnień.
+
+- Duże bufory uniemożliwiają szybkie powiadamianie o odwrotnym ciśnieniu.
+- Uniemożliwiają redukcję odwrotnego ciśnienia w terminie.
+- Mogą zwiększać opóźnienia, a nie je redukować.
+- Bufory służą do zapewnienia ciągłości przepływu.
+- Nie używaj ich wyłącznie w celu poprawy wydajności.
+- Stosuj je do obsługi dobrze określonych napływów danych.
+- Używaj ich do radzenia sobie z problemami związanymi ze zbyt dużą odległością między przekazami.
+
+*Filmy*
+
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Napisz program, w którym dwie gorutyny przesyłają liczbę całkowitą tam i z powrotem dziesięć razy.
+Wyświetl, kiedy każda z gorutyn odbiera liczbę. Zwiększaj wartość liczby za każdym razem, gdy zostanie
+przesłana. Po osiągnięciu liczby dziesięć, zamknij program w sposób kontrolowany.
+
+.play channels/exercise1.go 
+.play channels/answer1.go
+
+** Ćwiczenie 2
+
+Napisz program, który wykorzystuje wzorzec "fan out", aby równocześnie generować 100 losowych liczb.
+Każda gorutyna powinna wygenerować pojedynczą losową liczbę i przekazać ją do głównej gorutyny za
+pomocą buforowanego kanału. Ustaw rozmiar bufora kanału tak, aby żadna operacja wysyłania nie
+blokowała się. Nie przydzielaj więcej buforów, niż jest to potrzebne. Główna gorutyna powinna
+wyświetlić każdą otrzymaną losową liczbę, a następnie zakończyć program.
+
+.play channels/exercise2.go 
+.play channels/answer2.go
+
+** Ćwiczenie 3
+
+Napisz program, który generuje do 100 losowych liczb równocześnie. Nie wysyłaj wszystkich 100 wartości,
+więc ilość operacji wysyłania/odbierania będzie nieznana.
+
+.play channels/exercise3.go 
+.play channels/answer3.go
+ 
+** Ćwiczenie 4
+
+Napisz program, który generuje do 100 losowych liczb równocześnie przy użyciu puli pracowników.
+Odrzuć liczby parzyste. Nakaz pracownikom zakończenie działania po zebraniu 100 liczb nieparzystych.
+
+.play channels/exercise4.go 
+.play channels/answer4.go

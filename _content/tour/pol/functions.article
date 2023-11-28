@@ -1,0 +1,184 @@
+Funkcje
+Funkcje stanowią istotny element języka i dostarczają mechanizmu do grupowania i organizacji kodu w odrębne i wyodrębnione części funkcjonalności.
+
+* Funkcje
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Funkcje stanowią istotny element języka i dostarczają mechanizmu do grupowania i organizacji
+naszego kodu w osobne i wyodrębnione fragmenty funkcjonalności. Funkcje mogą być używane
+do dostarczania API dla tworzonych przez nas pakietów i stanowią kluczowy składnik współbieżności.
+
+W języku Go funkcje odgrywają centralną rolę w strukturyzowaniu kodu oraz promują tworzenie czystego,
+zwięzłego i efektywnego oprogramowania. Zrozumienie, jak deklarować, definiować i używać funkcji,
+jest kluczowe dla pisania efektywnych programów w Go.
+
+** Przegląd kodu
+
+- *Example* *1:* Zwracanie wielu wartości
+- *Example* *2:* Pusty identyfikator
+- *Example* *3:* Re-deklaracje
+- *Example* *4:* Funkcje anonimowe/Domknięcia
+- *Example* *5:* Recover panics
+
+.play functions/example1.go
+.play functions/example2.go
+.play functions/example3.go
+.play functions/example4.go
+.play functions/example5.go
+
+Funkcje stanowią fundamentalny element programów i służą do enkapsulacji oraz organizacji
+kodu w celu uzyskania lepszej modularności i możliwości ponownego użycia. Funkcje to
+bloki kodu, które wykonują określone zadanie lub zestaw powiązanych zadań. Oto przegląd
+funkcji w języku Go:
+
+** Deklaracja funkcji
+
+Aby zadeklarować funkcję w języku Go, używasz słowa kluczowego func, a następnie podajesz
+nazwę funkcji, listę parametrów zawartą w nawiasach i opcjonalny typ zwracany.
+Ogólna składnia jest następująca:
+
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Function body
+   }
+
+Na przykład:
+
+   func add(x int, y int) int {
+       return x + y
+   }
+
+** Parametry i wartości zwracane
+
+Funkcje mogą przyjmować zero lub więcej parametrów, które są przekazywane do funkcji
+podczas jej wywołania. Każdy parametr składa się z nazwy i typu. W przykładzie
+powyżej funkcja add przyjmuje dwa parametry typu całkowitego, x i y.
+
+Funkcje mogą zwracać zero lub jedną wartość (lub w ogóle nie zwracać, wtedy można
+pominąć typ zwracany). Instrukcja return służy do określenia wartości, która ma
+zostać zwrócona. W przykładzie powyżej funkcja add zwraca wartość całkowitą.
+
+Go pozwala na zwracanie przez funkcje wielu wartości. Jest to przydatne w przypadkach,
+gdy chcesz zwrócić więcej niż jedną wartość z funkcji. Na przykład:
+
+   func divide(x, y float64) (float64, error) {
+       if y == 0 {
+           return 0, errors.New("division by zero")
+       }
+       return x / y, nil
+   }
+
+W tym przykładzie funkcja divide zwraca zarówno wynik zmiennoprzecinkowy,
+jak i błąd (jeśli wystąpi dzielenie przez zero).
+
+Go pozwala określić nazwy wartości zwracanych w sygnaturze funkcji. Nazwane wartości
+zwracane są automatycznie zainicjowane i mogą być używane jako zwykłe zmienne
+wewnątrz funkcji. Są szczególnie przydatne przy pracy z bardziej skomplikowanymi
+funkcjami lub obsługą błędów. Na przykład:
+
+   func divide(x, y float64) (result float64, err error) {
+       if y == 0 {
+           err = errors.New("division by zero")
+           return
+       }
+       result = x / y
+       return
+   }
+
+** Wywoływanie funkcji
+
+Aby wywołać funkcję w języku Go, używasz nazwy funkcji, a następnie podajesz
+listę argumentów zawartą w nawiasach. Jeśli funkcja ma wiele wartości zwracanych,
+możesz je przechwycić w zmiennych. Na przykład:
+
+   sum := add(3, 5)            // Wywołaj funkcję add i przypisz jej wynik do zmiennej 'sum'
+   result, err := divide(8, 2) // Wywołaj funkcję divide i przechwyć zarówno wynik, jak i błąd
+
+** Parametry funkcji o zmiennej długości (variadic parameters)
+
+
+Go obsługuje funkcje o parametrach o zmiennej długości (variadic functions),
+co pozwala na przekazywanie zmiennej liczby argumentów do funkcji. Aby zdefiniować
+parametr o zmiennej długości, używa się trzech kropek (...), a następnie
+podaje się typ parametru. Na przykład:
+
+   func calculateSum(nums ...int) int {
+       sum := 0
+       for _, num := range nums {
+           sum += num
+       }
+       return sum
+   }
+
+Możesz wywołać tę funkcję z dowolną liczbą całkowitych argumentów.
+
+** Funkcje anonimowe
+
+Go obsługuje anonimowe funkcje, znane również jako domknięcia (closures). Są to funkcje
+bez nazwy, które można przypisać do zmiennych i używać jako argumenty do innych funkcji.
+Domknięcia są często używane w Go do definiowania funkcji w miejscu (inline) lub
+do programowania współbieżnego przy użyciu gorutyn (goroutines).
+
+   add := func(x, y int) int {
+       return x + y
+   }
+
+   result := add(3, 5)
+
+** Funkcja jako typ
+
+
+W języku Go funkcje mogą również być używane jako typy. Dzięki temu można definiować funkcje,
+które przyjmują inne funkcje jako argumenty lub zwracają je jako wyniki. Jest to potężna
+cecha do implementacji funkcji wyższego rzędu (higher-order functions) i obsługi zwrotnych
+wywołań (callbacks).
+
+   type MathFunc func(int, int) int
+
+   func operate(x, y int, op MathFunc) int {
+       return op(x, y)
+   }
+
+Wówczas możesz przekazywać funkcje jako argumenty do funkcji operate.
+
+** Defer i Panic
+
+Go dostarcza dwie specjalne wbudowane funkcje o nazwach defer i panic do obsługi
+sytuacji wyjątkowych i zarządzania zasobami. defer jest używane do zaplanowania
+wywołania funkcji, które zostanie wykonane tuż przed zakończeniem funkcji, podczas
+gdy panic jest używane do wywołania błędu w czasie działania programu i cofnięcia
+stosu wywołań.
+
+** Notatki
+
+- Funkcje mogą zwracać wiele wartości, a większość z nich zwraca wartość błędu.
+- Wartość błędu zawsze powinna być sprawdzana jako część logiki programu.
+- Pusty identyfikator może być używany do zignorowania wartości zwracanych.
+- Składnia: func, receiver, identyfikator, [parametr(y)], [wynik(i)], blok kodu.
+- Parametry o zmiennej długości, argumenty o zmiennej długości i rozkładanie ciągu.
+- Funkcje są typem: można używać funkcji jako parametrów, argumentów i wyników.
+- Defer służy do zaplanowania wywołania funkcji w innej funkcji.
+- Panic wywołuje błąd w czasie działania programu i cofa stos wywołań.
+- Nazwane wartości zwracane są mniej czytelne i nie są idiomatyczne.
+
+** Dodatkowe materiały
+
+- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj typ struktury do przechowywania informacji o użytkowniku.
+Zadeklaruj funkcję, która tworzy wartość tego typu i zwraca wskaźniki na nią oraz
+wartość błędu. Wywołaj tę funkcję w funkcji main i wyświetl wartość.
+
+*Część* *B:* Wykonaj drugie wywołanie swojej funkcji, ale tym razem zignorujwartość i przetestuj tylko wartość błędu.
+
+.play functions/exercise1.go
+.play functions/answer1.go

@@ -1,0 +1,146 @@
+Estruturas de Dados
+Essa seção fornece exemplos de estruturas de dados.
+
+* Hash Map
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao Vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+Este programa de exemplo implementa uma tabela hash básica.
+
+- hashKey(key) retorna um número entre 0 e len(buckets)-1
+
+- Nós usamos uma slice de entries como um bucket para lidar com casos em que
+  a hash de duas ou mais chaves são mapeadas para o mesmo bucket.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
+
+*Diagrama*
+
+    Com um hash map, os dados são indexados por bucket e então
+    pela posição dentro do bucket.
+
+    hashKey(key) ──────────────┐
+                               │
+                               ▽
+     ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+     │    │     │     │     │     │     │     │     │  ◁── bucket
+     └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+             │                 │
+             ▽                 ▽
+       ┌─────────────┐   ┌─────────────┐
+       │ key │ value │   │ key │ value │  ◁── entry
+       ├─────────────┤   ├─────────────┤
+       │ key │ value │   │ key │ value │
+       ├─────────────┤   └─────────────┘
+       │ key │ value │
+       ├─────────────┤
+       │ key │ value │
+       ├─────────────┤
+       │ key │ value │
+       └─────────────┘
+
+.play algorithms/data/hash_map.go
+
+* Lista Encadeada ou Lista Ligada
+
+Este programa de exemplo implementa uma lista duplamente encadeada básica.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
+
+*Diagrama*
+
+    Com uma lista encadeada, os valores ficam em diferentes locais
+    da memória e são vinculados por meio do uso de ponteiros.
+
+    ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
+    │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │
+    └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
+       △                                               △
+       │                                               │
+       ────────────────────        ─────────────────────
+                          │        │
+                          │        │
+                       ┌───────────────┐
+                       │ First │  Last │
+                       └───────────────┘
+
+.play algorithms/data/list.go
+
+* Fila
+
+Este programa de exemplo implementa uma fila circular básica.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]]
+
+*Diagrama*
+
+    Com uma fila, o primeiro valor que entra é o primeiro que sai.
+
+               ┌──────────────────────────────────────────┐
+    ┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+    │ V06 │ ─▷ │ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ │ ─▷ │ V01 │
+    └─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
+               └──────────────────────────────────────────┘
+
+.play algorithms/data/queue_circular.go
+
+* Pilha
+
+Este programa de exemplo implementa uma pilha básica.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Stack_(abstract_data_type)][https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]]
+
+*Diagrama*
+
+    Com uma pilha, o primeiro valor que entra é o último que sai.
+
+           ┌─────┐
+           │ V05 │
+           └─────┘
+              │
+              ▽          ┌─────┐
+        ┌───────────┐ ─▷ │ V04 │
+        │  ┌─────┐  │    └─────┘
+        │  │ V03 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V02 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V01 │  │
+        │  └─────┘  │
+        └───────────┘
+
+.play algorithms/data/stack.go
+
+* Árvore Binária
+
+Este programa de exemplo implementa uma árvore binária básica.
+
+- Veja mais em [[https://en.wikipedia.org/wiki/Binary_tree][https://en.wikipedia.org/wiki/Binary_tree]]
+
+*Diagrama*
+
+    Com uma árvore binária, os dados são indexados no lado esquerdo
+    ou direito da árvore. A árvore fica balanceada após cada adição
+    de node.
+
+      0     1     2     3     4     5     6    ◁─ Ordem de Inserção
+    ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 65 ││ 45 ││ 35 ││ 75 ││ 85 ││ 78 ││ 95 │
+    └────┘└────┘└────┘└────┘└────┘└────┘└────┘
+
+                   ┌────┐
+                   │ 75 │                      ◁─ Árvore Final
+                   └────┘
+                 /        \
+           ┌────┐          ┌────┐
+           │ 45 │          │ 85 │
+           └────┘          └────┘
+           /    \          /    \
+       ┌────┐  ┌────┐  ┌────┐  ┌────┐
+       │ 35 │  │ 65 │  │ 78 │  │ 95 │
+       └────┘  └────┘  └────┘  └────┘
+
+.play algorithms/data/tree_binary.go
