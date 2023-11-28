@@ -1,0 +1,79 @@
+Interface Pollution
+Interface pollution viene dal fatto che le persone progettano il software con interfacce anzichè scoprirle.
+
+* Interface Pollution
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+L'Interface pollution viene dal fatto che le persone progettano il software con interfacce anzichè scoprirle.
+
+** Code Review
+
+- *Example* *1:* Creare un Interface Pollution
+- *Example* *2:* Rimuovere l'Interface Pollution
+
+.play composition/pollution/example1.go
+.play composition/pollution/example2.go
+
+** Interface Pollution
+
+Interface pollution viene dal fatto che le persone progettano il software con interfacce anzichè scoprirle.
+Devi prima progettare una soluzione concreta al problema.
+Poi puoi scoprire dove il programma necessita di essere polimorfico, se non del tutto.
+
+Queste sono cose che ho sentito da altri sviluppatori.
+
+"Io uso le interfacce perchè dobbiamo usare le interfacce".
+
+No. Noi non dobbiamo usare le interfacce. Noi usiamo le interfacce quando è pratico e ragionevole farlo.
+C'è un costo nell' uso delle interfacce: un livello di indirezione
+e allocazione quando noi conserviamo valori concreti dentro. A meno che il costo della allocazione
+valga quello che guadagno dal disaccoppiamento, non si dovrebbero usare le interfacce.
+
+"Io ho bisogno di testare il mio codice perciò ho necessità di usare le interfacce".
+
+No. tu devi progettare le API prima per l'utilizzatore, non per i test. Se l'API non è testabile,
+dovresti chiederti se è usabile. Ci sono differenti livelli di API. Il livello più basso di API non esportate possono e devono focalizzarsi sulla testabilità.
+Quelle di livello più alto necessitano di focalizzarsi sulla usabilità.
+
+Funzioni che accettano dati grezzi in ingresso e restituiscono dati grezzi sono le più testabili.
+Separare la trasformazione dei dati dove i dati arrivano e dove vanno.
+Questo è un esercizio di refactoring che hai necessità di eseguire durante il ciclo di ingegnerizzazione del codice.
+
+Sotto c'è un esempio che crea una Interface Pollution usando impropriamente una interfaccia dove non è necessaria.
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+L'interfaccia Server definisce un contratto per i server TCP. Il problema qui è che non è necessario un contratto, hai bisogno di una implementazione.
+Ci sarà solo una implementazione, sopratutto perchè la implementerai tu. Non hai bisongo di qualcuno che la implementi per te.
+
+In aggiunta, questa interfaccia è basata su un nome e non un verbo.
+Tipi concreti sono nomi perchè essi rappresentano il problema concreto.
+Interfacce descrivono un comportamento e Server non è un comportamento.
+
+Qui ci sono alcuni modi per identificare l'interface pollution:
+
+- Un package dichiara una interfaccia che corrisponde all' intera API del suo tipo concreto.
+- Le interfacce sono esportate ma tipi concreti implementano una interfaccia non esportata.
+- Una funzione factory per il tipo concreto restituisce il valore di interfaccia con un tipo non esportato al suo interno.
+- L'interfaccia può essere rimossa e nulla cambia per l'utilizzatore della API.
+- L'interfaccia non disaccoppia la API dal cambiamento.
+
+Line guida attorno all'interface pollution:
+
+Usa una interfaccia:
+
+- Quando utenti di una API devono fornire dettagli di una implementazione.
+- Quando le API hanno diverse implementazioni che devono essere mantenute.
+- Quando parti delle API che posono cambiare sono state identificate e richiedono disaccoppiamento.
+
+Domanda sulla interfaccia:
+
+- Quando il suo scopo è solo scrivere API testabili (scrivi prima API usabili).
+- Qaundo non fornisce supporto per l'API per disaccoppiarla dal cambiamento.
+- Quando non è chiaro come l'interfaccia renda il codice migliore.
