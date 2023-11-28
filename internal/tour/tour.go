@@ -27,10 +27,9 @@
 	1. Update replace statement in all languages
 	   - _content/tour/[new_lang_code]/static/js/page.js:116 : return url.replace(/(\/tour\/)(eng|rus|per|grc|por|[new_lang_code])(\/)/, `$1${newLanguage}$3`);
 
-	2. Change Patch Number in all JS and Template files for all languages
+	2. Change Patch Number in all JS and Template files for English only
 	   - _content/tour/[new_lang_code]/welcome.article
 	   - _content/tour/[new_lang_code]/static/partials/list.html
-	   - _content/tour/[new_lang_code]/template/index.tmpl
 
 	3. Update Language switch in all languages
 	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : <option value="[new_lang_code]">[new_lang]</option>
