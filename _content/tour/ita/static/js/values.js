@@ -10,17 +10,17 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'welcome',
     'title': '',
-    'description': `<p>Questo è materiale per qualsiasi sviluppatore di livello intermedio che abbia una certa esperienza con altri linguaggi di programmazione e voglia imparare Go. Riteniamo che questo materiale sia perfetto per chiunque voglia iniziare subito nell'apprendimento del Go o desideri una comprensione più approfondita del linguaggio e dei suoi aspetti interni.</p>
-    <p><b>La prima volta che esegui un esempio, il completamento potrebbe richiedere del tempo. Questo perché il tour service potrebbe non essere attivo. Ti preghiamo di concedergli un po' di tempo per completarlo.</b></p>
+    'description': `<p>Questo è materiale per qualsiasi sviluppatore di livello intermedio che abbia una certa esperienza con altri linguaggi di programmazione e voglia imparare Go. Riteniamo che questo materiale sia perfetto per chiunque voglia iniziare subito nell'apprendimento di Go o desideri una comprensione più approfondita del linguaggio e dei suoi aspetti interni.</p>
+    <p><b>La prima volta che esegui un esempio, il completamento potrebbe richiedere del tempo. Questo perché il tour service potrebbe non essere attivo. Ti preghiamo di concedergli un pò di tempo per completarlo.</b></p>
     `,
     'lessons': [
         'welcome',
     ]
 }, {
     'id': 'language-mechanics',
-    'title': 'Language Mechanics',
+    'title': 'Meccanica del linguaggio',
     'description': `
-        <p>Questo materiale copre tutta la sintassi del linguaggio, idiomi, impleemntazione e specifiche del linguaggio. Una volta che avrai fatto questo con questo materiale capirai la meccanica del linguaggio e le mechanical sympathies che il inguaggio ha per l'hardware e per il sistema operativo.</p>
+        <p>Questo materiale copre tutta la sintassi del linguaggio, idiomi, implementazione e specifiche del linguaggio. Una volta che avrai fatto questo con questo materiale capirai la meccanica del linguaggio e le mechanical sympathies che il inguaggio ha per l'hardware e per il sistema operativo.</p>
         `,
     'lessons': [
         'variables',
@@ -38,7 +38,7 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'composition-interfaces',
-    'title': 'Composition and Interfaces',
+    'title': 'Composizione e Interfacce',
     'description': `
         <p>Questo materiale copre le cose pratiche che devi sapere sulla composizione e sulle interfacce.</p>
         `,
@@ -52,7 +52,7 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'concurrency',
-    'title': 'Concurrency',
+    'title': 'Concorrenza',
     'description': `
         <p>Questo materiale copre tutti gli aspetti di concorrenza del linguaggio. Una volta terminato questo materiale, capirai la meccanica della concorrenza del linguaggio e le mechanical sympathies che il linguaggio ha sia per l'hardware che per il sistema operativo in relazione alla concorrenza.</p>
        `,
