@@ -30,6 +30,7 @@
 	2. Change Patch Number in all JS and Template files for English only
 	   - _content/tour/[new_lang_code]/welcome.article
 	   - _content/tour/[new_lang_code]/static/partials/list.html
+	   - _content/tour/[new_lang_code]/template/index.tmpl:89
 
 	3. Update Language switch in all languages
 	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : <option value="[new_lang_code]">[new_lang]</option>
