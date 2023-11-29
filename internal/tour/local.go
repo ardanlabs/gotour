@@ -105,8 +105,8 @@ func Main() {
 
 	grcUIContent, grcIndex := addLanguage("tour/grc/")
 	defer grcIndex.Close()
-  
-  itaUIContent, itaIndex := addLanguage("tour/ita/")
+
+	itaUIContent, itaIndex := addLanguage("tour/ita/")
 	defer itaIndex.Close()
 
 	perUIContent, perIndex := addLanguage("tour/per/")
@@ -124,7 +124,7 @@ func Main() {
 	r := root{
 		engContent: engUIContent,
 		grcContent: grcUIContent,
-    itaContent: itaUIContent,
+		itaContent: itaUIContent,
 		perContent: perUIContent,
 		porContent: porUIContent,
 		polContent: polUIContent,
