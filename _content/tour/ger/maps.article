@@ -1,13 +1,13 @@
-Karten
-Eine Karte ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten auf der Grundlage eines Schlüssels ermöglicht.
+Maps
+Eine Map ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten auf der Grundlage eines Schlüssels ermöglicht.
 
-* Karten
+* Maps 
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
 - Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Eine Map ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten
-basierend auf einem Schlüssel. Sie verwendet ein Hash-Map- und Bucket-System, das einen zusammenhängenden
+basierend auf einem Schlüssel erlaubt. Sie verwendet ein Hash-Map- und Bucket-System, das einen 
 zusammenhängenden Block des Speichers unterhält.
 
 ** Code-Überprüfung
@@ -28,9 +28,9 @@ zusammenhängenden Block des Speichers unterhält.
 .play maps/example6.go
 .play maps/example7.go
 
-** Deklarieren und Konstruieren von Karten
+** Deklarieren und Konstruieren von Maps 
 
-Das Deklarieren und Konstruieren einer Karte kann auf verschiedene Weise erfolgen.
+Das Deklarieren und Konstruieren einer Map kann auf verschiedene Weise erfolgen.
 
     Typ user struct {
         name string
@@ -46,11 +46,11 @@ Das Deklarieren und Konstruieren einer Karte kann auf verschiedene Weise erfolge
     // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
     Benutzer := make(map[string]user)
 
-    // Konstruieren Sie eine Karte, die mit einer leeren Literalkonstruktion initialisiert wird,
+    // Konstruieren Sie eine Map, die mit einer leeren Literalkonstruktion initialisiert wird,
     // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
     Benutzer := map[string]user{}
 
-Eine Map, die auf den Wert Null gesetzt ist, ist nicht verwendbar und führt dazu, dass Ihr Programm in Panik gerät.
+Eine Map, die auf den Wert Null gesetzt ist, ist nicht verwendbar und führt dazu, dass Ihr Programm mit panic beendet wird.
 Die Verwendung der eingebauten Funktion make und der Konstruktion von Literalen konstruiert eine Map
 bereit zur Verwendung.
 
@@ -77,7 +77,7 @@ Ausgabe:
 Wenn die eingebaute Funktion make zum Aufbau einer Map verwendet wird, kann der Zuweisungsoperator
 zum Hinzufügen und Aktualisieren von Werten in der Map verwendet werden. Die Reihenfolge, in der die Schlüssel/Werte
 zurückgegeben werden, wenn eine Map durchlaufen wird, ist in der Spezifikation nicht definiert und muss vom Compiler
-implementieren.
+implementiert werden.
 
     func main() {
         users := map[string]user{
@@ -101,8 +101,8 @@ Ausgabe:
 
 In diesem Fall wurden die Ausgaben in einer anderen Reihenfolge zurückgegeben, als sie
 in der Konstruktion aufgelistet sind. Der aktuelle Algorithmus für 1.16 gibt die Ergebnisse
-in einer zufälligen Reihenfolge zurück, sobald die Anzahl der Werte eine bestimmte Grenze erreicht. Noch einmal,
-ist dies eine Compiler-Implementierung, die sich noch ändern kann. Sie können sich nicht darauf verlassen.
+in einer zufälligen Reihenfolge zurück, sobald die Anzahl der Werte eine bestimmte Grenze erreicht. Noch einmal:
+Dies ist eine Compiler-Implementierung, die sich ändern kann. Sie können sich nicht auf die Reihenfolge verlassen.
 
 ** Nachschlagen und Löschen von Map Keys
 
@@ -111,8 +111,8 @@ Sobald die Daten in einer Map gespeichert sind, ist zum Extrahieren der Daten ei
     user1, exists1 := Benutzer["Bill"]
     user2, exists2 := users["Ford"]
 
-    fmt.Println("Rechnung:", existiert1, Benutzer1)
-    fmt.Println("Ford:", existiert2, Benutzer2)
+    fmt.Println("Rechnung:", exists1, Benutzer1)
+    fmt.Println("Ford:", exists2, Benutzer2)
 
 Ausgabe:
 
@@ -120,14 +120,14 @@ Ausgabe:
     Ford: true {Henry Ford}
 
 Um eine Schlüsselsuche durchzuführen, werden eckige Klammern mit der Map-Variablen verwendet. Zwei
-Werte zurückgegeben werden: der Wert und ein boolescher Wert, der angibt
+Werte werden zurückgegeben: der Wert und ein boolescher Wert, der angibt
 ob der Wert gefunden wurde oder nicht. Wenn Sie dies nicht wissen müssen, können Sie die Variable
 Variable "exists" weglassen.
 
 Wenn ein Schlüssel nicht in der Map gefunden wird, gibt die Operation einen Wert vom Typ Map
 zurück, der auf den Wert Null gesetzt ist. Sie können dies an der Schlüsselabfrage "Bill" sehen. Verwenden Sie nicht
-Nullwert, um festzustellen, ob ein Schlüssel in der Map existiert oder nicht, da der Nullwert gültig sein kann
-gültig sein kann und was tatsächlich für den Schlüssel gespeichert wurde.
+Nullwert um festzustellen, ob ein Schlüssel in der Map existiert oder nicht, da der Nullwert 
+gültig sein kann.
 
     delete(users, "Roy")
 
@@ -147,7 +147,7 @@ Compiler-Fehler:
 
 Ein Slice ist ein gutes Beispiel für einen Typ, der nicht als Schlüssel verwendet werden kann. Nur Werte, die
 die Hash-Funktion durchlaufen können, sind geeignet. Eine gute Möglichkeit, Typen zu erkennen
-die als Schlüssel verwendet werden können, ist, dass der Typ in einer Vergleichsoperation verwendet werden kann. Sie können nicht
+die als Schlüssel verwendet werden können ist, dass der Typ in einer Vergleichsoperation verwendet werden kann. Sie können nicht
 zwei Slice-Werte vergleichen.
 
 ** Anmerkungen
