@@ -1,38 +1,36 @@
-Daten-Strukturen
-Dieser Abschnitt enthält Beispiele für Datenstrukturen.
+Dieser Abschnitt stellt Beispiele für Datenstrukturen bereit.
 
 * Hash Map
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/]][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/]][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Video anschauen]]
+- Finanzielle Unterstützung benötigt? Nutzt unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Dieses Beispielprogramm implementiert eine einfache Hashtabelle.
 
-- hashKey(key) gibt eine Zahl zwischen 0 und len(buckets)-1 zurück
+- `hashKey(key)` gibt eine Zahl zwischen 0 und len(buckets)-1 zurück
 
-- Wir verwenden eine Scheibe von Einträgen als Bucket, um Fälle zu behandeln, in denen zwei oder mehr Schlüssel
-  in denselben Bucket gehasht werden
+- Wir verwenden eine Slice von Einträgen als Bucket, um Fälle zu behandeln, in denen zwei oder mehr Schlüssel in denselben Bucket gehasht werden
 
-- Mehr unter [[https://en.wikipedia.org/wiki/Hash_table]]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
 
 *Diagramm*
 
-    Bei einer Hash-Map werden die Daten nach Bereich indiziert und dann
-    innerhalb des Bereichs positioniert.
+    Bei einer Hash Map werden Daten durch den Bucket und dann die
+    Position innerhalb des Buckets indiziert.
 
     hashKey(key) ──────────────┐
                                │
                                ▽
      ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
-     │ │ │ │ │ │ │ │ │ │ ◁─── Eimer
+     │    │     │     │     │     │     │     │     │  ◁── Bucket
      └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
-             │ │
-             ▽ ▽
-       ┌─────────────┐ ┌─────────────┐
-       │ Schlüssel │ Wert │ │ Schlüssel │ Wert │ ◁──Eintrag
-       ├─────────────┤ ├─────────────┤
-       │ Schlüssel │ Wert │ │ Schlüssel │ Wert │
-       ├─────────────┤ └─────────────┘
+             │                 │
+             ▽                 ▽
+       ┌─────────────┐   ┌─────────────┐
+       │ Schlüssel │ Wert │   │ Schlüssel │ Wert │  ◁── Eintrag
+       ├─────────────┤   ├─────────────┤
+       │ Schlüssel │ Wert │   │ Schlüssel │ Wert │
+       ├─────────────┤   └─────────────┘
        │ Schlüssel │ Wert │
        ├─────────────┤
        │ Schlüssel │ Wert │
@@ -40,107 +38,111 @@ Dieses Beispielprogramm implementiert eine einfache Hashtabelle.
        │ Schlüssel │ Wert │
        └─────────────┘
 
-.play algorithms/data/hash_map.go
+.spielt algorithms/data/hash_map.go
 
 * Verknüpfte Liste
 
 Dieses Beispielprogramm implementiert eine einfache doppelt verkettete Liste.
 
-- Mehr unter [[https://en.wikipedia.org/wiki/Linked_list]]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
 
 *Diagramm*
 
-    Bei einer verknüpften Liste sind die Werte in unterschiedlicher
+    Bei einer verknüpften Liste sind Werte in unterschiedlicher
     Reihenfolge durch die Verwendung von Zeigern verbunden.
 
-    ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐
-    │ Val │ ◁─▷ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │
-    └─────┘ └─────┘ └─────┘ └─────┘ └─────┘
-       △ △
-       │ │
-       ──────────────────── ─────────────────────
-                          │ │
-                          │ │
+    ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
+    │ Wert │ ◁─▷ │ Wert │ ◁─▷ │ Wert │ ◁─▷ │ Wert │ ◁─▷ │ Wert │
+    └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
+       △                                               △
+       │                                               │
+       ────────────────────        ─────────────────────
+                          │        │
+                          │        │
                        ┌───────────────┐
-                       │ Erste │ Letzte │
+                       │ Erster │ Letzter │
                        └───────────────┘
 
-.play algorithms/data/list.go
+.spielt algorithms/data/list.go
 
 * Warteschlange
 
 Dieses Beispielprogramm implementiert eine einfache zirkuläre Warteschlange.
 
-- Weitere Informationen finden Sie unter [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]]
 
 *Diagramm*
 
-    Bei einer Warteschlange ist der erste eingehende Wert auch der erste ausgehende Wert.
+    Bei einer Warteschlange ist das erste eingefügte Element das erste
+    auszugebende Element.
 
                ┌──────────────────────────────────────────┐
-    ┌─────┐ │ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │ ┌─────┐
-    │ V06 │ ─▷ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ ─▷ │ V01 │
-    └─────┘ | └─────┘ └─────┘ └─────┘ └─────┘ | └─────┘
+    ┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+    │ V06 │ ─▷ │ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ │ ─▷ │ V01 │
+    └─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
                └──────────────────────────────────────────┘
 
-.play algorithms/data/queue_circular.go
+.spielt algorithms/data/queue_circular.go
 
 * Stapel
 
-Dieses Beispielprogramm implementiert einen einfachen Stack.
+Dieses Beispielprogram
 
-- Weitere Informationen finden Sie unter [[https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]][https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]
+m implementiert einen einfachen Stapel.
+
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Stack_(abstract_data_type)][https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]]
 
 *Diagramm*
 
-    Bei einem Stapel ist der erste Wert, der hereinkommt, der letzte, der herauskommt.
+    Bei einem Stapel ist das erste eingefügte Element das letzte
+    auszugebende Element.
 
            ┌─────┐
            │ V05 │
            └─────┘
               │
-              ▽ ┌─────┐
+              ▽          ┌─────┐
         ┌───────────┐ ─▷ │ V04 │
-        │ ┌─────┐ │ └─────┘
-        │ │ V03 │ │
-        │ └─────┘ │
-        │ ┌─────┐ │
-        │ │ V02 │ │
-        │ └─────┘ │
-        │ ┌─────┐ │
-        │ │ V01 │ │
-        │ └─────┘ │
+        │  ┌─────┐  │    └─────┘
+        │  │ V03 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V02 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V01 │  │
+        │  └─────┘  │
         └───────────┘
 
-.play algorithms/data/stack.go
+.spielt algorithms/data/stack.go
 
-* Binärer Baum
+* Binärbaum
 
 Dieses Beispielprogramm implementiert einen einfachen Binärbaum.
 
-- Mehr unter [[https://en.wikipedia.org/wiki/Binary_tree]]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Binary_tree][https://en.wikipedia.org/wiki/Binary_tree]]
 
 *Diagramm*
 
-    Bei einem Binärbaum werden die Daten entweder auf der linken oder rechten Seite
-    Seite des Baums indiziert. Mit dem Hinzufügen eines jeden Knotens wird der Baum
+    Bei einem Binärbaum werden Daten entweder auf der linken oder rechten
+    Seite des Baums indiziert. Mit jedem hinzugefügten Knoten wird der Baum
     ausgeglichen.
 
-      0 1 2 3 4 5 6 ◁─ Bestellung einfügen
+      0     1     2     3     4     5     6    ◁─ Einfügereihenfolge
     ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
     │ 65 ││ 45 ││ 35 ││ 75 ││ 85 ││ 78 ││ 95 │
     └────┘└────┘└────┘└────┘└────┘└────┘└────┘
 
                    ┌────┐
-                   │ 75 │ ◁─ Endgültiger Baum
+                   │ 75 │                      ◁─ Endbaum
                    └────┘
-                 / \
-           ┌────┐ ┌────┐
-           │ 45 │ │ 85 │
-           └────┘ └────┘
-           / \ / \
-       ┌────┐ ┌────┐ ┌────┐ ┌────┐
-       │ 35 │ │ 65 │ │ 78 │ │ 95 │
-       └────┘ └────┘ └────┘ └────┘
+                 /        \
+           ┌────┐          ┌────┐
+           │ 45 │          │ 85 │
+           └────┘          └────┘
+           /    \          /    \
+       ┌────┐  ┌────┐  ┌────┐  ┌────┐
+       │ 35 │  │ 65 │  │ 78 │  │ 95 │
+       └────┘  └────┘  └────┘  └────┘
 
-.play algorithms/data/tree_binary.go
+.spielt algorithms/data/tree_binary.go

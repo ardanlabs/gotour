@@ -1,131 +1,109 @@
-Lustige Probleme
-Dieser Abschnitt enthält eine Reihe lustiger Code-Herausforderungen, die einige der von Go gebotenen Möglichkeiten demonstrieren.
+Dieser Abschnitt enthält eine Reihe von unterhaltsamen Code-Herausforderungen, die einige der Möglichkeiten von Go zeigen.
 
-* Sleeping Barber Problem
+* Problem des schlafenden Friseurs
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Video anschauen]]
+- Finanzielle Unterstützung benötigt? Nutzt unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Dieses Beispielprogramm implementiert das Problem des schlafenden Barbiers.
+Dieses Beispielprogramm implementiert das Problem des schlafenden Friseurs.
 
-- Weitere Informationen finden Sie unter [[https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-Es gibt einen Friseur im Friseursalon, einen Friseurstuhl und `n` Stühle für
-wartende Kunden. Wenn keine Kunden da sind, setzt sich der Barbier auf den
-Barbierstuhl und macht ein Nickerchen. Ein ankommender Kunde muss den Friseur wecken.
-Nachfolgend ankommende Kunden nehmen einen Wartestuhl, wenn keiner frei ist, oder
-gehen, wenn alle Stühle besetzt sind.
+Es gibt einen Friseur im Friseursalon, einen Friseurstuhl und `n` Stühle für wartende Kunden. Wenn keine Kunden da sind, setzt sich der Friseur in den Friseurstuhl und macht ein Nickerchen. Ein ankommender Kunde muss den Friseur wecken. Nachfolgende ankommende Kunden nehmen einen Wartestuhl ein, falls welche frei sind, oder verlassen den Salon, falls alle Stühle besetzt sind.
 
-*Output:*
+*Ausgabe:*
 
     Eröffnung des Ladens
     Friseur bereit zur Arbeit
-    Kunde "Kunde-1" betritt das Geschäft
-    Kunde "Kunde-1" nimmt Platz und wartet
-    Der Friseur bedient den Kunden "Kunde-1".
-    Friseur ist mit Kunde "cust-1" fertig
+    Kunde "cust-1" betritt den Laden
+    Kunde "cust-1" nimmt Platz und wartet
+    Friseur bedient Kunde "cust-1"
+    Friseur fertig mit Kunde "cust-1"
     Friseur macht ein Nickerchen
     Kunde "cust-2" betritt den Laden
     Kunde "cust-2" nimmt Platz und wartet
-    Der Friseur bedient den Kunden "cust-2".
+    Friseur bedient Kunde "cust-2"
     Kunde "cust-3" betritt den Laden
     Kunde "cust-3" nimmt Platz und wartet
-    Friseur ist mit Kunde "cust-2" fertig
+    Friseur fertig mit Kunde "cust-2"
     Friseur bedient Kunde "cust-3"
-    Kunde "cust-4" betritt das Geschäft
+    Kunde "cust-4" betritt den Laden
     Kunde "cust-4" nimmt Platz und wartet
     Schließen des Ladens
-    Friseur hat Kunde "cust-3" fertiggestellt
+    Friseur fertig mit Kunde "cust-3"
     Friseur bedient Kunde "cust-4"
-    Friseur hat Kunde "Kunde-4" fertiggestellt
-    Geschäft geschlossen
+    Friseur fertig mit Kunde "cust-4"
+    Laden geschlossen
 
-.play algorithms/fun/barber.go
+.spielt algorithms/fun/barber.go
 
 * Häufigkeit
 
-Dieses Beispielprogramm zeigt Ihnen, wie Sie eine Funktion implementieren können, die die
-die Häufigkeit der Verwendung einer bestimmten Rune in einem bestimmten Satz ermittelt.
+Dieses Beispielprogramm zeigt, wie man eine Funktion implementiert, die die Häufigkeit eines bestimmten Runen in einem Satz ermittelt.
 
-- Sequentiell: Ein linearer Algorithmus zur Durchführung einer Runenzählung.
-- Gleichlaufend: Ein gleichzeitiger Algorithmus zur Durchführung einer Runenzählung.
+- Sequenziell: Ein linearer Algorithmus zur Durchführung einer Runenzählung.
+- Nebenläufig: Ein nebenläufiger Algorithmus zur Durchführung einer Runenzählung.
 
-.play algorithms/fun/freq_sequential.go
-.play algorithms/fun/freq_concurrent.go
+.spielt algorithms/fun/freq_sequential.go
+.spielt algorithms/fun/freq_concurrent.go
 
-* Kodierung/Dekodierung von Mengen variabler Länge.
+* Variable Length Quantity Codierung/Dekodierung
 
-Dieses Beispielprogramm zeigt, wie Go genutzt werden kann, um die Codierung/Decodierung von Mengen variabler Länge zu implementieren.
+Dieses Beispielprogramm zeigt, wie Go genutzt werden kann, um variable Length Quantity Codierung/Dekodierung zu implementieren.
 
-- Weitere Informationen finden Sie unter [[https://en.wikipedia.org/wiki/Variable-length_code]]
+- Mehr dazu unter [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-Kurz gesagt, das Ziel dieser Kodierung ist es, Ganzzahlwerte so zu kodieren, dass
-so zu kodieren, dass Bytes eingespart werden. Nur die ersten 7 Bits eines jeden Bytes sind signifikant
-(rechtsbündig; ähnlich wie ein ASCII-Byte). Wenn Sie also einen 32-Bit-Wert haben,
-müssen Sie ihn in eine Reihe von 7-Bit-Bytes entpacken. Natürlich haben Sie
-eine variable Anzahl von Bytes, je nach Integer-Wert. Um anzugeben, welches
-das letzte Byte der Reihe ist, lässt man Bit #7 frei. In allen
-vorangehenden Bytes setzen Sie Bit #7.
+Kurz gesagt, das Ziel dieser Codierung ist es, Integer-Werte so zu speichern, dass Bytes eingespart werden. Nur die ersten 7 Bits jedes Bytes sind signifikant (rechtsbündig; ähnlich wie ein ASCII-Byte). Wenn man also einen 32-Bit-Wert hat, muss man ihn in eine Reihe von 7-Bit-Bytes zerlegen. Natürlich hat man je nach Integer eine variable Anzahl von Bytes. Um anzugeben, welches das letzte Byte der Serie ist, lässt man Bit #7 frei. In allen vorhergehenden Bytes setzt man Bit #7.
 
-Wenn also eine ganze Zahl zwischen 0 und 127 liegt, kann sie als ein Byte dargestellt werden. Die
-größte erlaubte Ganzzahl ist 0FFFFFFF, was 4 Bytes variabler Länge entspricht.
-Länge. Hier sind Beispiele für Delta-Zeiten als 32-Bit-Werte und die variablen
-Länge Mengen, die sie zu übersetzen:
+Wenn also ein Integer zwischen 0-127 liegt, kann er als ein Byte dargestellt werden. Der größte erlaubte Integer ist 0FFFFFFF, was sich in 4 Bytes variable Length übersetzt. Hier sind Beispiele von Delta-Zeiten als 32-Bit-Werte und die variablen Length-Quantitäten, in die sie übersetzt werden:
 
-    ANZAHL VARIABLE MENGE
-    00000000 00
-    00000040 40
-    0000007F 7F
-    00000080 81 00
-    00002000 C0 00
-    00003FFF FF 7F
-    00004000 81 80 00
-    00100000 C0 80 00
-    001FFFFF FF FF 7F
-    00200000 81 80 80 00
-    08000000 C0 80 80 00
-    0FFFFFFF FF FF FF 7F
+    NUMBER        VARIABLE QUANTITY
+    00000000              00
+    00000040              40
+    0000007F              7F
+    00000080             81 00
+    00002000             C0 00
+    00003FFF             FF 7F
+    00004000           81 80 00
+    00100000           C0 80 00
+    001FFFFF           FF FF 7F
 
-Eine Variable-Length Quantity (VLQ) ist ein universeller Code, der eine beliebige
-Anzahl von Binäroktetten (Acht-Bit-Bytes) verwendet, um eine beliebig große
-Ganzzahl darzustellen. Er wurde für die Verwendung im Standard-MIDI-Dateiformat[1] definiert, um
-um zusätzlichen Speicherplatz für ein ressourcenbeschränktes System zu sparen, und wird auch im
-späteren Extensible Music Format (XMF) verwendet. Eine VLQ ist im Wesentlichen eine Basis-128
-Basis-128-Darstellung einer Ganzzahl ohne Vorzeichen mit dem Zusatz eines achten Bits
-um die Fortsetzung von Bytes zu markieren. Siehe das folgende Beispiel.
 
-	Int: 16384
+    00200000          81 80 80 00
+    08000000          C0 80 80 00
+    0FFFFFFF          FF FF FF 7F
+
+Eine variable Length Quantity (VLQ) ist ein universeller Code, der eine beliebig große Anzahl von binären Oktetten (acht Bit Bytes) verwendet, um eine beliebig große Ganzzahl darzustellen. Sie wurde für die Verwendung im standard MIDI-Dateiformat definiert, um zusätzlichen Platz für ein ressourcenbeschränktes System zu sparen, und wird auch im späteren Extensible Music Format (XMF) verwendet. Ein VLQ ist im Wesentlichen eine Basis-128-Darstellung einer vorzeichenlosen Ganzzahl mit dem Zusatz des achten Bits, um die Fortsetzung der Bytes zu markieren. Siehe das Beispiel unten.
+
+	Int:    16384
 	IntHex: 0x00004000
 	IntBin: 00000000 00000000 01000000 00000000
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Sagen wir, ich möchte die Zahl 3435 in VLQ darstellen. 3435 in
-binär ist 110101101011. Wir können dies nicht in ein Byte unterbringen. Also werden wir
-vom Ende her in 7-Bit-Blöcke zerhacken.
+Angenommen, ich möchte die Zahl 3435 in VLQ darstellen. 3435 in Binär ist 110101101011. Wir können dies nicht in ein Byte passen. Also teilen wir es vom Ende her in 7-Bit-Blöcke auf.
 
-    Septett 7 6 5 4 3 2 1
-    #1 1 1 0 1 0 1 1
-    #2 0 0 1 1 0 1 0
+    Septet	7	6	5	4	3	2	1
+    #1		1	1	0	1	0	1	1
+    #2		0	0	1	1	0	1	0
 
-Nun wird allen bis auf das letzte ein 1-Bit vorangestellt, um anzuzeigen, dass ein Oktett
-folgt, und stellen dem letzten ein 0-Bit voran, um das letzte Oktett zu signalisieren.
+Nun fügen wir allen bis auf dem letzten einen 1-Bit hinzu, um anzuzeigen, dass ein Oktett folgt, und dem letzten einen 0-Bit, um das letzte Oktett zu signalisieren.
 
-    Oktett 8 7 6 5 4 3 2 1
-    #1 0 1 1 0 1 0 1 1
-    #2 1 0 0 1 1 0 1 0
+    Oktett   8	7	6	5	4	3	2	1
+    #1      0	1	1	0	1	0	1	1
+    #2      1	0	0	1	1	0	1	0
 
-Schließlich werden sie, das höchstwertige Oktett zuerst, in
+Schließlich fügen wir sie, mit dem signifikantesten Oktett zuerst, zu
 
-Kodiert: 10011010 01101011 ToHex: 0x9A 0x6B
+Kodiert: 10011010 01101011  ToHex: 0x9A 0x6B
 
-*Extra* *Ressourcen:*
+*Zusätzliche* *Ressourcen:*
 
 - [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
 - [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
-*Für* *eine* *exzellente* *Implementierung* *dieses* *Algorithmus* *sehen Sie* hier:*
+*Für* *eine* *ausgezeichnete* *Implementierung* *dieses* *Algorithmus* *siehe* *hier:*
 
 - [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
-.play algorithms/fun/vlq.go
+.spielt algorithms/fun/vlq.go
