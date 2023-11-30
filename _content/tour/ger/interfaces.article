@@ -1,13 +1,13 @@
-Schnittstellen
-Schnittstellen geben Programmen Struktur und fördern die Gestaltung durch Komposition.
+Interfaces
+Interfaces geben Programmen Struktur und fördern die Gestaltung durch Komposition.
 
-* Schnittstellen
+* Interfaces
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
 - Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Schnittstellen geben Programmen Struktur und fördern die Gestaltung durch Komposition. Sie ermöglichen
-und erzwingen saubere Trennungen zwischen Komponenten. Die Standardisierung von Schnittstellen
+Interfaces geben Programmen Struktur und fördern die Gestaltung durch Komposition. Sie ermöglichen
+und erzwingen saubere Trennungen zwischen Komponenten. Die Standardisierung von Interfaces 
 kann klare und konsistente Erwartungen setzen. Entkopplung bedeutet die Reduzierung der Abhängigkeiten
 zwischen Komponenten und den von ihnen verwendeten Typen. Dies führt zu Korrektheit, Qualität und
 Wartbarkeit.
@@ -21,7 +21,7 @@ Wartbarkeit.
 - *Beispiel* *5:* Speicherung nach Wert
 - *Beispiel* *6:* Typ-Assertionen
 - *Beispiel* *7:* Bedingte Typ-Assertionen
-- *Beispiel* *8:* Die leere Schnittstelle und Typschalter
+- *Beispiel* *8:* Die leere Interface und Typschalter
 - *Beispiel* *9:* Speichern von Werten
 
 .play interfaces/example1.go
@@ -35,69 +35,69 @@ Wartbarkeit.
 .play interfaces/example9.go
 
 
-** Semantik der Schnittstelle
+** Semantik von Interfaces 
 
-Mit Hilfe von Schnittstellen können Sie konkrete Daten nach ihren Funktionen gruppieren.
-Es geht darum, sich darauf zu konzentrieren, was Daten tun können, und nicht darauf, was die Daten sind. Schnittstellen
-helfen meinem Code auch, sich von Änderungen zu entkoppeln, indem sie nach konkreten Daten fragen, die
-was sie tun können. Er ist nicht auf eine bestimmte Art von Daten beschränkt.
+Mit Hilfe von Interfaces können Sie konkrete Daten nach ihren Funktionen gruppieren.
+Es geht darum, sich darauf zu konzentrieren, was Daten tun können und nicht darauf, was die Daten sind. Interfaces
+helfen dem Code auch, sich von Änderungen zu entkoppeln, indem sie nach konkreten Daten fragen, 
+was diese tun können. Sie sind nicht auf eine bestimmte Art von Daten beschränkt.
 
-Ich muss mein Bestes tun, um zu verstehen, welche Datenänderungen anstehen, und Schnittstellen verwenden
-um mein Programm von diesen Änderungen zu entkoppeln. Schnittstellen sollten Verhalten beschreiben und
-nicht den Zustand. Sie sollten Verben und keine Substantive sein.
+Man muss sein Bestes tun, um zu verstehen welche Datenänderungen anstehen, und dabei Interfaces verwenden
+um mein Programm von diesen Änderungen zu entkoppeln. Interfaces sollten Verhalten beschreiben und
+nicht den Zustand. Sie sollten aus Verben und keinen Substantiven bestehen.
 
-Am besten sind verallgemeinerte Schnittstellen, die sich auf das Verhalten konzentrieren. Schnittstellen mit mehr als
-einer Methode haben mehr als einen Grund, sich zu ändern. Schnittstellen, die auf Substantiven beruhen,
+Am besten sind verallgemeinerte Interfaces, die sich auf das Verhalten konzentrieren. Interfaces mit mehr als
+einer Methode haben mehr als einen Grund sich zu ändern. Interfaces die auf Substantiven beruhen,
 sind tendenziell weniger wiederverwendbar, anfälliger für Änderungen und verfehlen den Zweck
-der Schnittstelle. Ungewissheit über Änderungen ist kein Freibrief für Vermutungen, sondern eine Anweisung
+der Interface. Ungewissheit über Änderungen ist kein Freibrief für Vermutungen, sondern eine Anweisung
 zu STOPPEN und mehr zu lernen. Man muss unterscheiden zwischen Code, der vor Betrug schützt
-Betrug und Schutz vor Unfällen.
+und Code der vor Unfällen schützt.
 
-Verwenden Sie eine Schnittstelle, wenn:
+Verwenden Sie ein Interface, wenn:
 
-- Die Nutzer der API müssen ein Detail der Implementierung angeben.
-- APIs haben mehrere Implementierungen, die sie intern pflegen müssen.
-- Teile der API, die sich ändern können, wurden identifiziert und müssen entkoppelt werden.
+- Die Nutzer der API ein Detail der Implementierung angeben müssen.
+- APIs über mehrere Implementierungen verfügen, die sie intern pflegen müssen.
+- Teile der API, die sich ändern können, identifiziert wurden und entkoppelt werden müssen.
 
-Verwenden Sie keine Schnittstelle:
+Verwenden Sie keine Interface:
     
-- Um eine Schnittstelle zu verwenden.
+- Um ein Interface zu verwenden.
 - Um einen Algorithmus zu verallgemeinern.
-- Wenn Benutzer ihre eigenen Schnittstellen deklarieren können.
-- Wenn es nicht klar ist, wie die Schnittstelle den Code verbessert.
+- Damit Benutzer ihre eigenen Interfaces deklarieren können.
+- Wenn es nicht klar ist, wie die Interface den Code verbessert.
 
-** Schnittstellen sind wertlos
+** Interfaces sind wertlos
 
-Zunächst ist es wichtig zu verstehen, dass ein Schnittstellentyp einen wertfreien Typ deklariert.
+Zunächst ist es wichtig zu verstehen, dass ein Interfacestyp einen wertfreien Typ deklariert.
 
     type reader interface {
         read(b []byte) (int, error)
     }
 
-Der Typ reader ist kein struct-Typ, sondern ein Schnittstellentyp. Seine Deklaration ist nicht
-auf dem Zustand, sondern auf dem Verhalten. Schnittstellentypen deklarieren einen Methodensatz des Verhaltens
-die konkrete Daten aufweisen müssen, um die Schnittstelle zu erfüllen. Es gibt nichts
-\Konkretes über Schnittstellentypen, daher sind sie wertlos.
+Der Typ reader ist kein struct-Typ, sondern ein Interfacestyp. Seine Deklaration ist nicht
+auf dem Zustand, sondern auf dem Verhalten. Interfacestypen deklarieren einen Methodensatz des Verhaltens
+die konkrete Daten aufweisen müssen, um das Interface zu erfüllen. Es gibt nichts
+Konkretes über Interfacestypen, daher sind sie wertlos.
 
-    var r Leser
+    var r Reader 
 
 Da sie wertlos sind, ist die Konstruktion einer Variablen (wie r) merkwürdig, denn
 in unserem Programmiermodell existiert r nicht, es ist wertlos. Es gibt nichts an
 r selbst, das man manipulieren oder transformieren kann. Dies ist ein wichtiges Konzept, das man verstehen muss.
-Ich arbeite nie mit Schnittstellenwerten, sondern nur mit konkreten Werten. Eine Schnittstelle hat eine
-Compiler-Darstellung (interner Typ), aber nach unserem Programmiermodell sind Schnittstellen
-sind wertlos.
+Ich arbeite nie mit Interfacewerten, sondern nur mit konkreten Werten. Ein Interface hat eine
+Compiler-Darstellung (interner Typ), aber nach unserem Programmiermodell sind Interfaces
+wertlos.
 
-** Implementierung von Schnittstellen
+** Implementierung von Interfaces
 
 Go ist eine Sprache, in der Konvention vor Konfiguration geht. Wenn es sich um einen
-konkreten Typ, der eine Schnittstelle implementiert, gibt es keine Ausnahme.
+konkreten Typ, der eine Interface implementiert, gibt es keine Ausnahme.
 
     type reader interface {
         read(b []byte) (int, error)
     }
 
-    Typ Datei-Struktur {
+    type file struct {
         name string
     }
 
@@ -113,7 +113,7 @@ dieser beiden Deklarationen kann man folgendes sagen:
 "Die konkrete Typdatei implementiert nun die Leserschnittstelle unter Verwendung der Wertesemantik"
 
 Jedes Wort, das gesagt wird, ist wichtig. In Go müssen Sie nur den gesamten Methodensatz deklarieren
-des durch eine Schnittstelle definierten Verhaltens deklarieren, um diese Schnittstelle zu implementieren. In diesem Fall ist das
+des durch eine Interface definierten Verhaltens deklarieren, um diese Schnittstelle zu implementieren. In diesem Fall ist das
 was ich in diesem Fall getan habe, da die Leserschnittstelle nur einen einzigen Verhaltensakt namens read deklariert.
 
     type reader interface {
@@ -130,24 +130,23 @@ was ich in diesem Fall getan habe, da die Leserschnittstelle nur einen einzigen 
         return len(s), nil
     }
 
-In diesem Code wird ein Typ namens pipe deklariert und dann eine Methode namens read. Weil
-dieser beiden Deklarationen kann man folgendes sagen:
+In diesem Code wird ein Typ namens pipe deklariert und dann eine Methode namens read. Aufgrund dieser beiden Deklarationen kann man sagen: 
 
-"Der konkrete Typ Pipe implementiert jetzt die Leserschnittstelle mit Wertesemantik".
+"Der konkrete Typ Pipe implementiert jetzt das Interface mit Wertesemantik".
 
-Jetzt haben Sie zwei konkrete Typen, die die Leserschnittstelle implementieren. Zwei konkrete Typen
+Jetzt haben Sie zwei konkrete Typen, welche die Leserschnittstelle implementieren. Zwei konkrete Typen
 jeder mit seiner eigenen Implementierung. Ein Typ liest Dateisysteme und der andere
 Netzwerke.
 
 ** Polymorphismus
 
 Polymorphismus bedeutet, dass ein Teil des Codes sein Verhalten in Abhängigkeit von den konkreten
-Daten, mit denen er arbeitet. Dies wurde von Tom Kurtz, dem Erfinder von BASIC, gesagt. Diese
+Daten ändern kann mit dem gearbeitet wird. Dies wurde von Tom Kurtz, dem Erfinder von BASIC, gesagt. Diese
 ist die Definition, die wir im Folgenden verwenden werden.
 
-    // retrieve kann jedes Gerät lesen und die Daten verarbeiten.
+    // retrieve kann jedes Device lesen und die Daten verarbeiten.
     func retrieve(r reader) error {
-        Daten := make([]byte, 100)
+        data:= make([]byte, 100)
 
         len, err := r.read(data)
         if err != nil {
@@ -158,56 +157,55 @@ ist die Definition, die wir im Folgenden verwenden werden.
         return nil
     }
 
-Schauen Sie sich den Datentyp an, den diese Funktion akzeptiert. Sie will einen Wert vom Typ reader.
-Das ist unmöglich, da reader eine Schnittstelle ist und Schnittstellen wertlose Typen sind.
-Sie kann nicht nach einem Wert des Typs "reader" fragen, denn es gibt sie nicht.
+Schaut Euch den Datentyp an, den diese Funktion akzeptiert. Diese will einen Wert vom Typ reader.
+Das ist unmöglich, da reader eine Interface ist und Interfaces wertlose Typen sind.
+Sie kann nicht nach einem Wert des Typs "reader" fragen, denn es gibt ihn nicht.
 
 Wenn die Funktion nicht nach einem Leserwert fragt, wonach fragt die Funktion
-nach? Sie fragt nach dem Einzigen, wonach sie fragen kann, nämlich nach konkreten Daten.
+dann? Sie fragt nach dem Einzigen, wonach sie fragen kann, nämlich nach konkreten Daten.
 
-Die Funktion retrieve ist eine polymorphe Funktion, denn sie fragt nach konkreten
-Daten nicht auf der Grundlage dessen, was die Daten sind (konkreter Typ), sondern auf der Grundlage dessen, was die Daten
-tun können (Schnittstellentyp).
+Die Funktion retrieve ist eine polymorphe Funktion, denn sie fragt nach konkreten Daten und nicht nach der Grundlage dessen, was die Daten sind (konkreter Typ), 
+sondern nach der Grundlage dessen, was die Daten tun können (Interfacestyp).
 
     f := Datei{"data.json"}
     p := pipe{"cfg_service"}
 
-    abrufen(f)
-    abrufen(p)
+    retrieve(f)
+    retrieve(p)
 
-Sie können zwei konkrete Werte konstruieren, einen vom Typ Datei und einen vom Typ Rohr. Dann
+Sie können zwei konkrete Werte konstruieren, einen vom Typ Datei und einen vom Typ pipe. Dann
 können Sie eine Kopie jedes Wertes an die polymorphe Funktion übergeben. Dies ist möglich, weil jeder
 dieser Werte den gesamten Methodensatz des durch die Leserschnittstelle definierten Verhaltens implementiert.
 
 Wenn der Wert der konkreten Datei an retrieve übergeben wird, wird der Wert in einem
-zwei Worte umfassenden internen Typs gespeichert, der den Schnittstellenwert darstellt.
+zwei Worte umfassenden internen Typs gespeichert, der den Interfaceswert darstellt.
 
 .image /tour/eng/static/img/i1.png
 
-Das zweite Wort des Schnittstellenwertes verweist auf den zu speichernden Wert. In diesem
+Das zweite Wort des Interfaceswertes verweist auf den zu speichernden Wert. In diesem
 Fall handelt es sich um eine Kopie des Dateiwertes, da die Semantik des Wertes eine Rolle spielt. Das erste
 Wort verweist auf eine spezielle Datenstruktur, die iTable genannt wird.
 
-Der iTable dient 2 Zwecken:
+Die iTable dient 2 Zwecken:
 
-- Er beschreibt den Typ des gespeicherten Wertes. In meinem Fall ist es ein Dateiwert.
+- Sie beschreibt den Typ des gespeicherten Wertes. In meinem Fall ist es ein Dateiwert.
 - Sie bietet Funktionszeiger auf die konkreten Implementierungen der Methode, die für den Typ des gespeicherten Wertes festgelegt wurde.
 
-Wenn der Leseaufruf gegen den Schnittstellenwert erfolgt, wird ein iTable Lookup durchgeführt
+Wenn der Leseaufruf gegen den Interfaceswert erfolgt, wird ein iTable Lookup durchgeführt
 um die konkrete Implementierung der Lesemethode zu finden, die mit dem Typ verbunden ist.
 Dann wird der Methodenaufruf mit dem im zweiten Wort gespeicherten Wert durchgeführt.
 
 Man kann sagen, dass retrieve eine polymorphe Funktion ist, weil der konkrete Wert pipe an retrieve übergeben werden kann
-an retrieve übergeben werden kann und der Aufruf zum Lesen gegen den Schnittstellenwert nun
-sein Verhalten. Diesmal liest der Leseaufruf ein Netzwerk statt einer
+und der Aufruf zum Lesen gegen den Interfaceswert nun
+dessen Verhalten ändert. Diesmal liest der Leseaufruf ein Netzwerk statt einer
 eine Datei.
 
 ** Methodensatzregeln
 
-Bei der Implementierung einer Schnittstelle mit Zeigersemantik gelten einige Einschränkungen für die
-Einhaltung der Schnittstelle.
+Bei der Implementierung einer Interface mit Zeigersemantik gelten einige Einschränkungen für die
+Einhaltung der Interfaces.
 
-    Typ notifier Schnittstelle {
+    Typ notifier Interface {
         notify()
     }
 
@@ -229,30 +227,30 @@ Einhaltung der Schnittstelle.
         sendNotification(u)
     }
 
-Die Schnittstelle des Notifizierers wird durch den Benutzertyp unter Verwendung der Zeigersemantik implementiert.
+Das Interface des Notifiers wird durch den Benutzertyp unter Verwendung der Zeigersemantik implementiert.
 Wenn die Wertesemantik für den polymorphen Aufruf verwendet wird, wird die folgende Compiler
 Meldung erzeugt.
 
-    "kann u (Typ user) nicht als Typ notifier im Argument zu sendNotification verwenden:
+    "cannot use u (type user) as type notifier in argument to sendNotification:
     user does not implement notifier (notify method has pointer receiver)"
 
-Das liegt daran, dass es in der Spezifikation einen speziellen Satz von Regeln für Methoden
-Sätze. Diese Regeln definieren, welche Methoden mit Werten und Zeigern eines Typs verbunden sind.
-Sie dienen dazu, ein Höchstmaß an Integrität in meinem Programm zu gewährleisten.
+Dies liegt daran, dass es in der Spezifikation einen speziellen Satz von Regeln für Methoden
+Sätze gibt. Diese Regeln definieren, welche Methoden mit Werten und Zeigern eines Typs verbunden sind.
+Sie dienen dazu, ein Höchstmaß an Integrität in einem Programm zu gewährleisten.
 
 Dies sind die in der Spezifikation festgelegten Regeln:
 
-- Für einen beliebigen Wert vom Typ T gehören nur die Methoden, die mit einem Werteempfänger für diesen Typ implementiert sind, zur Methodenmenge dieses Wertes.
-- Für eine beliebige Adresse vom Typ T gehören alle Methoden, die für diesen Typ implementiert sind, zur Methodenmenge dieses Wertes.
+- Zu einem beliebigen Wert vom Typ T gehören nur die Methoden, die mit einem Werteempfänger für diesen Typ implementiert sind.
+- Zu einer  beliebigen Adresse vom Typ T gehören alle Methoden, die für diesen Typ implementiert sind
       
 Mit anderen Worten: Wenn Sie mit einer Adresse (Zeiger) arbeiten, sind alle implementierten Methoden
 zugeordnet und können aufgerufen werden. Bei der Arbeit mit einem Wert sind nur die Methoden
 die mit Wertempfängern implementiert sind, angehängt und können aufgerufen werden.
 
 In der vorangegangenen Lektion über Methoden konnten Sie eine Methode gegen ein
-eine Methode gegen ein konkretes Datenelement aufrufen, unabhängig von der vom Empfänger deklarierten Datensemantik.
+ein konkretes Datenelement aufrufen, unabhängig von der vom Empfänger deklarierten Datensemantik.
 Das liegt daran, dass der Compiler den Aufruf anpassen kann. In diesem Fall wird ein Wert
-innerhalb eines Interfaces gespeichert und die Methoden müssen existieren. Es können keine Anpassungen
+innerhalb eines Interfaces gespeichert während die Methoden existieren müssen. Es können keine Anpassungen
 vorgenommen werden.
 
 Nun stellt sich die Frage: Warum können Methoden, die mit Zeigerempfängern implementiert werden, nicht
@@ -261,7 +259,7 @@ an Werte des Typs T angehängt werden? Wo liegt hier das Problem der Integrität
 Ein Grund dafür ist, dass man nicht garantieren kann, dass jeder Wert vom Typ T adressierbar ist.
 Wenn ein Wert keine Adresse hat, kann er nicht weitergegeben werden.
 
-    Typ Dauer int
+    Typ duration int
 
     func (d *duration) notify() {
             fmt.Println("Sending Notification in", *d)
@@ -273,8 +271,8 @@ Wenn ein Wert keine Adresse hat, kann er nicht weitergegeben werden.
 
 Compiler-Fehler:
 
-    kann keine Zeigermethode auf Dauer(42) aufrufen
-    kann die Adresse von Dauer(42) nicht übernehmen
+    kann keine Zeigermethode auf duration(42) aufrufen
+    kann die Adresse von duration(42) nicht übernehmen
 
 In diesem Beispiel ist der Wert von 42 eine Konstante vom Typ int. Auch wenn der Wert
 in einen Wert des Typs duration umgewandelt wird, wird er nicht in einer Variablen gespeichert.
@@ -282,10 +280,10 @@ Das bedeutet, dass sich der Wert niemals auf dem Stack oder Heap befindet. Es gi
 leben nur zur Kompilierzeit.
 
 Der zweite Grund ist der wichtigere Grund. Der Compiler sagt Ihnen, dass Sie keine
-Wertesemantik verwenden dürfen, wenn Sie sich für die Zeigersemantik entschieden haben. Mit anderen
-Mit anderen Worten, Sie sind gezwungen, den Wert mit der Schnittstelle zu teilen, da es nicht
+Wertesemantik verwenden dürfen, wenn Sie sich für die Zeigersemantik entschieden haben. 
+Mit anderen Worten, Sie sind gezwungen, den Wert mit dem Interface zu teilen, da es nicht
 sicher ist, eine Kopie eines Wertes zu erstellen, auf den ein Zeiger zeigt. Wenn Sie sich für die Implementierung
-Methode mit Zeigersemantik zu implementieren, geben Sie damit an, dass ein Wert dieses Typs nicht
+Methode mit Zeigersemantik entscheiden, geben Sie damit an, dass ein Wert dieses Typs nicht
 sicher kopiert werden kann.
 
     func main() {
@@ -294,16 +292,16 @@ sicher kopiert werden kann.
     }
 
 Um die Compiler-Meldung zu beheben, müssen Sie die Zeigersemantik beim Aufruf der
-polymorphen Funktion verwenden und u freigeben. Die Antwort ist nicht, die Methode zu ändern, um die
+polymorphen Funktion verwenden und u freigeben. Es ist keine Lösung die Methode zu ändern, um die
 Wert-Semantik zu verwenden.
 
 ** Slice of Interface
 
-Wenn Sie ein Slice eines Schnittstellentyps deklarieren, kann ich verschiedene
+Wenn Sie ein Slice eines Interfacestyps deklarieren, kann ich verschiedene
 konkrete Werte auf der Grundlage ihrer Fähigkeiten zusammenzufassen. Aus diesem Grund braucht Go nicht
 das Konzept der Untertypisierung. Es geht nicht um eine gemeinsame DNA, es geht um ein gemeinsames Verhalten.
 
-    Typ Drucker Schnittstelle {
+    Typ printer interface {
         print()
     }
 
@@ -327,14 +325,14 @@ das Konzept der Untertypisierung. Es geht nicht um eine gemeinsame DNA, es geht 
         c := canon{"PIXMA TR4520"}
         e := epson{"WorkForce Pro WF-3720"}
 
-        Drucker := []Drucker{
+        printer:= []printer{
             c,
             &e,
         }
         c.name = "PROGRAF PRO-1000"
         e.name = "Home XP-4100"
 
-        for _, p := Bereich Drucker {
+        for _, p := range printers{
             p.print()
         }
     }
@@ -344,21 +342,21 @@ Ausgabe:
     Name des Druckers: PIXMA TR4520
     Name des Druckers: Home XP-4100
 
-Der Code zeigt, wie eine Scheibe des Schnittstellentyps printer es mir ermöglicht, eine
+Der Code zeigt, wie ein Slice des Interfacestyps printer es mir ermöglicht, eine
 Sammlung verschiedener konkreter Druckertypen zu erstellen. Durch Iteration über die Sammlung und
-Nutzung der Polymorphie, da der Aufruf von p.print sein Verhalten je nach
-je nach dem konkreten Wert, mit dem der Code arbeitet.
+Nutzung der Polymorphie, da der Aufruf von p.print sein Verhalten
+je nach dem konkreten Wert, mit dem der Code arbeitet ändert.
 
 Das Beispiel zeigt auch, wie die Wahl der Datensemantik das Verhalten des
 Programms verändert. Wenn die Daten mit der Wertesemantik gespeichert werden, wird die Änderung des ursprünglichen
-Wert nicht gesehen. Dies liegt daran, dass eine Kopie innerhalb der Schnittstelle gespeichert wird. Wenn
+Wertes nicht gesehen. Dies liegt daran, dass eine Kopie innerhalb der Interface gespeichert wird. Bei der 
 Zeigersemantik werden alle Änderungen am Originalwert sichtbar.
 
 ** Anmerkungen
 
 - Der Methodensatz für einen Wert enthält nur Methoden, die mit einem Werteempfänger implementiert sind.
 - Der Methodensatz für einen Zeiger enthält Methoden, die sowohl mit Zeiger- als auch mit Werteempfängern implementiert sind.
-- Methoden, die mit einem Zeigerempfänger deklariert sind, implementieren die Schnittstelle nur mit Zeigerwerten.
+- Methoden, die mit einem Zeigerempfänger deklariert sind, implementieren die Interface nur mit Zeigerwerten.
 - Methoden, die mit einem Werteempfänger deklariert sind, implementieren das Interface sowohl mit einem Werte- als auch mit einem Zeigerempfänger.
 - Die Regeln für Methodensätze gelten für Interfacetypen.
 - Interfaces sind Referenztypen, die nicht mit einem Zeiger geteilt werden können.
@@ -368,9 +366,9 @@ Zeigersemantik werden alle Änderungen am Originalwert sichtbar.
 
 "Polymorphismus bedeutet, dass man ein bestimmtes Programm schreibt und dass es sich je nach den Daten, mit denen es arbeitet, unterschiedlich verhält." - Tom Kurtz (Erfinder von BASIC)
 
-"Die leere Schnittstelle sagt nichts aus." - Rob Pike
+"Das leere Interface sagt nichts aus." - Rob Pike
 
-"Design ist die Kunst, Code so zu gestalten, dass er heute funktioniert und für immer veränderbar ist." - Sandi Metz
+"Design ist die Kunst, Code so zu gestalten, der heute funktioniert und für immer veränderbar ist." - Sandi Metz
 
 "Eine gute Abstraktion entkoppelt den Code, so dass sich nicht jede Änderung auf die gesamte Codebasis auswirkt." - Ronna Steinburg
 
@@ -379,10 +377,10 @@ Zeigersemantik werden alle Änderungen am Originalwert sichtbar.
 - [[https://golang.org/doc/effective_go.html#interfaces][Grenzflächen]]
 - [[https://blog.golang.org/laws-of-reflection][Die Gesetze der Reflexion]] - Rob Pike
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, Interfaces und eingebettete Typen in Go]] - William Kennedy
-- [[https://rakyll.org/interface-pollution/][Schnittstellenverschmutzung]] - JBD
+- [[https://rakyll.org/interface-pollution/][Interfacesverschmutzung]] - JBD
 - [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraktion als schädlich erachtet]] - Tyler Treat
-- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Schnittstellenwerte sind wertlos]] - William Kennedy
-- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Schnittstellensemantik]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interfaceswerte sind wertlos]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interfacessemantik]] - William Kennedy
 - [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum
 - [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Technische Innovation - Warum Beschränkungen entscheidend sind]] - André Eriksson (MUST WATCH)
 
@@ -392,15 +390,15 @@ Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mö
 
 ** Übung 1
 
-*Teil* *A:* Deklarieren Sie eine Schnittstelle namens speaker mit einer Methode namens speak. Deklarieren Sie eine
+*Teil* *A:* Deklarieren Sie ein Interface namens speaker mit einer Methode namens speak. Deklarieren Sie eine
 Struktur namens english, die eine Person repräsentiert, die Englisch spricht, und deklariere eine Struktur
-namens chinese für jemanden, der Chinesisch spricht. Implementieren Sie die Schnittstelle speaker für jede
+namens chinese für jemanden, der Chinesisch spricht. Implementieren Sie die Interface speaker für jede
 struct unter Verwendung eines Wertempfängers und der wörtlichen Zeichenfolgen "Hello World" und "你好世界".
 Deklarieren Sie eine Variable vom Typ speaker und weisen Sie die Adresse eines Wertes vom Typ english
 zu und rufen Sie die Methode auf. Wiederholen Sie dies für einen Wert vom Typ chinese.
 
 *Teil* *B:* Fügen Sie eine neue Funktion namens sayHello hinzu, die einen Wert vom Typ speaker annimmt.
-Implementieren Sie diese Funktion, um die speak-Methode für den Schnittstellenwert aufzurufen. Erstellen Sie dann
+Implementieren Sie diese Funktion, um die speak-Methode für den Interfaceswert aufzurufen. Erstellen Sie dann
  neue Werte jedes Typs und verwenden Sie die Funktion.
 
 .play interfaces/exercise1.go
