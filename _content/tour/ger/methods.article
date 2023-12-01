@@ -4,7 +4,7 @@ Eine Funktion wird als Methode bezeichnet, wenn für diese Funktion ein Empfäng
 * Methoden
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Eine Funktion wird als Methode bezeichnet, wenn für diese Funktion ein Empfänger deklariert ist. Der
 Empfänger ist der Parameter, der zwischen dem Schlüsselwort func und dem
@@ -63,7 +63,7 @@ einen Wert oder Zeiger desselben Typs.
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
-Wie Sie sehen, wird ein Wert vom Typ user konstruiert und der Variablen bill
+Wie ihr sehen könnt, wird ein Wert vom Typ user konstruiert und der Variablen bill
 zugewiesen. Im Falle des notify-Aufrufs entspricht die Variable bill dem Empfängertypen
 Typ, der einen Werteempfänger verwendet. Im Fall des changeEmail-Aufrufs passt die
 bill-Variable nicht mit dem Empfängertypen überein, der einen Zeigerempfänger verwendet.
@@ -79,7 +79,7 @@ Dies funktioniert auch, wenn die für den Aufruf verwendete Variable eine Zeiger
 In diesem Fall ist die Variable bill eine Zeigervariable auf einen Wert vom Typ user.
 Auch hier passt sich Go an, um den Methodenaufruf beim Aufruf der notify-Methode durchzuführen.
 
-Wenn Go sich nicht anpasst, müssten Sie die gleichen Methodenaufrufe machen.
+Wenn Go sich nicht anpasst, müsst ihr die gleichen Methodenaufrufe machen.
 
     bill:= User{bill", "bill@email.com"}
     (&Bill).changeEmail("bill@hotmail.com")
@@ -92,9 +92,9 @@ Ich bin froh, dass man das nicht tun muss, um Methodenaufrufe in Go zu machen.
 ** Semantische Leitlinie für interne Datentypen
 
 Wenn es sich bei den Daten, mit denen ich arbeite, um einen internen Typ handelt (Slice, Map,
-Kanal, Funktion, Schnittstelle), dann verwenden Sie die Wertesemantik, um die Daten im
+Kanal, Funktion, Schnittstelle), dann Verwendet die Wertesemantik, um die Daten im
 Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Typen. Wenn ich jedoch Lese
--und Schhreiberechte gebraucht werden, müssen Sie daran denken, die Zeigersemantik zu verwende.
+-und Schhreiberechte gebraucht werden, müsst ihr daran denken, die Zeigersemantik zu verwende.
 
     Typ IP []byte
     Typ IPMaske []byte
@@ -144,15 +144,15 @@ Diese Funktion akzeptiert ihre eigene Kopie eines IP-Wertes und gibt einen Strin
 Verwendung der Zeigersemantik, da die Daten die Datensemantik vorgeben und nicht die
 Funktion.
 
-Eine Ausnahme von der Verwendung der Wertesemantik besteht, wenn Sie ein Slice oder eine Map mit einer Funktion teilen müssen,
+Eine Ausnahme von der Verwendung der Wertesemantik besteht, wenn ihr ein Slice oder eine Map mit einer Funktion teilen müssen,
 die Unmarshaling oder Dekodierung durchführt.
 
 ** Datensemantische Leitlinie für Strukturtypen
 
-Wenn es sich bei den Daten, mit denen wir arbeite, um einen Strukturtyp handelt, müssen Sie
+Wenn es sich bei den Daten, mit denen wir arbeite, um einen Strukturtyp handelt, müsst ihr
 was die Daten betrifft eine Entscheidung treffen. Eine gute allgemeine Regel ist
-zu fragen, ob die Struktur Daten oder eine API repräsentiert. Wenn die Struktur Daten repräsentiert, verwenden Sie
-Wert-Semantik. Wenn die Struktur eine API darstellt, verwenden Sie die Zeigersemantik.
+zu fragen, ob die Struktur Daten oder eine API repräsentiert. Wenn die Struktur Daten repräsentiert, verwendet 
+Wert-Semantik. Wenn die Struktur eine API darstellt, Verwendet die Zeigersemantik.
 
     Typ Time struct {
         sec int64
@@ -160,11 +160,11 @@ Wert-Semantik. Wenn die Struktur eine API darstellt, verwenden Sie die Zeigersem
         loc *Ort
     }
 
-Hier ist die Time-Struktur aus dem Time-Paket. Wenn Sie Time als Repräsentant von
-Daten darstellen, sollte die Wertesemantik für diese Struktur verwendet werden.
+Hier ist die Time-Struktur aus dem Time-Paket. Wenn ihr Time als Repräsentant von
+Daten darstellen wollt, sollte die Wertesemantik für diese Struktur verwendet werden.
 
-Wenn Sie sich eine bestehende Codebasis ansehen und wissen wollen, welche Datensemantik gewählt wurde,
-suchen Sie nach einer Fabrikfunktion. Der Rückgabetyp einer Factory-Funkton sollte
+Wenn ihr euch eine bestehende Codebasis anseht und wissen wollt, welche Datensemantik gewählt wurde,
+sucht nach einer Factory-Funktion. Der Rückgabetyp einer Factory-Funktion sollte
 die vom Entwickler gewählte Datensemantik vorgeben.
 
     func Now() Zeit {
@@ -172,8 +172,8 @@ die vom Entwickler gewählte Datensemantik vorgeben.
         return Time{sec + unixToInternal, nsec, Local}
     }
 
-Dies ist die Factory-Funktion für die Erstellung von Zeitwerten. Sehen Sie sich die Rückgabe an,
-sie verwendet die Wertesemantik. Dies zeigt Ihnen, dass Sie die Wertesemantik für Zeitwerte verwenden sollten,
+Dies ist die Factory-Funktion für die Erstellung von Zeitwerten. Seht euch sich die Rückgabe an,
+sie verwendet die Wertesemantik. Dies zeigt euch, dass ihr die Wertesemantik für Zeitwerte verwenden sollt,
 was bedeutet, dass jede Funktion ihre eigene Kopie eines Zeitwerts erhält und
 Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
 
@@ -191,8 +191,8 @@ Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
         Rückgabe t
     }
 
-Add ist eine Methode, die eine Mutationsoperation durchführen muss. Wenn Sie genau hinsehen,
-werden Sie sehen, dass die Funktion die semantische Mutation von Werten verwendet. Die Add-Methode erhält ihre
+Add ist eine Methode, die eine Mutationsoperation durchführen muss. Wenn ihr genau hinschaut,
+werdet ihr sehen, dass die Funktion die semantische Mutation von Werten verwendet. Die Add-Methode erhält ihre
 eigene Kopie des Time-Werts, mutiert ihre eigene Kopie und gibt dann
 gibt sie eine Kopie an den Aufrufer zurück. Auch dies ist der sicherste Weg, eine
 Mutationsvorgang durchzuführen.
@@ -214,9 +214,9 @@ Sie verwenden Zeigersemantik, warum? Weil sie eine Schnittstelle implementieren,
 bei der die Methodensignatur miteingeschlossen ist. Da die Implementierung
 eine Mutation erfordert, ist die Zeigersemantik die einzige Wahl.
 
-Hier ist ein Leitfaden: Wenn Wertesemantik im Spiel ist, können Sie für einige Funktionen zur Zeigersemantik wechseln,
-solange Sie die Daten in der verbleibenden Aufrufkette nicht zurück zur Wertesemantik wechseln. Sobald Sie zur Zeigersemantik wechseln,
-müssen alle zukünftigen Aufrufe von diesem Punkt an die Zeigersemantik beibehalten. Sie können niemals von Zeigern zu Werten wechseln.
+Hier ist ein Leitfaden: Wenn Wertesemantik im Spiel ist, könnt ihr für einige Funktionen zur Zeigersemantik wechseln,
+solange ihr die Daten in der verbleibenden Aufrufkette nicht zurück zur Wertesemantik wechselt. Sobald ihr zur Zeigersemantik wechselt,
+müssen alle zukünftigen Aufrufe von diesem Punkt an die Zeigersemantik beibehalten. Ihr könnt niemals von Zeigern zu Werten wechseln.
 Es ist niemals sicher, eine Kopie eines Wertes zu erstellen zu machen, auf den ein Zeiger zeigt.
 
     func Open(name string) (file *Datei, err error) {
@@ -275,7 +275,7 @@ Verhalten von Daten zu gegen aussen darzustellen.
 Es werden ein Typ und zwei Methoden deklariert. Die Methode displayName verwendet die Wert
 Semantik und setAge verwendet die Zeiger-Semantik.
 
-Hinweis: Implementieren Sie keine Setter und Getter in Go. Dies sind keine Apis die einen Sinn und Zweck habne.
+Hinweis: Implementiert keine Setter und Getter in Go. Dies sind keine Apis die einen Sinn und Zweck habne.
 In solchen Fällen ist es besser, die entsprechenden Felder zu exportieren.
     
     d := Daten{
@@ -291,17 +291,17 @@ Ein Wert vom Typ Daten wird konstruiert und Methodenaufrufe werden durchgeführt
     (*data).setAge(&d, 21)
 
 Da Methoden eigentlich nur Funktionen mit syntaktischem Zucker sind, können die Methoden
-wie Funktionen ausgeführt werden. Wie Sie sehen, ist der Empfänger wirklich ein Parameter, er ist
-der erste Parameter. Wenn Sie eine Methode aufrufen, wandelt der Compiler dies in einen
+wie Funktionen ausgeführt werden. Wie ihr sehen könnt, ist der Empfänger wirklich ein Parameter, er ist
+der erste Parameter. Wenn ihr eine Methode aufruft, wandelt der Compiler dies in einen
 Funktionsaufruf um.
 
-Hinweis: Führen Sie solche Methoden nicht aus, aber Sie können diese Syntax in Tooling-Meldungen sehen.
+Hinweis: Führt solche Methoden nicht aus, aber ihr könnt diese Syntax in Tooling-Meldungen sehen.
 
 ** Das Verhalten des Codes kennen
 
-Wenn Sie die Semantik der Daten kennen, wissen Sie auch, wie sich der Code verhält. Wenn
-Sie das Verhalten des Codes kennen, dann kennen Sie auch die Kosten des Codes. Sobald Sie
-die Kosten kennt, sind Sie der Ingenieur.
+Wenn ihr die Semantik der Daten kennt, wisst ihr auch, wie sich der Code verhält. Wenn
+ihr das Verhalten des Codes kennt, dann kennt ihr auch die Kosten des Codes. Sobald ihr 
+die Kosten kennt, seid ihr der Ingenieur.
 
 Mit diesem Typ und Methodensatz.
 
@@ -319,7 +319,7 @@ Mit diesem Typ und Methodensatz.
         fmt.Println(d.name, "Ist Alter", d.age)
     }
 
-Sie können den folgenden Code schreiben.
+Ihr könnt den folgenden Code schreiben.
 
     func main() {
         d := dataStruct{
@@ -337,15 +337,15 @@ Ausgabe:
     Mein Name ist Bill
     Mein Name ist Bill
 
-Sie beginnen mit der Konstruktion eines Wertes vom Typ Data und weisen ihn der Variablen d zu.
-Dann nehmen Sie die Methode displayName, die an d gebunden ist, und weisen sie einer Variablen
+Ihr beginnt mit der Konstruktion eines Wertes vom Typ Data und weisen ihn der Variablen d zu.
+Dann nehmt ihr die Methode displayName, die an d gebunden ist, und weisen sie einer Variablen
 namens f1 zu. Dies ist kein Methodenaufruf, sondern eine Zuweisungt.
 Funktionen sind in Go Werte und gehören zur Menge der internen Typen.
 
-Nach der Zuweisung können Sie die Methode indirekt durch die Verwendung der
-f1-Variable aufrufen. Dadurch wird der Name Bill angezeigt. Dann ändern Sie die Daten so, dass der Name
-Joan ist, und rufen die Methode erneut über die Variable f1 auf. Sie sehen nicht
-die Änderung nicht. Bill ist wieder die Ausgabe. Warum also?
+Nach der Zuweisung könnt ihr die Methode indirekt durch die Verwendung der
+f1-Variable aufrufen. Dadurch wird der Name Bill angezeigt. Dann Ändert die Daten so, dass der Name
+Joan ist, und rufen die Methode erneut über die Variable f1 auf. Ihr seht die Änderung nicht?
+Bill ist wieder die Ausgabe. Warum also?
 
 .image /tour/eng/static/img/m1.png
 
@@ -358,9 +358,9 @@ Wertempfänger, so dass Wertesemantik im Spiel ist.
 
 Das bedeutet, dass die Variable f1 ihre eigene Kopie von d verwaltet und mit ihr arbeitet.
 Beim Aufruf der Methode über die Variable f1 wird also immer die Kopie verwendet, und diese
-Kopie ist gegen Änderungen geschützt. Das ist es, was Sie mit der Wertesemantik wollen.
+Kopie ist gegen Änderungen geschützt. Das ist es, was ihr mit der Wertesemantik wollt.
 
-Jetzt werden Sie dasselbe tun, aber mit der Methode setAge.
+Jetzt werdet ihr dasselbe tun, aber mit der Methode setAge.
 
     func main() {
         d := data{
@@ -387,14 +387,14 @@ Diesmal hat sich der Name geändert.
 
 Die Funktion setAge verwendet einen Zeigerempfänger, so dass setAge nicht auf seine
 eigene Kopie der Variable d, sondern direkt auf die Variable d. Daher
-f2 auf den gemeinsamen Zugriff und Sie sehen die Änderung.
+f2 auf den gemeinsamen Zugriff und ihr seht die Änderung.
 
     func (d *data) setAge(age int) {
         d.age = age
         fmt.Println(d.name, "Ist Alter", d.age)
     }
 
-Ohne die Semantik der Daten zu kennen, können Sie das Verhalten des Codes nicht einschätzen.
+Ohne die Semantik der Daten zu kennen, könnt ihr das Verhalten des Codes nicht einschätzen.
 Diese Datensemantiken sind real und beeinflussen das Verhalten.
 
 ** Anmerkungen
@@ -403,7 +403,7 @@ Diese Datensemantiken sind real und beeinflussen das Verhalten.
 - Empfänger binden eine Methode an einen Typ und können Wert- oder Zeigersemantiken verwenden.
 - Wertesemantik bedeutet, dass eine Kopie des Wertes über Programmgrenzen hinweg übergeben wird.
 - Zeigersemantik bedeutet, dass eine Kopie der Adresse des Wertes über Programmgrenzen hinweg weitergegeben wird.
-- Halten Sie sich an eine einzige Semantik für einen bestimmten Typ und seien Sie konsistent.
+- Haltet euch an eine einzige Semantik für einen bestimmten Typ und seid diesbezüglich konsistent.
 
 ** Zitate
 
@@ -417,13 +417,13 @@ Diese Datensemantiken sind real und beeinflussen das Verhalten.
 		 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-Deklarieren Sie eine Struktur, die einen Baseballspieler darstellt. Enthält Name, atBats und Hits.
-Deklarieren Sie eine Methode, die den Schlagdurchschnitt eines Spielers berechnet. Die Formel ist Hits / AtBats.
-Deklarieren Sie ein Slice dieses Typs und initialisieren Sie das Slice mit mehreren Spielern. Iterieren Sie
+Deklariert eine Struktur, die einen Baseballspieler darstellt. Enthält Name, atBats und Hits.
+Deklariert eine Methode, die den Schlagdurchschnitt eines Spielers berechnet. Die Formel ist Hits / AtBats.
+Deklariert ein Slice dieses Typs und Initialisiert  das Slice mit mehreren Spielern. Iteriert
 über das Slice und zeigt den Namen und den Schlagdurchschnitt des Spielers an.
 
 .play methods/exercise1.go

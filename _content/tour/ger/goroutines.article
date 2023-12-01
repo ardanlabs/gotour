@@ -4,7 +4,7 @@ Goroutines sind Funktionen, die vom Go-Scheduler erstellt und zur unabhängigen 
 * Goroutines
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Goroutines sind Funktionen, die erstellt und so geplant werden, dass sie unabhängig von Go durch den Go-Scheduler ausgeführt werden können. Der Go-Scheduler ist verantwortlich für die Verwaltung und
 Ausführung von Goroutinen verantwortlich.
@@ -60,12 +60,12 @@ Wartende Threads sind für den Scheduler nicht von Belang.
 *Concurrency:* Dies bedeutet undefinierte Ausführung außerhalb der Reihenfolge. Mit anderen Worten, wenn
 eine Reihe von Anweisungen, die in der angegebenen Reihenfolge ausgeführt, aber in der Tat in einer anderen undefinierten Reihenfolge ausgeführt werden.
 Der Schlüssel ist, dass das Ergebnis der Ausführung
-des vollständigen Satzes von Anweisungen in beliebiger undefinierter Reihenfolge das gleiche Ergebnis liefert. Sie werden
+des vollständigen Satzes von Anweisungen in beliebiger undefinierter Reihenfolge das gleiche Ergebnis liefert. Ihr werdet 
 sagen, dass Arbeit gleichzeitig ausgeführt werden kann, wenn die Reihenfolge der Ausführung keine Rolle spielt,
 solange die gesamte Arbeit abgeschlossen ist.
 
 *Parallelism:* Das bedeutet, viele Dinge gleichzeitig zu tun. Damit dies eine Option ist,
-müssen Sie die Möglichkeit haben, zwei oder mehr Betriebssystem-Threads gleichzeitig
+müsst ihr die Möglichkeit haben, zwei oder mehr Betriebssystem-Threads gleichzeitig
 auf der Hardware auszuführen.
 
 *CPU* *Bound* *Work:* Dies ist Arbeit, die nicht dazu führt, dass der Thread von selbst
@@ -75,7 +75,7 @@ in einen Wartezustand versetzt. Die Berechnung von Fibonacci-Zahlen würde als C
 einen Wartezustand versetzt. Das Abrufen von Daten von verschiedenen URLs würde als E/A-gebundene Arbeit betrachtet werden.
 
 *Synchronisation:* Wenn zwei oder mehr Goroutines auf denselben 
-Speicherplatz zugreifen müssen, müssen sie synchronisiert werden und sich abwechseln.
+Speicherplatz zugreifen müssen, müsst ihr synchronisiert werden und sich abwechseln.
 Wenn diese Synchronisierung nicht stattfindet und mindestens eine Goroutine 
 einen Schreibvorgang durchführt, kann es zu einer Race-Condition kommen. Race-Conditions sind eine Ursache für 
 Bugs, die schwer zu finden sind.
@@ -86,7 +86,7 @@ stattfindet, werden Garantien für die gleichzeitige Durchführung und Beendigun
 verpasst werden. Dies kann alle Arten von Datenverfälschungen zur Folge haben.
 
 Es gibt viele kleine Details, die mit der Semantik des Schedulings zu tun haben; um mehr 
-mehr zu erfahren, lesen Sie die drei Beiträge in Kapitel 14 mit dem Titel Scheduling in Go.
+mehr zu erfahren, lest die drei Beiträge in Kapitel 14 mit dem Titel Scheduling in Go.
 
 ** Grundlagen der Gleichzeitigkeit
 
@@ -103,11 +103,11 @@ Dieser Funktionsaufruf überschreibt jedoch die Variable.
 
     g := runtime.GOMAXPROCS(0)
 
-Diese Funktion ist wichtig, wenn Sie CPU-Quotas für eine Container
+Diese Funktion ist wichtig, wenn ihr CPU-Quotas für eine Container
 Konfiguration festlegen. Bei der Übergabe von 0 wird die Anzahl der Threads, die das Go-Programm verwenden wird
-festgelegt. Sie müssen sicherstellen, dass diese Zahl mit der Anzahl der 
+festgelegt. Ihr müsst sicherstellen, dass diese Zahl mit der Anzahl der 
 Betriebssystem-Threads übereinstimmt, die in meiner Container-Umgebung verfügbar sind. Wenn die Zahlen 
-nicht übereinstimmen, wird das Go-Programm nicht so gut laufen, wie es sonst könnte. Sie sollten vielleicht
+nicht übereinstimmen, wird das Go-Programm nicht so gut laufen, wie es sonst könnte. Ihr solltet vielleicht
 die Umgebungsvariable oder diesen Aufruf verwenden, um die Dinge abzugleichen.
 
     func main() {
@@ -137,7 +137,7 @@ erfolgt hier über eine API, die es einer Goroutine ermöglicht, auf andere Goro
 
 In diesem Code wird eine WaitGroup mit dem Wert Null erstellt und dann sofort
 die Add-Methode aufgerufen, um die WaitGroup auf 2 zu setzen, was der Anzahl der
-Goroutines, die erstellt werden sollen entsrpicht. Wenn Sie im Voraus wissen, wie viele Goroutinen erstellt werden sollen, sollten Sie Add einmal mit dieser Zahl aufrufen. Wenn Sie das nicht wissen (wie bei
+Goroutines, die erstellt werden sollen entsrpicht. Wenn ihr im Voraus wissen, wie viele Goroutinen erstellt werden sollen, solltet ihr Add einmal mit dieser Zahl aufrufen. Wenn ihr das nicht wisst (wie bei
 einem Streaming-Dienst), ist der Aufruf von Add(1) akzeptabel.
 
 Am Ende von main steht der Aufruf von Wait. Wait hält die Haupt-Goroutine davon ab,
@@ -165,8 +165,8 @@ In der Mitte des Programms steht die Erstellung der beiden Goroutines.
     }
 
 Literalfunktionen werden mit dem Schlüsselwort go deklariert und ausgeführt. Unter anderem
-weisen Sie den Go-Scheduler an, diese Funktionen gleichzeitig auszuführen.
-Sie sollen in einer undefinierten Reihenfolge ausgeführt werden. Innerhalb der Implementierung jeder Goroutine
+weisen ihr den Go-Scheduler an, diese Funktionen gleichzeitig auszuführen.
+Ihr sollt in einer undefinierten Reihenfolge ausgeführt werden. Innerhalb der Implementierung jeder Goroutine
 befindet sich der Aufruf von Done. Dieser Aufruf dekrementiert die WaitGroup um 1. Sobald beide
 Aufrufe an Done erfolgt sind, ändert sich die WaitGroup von 2 auf 0, und die Haupt
 Goroutine kann nach dem Aufruf von Wait wieder freigegeben werden, wodurch das
@@ -185,7 +185,7 @@ Programm beendet werden kann.
     }
 
 Ein wichtiger Teil dieses Orchestrierungsmusters besteht darin, die Add- und Done-Aufrufe
-in der gleichen Sichtlinie zu halten. Versuchen Sie nicht, die WaitGroup als Funktionsparameter zu übergeben
+in der gleichen Sichtlinie zu halten. Versucht nicht, die WaitGroup als Funktionsparameter zu übergeben
 wo die Aufrufe verloren gehen. Dies wird dazu beitragen, Fehler zu vermeiden.
 
     Ausgabe:
@@ -195,14 +195,14 @@ wo die Aufrufe verloren gehen. Dies wird dazu beitragen, Fehler zu vermeiden.
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Beendigung des Programms
 
-Wenn Sie dieses Programm erstellen und ausführen seht ihr, wie dieses Programm gleichzeitig läuft.
+Wenn dieses Programm erstellen und ausführen seht ihr, wie dieses Programm gleichzeitig läuft.
 Die zweite erstellte Goroutine wurde zuerst eingeplant. Sie musste ihre Arbeit beenden und
 dann lief die andere Goroutine. Beide liefen bis zum Abschluss, bevor das Programm endete.
-Wenn Sie dieses Programm das nächste Mal ausführen, gibt es keine Garantie, dass Sie dieselbe Ausgabe sehen.
+Wenn ihr dieses Programm das nächste Mal ausführt, gibt es keine Garantie, dass ihr dieselbe Ausgabe sehen werdet.
 Die einzige Garantie in diesem Programm ist, dass das Programm nicht beendet wird, bevor die
 zwei Goroutines fertig sind.
 
-Selbst wenn Sie dieses Programm 100 Mal ausführen und die gleiche Ausgabe sehen, gibt es keine Garantie
+Selbst wenn ihr dieses Programm 100 Mal ausführen sollt und die gleiche Ausgabe seht, gibt es keine Garantie
 dass es wieder so ablaufen wird. Es ist zwar sehr wahrscheinlich, aber nicht garantiert. Vor allem nicht
 über verschiedene Versionen, Betriebssysteme und Architekturen hinweg.
 
@@ -215,7 +215,7 @@ dass es wieder so ablaufen wird. Es ist zwar sehr wahrscheinlich, aber nicht gar
         fmt.Println("\nProgrammabbruch")
     }
 
-Wenn Sie den Aufruf von Wait auskommentieren, was passiert dann, wenn Sie das Programm ausführen? 
+Wenn ihr den Aufruf von Wait auskommentieren, was passiert dann, wenn ihr das Programm ausführt? 
 Auch hier gibt es keine Garantie mehr für das, was passieren wird, aber es gibt
 verschiedene Möglichkeiten.
 
@@ -235,7 +235,7 @@ eine der beiden Goroutines ausführen oder sich möglicherweise sofort beenden.
         . . .
     }
 
-Was passiert, wenn Sie vergessen, Done in einer der Goroutines aufzurufen? In diesem Fall
+Was passiert, wenn ihr vergessen solltet, Done in einer der Goroutines aufzurufen? In diesem Fall
 würde sich das Programm blockieren, da die WaitGroup nicht auf 0 zurückgehen kann. Der Aufruf von Wait
 Aufruf wird für immer blockieren.
 
@@ -277,15 +277,15 @@ Add- und Done-Aufrufe so wichtig sind.
         . . .
     }
 
-Was passiert, wenn Sie der WaitGroup nicht die richtige Anzahl von Goroutines geben, auf die
+Was passiert, wenn wir der WaitGroup nicht die richtige Anzahl von Goroutines geben, auf die
 gewartet werden muss? Wenn die Anzahl zu groß ist, kommt es zu einer weiteren Blockade. Wenn die Anzahl
 zu klein ist, gibt es keine Garantie, dass die Arbeit erledigt ist, bevor das Programm weitergeht. Die Ausgabe des Programms ist undefiniert.
 
 ** Präemptiver Zeitplaner
 
 Auch wenn der Scheduler im Rahmen der Anwendung läuft, ist es wichtig
-zu sehen, dass der Zeitplan präemptiv ist. Das bedeutet, dass Sie nicht vorhersagen können, wann ein 
-Kontextwechsel stattfinden wird, und dies ändert sich jedes Mal, wenn Sie das Programm ausführen.
+zu sehen, dass der Zeitplan präemptiv ist. Das bedeutet, dass ihr nicht vorhersagen könnt, wann ein 
+Kontextwechsel stattfinden wird, und dies ändert sich jedes Mal, wenn ihr das Programm ausführt.
 
     func main() {
         var wg sync.WaitGroup
@@ -341,16 +341,16 @@ kontextabhängig zu sein.
     B
     A 3 Kontext-Schalter
 
-Wie Sie sehen, gibt es jedes Mal, wenn Sie das Programm ausführen, eine unterschiedliche Anzahl von
+Wie ihr sehen könnt, gibt es jedes Mal, wenn ihr das Programm ausführt, eine unterschiedliche Anzahl von
 Kontextwechsel. Das ist eine gute Sache, denn ein Scheduler sollte nicht vorhersehbar sein.
-Gleichzeitigkeit muss undefiniert bleiben, und daran müssen Sie denken, wenn Sie Gleichzeitigkeit verwenden
+Gleichzeitigkeit muss undefiniert bleiben, und daran müsst ihr denken, wenn ihr Concurrency verwenden wollt
 um meine Leistungsprobleme zu lösen.
 
     func init() {
         runtime.GOMAXPROCS(2)
     }
 
-Was passiert, wenn Sie zum ursprünglichen Programm zurückkehren, aber GOMAXPROCS so ändern, dass das Programm als Go-Programm mit zwei Threads läuft?
+Was passiert, wenn ihr zum ursprünglichen Programm zurückkehrt, aber GOMAXPROCS so ändern, dass das Programm als Go-Programm mit zwei Threads läuft?
 
     Ausgabe:
 
@@ -359,7 +359,7 @@ Was passiert, wenn Sie zum ursprünglichen Programm zurückkehren, aber GOMAXPRO
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Beendigung des Programms
 
-Sie sehen, dass die Concurrency des Programms jetzt feinkörniger ist. Die Ausgabe
+Ihr seht, dass die Concurrency des Programms jetzt feinkörniger ist. Die Ausgabe
 der Characters ist undefiniert und nicht in Ordnung.
 
 ** Anmerkungen
@@ -373,11 +373,11 @@ der Characters ist undefiniert und nicht in Ordnung.
 
 "Bei Parallelism geht es darum, zwei oder mehr Dinge gleichzeitig zu tun. Bei der Concurrency geht es um die undefinierte, nicht geordnete Ausführung." - William Kennedy
 
-"Standardmäßig sollten Goroutines die Funktion, aus der sie entstanden sind, nicht überleben. Das zwingt Sie zu einer extrem guten Designhaltung." - Peter Bourgon
+"Standardmäßig sollten Goroutines die Funktion, aus der sie entstanden sind, nicht überleben. Das zwingt euch zu einer extrem guten Designhaltung." - Peter Bourgon
 
 ** Gestaltungsrichtlinien
 
-- Informieren Sie sich über die [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design]]-Gestaltungsrichtlinien]] für Gleichzeitigkeit.
+- Informiert euch sich über die [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design]]-Gestaltungsrichtlinien]] für Gleichzeitigkeit.
 
 ** Extra Lesen
 
@@ -398,16 +398,16 @@ der Characters ist undefiniert und nicht in Ordnung.
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-*Teil* *A* Erstellen Sie ein Programm, das zwei anonyme Funktionen deklariert. Eine, die
-von 100 bis 0 herunterzählt und eine, die von 0 bis 100 hochzählt. Zeigen Sie jede Zahl mit
-einem eindeutigen Bezeichner für jede Goroutine. Erstellen Sie dann Goroutines aus diesen Funktionen
-und lassen Sie main erst zurückkehren, wenn die Goroutine abgeschlossen ist.
+*Teil* *A* Erstellt ein Programm, das zwei anonyme Funktionen deklariert. Eine, die
+von 100 bis 0 herunterzählt und eine, die von 0 bis 100 hochzählt. Zeigt jede Zahl mit
+einem eindeutigen Bezeichner für jede Goroutine. Erstellt dann Goroutines aus diesen Funktionen
+und lasst euch main erst returnen, wenn die Goroutine abgeschlossen ist.
 
-*Teil* *B* Führen Sie das Programm parallel aus.
+*Teil* *B* Führt das Programm parallel aus.
 
 .play goroutines/exercise1.go
 .play goroutines/answer1.go

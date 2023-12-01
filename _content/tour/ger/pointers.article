@@ -4,11 +4,11 @@ Zeiger dienen dem Zweck der gemeinsamen Nutzung von Werten über Programmgrenzen
 * Zeiger
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Zeiger dienen dem Zweck, Werte über Programmgrenzen hinweg auszutauschen. Es gibt
 verschiedene Arten von Programmgrenzen. Die häufigste ist die zwischen Funktionsaufrufen.
-Es gibt auch eine Grenze zwischen Goroutinen, zu der Sie später Notizen machen werden.
+Es gibt auch eine Grenze zwischen Goroutinen, zu der wir später Notizen machen werden.
 
 ** Code-Überprüfung
 
@@ -27,7 +27,7 @@ Es gibt auch eine Grenze zwischen Goroutinen, zu der Sie später Notizen machen 
 Wenn ein Go-Programm gestartet wird, erstellt die Go-Laufzeitumgebung eine Goroutine. Goroutinen sind
 leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken wie
 System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
-Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die Sie die Main-Goroutine nennen.
+Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die wir die Main-Goroutine nennen.
 
 Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stapel beginnt
 mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stapel können im Laufe der Zeit größer werden.
@@ -44,7 +44,7 @@ Kompilierzeit. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nich
 Wert auf dem Heap konstruiert werden.
  
 Stapel sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stapels.
-Jedes Mal, wenn Sie eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
+Jedes Mal, wenn wir eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
 für diesen Frame initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktion
 wird der Speicher für den Frame in Ruhe gelassen, da nicht bekannt ist, ob dieser Speicher
 wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr zu initialisieren.
@@ -53,7 +53,7 @@ wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr z
 
 Alle Daten werden wertmäßig durch das Programm bewegt. Das bedeutet, dass bei der Weitergabe von Daten
 über Programmgrenzen hinweg, jede Funktion oder Goroutine ihre eigene Kopie der
-Daten erhält. Es gibt zwei Arten von Daten, mit denen Sie arbeiten werden: den Wert selbst (int,
+Daten erhält. Es gibt zwei Arten von Daten, mit denen wir arbeiten werden: den Wert selbst (int,
 string, user) oder die Adresse des Wertes. Adressen sind Daten, die über Programmgrenzen hinweg kopiert
 und über Programmgrenzen hinweg gespeichert werden.
 
@@ -61,21 +61,21 @@ Der folgende Code versucht, dies näher zu erläutern.
 
     func main() {
 
-        // Deklarieren Sie eine Variable vom Typ int mit einem Wert von 10.
+        // Deklariert eine Variable vom Typ int mit einem Wert von 10.
         count:= 10
 
-        // Um die Adresse eines Wertes zu erhalten, verwenden Sie den Operator &.
+        // Um die Adresse eines Wertes zu erhalten, Verwendet den Operator &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Übergeben Sie eine Kopie des "Wertes von" count (was in der Box ist)
+        // Übergebt eine Kopie des "Wertes von" count (was in der Box ist)
         // an die Funktion increment1.
         increment1(count)
 
-        // Drucken Sie den "Wert von" und die "Adresse von" count aus.
+        // Druckt den "Wert von" und die "Adresse von" count aus.
         // Der Wert von count wird sich nach dem Funktionsaufruf nicht mehr ändern.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Übergeben Sie eine Kopie der "Adresse von" count (wo sich die Box befindet)
+        // Übergebt eine Kopie der "Adresse von" count (wo sich die Box befindet)
         // an die Funktion increment2. Dies wird immer noch als Übergabe durch
         // Wert und nicht als Übergabe per Referenz, da Adressen Werte sind.
         increment2(&Zahl)
@@ -119,7 +119,7 @@ Ausgabe:
 
 ** Anmerkungen
 
-- Verwenden Sie Zeiger, um Daten gemeinsam zu nutzen.
+- Verwendet Zeiger, um Daten gemeinsam zu nutzen.
 - Werte in Go werden immer als Wert übergeben.
 - "Value of", was in der Box ist. "Adresse von" ( & ), wo sich die Box befindet.
 - Der Operator ( * ) deklariert eine Zeigervariable und den "Wert, auf den der Zeiger zeigt".
@@ -139,7 +139,7 @@ auf dem Stapel konstruiert wird. Lautet die Antwort ja, muss der Wert auf dem
 dem Heap konstruiert werden.
 
 Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
-Zuweisungen verursacht. Sie müssen sich jedoch darüber im Klaren sein, dass die Escape-Analyse Schwächen hat, die
+Zuweisungen verursacht. Ihr müsst euch jedoch darüber im Klaren sein, dass die Escape-Analyse Schwächen hat, die
 zu nicht offensichtlichen Zuweisungen führen kann. Außerdem nutzt der Algorithmus Möglichkeiten, um
 Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
 
@@ -189,7 +189,7 @@ immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
 Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap 
 nicht auf dem Stack, sondern auf dem Heap erfolgen. 
 
-Überlegen Sie, was passieren würde, wenn der Benutzerwert im letzten Beispiel
+uÜberlegen , was passieren würde, wenn der Benutzerwert im letzten Beispiel
 auf dem Stack konstruiert würde, wenn beim Return die Zeigersemantik verwendet würde.
 
 .image /tour/eng/static/img/p2.png
@@ -213,7 +213,7 @@ an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalt
 den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
 
 Es gibt viele kleine Details im Zusammenhang mit der Fluchtanalyse.
-lesen Sie den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
+lest dazu den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
 
 Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert, um
 eine neue Art der Übergabe von Funktionsein- und -ausgangsargumenten unter Verwendung von Registern
@@ -312,21 +312,21 @@ jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anz
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-*Teil* *A:* Deklarieren und initialisieren Sie eine Variable vom Typ int mit dem Wert 20.
-Zeigen Sie die "Adresse von" und den "Wert" der Variablen an.
+*Teil* *A:* Deklariert und initialisiert eine Variable vom Typ int mit dem Wert 20.
+Zeigt die "Adresse von" und den "Wert" der Variablen an.
 
-*Teil* *B:* Deklarieren und initialisieren Sie eine Zeigervariable vom Typ int, die auf
-die letzte Variable zeigt, die Sie gerade erstellt haben. Geben Sie die "Adresse von" , "Wert von" und den
+*Teil* *B:* Deklariert und initialisiert eine Zeigervariable vom Typ int, die auf
+die letzte Variable zeigt, die ihr gerade erstellt haben. Gebt die "Adresse von" , "Wert von" und den
 "Wert, auf den der Zeiger zeigt".
 
 ** Übung 2
 
-Deklarieren Sie einen struct-Typ und erstellen Sie einen Wert dieses Typs. Deklarieren Sie eine Funktion, die
-den Wert eines Feldes in diesem Strukturtyp ändern kann. Zeigen Sie den Wert vor
+Deklariert einen struct-Typ und Erstellt einen Wert dieses Typs. Deklariert eine Funktion, die
+den Wert eines Feldes in diesem Strukturtyp ändern kann. Zeigt den Wert vor
 und nach dem Aufruf Ihrer Funktion.
 
 .play pointers/exercise1.go
