@@ -13,6 +13,7 @@ import (
 type root struct {
 	engContent []byte
 	grcContent []byte
+	itaContent []byte
 	perContent []byte
 	porContent []byte
 	polContent []byte
@@ -54,6 +55,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "/tour/grc/":
 		log.Println("render greek tour")
 		if err := renderUI(w, rot.grcContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/ita/":
+		log.Println("render italian tour")
+		if err := renderUI(w, rot.itaContent); err != nil {
 			log.Println(err)
 		}
 	case "/tour/per/":

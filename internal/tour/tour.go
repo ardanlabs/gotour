@@ -27,13 +27,18 @@
 	1. Update replace statement in all languages
 	   - _content/tour/[new_lang_code]/static/js/page.js:116 : return url.replace(/(\/tour\/)(eng|rus|per|grc|por|[new_lang_code])(\/)/, `$1${newLanguage}$3`);
 
-	2. Change Patch Number in all JS and Template files for all languages
-	   - _content/tour/[new_lang_code]/welcome.article
-	   - _content/tour/[new_lang_code]/static/partials/list.html
-	   - _content/tour/[new_lang_code]/template/index.tmpl
+	2. Change Patch Number in all JS and Template files for English only
+	   - _content/tour/eng/static/partials/list.html
+	   - _content/tour/[new_lang_code]/template/index.tmpl:89
 
 	3. Update Language switch in all languages
 	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : <option value="[new_lang_code]">[new_lang]</option>
+
+	4. Validate the language has been added search index
+	   - internal/tour/local.go:100
+
+	4. Make sure the static/app.css, static/lib/codemirror/lib/codemirror.css, and the
+	   - template/action.tmpl is the same as the english version.
 
 	## Testing
 	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
