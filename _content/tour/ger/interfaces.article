@@ -79,7 +79,7 @@ auf dem Zustand, sondern auf dem Verhalten. Interfacestypen deklarieren einen Me
 die konkrete Daten aufweisen müssen, um das Interface zu erfüllen. Es gibt nichts
 Konkretes über Interfacestypen, daher sind sie wertlos.
 
-    var r Reader 
+    var r reader 
 
 Da sie wertlos sind, ist die Konstruktion einer Variablen (wie r) merkwürdig, denn
 in unserem Programmiermodell existiert r nicht, es ist wertlos. Es gibt nichts an
@@ -120,12 +120,12 @@ was ich in diesem Fall getan habe, da die Leserschnittstelle nur einen einzigen 
         read(b []byte) (int, error)
     }
 
-    Typ pipe struct {
+    type pipe struct {
         name string
     }
 
     func (pipe) read(b []byte) (int, error) {
-        s := `{Name: "Bill", Titel: "Entwickler"}`
+        s := `{name: "Bill", title: "developer"}`
         copy(b, s)
         return len(s), nil
     }
@@ -144,9 +144,9 @@ Polymorphismus bedeutet, dass ein Teil des Codes sein Verhalten in Abhängigkeit
 Daten ändern kann mit dem gearbeitet wird. Dies wurde von Tom Kurtz, dem Erfinder von BASIC, gesagt. Diese
 ist die Definition, die wir im Folgenden verwenden werden.
 
-    // retrieve kann jedes Device lesen und die Daten verarbeiten.
+    // retrieve can read any device and process the data.
     func retrieve(r reader) error {
-        data:= make([]byte, 100)
+        data := make([]byte, 100)
 
         len, err := r.read(data)
         if err != nil {
@@ -167,7 +167,7 @@ dann? Sie fragt nach dem Einzigen, wonach sie fragen kann, nämlich nach konkret
 Die Funktion retrieve ist eine polymorphe Funktion, denn sie fragt nach konkreten Daten und nicht nach der Grundlage dessen, was die Daten sind (konkreter Typ), 
 sondern nach der Grundlage dessen, was die Daten tun können (Interfacestyp).
 
-    f := Datei{"data.json"}
+    f := file{"data.json"}
     p := pipe{"cfg_service"}
 
     retrieve(f)
@@ -205,12 +205,12 @@ eine Datei.
 Bei der Implementierung einer Interface mit Zeigersemantik gelten einige Einschränkungen für die
 Einhaltung der Interfaces.
 
-    Typ notifier Interface {
+    type notifier interface {
         notify()
     }
 
-    Typ user struct {
-        name string
+    type user struct {
+        name  string
         email string
     }
 
@@ -223,7 +223,7 @@ Einhaltung der Interfaces.
     }
 
     func main() {
-        u := Benutzer{"Bill", "bill@email.com"}
+        u := user{"Bill", "bill@email.com"}
         sendNotification(u)
     }
 
@@ -259,7 +259,7 @@ an Werte des Typs T angehängt werden? Wo liegt hier das Problem der Integrität
 Ein Grund dafür ist, dass man nicht garantieren kann, dass jeder Wert vom Typ T adressierbar ist.
 Wenn ein Wert keine Adresse hat, kann er nicht weitergegeben werden.
 
-    Typ duration int
+    type duration int
 
     func (d *duration) notify() {
             fmt.Println("Sending Notification in", *d)
@@ -271,8 +271,8 @@ Wenn ein Wert keine Adresse hat, kann er nicht weitergegeben werden.
 
 Compiler-Fehler:
 
-    kann keine Zeigermethode auf duration(42) aufrufen
-    kann die Adresse von duration(42) nicht übernehmen
+    cannot call pointer method on duration(42)
+    cannot take the address of duration(42)
 
 In diesem Beispiel ist der Wert von 42 eine Konstante vom Typ int. Auch wenn der Wert
 in einen Wert des Typs duration umgewandelt wird, wird er nicht in einer Variablen gespeichert.
@@ -287,7 +287,7 @@ Methode mit Zeigersemantik entscheidet, gebet damit an, dass ein Wert dieses Typ
 sicher kopiert werden kann.
 
     func main() {
-        u := Benutzer{"Bill", "bill@email.com"}
+        u := user{"Bill", "bill@email.com"}
         sendNotification(&u)
     }
 
@@ -301,46 +301,46 @@ Wenn ihr ein Slice eines Interfacestyps deklariert, kann ich verschiedene
 konkrete Werte auf der Grundlage ihrer Fähigkeiten zusammenzufassen. Aus diesem Grund braucht Go nicht
 das Konzept der Untertypisierung. Es geht nicht um eine gemeinsame DNA, es geht um ein gemeinsames Verhalten.
 
-    Typ printer interface {
+    type printer interface {
         print()
     }
 
-    Typ canon struct {
+    type canon struct {
         name string
     }
 
     func (c canon) print() {
-        fmt.Printf("Druckername: %s\n", c.name)
+        fmt.Printf("Printer Name: %s\n", c.name)
     }
 
-    Typ epson struct {
+    type epson struct {
         name string
     }
 
     func (e *epson) print() {
-        fmt.Printf("Druckername: %s\n", e.name)
+        fmt.Printf("Printer Name: %s\n", e.name)
     }
 
     func main() {
         c := canon{"PIXMA TR4520"}
         e := epson{"WorkForce Pro WF-3720"}
 
-        printer:= []printer{
+        printers := []printer{
             c,
             &e,
         }
         c.name = "PROGRAF PRO-1000"
         e.name = "Home XP-4100"
 
-        for _, p := range printers{
+        for _, p := range printers {
             p.print()
         }
     }
 
 Ausgabe:
 
-    Name des Druckers: PIXMA TR4520
-    Name des Druckers: Home XP-4100
+    Printer Name: PIXMA TR4520
+    Printer Name: Home XP-4100
 
 Der Code zeigt, wie ein Slice des Interfacestyps printer es mir ermöglicht, eine
 Sammlung verschiedener konkreter Druckertypen zu erstellen. Durch Iteration über die Sammlung und

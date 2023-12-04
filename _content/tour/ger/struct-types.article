@@ -32,14 +32,14 @@ Diese Deklaration stellt einen konkreten benutzerdefinierten Typ als eine Zusamm
 verschiedenen Feldern und Typen dar.
 
     type example struct {
-        flag bool
-        zähler int16
-        pi float32
+        flag    bool
+        counter int16
+        pi      float32
     }
 
 Deklariert eine Variable vom Typ example und initialisiert sie mit dem Wert Null.
 
-    var e1 Beispiel
+    var e1 example
 
     fmt.Printf("%+v\n", e1)
 
@@ -50,43 +50,43 @@ Ausgabe:
 Deklariert eine Variable vom Typ example, die nicht auf den Zustand Null gesetzt ist, indem ihr die Literal
 Konstruktionssyntax verwendet.
 
-    e2 := Beispiel{
-        flag: true,
+    e2 := example{
+        flag:    true,
         counter: 10,
-        pi: 3.141592,
+        pi:      3.141592,
     }
 
-    fmt.Println("flag", e2.flag)
-    fmt.Println("counter", e2.counter)
+    fmt.Println("Flag", e2.flag)
+    fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
 Ausgabe:
 
-    flag wahr
-    counter 10
+    Flag true
+    Counter 10
     Pi 3.141592
 
 Deklariert eine Variable eines unbenannten Literal-Typs, die auf ihren Nicht-Null-Wert-Zustand
 unter Verwendung der Syntax für die Literalkonstruktion beruht.
 
-    e3 := Struktur {
-        flag bool
-        zähler int16
-        pi float32
+    e3 := struct {
+        flag    bool
+        counter int16
+        pi      float32
     }{
-        flag: true,
+        flag:    true,
         counter: 10,
-        pi: 3.141592,
+        pi:      3.141592,
     }
 
-    fmt.Println("flag", e3.flag)
-    fmt.Println("counter", e3.counter)
+    fmt.Println("Flag", e3.flag)
+    fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
 Ausgabe:
 
-    flag wahr
-    counter 10
+    Flag true
+    Counter 10
     Pi 3.141592
 
 Die Idee der buchstäblichen Konstruktion ist genau das: etwas buchstäblich zu konstruieren
@@ -100,9 +100,9 @@ der { }-Syntax für die Konstruktion von Nicht-Nullwerten verwenden.
 Wie viel Speicher wird für einen Wert des Typs example zugewiesen?
 
     type example struct {
-        flag bool
-        zähler int16
-        pi float32
+        flag    bool
+        counter int16
+        pi      float32
     }
 
 Ein bool ist 1 Byte, int16 ist 2 Byte und float32 ist 4 Byte. Wenn man das alles zusammenzählt
@@ -117,25 +117,25 @@ indem Speicher an bestimmten Ausrichtungsgrenzen platziert wird. Der Compiler k�
 Abhängig von der Größe eines bestimmten Feldes und seiner Platzierung in der Struktur, legt Go
 das benötigte Padding fest.
 
-    Typ example2 struct {
-        flag bool
-        Zähler int16
-        flag2 bool
-        pi float32
+    type example2 struct {
+        flag    bool
+        counter int16
+        flag2   bool
+        pi      float32
     }
 
 In diesem Beispiel habe ich ein neues Feld namens "flag2" zwischen den Feldern "Counter" und "Pi
 Feldern. Dies führt zu mehr Padding innerhalb der Struktur.
 
     type example2 struct {
-        flag bool // 0xc000100020 <- Startadresse
-                byte // 0xc000100021 <- 1 Byte Auffüllung
-        counter int16 // 0xc000100022 <- 2 Byte Ausrichtung
-        flag2 bool // 0xc000100024 <- 1 Byte Ausrichtung
-                byte // 0xc000100025 <- 1 Byte Auffüllung
-                Byte // 0xc000100026 <- 1 Byte Auffüllung
-                byte // 0xc000100027 <- 1 Byte Auffüllung
-        pi float32 // 0xc000100028 <- 4 Byte Ausrichtung
+        flag    bool     // 0xc000100020 <- Starting Address
+                byte     // 0xc000100021 <- 1 byte padding
+        counter int16    // 0xc000100022 <- 2 byte alignment
+        flag2   bool     // 0xc000100024 <- 1 byte alignment
+                byte     // 0xc000100025 <- 1 byte padding
+                byte     // 0xc000100026 <- 1 byte padding
+                byte     // 0xc000100027 <- 1 byte padding
+        pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
 So sehen die Ausrichtung und das Auffüllen aus, wenn ein Wert vom Typ example2 an folgender Stelle beginnt
@@ -162,10 +162,10 @@ höchsten Zuweisung zur niedrigsten Zuweisung anordnen. Dadurch werden alle notw
 an den unteren Rand der Struktur geschoben und verringern die Gesamtzahl der erforderlichen Auffüllungsbytes.
 
     type example struct {
-        pi float32 // 0xc000100020 <- Startadresse
-        counter int16 // 0xc000100024 <- 2 Byte Ausrichtung
-        flag bool // 0xc000100026 <- 1 Byte Ausrichtung
-        flag2 bool // 0xc000100027 <- 1 Byte Ausrichtung
+        pi      float32  // 0xc000100020 <- Starting Address
+        counter int16    // 0xc000100024 <- 2 byte alignment
+        flag    bool     // 0xc000100026 <- 1 byte alignment
+        flag2   bool     // 0xc000100027 <- 1 byte alignment
     }
 
 Nach der Neuanordnung der Felder benötigt der struct-Wert nur noch 8 Byte
@@ -182,13 +182,13 @@ einen Wert des Einen dem Anderen zuweisen.
 Wenn zum Beispiel die Typen example1 und example2 mit der exakt gleichen
 Deklaration deklariert werden und wir zwei Variablen initialisieren.
 
-    var ex1 Beispiel1
-    var ex2 beispiel2
+    var ex1 example1
+    var ex2 example2
 
 Ihr könnt diese beiden Variablen nicht einander zuordnen, da sie von unterschiedlichem
 Typen sind. Die Tatsache, dass sie in ihrer Struktur identisch sind, ist irrelevant.
 
-    ex1 = ex2 // Nicht zulässig, Compilerfehler
+    ex1 = ex2  // Not allowed, compiler error
 
 Um diese Zuordnung vorzunehmen, müsst ihr eine Konvertierungssyntax verwenden, und da sie
 von der Struktur her identisch sind, wird der Compiler dies zulassen.
@@ -199,12 +199,12 @@ Wenn jedoch ex2 als unbenannter Typ deklariert würde, der genau dieselbe Deklar
 hätte, wäre keine Konvertierungssyntax erforderlich.
 
     var ex2 struct {
-        flag bool
-        zähler int16
-        pi float32
+        flag    bool
+        counter int16
+        pi      float32
     }
 
-    ex1 = ex2 // Erlaubt, KEINE Notwendigkeit für Konvertierungssyntax
+    ex1 = ex2  // Allowed, NO need for conversion syntax
 
 Der Compiler erlaubt diese Zuordnung, ohne dass eine Konvertierung erforderlich ist.
 

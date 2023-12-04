@@ -32,38 +32,38 @@ zusammenhängenden Block des Speichers unterhält.
 
 Das Deklarieren und Konstruieren einer Map kann auf verschiedene Weise erfolgen.
 
-    Typ user struct {
-        name string
+    type user struct {
+        name     string
         username string
     }
 
-    // Konstruiert eine Map, die auf ihren Nullwert gesetzt wird,
-    // die Benutzerwerte basierend auf einem Schlüssel vom Typ String speichern kann.
-    // Der Versuch, diese Map zu verwenden, führt zu einem Laufzeitfehler (Panik).
+    // Construct a map set to its zero value,
+    // that can store user values based on a key of type string.
+    // Trying to use this map will result in a runtime error (panic).
     var users map[string]user
 
-    // Konstruiert eine mit make initialisierte Map,
-    // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
-    Benutzer := make(map[string]user)
+    // Construct a map initialized using make,
+    // that can store user values based on a key of type string.
+    users := make(map[string]user)
 
-    // Konstruiert eine Map, die mit einer leeren Literalkonstruktion initialisiert wird,
-    // die Benutzerwerte basierend auf einem Schlüssel vom Typ string speichern kann.
-    Benutzer := map[string]user{}
+    // Construct a map initialized using empty literal construction,
+    // that can store user values based on a key of type string.
+    users := map[string]user{}
 
 Eine Map, die auf den Wert Null gesetzt ist, ist nicht verwendbar und führt dazu, dass Ihr Programm mit panic beendet wird.
 Die Verwendung der eingebauten Funktion make und der Konstruktion von Literalen konstruiert eine Map
 bereit zur Verwendung.
 
     func main() {
-        Benutzer := make(map[string]user)
+        users := make(map[string]user)
 
         users["Roy"] = user{"Rob", "Roy"}
-        benutzer["Ford"] = benutzer{"Henry", "Ford"}
-        benutzer["Maus"] = benutzer{"Mickey", "Maus"}
-        benutzer["Jackson"] = benutzer{"Michael", "Jackson"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
 
         for key, value := range users {
-            fmt.Println(schlüssel, wert)
+            fmt.Println(key, value)
         }
     }
 
@@ -71,7 +71,7 @@ Ausgabe:
 
     Roy {Rob Roy}
     Ford {Henry Ford}
-    Maus {Mickey Mouse}
+    Mouse {Mickey Mouse}
     Jackson {Michael Jackson}
 
 Wenn die eingebaute Funktion make zum Aufbau einer Map verwendet wird, kann der Zuweisungsoperator
@@ -83,12 +83,12 @@ implementiert werden.
         users := map[string]user{
             "Roy":     {"Rob", "Roy"},
             "Ford":    {"Henry", "Ford"},
-            "Mouse":   {"Mickey", "Maus"},
+            "Mouse":   {"Mickey", "Mouse"},
             "Jackson": {"Michael", "Jackson"},
         }
 
         for key, value := range users {
-            fmt.Println(schlüssel, wert)
+            fmt.Println(key, value)
         }
     }
 
@@ -97,7 +97,7 @@ Ausgabe:
     Ford {Henry Ford}
     Jackson {Michael Jackson}
     Roy {Rob Roy}
-    Maus {Mickey Mouse}
+    Mouse {Mickey Mouse}
 
 In diesem Fall wurden die Ausgaben in einer anderen Reihenfolge zurückgegeben, als sie
 in der Konstruktion aufgelistet sind. Der aktuelle Algorithmus für 1.16 gibt die Ergebnisse
@@ -108,11 +108,11 @@ Dies ist eine Compiler-Implementierung, die sich ändern kann. Ihr könnt sich n
 
 Sobald die Daten in einer Map gespeichert sind, ist zum Extrahieren der Daten eine Schlüsselabfrage erforderlich.
 
-    user1, exists1 := Benutzer["Bill"]
+    user1, exists1 := users["Bill"]
     user2, exists2 := users["Ford"]
 
-    fmt.Println("Rechnung:", exists1, Benutzer1)
-    fmt.Println("Ford:", exists2, Benutzer2)
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
 
 Ausgabe:
 
@@ -139,11 +139,12 @@ aus der Map auf der Grundlage eines Schlüssels ermöglicht.
 Nicht alle Typen können als Schlüssel verwendet werden.
 
     type slice []user
-    Benutzer := make(map[slice]user)
+    Users := make(map[slice]user)
+
 
 Compiler-Fehler:
 
-    ungültiger Map-Schlüsseltyp Benutzer
+    invalid map key type users
 
 Ein Slice ist ein gutes Beispiel für einen Typ, der nicht als Schlüssel verwendet werden kann. Nur Werte, die
 die Hash-Funktion durchlaufen können, sind geeignet. Eine gute Möglichkeit, Typen zu erkennen

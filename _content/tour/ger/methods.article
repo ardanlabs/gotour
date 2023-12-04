@@ -29,8 +29,8 @@ Funktionsnamen deklariert wird.
 Es gibt zwei Arten von Empfängern: Werteempfänger für die Umsetzung der Wertsemantik
 und Zeigerempfänger für die Umsetzung der Zeigersemantik.
 
-    Typ user struct {
-        name string
+    type user struct {
+        name  string
         email string
     }
 
@@ -59,7 +59,7 @@ Bei einem Methodenaufruf ist es dem Compiler egal, ob der für den Aufruf verwen
 mit dem Aufruf der Datensemantik des Empfängers übereinstimmt. Der Compiler will nur
 einen Wert oder Zeiger desselben Typs.
 
-    bill := user{"bill", "bill@email.com"}
+    bill := user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
@@ -72,7 +72,7 @@ der Methode. Go passt sich an, um den Aufruf durchzuführen.
 
 Dies funktioniert auch, wenn die für den Aufruf verwendete Variable eine Zeigervariable ist.
 
-    bill:= &bill{"bill", "bill@email.com"}
+    bill := &user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
@@ -81,10 +81,10 @@ Auch hier passt sich Go an, um den Methodenaufruf beim Aufruf der notify-Methode
 
 Wenn Go sich nicht anpasst, müsst ihr die gleichen Methodenaufrufe machen.
 
-    bill:= User{bill", "bill@email.com"}
-    (&Bill).changeEmail("bill@hotmail.com")
+    bill := user{"Bill", "bill@email.com"}
+    (&bill).changeEmail("bill@hotmail.com")
 
-    bill:= &bill{"Rechnung", "bill@email.com"}
+    bill := &user{"Bill", "bill@email.com"}
     (*bill).notify()
 
 Ich bin froh, dass man das nicht tun muss, um Methodenaufrufe in Go zu machen.
@@ -96,8 +96,8 @@ Kanal, Funktion, Schnittstelle), dann Verwendet die Wertesemantik, um die Daten 
 Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Typen. Wenn ich jedoch Lese
 -und Schhreiberechte gebraucht werden, müsst ihr daran denken, die Zeigersemantik zu verwende.
 
-    Typ IP []byte
-    Typ IPMaske []byte
+    type IP []byte
+    type IPMask []byte
 
 Diese Typen werden im Netzpaket deklariert, das Teil der Standardbibliothek ist.
 Sie werden mit einem zugrundeliegenden Typen deklariert, der eine Scheibe von Bytes ist. Aus diesem Grund
@@ -105,7 +105,7 @@ folgen diese Typen den Richtlinien für interne Typen.
 
     func (ip IP) Mask(mask IPMask) IP {
         if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
-            mask = mask[:12:]
+            mask = mask[12:]
         }
         if len(mask) == IPv4len && len(ip) == IPv6len &&
             bytesEqual(ip[:12], v4InV6Prefix) {
@@ -154,11 +154,12 @@ was die Daten betrifft eine Entscheidung treffen. Eine gute allgemeine Regel ist
 zu fragen, ob die Struktur Daten oder eine API repräsentiert. Wenn die Struktur Daten repräsentiert, verwendet 
 Wert-Semantik. Wenn die Struktur eine API darstellt, Verwendet die Zeigersemantik.
 
-    Typ Time struct {
-        sec int64
+    type Time struct {
+        sec  int64
         nsec int32
-        loc *Ort
+        loc  *Location
     }
+
 
 Hier ist die Time-Struktur aus dem Time-Paket. Wenn ihr Time als Repräsentant von
 Daten darstellen wollt, sollte die Wertesemantik für diese Struktur verwendet werden.
@@ -167,11 +168,10 @@ Wenn ihr euch eine bestehende Codebasis anseht und wissen wollt, welche Datensem
 sucht nach einer Factory-Funktion. Der Rückgabetyp einer Factory-Funktion sollte
 die vom Entwickler gewählte Datensemantik vorgeben.
 
-    func Now() Zeit {
+    func Now() Time {
         sec, nsec := now()
         return Time{sec + unixToInternal, nsec, Local}
     }
-
 Dies ist die Factory-Funktion für die Erstellung von Zeitwerten. Seht euch sich die Rückgabe an,
 sie verwendet die Wertesemantik. Dies zeigt euch, dass ihr die Wertesemantik für Zeitwerte verwenden sollt,
 was bedeutet, dass jede Funktion ihre eigene Kopie eines Zeitwerts erhält und
@@ -180,7 +180,7 @@ Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
     func (t Time) Add(d Duration) Time {
         t.sec += int64(d / 1e9)
         nsec := int32(t.nsec) + int32(d%1e9)
-        wenn nsec >= 1e9 {
+        if nsec >= 1e9 {
             t.sec++
             nsec -= 1e9
         } else if nsec < 0 {
@@ -188,7 +188,7 @@ Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
             nsec += 1e9
         }
         t.nsec = nsec
-        Rückgabe t
+        return t
     }
 
 Add ist eine Methode, die eine Mutationsoperation durchführen muss. Wenn ihr genau hinschaut,
@@ -204,10 +204,10 @@ Dauer (int64) akzeptiert und dann Werte vom Typ int und Dauer zurückgibt. Seman
 für den Typ Time und für alle eingebauten Typen. Dauer hat einen zugrunde liegenden Typ
 von int64.
 
-    func (t *Zeit) UnmarshalBinary(data []byte) error {}
+    func (t *Time) UnmarshalBinary(data []byte) error {}
     func (t *Time) GobDecode(data []byte) error {}
     func (t *Time) UnmarshalJSON(data []byte) error {}
-    func (t *Zeit) UnmarshalText(data []byte) error {}
+    func (t *Time) UnmarshalText(data []byte) error {}
 
 Diese vier Methoden aus dem Time-Paket scheinen die Regeln für die semantische Datenkonsistenz zu verletzen.
 Sie verwenden Zeigersemantik, warum? Weil sie eine Schnittstelle implementieren,
@@ -219,7 +219,7 @@ solange ihr die Daten in der verbleibenden Aufrufkette nicht zurück zur Wertese
 müssen alle zukünftigen Aufrufe von diesem Punkt an die Zeigersemantik beibehalten. Ihr könnt niemals von Zeigern zu Werten wechseln.
 Es ist niemals sicher, eine Kopie eines Wertes zu erstellen zu machen, auf den ein Zeiger zeigt.
 
-    func Open(name string) (file *Datei, err error) {
+    func Open(name string) (file *File, err error) {
         return OpenFile(name, O_RDONLY, 0)
     }
 
@@ -227,7 +227,7 @@ Die Funktion Open aus dem os-Paket zeigt, dass bei der Verwendung eines Wertes v
 Zeiger-Semantik im Spiel ist. Dateiwerte müssen gemeinsam genutzt werden und sollten niemals
 kopiert werden.
 
-    func (f *Datei) Chdir() error {
+    func (f *File) Chdir() error {
         if f == nil {
             return ErrInvalid
         }
@@ -236,6 +236,7 @@ kopiert werden.
         }
         return nil
     }
+
 
 Die Methode Chdir verwendet einen Zeigerempfänger, obwohl diese Methode den
 den File-Wert nicht verändert. Dies liegt daran, dass File-Werte gemeinsam genutzt werden müssen und nicht
@@ -258,18 +259,18 @@ Auch die Funktion epipecheck akzeptiert File-Werte in Zeiger-Semantik.
 Methoden sind eigentlich nur Funktionen, die syntaktischen Zucker bieten, um die
 Verhalten von Daten zu gegen aussen darzustellen.
 
-    Typ Datenstruktur {
+    type data struct {
         name string
-        Alter int
+        age  int
     }
 
     func (d data) displayName() {
-        fmt.Println("Mein Name ist", d.name)
+        fmt.Println("My Name Is", d.name)
     }
 
     func (d *data) setAge(age int) {
         d.age = age
-        fmt.Println(d.name, "Ist Alter", d.age)
+        fmt.Println(d.name, "Is Age", d.age)
     }
 
 Es werden ein Typ und zwei Methoden deklariert. Die Methode displayName verwendet die Wert
@@ -278,8 +279,8 @@ Semantik und setAge verwendet die Zeiger-Semantik.
 Hinweis: Implementiert keine Setter und Getter in Go. Dies sind keine Apis die einen Sinn und Zweck habne.
 In solchen Fällen ist es besser, die entsprechenden Felder zu exportieren.
     
-    d := Daten{
-        Name: "Bill",
+    d := data{
+        name: "Bill",
     }
 
     d.displayName()
@@ -305,25 +306,25 @@ die Kosten kennt, seid ihr der Ingenieur.
 
 Mit diesem Typ und Methodensatz.
 
-    Typ dataSruct{
+    type data struct {
         name string
-        Alter int
+        age  int
     }
 
     func (d data) displayName() {
-        fmt.Println("Mein Name ist", d.name)
+        fmt.Println("My Name Is", d.name)
     }
 
     func (d *data) setAge(age int) {
         d.age = age
-        fmt.Println(d.name, "Ist Alter", d.age)
+        fmt.Println(d.name, "Is Age", d.age)
     }
 
 Ihr könnt den folgenden Code schreiben.
 
     func main() {
-        d := dataStruct{
-            Name: "Bill",
+        d := data{
+            name: "Bill",
         }
 
         f1 := d.displayName
@@ -334,8 +335,8 @@ Ihr könnt den folgenden Code schreiben.
 
 Ausgabe:
 
-    Mein Name ist Bill
-    Mein Name ist Bill
+    My Name Is Bill
+    My Name Is Bill
 
 Ihr beginnt mit der Konstruktion eines Wertes vom Typ Data und weisen ihn der Variablen d zu.
 Dann nehmt ihr die Methode displayName, die an d gebunden ist, und weisen sie einer Variablen
@@ -353,7 +354,7 @@ Es hat mit der Semantik der Daten zu tun. Die Methode displayName verwendet eine
 Wertempfänger, so dass Wertesemantik im Spiel ist.
 
     func (d data) displayName() {
-        fmt.Println("Mein Name ist", d.name)
+        fmt.Println("My Name Is", d.name)
     }
 
 Das bedeutet, dass die Variable f1 ihre eigene Kopie von d verwaltet und mit ihr arbeitet.
@@ -364,7 +365,7 @@ Jetzt werdet ihr dasselbe tun, aber mit der Methode setAge.
 
     func main() {
         d := data{
-            Name: "Bill",
+            name: "Bill",
         }
 
         f2 := d.setAge
@@ -375,8 +376,8 @@ Jetzt werdet ihr dasselbe tun, aber mit der Methode setAge.
 
 Ausgabe:
 
-    Bill ist 45 Jahre alt
-    Sammy ist 45 Jahre alt
+    Bill Is Age 45
+    Sammy Is Age 45
 
 Diesmal wird die Methode setAge der Variablen f2 zugewiesen. Auch hier wird die
 Methode indirekt über die Variable f2 ausgeführt, wobei 45 als Bills Alter übergeben wird.
@@ -391,8 +392,9 @@ f2 auf den gemeinsamen Zugriff und ihr seht die Änderung.
 
     func (d *data) setAge(age int) {
         d.age = age
-        fmt.Println(d.name, "Ist Alter", d.age)
+        fmt.Println(d.name, "Is Age", d.age)
     }
+
 
 Ohne die Semantik der Daten zu kennen, könnt ihr das Verhalten des Codes nicht einschätzen.
 Diese Datensemantiken sind real und beeinflussen das Verhalten.

@@ -56,30 +56,30 @@ Borja:
 
 Dominik:
 
-- [ ] generics-multi-type-params.article
+- [x] generics-multi-type-params.article
 
-- [ ] generics-slice-constraints.article
+- [x] generics-slice-constraints.article
 
-- [ ] generics-struct-types.article
+- [x] generics-struct-types.article
 
-- [ ] generics-type-constraints.article
+- [x] generics-type-constraints.article
 
-- [ ] generics-underlying-types.article
+- [x] generics-underlying-types.article
 
-- [ ] goroutines.article
+- [x] goroutines.article
 
-- [ ] interfaces.article
+- [x] interfaces.article
 
-- [ ] maps.article
+- [x] maps.article
 
-- [ ] methods.article
+- [x] methods.article
 
 - [x] pointers.article
 
-- [ ] slices.article
+- [x] slices.article
 
 - [x] struct-types.article
 
 - [x] variables.article
 
-- [ ] welcome.article
+- [x] welcome.article

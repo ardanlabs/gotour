@@ -61,61 +61,61 @@ Der folgende Code versucht, dies näher zu erläutern.
 
     func main() {
 
-        // Deklariert eine Variable vom Typ int mit einem Wert von 10.
-        count:= 10
+        // Declare variable of type int with a value of 10.
+        count := 10
 
-        // Um die Adresse eines Wertes zu erhalten, Verwendet den Operator &.
+        // To get the address of a value, use the & operator.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Übergebt eine Kopie des "Wertes von" count (was in der Box ist)
-        // an die Funktion increment1.
+        // Pass a copy of the "value of" count (what’s in the box)
+        // to the increment1 function.
         increment1(count)
 
-        // Druckt den "Wert von" und die "Adresse von" count aus.
-        // Der Wert von count wird sich nach dem Funktionsaufruf nicht mehr ändern.
+        // Print out the "value of" and "address of" count.
+        // The value of count will not change after the function call.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Übergebt eine Kopie der "Adresse von" count (wo sich die Box befindet)
-        // an die Funktion increment2. Dies wird immer noch als Übergabe durch
-        // Wert und nicht als Übergabe per Referenz, da Adressen Werte sind.
-        increment2(&Zahl)
+        // Pass a copy of the "address of" count (where is the box)
+        // to the increment2 function. This is still considered a pass by
+        // value and not a pass by reference because addresses are values.
+        increment2(&count)
 
-        // Druckt den "Wert von" und die "Adresse von" count aus.
-        // Der Wert von count hat sich nach dem Funktionsaufruf geändert.
+        // Print out the "value of" and "address of" count.
+        // The value of count has changed after the function call.
         println(
-            "count:\tValue Of[",
+            "count:\tValue Of[", 
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 deklariert die Funktion so, dass sie ihre eigene Kopie von
-    // und den Integer-Wert.
+    // increment1 declares the function to accept its own copy of
+    // and integer value.
     func increment1(inc int) {
 
-        // Inkrementieren der lokalen Kopie des int-Wertes des Aufrufers.
+        // Increment the local copy of the caller’s int value.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 deklariert die Funktion so, dass sie ihre eigene Kopie von
-    // einer Adresse, die auf einen Integer-Wert zeigt.
-    // Zeigervariablen sind Literaltypen und werden mit * deklariert.
+    // increment2 declares the function to accept its own copy of
+    // an address that points to an integer value.
+    // Pointer variables are literal types and are declared using *.
     func increment2(inc *int) {
 
-        // Inkrementieren Sie den int-Wert des Aufrufers durch den Zeiger.
+        // Increment the caller’s int value through the pointer.
         *inc++
         println(
-            "inc2:\tValue Of[",
-            inc, "]\tAddr Of[", &inc,
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
             "]\tPoints To[", *inc, "]")
     }
 
 Ausgabe:
 
-    zählen:  Value Of[ 10 ] Addr Of[ 0xc000050738 ]
-    inc1: Wert von[ 11 ] Adresse von[ 0xc000050730 ]
-    count:  Wert von[ 10 ] Adresse von[ 0xc000050738 ]
-    inc2: Wert von[ 0xc000050738 ] Adresse von[ 0xc000050748 ] Zeigt auf[ 11 ]
-    count:  Wert von[ 11 ] Adresse von[ 0xc000050738 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
 ** Anmerkungen
 
@@ -143,19 +143,19 @@ Zuweisungen verursacht. Ihr müsst euch jedoch darüber im Klaren sein, dass die
 zu nicht offensichtlichen Zuweisungen führen kann. Außerdem nutzt der Algorithmus Möglichkeiten, um
 Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
 
-    // user stellt einen Benutzer im System dar.
-    Typ user struct {
-        name string
+    // user represents a user in the system.
+    type user struct {
+        name  string
         email string
     }
 
     func stayOnStack() user {
-        u := Benutzer{
-            Name: "Bill",
+        u := user{
+            name:  "Bill",
             email: "bill@email.com",
         }
 
-        zurück u
+        return u
     }
 
 Die Funktion stayOnStack verwendet die Wertesemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
@@ -166,19 +166,20 @@ Wenn die Funktion stayOnStack aufgerufen wird und returned, muss der von ihr kon
 nicht mehr existieren, da der Aufrufer seine eigene Kopie erhält. Daher
 kann die Konstruktion des Benutzerwerts innerhalb von stayOnStack auf dem Stack erfolgen.
 
-    Typ user struct {
-        name string
+    type user struct {
+        name  string
         email string
     }
 
-    func escapeToHeap() *Benutzer {
+    func escapeToHeap() *user {
         u := user{
-            Name: "Bill",
+            name:  "Bill",
             email: "bill@email.com",
         }
 
         return &u
     }
+
 
 Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
 Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den

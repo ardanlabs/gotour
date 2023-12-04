@@ -40,19 +40,19 @@ Es ist für alle Go-Programmierer sehr vorteilhaft, zu lernen, wie Slices funkti
 
 Die Konstruktion eines Slice kann auf verschiedene Weise erfolgen.
 
-    // String-Scheibe, die auf ihren Nullwertstatus gesetzt wird.
+    // Slice of string set to its zero value state.
     var slice []string
 
-    // Scheibe der Zeichenkette, die auf ihren leeren Zustand gesetzt wird.
+    // Slice of string set to its empty state.
     slice := []string{}
 
-    // String-Scheibe mit einer Länge und Kapazität von 5.
+    // Slice of string set with a length and capacity of 5.
     slice := make([]string, 5)
 
-    // String-Scheibe mit einer Länge von 5 und einer Kapazität von 8.
+    // Slice of string set with a length of 5 and capacity of 8.
     slice := make([]string, 5, 8)
 
-    // Slice of string set mit Werten mit einer Länge und Kapazität von 5.
+    // Slice of string set with values with a length and capacity of 5.
     slice := []string{"A", "B", "C", "D", "E"}
 
 Ihr könnt sehen, dass die eingebaute Funktion make mir erlaubt, sowohl die Länge als auch die
@@ -68,11 +68,11 @@ die ab dieser Zeigerposition im Backing-Array vorhanden sind.
 Wegen des syntaktischen Zuckers sehen Slices wie ein Array aus und fühlen sich auch so an.
 
     slice := make([]string, 5)
-    slice[0] = "Apfel"
+    slice[0] = "Apple"
     slice[1] = "Orange"
-    slice[2] = "Banane"
-    slice[3] = "Weintraube"
-    slice[4] = "Pflaume"
+    slice[2] = "Banana"
+    slice[3] = "Grape"
+    slice[4] = "Plum"
 
 Ihr könnt den Unterschied zwischen Slice- und Array-Konstruktion erkennen, da ein Array
 zur Kompilierungszeit eine bekannte Größe hat, während dies bei Slices nicht unbedingt der Fall ist.
@@ -80,7 +80,7 @@ zur Kompilierungszeit eine bekannte Größe hat, während dies bei Slices nicht 
 Wenn wir versuchen, auf ein Element zuzugreifen, das die Länge des Slice überschreitet, erhalten wir einen Laufzeitfehler.
 
     slice := make([]string, 5)
-    slice[5] = "Himbeere"
+    slice[5] = "Raspberry"
 
 Compiler-Fehler:
 
@@ -96,7 +96,7 @@ um die Daten in meinem Programm zu bewegen. Dazu gehört auch die Deklaration vo
 
     func Foo(data []byte) []byte
 
-    Typ Foo struct {
+    type Foo struct {
         X []int
         Y []string
         Z []bool
@@ -116,11 +116,11 @@ dynamisch und effizient mit der Datenmenge umzugehen, die ihr zur Laufzeit und b
 
     func main() {
         slice := make([]string, 5, 8)
-        slice[0] = "Apfel"
+        slice[0] = "Apple"
         slice[1] = "Orange"
-        slice[2] = "Banane"
-        slice[3] = "Weintraube"
-        slice[4] = "Pflaume"
+        slice[2] = "Banana"
+        slice[3] = "Grape"
+        slice[4] = "Plum"
 
         inspectSlice(slice)
     }
@@ -134,12 +134,12 @@ dynamisch und effizient mit der Datenmenge umzugehen, die ihr zur Laufzeit und b
 
 Ausgabe:
 
-    Länge[5] Kapazität[8]
-    [0] 0xc00007e000 Apfel
+    Length[5] Capacity[8]
+    [0] 0xc00007e000 Apple
     [1] 0xc00007e010 Orange
-    [2] 0xc00007e020 Banane
-    [3] 0xc00007e030 Weintraube
-    [4] 0xc00007e040 Pflaume
+    [2] 0xc00007e020 Banana
+    [3] 0xc00007e030 Grape
+    [4] 0xc00007e040 Plum
 
 Die Funktion inspectSlice zeigt, dass ein Slice ein zusammenhängendes Backing Array hat
 mit einer vorhersehbaren Schrittweite hat. Sie zeigt auch, dass ein Slice eine Länge und Kapazität hat
@@ -221,7 +221,7 @@ Mit dieser Inspektionsfunktion.
 
     func inspectSlice(slice []string) {
         fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
-        for i, s := Bereich slice {
+        for i, s := range slice {
             fmt.Printf("[%d] %p %s\n",
                 i,
                 &slice[i],
@@ -238,15 +238,15 @@ Ihr könnt dies in Aktion sehen.
 
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00007e000 A
     [1] 0xc00007e010 B
     [2] 0xc00007e020 C
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
-    Länge[2] Kapazität[3]
-    [0] 0xc00007e020 C <-- SAME AS INDEX 2 IN SLICE 1
-    [1] 0xc00007e030 D <-- WIE INDEX 3 IN SLICE 1
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 C     <-- SAME AS INDEX 2 IN SLICE 1
+    [1] 0xc00007e030 D     <-- SAME AS INDEX 3 IN SLICE 1
 
 Beachtet, dass sich die beiden verschiedenen Slices dasselbe Backing-Array teilen. Ihr könnt
 dies durch einen Vergleich der Adressen erkennen.
@@ -263,20 +263,20 @@ der Länge des Slice ist), wird die Änderung angezeigt.
 
     slice1 := []string{"A", "B", "C", "D", "E"}
     slice2 := slice1[2:4]
-    slice2[0] = "GEÄNDERT"
+    slice2[0] = "CHANGED"
     inspectSlice(slice1)
     inspectSlice(slice2)
 
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00007e000 A
     [1] 0xc00007e010 B
-    [2] 0xc00007e020 GEÄNDERT
+    [2] 0xc00007e020 CHANGED
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
-    Länge[2] Kapazität[3]
-    [0] 0xc00007e020 GEÄNDERT
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 CHANGED
     [1] 0xc00007e030 D
 
 Wenn wir einen Wert an einer Indexposition ändern, müssen wir immer darauf achten, ob 
@@ -294,16 +294,16 @@ Was ist, wenn wir stattdessen die integrierte Funktion append verwenden?
 
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00007e000 A
     [1] 0xc00007e010 B
     [2] 0xc00007e020 C
     [3] 0xc00007e030 D
-    [4] 0xc00007e040 GEÄNDERT
-    Länge[3] Kapazität[3]
+    [4] 0xc00007e040 CHANGED
+    Length[3] Capacity[3]
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
-    [2] 0xc00007e040 GEÄNDERT
+    [2] 0xc00007e040 CHANGED
 
 Die Funktion "Anhängen" hat denselben Nebeneffekt, der jedoch nicht sichtbar ist. In diesem Fall,
 hat das Einbringen von mehr Länge aus der Kapazität für slice2 dazu geführt, dass der Wert an Adresse
@@ -322,13 +322,13 @@ slice2 zu verwenden, so dass die Länge und Kapazität mit 2 gleich ist.
 
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00007e000 A
     [1] 0xc00007e010 B
     [2] 0xc00007e020 C
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
-    Länge[2] Kapazität[2]
+    Length[2] Capacity[2]
     [0] 0xc00007e020 C
     [1] 0xc00007e030 D
 
@@ -346,16 +346,16 @@ Nun Verwendet wieder die eingebaute Funktion append wie zuvor.
 
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00007e000 A
     [1] 0xc00007e010 B
     [2] 0xc00007e020 C
     [3] 0xc00007e030 D
     [4] 0xc00007e040 E
-    Länge[3] Kapazität[4]
+    Length[3] Capacity[4]
     [0] 0xc000016080 C
     [1] 0xc000016090 D
-    [2] 0xc0000160a0 GEÄNDERT
+    [2] 0xc0000160a0 CHANGED
 
 Beachtet, dass slice2 nach dem Aufruf von append ein neues Backing-Array hat.
 
@@ -377,15 +377,16 @@ kann sie als Quelle verwendet werden, aber niemals als Ziel.
     inspectSlice(slice1)
     inspectSlice(slice3)
 
+
 Ausgabe:
 
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00005c050 A
     [1] 0xc00005c060 B
     [2] 0xc00005c070 C
     [3] 0xc00005c080 D
     [4] 0xc00005c090 E
-    Länge[5] Kapazität[5]
+    Length[5] Capacity[5]
     [0] 0xc00005c0a0 A
     [1] 0xc00005c0b0 B
     [2] 0xc00005c0c0 C
@@ -402,20 +403,20 @@ im Programm bewegen, wird beim Lesen und Schreiben eines Slice die Zeigersemanti
 Die gemeinsame Nutzung einzelner Elemente eines Slice in verschiedenen Teilen meines Programms kann
 unerwünschte Nebeneffekte verursachen.
 
-    // Konstruiert  ein Slice von 1 Benutzer, setzt einen Zeiger auf diesen Benutzer,
-    // benutze den Zeiger, um Likes zu aktualisieren.
+    // Construct a slice of 1 user, set a pointer to that user,
+    // use the pointer to update likes.
 
-    Benutzer := make([]Benutzer, 1)
-    ptrUsr0 := &Benutzer[0]
+    users := make([]user, 1)
+    ptrUsr0 := &users[0]
     ptrUsr0.likes++
 
     for i := range users {
-        fmt.Printf("Benutzer: %d Likes: %d\n", i, users[i].likes)
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
 Ausgabe:
 
-    Benutzer: 0 Likes: 1
+    User: 0 Likes: 1
 
 Ein Slice wird verwendet, um eine Sammlung von Benutzern zu verwalten. Dann wird ein Zeiger auf den ersten
 ersten Benutzer gesetzt und zur Aktualisierung der Likes verwendet. Die Ausgabe zeigt, dass die Verwendung des Zeigers
@@ -426,20 +427,20 @@ funktioniert.
 Dann wird ein neuer Benutzer an die Sammlung angehängt und der Zeiger wird erneut verwendet, um
 um dem ersten Benutzer ein Like hinzuzufügen.
 
-    // Hängt einen neuen Benutzer an die Sammlung an. Verwendet den Zeiger erneut
-    // um Likes zu aktualisieren.
+    // Append a new user to the collection. Use the pointer again
+    // to update likes.
 
     users = append(users, user{})
     ptrUsr0.likes++
 
     for i := range users {
-        fmt.Printf("Benutzer: %d Likes: %d\n", i, users[i].likes)
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
     }
 
 Ausgabe:
 
-    Benutzer: 0 Likes: 1
-    Benutzer: 1 Gefällt mir: 0
+    User: 0 Likes: 1
+    User: 1 Likes: 0
 
 Da jedoch die Append-Funktion das Backing-Array durch ein neues ersetzt hat,
 aktualisiert der Zeiger das alte Backing-Array und die entsprechenden Daten gehen verloren. Die Ausgabe

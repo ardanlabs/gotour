@@ -115,7 +115,7 @@ die Umgebungsvariable oder diesen Aufruf verwenden, um die Dinge abzugleichen.
         wg.Add(2)
 
         go func() {
-            Kleinbuchstaben()
+            lowercase()
             wg.Done()
         }()
 
@@ -124,10 +124,10 @@ die Umgebungsvariable oder diesen Aufruf verwenden, um die Dinge abzugleichen.
             wg.Done()
         }()
 
-        fmt.Println("Warten auf Abschluss")
+        fmt.Println("Waiting To Finish")
         wg.Wait()
 
-        fmt.Println("\nProgrammabbruch")
+        fmt.Println("\nTerminating Program")
     }
 
 Dieses Programm muss ein Orchestrierungsproblem lösen. Die Haupt-Goroutine kann nicht zulassen, dass
@@ -152,7 +152,7 @@ In der Mitte des Programms steht die Erstellung der beiden Goroutines.
         . . .
 
         go func() {
-            Kleinbuchstaben()
+            lowercase()
             wg.Done()
         }()
 
@@ -163,7 +163,6 @@ In der Mitte des Programms steht die Erstellung der beiden Goroutines.
 
         . . .
     }
-
 Literalfunktionen werden mit dem Schlüsselwort go deklariert und ausgeführt. Unter anderem
 weisen ihr den Go-Scheduler an, diese Funktionen gleichzeitig auszuführen.
 Ihr sollt in einer undefinierten Reihenfolge ausgeführt werden. Innerhalb der Implementierung jeder Goroutine
@@ -177,7 +176,7 @@ Programm beendet werden kann.
         wg.Add(2)
 
         go func() {
-            Kleinbuchstaben()
+            lowercase()
             wg.Done()
         }()
 
@@ -190,10 +189,10 @@ wo die Aufrufe verloren gehen. Dies wird dazu beitragen, Fehler zu vermeiden.
 
     Ausgabe:
 
-    Goroutines starten
-    Warten auf das Ende
+    Start Goroutines
+    Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
-    Beendigung des Programms
+    Terminating Program
 
 Wenn dieses Programm erstellen und ausführen seht ihr, wie dieses Programm gleichzeitig läuft.
 Die zweite erstellte Goroutine wurde zuerst eingeplant. Sie musste ihre Arbeit beenden und
@@ -210,9 +209,9 @@ dass es wieder so ablaufen wird. Es ist zwar sehr wahrscheinlich, aber nicht gar
         . . .
 
         fmt.Println("Waiting To Finish")
-        // wg.Wait() <-- CHANGED
+        // wg.Wait()                           <-- CHANGED
 
-        fmt.Println("\nProgrammabbruch")
+        fmt.Println("\nTerminating Program")
     }
 
 Wenn ihr den Aufruf von Wait auskommentieren, was passiert dann, wenn ihr das Programm ausführt? 
@@ -229,11 +228,12 @@ eine der beiden Goroutines ausführen oder sich möglicherweise sofort beenden.
 
         go func() {
             lowercase()
-            // wg.Done() <-- CHANGED
+            // wg.Done()               <-- CHANGED
         }()
 
         . . .
     }
+
 
 Was passiert, wenn ihr vergessen solltet, Done in einer der Goroutines aufzurufen? In diesem Fall
 würde sich das Programm blockieren, da die WaitGroup nicht auf 0 zurückgehen kann. Der Aufruf von Wait
@@ -241,10 +241,10 @@ Aufruf wird für immer blockieren.
 
     Ausgabe:
 
-    Goroutines starten
-    Warten auf das Ende
+    Start Goroutines
+    Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
-    fataler Fehler: alle Goroutines sind eingeschlafen - Deadlock!
+    fatal error: all goroutines are asleep - deadlock!
 
     goroutine 1 [semacquire]:
     sync.runtime_Semacquire(0xc00001a0a8)
@@ -252,8 +252,8 @@ Aufruf wird für immer blockieren.
     sync.(*WaitGroup).Wait(0xc00001a0a0)
         /usr/local/go/src/sync/waitgroup.go:130 +0x65
     main.main()
-        Gleichzeitigkeit/Goroutines/example1/example1.go:42 +0x145
-    Exit-Status 2
+        concurrency/goroutines/example1/example1.go:42 +0x145
+    exit status 2
 
 Ihr könnt sehen, wie die Go-Laufzeitumgebung erkennt, dass das Programm in Zeile 42 blockiert ist, wo
 der Aufruf von Wait erfolgt. Ihr sollt euch nicht zu sehr über die Deadlock-Erkennung aufregen
@@ -262,7 +262,7 @@ Add- und Done-Aufrufe so wichtig sind.
 
     func main() {
         var wg sync.WaitGroup
-        wg.Add(1) <-- CHANGED, Anzahl zu klein
+        wg.Add(1)              <-- CHANGED, Number Too Small
 
         go func() {
             lowercase()
@@ -301,10 +301,10 @@ Kontextwechsel stattfinden wird, und dies ändert sich jedes Mal, wenn ihr das P
             wg.Done()
         }()
 
-        fmt.Println("Warten auf Abschluss")
+        fmt.Println("Waiting To Finish")
         wg.Wait()
 
-        fmt.Println("\nProgrammabbruch")
+        fmt.Println("\nTerminating Program")
     }
 
 Dieses Programm verwendet dasselbe Orchestrierungsmuster wie zuvor und lässt jede Goroutine
@@ -333,13 +333,13 @@ kontextabhängig zu sein.
     B
     A
     B
-    A 9 Kontext-Schalter
+    A  9 Context Switches
 
     $ ./example2 | cut -c1 | grep '[AB]' | uniq
     B
     A
     B
-    A 3 Kontext-Schalter
+    A  3 Context Switches
 
 Wie ihr sehen könnt, gibt es jedes Mal, wenn ihr das Programm ausführt, eine unterschiedliche Anzahl von
 Kontextwechsel. Das ist eine gute Sache, denn ein Scheduler sollte nicht vorhersehbar sein.
@@ -354,10 +354,10 @@ Was passiert, wenn ihr zum ursprünglichen Programm zurückkehrt, aber GOMAXPROC
 
     Ausgabe:
 
-    Goroutines starten
-    Warten auf das Ende
+    Start Goroutines
+    Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
-    Beendigung des Programms
+    Terminating Program
 
 Ihr seht, dass die Concurrency des Programms jetzt feinkörniger ist. Die Ausgabe
 der Characters ist undefiniert und nicht in Ordnung.
