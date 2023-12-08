@@ -1,0 +1,99 @@
+Comportamento como Restrição
+Cada tipo genérico requer uma restrição a ser declarada para que o compilador saiba quais substituições de tipos concretos ele pode aceitar ou rejeitar durante o tempo de compilação.
+
+* Generics - Comportamento como Restrição
+
+Cada tipo genérico requer uma restrição a ser declarada para que o compilador saiba quais
+substituições de tipos concretos ele pode aceitar ou rejeitar durante o tempo de compilação.
+Isso é necessário mesmo que não haja uma restrição real sobre o que o tipo genérico pode ser,
+daí o identificador de restrição pré-declarado `any`.
+
+** Vídeo
+
+Assista à palestra que dei sobre Generics, que apresenta todos os exemplos desta seção do Tour.
+
+.html generics-video.html
+
+** Revisão de Código
+
+- *Exemplo* *1*: Função `stringify` concreta
+- *Exemplo* *2*: Função `stringify` com assertiva de tipo
+- *Exemplo* *3*: Função `stringify` com interface
+- *Exemplo* *4*: Função `stringify` genérica
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Explicado
+
+Curiosamente, o conceito de uma restrição já existe na linguagem.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+O código define um tipo concreto chamado `User` e implementa um método chamado `String` que
+retorna o nome do usuário. Em seguida, é declarado um tipo de interface chamado `Stringer`,
+que declara um comportamento chamado `String`, que retorna uma `string`. Graças ao método declarado para `User`,
+é possível afirmar que o tipo concreto `User` implementa a interface `Stringer` usando semântica de valor.
+
+A função `Concrete` é exatamente isso, uma função que aceita dados concretos com base no que são.
+A função `Polymorphic` também é assim, uma função que aceita dados concretos com base no que eles podem fazer.
+Esta é a principal diferença entre uma função concreta e uma função polimórfica. Uma está limitada a um tipo de dado,
+enquanto a outra não está. No entanto, existe uma restrição quanto aos dados concretos que podem ser passados para a função polimórfica.
+
+A interface `Stringer` define essa restrição ao declarar um conjunto de comportamentos que os dados
+concretos devem ser capazes de exibir. Quando aplicado como o tipo de entrada, o compilador pode garantir
+que a restrição comportamental seja cumprida todas as vezes que a função for chamada.
+
+Existem funções genéricas que exigirão o mesmo tipo de restrição comportamental.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Aqui está a função genérica `stringify`. Ela aceita um `slice` de algum tipo T e retorna
+um `slice` de valores de `string` que contém uma versão em formato de `string` de cada valor da coleção
+de entrada. A chave para fazer essa função funcionar é a chamada do método `String` para cada valor do tipo T.
+
+O problema é que o compilador precisa saber e verificar se os valores do tipo T realmente
+possuem um método chamado `String`. Quando o tipo genérico T é declarado, a interface `fmt.Stringer` é
+fornecida como a restrição. O compilador agora sabe verificar qualquer substituição de tipo e dados
+sendo passados para a função quanto a esse conjunto de métodos de comportamento.
+
+Isso é excelente porque a interface está sendo usada novamente para o mesmo propósito, e a linguagem não precisa de uma nova palavra-chave.
+
+* Exercícios
+
+Use o template como ponto de partida para completar os exercícios. Uma solução possível é fornecida.
+
+** Exercício 1
+
+Implemente uma função genérica chamada `marshal` que possa serializar JSON, mas aceita apenas valores que implementem a interface `json.Marshaler`.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go

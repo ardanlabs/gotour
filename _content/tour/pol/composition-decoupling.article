@@ -1,0 +1,394 @@
+Rozprzęganie
+Kompozycja wykracza poza mechanikę osadzania typów i jest czymś więcej niż tylko paradygmatem.
+
+* Rozprzęganie
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Najlepszym sposobem wykorzystania rozprzęgania jest użycie wzorca projektowego opartego na kompozycji.
+To klucz do utrzymania stabilności oprogramowania, ponieważ umożliwia dostosowywanie się do zmian w
+danych i transformacjach, które nadchodzą.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Kompozycja struktury
+- *Przykład* *2:* Rozprzęganie za pomocą interfejsu
+- *Przykład* *3:* Kompozycja interfejsu
+- *Przykład* *4:* Rozprzęganie za pomocą kompozycji interfejsu
+- *Przykład* *5:* Usunięcie zanieczyszczenia interfejsu
+- *Przykład* *6:* Bardziej precyzyjne API
+
+.play composition/decoupling/example1.go
+.play composition/decoupling/example2.go
+.play composition/decoupling/example3.go
+.play composition/decoupling/example4.go
+.play composition/decoupling/example5.go
+.play composition/decoupling/example6.go
+
+** Mechaniki rozprzęgania
+
+Idea polega na komponowaniu większych typów z mniejszych typów i skupianiu się na kompozycji zachowań.
+
+    type Xenia struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Xenia) Pull(d *Data) error {
+        switch rand.Intn(10) {
+        case 1, 9:
+            return io.EOF
+        case 5:
+            return errors.New("Error reading data from Xenia")
+        default:
+            d.Line = "Data"
+            fmt.Println("In:", d.Line)
+            return nil
+        }
+    }
+
+Typ Xenia reprezentuje system, z którego potrzebujesz pobrać dane. Implementacja nie
+jest istotna. Istotne jest to, że metoda Pull może zakończyć się sukcesem,
+niepowodzeniem lub nie mieć żadnych danych do pobrania.
+
+    type Pillar struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Pillar) Store(d *Data) error {
+        fmt.Println("Out:", d.Line)
+        return nil
+    }
+
+
+Typ Pillar reprezentuje system, do którego musisz przechowywać dane. Ponownie istotne jest to,
+że metoda Store może zakończyć się sukcesem lub niepowodzeniem.
+
+Te dwa typy stanowią podstawową warstwę kodu, która zapewnia podstawowe zachowanie wymagane
+do rozwiązania problemu biznesowego polegającego na pobieraniu danych z Xenia i przechowywaniu ich w Pillar.
+
+    func Pull(x *Xenia, data []Data) (int, error) {
+        for i := range data {
+            if err := x.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(p *Pillar, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+Kolejna warstwa kodu jest reprezentowana przez te dwie funkcje: Pull i Store. Budują one na
+podstawowej warstwie kodu, akceptując kolekcję wartości danych do pobrania lub przechowania w
+odpowiednich systemach. Te funkcje skupiają się na konkretnych typach Xenia i Pillar,
+ponieważ to właśnie te systemy program musi obecnie obsłużyć.
+
+    func Copy(sys *System, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(&sys.Xenia, data)
+            if i > 0 {
+                if _, err := Store(&sys.Pillar, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+
+Funkcja Copy buduje na funkcjach Pull i Store, aby przenieść wszystkie dane oczekujące
+na każdym przebiegu. Jeśli zauważysz pierwszy parametr funkcji Copy, jest to typ o nazwie System.
+
+    type System struct {
+        Xenia
+        Pillar
+    }
+
+Początkowy pomysł dotyczy komponowania systemu, który potrafi wydobywać i przechowywać dane.
+W tym przypadku łączenie zdolności do pobierania i przechowywania danych z Xenia i Pillar.
+
+    func main() {
+        sys := System{
+            Xenia: Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Pillar: Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Na koniec, funkcję główną można napisać tak, aby tworzyła Xenia i Pillar w ramach
+kompozycji Systemu. Następnie System można przekazać do funkcji Copy, a dane
+mogą zacząć przepływać między tymi dwoma systemami.
+
+Dzięki całemu temu kodowi, masz teraz pierwszy szkic konkretne rozwiązania konkretnego problemu.
+
+** Rozprzęganie z interfejsami
+
+Następnym krokiem jest zrozumienie, co może się zmienić w programie. W tym przypadku to,
+co może ulec zmianie, to same systemy. Dziś są to Xenia i Pillar, jutro mogą być to
+Alice i Bob. Mając tę wiedzę, chcesz odłączyć istniejące rozwiązanie konkretnego przypadku
+od tej zmiany. Aby to zrobić, chcesz, aby istniejące konkretne funkcje stały się funkcjami
+polimorficznymi.
+
+    func Pull(p Puller, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(s Storer, data []Data) (int, error) {
+        for i := range data {
+            if err := s.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+Obecnie funkcja Pull przyjmuje wartość Xenia, a funkcja Store przyjmuje
+wartość Pillar. Ale ostatecznie nie chodzi o Xenia i Pillar; ważne są
+konkretne wartości, które potrafią wykonywać operacje Pull i Store. Możesz
+zmienić te konkretne funkcje na funkcje polimorficzne, wymagając danych na
+podstawie ich zdolności, a nie ich tożsamości.
+
+    type Puller interface {
+        Pull(d *Data) error
+    }
+
+    type Storer interface {
+        Store(d *Data) error
+    }
+
+Te dwa interfejsy opisują, co konkretne dane muszą robić, i to na tych
+typach następuje zamiana w deklaracji funkcji Pull i Store. Teraz te
+funkcje są polimorficzne. Gdy Alice i Bob zostaną zadeklarowani i
+zaimplementowani jako Puller i Storer, mogą być przekazywani do tych funkcji.
+
+Nie skończyłeś jeszcze. Funkcja Copy musi być również polimorficzna.
+
+    func Copy(ps PullStorer, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(ps, data)
+            if i > 0 {
+                if _, err := Store(ps, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+Funkcja Copy nie pyta już o wartość System, ale o dowolną konkretną wartość, która potrafi zarówno Pull, jak i Store.
+
+    type PullStorer interface {
+        Puller
+        Storer
+    }
+
+Interfejs PullStorer jest deklarowany poprzez użycie kompozycji. Składa się on z interfejsów
+Puller i Storer. Pracuj nad komponowaniem większych interfejsów z mniejszych.
+
+Zauważ, jak zmienna PullStorer jest teraz przekazywana do funkcji Pull i Store.
+Jak to jest możliwe, skoro informacje o typie są różne?
+
+    // func Pull(p Puller, data []Data) (int, error) {
+    i, err := Pull(ps, data)
+
+    // func Store(s Storer, data []Data) (int, error) {
+    if _, err := Store(ps, data[:i]); err != nil {
+
+Musisz zawsze pamiętać, że nigdy nie przekazujesz samej wartości interfejsu w moim programie,
+ponieważ interfejsy same w sobie nie istnieją i są pozbawione wartości. Przekazujesz
+jedynie konkretne dane. Dlatego konkretne dane przechowywane w zmiennej interfejsu ps
+są przekazywane do funkcji Pull i Store. Czyż nie jest prawdą, że konkretne wartości
+przechowywane w ps muszą umieć wykonywać operacje Pull i Store?
+
+.image /tour/eng/static/img/comp1.png
+
+Ponieważ System jest złożony z Xenia i Pillar, System implementuje interfejs PullStorer.
+Dzięki tym zmianom, możesz teraz tworzyć nowe konkretne typy implementujące interfejs PullStorer.
+
+    type System1 struct {
+        Xenia
+        Pillar
+    }
+
+    type System2 struct {
+        Alice
+        Bob
+    }
+
+    type System3 struct {
+        Xenia
+        Bob
+    }
+
+    type System4 struct {
+        Alice
+        Pillar
+    }
+
+Co więcej, gdy dłużej nad tym rozmyślasz, deklaracja różnych typów Systemu dla
+wszystkich możliwych kombinacji nie jest realistyczna. To działa, ale
+koszmar związany z utrzymaniem wymaga lepszego rozwiązania.
+
+** Kompozycja interfejsu
+
+A co, jeśli zdecydowałeś się skomponować mój konkretny typ systemu z dwóch typów interfejsów?
+
+    type System struct {
+        Puller
+        Storer
+    }
+
+To jest interesujące rozwiązanie. Pozwala to na wstrzykiwanie konkretnego Pullera lub
+Storera do systemu podczas uruchamiania aplikacji.
+
+    func main() {
+        sys := System{
+            Puller: &Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Storer: &Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Ten pojedynczy typ systemu implementuje interfejs PullStorer dla wszystkich
+możliwych kombinacji konkretnych typów.
+
+.image /tour/eng/static/img/comp2.png
+
+Z tą zmianą aplikacja jest w pełni odłączona od zmian w nowym systemie, który może
+pojawić się w przyszłości.
+
+** Precyzyjna recenzja
+
+Następne pytanie, które trzeba zadać, to czy polimorficzne funkcje są tak precyzyjne,
+jak mogłyby być w przeciwnym razie? To jest część procesu inżynieryjnego, której nie
+można pominąć. Odpowiedź to nie, można dokonać dwóch zmian.
+
+    func Copy(sys *System, batch int) error {
+
+Funkcja Copy nie musi już być polimorficzna, ponieważ istnieje tylko jeden typ System.
+Typ interfejsu PullStorer można usunąć z programu. Pamiętaj, że wprowadziłeś polimorfizm
+do typu, gdy użyłeś kompozycji z typami interfejsów.
+
+    func Copy(p Puller, s Storer, batch int) error {
+
+To kolejna zmiana, którą można wprowadzić do funkcji Copy. Ta zmiana sprawia, że funkcja
+staje się bardziej precyzyjna i ponownie polimorficzna. Teraz funkcja prosi o dokładnie to,
+czego potrzebuje, w oparciu o to, co konkretny dane mogą zrobić.
+
+.image /tour/eng/static/img/comp3.png
+
+Dzięki tej zmianie typ System struct może również zostać usunięty z programu.
+
+    func main() {
+        x := Xenia{
+            Host:    "localhost:8000",
+            Timeout: time.Second,
+        }
+
+        p := Pillar{
+            Host:    "localhost:9000",
+            Timeout: time.Second,
+        }
+
+        if err := Copy(&x, &p, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Usunięcie typów PullStorer i System upraszcza program. Główna funkcja może skupić się na
+konstrukcji konkretnych wartości Puller i Storer niezbędnych do przenoszenia danych. System
+typu i API są bardziej precyzyjne. Ten pomysł na precyzję pochodzi od Edsgara W. Dijkstry:
+
+"Celem abstrakcji nie jest bycie niejasnym, ale stworzenie nowego poziomu semantycznego,
+w którym można być absolutnie precyzyjnym." - Edsger W. Dijkstra
+
+** Notatki
+
+- Chodzi o coś więcej niż tylko mechanikę osadzania typów.
+- Deklaruj typy i implementuj workflowy z myślą o kompozycji.
+- Najpierw zrozum problem, który próbujesz rozwiązać. Oznacza to zrozumienie danych.
+- Celem jest zredukowanie i minimalizacja kaskadowych zmian w twoim oprogramowaniu.
+- Interfejsy dostarczają najwyższego poziomu kompozycji.
+- Nie grupuj typów na podstawie wspólnego DNA, a na podstawie wspólnego zachowania.
+- Wszyscy mogą współpracować, gdy skupiamy się na tym, co robimy, a nie na tym, kim jesteśmy.
+
+** Cytaty
+
+"Dobrze zaprojektowane API nie jest tylko łatwe do użycia, ale też trudne do źle wykorzystania." - JBD
+
+"Zawsze można osadzać, ale nie można rozkładać duże interfejsy, gdy już są dostępne. Trzymaj interfejsy małe." - JBD
+
+"Nie projektuj z interfejsami, odkrywaj je." - Rob Pike
+
+"Powielanie jest o wiele tańsze niż złe abstrakcje." - Sandi Metz
+
+** Wytyczne projektowania
+
+Dowiedz się więcej [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][wytyczne do projektowania]] dla kompozycji.
+
+** Dodatkowe materiały
+
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
+- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Korzystając z szablonu, zadeklaruj zestaw konkretnych typów, które implementują zestaw wcześniej zdefiniowanych
+typów interfejsów. Następnie stwórz wartości tych typów i użyj ich do wykonania zestawu wcześniej zdefiniowanych zadań.
+
+.play composition/decoupling/exercise1.go
+.play composition/decoupling/answer1.go

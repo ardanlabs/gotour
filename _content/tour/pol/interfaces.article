@@ -1,0 +1,393 @@
+Interfejsy
+Interfejsy nadają strukturę programom i zachęcają do projektowania przez kompozycję.
+
+* Interfejsy
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Interfejsy nadają programom strukturę i zachęcają do projektowania poprzez kompozycję. Pozwalają i narzucają
+czyste podziały między komponentami. Standaryzacja interfejsów może ustawić jasne i spójne oczekiwania.
+Dekouplowanie oznacza ograniczenie zależności między komponentami a typami, które używają.To prowadzi
+do poprawności, jakości i łatwości utrzymania.
+
+** Przegląd kodu
+
+- *Example* *1:* Powtarzający się kod, który wymaga polimorfizmu
+- *Example* *2:* Polimorfizm
+- *Example* *3:* Zbiory metod (Method Sets)
+- *Example* *4:* Adres wartości
+- *Example* *5:* Przechowywanie przez wartość
+- *Example* *6:* Asercja Typu
+- *Example* *7:* Warunkowe asercja typu
+- *Example* *8:* Pusty interfejs i przełączniki typów
+- *Example* *9:* Przechowywanie wartości
+
+.play interfaces/example1.go
+.play interfaces/example2.go
+.play interfaces/example3.go
+.play interfaces/example4.go
+.play interfaces/example5.go
+.play interfaces/example6.go
+.play interfaces/example7.go
+.play interfaces/example8.go
+.play interfaces/example9.go
+
+** Semantyka interfejsu
+
+Interfejsy pozwalają na grupowanie konkretnych danych na podstawie tego, co te dane potrafią robić.
+Chodzi o skoncentrowanie się na tym, co dane mogą robić, a nie na tym, czym dane są. Interfejsy
+pomagają również odłączyć mój kod od zmian, prosząc o konkretne dane bazując na tym co mogą robić.
+Nie są ograniczone do jednego rodzaju danych.
+
+Musisz dołożyć wszelkich starań, aby zrozumieć, jakie zmiany w danych nadchodzą i używać interfejsów tak
+aby odłączyć swój program od tych zmian. Interfejsy powinny opisywać zachowanie, a nie stan.
+Powinny być czasownikami, a nie rzeczownikami.
+
+Najlepiej sprawdzają się ogólnikowe interfejsy skupiające się na zachowaniu. Interfejsy z więcej
+niż jedną metodą mają więcej niż jeden powód do zmiany. Interfejsy oparte na rzeczownikach są
+zazwyczaj mniej wielokrotnego użytku, bardziej podatne na zmiany i nie służą celowi interfejsu.
+Niepewność co do zmian nie jest licencją na zgadywanie, ale dyrektywą do ZATRZYMANIA SIĘ i nauki.
+Musisz odróżniać kod, który chroni przed oszustwem, od kodu, który chroni przed wypadkami.
+
+Używaj interfejsu, gdy:
+
+- Użytkownicy interfejsu API muszą dostarczyć szczegóły implementacji.
+- API ma wiele wewnętrznych implementacji, które muszą być utrzymywane.
+- Zidentyfikowano części interfejsu API, które mogą ulec zmianie i wymagają odłączenia.
+
+Nie używaj interfejsu, gdy:
+    
+- Dla używania interfejsu.
+- Dla uogólnienia algorytmu.
+- Kiedy użytkownicy mogą deklarować własne interfejsy.
+- Jeśli nie jest jasne, w jaki sposób interfejs poprawia kod.
+
+** Interfejcy nie reprezentują wartości
+
+Pierwszą istotną rzeczą do zrozumienia jest to, że typ interfejsu deklaruje typ bez wartości.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+Typ reader nie jest typem struktury (struct), ale typem interfejsu. Jego deklaracja nie opiera się
+na stanie, ale na zachowaniu. Typy interfejsów deklarują zestaw metod zachowania, które konkretne
+dane muszą wykazywać, aby zaspokoić interfejs. Nie ma niczego konkretnego w typach interfejsów,
+dlatego są one bezwartościowe.
+
+    var r reader
+
+Ponieważ są bezwartościowe, konstrukcja zmiennej (takiej jak r) jest dziwna, ponieważ w naszym modelu
+programowania r nie istnieje, jest bezwartościowe. Nie ma niczego, co można by manipulować ani przekształcać
+w r samym w sobie. To kluczowy koncept do zrozumienia. Nigdy nie pracuję z wartościami interfejsowymi,
+zawsze z konkretnymi wartościami. Interfejs ma reprezentację kompilatora (typ wewnętrzny), ale z
+naszego modelu programowania interfejsy są bezwartościowe.
+
+** Implementowanie interfejsów
+
+Go to język, który opiera się na konwencji nad konfiguracją. Również jeśli chodzi o implementację
+interfejsu przez konkretny typ.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type file struct {
+        name string
+    }
+
+    func (file) read(b []byte) (int, error) {
+        s := "<rss><channel><title>Going Go</title></channel></rss>"
+        copy(b, s)
+        return len(s), nil
+    }
+
+Kod deklaruje typ o nazwie file, a następnie deklaruje metodę o nazwie read.
+Ze względu na te dwie deklaracje można powiedzieć:
+
+"Konkretny typ file teraz implementuje interfejs reader za pomocą semantyki wartości (value semantics)."
+
+W Go wystarczy zadeklarować pełny zestaw metod zachowań zdefiniowanych przez interfejs,
+aby zaimplementować ten interfejs. W tym przypadku to właśnie zostało zrobione, ponieważ
+interfejs reader deklaruje tylko pojedyncze zachowanie o nazwie read.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type pipe struct {
+        name string
+    }
+
+    func (pipe) read(b []byte) (int, error) {
+        s := `{name: "Bill", title: "developer"}`
+        copy(b, s)
+        return len(s), nil
+    }
+
+Ten kod deklaruje typ o nazwie pipe, a następnie deklaruje metodę o nazwie read.
+Ze względu na te dwie deklaracje można powiedzieć następująco:
+
+"Konkretny typ pipe teraz implementuje interfejs reader za pomocą semantyki wartości (value semantics)."
+
+Teraz masz dwa konkretne typy, które implementują interfejs reader. Dwa konkretne typy, każdy z własną
+unikalną implementacją. Jeden typ czyta systemy plików, a drugi sieci.
+
+** Polimorfizm
+
+Polimorfizm oznacza, że fragment kodu zmienia swoje zachowanie w zależności od konkretnej danych,
+na których operuje. To zostało powiedziane przez Toma Kurtza, wynalazcę języka BASIC. To jest definicja,
+którą będziemy używać w dalszej części.
+
+    // retrieve może czytać każde urządzenie i przetwarzać dane.
+    func retrieve(r reader) error {
+        data := make([]byte, 100)
+
+        len, err := r.read(data)
+        if err != nil {
+            return err
+        }
+
+        fmt.Println(string(data[:len]))
+        return nil
+    }
+
+Spójrzmy na rodzaj danych, który ten funkcja akceptuje. Chce wartość typu reader.
+To niemożliwe, ponieważ reader to interfejs, a interfejsy są typami bezwartościowymi.
+Nie może prosić o wartość reader, ponieważ nie istnieją takie wartości.
+
+Jeśli funkcja nie prosi o wartość reader, to o co prosi? Prosi o jedyną rzecz,
+którą może prosić, czyli konkretne dane.
+
+Funkcja retrieve jest funkcją polimorficzną, ponieważ prosi o konkretne dane nie
+na podstawie tego, co te dane są (konkretny typ), ale na podstawie tego,
+co te dane potrafią robić (typ interfejsu).
+
+    f := file{"data.json"}
+    p := pipe{"cfg_service"}
+
+    retrieve(f)
+    retrieve(p)
+
+Możesz skonstruować dwie konkretne wartości, jedną typu file, a drugą typu pipe.
+Następnie możesz przekazać kopię każdej z tych wartości do funkcji polimorficznej.
+To dlatego, że każda z tych wartości implementuje pełen zestaw metod zachowań
+zdefiniowanych przez interfejs reader.
+
+Kiedy konkretna wartość typu file jest przekazywana do funkcji retrieve, ta wartość
+jest przechowywana wewnątrz wewnętrznego typu reprezentującego wartość interfejsu.
+
+.image /tour/eng/static/img/i1.png
+
+Drugi słowo wartości interfejsu wskazuje na przechowywaną wartość. W tym przypadku
+jest to kopia wartości file, ponieważ obowiązuje semantyka wartości. Pierwsze słowo
+wskazuje na specjalną strukturę danych zwana "iTable" (interfejsowa tabela).
+
+Tabela iTable pełni dwie funkcje:
+
+- Opisuje typ przechowywanej wartości. W moim przypadku jest to wartość pliku.
+- Udostępnia wskaźniki do funkcji zawierających konkretne implementacje zestawu metod dla przechowywanego typu wartości.
+
+Kiedy wywoływane jest wywołanie read na wartości interfejsu, przeprowadzane jest wyszukiwanie w
+tabeli iTable, aby znaleźć konkretne wykonanie metody read związane z typem. Następnie wywołanie
+metody jest wykonywane na wartości przechowywanej w drugim słowie.
+
+Można powiedzieć, że funkcja retrieve jest funkcją polimorficzną, ponieważ konkretne wartości,
+takie jak pipe, mogą być przekazywane do retrieve, a teraz wywołanie read na wartości interfejsu
+zmienia swoje zachowanie. Tym razem wywołanie read czyta sieć zamiast pliku.
+
+** Zasady ustawiania metod
+
+Implementacja interfejsu za pomocą semantyki wskaźnikowej nakłada pewne ograniczenia na zgodność interfejsu.
+
+    type notifier interface {
+        notify()
+    }
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(u)
+    }
+
+Interfejs notifier jest implementowany przez typ user za pomocą semantyki wskaźnikowej.
+Gdy semantyka wartości jest używana do dokonania polimorficznego wywołania, kompilator generuje następujący komunikat:
+
+    "nie można użyć u (typ user) jako typu notifier w argumencie dla sendNotification:
+    user nie implementuje notifier (metoda notify ma receiver wskaźnikowy)"
+
+Dzieje się tak, ponieważ w specyfikacji języka Go istnieją specjalne reguły dotyczące zestawów metod.
+Te reguły określają, jakie metody są dostępne dla wartości i wskaźników danego typu. Są one
+wprowadzone w celu zachowania najwyższego poziomu integralności w programie.
+
+Oto reguły określone w specyfikacji:
+
+- Dla dowolnej wartości typu T do zestawu metod tej wartości należą tylko te metody, które są zaimplementowane z odbiorcą wartościowym dla tego typu.
+- Dla dowolnego wskaźnika typu T do zestawu metod tego wskaźnika należą wszystkie metody zaimplementowane dla tego typu.
+
+Innymi słowy, pracując z adresem (wskaźnikiem), wszystkie zaimplementowane metody są dostępne i mogą być wywoływane.
+Pracując z wartością, do zestawu metod należą tylko te metody, które są zaimplementowane z receiverem wartościowym.
+
+W poprzedniej lekcji na temat metod byłeś w stanie wywoływać metodę na konkretnym kawałku danych, niezależnie od
+semantyki danych zadeklarowanej przez receivera. Dzieje się tak, ponieważ kompilator może dostosować się do wywołania.
+W tym przypadku wartość jest przechowywana wewnątrz interfejsu, i metody muszą istnieć. Nie można dokonać żadnych dostosowań.
+
+Pytanie teraz brzmi: Dlaczego metody zaimplementowane z odbiorcą wskaźnikowym nie mogą
+być dostępne dla wartości typu T? Jaki jest problem z integralnością?
+
+Jednym z powodów jest to, że nie można zagwarantować, że każda wartość typu T jest adresowalna.
+Jeśli wartość nie ma adresu, nie można jej udostępnić.
+
+    type duration int
+
+    func (d *duration) notify() {
+            fmt.Println("Sending Notification in", *d)
+    }
+
+    func main() {
+        duration(42).notify()
+    }
+
+Błąd kompilacji:
+
+    cannot call pointer method on duration(42) (nie można wywołać metody wskaźnikowej na duration(42))
+    cannot take the address of duration(42) (nie można wziąć adresu duration(42))
+
+
+W tym przykładzie wartość 42 jest stałą rodzaju int. Nawiasem mimo że ta wartość jest
+konwertowana na wartość typu duration, nie jest ona przechowywana w zmiennej. Oznacza to,
+że ta wartość nigdy nie znajduje się na stosie ani na stercie. Nie ma adresu. Stałe istnieją
+tylko podczas kompilacji.
+
+Drugi powód jest istotniejszy. Kompilator informuje cię, że nie możesz używać semantyki wartościowej,
+jeśli wybrałeś semantykę wskaźnikową. Innymi słowy, jesteś zmuszany do dzielenia wartości z interfejsem,
+ponieważ kopiowanie wartości, do której wskaźnik wskazuje, nie jest bezpieczne. Jeśli wybrałeś implementację
+metody z semantyką wskaźnikową, oznacza to, że wartość tego typu nie jest bezpieczna do kopiowania.
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(&u)
+    }
+
+Aby naprawić komunikat kompilatora, musisz używać semantyki wskaźnikowej w wywołaniu
+funkcji polimorficznej i udostępniać u. Rozwiązaniem nie jest zmiana metody na semantykę wartościową.
+
+** Wycinek (slice) interfejsów
+
+Kiedy deklarujesz wycinek typu interfejsowego, jesteś w stanie grupować różne konkretne wartości na podstawie tego,
+co potrafią robić. To dlatego Go nie potrzebuje koncepcji podtypów. Chodzi tu o wspólne zachowanie,
+a nie wspólny kod genetyczny.
+
+    type printer interface {
+        print()
+    }
+
+    type canon struct {
+        name string
+    }
+
+    func (c canon) print() {
+        fmt.Printf("Printer Name: %s\n", c.name)
+    }
+
+    type epson struct {
+        name string
+    }
+
+    func (e *epson) print() {
+        fmt.Printf("Printer Name: %s\n", e.name)
+    }
+
+    func main() {
+        c := canon{"PIXMA TR4520"}
+        e := epson{"WorkForce Pro WF-3720"}
+
+        printers := []printer{
+            c,
+            &e,
+        }
+        c.name = "PROGRAF PRO-1000"
+        e.name = "Home XP-4100"
+
+        for _, p := range printers {
+            p.print()
+        }
+    }
+
+Wynik:
+
+    Printer Name: PIXMA TR4520
+    Printer Name: Home XP-4100
+
+Kod pokazuje, jak wycinek typu interfejsowego printer pozwala na utworzenie kolekcji
+różnych konkretnych typów drukarek. Iteracja po kolekcji wykorzystuje polimorfizm,
+ponieważ wywołanie p.print zmienia swoje zachowanie w zależności od konkretnej wartości,
+na której działa kod.
+
+Przykład pokazuje również, jak wybór semantyki danych wpływa na zachowanie programu.
+Przy przechowywaniu danych przy użyciu semantyki wartościowej, zmiany w oryginalnej
+wartości nie są widoczne. Dzieje się tak, ponieważ w interfejsie przechowywana jest kopia.
+Gdy używana jest semantyka wskaźnikowa, widoczne są wszelkie zmiany w oryginalnej wartości.
+
+** Notatki
+
+- Zbiór metod dla wartości obejmuje tylko metody zaimplementowane z odbiorcą wartościowym.
+- Zbiór metod dla wskaźnika obejmuje metody zaimplementowane zarówno z odbiorcą wskaźnikowym, jak i wartościowym.
+- Metody deklarowane z odbiornikiem wskaźnikowym implementują interfejs tylko z użyciem wskaźników.
+- Metody deklarowane z odbiornikiem wartościowym implementują interfejs zarówno z użyciem wartości, jak i wskaźników.
+- Zasady dotyczące zbiorów metod mają zastosowanie do typów interfejsów.
+- Interfejsy są typami referencyjnymi, nie współdzielonymi z wskaźnikiem.
+- To właśnie w ten sposób tworzymy polimorficzne zachowanie w Go.
+
+** Cytaty
+
+"Polimorfizm oznacza, że piszesz pewien program, a zachowuje się on inaczej, w zależności od danych, na których operuje." - Tom Kurtz (twórca języka BASIC)
+
+"Pusty interfejs nie reprezentuje żadnych informacji." - Rob Pike
+
+"Projektowanie to sztuka organizowania kodu tak, aby działał on dzisiaj i mógł być zmieniany zawsze." - Sandi Metz
+
+"Prawidłowa abstrakcja odłącza kod, dzięki czemu każda zmiana nie rozchodzi się po całym kodzie źródłowym." - Ronna Steinburg
+
+** Dodatkowe materiały
+
+- [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]    
+- [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/interface-pollution/][Interface Pollution]] - JBD    
+- [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraction Considered Harmful]] - Tyler Treat    
+- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy    
+- [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum  
+- [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Engineering Innovation - Why Constraints Are Critical]] - André Eriksson (Musisz obejrzeć!)
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj interfejs o nazwie speaker z metodą o nazwie speak. Deklaracja struktury o nazwie english,
+która reprezentuje osobę mówiącą po angielsku oraz struktury o nazwie chinese dla osoby mówiącej po chińsku.
+Zaimplementuj interfejs speaker dla obu struktur przy użyciu odbiorcy wartości i podanie literalnych
+stringów "Hello World" oraz "你好世界". Zadeklaruj zmienną typu speaker i przypisz adres wartości typu english,
+a następnie wywołaj metodę. To samo wykonaj dla wartości typu `chinese".
+
+*Część* *B:* Dodaj nową funkcję o nazwie sayHello, która przyjmuje wartość typu speaker. Zaimplementuj tę funkcję tak,
+aby wywoływała metodę speak na wartości interfejsu. Następnie utwórz nowe wartości dla każdego typu i użyj tej funkcji.
+
+.play interfaces/exercise1.go
+.play interfaces/answer1.go

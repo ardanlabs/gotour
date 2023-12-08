@@ -1,0 +1,93 @@
+Mocking
+Uma vez que o compilador pode executar análise estática de código para determinar se um valor concreto implementa uma interface, o desenvolvedor que declarou o tipo concreto não precisa fornecer a interface também.
+
+* Mocking
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+A melhor maneira de se aproveitar a encorporação, é através do padrão de composição. 
+A ideia é compor tipos maiores a partir de tipos menores e focar na composição do comportamento.
+
+** Revisão de Código
+
+- *Exemplo* *1:* Mocking
+
+.play composition/mocking/example1.go
+
+** Propriedade da Interface
+
+Uma coisa que difere Go das outras linguagens é a ideia de convenção sobre configuração. 
+Isso realmente fica a mostra na maneira que Go lida com a conformidade de interfaces.
+Porque o compilador pode executar uma análise estática de código para determinar se um valor concreto
+implementa uma interface, o desenvolvedor declarando o tipo concreto não precisa fornecer a interface também.
+
+    package pubsub
+
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // IMPLEMENTAÇÃO FANTÁSTICA AQUI.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // IMPLEMENTAÇÃO FANTÁSTICA AQUI.
+        return nil
+    }
+
+Você acabou de implementar uma nova API que fornece uma implementação concreta para 
+publicação e assinatura (pub/sub). Não há interfaces sendo fornecidas porque essa API 
+não necessita de uma interface. Essa é a única implementação concreta.
+
+Mas e se o desenvolvedor da aplicação querendo usar essa nova API, necessita da interface 
+porque ele sente a necessidade de criar um `mock` dessa implementação durante os testes? 
+Em Go, esse desenvolvedor pode declarar a interface e o compilador pode identificar a conformidade.
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // AQUI VAI O `MOCK` QUE CHAMA A FUNÇÃO `PUBLISH`.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // AQUI VAI O `MOCK` QUE CHAMA A FUNÇÃO `SUBSCRIBE`.
+        return nil
+    }
+
+Esse código no pacote `main` esta declarando uma interface. Essa interface representa 
+a API que a aplicação está usando do pacote `pubsub`. O desenvolvedor implementou sua versão própria
+de um pubsub para testes. O ponto chave é que esse desenvolvedor não usa nenhuma implementação concreta diretamente,
+mas se desacopla através de sua interface própria.
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+Como exemplo, a função main constrói uma coleção que é inicializada com a implementação do `pubsub` 
+e a implementação do `mock`. A interface do `publisher` permite isso. Utilizamos um `for range loop` para mostrar como 
+o código da aplicação é abstraída de sua implementação concreta.

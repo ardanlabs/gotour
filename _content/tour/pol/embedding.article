@@ -1,0 +1,203 @@
+Osadzanie
+Osadzanie typów dostarcza ostatnią część udostępniania i ponownego wykorzystywania stanu i zachowań między typami.
+
+* Osadzanie
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Osadzanie typów dostarcza ostatnią część udostępniania i ponownego wykorzystywania
+stanu i zachowań między typami. Dzięki wykorzystaniu promocji wewnętrznych typów,
+pola i metody wewnętrznego typu mogą być bezpośrednio dostępne poprzez odniesienia
+do typu zewnętrznego.
+
+** Przegląd kodu
+
+- *Example* *1:* Deklarowanie pól
+- *Example* *2:* Osadzanie typów
+- *Example* *3:* Typy osadzone i interfejsy
+- *Example* *4:* Implementacje interfejsów typów zewnętrznych i wewnętrznych
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+** Mechanizmy osadzania
+
+Ten pierwszy przykład nie przedstawia osadzania, a jedynie deklarację dwóch typów struktury,
+które współpracują jako pole z jednego typu do drugiego.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        person user        // NIE osadzony
+        level  string
+    }
+
+To jest osadzanie.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        user               // Osadzanie z semantyką wartości
+        level  string
+    }
+
+Pole person jest usunięte, a pozostaje tylko nazwa typu. Można także osadzać typ,
+używając semantyki wskaźnika.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        *user              // Osadzanie z semantyką wskaźnika
+        level  string
+    }
+
+W tym przypadku osadzany jest wskaźnik do tego typu. W każdym przypadku dostęp do osadzonej
+wartości odbywa się poprzez użycie nazwy typu.
+
+Najlepszym sposobem myślenia o osadzaniu jest traktowanie typu użytkownika jako typu wewnętrznego,
+a admina jako typu zewnętrznego. To właśnie to relacja typu wewnętrznego/zewnętrznego jest magiczna,
+ponieważ dzięki osadzaniu wszystko związanego z typem wewnętrznym (zarówno pola, jak i metody)
+może być promowane do typu zewnętrznego.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    type admin struct {
+        *user              // Osadzanie z semantyką wskaźnika
+        level  string
+    }
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Outer type promotion
+    }
+
+Wynik:
+
+    Sending user email To john smith<john@yahoo.com>
+    Sending user email To john smith<john@yahoo.com>
+
+Kiedy dodasz metodę o nazwie "notify" dla typu "user" i napiszesz krótką funkcję "main",
+możesz zobaczyć, że wynik jest taki sam, czy wywołasz metodę "notify" bezpośrednio
+przez wskaźnik wewnętrzny, czy przez wartość typu zewnętrznego. Metoda "notify"
+zadeklarowana dla typu "user" jest dostępna bezpośrednio poprzez wartość typu "admin".
+
+Choć to wygląda jak dziedziczenie, musisz być ostrożny. Chodzi tu nie o ponowne
+użycie stanu, ale o promowanie zachowania.
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+Teraz dodajesz interfejs i funkcję polimorficzną, która przyjmuje dowolną konkretyną
+wartość implementującą pełny zestaw metod zachowania zdefiniowanych w interfejsie
+"notifier". Obejmuje to jedynie metodę o nazwie "notify".
+
+Dzięki osadzaniu i promowaniu, wartości typu "admin" teraz implementują interfejs "notifier".
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Wynik:
+
+    Sending user email To john smith<john@yahoo.com>
+
+Możesz przesyłać adres wartości "admin" do funkcji polimorficznej,
+ponieważ osadzanie promuje zachowanie "notify" do typu "admin".
+
+    type admin struct {
+        *user  // Pointer Semantic Embedding
+        level  string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+ Kiedy zewnętrzny typ implementuje metodę, która jest już zaimplementowana
+ przez wewnętrzny typ, promocja nie zachodzi.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Wynik:
+    
+    Sending admin email To john smith<john@yahoo.com>
+
+Możesz zauważyć, że metoda zewnętrznego typu jest teraz wykonywana.
+
+** Notatki
+
+- Osadzanie typów pozwala na współdzielenie stanu lub zachowania między typami.
+- Wewnętrzny typ nigdy nie traci swojej tożsamości.
+- To nie jest dziedziczenie.
+- Dzięki promocji, pola i metody wewnętrznego typu mogą być dostępne poprzez zewnętrzny typ.
+- Zewnętrzny typ może zastąpić zachowanie wewnętrznego typu.
+
+** Dodatkowe materiały
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+Edytuj kod z szablonu. Dodaj nowy typ CachingFeed, który osadza typ Feed i nadpisuje metodę Fetch.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go

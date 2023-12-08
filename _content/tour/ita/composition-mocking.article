@@ -1,0 +1,92 @@
+Mocking
+Poiché il compilatore può eseguire l'analisi statica del codice per determinare se un valore concreto implementa un'interfaccia, lo sviluppatore che dichiara un tipo concreto non ha bisogno di fornire anche le interfacce.
+
+* Mocking
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Il modo migliore di avvantaggiarsi dell'incorporamento è attraverso un modello di design compositivo.
+L'idea è di comporre tipi grandi da tipi piccoli e focalizzarsi sulla composizione del comportamento.
+
+** Revisione del codice
+
+- *Esempio* *1:* Mocking
+
+.play composition/mocking/example1.go
+
+** Proprietà dell'interfaccia
+
+Una cosa in cui differisce Go dagli altri linguaggi è l'idea di convention over configuration.
+Questo mostra davvero come Go gestisca la conformità della interfaccia.
+Poiché il compilatore può eseguire l'analisi statica del codice per determinare se un valore concreto implementa un'interfaccia,
+lo sviluppatore che dichiara un tipo concreto non ha bisogno di fornire anche le interfacce.
+
+    package pubsub
+
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+Devi solamente implementare una nuova API che fornisca una implementazione concreta per pubblicare e sottoscrivere.
+Non ci sono interfacce da fornire perchè questa API non ne ha bisogno.
+Questa è una singola implementazione.
+
+Cosa succede se lo sviluppatore desidera utilizzare questa nuova API necessita di un'interfaccia
+perché ha la necessità di avere un mock durante i test?
+In Go, quello sviluppatore può dichiarare l'interfaccia e il compilatore può identificarne la conformità.
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // ADD MY MOCK FOR THE PUBLISH CALL.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        return nil
+    }
+
+Questo codice nel package main dichiara una interfaccia. Questa interfaccia rappresenta la API
+che l'applicazione usa dal package pubsub. Lo sviluppatore ha implementato la sua implementazione pubsub per i test.
+La chiave qui è che lo sviluppatore non ha nessuna implementazione, ma la disaccoppia attraverso la sua interfaccia.
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+Per fornire un esempio, la funzione main costruisce una collezione che è inizializzata con l'implementazione pubsub e con quella mock.
+L'interfaccia publisher lo permette.
+Poi il loop for range è implementato per mostrare come il codice applicativo è astratto da qualsiasi implementazione concreta.

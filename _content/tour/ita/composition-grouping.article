@@ -1,0 +1,221 @@
+Raggruppamento con i tipi
+E' importante ricordare che in Go i concetti di sotto tipo e sotto classe non esistono e questi design pattern devono essere evitati.
+
+* Raggrupamento con i tipi
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+E' importante ricordare che in Go i concetti di sotto tipo e sotto classe
+non esistono e questi design pattern devono essere evitati.
+
+** Code Review
+
+- *Example* *1:* Raggruppamento per stato
+- *Example* *2:* Raggruppamento per comportamento
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Raggruppare differenti tipi di dato
+
+E' importante ricordare che in Go i concetti di sotto tipo e sotto classe
+non esistono e questi design pattern devono essere evitati.
+
+Il seguente è un anti-pattern che non devi seguire o implementare.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+Il tipo type è stato dichiarato come tipo base che prova a definire il dato che è comune a tutti gli animali.
+Inoltre tenti di fornire un comportamento comune anche a tutti gli animali.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+Molti animali hanno la capacità di parlare in un modo o in un altro. Comunque, provare
+ad applicare questo comportamento comune solo ad un animale non ha senso. A questo
+punto, Tu non hai idea di che suono questo animale produca, quindi scrivi UGH.
+
+    type Dog struct {
+        Animal
+        PackFactor int
+    }
+
+Adesso il problema vero inizia. Io tento di incorporare per fare di un cane tutto ciò che è un animale più altro.
+In superficie questo sembra funzionare. ma ci sono dei problemi.
+Con questo che è stato detto, il cane ha uno specifico modo di parlare.
+
+    func (d *Dog) Speak() {
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+Nella implementazione del metodo Speak, tu puoi cambiare UGH per Woof. Questo è specifico di come un cane parla.
+
+    type Cat struct {
+        Animal
+        ClimbFactor int
+    }
+
+Se io ho Dun og che rappresenta un Animal, poi tu devi avere un Cat.
+Usando l'incorporamento, un Cat è tutto ciò che è un animale più altro.
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+Nella implementazione del metodo Speak, tu puoi cambiare UGH per Meow. Questo
+è specifico di come un gatto parla.
+
+Tutto sembra anda bene e sembra che l'incorporamento fornisca la stessa
+funzionalità della ereditarietà in altri linguaggi. Poi provi ad andare avanti e
+raggruppare cani e gatti per il DNA comune di animali.
+
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+Quando provi a fare questo, il compilatore si lamenta che un Dog e un Cat non sono un Animal
+e questo è vero. Incorporare non è la stessa cosa della ereditarietà e questo è un pattern. Devo stare lontano da esso.
+Un Dog è un Dog, un Cat è un Cat, e un Animal è un Animal. I
+non posso passare Dog e Cat come se essi fossero Animals perchè non lo sono.
+
+Questo tipo di meccanica non è molto flessibile. Esso richiede configurazione dallo sviluppatore e a meno che non abbia accesso al codice,
+non puoi fare modifiche alla configurazione durante il tempo.
+
+Se questo non è il modo di costruire una collection di Dog e Cat, come possiamo farlo in Go ?
+Non è riguardo il raggruppare attraverso un comune DNA, è sul raggruppare attraverso comportamenti comuni.
+Il comportamento è la chiave.
+
+    type Speaker interface {
+        Speak()
+    }
+
+Se tu usi una interfaccia, allora puoi definire un metodo comune di comportamento che io voglio per raggruppare differenti tipi di dati.
+
+    speakers := []Speaker{
+        &Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+Nel nuovo codice, puoi adesso raggruppare insieme Dog e Cat insieme basandoti su un set di comportamento comune,
+che è il fatto che Dog e Cat possono parlare.
+
+Infatti, il tipo Animal è davvero una Interface Pollution del tipo perchè dichiarare un tipo solo per condividere un set di stati comuni
+è un code smell e dovrebbe essere evitato.
+
+    type Dog struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Cat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+In questo caso particolare, preferiresti vedere il tipo Animal rimosso e i campi
+copiati e incollati nei tipi Dog e Cat. In seguito avrai degli appunti su
+modelli migliori che eliminao che questi scenari si verifichino.
+
+Qui ci sono dei code smell del codice originale :
+
+- Il tipo Animal fornisce uno strato di astrazione di stato riusabile.
+- Il programma non ha mai bisogno di creare o utilizzare eclusivamente un valore di tipo Animal.
+- L'implementazione del metodo Speak per il tipo Animal è generalizzato.
+- Il metodo Speak per il tipo Animal non verrà mai chiamato.
+
+Line guida sulla dichiarazione dei tipi:
+
+- Dichiara tipi che rappresentano qualcosa di nuovo o unico.
+- Non creare alias solo per leggibilità.
+- Valida che il valore di qualsiasi tipo venga creato o usato da solo.
+- Incorpora tipi non perchè hai bisogno di uno stato, ma perchè hai bisogno di u ncomportamento.
+- Se non stai pensando al comportamento, tu stai bloccando te stesso in un design che non può crescere in futuro senza avere cambiamenti a cascata nel codice.
+- Domandati sui tipi che sono alias o astrazioni di un tipo esistente.
+- Domandati sui tipi il cui sono scopo è condividere un set di stati comuni.
+
+** Non progettare con interfacce
+
+Sfortunatamente, troppi sviluppatori tentano di risolvere problemi prima in modo astratto.
+Essi si focalizzano subito sulle interfacce e questo porta and una Interface Pollution. Come sviluppatore,
+tu esisti in due modalità: un programamtore e poi come un ingegnere.
+
+Quanto tu programmi, sei concentrato sull'avere un pezzo di codice funzionante. Provando a risolvere un problema e abbattendo muri.
+Provando che una idea iniziale funzioni. Questo è tutto quello di cui preoccuparti.
+Questa programmazione dovrebbe essere fatta in concreto e mai pronta per la produzione.
+
+Una volta che hai un prototipo del codice che risolve il problema, hai bisogno di cambiare in modalità ingegnere.
+Hai bisogno di concentrarti su come scrivere codice a livello micro per semantica dei dati e leggibilità, poi a livello macro
+per modelli mentali e manutenibilità. Hai inoltre bisogno di concentrarti sugli errori e sugli stati di errore.
+
+Questo funziona in un ciclo di refactoring. Refactoring per leggibilità, efficienza,
+astrazione, e per testabilità. Astrarre è solo uno dei pochi refactoring che necessitano di essere eseguiti.
+Questo funziona bene quando inizi con un pezzo di codice concreto e poi SCOPRI le interfacce che sono necessarie.
+Non applicare astrazioni a meno che non siano assolutamente necessarie.
+
+Qualsiasi problema che risolvi con il codice è un problema di dati che richiede di scivere trasformazioni di dati.
+Se tu non capisci i dati, tu non capisci il problema. Se tu non capisci il problema,
+tu non puoi scrivere alcun codice. Partire con una soluzione concreta che è basata su una struttura dati concreta è critico.
+
+Come dice Rob Pike ,
+
+"I dati dominano. Se tu hai scelto la giusta struttura dati e organizzato le cose bene,
+l'algoritmo si evidenzierà sempre". - Rob Pike
+
+Quando l'astrazione è necessaria ? Quando vedi un posto nel codice dove il dato può cambiare e vuoi minimizzare
+i cambiamenti a cascata che ne risulterebbero. Io posso usare l'astrazione per rendere il codice testabile,
+ma tu devi provare ad evitarlo se è possibile.
+Le migliori funzioni testabili sono funzioni che prendono dati grezzi e restituiscono dati grezzi.
+Non importa da dove i dati arrivano e dove vanno.
+
+Alla fine, inizia con una soluzine concreta a qualsiasi problema. Anche se la maggior parte è solo programmazione.
+Poi scopri le interfacce che sono assolutamente richieste per il codice di oggi.
+
+"Non progettare con le interfacce, scoprile". - Rob Pike

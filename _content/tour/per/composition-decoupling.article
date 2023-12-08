@@ -1,0 +1,349 @@
+جداسازی (Decoupling)
+ترکیب به‌علاوه مکانیک جاسازی نوع را فراتر از مکانیک جاسازی نوع می‌برد و بیش از یک پارادایم است.
+
+* جداسازی (Decoupling)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+روش بهتر برای بهره‌برداری از جاسازی نوع از طریق الگوی طراحی ترکیبی است. این کلید برای حفظ پایداری در نرم‌افزار شما است، با داشتن قابلیت سازگاری با تغییرات داده و تبدیلاتی که در پیش رو هستند.
+
+** بررسی کد
+
+- *مثال* *1:* ترکیب ساختار
+- *مثال* *2:* جداسازی با اینترفیس
+- *مثال* *3:* ترکیب اینترفیس
+- *مثال* *4:* جداسازی با ترکیب اینترفیس
+- *مثال* *5:* حذف آلودگی اینترفیس
+- *مثال* *6:* دقیق‌تر API
+
+.play composition/decoupling/example1.go
+.play composition/decoupling/example2.go
+.play composition/decoupling/example3.go
+.play composition/decoupling/example4.go
+.play composition/decoupling/example5.go
+.play composition/decoupling/example6.go
+
+**مکانیک‌های جداسازی
+
+ایده این است که از نوع‌های کوچک‌تر تا نوع‌های بزرگتر ترکیب شود و بر روی ترکیب رفتار متمرکز شود.
+
+    type Xenia struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Xenia) Pull(d *Data) error {
+        switch rand.Intn(10) {
+        case 1, 9:
+            return io.EOF
+        case 5:
+            return errors.New("Error reading data from Xenia")
+        default:
+            d.Line = "Data"
+            fmt.Println("In:", d.Line)
+            return nil
+        }
+    }
+
+نوع Xenia یک سیستم را نمایش می‌دهد که نیاز است داده‌ها را از آن بخوانید. پیاده‌سازی مهم نیست. آنچه مهم است این است که متد Pull ممکن است موفق، ناموفق یا هیچ داده‌ای برای خواندن نداشته باشد.
+
+    type Pillar struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Pillar) Store(d *Data) error {
+        fmt.Println("Out:", d.Line)
+        return nil
+    }
+
+نوع Pillar یک سیستم را نمایش می‌دهد که نیاز است داده‌ها را در آن ذخیره کنید. مهمترین نکته در اینجا این است که متد Store ممکن است موفق یا ناموفق باشد.
+
+این دو نوع نشان دهنده یک لایه ابتدایی از کد هستند که رفتار پایه مورد نیاز برای حل مشکلات تجاری خواندن داده‌ها از Xenia و ذخیره آن‌ها در Pillar را فراهم می‌کنند.
+
+    func Pull(x *Xenia, data []Data) (int, error) {
+        for i := range data {
+            if err := x.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(p *Pillar, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+لایه بعدی از کد توسط این دو تابع، Pull و Store، نمایش داده می‌شود. آن‌ها بر روی لایه ابتدایی کد ساخته می‌شوند با دریافت یک مجموعه از مقادیر داده برای خواندن یا ذخیره کردن در سیستم‌های مربوطه. این توابع بر روی انواع مشخص Xenia و Pillar تمرکز می‌کنند زیرا این سیستم‌ها همان سیستم‌هایی هستند که برنامه در حال حاضر نیاز دارد با آن‌ها کار کند.
+
+    func Copy(sys *System, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(&sys.Xenia, data)
+            if i > 0 {
+                if _, err := Store(&sys.Pillar, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+تابع Copy بر روی توابع Pull و Store ساخته می‌شود تا تمام داده‌های در انتظار برای هر اجرا را منتقل کند. اگر توجه کنید، پارامتر اول تابع Copy نوعی به نام System است.
+
+    type System struct {
+        Xenia
+        Pillar
+    }
+
+ایده اولیه نوع System این است که یک سیستم را ترکیب کند که بداند چگونه باید Pull و Store کند. در این حالت، توانایی Pull و Store را از Xenia و Pillar ترکیب می‌کند.
+
+    func main() {
+        sys := System{
+            Xenia: Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Pillar: Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+سرانجام، تابع اصلی می‌تواند به گونه‌ای نوشته شود که یک Xenia و Pillar را در ترکیب یک System ایجاد کند. سپس System می‌تواند به تابع Copy ارسال شود و جریان داده بین دو سیستم آغاز شود.
+
+با این کلیه کد، حالا یک پیشنویس اولیه از یک راه‌حل قابل اجرا برای یک مسئله خاص دارید.
+
+**جداسازی با رابطه‌ها
+
+مرحله بعد این است که بفهمید چه چیزی در برنامه قابل تغییر است. در این حالت، سیستم‌های خود بتوانند تغییر کنند. امروز Xenia و Pillar هستند، اما فردا ممکن است Alice و Bob باشند. با این دانش، می‌خواهید راه‌حل موجود را از این تغییر جدا کنید. برای این کار، می‌خواهید توابع موجود را به توابع چندریختی (polymorphic) تغییر دهید.
+
+    func Pull(p Puller, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(s Storer, data []Data) (int, error) {
+        for i := range data {
+            if err := s.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+در حال حاضر، تابع Pull یک مقدار Xenia را می‌پذیرد و تابع Store یک مقدار Pillar را می‌پذیرد. در پایان، مهم نبود Xenia و Pillar، آنچه مهم است یک مقدار قطعی است که بداند چگونه باید Pull و Store کند. شما می‌توانید این توابع قطعی را به توابع چندریختی تغییر دهید با درخواست داده بر اساس آنچه می‌تواند انجام دهد به جای آنچه است.
+
+    type Puller interface {
+        Pull(d *Data) error
+    }
+
+    type Storer interface {
+        Store(d *Data) error
+    }
+
+این دو رابط توصیف می‌کنند که داده قطعی چه کارهایی باید انجام دهد و این انواع هستند که در تعریف توابع Pull و Store جایگزین می‌شوند. حالا این توابع چندریختی هستند. هنگامی که Alice و Bob به عنوان یک Puller و یک Storer تعریف و پیاده‌سازی می‌شوند، می‌توانند به توابع منتقل شوند.
+
+هنوز کار تمام نشده است. تابع Copy نیز باید چندریختی باشد.
+
+    func Copy(ps PullStorer, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(ps, data)
+            if i > 0 {
+                if _, err := Store(ps, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+تابع Copy دیگر درخواستی برای یک مقدار System نمی‌کند، بلکه هر مقدار قطعی است که بداند چگونه هم Pull و هم Store کند.
+
+    type PullStorer interface {
+        Puller
+        Storer
+    }
+
+رابط PullStorer از طریق ترکیب تعریف می‌شود. این رابط از رابط‌های Puller و Storer تشکیل شده است. کار به سمت ترکیب رابط‌های بزرگتر از رابط‌های کوچکتر پیش می‌رود.
+
+توجه کنید که متغیر PullStorer در حال حاضر به توابع Pull و Store منتقل می‌شود. چگونه این امکان وجود دارد وقتی که اطلاعات نوع متفاوت است؟
+
+    // func Pull(p Puller, data []Data) (int, error) {
+    i, err := Pull(ps, data)
+
+    // func Store(s Storer, data []Data) (int, error) {
+    if _, err := Store(ps, data[:i]); err != nil {
+
+شما همیشه باید به خاطر داشته باشید که شما هرگز یک مقدار رابط را در سراسر برنامه خود منتقل نمی‌کنید، زیرا آن‌ها وجود ندارند و بی‌ارزش هستند. شما تنها می‌توانید داده‌های قطعی را منتقل کنید. بنابراین، داده قطعی ذخیره شده در داخل متغیر رابط ps است که به توابع Pull و Store منتقل می‌شود. آیا درست نیست که مقدار قطعی ذخیره شده در داخل ps باید بداند چگونه باید Pull و Store کند؟
+
+.image /tour/eng/static/img/comp1.png
+
+از آنجایی که یک System از Xenia و Pillar تشکیل می‌شود، System رابط PullStorer را پیاده‌سازی می‌کند. با این تغییرات، شما می‌توانید اکنون انواع قطعی جدیدی را ایجاد کنید که رابط PullStorer را پیاده‌سازی می‌کنند.
+
+    type System1 struct {
+        Xenia
+        Pillar
+    }
+
+    type System2 struct {
+        Alice
+        Bob
+    }
+
+    type System3 struct {
+        Xenia
+        Bob
+    }
+
+    type System4 struct {
+        Alice
+        Pillar
+    }
+
+وقتی بیشتر درباره این مسئله فکر می‌کنید، تعریف انواع System مختلف برای تمام ترکیب‌های ممکن عملی نیست. این روش کار خواهد کرد، اما مشکلات نگهداری آن نیاز به یک راه‌حل بهتر دارد.
+
+** ترکیب رابطه‌ها
+
+چه اتفاقی می‌افتد اگر تصمیم بگیرید نوع سیستم قطعی خود را از دو نوع رابطه ترکیب کنید؟
+
+    type System struct {
+        Puller
+        Storer
+    }
+
+This is an interesting solution. This would allow the application to inject the
+concrete Puller or Storer into the system at application startup. 
+
+    func main() {
+        sys := System{
+            Puller: &Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Storer: &Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+این یک راه‌حل جالب است. این به اپلیکیشن اجازه می‌دهد که در زمان راه‌اندازی اپلیکیشن، Puller یا Storer قطعی را به سیستم درج کند.
+
+.image /tour/eng/static/img/comp2.png
+
+با این تغییر، اپلیکیشن به طور کامل از تغییرات سیستم جدیدی که ممکن است در طول زمان رخ دهد، جدا شده است.
+
+** بازبینی دقیق
+
+سوال بعدی که باید پرسید، آیا توابع چندریختی به طور دقیق همانند آنچه که ممکن است باشند، هستند؟ این بخشی از فرآیند مهندسی است که نمی‌توان آن را نادیده گرفت. پاسخ خیر است، دو تغییر می‌تواند انجام شود.
+
+    func Copy(sys *System, batch int) error {
+
+تابع Copy دیگر نیازی به چندریختی ندارد زیرا تنها یک نوع سیستم وجود خواهد داشت. نوع رابط PullStorer می‌تواند از برنامه حذف شود. به یاد داشته باشید که شما چندریختی را در داخل نوع قرار دادید وقتی از ترکیب با انواع رابطه استفاده کردید.
+
+    func Copy(p Puller, s Storer, batch int) error {
+
+این تغییر دیگری است که می‌توان در تابع Copy انجام داد. این تغییر باعث می‌شود تابع دوباره دقیقتر و چندریختی شود. حالا تابع دقیقاً آنچه را که نیاز دارد بر اساس اینکه داده قطعی چه کارهایی می‌تواند انجام دهد، درخواست می‌کند.
+
+.image /tour/eng/static/img/comp3.png
+
+با این تغییر، نوع ساختار System همچنین می‌تواند از برنامه حذف شود.
+
+
+    func main() {
+        x := Xenia{
+            Host:    "localhost:8000",
+            Timeout: time.Second,
+        }
+
+        p := Pillar{
+            Host:    "localhost:9000",
+            Timeout: time.Second,
+        }
+
+        if err := Copy(&x, &p, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+با حذف انواع PullStorer و System، برنامه ساده‌تر می‌شود. تابع اصلی می‌تواند تمرکز خود را بر روی ساخت داده‌های قطعی Puller و Storer مورد نیاز برای جابجایی داده داشته باشد. سیستم نوع و رابط‌های برنامه‌نویسی دقیق‌تر هستند.
+این ایده از دقت و وضوح از Edsger W. Dijkstra می‌آید:
+
+"هدف از انتزاع، نه عدم وضوح است، بلکه ایجاد یک سطح معنایی جدید است که در آن می‌توان به طور کاملاً دقیق عمل کرد." - Edsger W. Dijkstra
+
+** یادداشت‌ها
+
+- این بسیار بیشتر از مکانیک تعبیه‌گری نوع است.
+- انواع را اعلام کرده و با ترکیب در ذهن جریان‌های کاری را پیاده‌سازی کنید.
+- ابتدا مسئله‌ای که سعی در حل آن دارید را درک کنید. این به معنای درک داده‌ها است.
+- هدف از کاهش و کمینه‌سازی تغییرات پیوسته در نرم‌افزار شما است.
+- رابط‌ها بالاترین سطح ترکیب را فراهم می‌کنند.
+- نوع‌ها را بر اساس رفتار مشترک، نه بر اساس یک DNA مشترک، گروه‌بندی کنید.
+- همه می‌توانند با همکاری کردن تمرکز خود را بر روی آنچه که انجام می‌دهیم و نه بر روی آنچه که هستیم، قرار دهند.
+
+** نقل قول‌ها
+
+"یک رابط برنامه‌نویسی خوب، نه فقط آسان در استفاده است، بلکه همچنین سخت در سوءاستفاده است." - JBD
+
+"همیشه می‌توانید تعبیه کنید، اما نمی‌توانید رابط‌های بزرگ را پس از ایجاد آن‌ها تجزیه کنید. رابط‌ها را کوچک نگه دارید." - JBD
+
+"با طراحی با رابط‌ها، آن‌ها را کشف کنید." - Rob Pike
+
+"تکرار، همیشه ارزانتر از اشتباه در تعبیه است." - Sandi Metz
+
+** راهنمایی‌های طراحی
+
+Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+
+** خواند بیشتر
+
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
+- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+
+* تمرینات
+
+از قالب به عنوان نقطه شروع برای تکمیل تمرینات استفاده کنید. یک حل ممکن فراهم شده است.
+
+** تمرین 1
+
+با استفاده از قالب، مجموعه‌ای از انواع قطعی را که مجموعه‌ای از انواع رابطهای پیش‌تعریف شده را پیاده‌سازی می‌کنند، اعلام کنید. سپس مقادیر این انواع را ایجاد کرده و از آن‌ها برای تکمیل مجموعه‌ای از وظایف پیش‌تعریف شده استفاده کنید.
+
+.play composition/decoupling/exercise1.go
+.play composition/decoupling/answer1.go

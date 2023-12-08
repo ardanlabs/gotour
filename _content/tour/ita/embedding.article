@@ -1,0 +1,207 @@
+Incorporamento
+I tipi di incorporamento forniscono la parte finale della condivisione e del riutilizzo dello stato e del comportamento tra i tipi.
+
+* Incorporamento
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+I tipi di incorporamento forniscono la parte finale della condivisione e del riutilizzo dello stato
+e del comportamento tra i tipi. Attraverso l'uso della promozione del tipo interno,
+un tipo interno e un metodo possono accedere direttamente ai riferimenti del tipo esterno.
+
+** Code Review
+
+- *Example* *1:* Declaring Fields			   
+- *Example* *2:* Embedding types
+- *Example* *3:* Embedded types and interfaces
+- *Example* *4:* Outer and inner type interface implementations
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+** Meccanica incorporamento
+
+Questo primo esempio non mostra l'incorporamento, ma solo la dichiarazione di due tipi di struct
+che lavorano insieme come un campo da un tipo all'altro.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        person user        // NOT Embedding
+        level  string
+    }
+
+This is embedding.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        user               // Value Semantic Embedding
+        level  string
+    }
+
+Il campo persona viene rimosso e rimane solo il nome del tipo.
+È inoltre possibile incorporare un tipo utilizzando la semantica del puntatore.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        *user              // Pointer Semantic Embedding
+        level  string
+    }
+
+In questo caso viene incorporato un puntatore del tipo. In entrambi i casi,
+l’accesso al valore incorporato avviene tramite l’uso del nome del tipo.
+
+Il modo migliore per pensare all'incorporamento è visualizzare il tipo utente come un tipo interno e
+l'amministratore come un tipo esterno. È questa relazione di tipo interno/esterno ad essere magica
+perché con l'incorporamento, tutto ciò che riguarda il tipo interno (sia i campi che i metodi)
+può essere promosso al tipo esterno.
+
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    type admin struct {
+        *user              // Pointer Semantic Embedding
+        level  string
+    }
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Outer type promotion
+    }
+
+Output:
+
+    Sending user email To john smith<john@yahoo.com>
+    Sending user email To john smith<john@yahoo.com>
+
+Una volta aggiunto un metodo denominato notifica per il tipo user e quindi una piccola funzione main.
+Puoi vedere che l'output è lo stesso sia che chiami il metodo di notifica direttamente tramite il valore del puntatore interno
+o tramite il valore del tipo esterno. Il metodo di notifica dichiarato per il tipo user
+è accessibile direttamente dal valore del tipo admin.
+
+Anche se sembra un'eredità, devi stare attento. Non si tratta di riutilizzare
+lo Stato, ma di promuovere il comportamento.
+
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+Ora aggiungi un'interfaccia e una funzione polimorfica che accetta qualsiasi valore concreto
+che implementa l'intero set di comportamenti definito dall'interfaccia notifier.
+Che è composta da un solo metodo chiamato notify.
+
+A causa dell'incorporamento e della promozione, i valori di tipo admin ora implementano l'interfaccia notifier.
+
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Output:
+
+    Sending user email To john smith<john@yahoo.com>
+
+Puoi inviare l'indirizzo del valore admin nella funzione polimorfica poiché
+l'incorporamento promuove il comportamento di notifica fino al tipo admin.
+
+    type admin struct {
+        *user  // Pointer Semantic Embedding
+        level  string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+Quando il tipo esterno implementa un metodo già implementato dal tipo interno,
+la promozione non ha luogo.
+
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Output:
+    
+    Sending admin email To john smith<john@yahoo.com>
+
+Puoi vedere che il metodo del tipo esterno è ora in esecuzione.
+
+** Note
+
+- I tipi di incorporamento ci consente di condividere lo stato o il comportamento tra i tipi.
+- Il tipo interno non perde mai la sua identità.
+- Questa non è eredità.
+- Attraverso la promozione, i metodi del tipo interno possono essere acceduti tramite il tipo esterno.
+- Il tipo esterno può sovrascrivere il comportamento del tipo interno.
+
+
+** Letture extra
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+Modifica il codice dal modello. Aggiungi un nuovo tipo CachingFeed che incorpora Feed e sovrascrive il metodo Fetch.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go

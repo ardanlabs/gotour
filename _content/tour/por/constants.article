@@ -1,0 +1,178 @@
+Constantes
+Uma característica distintiva da linguagem Go é como a linguagem implementa constantes.
+
+* Constantes
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Assista ao vídeo]]
+- Precisa de Assistência Financeira, Use Nosso [[https://www.ardanlabs.com/scholarship/][Formulário de Bolsa de Estudos]]
+
+Uma das características mais singulares de Go é a forma como a linguagem implementa constantes.
+As regras para constantes na especificação da linguagem são exclusivas para Go. Elas oferecem
+a flexibilidade que Go precisa para tornar o código que escrevemos legível e intuitivo, enquanto ainda
+mantém a segurança de tipo.
+
+Constantes podem ser tipadas ou não tipadas. Quando uma constante é não tipada, ela é considerada
+de um certo "kind" (Tipo/Categoria específica em go). Constantes desse "kind" podem ser convertidas implicitamente pelo compilador. 
+Isso tudo acontece em tempo de compilação e não em tempo de execução.
+
+** Revisão de Código
+
+- *Exemplo* *1:* Declare e inicialize constantes		
+- *Exemplo* *2:* Sistema de tipos paralelo (Kind) (faltando)
+- *Exemplo* *3:* iota			
+- *Exemplo* *4:* Conversão implícita
+
+.play constants/example1.go
+.play constants/example2.go
+.play constants/example3.go
+.play constants/example4.go
+
+    const ui = 12345     // "kind": int
+    const uf = 3.141592  // "kind": Floating point
+
+Constantes numéricas não tipadas têm uma precisão de 256 bits, conforme especificado pela especificação.
+Elas são baseadas em um "kind" 
+
+    const ti int     = 12345     // tipo: int
+    const tf float64 = 3.141592  // tipo: float64
+
+Constantes tipadas ainda usam o sistema de tipo de constante, mas sua precisão é restrita.
+
+    const myUint8 uint8 = 1000 // Erro de compilação: constant 1000 overflows uint8
+
+Isso não funciona porque o número 1000 é grande demais para ser armazenado em um uint8
+
+    var answer = 3 * 0.333  // float64 = KindFloat(3) * KindFloat(0.333)
+
+A aritmética de constantes suporta o uso de diferentes "kinds" de constantes. A Promoção de Tipo (em inglês "Kind Promotion")
+é usada para lidar com esses diferentes cenários. Tudo isso acontece implicitamente. A variável "answer"
+neste exemplo será do tipo float64 e representará 0.999 com uma precisão de 64 bits.
+
+    const third = 1 / 3.0  // KindFloat = KindFloat(1) / KindFloat(3.0)
+
+A terceira constante será do tipo float e representará 1/3 com uma precisão de 256 bits.
+
+    const zero = 1 / 3  // KindInt = KindInt(1) / KindInt(3)
+
+A constante "zero" será do "kind" inteiro e definida como 0, pois a divisão de inteiros não tem resto.
+
+    const one int8 = 1
+    const two = 2 * one  // int8(2) * int8(1)
+
+Este é um exemplo de aritmética de constantes entre constantes tipadas e não tipadas.
+Neste caso, uma constante de um tipo tem precedência sobre uma constante de um "kind". 
+As duas constantes serão do tipo int8 e definidas como 2 
+
+    const maxInt = 9223372036854775807
+
+Este é o valor máximo para um inteiro de 64 bits.
+
+    const bigger = 9223372036854775808543522345
+
+A constante "bigger" tem um valor muito maior do que um inteiro de 64 bits, mas pode ser
+armazenada em uma constante do "kind" int, uma vez que constantes do "kind" int não estão limitadas a
+64 bits de precisão.
+
+    const bigger int64 = 9223372036854775808543522345
+
+Erro de compilação:
+
+    constant 9223372036854775808543522345 overflows int64
+
+No entanto, se bigger fosse uma constante do tipo int64, isso não compilaria.
+
+** IOTA
+
+IOTA fornece suporte para definir constantes inteiras sucessivas. É possível que
+o nome venha da função inteira ⍳ da linguagem de programação APL. No APL,
+a função ⍳ (representada pela nona letra do alfabeto grego, iota) é
+usada para criar um array baseado em zero de inteiros consecutivos e ascendentes de um comprimento
+especificado.
+
+    const (
+        A1 = iota  // 0 : Começa em 0
+        B1 = iota  // 1 : Incrementado em 1
+        C1 = iota  // 2 : Incrementado em 1
+    )
+    fmt.Println(A1, B1, C1)
+
+Saída:
+
+    0 1 2
+
+A palavra-chave iota funciona dentro de um bloco de constantes e começa com o valor de 0. Então,
+para cada constante sucessiva declarada no bloco, iota é incrementada em 1.
+
+    const (
+        A2 = iota  // 0 : Começa em 0
+        B2         // 1 : Incrementado em 1
+        C2         // 2 : Incrementado em 1
+    )
+    fmt.Println(A2, B2, C2)
+
+Saída:
+
+    0 1 2
+
+Você não precisa repetir o uso da palavra-chave iota. A natureza sucessiva das
+constantes inteiras é assumida uma vez aplicada.
+
+    const (
+        A3 = iota + 1  // 1 : 0 + 1
+        B3             // 2 : 1 + 1
+        C3             // 3 : 2 + 1
+    )
+    fmt.Println(A3, B3, C3)
+
+Saída:
+
+    1 2 3
+
+Se você não quiser aplicar um padrão matemático, pode realizar alguns cálculos e
+a matemática é reaplicada com um valor crescente de iota.
+
+    const (
+        Ldate= 1 << iota  //  1 : Desloque 1 para a esquerda 0.  0000 0001
+        Ltime             //  2 : Desloque 1 para a esquerda 1.  0000 0010
+        Lmicroseconds     //  4 : Desloque 1 para a esquerda 2.  0000 0100
+        Llongfile         //  8 : Desloque 1 para a esquerda 3.  0000 1000
+        Lshortfile        // 16 : Desloque 1  para a esquerda 4.  0001 0000
+        LUTC              // 32 : Desloque 1  para a esquerda 5.  0010 0000
+    )
+
+    fmt.Println(Ldate, Ltime, Lmicroseconds, Llongfile, Lshortfile, LUTC)
+
+Saída:
+
+    1 2 4 8 16 32
+
+Você pode usar esse recurso como o pacote Log faz para definir flags. Neste caso, operações de bit
+são aplicadas com valores crescentes de iota para calcular os valores das flags.
+
+** Notas
+
+- Constantes não são variáveis.
+- Eles existem apenas durante a compilação.
+- Constantes não tipadas podem ser convertidas implicitamente onde constantes tipadas e variáveis não podem.
+- Pense em constantes não tipadas como tendo um "Kind" (Espécie), não um "Type" (Tipo).
+- Aprenda sobre conversões explícitas e implícitas.
+- Veja o poder das constantes e seu uso na biblioteca padrão.
+
+** Leituras extras
+
+- [[https://golang.org/ref/spec#Constants][Constants specification]]    
+- [[https://blog.golang.org/constants][Constants]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/04/introduction-to-numeric-constants-in-go.html][Introduction To Numeric Constants In Go]] - William Kennedy    
+		
+* Exercícios
+
+Use o template como ponto de partida para completar os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+*Parte* *A:* Declare uma constante não tipada e uma tipada e exiba seus valores.
+
+*Parte* *B:* Divida duas constantes literais em uma variável tipada e exiba o valor.
+
+.play constants/exercise1.go
+.play constants/answer1.go

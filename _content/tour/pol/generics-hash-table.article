@@ -1,0 +1,338 @@
+Tablice z haszowaniem
+Tablica z haszowaniem to klasyczny przykład typu kontenera, który może w pełni wykorzystać typy generyczne.
+
+* Typy generyczne - Tablice z haszowaniem
+
+Tablica z haszowaniem to klasyczny przykład typu kontenera, który może w pełni wykorzystać ogólne typy.
+Ta implementacja została napisana przez Matta Layhera (@mdlayer) w jednym z jego wpisów na blogu.
+To doskonały przykład możliwości, jakie daje wykorzystanie ogólnych typów.
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Tablica z haszowaniem
+
+.play generics/hash-table/example1.go
+
+** Wytłumaczenie
+
+Ten kod jest trochę bardziej złożony niż to, co do tej pory zrobiłeś. To,
+co możesz oczekiwać w implementacjach z prawdziwego świata. W tej sekcji
+zobaczysz dwa widoki kodu. Jeden przed i po zastosowaniu nowej składni dla typów ogólnych.
+
+    type hashFunc func(key K, buckets int) int
+
+Ten typ deklaruje sygnaturę funkcji haszującej, która jest używana przez tablicę z haszowniem do obliczania pozycji
+kubełka dla przechowywania i pobierania danych. Użytkownik musi zaimplementować i dostarczyć tę funkcję podczas
+konstruowania tablicy haszującej. Funkcja akceptuje klucz i liczbę kubełków, z których może wybierać. Ponieważ chcesz,
+aby ten system był ogólny pod względem typów używanych dla klucza i wartości, deklarujesz parametr o nazwie klucz z
+typem pojedynczej wielkiej litery K.
+
+Następnie możesz zastosować składnię ogólną, aby uczynić K rzeczywistym typem ogólnym.
+
+    type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
+
+
+Po nazwie typu, dodaj nawiasy kwadratowe z ogólnym typem K i ograniczeniem "comparable".
+Ponieważ wartości typu klucza muszą być używane w operacji porównywania, udokumentowanie
+tego teraz ma sens, nawet jeśli implementacja funkcji haszującej tego nie wymaga. Jednolitość
+ma kluczowe znaczenie dla czytelności, zrozumienia i utrzymanie kodu w przyszłości.
+
+Ten typ reprezentuje parę klucz-wartość danych, które będą przechowywane w tablicy z haszowaniem.
+
+    type keyValuePair struct {
+        Key K
+        Value V
+    }
+
+The job of this type is to hold the actual data with the corresponding key. Next the
+code declares a key field of type K, and a value field of type V.
+
+Now you can apply the generics syntax to make K and V an actual generic type.
+
+    type keyValuePair[K comparable, V any] struct { <-- CHANGED
+        Key K
+        Value V
+    }
+
+Po nazwie typu dodaj nawiasy kwadratowe z ogólnymi typami K i V. W tej deklaracji,
+K nadal reprezentuje klucz, a V reprezentuje wartość, która może być dowolna.
+
+Ten typ reprezentuje tablicę z haszowaniem, która zarządza funkcją haszującą i zestawem
+kubełków do przechowywania danych klucz/wartość.
+
+    type Table struct {
+        hashFunc hashFunc
+        buckets int
+        data [][]keyValuePair
+    }
+
+Typ Table posiada trzy pola: funkcję haszującą, liczbę kubełków oraz dane reprezentowane
+jako kawałka (slice) z kawałków (slices) par klucz-wartość. Zewnętrzna składka reprezentuje kubełki, a wewnętrzna
+składka reprezentuje pary klucz-wartość przechowywane wewnątrz danego kubełka.
+
+Teraz zastosuj składnię typów generycznych, aby zadeklarować ogólne typy klucza i wartości,
+a następnie zastosuj je do deklaracji pól.
+
+    type Table[K comparable, V any] struct { <-- CHANGED
+        hashFunc hashFunc[K] <-- CHANGED
+        buckets int
+        data [][]keyValuePair[K, V] <-- CHANGED
+    }
+
+Po nazwie typu dodaj nawiasy kwadratowe z ogólnymi typami K i V. Deklaracja typu hashFunc
+wymaga informacji o konkretnej typie do użycia jako klucza. Deklaracja typu keyValuePair
+wymaga informacji o konkretnym typie dla klucza i wartości.
+
+To jest funkcja fabryczna, która może tworzyć do użytku obiekt typu Table.
+
+    func New(
+        buckets int,
+        hf hashFunc
+    ) *Table {
+        
+        return &Table{
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair, buckets),
+        }
+    }
+
+Funkcja fabryczna przyjmuje liczbę kubełków do zarządzania i funkcję haszującą do wyboru
+kubełka do przechowywania i wyszukiwania danych. Gdy tworzona jest wartość typu Table,
+liczba kubełków jest używana do utworzenia kawałka (slice), ustawiając długość zewnętrznego kawałka (slice)
+na liczbę kubełków, które zostaną użyte.
+
+Teraz zastosuj składnię typów generycznych, aby zadeklarować ogólne typy klucza i wartości,
+
+    func New[K comparable, V any]( <-- ZMIENIONO
+        buckets int,
+        hf hashFunc[K],            <-- ZMIENIONO
+    ) *Table[K, V] {               <-- ZMIENIONO
+        
+        return &Table[K, V]{       <-- ZMIENIONO
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair[K, V], buckets), <-- ZMIENIONO
+        }
+    }
+
+
+Po nazwie typu dodaj nawiasy kwadratowe oraz ogólne typy K i V. Następnie K jest
+stosowane do parametru wejściowego hf, aby zakończyć deklarację typu hashFunc.
+Typy K i V są zastosowane do tworzonego i zwracanego typu Table. Na koniec,
+inicjalizacja pola data wymaga zastosowania K i V do składni konstrukcji typu keyValuePair.
+
+To jest metoda, która może wstawiać wartości do tablicy z haszowaniem na podstawie określonego klucza.
+
+    type Table[K comparable, V any] struct {
+        hashFunc hashFunc[K]
+        buckets int
+        table [][]keyValuePair[K, V]
+    }
+
+    func (t *Table) Insert(key K, value V) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+
+        kvp := keyValuePair{
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+
+Metoda Insert jest deklarowana w taki sposób, że przyjmuje klucz i wartość tych
+samych ogólnych typów, które są zadeklarowane w typie Table. Pierwszym krokiem w
+procesie wstawiania jest zidentyfikowanie kubełka, który zostanie użyty do przechowywania.
+Dokonuje się tego poprzez wywołanie funkcji haszującej z określonym kluczem. Funkcja haszująca
+zwraca wartość całkowitą, która reprezentuje kubełek do użycia.
+
+Następnie funkcja sprawdza, czy określony klucz został już użyty do przechowywania
+wartości w wybranym kubełku. Wykonywane jest to poprzez iterację po istniejącym zestawie par
+klucz-wartość w kubełku. Jeśli klucz już istnieje, to wartość dla tego klucza jest aktualizowana.
+Jeśli klucz nie zostanie znaleziony, to tworzona jest nowa wartość pary klucz-wartość,
+jest inicjowana i dołączana do kawałka (slice) wybranego kubełka.
+
+Teraz zastosuj składnię ogólną, aby zadeklarować ogólne typy klucza i wartości
+oraz zastosuj je do typów, które trzeba skonstruować.
+
+    func (t *Table[K, V]) Insert(key K, value V) { <-- ZMIENIONO
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+    
+        kvp := keyValuePair[K, V]{                 <-- ZMIENIONO
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+
+Po nazwie typu w receiverze dodaj nawiasy kwadratowe oraz ogólne typy K i V.
+Jedyna inna zmiana polega na zastosowaniu K i V do składni konstrukcji typu keyValuePair.
+
+To jest metoda, która może pobierać wartości z tablicy z haszowaniem na podstawie określonego klucza.
+
+    func (t *Table) Retrieve(key K) (V, bool) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Metoda Retrieve jest deklarowana w taki sposób, że przyjmuje klucz i zwraca kopię wartości
+przechowywanej pod tym kluczem. Pierwszym krokiem w procesie pobierania jest zidentyfikowanie
+kubełka, który został użyty do przechowywania. Dokonuje się tego poprzez wywołanie funkcji
+haszującej z określonym kluczem. Funkcja haszująca zwraca wartość całkowitą, która
+reprezentuje kubełek do przeszukania.
+
+Następnie funkcja iteruje po kolekcji par klucz-wartość przechowywanych wewnątrz kubełka,
+szukając określonego klucza jeden po drugim. Jeśli klucz zostanie znaleziony, zwracana
+jest kopia wartości, a do wywołującego zostaje zwrócona wartość "true". Jeśli klucz nie
+zostanie znaleziony, zwracana jest wartość zerowa, a do wywołującego zostaje zwrócona wartość "false".
+
+Teraz zastosuj składnię ogólną, aby zadeklarować ogólne typy klucza i wartości oraz zastosuj je do typów, które trzeba skonstruować.
+
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- ZMIENIONO
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Po nazwie typu w receiverze dodaj nawiasy kwadratowe oraz ogólne typy K i V. Nie są wymagane żadne inne zmiany w kodzie.
+
+To niewielki program służący do przetestowania implementacji tablicy z haszowaniem.
+
+    func main() {
+        const buckets = 8
+        . . .
+    }
+
+Zacznij od stałej, która definiuje liczbę kubełków do użycia w tablicy z haszowaniem.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        hashFunc1 := func(key string, buckets int) int {
+            h := fnv.New32()
+            h.Write([]byte(key))
+            return int(h.Sum32()) % buckets
+        }
+
+        . . .
+    }
+
+
+Następnie zadeklaruj funkcję haszującą, która przyjmuje ciąg znaków jako klucz.
+Implementacja używa pakietu "fnv" z biblioteki standardowej, który implementuje
+funkcje haszujące FNV-1 i FNV-1a, niekryptograficzne funkcje haszujące stworzone
+przez Glenna Fowlera, Landon Curt Nolla i Phonga Vo. Skrót FNV oznacza funkcję
+haszującą Fowler-Noll-Vo.
+
+Operacja modulo z wartością liczby kubełków wymusza, aby ostateczna wartość mieściła się w zakresie liczby kubełków.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+        
+        . . .
+    }
+
+Następnie utwórz tablicę haszującą, jawnie określając, że klucz będzie typu string,
+a wartość typu int. W parametrach wejściowych nie ma nic, co pozwalałoby kompilatorowi wywnioskować tę informację.
+
+Aby pokazać, że tablica haszująca jest ogólna, zdefiniuj drugą funkcję haszującą i drugą tablicę.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        hashFunc2 := func(key int, buckets int) int {
+            return key % buckets
+        }
+
+        table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+    
+        . . .
+    }
+
+
+Ta funkcja haszująca deklaruje liczbę całkowitą jako klucz i wykonuje prostą operację
+modulo z wartością kubełka w stosunku do klucza. Następnie tworzona jest nowa tablica,
+w której klucz jest określony jako liczba całkowita, a wartość jako ciąg znaków.
+Jest to odwrotność pierwszej tabeli.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        words := []string{"foo", "bar", "baz"}
+        for i, word := range words {
+            table1.Insert(word, i)
+            table2.Insert(i, word)
+        }
+    
+        for i, s := range append(words, "nope!") {
+            v1, ok1 := table1.Retrieve(s)
+            fmt.Printf("t1.Rtr(%v) = (%v, %v)\n", s, v1, ok1)
+            
+            v2, ok2 := table2.Retrieve(i)
+            fmt.Printf("t2.Rtr(%v) = (%v, %v)\n", i, v2, ok2)
+        }
+    }
+
+Wynik:
+
+    t1.Rtr(foo) = (0, true)
+    t2.Rtr(0) = (foo, true)
+    t1.Rtr(bar) = (1, true)
+    t2.Rtr(1) = (bar, true)
+    t1.Rtr(baz) = (2, true)
+    t2.Rtr(2) = (baz, true)
+    t1.Rtr(nope!) = (0, false)
+    t2.Rtr(3) = (, false)
+
+Na koniec napisz kod do przechowywania i pobierania wartości z dwóch odpowiednich tabel.
