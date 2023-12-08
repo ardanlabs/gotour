@@ -1,21 +1,21 @@
 Exporting
-Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. 
+Exporting, bir tanımlayıcının paket dışındaki koda erişilebilir olup olmadığını belirtme yeteneği sağlar.
 
 * Exporting
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Exporting provides the ability to declare if an identifier is accessible to code
-outside of the package it’s declared in. 
+Exporting, bir tanımlayıcının paket dışındaki koda erişilebilir olup olmadığını 
+belirtme yeteneği sağlar.
 
-** Code Review
+** Kod İnceleme
 
-- *Example* *1:* Declare and access exported identifiers
-- *Example* *2:* Declare unexported identifiers and restrictions
-- *Example* *3:* Access values of unexported identifiers
-- *Example* *4:* Unexported struct type fields
-- *Example* *5:* Unexported embedded types
+- *Örnek* *1:* Export edilmiş tanımlayıcıları bildirme ve erişme
+- *Örnek* *2:* Export edilmemiş tanımlayıcıları bildirme ve kısıtlamalar
+- *Örnek* *3:* Export edilmemiş tanımlayıcıların değerlerine erişme
+- *Örnek* *4:* Export edilmemiş yapı türü alanları
+- *Örnek* *5:* Export edilmemiş gömülü türler
 
 .play exporting/example1.go
 .play exporting/example2.go
@@ -23,27 +23,27 @@ outside of the package it’s declared in.
 .play exporting/example4.go
 .play exporting/example5.go
 
-** Exporting Mechanics
+** Exporting Mekanizmaları
 
-A package is the basic unit of compiled code in Go. It represents a physical compiled
-unit of code, usually as a compiled library on the host operating system. Exporting
-determines access to identifiers across package boundaries.
+Go'da derlenmiş kodun temel birimi bir pakettir. Fiziksel olarak derlenmiş bir kod 
+birimi olarak genellikle ana işletim sisteminde derlenmiş bir kitaplık olarak temsil 
+edilir. Exporting, paket sınırları boyunca tanımlayıcılara erişimi belirler.
 
     package counters
 
     type AlertCounter int
 
-In this case, since a capital letter is being used to name the type AlterCounter,
-the type is exported and can be referenced directly by code outside of the
-counters package.
+Bu durumda, AlterCounter türünü adlandırmak için büyük harf kullanıldığından tür 
+export edilir ve genellikle counters paketi dışındaki kod tarafından doğrudan 
+başvurulabilir.
 
     package counters
 
     type alertCounter int
 
-Now that you changed the type’s name to start with a lowercase letter, the type is
-unexported. This means only code inside the counters package can reference this
-type directly.
+Şimdi türün adını küçük harfle başlatarak türün export edilmediğini görünüz. 
+Bu, yalnızca counters paketi içindeki kodun bu türü doğrudan başvurabileceği 
+anlamına gelir.
 
     package counters
 
@@ -53,9 +53,9 @@ type directly.
         return alertCounter(value)
     }
 
-Even though the code above is legal syntax and will compile, there is no value in it.
-Returning a value of an unexported type is confusing since the caller (who will
-probably exist in a different package) can’t reference the type name directly.
+Yukarıdaki kod yasal bir sözdizimidir ve derlenir, ancak içeride hiçbir değeri yoktur. 
+Export edilmemiş bir türün değerini döndürmek, çağıran kişi (muhtemelen farklı bir 
+pakette bulunan) tür adını doğrudan başvuramayacağından kafa karıştırıcıdır.
 
     package main
 
@@ -70,11 +70,11 @@ probably exist in a different package) can’t reference the type name directly.
         fmt.Printf("Counter: %d\n", counter)
     }
 
-In this case, the main function in package main calls the counters.New function
-successfully and the compiler can declare and construct a variable of the unexported
-type. This doesn't mean you should do this nor does it mean your're getting any real
-protections for this. This should be avoided, and if New will return a value, it
-should be of an exported type.
+Bu durumda, main paketinin main fonksiyonu, counters.New fonksiyonunu başarıyla çağırır 
+ve derleyici, export edilmemiş türün bir değişkenini bildirebilir ve oluşturabilir. 
+Bu, bunu yapmalısınız anlamına gelmez veya bununla gerçek bir koruma elde ettiğiniz 
+anlamına gelmez. Bu kaçınılmalıdır ve New bir değer döndürecekse, bu export edilmiş 
+bir tür olmalıdır.
 
     package users
 
@@ -85,11 +85,10 @@ should be of an exported type.
         password string
     }
 
-When it comes to fields in a struct, the first letter declares if the field is
-accessible to code outside of the package it’s declared in. In this case, Name
-and ID are accessible, but password is not. It’s an idiom to separate exported
-and unexported fields in this manner if this is reasonable or practical to do.
-Normally all fields would be one or the other.
+Bir yapıdaki alanlar söz konusu olduğunda, alanın erişilebilir olup olmadığını 
+belirleyen ilk harftir. Bu durumda, Name ve ID erişilebilirken, password erişilemez. 
+Bu, bu makul veya pratikse export edilmiş ve export edilmemiş alanları ayırmak 
+için bir sözdizimidir. Normalde tüm alanlar ya biri ya diğeridir.
 
     package users
 
@@ -103,43 +102,44 @@ Normally all fields would be one or the other.
         user
     }
 
-In this scenario, even though the user type is unexported, it has two exported
-fields. This means that when the user type is embedded in the exported Manager
-type, the user fields promote and are accessible. It’s common to have types that
-are unexported with exported fields because the reflection package can only operate
-on exported fields. Marshallers won’t work otherwise.
+Bu senaryoda, kullanıcı türü ne yazık ki dışa aktarılmamış (unexported) olsa da, 
+iki export edilmiş alanı bulunmaktadır. Bu, kullanıcı türü, export edilmemiş Manager 
+türüne gömüldüğünde, kullanıcı alanlarının yükseldiği ve erişilebilir olduğu anlamına 
+gelir. Export edilmiş alanlarda işlem yapabilen reflection paketi olduğu için, 
+genellikle dışa aktarılmamış türlerde dışa aktarılmış alanlar bulunur. Aksi takdirde, 
+Marshaller çalışmaz.
 
-The example creates a bad situation where code outside of package users can construct
-a Manager, but since the embedded type user is unexported, the fields for those type
-can be initialized. This creates partial construction problems that will lead to bugs.
-You need to be consistent with exporting and unexporting.
+Örnek, paket dışındaki kodun bir Manager oluşturmasına izin veren kötü bir durum yaratır, 
+ancak gömülü tür user export edilmediğinden, bu türün alanları başlatılamaz. Bu, bölümlü yapı 
+sorunlarına yol açacak ve hatalara neden olacaktır. Export etme ve export etmeme konusunda 
+tutarlı olmanız gerekiyor.
 
-** Notes
+** Notlar
 
-- Code in go is compiled into packages and then linked together.
-- Identifiers are exported (or remain unexported) based on letter-case.
-- We import packages to access exported identifiers.
-- Any package can use a value of an unexported type, but this is annoying to use.
+- Go'da kod paketlere derlenir ve ardından bir araya getirilir.
+- Tanımlayıcılar harf durumuna bağlı olarak export edilir (veya export edilmez).
+- Export edilmiş tanımlayıcılara erişmek için paketleri içe aktarırız.
+- Herhangi bir paket, export edilmemiş bir türün değerini kullanabilir, ancak bu kullanım rahatsız edicidir.
 
-** Extra Reading
+** Ek Okuma
 
 [[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-*Part* *A:* Create a package named toy with a single exported struct type named Toy.
-Add the exported fields Name and Weight. Then add two unexported fields named onHand
-and sold. Declare a factory function called New to create values of type toy and accept
-parameters for the exported fields. Then declare methods that return and update values
-for the unexported fields.
+*Kısım* *A:* Toy adında tek bir export edilmiş yapı türüne sahip toy adında bir paket 
+oluşturun. Export edilmiş alanlar Name ve Weight'ı ekleyin. Ardından, onHand ve sold 
+adında iki export edilmemiş alan ekleyin. Toy için onHand ve sold alanları için 
+değerleri oluşturmak için New adında bir fabrika fonksiyonunu bildirin. Daha sonra, 
+onHand alanları için değerleri döndüren ve güncelleyen metodları bildirin.
 
-*Part* *B:* Create a program that imports the toy package. Use the New function to
-create a value of type toy. Then use the methods to set the counts and display the
-field values of that toy value.
+*Kısım* *B:* toy paketini içe aktaran bir program oluşturun. New fonksiyonunu kullanarak
+toy türünde bir değer oluşturun. Ardından, metodları kullanarak bu oyuncak değerinin 
+sayılarını ayarlayın ve alan değerlerini görüntüleyin.
 
 .play exporting/exercise1.go
 .play exporting/answer1.go

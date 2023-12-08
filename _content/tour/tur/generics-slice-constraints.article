@@ -1,34 +1,33 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Dilim Kısıtlamaları
+Bazen jenerik türü yalnızca bir dilim olacak şekilde sınırlamak istediğiniz durumlar olabilir.
 
-* Generics - Slice Constraints
+* Generics - Dilim Kısıtlamaları
 
-There may be times where you need to constrain the generic type to be only a slice.
+Bazen jenerik türü yalnızca bir dilim olacak şekilde sınırlamak istediğiniz durumlar olabilir.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
 
 .html generics-video.html
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1*: Operate function
+- *Örnek* *1*: Operate fonksiyonu
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Açıklama
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Burada, kullanıcı tanımlı Numbers türünün altta yatan türü bir tamsayı dilimidir.
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+Derleyici, değişkenleri bir tamsayı dilimi temel alan değişkenlerle Numbers türüne 
+çevirmenize izin verir. Bu genellikle iyidir ve istediğiniz şeydir. Bu işlevsellik 
+sayesinde, dilimi temel alan türü dikkate alan bir dilim üzerinde çalışabilen genel 
+bir fonksiyon yazabilirsiniz.
 
     type operateFunc[T any] func(t T) T
 
@@ -41,10 +40,10 @@ slice respecting the underlying type.
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Burada, operate fonksiyonu herhangi bir şey olabilen bir jenerik tür T'yi bildirir. 
+Tür, aynı tür T olan bir dilimi kabul eden bir parametre olan slice'ı bildirmek için 
+kullanılır. Fonksiyon ayrıca aynı türde T olan genel bir fonksiyonu kabul eder ve aynı 
+zamanda bir T dilimi döndürür.
 
     type Numbers []int
     
@@ -58,25 +57,24 @@ of T as well.
         return numbers
     }
 
-Output:
+Çıktı:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+Double fonksiyonu, Numbers türünde bir değeri kabul eder ve bu değeri operate fonksiyonuna 
+iletir. Bu durumda, tür T için altta yatan türü değer olarak kullanır ve Numbers değeri 
+fonksiyona iletilir. Ancak, çıktıda görüldüğü gibi, dönen tür int tipinde bir dilimdir.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Eğer yalnızca bir Numbers değerinin iletilebileceğinden ve operate fonksiyonu tarafından 
+döndürülebileceğinden emin olmanız gerekiyorsa, aşağıdaki değişiklikleri yapabilirsiniz.
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Bu arayüz, bir jenerik türü belirli bir T türündeki bir dilime sınırlamak için bir 
+kısıtlama bildirir. ~ kullanımı, altta yatan türünün T olduğu tüm türleri kısıtlar. 
+Bu arayüzü kullanarak, operate fonksiyonunu değiştirebilirsiniz.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -100,9 +98,9 @@ underlying type is T. With this interface, you can change the operate function.
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Şimdi operate fonksiyonunu iki jenerik tür bildirmek için değiştirin. S türü, belirli 
+bir T türündeki bir dilim değerini temsil eder ve T türü herhangi bir şey olabilen bir 
+türdür. Fonksiyon S türünde bir değer döndürür.
 
     type Numbers []int
     
@@ -117,10 +115,9 @@ function returns a value of type S.
         return numbers
     }
 
-Output:
+Çıktı:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+Bu sefer, Numbers değerini operate fonksiyonuna ilettiğinizde, dönen dilim Numbers 
+türündedir. Altta yatan tür ihmal edilir ve kullanıcı tanımlı türe saygı gösterilir.

@@ -1,52 +1,50 @@
-Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+Arayüz Kirliliği
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden kaynaklanır.
 
-* Interface Pollution
+* Arayüz Kirliliği
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden 
+kaynaklanır.
 
-** Code Review
+** Kod İnceleme
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *Örnek* *1:* Arayüz Kirliliği Oluştur
+- *Örnek* *2:* Arayüz Kirliliğini Kaldır
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Interface Pollution
+** Arayüz Kirliliği
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden 
+kaynaklanır. Probleme somut bir çözüm tasarlamalısınız. Daha sonra, programın ne zaman 
+polimorfik olması gerektiğini, eğer gerekiyorsa, keşfedebilirsiniz.
 
-These are things I’ve heard from other developers.
+Bu, diğer geliştiricilerden duyduğum şeyler.
 
-"I’m using interfaces because we have to use interfaces".
+"Arayüzleri kullanıyorum çünkü arayüzleri kullanmalıyız".
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+Hayır. Arayüzleri kullanmak zorunda değiliz. Arayüzleri, bunu yapmak pratik ve mantıklı 
+olduğunda kullanırız. Arayüz kullanmanın bir maliyeti vardır: içine somut değerler 
+depoladığımızda bir seviye dolaylılık ve tahsis. Atama maliyeti, ayrıştırmayla kazandığınız 
+şeyle orantılı değilse, arayüzleri kullanmamalısınız.
 
-"I need to be able to test my code so I need to use interfaces".
+"Kodumu test edebilmem için arayüz kullanmam gerekiyor".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+Hayır. API'nizi ilk olarak kullanıcı için tasarlamalısınız, test için değil. API test edilemezse, 
+kullanılabilir olup olmadığını sorgulamalısınız. API'ların farklı katmanları da vardır. 
+Daha düşük seviyeli kullanılmayan API'lar test edilebilirliğe odaklanabilir ve odaklanmalıdır. 
+Daha yüksek seviyeli dışa aktarılan API'lar kullanılabilirliğe odaklanmalıdır.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+Ham veriyi içeri alıp ham veriyi dışarı veren fonksiyonlar en test edilebilir olanlardır. 
+Veri dönüşümünü, verinin nereden geldiği ve nereye gittiği yerden ayırın. Bu, 
+mühendislik kodlama döngüsü sırasında gerçekleştirmeniz gereken bir refaktörlemedir.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+Aşağıda, bir arayüz gerekmediği halde arayüzü yanlış şekilde kullanarak arayüz 
+kirliliği yaratan bir örnek bulunmaktadır.
 
     type Server interface {
         Start() error
@@ -54,33 +52,33 @@ interface when one is not needed.
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+Server arayüzü, TCP sunucuları için bir sözleşme tanımlar. Buradaki sorun, bir sözleşmeye 
+ihtiyacınız olmamasıdır, bir uygulamaya ihtiyacınız vardır. Özellikle siz uygulayan kişi 
+olduğunuzdan, sadece bir uygulama olacaktır. Bu işi başkasının sizin için uygulamasına 
+gerek yok.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+Ayrıca, bu arayüz bir isim ve bir fiil değil, bir isim üzerine kuruludur. Somut 
+tipler, somut problemleri temsil ettikleri için isimlerdir. Arayüzler davranışı 
+tanımlar ve Server davranış değildir.
 
-Here are some ways to identify interface pollution:
+Arayüz kirliliğini belirlemenin bazı yolları şunlardır:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- Bir paket, kendi somut türünün tüm API'siyle eşleşen bir arayüzü bildirir.
+- Arayüzler dışa aktarılır ancak arayüzü uygulayan somut tipler dışa aktarılmaz.
+- Somut tipin fabrika fonksiyonu, kullanılmayan somut tip değeri içeren arayüz değerini döndürür.
+- Arayüz kaldırılabilir ve API'nin kullanıcısı için hiçbir şey değişmez.
+- Arayüz, API'nin değişiklikten ayrışmasını sağlamıyor.
 
-Guidelines around interface pollution:
+Arayüz kirliliği etrafında kurallar:
 
-Use an interface:
+Bir arayüz kullanın:
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+- API kullanıcıları bir uygulama ayrıntısı sağlamalıysa.
+- API'lerin birden fazla uygulamasının bakımı gerekiyorsa.
+- API'lerin değişebilecek kısımları belirlenmiş ve ayrıştırma gerektiriyorsa.
 
-Question an interface:
+Bir arayüzü sorgulayın:
 
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- Tek amacı test edilebilir API'lar yazmaksa (ilk olarak kullanılabilir API'ları yazın).
+- API'ya değişiklikten ayrışma desteği sağlamıyorsa.
+- Arayüzün kodu nasıl daha iyi hale getirdiği açık değilse.

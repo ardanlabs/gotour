@@ -1,32 +1,33 @@
-Error Handling
-Error handling is critical for making your programs reliable, trustworthy and respectful to those who depend on them. 
+Hata İşleme
+Hata işleme, programlarınızı güvenilir ve programlarınıza bağımlı olanlara saygılı hale getirmek için kritiktir.
 
-* Error Handling Design
+* Hata İşleme Tasarımı
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Integrity matters and it’s a big part of the engineering process. At the heart of
-integrity is error handling. When it comes to Go, error handling is not an exception
-to be handled later or somewhere else in the code. It’s a part of the main path and
-needs to be a main focus.
+Bütünlük önemlidir ve mühendislik sürecinin büyük bir parçasını oluşturur. Bütünlüğün 
+merkezinde hata işleme bulunmaktadır. Go dilinde hata işleme, sonradan veya başka bir 
+yerde işlenmesi gereken bir istisna değildir. Bu, ana yolda bir parça olarak kabul edilir 
+ve ana odak noktası olmalıdır.
 
-Developers have the responsibility to return enough context about any error so a
-user can make an informed decision about how to proceed. Handling an error is
-about three things: logging the error, not propagating the error any further, and
-determining if the Goroutine/program needs to be terminated.
+Geliştiriciler, bir kullanıcının nasıl devam edeceğine dair bilinçli bir karar 
+verebilmesi için herhangi bir hatayla ilgili yeterli bağlamı döndürme sorumluluğuna 
+sahiptir. Bir hatayla başa çıkmak, hatayı günlüğe kaydetmek, hatayı daha da ileriye 
+taşımamak ve Goroutine/programın sonlandırılıp sonlandırılmamasını belirlemekle 
+ilgilidir.
 
-In Go, errors are just values so they can be anything you need them to be. They
-can maintain any state or behavior.
+Go'da hatalar yalnızca değerler olduğundan istediğiniz her şey olabilirler. 
+Herhangi bir durumu veya davranışı sürdürebilirler.
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1:* Default Error Values
-- *Example* *2:* Error Variables
-- *Example* *3:* Type As Context
-- *Example* *4:* Behavior As Context   
-- *Example* *5:* Find The Bug
-- *Example* *6:* Wrapping Errors With stdlib
+- *Örnek* *1:* Varsayılan Hata Değerleri
+- *Örnek* *2:* Hata Değişkenleri
+- *Örnek* *3:* Tür Olarak Bağlam
+- *Örnek* *4:* Davranış Olarak Bağlam
+- *Örnek* *5:* Hatayı Bul
+- *Örnek* *6:* stdlib ile Hataları Sarma
 
 .play error-handling/example1.go
 .play error-handling/example2.go
@@ -35,23 +36,22 @@ can maintain any state or behavior.
 .play error-handling/example5.go
 .play error-handling/example6.go
 
-** Error Handling Basics
+** Hata İşleme Temelleri
 
-The error interface is built into the language. 
+Hata arabirimi dilin içine yerleştirilmiştir.
 
     // http://golang.org/pkg/builtin/#error
     type error interface {
         Error() string
     }
 
-This is why it appears to be an unexported identifier. Any concrete value that
-implements this interface can be used as an error value.
+İşte bu, bir dışa aktarılmamış tanımlayıcı gibi görünüyor. Bu arayüzü uygulayan 
+herhangi bir somut değer, bir hata değeri olarak kullanılabilir.
 
-One important aspect of Go is that error handling is done in a decoupled state
-through this interface. A key reason for this is because error handling is an
-aspect of my application that is more susceptible to change and improvement.
-This interface is the type Go applications must use as the return type for error
-handling.
+Go'nun önemli bir yönü, hata işleminin bu arayüz aracılığıyla bağımsız bir durumda yapılmasıdır. 
+Bunun ana nedenlerinden biri, hata işleminin, uygulamanızın değişikliklere ve iyileştirmelere 
+daha açık bir yönü olmasıdır. Bu arayüz, Go uygulamalarının hata işlemesi için dönüş türü 
+olarak kullanması gereken türdür.
 
     // http://golang.org/src/pkg/errors/errors.go
     type errorString struct {
@@ -63,26 +63,25 @@ handling.
         return e.s
     }
 
-This is the most commonly used error value in Go programs. It’s declared in the
-errors package from the standard library. Notice how the type is unexported and
-it has one unexported field which is a string. You can also see how pointer semantics
-are used to implement the error interface. This means only addresses to values
-of this type can be shared and stored inside the interface. The method just returned
-the error string.
+Bu, Go programlarında en yaygın kullanılan hata değeridir. Standart kütüphaneden errors 
+paketinde bildirilmiştir. Türün dışa aktarılmadığına ve bir dizi olan bir dışa aktarılmamış 
+alanı olduğuna dikkat edin. Ayrıca, hata arayüzünü uygulamak için işaretçi semantiğinin nasıl 
+kullanıldığını görebilirsiniz. Bu, yalnızca bu tür değerlerin adreslerinin paylaşılabilir ve 
+arayüz içinde depolanabilir olduğu anlamına gelir. Metod sadece hata dizisini döndürdü.
 
-It’s important to remember, the implementation of the Error method serves the
-purpose of implementing the interface and for logging. If any user needs to parse
-the string returned from this method, You have failed to provide the user the
-right amount of context to make an informed decision.
+Hatırlanması önemlidir ki, Error metodunun uygulanması, arayüzü uygulamanın yanı sıra 
+günlüğe kaydetme amacına da hizmet eder. Eğer herhangi bir kullanıcının bu metottan dönen 
+diziyi çözümlemesi gerekiyorsa, kullanıcıya bilinçli bir karar vermek için yeterli bağlamı 
+sağlamada başarısız olmuşsunuz demektir.
 
     // http://golang.org/src/pkg/errors/errors.go
     func New(text string) error {
         return &errorString{text}
     }
 
-The New function is how an error using the concrete type errorString is constructed.
-Notice how the function returns the error using the error interface. Also notice
-how pointer semantics are being used. 
+New fonksiyonu, errorString gerçek türü kullanarak bir hata oluşturur. Fonksiyonun 
+error arabirimi kullanarak hatayı döndürdüğünü ve işaretçi semantiği kullandığını 
+fark edersiniz.
 
     func main() {
         if err := webCall(); err != nil {
@@ -96,34 +95,32 @@ how pointer semantics are being used.
         return New("bad request")
     }
 
-Context is everything with errors. Each error must provide enough context to allow
-the caller to make an informed decision about the state of the goroutine/application.
-In this example, the webCall function returns an error with the message Bad Request.
-In the main function, a call is made to webCall and then a check is made to see
-if an error has occurred with the call.
+Hatalarla ilgili bağlam her şeydir. Her hata, çağrının gorutinin/uygulamanın durumu 
+hakkında bilinçli bir karar vermesine izin verecek kadar yeterli bağlamı sağlamalıdır. 
+Bu örnekte, webCall fonksiyonu, Bad Request mesajıyla bir hata döndürüyor. Ana fonksiyonda 
+webCall'a bir çağrı yapılır ve ardından çağrı ile ilgili bir hata olup olmadığını kontrol 
+etmek için bir kontrol yapılır.
 
     if err := webCall(); err != nil {
         fmt.Println(err)
         return
     }
 
-The key to the check is err != nil. What this condition is asking is, is there a
-concrete value stored inside the err interface value. When the interface value is
-storing a concrete value, there is an error. In this case, the context is literally
-just the fact that a concrete value exists, it’s not important what the concrete
-value is.
+Kontrolün anahtarı err != nil deyimidir. Bu koşul, err arayüz değeri içinde bir somut 
+değer olup olmadığını soruyor. Arayüz değeri bir somut değer içeriyorsa, bir hata var 
+demektir. Bu durumda, bağlam kelimenin tam anlamıyla bir somut değerin varlığıdır, 
+somut değerin ne olduğu önemli değildir.
 
-What if it’s important to know what error value exists inside the err interface
-variable? Then error variables are a good option.
+Eğer err arayüz değişkeni içinde hangi hata değerinin bulunduğunu bilmek önemliyse, 
+o zaman hata değişkenleri iyi bir seçenektir.
 
     var (
         ErrBadRequest = errors.New("Bad Request")
         ErrPageMoved = errors.New("Page Moved")
     )
 
-Error variables provide a mechanic to identify what specific error is being returned.
-They have an idiom of starting with the prefix Err and are based on the concrete type
-errorString from the errors package.
+Hata değişkenleri, hangi özel hatanın döndürüldüğünü belirlemek için bir mekanizma sağlar. 
+Err öneki ile başlama idiyomuna sahiptir ve errors paketinden errorString türüne dayanır.
 
     func webCall(b bool) error {
         if b {
@@ -132,8 +129,8 @@ errorString from the errors package.
         return ErrPageMoved
     }
 
-In this new version of webCall, the function returns one or the other error variable.
-This allows the caller to determine which error took place.
+Bu webCall'ın yeni sürümünde, fonksiyon bir hata değişkeninden birini veya diğerini döndürür. 
+Bu, çağırıcının hangi hatanın meydana geldiğini belirlemesine olanak tanır.
 
     func main() {
         if err := webCall(true); err != nil {
@@ -155,15 +152,13 @@ This allows the caller to determine which error took place.
         fmt.Println("Life is good")
     }
 
-In the application after the call to webCall is made, a check can be performed to
-see if there is a concrete value stored inside the err interface variable. If there
-is, then a switch statement is used to determine which error it was by comparing err
-to the different error variables.
+Uygulamada webCall'a yapılan çağrıdan sonra, err arayüz değişkeni içinde bir somut değer olup 
+olmadığını kontrol etmek için bir kontrol yapılabilir. Eğer varsa, err'i farklı hata değişkenlerine 
+karşı karşılaştırarak hangi hatanın olduğunu belirlemek için bir switch ifadesi kullanılır.
 
-In this case, the context of the error is based on which error variable was returned.
-What if an error variable is not enough context? What if some special state needs
-to be checked, like with networking errors? In these cases, a custom concrete error
-type is the answer.
+Bu durumda, hata bağlamı, hangi hata değişkeninin döndüğüne dayanmaktadır. Ancak bir hata değişkeni 
+yeterli bağlamı sağlamıyorsa ne olur? Örneğin, ağ hataları gibi özel durumlar kontrol edilmelidir. 
+Bu durumlarda, özel bir somut hata türü kullanmak çözüm olabilir.
 
     type UnmarshalTypeError struct {
         Value string
@@ -175,11 +170,10 @@ type is the answer.
             " into Go value of type " + e.Type.String()
     }
 
-This is a custom concrete error type implemented in the json package. Notice the
-name has a suffix of Error in the naming of the type. Also notice the use of
-pointer semantics for the implementation of the error interface. Once again the
-implementation is for logging and should display information about all the fields
-being captured.
+Bu, json paketinde uygulanan özel bir somut hata türüdür. Türün adında bir Ek olarak 
+Error kullanıldığına dikkat edin. Ayrıca, error arayüzünün uygulanması için işaretçi 
+semantiğinin kullanımını fark edin. Yine, uygulama, tüm alanların bilgilerini görüntülemek 
+için bu metodun uygulanması amacıyla kullanılır.
 
     type InvalidUnmarshalError struct {
         Type reflect.Type
@@ -195,9 +189,9 @@ being captured.
         return "json: Unmarshal(nil " + e.Type.String() + ")"
     }
 
-This is a second custom concrete error type found in the json package. The implementation
-of the Error method is a bit more complex, but once again just for logging and
-using pointer semantics.
+Bu, json paketinde bulunan ikinci özel somut hata türüdür. Error yönteminin uygulanması
+biraz daha karmaşıktır, ancak yine de sadece kayıt için ve işaretçi semantiği kullanılarak 
+yapılmıştır.
 
     func Unmarshal(data []byte, v interface{}) error {
         rv := reflect.ValueOf(v)
@@ -207,13 +201,13 @@ using pointer semantics.
         return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
     }
 
-Here is a portion of the Unmarshal function. Notice how it constructs the concrete
-error values in the return, passing them back to the caller through the error interface.
-Pointer semantic construction is being used because pointer semantics were used in
-the declaration of the Error method.
+Unmarshal fonksiyonunun bir bölümü burada. Dikkat edin nasıl somut hata değerlerini döndürmek 
+için return içinde oluşturuyor, bunları error arayüzü üzerinden çağıran tarafa iletiyor. 
+Error yönteminin bildirilmesinde işaretçi semantiği kullanıldığı için işaretçi semantiği yapısı 
+kullanılıyor.
 
-The context of the error here is more about the type of error stored inside the
-error interface. There needs to be a way to determine that.
+Buradaki hata bağlamı daha çok error arayüzü içinde depolanan hata türüyle ilgilidir. Bunun 
+belirlenmesi için bir yol olmalı.
 
     func main() {
         var u user
@@ -233,21 +227,19 @@ error interface. There needs to be a way to determine that.
         fmt.Println("Name:", u.Name)
     }
 
-A generic type assertion within the scope of the switch statement is how you can
-write code to test what type of value is being stored inside the err interface value.
-Type is the context here and now you can test and take action with access to all
-the states of the error.
+A switch ifadesi kapsamında yapılan genel bir tip iddiası, err arayüz değeri içinde 
+depolanan değerin türünü test etmek için kod yazmanın bir yoludur. Burada bağlam türdür 
+ve şimdi hatanın tüm durumlarına erişim sağlayarak test yapabilir ve aksiyon alabilirsiniz.
 
-However, this poses one problem. I’m no longer decoupled from the concrete error
-value. This means if the concrete error value is changed, my code can break. The
-beautiful part of using an interface for error handling is being decoupled from
-breaking changes.
+Ancak, bu bir sorun doğurur. Artık somut hata değerinden kopmuş değilim. Bu, somut hata değeri 
+değişirse kodunuzun bozulabileceği anlamına gelir. Hata işlemi için bir arayüz kullanmanın güzel 
+yanı, bozucu değişikliklerden kopuk olmaktır.
 
-If the concrete error value has a method set, then you can use an interface for
-the type check. As an example, the net package has many concrete error types that
-implement different methods. One common method is called Temporary. This method
-allows the user to test if the networking error is critical or just something
-that can recover on its own.
+Eğer somut hata değeri bir metod setine sahipse, o zaman tür kontrolü için bir arayüzü 
+kullanabilirsiniz. Örneğin, net paketi birçok farklı metodu uygulayan çeşitli somut hata 
+türlerine sahiptir. Bu hatalardan biri Common metoduna sahiptir. Bu metod, kullanıcının ağ 
+hatasının kritik olup olmadığını veya kendi başına kurtarılabilir bir şey olup olmadığını 
+test etmesine olanak tanır.
 
     type temporary interface {
         Temporary() bool
@@ -275,17 +267,16 @@ that can recover on its own.
         }
     }
 
-In this code, the call to ReadString could fail with an error from the net package.
-In this case, an interface is declared that represents the common behavior a given
-concrete error value could implement. Then with a generic type assertion, you test
-if that behavior exists and you can call into it. The best part, you stay in a
-decoupled state with my error handling.
+Bu kodda, ReadString'e yapılan çağrı net paketinden bir hata ile başarısız olabilir. Bu durumda, 
+belirli bir somut hata değeri tarafından uygulanabilecek ortak davranışı temsil eden bir arayüz 
+bildirilir. Ardından genel bir tip iddiası ile bu davranışın varlığını test eder ve ona çağrı 
+yapabilirsiniz. En güzel yanı, hata işleme ile bağlantısız bir durumda kalırsınız.
 
-** Always Use The Error Interface
+** Her Zaman Error Arabirimini Kullanın
 
-One mistake Go developers can make is when they use the concrete error type and
-not the error interface for the return type for handling errors. If you were to
-do this, bad things could happen.
+Go geliştiricilerinin yapabileceği bir hata, hataları işleme için geri dönüş türü 
+olarak somut hata türünü ve error arabirimini kullanmamaktır. Bunu yaparsanız, 
+kötü şeyler olabilir.
 
     type customError struct{}
 
@@ -300,31 +291,31 @@ do this, bad things could happen.
     func main() {
         var err error
         if _, err = fail(); err != nil {
-            log.Fatal("Why did this fail?")
+            log.Fatal("Bu neden başarısız oldu?")
         }
         log.Println("No Error")
     }
 
-Output:
+Çıktı:
     
-    Why did this fail?
+    Bu neden başarısız oldu?
 
-Why does this code think there is an error when the fail function returns nil for
-the error? It’s because the fail function is using the concrete error type and not
-the error interface. In this case, there is a nil pointer of type customError stored
-inside the err variable. That is not the same as a nil interface value of type error.
+Bu kod neden fail fonksiyonu hatası için nil döndüğünde bu kodun bir hata olduğunu düşünüyor? 
+Çünkü fail fonksiyonu somut hata türü yerine error arabirimini kullanıyor. Bu durumda, err 
+değişkeni içinde customError türünde bir nil işaretçi bulunmaktadır. Bu, error türünde 
+bir nil arabirim değeri ile aynı değildir.
 
-** Handling Errors
+** Hataları İşleme
 
-Handling errors is more of a macro level engineering conversation. In my world, error
-handling means the error stops with the function handling the error, the error is
-logged with full context, and the error is checked for its severity. Based on the
-severity and ability to recover, a decision to recover, move on, or shutdown is made.
+Hataları işleme daha çok makro düzeyde bir mühendislik konuşması gibidir. Benim dünyamda, 
+hata işleme, hatanın işlenen fonksiyonla birlikte durduğu, hata tam bağlamıyla kaydedildiği ve 
+hatanın ciddiyetine göre kontrol edildiği bir şeydir. Ciddiyet ve kurtarma yeteneğine bağlı olarak, 
+kurtarma, devam etme veya kapatma gibi bir karar verilir.
 
-One problem is that not all functions can handle an error. One reason could be because
-not all functions are allowed to log. What happens when an error is being passed back
-up the call stack and can’t be handled by the function receiving it? An error needs to
-be wrapped in context so the function that eventually handles it, can properly do so.
+Bir sorun şu ki, tüm fonksiyonlar bir hatayı işleyemez. Bir neden, tüm fonksiyonların kayıt yapmaya 
+izin verilmemesi olabilir. Bir hata, onu alacak olan fonksiyon tarafından uygun bir şekilde işlenebilsin 
+diye, çağrı yığınına geriye doğru iletiliyorsa ne olur? Bir hata, sonunda işleyecek olan fonksiyonun bu 
+işlemi uygun şekilde yapabilmesi için bağlam içine alınmalıdır.
 
     package main
 
@@ -382,7 +373,7 @@ be wrapped in context so the function that eventually handles it, can properly d
         return &AppError{99}
     }
 
-Output:
+Çıktı:
 
     Is AppError, State: 99
 
@@ -390,20 +381,20 @@ Output:
 
     secondCall(10) : App Error, State: 99
 
-** Notes
+** Notlar
 
-- Use the default error value for static and simple formatted messages.
-- Create and return error variables to help the caller identify specific errors.
-- Create custom error types when the context of the error is more complex.
-- Error Values in Go aren't special, they are just values like any other, and so you have the entire language at your disposal.
+- Statik ve basit biçimlendirilmiş mesajlar için varsayılan hata değerini kullanın.
+- Çağrıcıya belirli hataları tanımlamasına yardımcı olmak için hata değişkenleri oluşturun ve döndürün.
+- Hata bağlamı daha karmaşık ise, özel bir hata türü oluşturun ve döndürün.
+- Go'daki Hata Değerleri özel değildir, diğer herhangi bir değer gibi sadece değerlerdir ve bu nedenle tüm dil özelliklerini kullanabilirsiniz.
 
-** Quotes
+** Alıntılar
 
-"Systems cannot be developed assuming that human beings will be able to write millions
-of lines of code without making mistakes, and debugging alone is not an efficient way
-to develop reliable systems." - Al Aho (inventor of AWK)
+"Sistemler, milyonlarca kod satırı yazabilen insanların hata yapmadan geliştirebileceğini 
+varsayarak geliştirilemez, ve sadece hata ayıklama, güvenilir sistemlerin geliştirilmesi 
+için etkili bir yol değildir." - Al Aho (AWK'nın mucidi)
 
-** Extra Reading
+**  Ek Okuma
 
 - [[https://go.dev/blog/error-handling-and-go][Error handling and Go]]
 - [[https://go.dev/blog/go1.13-errors][Working with Errors in Go 1.13]]
@@ -417,33 +408,31 @@ to develop reliable systems." - Al Aho (inventor of AWK)
 - [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Error handling in Upspin]] - Rob Pike    
 - [[https://rauljordan.com/why-go-error-handling-is-awesome/][Why Go's Error Handling is Awesome]] - Raul Jordan
    
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Olası bir çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Create two error variables, one called ErrInvalidValue and the other called
-ErrAmountTooLarge. Provide the static message for each variable. Then write a
-function called checkAmount that accepts a float64 type value and returns an
-error value. Check the value for zero and if it is, return the ErrInvalidValue.
-Check the value for greater than $1,000 and if it is, return the ErrAmountTooLarge.
-Write a main function to call the checkAmount function and check the return error
-value. Display a proper message to the screen.
+İki hata değişkeni oluşturun, biri ErrInvalidValue diğeri ErrAmountTooLarge adını taşımalıdır. 
+Her değişken için sabit bir mesaj sağlayın. Ardından checkAmount adlı bir fonksiyon yazın, 
+float64 türünde bir değer almalı ve bir hata değeri döndürmelidir. Değeri sıfır kontrol 
+edin ve sıfırsa ErrInvalidValue'yi döndürün. Değeri $1,000'den büyükse ErrAmountTooLarge'yi 
+döndürün. Bir main fonksiyonu yazın, checkAmount fonksiyonunu çağırın ve dönen hata değerini kontrol 
+edin. Ekrana uygun bir mesaj görüntüleyin.
 
 .play error-handling/exercise1.go
 .play error-handling/answer1.go
 
-** Exercise 2
+** Egzersiz 2
 
-Create a custom error type called appError that contains three fields, err error,
-message string and code int. Implement the error interface providing your own message
-using these three fields. Implement a second method named temporary that returns
-false when the value of the code field is 9. Write a function called checkFlag that
-accepts a bool value. If the value is false, return a pointer of your custom error
-type initialized as you like. If the value is true, return a default error. Write a
-main function to call the checkFlag function and check the error using the temporary
-interface.
+appError adında özel bir hata türü oluşturun, err error, message string ve code int 
+adında üç alan içermelidir. Bu üç alanı kullanarak kendi mesajınızı içeren error arabirimini 
+uygulayın. temporary adında ikinci bir yöntem uygulayın ve code alanının değeri 9 ise 
+false döndürsün. checkFlag adında bir fonksiyon yazın, bool türünde bir değer almalıdır. 
+Değer false ise, kendi belirlediğiniz şekilde başlatılmış özel hata türünde bir işaretçi 
+döndürün. Değer true ise varsayılan bir hatayı döndürün. Bir main fonksiyon yazın, checkFlag 
+fonksiyonunu çağırın ve hatayı temporary arabirimini kullanarak kontrol edin.
 
 .play error-handling/exercise2.go
 .play error-handling/answer2.go

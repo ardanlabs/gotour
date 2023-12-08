@@ -1,68 +1,64 @@
-Type As Constraint
-This is a new concept in Go where a constraint can be based on a set of concrete types.
+Tip Olarak Kısıtlama
+Bu, Go'da bir kısıtlamanın bir dizi somut türe dayalı olabileceği yeni bir konsepttir.
 
-* Generics - Type As Constraint
+* Generics - Tip Olarak Kısıtlama
 
-This is a new concept in Go where a constraint can be based on a set of concrete types.
-This only works for generics.
+Bu, Go'da bir kısıtlamanın bir dizi somut türe dayalı olabileceği yeni bir konsepttir.
+Bu sadece jenerikler için çalışır.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
 
 .html generics-video.html
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1*: Type based constraint
-- *Example* *2*: Predeclared type constraint "comparable"
-- *Example* *3*: Mix type and behavior constraints
+- *Örnek* *1*: Tip tabanlı kısıtlama
+- *Örnek* *2*: Önceden tanımlanmış tip kısıtlaması "comparable"
+- *Örnek* *3*: Tip ve davranış kısıtlamalarını karıştırma
 
 .play generics/type-constraints/example1.go
 .play generics/type-constraints/example2.go
 .play generics/type-constraints/example3.go
 
-** Explained
+** Açıklama
 
-Generic functions create a new type of constraint that can’t be resolved by declaring
-a method set of behavior.
+Jenerik fonksiyonlar, davranış setini bildirerek çözülemeyen bir tür kısıtlaması oluşturur.
 
     func Add[T ???](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Here is a generic function that wants to accept two values of some type T, add them
-together, and then return the sum back to the caller. This is an interesting problem
-because the compiler needs to constrain the call to the function for only values that
-can be used in an add operation. Currently there is no mechanic for declaring this
-kind of constraint.
+İşte, iki değeri alacak, bunları birleştirecek ve ardından toplamı çağıran tarafsız 
+bir fonksiyon. Bu ilginç bir problem çünkü derleyici, yalnızca bir değerler kümesi 
+için bu işlemleri gerçekleştirebilen değerlerle fonksiyon çağrısını sınırlamalıdır. 
+Şu anda bu tür bir kısıtlamayı bildirmek için bir mekanizma yoktur.
 
-The decision was to continue to use the interface to declare the constraint and add
-something new.
+Karar, kısıtlamayı bildirmek ve yeni bir şey eklemektir.
 
     type addOnly interface {
         string | int | int8 | int16 | int32 | int64 | float64
     }
 
-You can declare an interface that defines a set of types that form the constraint. Then
-apply this interface to the generic function.
+Bu, kısıtlamanın bir kümesini tanımlayan bir arabirim bildirebilirsiniz. Ardından bu 
+arabirimi jenerik fonksiyona uygulayın.
 
     func Add[T addOnly](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Now the compiler can validate that the set of types is compliant with the operations
-the function needs to perform against values of those types. When the interface is
-using the built-in types, the interfaces are reusable across packages. When the list
-of types represent user-defined types from the package, You must remember these
-generic functions are bound to the packages types and nothing more.
+Şimdi derleyici, fonksiyonun işlemleri gerçekleştirmek için uygun türler kümesini doğrulayabilir. 
+Arabirim, yerleşik türleri kullandığında arabirimler paketler arasında yeniden kullanılabilir. 
+Tür listesi, paketin kullanıcı tanımlı türlerini temsil ettiğinde, bu jenerik fonksiyonların 
+yalnızca paket türlerine bağlı olduğunu hatırlamalısınız ve başka bir şey değil.
 
-Interfaces declared with a set of types can’t be used in a traditional polymorphic
-function. This wouldn’t make sense anyway, but it’s something that doesn’t feel like
-Go in the sense that this change to the interface is not orthogonal.
+Bir tür kümesini içeren arabirimler geleneksel polimorfik bir fonksiyonda kullanılamaz. 
+Bu zaten mantıklı değil, ancak bu değişikliğin arabirimin bu yönde ortogonal olmaması 
+açısından Go'nun hissetmediği bir şeydir.
 
-One idea is to have pre-declared identifiers for common operation constraints.
+Bir fikir, yaygın işlem kısıtlamaları için önceden tanımlanmış tanımlayıcıları kullanmaktır.
 
     func index[T comparable](list []T, find T) int {
         for i, v := range list {
@@ -74,14 +70,13 @@ One idea is to have pre-declared identifiers for common operation constraints.
         return -1
     }
 
-The comparable constraint is declared by the language and applies a constraint that
-types must be capable of being used in a comparison statement. In this example,
-both v and find are variables of type T and are being compared. There is an idea
-that a package in the standard library could provide a common set of constraints as
-well.
+Karşılaştırılabilir kısıtlaması dil tarafından bildirilir ve türlerin karşılaştırma 
+ifadesinde kullanılabilme yeteneğini kısıtlar. Bu örnekte hem v hem de find, T türündeki 
+değişkenlerdir ve karşılaştırılır. Bir paketin içinde yaygın işlem kısıtlamalarını sağlamak 
+için dil tarafından bildirilen kısıtlamalara sahip yaygın bir paketin olabileceği bir 
+fikir vardır.
 
-There is no restriction on an interface being declared with both a set of types and a
-method set of behavior.
+Bir arabirimin hem bir tür kümesi hem de davranış kümesi ile bildirilmesinde hiçbir kısıtlama yoktur.
 
     type matcher[T any] interface {
         type person, food
@@ -98,26 +93,26 @@ method set of behavior.
         return -1
     }
 
-A generic interface is declared where T is the type of value to be passed into a
-method named match. The interface also constrains its use to only values of userdefined
-type person and food.
+Jenerik bir arabirim, T'nin match adlı bir metoda geçirilecek olan bir fonksiyona sahip 
+olan bir türün tipini belirleyen bir arabirim olarak bildirilir. Arabirim aynı zamanda 
+yalnızca kullanıcı tanımlı tip person ve food türlerindeki değerlere kısıtlanmıştır.
 
-When you look at the match function, there isn’t an obvious need to restrict the
-function to just the person and food types. If this is the case, the match function
-should be a traditional polymorphic function, not a generic function. If there was a
-good reason, a generic function can be used to apply this type of constraint.
+Match fonksiyonuna baktığınızda, fonksiyonu yalnızca person ve food türlerine sınırlamak 
+için açık bir ihtiyaç olmadığını görmezsiniz. Eğer durum buysa, match fonksiyonu geleneksel 
+bir polimorfik fonksiyon olmalıdır, jenerik bir fonksiyon değil. Eğer iyi bir neden varsa, 
+jenerik bir fonksiyon kullanılarak bu tür bir kısıtlamayı uygulamak mümkündür.
 
-As a side note, not sure this functionality is necessary or makes sense. This is
-something the community will need to figure out over time.
+Bir not olarak, bu işlevselliğin gerekli veya mantıklı olup olmadığından emin 
+değilim. Bu, topluluk tarafından zaman içinde anlaşılması gereken bir şeydir.
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Egzersizleri tamamlamak için şablonu başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Implement a generic function named copyfy that is constrained to only making
-copies of slices of type string or int.
+Yalnızca string veya int türündeki dilimleri kopyalamak için sınırlı olan 
+copyfy adlı jenerik bir fonksiyonu uygulayın.
 
 .play generics/type-constraints/exercise1.go 
 .play generics/type-constraints/answer1.go

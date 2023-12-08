@@ -1,23 +1,23 @@
-Decoupling
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+Ayırmak
+Kompozisyon, tür gömme mekaniklerinin ötesine geçer ve sadece bir paradigmadan daha fazlasıdır.
 
-* Decoupling
+* Ayırmak
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. It's the key for maintaining stability in your software by having the
-ability to adapt to the data and transformation changes that are coming.
+Gömme yeteneğinden yararlanmanın en iyi yolu, kompozisyonel tasarım deseni aracılığıyla 
+olacaktır. Bu, yazılımınızdaki istikrarı sürdürmek için önemlidir, çünkü gelecek 
+olan veri ve dönüşüm değişikliklerine uyum sağlama yeteneğine sahip olursunuz.
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1:* Struct Composition
-- *Example* *2:* Decoupling With Interface
-- *Example* *3:* Interface Composition
-- *Example* *4:* Decoupling With Interface Composition
-- *Example* *5:* Remove Interface Pollution
-- *Example* *6:* More Precise API
+- *Örnek* *1:* Yapı Kompozisyonu
+- *Örnek* *2:* Arayüz ile Ayırmak
+- *Örnek* *3:* Arayüz Kompozisyonu
+- *Örnek* *4:* Arayüz Kompozisyonu ile Ayırmak
+- *Örnek* *5:* Arayüz Kirliliğini Kaldırmak
+- *Örnek* *6:* Daha Kesin API
 
 .play composition/decoupling/example1.go
 .play composition/decoupling/example2.go
@@ -26,10 +26,10 @@ ability to adapt to the data and transformation changes that are coming.
 .play composition/decoupling/example5.go
 .play composition/decoupling/example6.go
 
-** Decoupling Mechanics
+** Ayırma Mekanizmaları
 
-The idea is to compose larger types from smaller types and focus on the composition
-of behavior.
+Fikir, daha küçük tiplerden daha büyük tipleri birleştirmek ve davranışın 
+kompozisyonuna odaklanmaktır.
 
     type Xenia struct {
         Host    string
@@ -49,9 +49,9 @@ of behavior.
         }
     }
 
-The Xenia type represents a system that you need to pull data from. The implementation
-is not important. What is important is that the method Pull can succeed, fail, or
-not have any data to pull.
+Xenia türü, veri çekmeniz gereken bir sistemi temsil eder. Uygulama önemli değildir. 
+Önemli olan, Pull metodunun başarılı olabileceği, başarısız olabileceği veya çekilecek 
+veri olmayabileceği gerçeğidir.
 
     type Pillar struct {
         Host    string
@@ -63,12 +63,11 @@ not have any data to pull.
         return nil
     }
 
-The Pillar type represents a system that you need to store data into. What is
-important again is that the method Store can succeed or fail.
+Pillar türü, veriyi saklamanız gereken bir sistemi temsil eder. Önemli 
+olan Store metodunun başarılı veya başarısız olabileceği gerçeğidir.
 
-These two types represent a primitive layer of code that provides the base behavior
-required to solve the business problem of pulling data out of Xenia and storing
-that data into Pillar.
+Bu iki tür, Xenia'dan veri çıkarmak ve bu veriyi Pillar'a saklamak için gerekli olan 
+temel davranışı sağlayan kodun primitif bir katmanını temsil eder.
 
     func Pull(x *Xenia, data []Data) (int, error) {
         for i := range data {
@@ -90,11 +89,10 @@ that data into Pillar.
         return len(data), nil
     }
 
-The next layer of code is represented by these two functions, Pull and Store. They
-build on the primitive layer of code by accepting a collection of data values to
-pull or store in the respective systems. These functions focus on the concrete types
-of Xenia and Pillar since those are the systems the program needs to work with at
-this time.
+Bu iki fonksiyon, Pull ve Store, bu primitif kod katmanını, ilgili sistemlerdeki veriyi 
+çekme veya saklama yeteneğine odaklanarak genişletir. Bu fonksiyonlar şu anda çalışma 
+zamanında işlem yapılması gereken sistemler olan Xenia ve Pillar türlerine 
+odaklanmaktadır.
 
     func Copy(sys *System, batch int) error {
         data := make([]Data, batch)
@@ -113,17 +111,17 @@ this time.
         }
     }
 
-The Copy function builds on top of the Pull and Store functions to move all the
-data that is pending for each run. If you notice the first parameter to Copy, it’s
-a type called System.
+Copy fonksiyonu, Pull ve Store fonksiyonları üzerine inşa edilerek her çalıştırma 
+için bekleyen tüm veriyi taşımak için kullanılır. Eğer Copy fonksiyonuna dikkat 
+ederseniz, ilk parametre olan şeyin System adında bir tür olduğunu fark edeceksiniz.
 
     type System struct {
         Xenia
         Pillar
     }
 
-The initial idea of the System type is to compose a system that knows how to Pull
-and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+System türünün başlangıç ​​fikri, çekme ve saklama yeteneğini birleştirmektir. Bu durumda, 
+Xenia ve Pillar'dan çekme ve saklama yeteneğini birleştirmektir.
 
     func main() {
         sys := System{
@@ -142,20 +140,19 @@ and Store. In this case, composing the ability to Pull and Store from Xenia and 
         }
     }
 
-Finally, the main function can be written to construct a Xenia and Pillar within
-the composition of a System. Then the System can be passed to the Copy function
-and data can begin to flow between the two systems.
+Sonunda, main fonksiyonu bir System'ın kompozisyonu içinde bir Xenia ve Pillar'ı 
+oluşturmak için yazılabilir. Sonra System, Copy fonksiyonuna geçirilebilir ve veri 
+iki sistem arasında akabilir.
 
-With all this code, you now have my first draft of a concrete solution to a concrete
-problem.
 
-** Decoupling With Interfaces
+Bu kodla, şimdi somut bir probleme somut bir çözümün ilk taslağına sahipsiniz.
 
-The next step is to understand what could change in the program. In this case, what
-can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
-be Alice and Bob. With this knowledge, you want to decouple the existing concrete
-solution from this change. To do that, you want to change the concrete functions to
-be polymorphic functions.
+** Arayüzlerle Ayırma
+
+Bir sonraki adım, programdaki nelerin değişebileceğini anlamaktır. Bu durumda, 
+değişebilecek şeyler sistemlerdir. Bugün Xenia ve Pillar, yarın Alice ve Bob olabilir. 
+Bu bilgiyle, mevcut somut çözümü bu değişiklikten ayırmak istersiniz. Bunu yapmak için 
+somut fonksiyonları polimorfik fonksiyonlara dönüştürmek istersiniz.
 
     func Pull(p Puller, data []Data) (int, error) {
         for i := range data {
@@ -177,11 +174,10 @@ be polymorphic functions.
         return len(data), nil
     }
 
-Currently, the Pull function accepts a Xenia value and the Store function accepts
-a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
-important is a concrete value that knows how to Pull and Store. You can change these
-concrete functions to be polymorphic by asking for data based on what it can do
-instead of what it is.
+Şu anda Pull fonksiyonu bir Xenia değeri alır ve Store fonksiyonu bir Pillar değeri 
+alır. Sonunda, önemli olan Xenia ve Pillar değildi, önemli olan çekme ve saklama 
+bilen somut bir değerdi. Bu somut fonksiyonları, ne olduğuna değil, ne yapabildiğine 
+dayalı olarak polimorfik hale getirebilirsiniz.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,12 +187,12 @@ instead of what it is.
         Store(d *Data) error
     }
 
-These two interfaces describe what concrete data must do and it’s these types that
-are replaced in the declaration of the Pull and Store functions. Now these functions
-are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
-Storer, they can be passed into the functions.
+Bu iki arayüz, somut verinin ne yapması gerektiğini açıklar ve bu türler, Pull ve Store 
+fonksiyonlarının deklarasyonunda değiştirilir. Şimdi bu fonksiyonlar polimorfiktir. 
+Alice ve Bob, bir Puller ve bir Storer olarak ilan edilip uygulandığında, bu 
+fonksiyonlara geçirilebilirler.
 
-You am not done yet. The Copy function needs to be polymorphic as well.
+Henüz işiniz bitmedi. Copy fonksiyonu da polimorfik olmalıdır.
 
     func Copy(ps PullStorer, batch int) error {
         data := make([]Data, batch)
@@ -215,20 +211,20 @@ You am not done yet. The Copy function needs to be polymorphic as well.
         }
     }
 
-The Copy function is no longer asking for a System value, but any concrete value
-that knows how to both Pull and Store.
+Copy fonksiyonu artık bir System değeri istemiyor, ancak hem Pull hem de Store 
+bilen somut bir değeri istiyor.
 
     type PullStorer interface {
         Puller
         Storer
     }
 
-The PullStorer interface is declared through the use of composition. It’s composed
-of the Puller and Storer interfaces. Work towards composing larger interfaces
-from smaller ones.
+PullStorer arayüzü, kompozisyon kullanılarak deklare edilir. Küçük arayüzleri büyük 
+olanlardan oluşturmayı hedefleyin.
 
-Notice how the PullStorer variable is now being passed into the Pull and Store
-functions. How is this possible when the type information is different?
+Dikkat edin, PullStorer değişkeninin şimdi Pull ve Store fonksiyonlarına 
+geçirildiğini görüyorsunuz. Tür bilgisi farklı olduğunda bunun nasıl mümkün olduğunu
+düşünüyorsunuz?
 
     // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
@@ -236,17 +232,16 @@ functions. How is this possible when the type information is different?
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-You always need to remember, you am never passing an interface value around my program
-since they don’t exist and are valueless. you can only pass concrete data. So the
-concrete data stored inside of the interface ps variable is what’s being passed
-to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
-know how to Pull and Store?
+Her zaman hatırlamanız gereken, programınızda hiçbir zaman bir arayüz değeri geçmiyorsunuz, 
+çünkü var olmazlar ve değersizdirler. Yalnızca somut veriyi geçebilirsiniz. Bu nedenle, 
+Pull ve Store fonksiyonlarına geçirilen şey, Pull ve Store yapabilen PullStorer değişkeninin 
+içinde saklanan somut veridir. PullStorer içinde saklanan somut değerin Pull ve Store 
+yapmayı bilmesi gerekmez mi?
 
 .image /tour/eng/static/img/comp1.png
 
-Since a System is composed from a Xenia and Pillar, System implements the PullStorer
-interface. With these changes, you can now create new concrete types that implement
-the PullStorer interface.
+Bir System, bir Xenia ve Pillar'dan oluştuğundan, System, PullStorer arayüzünü uygular. 
+Bu değişikliklerle, PullStorer arayüzünü uygulayan yeni somut türler oluşturabilirsiniz.
 
     type System1 struct {
         Xenia
@@ -268,21 +263,20 @@ the PullStorer interface.
         Pillar
     }
 
-When you think about this more, declaring different System types for all the possible
-combinations is not realistic. This will work, but the maintenance nightmare requires
-a better solution.
+Daha fazla düşündüğünüzde, tüm olası kombinasyonlar için farklı System türlerini ilan 
+etmek gerçekçi değil. Bu çalışacaktır, ancak bakım kabusu daha iyi bir çözüm gerektirir.
 
-** Interface Composition
+** Arayüz Kompozisyonu
 
-What if you decided to compose my concrete system type from two interface types?
+Varsayalım ki somut sistem türünü iki arayüz türünden oluşturmayı seçtiniz.
 
     type System struct {
         Puller
         Storer
     }
 
-This is an interesting solution. This would allow the application to inject the
-concrete Puller or Storer into the system at application startup. 
+Bu ilginç bir çözümdür. Bu, uygulamanın uygulama başlatma sırasında somut Puller'ı 
+veya Storer'ı sisteme enjekte etmesine olanak tanır.
 
     func main() {
         sys := System{
@@ -301,36 +295,35 @@ concrete Puller or Storer into the system at application startup.
         }
     }
 
-This one system type implements the PullStorer interface for all possible
-combinations of concrete types.
+Bu tek bir sistem türü, tüm olası somut tür kombinasyonları için 
+PullStorer arayüzünü uygular.
 
 .image /tour/eng/static/img/comp2.png
 
-With this change, the application is fully decoupled from changes to a new system
-that may come online over time.
+Bu değişiklikle, uygulama zaman içinde çevrimiçi gelebilecek yeni bir sisteme karşı 
+tamamen bağımsız hale gelir.
 
-** Precision Review
+** Keskin İnceleme
 
-The next question to ask is, are the polymorphic functions as precise as they
-otherwise could be? This is a part of the engineering process that can’t be skipped.
-The answer is no, two changes can be made.
+Sorulması gereken bir sonraki soru şudur: Polimorfik fonksiyonlar, aksi takdirde 
+olabileceğinden daha kesin midir? Bu, atlanamayacak bir mühendislik sürecinin bir 
+parçasıdır. Cevap hayır, iki değişiklik yapılabilir.
 
     func Copy(sys *System, batch int) error {
 
-The Copy function doesn’t need to be polymorphic anymore since there will only be a
-single System type. The PullStorer interface type can be removed from the program.
-Remember, you moved the polymorphism inside the type when you used composition with the
-interface types.
+Copy fonksiyonu artık polimorfik olmak zorunda değil, çünkü yalnızca tek bir System 
+türü olacaktır. PullStorer arayüz türü programdan kaldırılabilir. Unutmayın, polimorfizmi, 
+arayüz türleriyle kompozisyonu kullandığınızda, tipin içine taşıdınız.
 
     func Copy(p Puller, s Storer, batch int) error {
 
-This is another change that can be made to the Copy function. This change makes the
-function more precise and polymorphic again. Now the function is asking for exactly
-what it needs based on what the concrete data can do.
+Bu, Copy fonksiyonuna yapılabilecek başka bir değişikliktir. Bu değişiklik, fonksiyonu 
+daha kesin ve tekrar polimorfik hale getirir. Şimdi fonksiyon, somut verinin ne yapabildiğine 
+dayalı olarak tam olarak neye ihtiyaç duyduğunu soruyor.
 
 .image /tour/eng/static/img/comp3.png
 
-With that change the System struct type can be removed from the program as well.
+Bu değişiklikle birlikte, System türü de programdan kaldırılabilir.
 
     func main() {
         x := Xenia{
@@ -348,38 +341,37 @@ With that change the System struct type can be removed from the program as well.
         }
     }
 
-By removing the PullStorer and System types, the program simplifies. The main
-function can focus on constructing the concrete Puller and Storer values necessary
-for that moving data. The type system and APIs are more precise.
-This idea of precision comes from Edsger W. Dijkstra
+PullStorer ve System türlerini kaldırarak, program basitleşir. Ana fonksiyon, veriyi 
+taşımak için gerekli olan somut Puller ve Storer değerlerini oluşturmaya odaklanabilir. 
+Tür sistemi ve API'lar daha kesin hale gelir. Bu kesinlik fikri, Edsger W. Dijkstra'dan gelir.
 
-"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+"Soyutlama'nın amacı belirsiz olmak değil, tamamen kesin olabileceğiniz yeni bir semantik seviye oluşturmaktır." - Edsger W. Dijkstra
 
-** Notes
+** Notlar
 
-- This is much more than the mechanics of type embedding.
-- Declare types and implement workflows with composition in mind.
-- Understand the problem you are trying to solve first. This means understanding the data.
-- The goal is to reduce and minimize cascading changes across your software.
-- Interfaces provide the highest form of composition.
-- Don't group types by a common DNA but by a common behavior.
-- Everyone can work together when we focus on what we do and not what we are.
+- Bu, tür gömme mekaniklerinden çok daha fazlasıdır.
+- Tipleri açıklamadan ve kompozisyonu düşünerek iş akışlarını uygulayın.
+- İlk önce çözmeye çalıştığınız sorunu anlayın. Bu, veriyi anlamayı içerir.
+- Hedefiniz yazılımınızdaki değişiklikleri azaltmak ve minimize etmektir.
+- Arayüzler, kompozisyonun en yüksek formunu sağlar.
+- Tipleri ortak bir DNA'ya göre değil, ortak bir davranışa göre gruplandırmayın.
+- Herkes, ne yaptığımıza ve kim olduğumuza odaklandığımızda birlikte çalışabilir.
 
-** Quotes
+** Alıntılar
 
-"A good API is not just easy to use but also hard to misuse." - JBD
+"Iyi bir API sadece kullanımı kolay değil, aynı zamanda yanlış kullanımı zor olan bir şeydir." - JBD
 
-"You can always embed, but you cannot decompose big interfaces once they are out there. Keep interfaces small." - JBD
+"Her zaman gömebilirsiniz, ancak bir kez orada olduktan sonra büyük arayüzleri parçalayamazsınız. Arayüzleri küçük tutun." - JBD
 
-"Don't design with interfaces, discover them." - Rob Pike
+"Arayüzlerle tasarlamayın, onları keşfedin." - Rob Pike
 
-"Duplication is far cheaper than the wrong abstraction. - Sandi Metz
+"Yanlış soyutlamadan daha ucuz olan şey kopyalamaktır." - Sandi Metz
 
-** Design Guidelines
+** Tasarım İlkeleri
 
-Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+Kompozisyon için [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][tasarım ilkelerini]] öğrenin.
 
-** Extra Reading
+** Ek Okuma
 
 - [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
 - [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
@@ -388,15 +380,15 @@ Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/
 - [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
 - [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Egzersizleri tamamlamak için bir başlangıç noktası olarak şablona bakın. Olası bir çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Using the template, declare a set of concrete types that implement the set of predefined
-interface types. Then create values of these types and use them to complete a set of
-predefined tasks.
+Şablona dayalı olarak, önceden tanımlanmış arayüz türlerini uygulayan bir dizi somut 
+türü deklare edin. Ardından, bu türlerin değerlerini oluşturun ve bunları belirli bir dizi 
+görevi tamamlamak için kullanın.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go

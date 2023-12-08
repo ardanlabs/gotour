@@ -1,55 +1,55 @@
-Grouping With Types
-It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+Türlerle Gruplama
+Go dilinde alt türleme veya alt sınıflandırma kavramlarının gerçekten var olmadığını ve bu tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
 
-* Grouping With Types
+* Türlerle Gruplama
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Go dilinde alt türleme veya alt sınıflandırmanın gerçekten var olmadığını ve bu 
+tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
 
-** Code Review
+** Kod İnceleme
 
-- *Example* *1:* Grouping By State
-- *Example* *2:* Grouping By Behavior
+- *Örnek* *1:* Duruma Göre Gruplama
+- *Örnek* *2:* Davranışa Göre Gruplama
 
 .play composition/grouping/example1.go
 .play composition/grouping/example2.go
 
-** Grouping Different Types of Data
+** Farklı Türde Verileri Gruplama
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Go dilinde alt türleme veya alt sınıflandırmanın gerçekten var olmadığını ve bu 
+tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
 
-The following is an anti-pattern you shouldn’t follow or implement.
+Aşağıdaki şey, takip etmemeniz veya uygulamamanız gereken bir karşı kalıptır.
 
     type Animal struct {
         Name string
         IsMammal bool
     }
 
-The Animal type is being declared as a base type that tries to define data that is
-common to all animals. You also attempt to provide some common behavior to an
-animal as well.
+Animal türü, tüm hayvanlar için ortak olan veriyi tanımlamaya çalışan bir temel tür 
+olarak bildiriliyor. Aynı zamanda bir hayvana bazı ortak davranışlar sağlamaya çalışıyorsunuz.
 
     func (a *Animal) Speak() {
         fmt.Println("UGH!",
         "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Most animals have the ability to speak in one way or the other. However, trying to
-apply this common behavior to just an animal doesn’t make any sense. At this
-point, You have no idea what sound this animal makes, so you write UGH.
+Çoğu hayvanın bir şekilde konuşma yeteneği vardır. Ancak, bu ortak davranışı sadece 
+bir hayvana uygulamak anlamsızdır. Bu aşamada, bu hayvanın hangi sesi çıkardığını 
+bilmiyorsunuz, bu yüzden AH yazıyorsunuz.
 
     type Dog struct {
         Animal
         PackFactor int
     }
 
-Now the real problems begin. I’m attempting to use embedding to make a Dog
-everything an Animal is plus more. On the surface this will seem to work, but there
-will be problems. With that being said, a Dog does have a specific way they speak.
+Şimdi gerçek sorunlar başlıyor. Bir Köpeği bir Hayvanın sahip olduğu her şey ve daha 
+fazlası haline getirmek için gömme kullanmaya çalışıyorum. Yüzeyde bu işe yarayacak 
+gibi görünecek, ancak sorunlar olacak. Bu söylendikten sonra, bir Köpeğin belirli bir 
+şekilde konuşma yeteneği var.
 
     func (d *Dog) Speak() {
         fmt.Println("Woof!",
@@ -58,16 +58,16 @@ will be problems. With that being said, a Dog does have a specific way they spea
             "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Woof. This is
-specific to how a dog speaks.
+Speak metodunun uygulanmasında, AH yerine Hav yazabilirsiniz. Bu, bir köpeğin nasıl 
+konuştuğuna özeldir.
 
     type Cat struct {
         Animal
         ClimbFactor int
     }
 
-If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
-Using embedding, a Cat is everything an Animal is plus more.
+Bir Hayvanı temsil eden bir Köpeğim varsa, bir Kediye de ihtiyacım var. Gömme 
+kullanarak, Bir Kedi, Bir Hayvanın sahip olduğu her şey ve daha fazlasıdır.
 
     func (c *Cat) Speak() {
         fmt.Println("Meow!",
@@ -76,12 +76,12 @@ Using embedding, a Cat is everything an Animal is plus more.
             "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Meow. This
-is specific to how a cat speaks.
+Speak metodunun uygulanmasında, AH yerine Miyav yazabilirsiniz. Bu, bir kedinin 
+nasıl konuştuğuna özeldir.
 
-Everything seems fine and it looks like embedding is providing the same
-functionality as inheritance does in other languages. Then you try to go ahead and
-group dogs and cats by the fact they have a common DNA of being an Animal.
+Her şey güzel görünüyor ve gömme, diğer dillerdeki kalıtımın sağladığı işlevselliği 
+sunuyor gibi görünüyor. Sonra köpekleri ve kedileri, bir Hayvanın ortak bir DNA'sı 
+olduğu gerçeğine göre gruplamaya çalışırsınız.
 
     animals := []Animal{
         Dog{
@@ -105,25 +105,24 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
         animal.Speak()
     }
 
-When you try to do this, the compiler complains that a Dog and Cat are not an Animal
-and this is true. Embedding isn’t the same as inheritance and this is the pattern I
-need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
-can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+Bunu yapmaya çalıştığınızda, derleyici bir Köpeğin ve Bir Kedinin bir Hayvan olmadığına dair 
+şikayet eder ve bu doğrudur. Gömme, kalıtım ile aynı değildir ve bu, uzak durmanız gereken 
+bir kalıptır. Bir Köpek bir Köpektir, bir Kedi bir Kedidir ve bir Hayvan bir Hayvandır. 
+Köpekler ve Kedileri bir Hayvan gibi geçiremezsiniz, çünkü değiller.
 
-This kind of mechanic is also not very flexible. It requires configuration by the
-developer and unless you have access to the code, you can’t make configuration changes
-over time.
+Bu tür bir mekanizma aynı zamanda çok esnek değildir. Geliştirici tarafından yapılandırmayı 
+gerektirir ve kod erişiminiz yoksa, zamanla yapılandırma değişiklikleri yapamazsınız.
 
-If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
-this in Go? It’s not about grouping through common DNA, it’s about grouping
-through common behavior. Behavior is the key.
+Eğer bu, Köpek'lerin ve Kedilerin bir koleksiyonunu nasıl oluşturamayacağımızsa, bunu Go 
+dilinde nasıl yapabiliriz? Bu, ortak DNA üzerinden gruplama ile ilgili değil, ortak davranış 
+üzerinden gruplama ile ilgilidir. Davranış anahtardır.
 
     type Speaker interface {
         Speak()
     }
 
-If you use an interface, then you can define the common method set of behavior that I
-want to group different types of data against.
+Eğer bir arayüz kullanırsanız, o zaman farklı veri türlerini karşılaştırmak istediğiniz
+davranışın ortak metot setini tanımlayabilirsiniz.
 
     speakers := []Speaker{
         &Dog{
@@ -146,11 +145,11 @@ want to group different types of data against.
         speaker.Speak()
     }
 
-In the new code, you can now group Dogs and Cats together based on their common
-set of behavior, which is the fact that Dogs and Cats can speak.
+Yeni kodda, Köpekleri ve Kedileri, konuşabilen ortak davranışlarına dayalı olarak 
+bir araya getirebilirsiniz.
 
-In fact, the Animal type is really type pollution because declaring a type just to
-share a set of common states is a smell and should be avoided.
+Aslında, Animal türü gerçekte tür kirliliğidir çünkü ortak bir dizi durumu paylaşmak 
+için bir türü bildirmek, bir kod kokusudur ve kaçınılmalıdır.
 
     type Dog struct {
         Name string
@@ -164,65 +163,58 @@ share a set of common states is a smell and should be avoided.
         ClimbFactor int
     }
 
-In this particular case, you would rather see the Animal type removed and the fields
-copied and pasted into the Dog and Cat types. Later you will have notes about better
-patterns that eliminate these scenarios from happening.
+Bu özel durumdaki kod kokuları:
 
-Here are the code smells from the original code:
+- Animal türü, yeniden kullanılabilir durumun soyut bir katmanını sağlar.
+- Programın bir Animal türünün değerini yaratması veya yalnızca kullanması gerekmez.
+- Animal türü için Speak metodunun uygulanması genel bir uygulamadır.
+- Animal türü için Speak metodunun hiçbir zaman çağrılmayacak olması.
 
-- The Animal type provides an abstraction layer of reusable state.
-- The program never needs to create or solely use a value of Animal type.
-- The implementation of the Speak method for the Animal type is generalized.
-- The Speak method for the Animal type is never going to be called.
+Türleri bildirme konusundaki kurallar:
 
-Guidelines around declaring types:
+- Yeni veya benzersiz bir şeyi temsil eden türleri bildirin.
+- Sadece okunabilirlik için takma adlar oluşturmayın.
+- Herhangi bir türün bir değerinin yaratıldığını veya kullanıldığını doğrulayın.
+- Durumu değil, davranışı istediğimiz için türleri gömün.
+- Davranış olmadan düşünmüyorsanız, gelecekteki kod değişikliklerini kaskad olmadan gerçekleştiremeyebilirsiniz.
+- Varolan bir tür için takma adlar veya soyutlamalar oluşturan türleri sorgulayın.
+- Yalnızca ortak bir dizi durumu paylaşmak amacıyla oluşturulan türleri sorgulayın.
 
-- Declare types that represent something new or unique.
-- Don't create aliases just for readability.
-- Validate that a value of any type is created or used on its own.
-- Embed types not because you need the state, but because we need the behavior.
-- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
-- Question types that are aliases or abstractions for an existing type.
-- Question types whose sole purpose is to share a common set of states.
+** Arayüzlerle Tasarlamayın
 
-** Don’t Design With Interfaces
+Ne yazık ki, birçok geliştirici problemleri önce soyutta çözmeye çalışıyor. Hemen 
+arayüzlere odaklanıyor ve bu da arayüz kirliliğine yol açıyor. Bir geliştirici olarak, 
+iki modda var olursunuz: önce bir programcı, sonra bir mühendis.
 
-Unfortunately, too many developers attempt to solve problems in the abstract first.
-They focus on interfaces right away and this leads to interface pollution. As a
-developer, you exist in one of two modes: a programmer and then an engineer.
+Programlama yaptığında, bir kod parçasını çalıştırmaya odaklanırsınız. Problemi çözmeye 
+ve engelleri aşmaya çalışırsınız. İlk fikirlerinizin işe yaradığını kanıtlamak, işte umurunuzda 
+olan bu olsun. Bu programlama somutta yapılmalı ve asla üretim için hazır olmamalıdır.
 
-When you are programming, you are focused on getting a piece of code to work. Trying
-to solve the problem and break down walls. Prove that my initial ideas work. That is
-all you care about. This programming should be done in the concrete and is never
-production ready.
+Problemi çözen bir kod prototipiniz olduğunda, mühendislik moduna geçmelisiniz. Kodu mikro 
+düzeyde veri semantiği ve okunabilirlik için, ardından makro düzeyde zihinsel modeller ve 
+sürdürülebilirlik için nasıl yazacağınıza odaklanmalısınız. Ayrıca hatalara ve başarısızlık 
+durumlarına odaklanmalısınız.
 
-Once you have a prototype of code that solves the problem, you need to switch to
-engineering mode. You need to focus on how to write the code at a micro-level for
-data semantics and readability, then at a macro-level for mental models and
-maintainability. You also need to focus on errors and failure states.
+Bu çalışma, refaktoring döngüsünde yapılır. Okunabilirlik, verimlilik, soyutlama ve test edilebilirlik 
+için refaktörleme yapılır. Soyutlama, gerçekleştirilmesi gereken birkaç refaktörden sadece biridir. 
+Bu, somut bir kod parçası ile başladığınızda ve ardından ihtiyaç duyulan arayüzleri KEŞFETTİĞİNİZDE 
+en iyi şekilde çalışır. Arayüzleri MUTLAKA gerekmediği sürece soyutlamayın.
 
-This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
-abstraction, and for testability. Abstracting is only one of a few refactors that need
-to be performed. This works best when you start with a piece of concrete code and
-then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
-are absolutely necessary.
+Kodla çözdüğünüz her problem, veri dönüşümleri yazmanızı gerektiren bir veri problemidir. 
+Eğer veriyi anlamıyorsanız, probleminizi anlamıyorsunuz demektir. Problemi anlamıyorsanız, 
+hiçbir kod yazamazsınız. Somut veri yapılarına dayanan somut bir çözümle başlamak kritiktir. 
+Rob Pike'ın da dediği gibi,
 
-Every problem you solve with code is a data problem requiring me to write data
-transformations. If you don’t understand the data, you don’t understand the problem. If you
-don’t understand the problem, you can’t write any code. Starting with a concrete
-solution that is based on the concrete data structures is critical. As Rob Pike said,
+"Veri egemendir. Doğru veri yapılarını seçtiyseniz ve şeyleri iyi düzenlediyseniz, 
+algoritmalar neredeyse her zaman kendiliğinden ortaya çıkar." - Rob Pike
 
-"Data dominates. If you've chosen the right data structures and organized things
-well, the algorithms will almost always be self-evident". - Rob Pike
+Soyutlama ne zaman gerekli? Kodun verinin değişebileceği bir yer gördüğünüzde ve ortaya çıkacak 
+kod etkilerini en aza indirmek istediğinizde. Kodu test edilebilir yapmak için soyutlamayı 
+kullanabilirsiniz, ancak mümkünse bundan kaçınmalısınız. En iyi test edilebilir fonksiyonlar, 
+ham veriyi alıp ham veriyi gönderen fonksiyonlardır. Verinin nereden geldiği veya nereye gittiği 
+önemli olmamalıdır.
 
-When is abstraction necessary? When you see a place in the code where the data
-could change and you want to minimize the cascading code effects that would result. I
-might use abstraction to help make code testable, but you should try to avoid this if
-possible. The best testable functions are functions that take raw data in and send
-raw data out. It shouldn’t matter where the data is coming from or going.
+Sonuç olarak, her problem için somut bir çözümle başlayın. Büyük kısmı sadece programlama olsa 
+bile. Ardından, bugünkü kod için MUTLAKA gereken arayüzleri keşfedin.
 
-In the end, start with a concrete solution to every problem. Even if the bulk of that
-is just programming. Then discover the interfaces that are absolutely required for
-the code today.
-
-"Don’t design with interfaces, discover them". - Rob Pike
+"Arayüzlerle tasarlamayın, onları keşfedin." - Rob Pike

@@ -1,35 +1,35 @@
-Struct Types
-Struct types are a way of creating complex types that group fields of data together.
+Yapı Türleri (Struct Types)
+Yapı türleri, veri alanlarını bir araya getirerek karmaşık türler oluşturmanın bir yoludur.
 
-* Struct Types
+* Yapı Türleri (Struct Types)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-Struct types are a way of creating complex types that group fields of data together.
-They are a great way of organizing and sharing the different aspects of the data
-your program consumes.
 
-A computer architecture’s potential performance is determined predominantly by its
-word length (the number of bits that can be processed per access) and, more importantly,
-memory size, or the number of words that it can access.
+Yapı türleri, veri alanlarını bir araya getirerek karmaşık türler oluşturmanın bir yoludur. 
+Programınızın tükettiği verinin farklı yönlerini düzenlemenin ve paylaşmanın harika bir yoludur.
 
-** Code Review
+Bir bilgisayar mimarisinin potansiyel performansı, başlıca kelime uzunluğu (erişim başına işlenebilen 
+bit sayısı) ve daha da önemlisi bellek boyutu veya erişebileceği kelime sayısı tarafından belirlenir.
 
-- *Example* *1:* Declare, create and initialize struct types.
-- *Example* *2:* Anonymous struct types.
-- *Example* *3:* Named vs Unnamed types. 
-- *Example* *4:* Struct type alignments
+** Kod İncelemesi
+
+- *Örnek* *1:* Yapı türlerini bildirme, oluşturma ve başlatma
+- *Örnek* *2:* İsimsiz yapı türleri
+- *Örnek* *3:* İsimli ve isimsiz türlerin karşılaştırılması
+- *Örnek* *4:* Yapı türü hizalamaları
 
 .play struct-types/example1.go
 .play struct-types/example2.go
 .play struct-types/example3.go
 .play struct-types/example4.go
 
-** Struct and Construction Mechanics
+** Yapı ve Oluşturma Mekanizmaları
 
-This declaration represents a concrete user-defined type as a composite of
-different fields and types.
+
+Bu bildiri, farklı alanların ve türlerin bir bileşeni olarak somut bir kullanıcı 
+tanımlı türü temsil eder.
 
     type example struct {
         flag    bool
@@ -37,18 +37,18 @@ different fields and types.
         pi      float32
     }
 
-Declare a variable of type example and initialize it to its zero value state.
+example türünde bir değişken bildirin ve onu sıfır değer durumunda başlatın.
 
     var e1 example
 
     fmt.Printf("%+v\n", e1)
 
-Output:
+Çıktı:
     
     {flag:false counter:0 pi:0}
 
-Declare a variable of type example not set to its zero value state by using literal
-construction syntax.
+example türünde, sıfır değer durumuna ayarlanmamış bir değişkeni, literal yapım 
+sözdizimini kullanarak bildirin.
 
     e2 := example{
         flag:    true,
@@ -60,14 +60,15 @@ construction syntax.
     fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+Çıktı:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-Declare a variable of an unnamed literal type set to its non-zero value state
-using literal construction syntax.
+
+Adlandırılmamış bir literal türün sıfır olmayan değer durumuna sahip bir değişkeni, 
+literal yapı sözdizimini kullanarak bildirin.
 
     e3 := struct {
         flag    bool
@@ -83,21 +84,20 @@ using literal construction syntax.
     fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+Çıktı:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-The idea of literal construction is just that, to construct something literally
-without a name.
+Literal yapımın fikri tam olarak budur, bir şeyi adını kullanmadan doğrudan oluşturmaktır.
 
-You should use var for zero value and the short variable declaration operator with
-the { } syntax for non-zero value construction.
+Sıfır değer için var'ı ve sıfır olmayan değer yapımı için { } sözdizimi ile kısa değişken 
+bildirimi operatörünü kullanmalısınız.
 
-** Padding and Alignment
+** Dolgu ve Hizalama
 
-How much memory is allocated for a value of type example?
+example türünde bir değer için kaç byte bellek ayrılmıştır?
 
     type example struct {
         flag    bool
@@ -105,17 +105,18 @@ How much memory is allocated for a value of type example?
         pi      float32
     }
 
-A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
-and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
-is a padding byte sitting between the flag and counter fields for the reason of alignment.
+Bir bool 1 byte, int16 2 byte ve float32 4 byte'tır. Bunları toplarsanız 7 byte elde edersiniz. 
+Ancak gerçek cevap 8 byte'dır. Neden mi? Çünkü hizalama nedeniyle `Flag` ve `Counter` alanları 
+arasında bir dolgu byte bulunmaktadır.
 
 .image /tour/eng/static/img/f1.png
 
-The idea of alignment is to allow the hardware to read memory more efficiently
-by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+Hizalama, belleği belirli bir hizalama sınırlarına yerleştirerek donanımın belleği 
+daha verimli bir şekilde okumasına izin vermek amacıyla kullanılır. Hizalama sınırları 
+mekaniğiyle ilgilenmek size düşmez, çünkü derleyici bunu halleder.
 
-Depending on the size of a particular field and its placement in the struct, Go
-determines the padding you need.
+Belirli bir alanın boyutuna ve yapı içindeki konumuna bağlı olarak, Go, ihtiyacınız 
+olan dolguyu belirler.
 
     type example2 struct {
         flag    bool
@@ -124,80 +125,79 @@ determines the padding you need.
         pi      float32
     }
 
-In this example, I’ve added a new field called `flag2` between the counter and pi
-fields. This causes more padding inside the struct.
+Bu örnekte, counter ve pi alanları arasına yeni bir alan olan flag2 
+ekledim. Bu, yapı içinde daha fazla dolguya neden olur.
 
     type example2 struct {
-        flag    bool     // 0xc000100020 <- Starting Address
-                byte     // 0xc000100021 <- 1 byte padding
-        counter int16    // 0xc000100022 <- 2 byte alignment
-        flag2   bool     // 0xc000100024 <- 1 byte alignment
-                byte     // 0xc000100025 <- 1 byte padding
-                byte     // 0xc000100026 <- 1 byte padding
-                byte     // 0xc000100027 <- 1 byte padding
-        pi      float32  // 0xc000100028 <- 4 byte alignment
+        flag    bool     // 0xc000100020 <- Başlangıç Adresi
+                byte     // 0xc000100021 <- 1 byte dolgu
+        counter int16    // 0xc000100022 <- 2 byte hizalama
+        flag2   bool     // 0xc000100024 <- 1 byte hizalama
+                byte     // 0xc000100025 <- 1 byte dolgu
+                byte     // 0xc000100026 <- 1 byte dolgu
+                byte     // 0xc000100027 <- 1 byte dolgu
+        pi      float32  // 0xc000100028 <- 4 byte hizalama
     }
 
-This is how the alignment and padding play out if a value of type example2 starts
-at address 0xc000100020. The flag field represents the starting address and is
-only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
-must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
-address that is a multiple of 2. This requires the counter field to start at address
-0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+Eğer bir example2 türündeki bir değer 0xc000100020 adresinde başlıyorsa, hizalama ve 
+dolgu işlevini gösterir. Flag alanı başlangıç ​​adresini temsil eder ve yalnızca 1 byte 
+boyutundadır. Counter alanı için 2 byte tahsis gerektiğinden, bellekte 2 byte hizalama
+olması gerekir, bu da 2'nin katı olan bir adrese düşmesi gerektiği anlamına gelir. 
+Bu, counter alanının 0xc000100022 adresinden başlamasını gerektirir. Bu, flag ve counter 
+alanları arasında 1 byte boşluk oluşturur.
 
 .image /tour/eng/static/img/f2.png
 
-The `flag2` field is a bool and can fall at the next address 0xc000100024. The
-final field is pi and requires 4 bytes of allocation so it needs to fall on a
-4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
-means 3 more padding bytes are needed to maintain a proper alignment. This results
-in a value of type example2 requiring 12 bytes of total memory allocation.
+flag2 alanı bir bool'dur ve 0xc000100024 adresine düşebilir. Son alan pi, 4 byte tahsis 
+gerektirdiğinden 4 byte hizalamada olması gerekir. 4 byte değer için bir sonraki adres 
+0xc000100028'dir. Bu, uygun bir hizalamayı korumak için 3 daha fazla dolgu byte'ına ihtiyaç 
+duyulduğu anlamına gelir. Bu, example2 türündeki bir değerin toplamda 12 byte bellek tahsisi 
+gerektirdiği anlamına gelir.
 
-The largest field in a struct represents the alignment boundary for the entire
-struct. In this case, the largest field is 4 bytes so the starting address for this
-struct value must be a multiple of 4. You can see the address 0xc000100020 is a
-multiple of 4.
+Bir yapıdaki en büyük alan, tüm yapı için hizalama sınırını temsil eder. Bu durumda en büyük 
+alan 4 byte olduğundan, bu yapı değerinin başlangıç adresi 4'ün katı olmalıdır. 0xc000100020 
+adresinin 4'ün katı olduğunu görebilirsiniz.
 
-If you need to minimize the amount of padding bytes, you must lay out the fields from
-highest allocation to lowest allocation. This will push any necessary padding bytes
-down to the bottom of the struct and reduce the total number of padding bytes necessary.
+Dolgu byte'larının miktarını en aza indirmeniz gerekiyorsa, alanları en yüksek tahsise göre 
+en düşük tahsile doğru düzenlemeniz gerekir. Bu, gerekli dolgu byte'larını yapı altına itmeye 
+ve toplam dolgu byte sayısını azaltmaya yardımcı olacaktır.
 
     type example struct {
-        pi      float32  // 0xc000100020 <- Starting Address
-        counter int16    // 0xc000100024 <- 2 byte alignment
-        flag    bool     // 0xc000100026 <- 1 byte alignment
-        flag2   bool     // 0xc000100027 <- 1 byte alignment
+        pi      float32  // 0xc000100020 <- Başlangıç Adresi
+        counter int16    // 0xc000100024 <- 2 byte hizalama
+        flag    bool     // 0xc000100026 <- 1 byte hizalama
+        flag2   bool     // 0xc000100027 <- 1 byte hizalama
     }
 
-After the reordering of the fields, the struct value only requires 8 bytes of
-allocation and not 12 bytes. Since all the fields allow the struct value to fall
-on a 4-byte alignment, no extra padding bytes are necessary.
+Alanların yeniden düzenlenmesinden sonra, yapı değeri 12 byte yerine sadece 8 byte tahsis gerektirir.
+Tüm alanlar, yapı değerinin 4 byte hizalamada düşmesine izin verdiği için ekstra dolgu byte'ları 
+gerekli değildir.
 
 .image /tour/eng/static/img/f3.png
 
-** Assigning Values
+** Değer Atama
 
-If you have two different named types that are identical in structure, you can't assign
-a value of one to the other.
+Eğer aynı yapıda olan iki farklı adlandırılmış türünüz varsa, birinin değerini diğerine 
+atayamazsınız.
 
-For example, if the types example1 and example2 are declared using the same exact
-declaration and we initialize two variables.
+Örneğin, example1 ve example2 tipleri tam olarak aynı bildiri kullanılarak bildirilirse ve 
+iki değişken başlatılırsa.
 
     var ex1 example1
     var ex2 example2
 
-You can’t assign these two variables to each other since they are of different named
-types. The fact that they are identical in structure is irrelevant. 
+Bu iki değişkeni birbirlerine atayamazsınız çünkü bunlar farklı adlandırılmış türlerdir. 
+Yapıları tamamen aynı olmaları bu durumda önemsizdir.
 
-    ex1 = ex2  // Not allowed, compiler error
+    ex1 = ex2  // İzin verilmez, derleme hatası
 
-To perform this assignment, you would have to use conversion syntax and since they
-are identical in structure, the compiler will allow this.
+Bu atama işlemi için dönüşüm sözdizimini kullanmanız gerekir ve yapıları tamamen 
+aynı olduğundan derleyici buna izin verecektir.
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2)  // İzin verilir, derleme hatası yok
 
-However, if ex2 was changed to be declared as an unnamed type using the same exact
-declaration as ex1, no conversion syntax would be required.
+Ancak, eğer ex2, ex1 ile aynı deklarasyonu kullanarak adlandırılmamış bir tür olarak 
+değiştirilirse, dönüşüm sözdizimine ihtiyaç duyulmaz.
 
     var ex2 struct {
         flag    bool
@@ -205,22 +205,22 @@ declaration as ex1, no conversion syntax would be required.
         pi      float32
     }
 
-    ex1 = ex2  // Allowed, NO need for conversion syntax
+    ex1 = ex2  // İzin verilir, dönüşüm sözdizimine gerek yok
 
-The compiler will allow this assignment without the need for conversion.
+Derleyici, dönüşüm gerekmeden bu atamaya izin verecektir.
 
-** Notes
+** Notlar
 
-- We can use the struct literal form to initialize a value from a struct type.
-- The dot (.) operator allows us to access individual field values.
-- We can create anonymous structs.
+- Bir yapı türünden bir değeri başlatmak için yapı literal formunu kullanabiliriz.
+- Nokta (.) operatörü, bireysel alan değerlerine erişmemize izin verir.
+- Anonim yapılar oluşturabilirsiniz.
 
-** Quotes
+** Alıntılar
 
-"Implicit conversion of types is the Halloween special of coding. Whoever thought
-of them deserves their own special hell." - Martin Thompson
+"Türlerin dolaylı dönüşümü, kodlamanın Cadılar Bayramı özelidir. Onları düşünen kim 
+varsa, kendi özel cehennemini hak ediyor." - Martin Thompson
 
-** Extra Reading
+** Ek Okuma
 
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
@@ -228,18 +228,18 @@ of them deserves their own special hell." - Martin Thompson
 - [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
 - [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Olası bir çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-*Part* *A:* Declare a struct type to maintain information about a user (name,
-email and age). Create a value of this type, initialize with values and display
-each field.
+*Kısım* *A:* Bir kullanıcı hakkında bilgi tutmak için bir yapı türü bildirin 
+(isim, e-posta ve yaş). Bu türde bir değer oluşturun, değerlerle başlatın ve 
+her alanı görüntüleyin.
 
-*Part* *B:* Declare and initialize an anonymous struct type with the same three
-fields. Display the value.
+*Kısım* *B:* Aynı üç alana sahip anonim bir yapı türü bildirin ve başlatın.
+Değeri görüntüleyin.
 
 .play struct-types/exercise1.go
 .play struct-types/answer1.go

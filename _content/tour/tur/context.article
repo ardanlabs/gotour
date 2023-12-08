@@ -1,25 +1,24 @@
-Context Package
-The package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+Bağlam Paketi (Context)
+Bağlam paketi, API sınırları ve süreçler arasında ölçümler, iptal sinyalleri ve diğer istek kapsamlı değerleri taşıyan Bağlam tipini tanımlar.
 
-* Context Package
+* Bağlam Paketi (Context)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-The package context defines the Context type, which carries deadlines, cancellation
-signals, and other request-scoped values across API boundaries and between processes.
+Paket "context", öncelikle son tarihleri, iptal sinyallerini ve diğer API sınırları arasında ve süreçler 
+arasında talep kapsamlı değerleri taşıyan "Context" türünü tanımlar.
 
-** Code Review
+** Kod İnceleme
 
-"Context values are for request-scoped data that passes through programs in a
-distributed system.
+"Context" değerleri, dağıtılmış bir sistemde programlardan geçen talep kapsamlı veriler içindir.
 
-- *Example* *1:* Store / Retrieve Values
-- *Example* *2:* WithCancel
-- *Example* *3:* WithDeadline
-- *Example* *4:* WithTimeout
-- *Example* *5:* Request/Response
-- *Example* *6:* Cancellation
+- *Örnek* *1:* Değerleri Sakla / Al
+- *Örnek* *2:* WithCancel
+- *Örnek* *3:* WithDeadline
+- *Örnek* *4:* WithTimeout
+- *Örnek* *5:* İstek/Cevap
+- *Örnek* *6:* İptal
 
 .play context/example1.go
 .play context/example2.go
@@ -28,57 +27,56 @@ distributed system.
 .play context/example5.go
 .play context/example6.go
 
-** Context Semantics
+** Bağlam Semantiği
 
-The Go programming language has the built-in keyword go to create goroutines, but
-has no keywords or direct support for terminating goroutines. In a real world service,
-the ability to time-out and terminate goroutines is critical for maintaining the health
-and operation of a service. No request or task can be allowed to run forever so
-identifying and managing latency is a responsibility every programmer has.
+Go programlama dilinde, gorutinleri oluşturmak için yerleşik "go" anahtar kelimesi bulunsa da,
+gorutinleri sonlandırmak için anahtar kelimeler veya doğrudan destek bulunmamaktadır. Gerçek bir 
+hizmette, gorutinleri zaman aşımına uğratma ve sonlandırma yeteneği, bir hizmetin sağlığını ve 
+işleyişini sürdürmek için kritiktir. Hiçbir talep veya görevin sürekli çalışmasına izin verilemez, 
+bu nedenle gecikmeyi tanımlama ve yönetme görevi her programcının sorumluluğundadır.
 
-A solution provided by the Go team to solve this problem is the Context package.
-It was written and introduced by Sameer Ajmani back in 2014 at the Gotham Go
-conference. He also wrote a blog post for the Go blog.
+Bu sorunu çözmek için Go ekibi tarafından sağlanan bir çözüm, "Context" paketidir. Sameer Ajmani 
+tarafından 2014 yılında Gotham Go konferansında yazılmış ve tanıtılmıştır. Ayrıca Go blogu için bir 
+blog yazısı da yazmıştır.
 
-Slide Deck: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
+Sunum Dosyası: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
 
-Blog Post: [[https://blog.golang.org/context][https://blog.golang.org/context]]
+Blog Yazısı: [[https://blog.golang.org/context][https://blog.golang.org/context]]
 
-Through this published work and conversations with Sameer over the years,
-a set of semantics have evolved.
+Bu yayınlanmış çalışma ve yıllar içinde Sameer ile yapılan konuşmalardan 
+elde edilen bir dizi anlam evrimleşmiştir.
 
-*Incoming* *requests* *to* *a* *server* *should* *create* *a* *Context*
+*Sunucuya* *gelen* *istekler* *bir* *bağlam* *oluşturmalıdır*
 
-The time to create a Context is always as early as possible in the processing of a
-request or task. Working with Context early in the development cycle will force you
-to design API’s to take a Context as the first parameter. Even if you are not 100%
-sure a function needs a Context, it’s easier to remove the Context from a few
-functions than try to add Context later.
-
-    75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
-    76 // pair, this makes for really easy, convenient routing.
+Bir Bağlam oluşturmanın zamanı her zaman isteğin veya görevin işlenmesinin başlangıcında 
+olmalıdır. Bağlam'ı geliştirme döngüsünde erken kullanmak, API'ları Bağlam'ı ilk 
+parametre olarak alacak şekilde tasarlamaya zorlar. Bir fonksiyonun kesin olarak bir Bağlam'a 
+ihtiyaç duyup duymadığından emin değilseniz, Bağlam'ı birkaç fonksiyondan kaldırmak, daha 
+sonra Bağlam eklemeye çalışmaktan daha kolaydır.
+ 
+    75 // Handle, HTTP fiili ve yol çifti için Handlers monte etme mekanizmamızdır, 
+    75 // bu gerçekten kolay ve kullanışlı yönlendirmeler sağlar.    
     77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
     ...
-    85     // The function to execute for each request.
+    85     // Her istek için yürütülecek fonksiyon.
     86     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
     87         ctx, span := trace.StartSpan(r.Context(), "internal.platform.web")
     88         defer span.End()
     ...
-    106    // Add this handler for the specified verb and route.
+    106    // Belirtilen fiil ve rota için bu işleyiciyi ekleyin.
     107    a.TreeMux.Handle(verb, path, h)
     108 }
 
-You see code taken from the service project we teach at Ardan Labs. Line 86 defines
-a handler function that is bound to all routes as shown on line 107. It’s this
-function that starts to process any incoming requests. On line 87, a span is created
-for the request which takes as its first parameter a Context. This is the first
-time in the service code a Context is needed.
+Burada Ardan Labs'ta öğrettiğimiz servis projesinden alınan kodu görüyorsunuz. 
+Satır 86, tüm rotalara bağlanan bir işleyici fonksiyonu tanımlar, ki bu, satır 107'de 
+gösterilir. Bu fonksiyon, herhangi bir gelen isteği işlemeye başlayan fonksiyondur. 
+Satır 87'de, istek için bir bağlam içeren bir span oluşturulur. Bu, servis kodunda 
+bir Bağlam'ın ilk kez gerektiği yerdir.
 
-What’s great here is that the http.Request value already contains a Context. This
-was added in version 1.7 of Go. This means the code doesn’t need to manually create
-a top-level Context. If we were using version 1.8 of Go, then you would need to
-create an empty Context before the call to StartSpan by using the context.Background
-function.
+Burada harika olan şey, http.Request değerinin zaten bir Bağlam içermesi. Bu, Go'nun 1.7 
+sürümünde eklendi. Bu, kodun manuel olarak üst düzey bir Bağlam oluşturmasına gerek 
+olmadığı anlamına gelir. Eğer Go'nun 1.8 sürümünü kullanıyorsanız, context.Background 
+fonksiyonunu kullanarak StartSpan çağrısından önce boş bir Bağlam oluşturabilirsiniz.
 
     https://golang.org/pkg/context/#Background
 
@@ -86,15 +84,15 @@ function.
     88         ctx, span := trace.StartSpan(ctx, "internal.platform.web")
     89         defer span.End()
 
-This is what the code would have to look like in version 1.8 of Go. As it’s described
-in the package documentation,
+Bu, Go'nun 1.8 sürümündeki Paket belgelerinde açıklandığı gibi kodun nasıl görünmesi 
+gerektiğini açıklar.
 
-Background returns a non-nil, empty Context. It’s never canceled, has no values,
-and has no deadline. It is typically used by the main function, initialization,
-and tests, and as the top-level Context for incoming requests.
+Background, nil olmayan, boş bir Bağlam döndürür. İptal edilmemiştir, değer içermez 
+ve sona erme süresi yoktur. Genellikle ana fonksiyon, başlatma ve testlerde kullanılır 
+ve gelen istekler için üst düzey Bağlam olarak kullanılır.
 
-It’s an idiom in Go to use the variable name ctx for all Context values. Since a
-Context is an interface, no pointer semantics should be used.
+Go'da tüm Bağlam değerleri için değişken adı olarak genellikle ctx kullanmak bir 
+idiyomdur. Bir Bağlam bir arabirim olduğundan, işaretçi semantiği kullanılmamalıdır.
 
     https://golang.org/pkg/context/#Context
 
@@ -105,14 +103,14 @@ Context is an interface, no pointer semantics should be used.
         Value(key interface{}) interface{}
     }
 
-Every function that accepts a Context should get its own copy of the interface value.
+Herhangi bir Context'i kabul eden her fonksiyon, arayüz değerinin kendi kopyasını almalıdır.
 
-*Outgoing* *calls* *to* *servers* *should* *accept* *a* *Context*
+*Servers'a* *yapılan* *çağrılar*, *bir* *Bağlam* *kabul* *etmelidir*
 
-The idea behind this semantic is that higher level calls need to tell lower level
-calls how long they are willing to wait. A great example of this is with the http
-package and the version 1.7 changes made to the Do method to respect timeouts on
-a request.
+Bu semantiğin arkasındaki fikir, daha yüksek seviyeli çağrıların daha alt düzeydeki 
+çağrılara ne kadar süre beklemeye istekli olduklarını söylemeleridir. Bunun harika 
+bir örneği, http paketi ve 1.7 sürümündeki Do metoduna yapılan süre aşımına saygı 
+gösteren değişikliklerdir.
 
     01 package main
     02 
@@ -127,70 +125,66 @@ a request.
     11 
     12 func main() {
     13
-    14     // Create a new request.
+    14     // Yeni bir istek oluşturun.
     15     req, err := http.NewRequest("GET", "https://www.ardanlabs.com/blog/post/index.xml", nil)
     16     if err != nil {
     17         log.Println("ERROR:", err)
     18         return
     19     }
     20
-    21     // Create a context with a timeout of 50 milliseconds.
+    21     // 50 milisaniyelik bir zaman aşımı ile bir bağlam oluşturun.
     22     ctx, cancel := context.WithTimeout(req.Context(), 50*time.Millisecond)
     23     defer cancel()
     24
-    25     // Bind the new context into the request.
+    25     // Yeni metodu isteğe bağlayın.
     26     req = req.WithContext(ctx)
     27
-    28     // Make the web call and return any error. Do will handle the
-    29     // context level timeout.
+    28     // Web çağrısını yapın ve herhangi bir hatayı döndürün. Do, bağlam             
+    29     // düzeyindeki zaman aşımını yönetecektir.
     30     resp, err := http.DefaultClient.Do(req)
     31     if err != nil {
     32       log.Println("ERROR:", err)
     33       return
     34     }
     35
-    36     // Close the response body on the return.
+    36     // Dönüşte yanıt gövdesini kapatın.
     37     defer resp.Body.Close()
     38
-    39     // Write the response to stdout.
+    39     // Yanıtı stdout'a yazın.
     40     io.Copy(os.Stdout, resp.Body)
     41 }
 
-This program issues a request for the Ardan rss blog feed with a timeout of 50
-milliseconds. On lines 15-19, the request is created to make a GET call against
-the provided URL. Lines 22-23 create a Context with a 50 millisecond timeout. A
-new API added to the Request value back in version 1.7 is the WithContext method.
-This method allows the Request value’s Context field to be updated. On line 26,
-that is exactly what the code is doing.
+Bu program, 50 milisaniyelik bir süre aşımı ile Ardan rss blog beslemesi için bir 
+isteği simgeler. 15-19 satırlarda, istek, sağlanan URL'ye karşı bir GET çağrısı 
+yapmak için oluşturulur. 22-23 satırlarda, 50 milisaniyelik bir süre aşımı ile bir 
+bağlam oluşturulur. 26. satırda, bu bağlam değeri kodun tam olarak ne yaptığını gösterir.
 
-On line 30, the actual request is made using the Do method from the http package’s
-DefaultClient value. The Do method will respect the timeout value of 50 milliseconds
-that is now set inside the Context within the Request value. What you are seeing is the
-code (higher level function) telling the Do method (lower level function) how long
-we're willing to wait for the Do operation to be completed.
+30. satırda, gerçek istek, http paketinin DefaultClient değerinden Do metodu kullanılarak 
+yapılır. Do metodu, şimdi Bağlam içinde ayarlanan 50 milisaniye süre aşımına saygı 
+gösterecektir. Gördüğünüz şey, kodun (yüksek seviyeli fonksiyon) Do metoduna (düşük seviyeli 
+fonksiyon) işlemin tamamlanması için ne kadar süre beklemeye istekli olduğunu söylemesidir.
 
-*Do* *not* *store* *Contexts* *inside* *a* *struct* *type*
+*Bir* *Bağlamı* *bir* *yapı* *türü* *içinde* *saklamayın*
 
-Instead, pass a Context explicitly to each function that needs it. Essentially, any
-function that is performing I/O should accept a Context value as it’s first parameter
-and respect any timeout or deadline configured by the caller. In the case of Request,
-there was backwards compatibility issues to consider. So instead of changing the API’s,
-the mechanic shown in the last section was implemented.
+Bunun yerine, ihtiyacı olan her fonksiyona açıkça bir Bağlam geçirin. Temelde, giriş/çıkış 
+yapan herhangi bir fonksiyon, ilk parametre olarak bir Bağlam değeri almalı ve çağırana 
+tarafından yapılandırılan herhangi bir zaman aşımını veya son tarihini saygı göstermelidir. 
+Request için, geriye dönük uyumluluk sorunları göz önüne alınmalıdır. Bu nedenle API'lerin 
+değiştirilmesi yerine, son bölümde gösterilen mekanik uygulandı.
 
-There are exceptions to every rule. However, within the scope of this post and any
-API’s from the standard library that take a Context, the idiom is to have the first
-parameter accept the Context value.
+Her kuralın istisnaları vardır. Ancak, bu gönderi ve standart kütüphanedeki herhangi 
+bir API için Bağlam kabul edenler arasında, idiyomun ilk parametreyi Bağlam değeri 
+olarak kabul etmesi gerektiğidir.
 
 .image /tour/eng/static/img/context_figure1.png
 
-The figure shows an example from the net package where the first parameter of each
-method takes a Context as the first parameter and uses the ctx variable name idiom.
+Şekil, her yöntemin ilk parametresinin bir Bağlamı ilk parametre olarak alması ve 
+ctx değişken adı idiyomunu kullanması gerektiği net bir şekilde gösterir.
 
-*The* *chain* *of* *function* *calls* *between* *them* *must* *propagate* *the* *Context*
+*Aralarındaki* *fonksiyon* *çağrılarının* *zinciri* *Bağlamı* *iletmelidir*
 
-This is an important rule since a Context is request or task based. You want the
-Context and any changes made to it during the processing of the request or task
-to be propagated and respected.
+Bu, bir Bağlamın istek veya görev temelli olduğu bir kuraldır. İstek veya görevin 
+işlenmesi sırasında yapılan değişikliklerin Bağlam iletilmeli ve saygı görmelidir.
 
     23 // List returns all the existing users in the system.
     24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
@@ -205,16 +199,15 @@ to be propagated and respected.
     33     return web.Respond(ctx, w, users, http.StatusOK)
     34 }
 
-In this listing you see a handler function called List which is executed when a
-user makes an HTTP request for this endpoint. The handler accepts as its first
-parameter a Context, since it’s part of a request and will perform I/O. You can
-see on lines 25, 28 and 33 that the same Context value is propagated down the
-call stack.
+Bu listelemede, bir kullanıcı bu uç nokta için bir HTTP isteği yaparsa yürütülen 
+bir işleyici fonksiyonu görüyorsunuz. İşleyici, bir istek parçası olduğundan ve I/O 
+gerçekleştireceğinden, ilk parametresi bir Bağlamı kabul eder. 25, 28 ve 33 satırlarda, 
+aynı Bağlam değeri call stack boyunca iletilir.
 
-A new Context value is not created since this function requires no changes to it.
-If a new top-level Context value would be created by this function, any existing
-Context information from a higher-level call associated with this request would
-be lost. This is not what you want.
+Bu fonksiyonun bunu gerekli kılan herhangi bir değişiklik yapmadığı için yeni bir 
+Bağlam değeri oluşturulmaz. Eğer bu fonksiyon tarafından yeni bir üst düzey Bağlam değeri 
+oluşturulursa, bu çağrı ile ilişkilendirilmiş yukarıdaki çağrının mevcut Bağlam 
+bilgisi kaybolurdu. Bu istenmeyen bir durumdur.
 
     33 // List retrieves a list of existing users from the database.
     34 func List(ctx context.Context, db *sqlx.DB) ([]User, error) {
@@ -231,18 +224,17 @@ be lost. This is not what you want.
     45     return users, nil
     46 }
 
-You see the declaration of the List method that was called on line 28. Once again
-this method accepts a Context as its first parameter. This value is then propagated
-down the call stack once again on lines 35 and 41. Since line 41 is a database call,
-that function should be respecting any timeout information set in the Context from
-any caller above.
+28. satırdan çağrılan List yönteminin deklarasyonunu görüyorsunuz. Yine, bu yöntem, 
+ilk parametresi olarak bir Bağlam kabul eder. Bu değer daha sonra 35 ve 41 satırlarında 
+call stack boyunca iletilir. 41. satır bir veritabanı çağrısı olduğundan, bu fonksiyonun 
+yukarıdan gelen Bağlam içinde ayarlanan süre aşımına saygı göstermesi gerekir.
 
-*Replace* *a* *Context* *using* *WithCancel,* *WithDeadline,* *WithTimeout,* *or* *WithValue*
+*Bir* *Bağlamı* *WithCancel,* *WithDeadline,* *WithTimeout* *veya* *WithValue* *ile* *değiştirin*
 
-Because each function can add/modify the Context for their specific needs, and
-those changes should not affect any function that was called before it, the Context
-uses value semantics. This means any change to a Context value creates a new Context
-value that is then propagated forward.
+Her fonksiyon, kendi özel ihtiyaçlarına göre Bağlamı ekleyebileceği veya değiştirebileceği 
+için ve bu değişikliklerin herhangi bir şekilde önceki çağrıları etkilememesi gerektiği için, 
+Bağlam değerleri değer semantiği kullanır. Bu, bir Bağlam değerine yapılan herhangi bir 
+değişikliğin, ileriye doğru iletilen yeni bir Bağlam değeri oluşturduğu anlamına gelir.
 
     01 func main() {
     02
@@ -277,114 +269,101 @@ value that is then propagated forward.
     31     }
     32 }
 
-This is a small program that shows the value semantic nature of the WithTimeout
-function. On line 08, the call to WithTimeout returns a new Context value and a
-cancel function. Since the function call requires a parent Context, the code uses
-the Background function to create a top-level empty Context. This is what the
-Background function is for.
+Bu, WithTimeout fonksiyonunun değer semantiği doğasını gösteren küçük bir programdır. 
+08. satırda WithTimeout çağrısı, yeni bir Bağlam değeri ve bir iptal fonksiyonu döndirir. 
+Çağrı için bir üst Bağlam gerektiğinden, kod, üst düzey boş bir Bağlam oluşturmak için 
+Background fonksiyonunu kullanır. Bu, Background fonksiyonunun kullanım amacıdır.
 
-Moving forward the Context value created by the WithTimeout function is used. If
-any future functions in the call chain need their own specific timeout or deadline,
-they should also use the appropriate With function and this new Context value as
-the parent.
+İlerledikçe WithTimeout fonksiyonu tarafından oluşturulan Bağlam değeri kullanılır. 
+Gelecekteki fonksiyon çağrılarında kendi belirli zaman aşımını veya son tarihini gerektiren 
+herhangi bir fonksiyon ise uygun With fonksiyonunu kullanmalı ve bu yeni Bağlam değerini üst 
+Bağlam olarak kullanmalıdır.
 
-It’s critically important that any cancel function returned from a With function
-is executed before that function returns. This is why the idiom is to use the defer
-keyword right after the With call, as you see on line 26. Not doing this will cause
-memory leaks in your program.
+Herhangi bir With fonksiyonundan dönen herhangi bir iptal fonksiyonunun, fonksiyonun geri 
+dönmesinden hemen önce yürütülmesi kritik öneme sahiptir. Bu nedenle idiyomun, With 
+çağrısından hemen sonra gösterildiği gibi, satır 26'da gösterildiği gibi hemen iptal 
+fonksiyonunu kullanmaktır. Bunu yapmamak, programınızda bellek sızıntılarına neden olacaktır.
 
-*When* *a* *Context* *is* *canceled,* *all* *Contexts* *derived* *from* *it* *are* *also* *canceled*
+*Bir* *Bağlam* *iptal* *edildiğinde,* *ondan* *türetilen* *tüm* *Bağlamlar* *da* *iptal* *edilir*
 
-The use of value semantics for the Context API means each new Context value is
-given everything the parent Context has plus any new changes. This means if a
-parent Context is cancelled, all children derived by that parent Context are
-cancelled as well.
+Bağlam API'sinin değer semantiği kullanımı, her yeni Bağlam değerinin ebeveyn 
+Bağlamın sahip olduğu her şeye sahip olduğu anlamına gelir. Bu, bir ebeveyn 
+Bağlamın iptal edildiğinde, bu ebeveyn Bağlamdan türetilen tüm çocuklarının da 
+iptal edileceği anlamına gelir.
 
     01 func main() {
     02
-    03     // Create a Context that can be cancelled.
+    03     // İptal edilebilen bir bağlam oluşturun.
     04     ctx, cancel := context.WithCancel(context.Background())
     05     defer cancel()
     06
-    07     // Use the Waitgroup for orchestration.
+    07     // Orkestrasyon için Waitgroup kullanın.
     08     var wg sync.WaitGroup
     09     wg.Add(10)
     10
-    11     // Create ten goroutines that will derive a Context from
-    12     // the one created above.
+    11     // Üzerinde oluşturulan bağlamdan türeyen on gorutin
+    12     // oluşturun.
     13     for i := 0; i < 10; i++ {
     14         go func(id int) {
     15             defer wg.Done()
     16
-    17             // Derive a new Context for this goroutine from the Context
-    18             // owned by the main function.
+    17             // Bu gorutin için yeni bir bağlam oluşturun ve bunu ana
+    18             // işlevin sahip olduğu bağlamdan türetin.
     19             ctx := context.WithValue(ctx, key, id)
     20
-    21             // Wait until the Context is cancelled.
+    21             // Bağlam iptal edilene kadar bekleyin.
     22             <-ctx.Done()
     23             fmt.Println("Cancelled:", id)
     24         }(i)
     25     }
     26
-    27     // Cancel the Context and any derived Context's as well.
+    27     // Bağlamı ve türetilmiş bağlamları iptal edin.
     28     cancel()
     29     wg.Wait()
     30 }
 
-This program creates a Context value that can be cancelled on line 04. Then on
-lines 13-25, ten goroutines are created. Each goroutine places their unique id
-inside their own Context value on line 19. The call to WithValue is passed the
-main function’s Context value as its parent. Then on line 22, each goroutine waits
-until their Context is cancelled.
+Bu program, iptal edilebilen bir Bağlam değeri oluşturur (04. satır). Sonra 11-22 
+satırları arasında on gorutin oluşturulur. Her bir gorutin, kendi benzersiz 
+kimliğini 19. satırda içeren kendi Bağlam değerini oluşturur. WithValue çağrısı, 
+ana fonksiyonun Bağlam değeri olarak geçirilir. Ardından 22. satırda, her bir Bağlam 
+iptal edilene kadar beklerler.
 
-On line 28, the main goroutine cancels its Context value and then waits on line 29
-for all ten of the goroutines to receive the signal before shutting down the program.
-Once the cancel function is called, all ten goroutines on line 41 will become
-unblocked and print that they have been cancelled. One call to cancel to cancel
-them all.
+28. satırda, ana gorutin Bağlam değerini iptal eder ve ardından 29. satırda programı 
+kapatmadan önce on tane gorutin'in de iptal sinyali almasını bekler. Cancel çağrısı 
+yapıldığında, 41. satırın tüm on gorutin'i de iptal olmuş ve iptal edildiklerini 
+belirten bir mesaj yazdırmış olmalıdır. Bir çağrı ile onların hepsini iptal eder.
 
-This also shows that the same Context may be passed to functions running in different
-goroutines. A Context is safe for simultaneous use by multiple goroutines.
+Bu aynı zamanda aynı Bağlamın farklı gorünümde çalışan fonksiyonlara geçirilebileceğini 
+gösterir. Bir Bağlam, aynı anda birden fazla gorutin tarafından kullanım için güvenlidir.
 
-Do not pass a nil Context, even if a function permits it. Pass a TODO context if
-you are unsure about which Context to use. One of my favorite parts of the Context
-package is the TODO function. I am a firm believer that a programmer is always
-drafting code. This is no different than a writer who is drafting versions of an
-article. You never know everything as you write code, but hopefully you know enough
-to move things along. In the end, you are constantly learning, refactoring and
-testing along the way.
+Boş bir Bağlamı iletmeyin, hatta bir fonksiyon buna izin veriyorsa bile. Kullanılacak uygun 
+bir Bağlam hakkında belirsiz olduğunuzda context.TODO'yu kullanın. Bağlamınızın nereden 
+geldiğini tam olarak bilmeseniz bile, bir Bağlamın geçici bir üst düzey Bağlam olduğunu 
+bildiğinizde TODO fonksiyonunu kullanmalısınız. Bu, Background fonksiyonu yerine TODO fonksiyonunu 
+kullanmanız gerektiği durumlardır.
 
-There have been many times when I knew I needed a Context but was unsure where it
-would come from. I knew I was not responsible for creating the top-level Context
-so using the Background function was out of the question. I needed a temporary
-top-level Context until I figured out where the actual Context was coming from.
-This is when you should use the TODO function over the Background function.
+*Yalnızca* *talep* *kapsamlı* *veriler* *için* *Bağlam* *değerlerini* *kullanın*
 
-*Use* *Context* *values* *only* *for* *request-scoped* *data*
+İsteğe bağlı parametreleri fonksiyonlara geçirmek için Bağlamı kullanmayın. Belki de en önemli 
+anlamdır. Bir Bağlam değerini, fonksiyonun kodunu başarıyla yürütebilmesi için gereken verileri 
+işlemede kullanmayın. Başka bir deyişle, bir fonksiyon, Bağlam değeri olmadan mantığını 
+yürütebilmelidir. Bir fonksiyon, Bağlam içindeki bilgilere ihtiyaç duyuyorsa ve bu bilgi eksikse, 
+program başarısız olmalı ve uygulamanın kapatılmasını belirten bir sinyal göndermelidir.
 
-Don't use the Context for passing optional parameters to functions. This might be
-the most important semantic of all. Do not use the Context value to pass data into
-a function when that data is required by the function to execute its code successfully.
-In other words, a function should be able to execute its logic with an empty Context
-value. In cases where a function requires information to be in the Context, if that
-information is missing, the program should fail and signal the application to shutdown.
+Bağlam içindeki bilgiye ihtiyaç duyan bir fonksiyonun bir örneği, veritabanı bağlantılarıyla ilgili 
+olarak Bağlamı kullanmanın yanlış kullanımıdır. Veri taşımanın en iyi yolu olan bu sırayı 
+takip etmek istersiniz:
 
-A classic example of the misuse of passing data into a function call using Context
-is with database connections. As a general rule, you want to follow this order when
-moving data around your program.
+Veriyi fonksiyon parametresi olarak geçirin: Bu, veriyi gizlemeden programdaki veriyi 
+taşımanın en açık yoludur.
 
-Pass the data as a function parameter This is the clearest way to move data around
-the program without hiding it.
+Veriyi alıcının içinden geçirin: İhtiyacınız olan veri fonksiyonun imzasını değiştiremiyorsa, 
+o zaman bir yöntem kullanın ve veriyi alıcının içinden geçirin.
 
-Pass the data through the receiver If the function that needs the data can’t have
-its signature altered, then use a method and pass the data through the receiver.
+Kullanıcılar için bir fonksiyonun bağlam içindeki bir bilgiyi değil, bu fonksiyonun bağlamın içindeki 
+bir bilgiyi taşıyan bir yapısı olması gerektiği bir örneği şöyle:
 
-Quick example of using a receiver
-
-Request handlers are a classic example of the second rule. Since a handler function
-is bound to a specific declaration, the handler signature can’t be altered.
-
-    23 // List returns all the existing users in the system.
+    23 // List, sistemdeki tüm mevcut kullanıcıları döndürür.
     24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
     25     ctx, span := trace.StartSpan(ctx, "handlers.User.List")
     26     defer span.End()
@@ -397,29 +376,28 @@ is bound to a specific declaration, the handler signature can’t be altered.
     33     return web.Respond(ctx, w, users, http.StatusOK)
     34 }
 
-Here you see the List handler method from the service project. The signature of
-these methods are bound to the what the web framework defined and they can’t be
-altered. However, to make the business call on line 28, a database connection is
-required. This code finds the connection pool not from the Context value that is
-passed in, but from the receiver.
+Burada, servis projesindeki List metodunu görüyorsunuz. Bu metodun imzaları web 
+çerçevesi tarafından tanımlandığından değiştirilemez. Ancak, iş çağrısını yapmak 
+için 28. satırda bir veritabanı bağlantısına ihtiyaç vardır. Bu kod, Bağlam değeri 
+üzerinden bu bilgiyi almak yerine, bu bilgiyi alan alıcıdan alır.
 
-    15 // User represents the User API method handler set.
+    15 // User, User API metodu işleyici setini temsil eder.
     16 type User struct {
     17     db            *sqlx.DB
     18     authenticator *auth.Authenticator
     19
-    20 // ADD OTHER STATE LIKE THE LOGGER AND CONFIG HERE.
+    20 // BURAYA LOGGER VE CONFIG GİBİ DİĞER DURUMLARI EKLEYİN.
     21 }
 
-You see the declaration of the receiver type. Anything that a request handler needs
-is defined as fields. This allows for information to not be hidden and for the business
-layer to function with an empty Context value.
+Alıcı türünün deklarasyonunu görüyorsunuz. Bir fonksiyonun ihtiyaç duyduğu her şeyi alanlar 
+olarak alan her şey bu türde tanımlanır. Bu, bilginin gizlenmediği ve iş mantığının boş 
+bir Bağlam değeriyle çalışabilmesine izin veren bir modeldir.
 
-    14 // API constructs an http.Handler with all application routes defined.
+    14 // API, tanımlanan tüm uygulama rotalarıyla bir http.Handler oluşturur.
     15 func API(shutdown chan os.Signal, log *log.Logger, db *sqlx.DB, authenticator *auth.Authenticator) http.Handler {
     16
     ...
-    26     // Register user management and authentication endpoints.
+    26     // Kullanıcı yönetimi ve kimlik doğrulama uç noktalarını kaydedin.
     27     u := User{
     28         db:            db,
     29         authenticator: authenticator,
@@ -427,49 +405,49 @@ layer to function with an empty Context value.
     31
     32     app.Handle("GET", "/v1/users", u.List)
 
-This code constructs a User value and then binds the List method into the route.
-Once again, since the signature of a handler function is unchangeable, using a
-receiver and methods is the next best way to pass data without it being hidden.
+Bu kod bir User değeri oluşturur ve ardından List metodunu rotaya bağlar. Yine, 
+bir işleyici fonksiyonun imzası değiştirilemez olduğu için, bir alıcı ve metodları
+kullanmak, verinin gizlenmeden iletilmesi için bir sonraki en iyi yoldur.
 
-*Debugging* *or* *tracing* *data* *is* *safe* *to* *pass* *in* *a* *Context*
+*Hata* *Ayıklama* *veya* *izleme* *verisi,* *Bir* *Bağlam* *içinde* *güvenlidir*
 
-Data that can be stored and received from a Context value is debug and tracing information.
+Bir Bağlam değerinden depolanabilir ve alınabilir veri, hata ayıklama ve izleme bilgileridir.
 
-    23 // Values represent state for each request.
+    23 // Değerler, her istek için durumu temsil eder.
     24 type Values struct {
     25     TraceID    string
     26     Now        time.Time
     27     StatusCode int
     28 }
 
-Here is a declaration of a type that is constructed and stored inside each Context
-value created for a new request. The three fields provide tracing and debugging
-information for the request. This information is gathered as the request progresses.
+İşte yeni bir istek için oluşturulan her Bağlam değeri içinde oluşturulan bir türün 
+bildirimi. Üç alan, isteğin izleme ve hata ayıklama bilgilerini sağlar. Bu bilgiler 
+istek ilerledikçe toplanır.
 
-    75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
-    76 // pair, this makes for really easy, convenient routing.
+    75 // Handle, belirli bir HTTP fiili ve yol çifti için Handlers monte etme mekanizmamızdır,
+    76 // bu gerçekten kolay ve kullanışlı yönlendirmeler sağlar.
     77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
     78
     ...
-    79     // The function to execute for each request.
+    79     // Her istek için yürütülecek fonksiyon.
     80     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
     …
-    84     // Set the context with the required values to
-    85     // process the request.
+    84     // İsteği işlemek için gerekli değerlerle bağlamı
+    85     // ayarlayın.
     86     v := Values{
     87         TraceID: span.SpanContext().TraceID.String(),
     88         Now:     time.Now(),
     89     }
     90     ctx = context.WithValue(ctx, KeyValues, &v)
 
-See how the Values type is constructed on line 86 and then stored inside the Context
-on line 90. It’s the logging middleware that needs most of this information.
+Values türünün nasıl oluşturulduğunu ve ardından Context içine nasıl depolandığını 
+gösteren kodu inceleyin. Bu bilgilerin çoğuna en çok ihtiyaç duyan kayıt ortamıdır.
 
-    20 // Create the handler that will be attached in the middleware chain.
+    20 // Middleware zincirine eklenen işleyiciyi oluşturun.
     21 h := func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
     ...
-    25     // If the context is missing this value, request the service
-    26     // to be shutdown gracefully.
+    25     // Eğer bağlam bu değeri içermiyorsa, hizmetin düzenli bir şekilde
+    26     // kapatılması için hizmete başvurun.
     27     v, ok := ctx.Value(web.KeyValues).(*web.Values)
     28     if !ok {
     29         return web.NewShutdownError("web value missing from context")
@@ -481,44 +459,44 @@ on line 90. It’s the logging middleware that needs most of this information.
     37         r.RemoteAddr, time.Since(v.Now),
     38     )
 
-The consequence of passing information through the Context is shown in the code on
-lines 27-30. The code is attempting to retrieve the Values data from the Context
-and checking if the data was there. If the data is not there, then a major integrity
-issue exists and the service needs to shutdown. This is done in the service code by
-sending a special error value back up through the application.
+Bilgiyi Bağlam aracılığıyla iletmenin sonuçları, 27-30 satırlarındaki kodda gösterilir. 
+Kod, Values verilerini Bağlamdan almayı ve verinin orada olup olmadığını kontrol etmeyi 
+deniyor. Veri yoksa, ciddi bir bütünlük sorunu ortaya çıkar ve hizmetin kapanması gerekir. 
+Bu, hizmet kodu tarafından uygulama üzerinden özel bir hata değeri gönderilerek yapılır.
 
-If you are passing database connections or user information into your business
-layer using a Context, you have two problems:
+Eğer bir Bağlam kullanarak iş katmanınıza veritabanı bağlantıları veya kullanıcı 
+bilgileri geçiriyorsanız, iki sorununuz var:
 
-- You need to be checking for integrity and you need a mechanism to shutdown the service quickly.
-- Testing and debugging becomes much harder and more complicated. You are walking away from better clarity and readability in your code.
+- Bütünlük kontrolü yapmanız ve hizmeti hızlı bir şekilde kapatmak için bir mekanizmanız olmalı.
+- Test ve hata ayıklama daha zor ve karmaşık hale gelir. Kodunuzdaki daha iyi netlik ve okunabilirlikten 
+uzaklaşıyorsunuz.
 
-** Notes
+** Notlar
 
-- Incoming requests to a server should create a Context.
-- Outgoing calls to servers should accept a Context. 
-- The chain of function calls between them must propagate the Context.
-- Replace a Context using WithCancel, WithDeadline, WithTimeout, or WithValue.
-- When a Context is canceled, all Contexts derived from it are also canceled.
-- Do not store Contexts inside a struct type; instead, pass a Context explicitly to each function that needs it.
-- Do not pass a nil Context, even if a function permits it. Pass context.TODO if you are unsure about which Context to use.
-- Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions.
-- The same Context may be passed to functions running in different goroutines; Contexts are safe for simultaneous use by multiple goroutines.
+- Bir sunucuya gelen istekler bir Bağlam oluşturmalıdır.
+- Sunuculara giden çağrılar bir Bağlam kabul etmelidir.
+- Onlar arasındaki fonksiyon çağrıları zinciri, Bağlam'ı iletmelidir.
+- WithCancel, WithDeadline, WithTimeout veya WithValue kullanarak bir Bağlamı değiştirin.
+- Bir Bağlam iptal edildiğinde, ondan türetilen tüm Bağlamlar da iptal edilir.
+- Bağlamları bir yapı türü içine saklamayın; bunun yerine, ihtiyacı olan her fonksiyona açıkça bir Bağlam iletin.
+- Bir nil Bağlam iletmemelisiniz, hatta bir fonksiyon buna izin verirse. Kullanılacak Bağlam konusunda emin değilseniz, context.TODO'yu kullanmanın.
+- İsteğe bağlı parametreleri fonksiyonlara iletmek için yalnızca bağlam Değerlerini kullanın.
+- Aynı Bağlam, farklı gorutinlerde çalışan fonksiyonlara geçirilebilir; Bağlamlar birden çok gorutin tarafından aynı anda kullanım için güvenlidir.
 
-** Extra Reading
+** Ek Okuma
 
 - [[https://www.ardanlabs.com/blog/2019/09/context-package-semantics-in-go.html][Context Package Semantics In Go]] - William Kennedy  
 - [[https://golang.org/pkg/context][Package context]] - Go Team    
 - [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
 - [[https://rakyll.org/leakingctx/][Using contexts to avoid leaking goroutines]] - JBD    
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Şablonu başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Bir olası çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Use the template and follow the directions. You will be writing a web handler that performs a mock database call but will timeout based on a context if the call takes too long. You will also save state into the context.
+Şablonu kullanın ve talimatları takip edin. Bir web işleyicisi yazacaksınız, sahte bir veritabanı çağrısı yapacak ancak çağrı çok uzun sürerse bir bağlam temelinde zaman aşımına uğrayacak. Ayrıca durumu Bağlam içine kaydedeceksiniz.
 
 .play context/exercise1.go
 .play context/answer1.go

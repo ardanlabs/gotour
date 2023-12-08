@@ -1,28 +1,28 @@
 Mocking
-Since the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+Derleyici, somut bir değerin bir arayüzü uygulayıp uygulamadığını belirlemek için statik kod analizi yapabildiği için, somut türü bildiren geliştiricinin aynı zamanda arayüzleri sağlaması gerekmez.
 
 * Mocking
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. The idea is to compose larger types from smaller types and focus on the
-composition of behavior.
+Gömme avantajından yararlanmanın en iyi yolu, bileşim tasarım deseni aracılığıyla olur. 
+Fikir, daha büyük tipleri daha küçük tiplerden oluşturmak ve davranışın bileşimine 
+odaklanmaktır.
 
-** Code Review
+** Kod İnceleme
 
-- *Example* *1:* Mocking
+- *Örnek* *1:* Mocking
 
 .play composition/mocking/example1.go
 
-** Interface Ownership
+** Arayüz Sahipliği
 
-One thing that is different about Go from other languages is the idea of convention
-over configuration. This really shows itself with how Go handles interface compliance.
-Because the compiler can perform static code analysis to determine if a concrete value
-implements an interface, the developer declaring the concrete type doesn’t need to
-provide interfaces as well.
+Go'nun diğer dillerden farklı olan bir şey, konvansiyon üzerine yapılandırma fikridir. 
+Bu, Go'nun arayüz uyumluluğunu nasıl ele aldığıyla kendini gerçekten gösterir. Derleyici, 
+somut bir değerin bir arayüzü uygulayıp uygulamadığını belirlemek için statik kod analizi 
+yapabildiği için, somut türü bildiren geliştirici aynı zamanda arayüzleri sağlamak zorunda 
+değildir.
 
     package pubsub
 
@@ -46,13 +46,12 @@ provide interfaces as well.
         return nil
     }
 
-You've just implemented a new API that provides a concrete implementation for publish
-and subscribe. There are no interfaces being provided because this API does not
-need one. This is a single concrete implementation.
+Yeni bir API uyguladınız ve Publish ve Subscribe için somut bir uygulama sağlıyorsunuz. 
+Arayüzler sağlanmıyor çünkü bu API'nin ihtiyacı yok. Bu tek bir somut uygulamadır.
 
-What if the application developer wanting to use this new API needs an interface
-because they have the need to mock this implementation during tests? In Go, that
-developer can declare the interface and the compiler can identify the compliance.
+Bu yeni API'yi kullanmak isteyen uygulama geliştiricisi, bu uygulamayı testler 
+sırasında taklit etme ihtiyacı olduğunda bir arayüz isterse ne olur? Go'da, bu 
+geliştirici arayüzü bildirebilir ve derleyici uyumluluğu tanımlayabilir.
 
     package main
 
@@ -73,11 +72,10 @@ developer can declare the interface and the compiler can identify the compliance
         return nil
     }
 
-This code in the main package is declaring an interface. This interface represents
-the API that the application is using from the pubsub package. The developer has
-implemented their own pubsub implementation for testing. The key here is that this
-application developer doesn’t use any concrete implementation directly, but decouples
-themselves through their own interface.
+Bu ana paketteki kod bir arayüz bildiriyor. Bu arayüz, uygulamanın pubsub paketinden 
+kullandığı API'yi temsil eder. Geliştirici, test için kendi pubsub uygulamasını uygulamıştır. 
+Buradaki önemli nokta, bu uygulama geliştiricisinin doğrudan herhangi bir somut uygulama 
+kullanmaması, ancak kendi arayüzü üzerinden kendisini ayrıştırmasıdır.
 
     func main() {
         pubs := []publisher{
@@ -91,7 +89,7 @@ themselves through their own interface.
         }
     }
 
-To provide an example, the main function constructs a collection that is initialized
-with the pubsub implementation and the mock implementation. The publisher interface
-allows this. Then a for range loop is implemented to show how the application code
-is abstracted from any concrete implementation.
+Bir örnek sağlamak için, main fonksiyonu, pubsub uygulaması ve mock uygulaması ile başlatılan 
+bir koleksiyon oluşturur. publisher arayüzü buna izin verir. Ardından, bir for döngüsü 
+aracılığıyla uygulama kodunun herhangi bir somut uygulamadan soyutlandığını göstermek 
+için kullanılır.

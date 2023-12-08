@@ -1,29 +1,28 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
+Kanallar (Channels)
+Kanallar, gorutinler arasında sinyal verme semantiği kullanarak iletişim kurmalarına olanak tanır.
 
-* Channels
+* Kanallar (Channels)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+Bir kanalı bir veri yapısı değil, sinyal verme mekanizması olarak düşünmek önemlidir.
+Bu, bir kanala gönderme ve alım yapmanız gerektiği fikriyle uyumludur, okuma ve yazma 
+değil. Önünüzdeki sorun sinyalle çözülemezse, eğer "sinyal" kelimesi ağzınızdan çıkmıyorsa, 
+kanalların kullanımını sorgulamanız gerekebilir.
 
-** Code Review
+** Kod İncelemesi
 
-- *Example* *1:* Wait for result
-- *Example* *2:* Fan out
-- *Example* *3:* Wait for task
-- *Example* *4:* Pooling
-- *Example* *5:* Fan out semaphore
-- *Example* *6:* Bounded work pooling
-- *Example* *7:* Drop
-- *Example* *8:* Cancellation
-- *Example* *9:* Retry timeout
-- *Example* *10:* Channel cancellation
+- *Örnek* *1:* Sonuç bekleyin
+- *Örnek* *2:* Yayılma
+- *Örnek* *3:* Görev bekleyin
+- *Örnek* *4:* Havuzlama
+- *Örnek* *5:* Yayılma semafor
+- *Örnek* *6:* Sınırlı iş havuzlama
+- *Örnek* *7:* Bırak
+- *Örnek* *8:* İptal
+- *Örnek* *9:* Yeniden deneme zaman aşımı
+- *Örnek* *10:* Kanal iptali
 
 .play channels/example1.go
 .play channels/example2.go
@@ -36,104 +35,104 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** Kanal Mekaniği
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+Sinyal seviyesinde garanti olmanın maliyeti bilinmeyen gecikmedir. Gönderen, alıcının 
+sinyali kabul etmek için ne kadar süre beklemesi gerektiğini bilemez. Alıcı için beklemek, 
+engelleyici gecikmeye neden olur. Bu durumda, bilinmeyen miktarlarda engelleyici gecikme 
+oluşur. Gönderen, alıcının sinyali alıncaya kadar, bilinmeyen bir süre boyunca beklemek 
+zorundadır.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+Alıcıyı beklemek, mekanik olarak, alım işlemi gönderimden önce gerçekleşir. Kanallarla, 
+alım nanosaniye önce gerçekleşir, ama öncedir. Bu, alıcının sinyali alıp ardından 
+uzaklaştığı anlamına gelir, bu da gönderene garanti ile devam etme olanağı tanır.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+Peki, sürekli bir süreyi beklemek mümkün değilse ne olacak? Eğer bu tür bir gecikme 
+işe yaramazsa? O zaman garanti, sinyal seviyesinin dışında olmalıdır. Bu çalışmanın 
+arkasındaki mekanik, gönderim şimdi alımdan önce gerçekleşir. Gönderen, alıcının hazır 
+olmasını beklemeye ihtiyaç duymadan sinyali gerçekleştirebilir. Gönderen beklemek zorunda 
+değil ve uzaklaşabilir. Sonunda, umarız, alıcı ortaya çıkar ve sinyali alır.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+Bu, gönderim üzerinde gecikme maliyetini azaltır, ancak sinyallerin alınıp alınmadığı 
+ve dolayısıyla alıcılarla yukarı akışta sorun olup olmadığını bilmeme belirsizliği yaratır. 
+Bu, hiç başlamayan veya bitmeyen işi kabul etmeye neden olabilir. Nihayetinde, büyük bir 
+geri baskı ve sistem çökmesine neden olabilir.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+Odaklanılması gereken ikinci şey, sinyalle birlikte veri gönderip göndermemeniz gerekip 
+gerekmediğidir. Eğer sinyal iletimi için veri gönderilmesi gerekiyorsa, o zaman sinyalleşme 
+Gorutinler arasında 1'e 1'dir. Eğer yeni bir Gorutinin de sinyali alması gerekiyorsa, 
+ikinci bir sinyal gönderilmelidir.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+Eğer veri sinyal iletmek için gönderilmemesi gerekiyorsa, o zaman sinyal Gorutinler 
+arasında 1'e 1 veya 1'e çok olabilir. Veri olmadan sinyal, genellikle iptal veya 
+kapatmalar için kullanılır. Bu, kanalı kapatmak suretiyle yapılır.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+Üçüncü odaklanılması gereken şey, kanal durumudur. Bir kanal 3 durumdan birinde olabilir.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+Bir kanal, kanalı sıfır değer durumuna inşa ederek nil durumda olabilir. Bu durumdaki 
+kanallara karşı gönderim ve alımlar engellenecektir. Bu, işin kısa vadeli duraklamalarını 
+uygulamak istediğiniz durumlar için iyidir.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+Bir kanalı açık durumda yapmak için yerleşik make fonksiyonunu kullanabilirsiniz. 
+Bu durumdaki kanallara karşı gönderim ve alımlar aşağıdaki koşullar altında çalışacaktır:
 
-*Unbuffered* *Channels:*
+*Tamponsuz* *Kanallar:*
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+- "Tamponsuz Kanallar" sinyalleşme seviyesinde garanti sağlar, almanın göndermeden önce 
+gerçekleştiği durumdur. Bir sinyalin işlenmesi için gönderme ve alma işlemleri, Gorutin'lerin 
+aynı zamanda ve mekânda bir araya gelmesini gerektirir.
 
-*Buffered* *Channels:*
+*Tamponlu* *Kanallar:*
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+- "Tamponlu Kanallar", sinyalleşme seviyesi dışında bir garanti sağlar; gönderme, almadan önce 
+gerçekleşir. Eğer tampon dolu değilse, göndermeler tamamlanabilir; aksi takdirde engellenirler. 
+Tampon boş değilse, alımlar tamamlanabilir; aksi takdirde engellenirler..
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+Bir kanalı kapatmak için yerleşik close fonksiyonunu kullanabilirsiniz. Bir kanalı 
+kapatmak için hafızayı serbest bırakmanıza gerek yoktur, bu, durumu değiştirmek içindir. 
+Kapalı bir kanala gönderim yapmak bir panik oluşturacaktır, ancak kapalı bir kanal 
+üzerinde alım, hemen geri dönecektir.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+Tüm bu bilgilerle, kanal kalıplarına odaklanabilirsiniz. Sinyale odaklanmak önemlidir. 
+Fikir, sinyal seviyesinde bir garantiye ihtiyacınız olup olmadığına veya olmadığına dayanır, 
+gecikme endişelerine göre. Sinyal ile veri gönderip göndermemeniz gerekip gerekmediğine 
+odaklanın, iptalleri işleme alıp almadığınıza göre. Sözdizimini bu anlamsal yapılara 
+dönüştürmek istersiniz.
 
-** Design Guidelines
+** Tasarım İlkeleri
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
+- Kanallar için [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][tasarım ilkelerini]] öğrenin.
 
-** Diagrams
+** Diyagramlar
 
-*Guarantee* *Of* *Delivery*
+*Teslimat* *Garantisi*
 
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+`Teslimat Garantisi`, şu soruya dayanır: "Belirli bir gorutinin gönderdiği sinyalin 
+alındığına dair bir garantiye ihtiyacım var mı?"
 
 .image /tour/eng/static/img/guarantee_of_delivery.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*Veriyle* *veya* *Verisiz* *Sinyalleşme*
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+`Veriyle` sinyal gönderecekseniz, ihtiyacınız olan `garanti` türüne bağlı olarak üç 
+kanal yapılandırma seçeneği vardır.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+Verisiz sinyalleşme, iptal etmenin temel amacına hizmet eder. Bir gorutin, başka 
+bir gorutine ne yaptıklarını iptal etmeleri için sinyal gönderip devam etmelerini 
+sağlayabilir. İptal, hem `tamponlu` hem de `tamponsuz` kanallar kullanılarak uygulanabilir.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*Durum*
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+Bir kanalın davranışı, doğrudan mevcut `Durumu` tarafından etkilenir. Bir kanalın 
+durumu `nil`, `açık` veya `kapalı` olabilir.
 
 .image /tour/eng/static/img/state.png
 
-** Extra Reading
+** Ek Okuma
 
 - [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
 - [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
@@ -142,60 +141,59 @@ state of a channel can be `nil`, `open` or `closed`.
 - [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
 - [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
 
-** Buffer Bloat - 2011
+** Tampon Şişmesi - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+Gecikmeyi azaltma amacıyla büyük tamponları kullanma konusunda dikkatli olun.
 
-- Large buffers prevent timely notification of back pressure.
-- They defeat your ability to reduce back pressure in a timely matter.
-- They can increase latency not reduce it.
-- Use buffered channels to provide a way of maintaining continuity.
-- Don't use them just for performance.
-- Use them to handle well defined bursts of data.
-- Use them to deal with speed of light issues between handoffs.
+- Büyük tamponlar geri baskının zamanında bildirimini önler.
+- Geri baskıyı zamanında azaltma yeteneğinizi bozar.
+- Gecikmeyi artırabilir, azaltmaz.
+- Tamponlu kanalları sürekliliği sürdürmenin bir yolu olarak kullanın.
+- Sadece performans için kullanmayın.
+- Onları iyi tanımlanmış veri patlamalarıyla başa çıkmak için kullanın.
+- Onları el değiştirmeler arasındaki ışık hızı sorunlarıyla başa çıkmak için kullanın.
 
-*Videos*
+*Videolar*
 
 - [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
 
-* Exercises
+* Egzersizler
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Muhtemel bir çözüm sağlanmıştır.
 
-** Exercise 1
+** Egzersiz 1
 
-Write a program where two goroutines pass an integer back and forth ten times.
-Display when each goroutine receives the integer. Increment the integer with each
-pass. Once the integer equals ten, terminate the program cleanly.
+İki gorutin arasında on kez bir tamsayıyı ileten bir program yazın. Her gorutin tamsayıyı 
+ne zaman aldığını görüntüleyin. Her geçişte tamsayıyı artırın. Tamsayı ona eşit olduğunda, 
+programı temiz bir şekilde sonlandırın.
 
 .play channels/exercise1.go 
 .play channels/answer1.go
 
-** Exercise 2
+** Egzersiz 2
 
-Write a program that uses a fan out pattern to generate 100 random numbers concurrently.
-Have each goroutine generate a single random number and return that number to the main
-goroutine over a buffered channel. Set the size of the buffer channel so no send ever
-blocks. Don't allocate more buffers than you need. Have the main goroutine display each
-random number it receives and then terminate the program.
+100 rastgele sayı üretmek için bir fan-out deseni kullanan bir program yazın. Her gorutine 
+bir tane rastgele sayı üretmesini sağlayın ve bu sayıyı tamponlu bir kanal aracılığıyla ana 
+gorutine geri döndürün. Kanalın tampon boyutunu öyle ayarlayın ki hiçbir gönderme asla bloke 
+olmasın. İhtiyacınızdan fazla tampon tahsis etmeyin. Ana gorutin, aldığı her rastgele sayıyı 
+görüntülesin ve ardından programı sonlandırsın.
 
 .play channels/exercise2.go 
 .play channels/answer2.go
 
-** Exercise 3
+** Egzersiz 3
 
-Write a program that generates up to 100 random numbers concurrently. Do not send
-all 100 values so the number of sends/receives is unknown.
+En fazla 100 rastgele sayı üreten bir program yazın. Gönderme/alma sayısının bilinmediği 
+bir durumda 100 değeri göndermeyin.
 
 .play channels/exercise3.go 
 .play channels/answer3.go
  
-** Exercise 4
+** Egzersiz 4
 
-Write a program that generates up to 100 random numbers concurrently using a worker
-pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have
-been collected.
+Bir işçi havuzu kullanarak en fazla 100 rastgele sayı üreten bir program yazın. Çift 
+değerleri reddedin. İşçilere, 100 tek sayı toplandığında kapanmalarını söyleyin.
 
 .play channels/exercise4.go 
 .play channels/answer4.go
