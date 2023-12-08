@@ -1,0 +1,102 @@
+Davranış olarak Kısıtlama
+Her genel tür, derleme zamanında hangi somut tür değişimlerini kabul edebileceğini veya reddedebileceğini bilmesi için bir kısıtlamaya ihtiyaç duyar.
+
+* Generics - Davranış Olarak Kısıtlama
+
+Her genel tür, derleme zamanında hangi somut tür değişimlerini kabul edebileceğini veya 
+reddedebileceğini bilmesi için bir kısıtlamaya ihtiyaç duyar. Bu, genel türün gerçekten 
+ne olabileceği konusunda bir kısıtlama olmasa bile, önceden bildirilmiş kısıtlama tanımlayıcısı 
+olan "any"yi gerektirir.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İnceleme
+
+- *Örnek* *1*: Somut stringify fonksiyonu
+- *Örnek* *2*: Tür iddiası stringify fonksiyonu
+- *Örnek* *3*: Arayüz iddiası stringify fonksiyonu
+- *Örnek* *4*: Genel stringify fonksiyonu
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Açıklama
+
+İlginç bir şekilde, kısıtlamanın konsepti zaten dilde mevcut.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+Kod, User adında bir somut türü tanımlar ve kullanıcının adını döndüren String adlı bir 
+metod uygular. Ardından Stringer adında bir arayüz türü bildirilir; bu arayüz, bir dizi 
+döndüren String adlı bir davranışın bir kopyasını içerir. User için bildirilen metod sayesinde, 
+somut tür User'ın değer semantiği kullanarak Stringer arayüzünü uyguladığını söyleyebilirsiniz.
+
+Concrete fonksiyon sadece bu, ne olduğuna bağlı olarak somut veriyi kabul eden bir fonksiyondur. 
+Polimorfik de tam olarak budur, ne yapabildiğine bağlı olarak somut veriyi kabul eden bir fonksiyondur. 
+İşte somut ve polimorfik bir fonksiyon arasındaki temel fark budur. Bir tanesi yalnızca bir tür veri ile 
+sınırlıdır, diğeri ise değildir. Ancak, polimorfik fonksiyona hangi somut verilerin geçirilebileceğine 
+dair bir kısıtlama bulunmaktadır.
+
+Stringer arayüzü, somut verinin sergileyebilmesi gereken davranışın bir setini bildirerek bu 
+kısıtlamayı tanımlar. Bu arayüz, girdi türü olarak uygulandığında, derleyici her zaman fonksiyon 
+çağrıldığında davranışsal kısıtlamanın karşılandığını garanti edebilir.
+
+Aynı türde davranışsal kısıtlamaya ihtiyaç duyan genel fonksiyonlar bulunmaktadır.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+İşte genel fonksiyon stringify. Bu fonksiyon, T türünde bir dilim alır ve giriş koleksiyonundaki 
+her değerin stringleştirilmiş bir sürümünü içeren bir dizi dilimi döndürür. Bu işlemin çalışmasının 
+anahtarı, her T türündeki değer için String metoduna yöneltilen metod çağrısıdır.
+
+Sorun şu ki, derleyicinin T türündeki değerlerin gerçekten String adlı bir metodu olduğunu bilmeye 
+ve doğrulamaya ihtiyacı vardır. Genel tür T bildirildiğinde, fmt.Stringer arayüzü kısıtlama olarak 
+sağlanır. Derleyici şimdi bu davranış kümesini kontrol etmek için fonksiyona geçirilen herhangi 
+bir türü ve veriyi kontrol etmesi gerektiğini bilir.
+
+Bu mükemmel çünkü arayüz tekrar aynı amaç için kullanılıyor ve dilin yeni bir anahtar kelimeye ihtiyacı yok.
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Sadece json.Marshaler arayüzünü uygulayan değerleri kabul edebilen genel 
+bir fonksiyon olan marshal adında bir genel fonksiyonu uygulayın.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go

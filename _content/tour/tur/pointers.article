@@ -1,0 +1,339 @@
+İşaretçiler (Pointers)
+İşaretçiler, program sınırları arasında değer paylaşma amacını taşır.
+
+* İşaretçiler (Pointers)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+İşaretçiler, program sınırları arasında değer paylaşma amacını taşır. Birkaç türde 
+program sınırı vardır. En yaygın olanı fonksiyon çağrıları arasındaki sınırdır. Ayrıca, 
+Gorutinler arasında bir sınır da bulunmaktadır ki bu konuya daha sonra değineceğiz.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Değer ile Geçme
+- *Örnek* *2:* Veri Paylaşımı I
+- *Örnek* *3:* Veri Paylaşımı II
+- *Örnek* *4:* Kaçış Analizi
+- *Örnek* *5:* Yığın Belleği Büyümesi
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+Go programları başladığında, Go runtime bir Gorutin oluşturur. Gorutinler, işletim 
+sistemleri iş parçacıklarıyla aynı semantiğe sahip hafif uygulama seviyesi iş parçacıklarıdır.
+Görevleri, belirli bir talimat kümesinin fiziksel yürütmesini yönetmektir. Her Go programında, 
+main Gorutin olarak adlandırdığınız en az 1 Gorutin bulunur.
+
+Her Gorutin, bir yığın olarak adlandırılan kendi bellek bloğunu alır. Her yığın 
+başlangıçta 2048 byte (2k) tahsis edilmiş bir alandır. Çok küçük olsa da, yığınlar 
+zamanla boyut olarak büyüyebilir.
+
+.image /tour/eng/static/img/p1.png
+
+Her bir fonksiyon çağrıldığında, o Gorutin'in ilgili fonksiyonla ilişkilendirilmiş 
+talimatları yürütmesine yardımcı olmak için bir yığın alanı bloke edilir. Her bir bellek 
+bloğu bir çerçeve olarak adlandırılır.
+
+Belirli bir fonksiyon için bir çerçevenin boyutu derleme zamanında hesaplanır. Bir değerin
+yığında oluşturulabilmesi için, derleyicinin bu değerin boyutunu derleme zamanında 
+bilmesi gerekir. Derleyici bir değerin boyutunu derleme zamanında bilmiyorsa, değer
+yığında oluşturulmalıdır.
+ 
+Yığınlar kendi kendini temizler ve sıfır değeri, yığının başlatılmasına yardımcı olur.
+Her bir fonksiyon çağrıldığında ve bir bellek çerçevesi bloke edildiğinde, bu çerçeve 
+için bellek başlatılır, bu da yığının nasıl kendi kendini temizlediğini gösterir. Bir fonksiyonun 
+dönüşünde, çerçeve için bellek yalnız bırakılır çünkü bu belleğin tekrar ihtiyaç duyulup 
+duyulmayacağı bilinmez. Belleği döndürmelerde başlatmak verimsiz olurdu.
+
+*Değerle* *Geçme*
+
+Tüm veri, program boyunca değerle taşınır. Bu, verinin program sınırları arasında 
+geçirilirken, her fonksiyon veya Gorutin'in verinin kendi kopyasını aldığı anlamına 
+gelir. Çalışacağınız iki tür veri vardır, değerin kendisi (int, string, user) veya 
+değerin adresi. Adresler, program sınırları arasında kopyalanıp depolanması gereken 
+verilerdir.
+
+Aşağıdaki kod, bunu daha fazla açıklamaya çalışmaktadır.
+
+    func main() {
+
+        // int türünde, değeri 10 olan bir değişkeni tanımla.
+        count := 10
+
+        // Bir değerin adresini almak için & operatörünü kullan.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // "count" değişkeninin "değerini" (kutunun içinde ne varsa)
+        // increment1 fonksiyonuna bir kopyasını geçir.
+        increment1(count)
+        
+        // "value of" ve "address of" yazdır.
+        // Fonksiyon çağrısından sonra count'un değeri değişmeyecek.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+        
+        // "count" değişkeninin "address of" (kutu nerede?) 
+        // increment2 fonksiyonuna bir kopyasını geçir.
+        // Bu hala bir değerle geçme ve referansla geçme değil,
+        // çünkü adresler de değerlerdir.
+        increment2(&count)
+        
+        // "value of" ve "address of" yazdır.
+        // Fonksiyon çağrısından sonra count'un değeri değişti.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1, kendi kopyasını almak üzere
+    // bir tamsayı değerini kabul eden bir fonksiyonu bildirir.
+    func increment1(inc int) {
+
+        // Çağrılanın tamsayı değerinin yerel kopyasını artır.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2, kendi kopyasını almak üzere
+    // bir tamsayı değerine işaret eden bir adresi kabul eden bir fonksiyonu bildirir.
+    // İşaretçi değişkenleri anlamsal türlerdir ve * kullanılarak bildirilir.
+    func increment2(inc *int) {
+
+        // İşaretçi aracılığıyla çağrılanın tamsayı değerini artır.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+Çıktı:
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** Notlar
+
+- Veriyi paylaşmak için işaretçileri kullanın.
+- Go'da değerler her zaman değerle geçilir.
+- "Value of" (Kutunun içinde ne var), "Address of" (&), kutu nerede.
+- ( * ) operatörü bir işaretçi değişkeni bildirir ve "İşaretçinin işaret ettiği değer" anlamına gelir.
+
+** Kaçış Analizi
+
+Derleyicinin bir değerin yığın mı yoksa heap mi üzerinde oluşturulması gerektiğini 
+belirlemek için kullandığı algoritma "kaçış analizi" olarak adlandırılır. Algoritmanın 
+adı, değerlerin önce yığında oluşturulduğunu ve ardından (veya ne zaman) gerektiğinde 
+heap'e "kaçtığını" düşündürebilir. Ancak bu doğru değildir. Bir değerin oluşturulması 
+sadece bir kez gerçekleşir ve kaçış analizi algoritması, bu oluşturmanın nerede 
+gerçekleşeceğine karar verir (yığın veya heap). Yalnızca heap üzerinde oluşturma, 
+Go'da bir tahsis olarak adlandırılır.
+
+Kaçış analizini anlamak, değer sahipliğini anlamakla ilgilidir. Fikir şudur: Bir değer 
+bir fonksiyonun kapsamı içinde oluşturulduğunda, o fonksiyon değerin sahibidir. Daha sonra 
+soruyu sorun: Oluşturulan değerin sahibi fonksiyon döndüğünde hala var olmalı mı? Eğer 
+cevap hayırsa, değer yığında oluşturulabilir. Eğer cevap evetse, değer heap üzerinde 
+oluşturulmalıdır.
+
+Not: Sahiplik kuralı, tahsislere neden olan kodları tanımlamak için iyi bir temel 
+kuraldır. Ancak kaçış analizinin, açık olmayan tahsislere neden olan hataları 
+içerebilecek kusurları olduğunu anlamalısınız. Ayrıca, algoritma, tahsisleri azaltmak 
+için derleme optimizasyonlarından yararlanma fırsatlarını kullanır.
+
+    // user, sistemdeki bir kullanıcıyı temsil eder.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+`stayOnStack` fonksiyonu, çağıranına bir `user` değerini geri döndürmek için değer 
+semantiğini kullanıyor. Diğer bir deyişle, çağırana, oluşturulan `user` değerinin 
+bir kopyasını veriyor.
+
+`stayOnStack` fonksiyonu çağrıldığında ve döndüğünde, oluşturulan `user` değerinin 
+artık var olması gerekmez, çünkü çağıran kendi kopyasını alıyor. Bu nedenle, `stayOnStack`
+içindeki `user` değerinin oluşturulması yığında gerçekleşebilir. Herhangi bir tahsis 
+yapılmaz.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+The `escapeToHeap` fonksiyonu, bir `user` değerini çağıranına geri döndürmek için 
+işaretçi semantiğini kullanıyor. Diğer bir deyişle, çağırana, oluşturulan `user` 
+değerine paylaşılan erişim (bir adres) sağlanır.
+
+`escapeToHeap` fonksiyonu çağrıldığında ve döndüğünde, oluşturulan `user` değeri 
+hala var olmalıdır, çünkü çağırana değere paylaşılan erişim sağlanmıştır. Bu nedenle, 
+`escapeToHeap` içindeki `user` değerinin yığında oluşturulması mümkün değildir, bunun 
+yerine heap'te oluşturulmalıdır. Evet, tahsis.
+
+Eğer son örnekteki `user` değeri, geri dönüşte işaretçi semantiğini kullanarak yığında 
+oluşturulsaydı ne olacağını düşünün.
+
+.image /tour/eng/static/img/p2.png
+
+Çağırılan, altındaki çerçeveden bir yığın adresinin bir kopyasını alırdı ve bütünlük 
+kaybolurdu. Kontrol tekrar çağıran fonksiyona geçtiğinde, yığında `user` değerinin 
+bulunduğu bellek tekrar kullanılabilir hale gelirdi. Çağırılan fonksiyon başka bir fonksiyon 
+çağrısı yaparsa, yeni bir çerçeve kesilir ve bellek üzerine yazılır, paylaşılan değer yok olurdu.
+
+Bu, neden yığının kendi kendini temizlediğini düşündüğünüzü açıklar. Sıfır değer başlatma, 
+GC kullanılmadan her yığın çerçevesinin temizlenmesine yardımcı olur. Yığın, her fonksiyon 
+çağrısının yürütülmesi için bir çerçeve alınır ve başlatılırken temizlenir. Yığın, fonksiyon 
+çağrıları sırasında temizlenir, dönüşlerde değil, çünkü derleyici, yığındaki belleğin 
+tekrar ihtiyaç duyulup duyulmayacağını bilmez.
+
+Kaçış analizi, bir değerin yığında (varsayılan) mı yoksa heap'te (kaçış) mi oluşturulacağına 
+karar verir. `stayOnStack` fonksiyonuyla, değerin bir kopyasını çağırana geri geçiriyoruz, 
+bu nedenle değeri yığında tutmak güvenlidir. `escapeToHeap` fonksiyonuyla, değerin bir 
+kopyasını çağırana (yığını paylaşarak) geri geçiriyoruz, bu nedenle değeri yığında tutmak 
+güvenli değildir.
+
+Kaçış analizi ile ilgili birçok küçük ayrıntı bulunmaktadır, bu nedenle daha fazla bilgi edinmek 
+için 14. bölümdeki "Kaçış Analizi Mekanizmaları" başlıklı yazıyı okuyabilirsiniz.
+
+Not: Sürüm 1.17'den itibaren Go, ABI'yi (uygulama ikili arayüzü) değiştirdi ve Linux, 
+MacOS ve Windows üzerinde 64-bit x86 mimarilerinde bellek üzerinde değil, register'lar 
+kullanarak fonksiyon giriş ve çıkış argümanlarını iletmek için yeni bir yol uyguladı. Bu, 
+bazı fonksiyon argümanlarının yığında kopyalanmayacağı anlamına gelir, ancak register'ları 
+kullanmanın olanaklarına bağlı olarak bazıları kopyalanabilir. Bu, bu bölümde açıklanan 
+semantikleri değiştirmez.
+
+** Notlar
+
+- Bir değer, değeri oluşturan fonksiyonun dönüş yaptıktan sonra referans alınabilirse.
+- Derleyici, bir değerin yığına sığacak kadar büyük olmadığını belirlerse.
+- Derleyici, derleme zamanında bir değerin boyutunu bilmiyorsa.
+- Bir değer, fonksiyon veya arayüz değerleri kullanılarak bağlantısı kesilirse.
+
+** Garbage Collection Semantiği
+
+Bir değer bir kere heap üzerinde oluşturulduğunda, Garbage Collector (GC) devreye 
+girer. GC'nin en önemli kısmı, tempolu algoritmadır. Bu, GC'nin mümkün olan en 
+küçük heap'i sürdürebilmek için en iyi uygulama verimliliği ile birlikte çalıştırılması 
+gereken sıklığı/tempoyu belirler.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** Yığın vs Heap
+
+"Yığın, yalnızca oluşturan fonksiyonun yaşam süresi boyunca kalması gereken veriler 
+içindir ve fonksiyon çıkışında herhangi bir maliyet olmadan geri alınır. Heap, oluşturan 
+fonksiyon çıkışından sonra varlığını sürdürmesi gereken veriler içindir ve bazen maliyetli 
+bir garbage collection tarafından geri alınır." - Ayan George
+
+** Yığın Büyümesi
+
+Her fonksiyon için her çerçevenin boyutu derleme zamanında hesaplanır. Bu, derleyici 
+değerin boyutunu derleme zamanında bilmiyorsa, değerin yığına oluşturulması gerektiği 
+anlamına gelir. Buna bir örnek, yerleşik make fonksiyonunu kullanarak boyutu bir değişkene 
+dayalı olarak olan bir dilim oluşturmaktır.
+
+    b := make([]byte, size) // Destekleyici dizi heap üzerinde tahsis edilir.
+
+Go, yığınların nasıl büyüyüp küçüleceğini belirlemek için bir bitişik yığın uygulaması 
+kullanır. Go'nun kullanabileceği alternatiflerden biri, bazı işletim sistemleri tarafından 
+kullanılan segmentli bir yığın uygulamasıdır.
+
+Her fonksiyon çağrısı, "Bu yeni çerçeve için yeterli yığın alanı var mı?" sorusuyla 
+birlikte gelir. Eğer evetse, o zaman sorun yok ve çerçeve alınır ve başlatılır. 
+Eğer hayırsa, o zaman yeni ve daha büyük bir yığın inşa edilmeli ve mevcut yığındaki 
+bellek yeniye kopyalanmalıdır. Bu, yığındaki belleğe referans olan işaretçilerde 
+değişiklik yapmayı gerektirir. Ardışık bellek ve modern donanım ile lineer taramanın 
+avantajları, kopya maliyeti karşılığında yapılan bir takastır.
+
+Bitişik yığınların kullanımı nedeniyle hiçbir Gorutin'in başka bir Gorutin'in 
+yığınına bir işaretçisi olamaz. Her yığının her işaretçisini takip etmek ve bu işaretçileri 
+yeni konuma yeniden ayarlamak için çalışma zamanı için çok fazla iş yükü olurdu.
+
+** Ek Okuma
+
+**İşaretçi* *Mekaniği*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+
+*Yığınlar*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+
+*Kaçış* *Analizi* *ve* *İnline* *Etme*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+
+*Garbage* *Collection*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+
+*Statik* *Tek* *Atama* *Optimizasyonları*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+
+* Egzersizler
+
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Türü int olan ve değeri 20 olan bir değişkeni bildirin ve başlatın. 
+Değişkenin "adresi"ni ve "değeri"ni görüntüleyin.
+
+*Kısım* *B:* Türü int olan ve önceki oluşturduğunuz değişkeni gösteren bir işaretçi 
+değişkeni bildirin ve başlatın. İşaretçinin "adresi", "değeri" ve işaretçinin 
+işaret ettiği "değer"i görüntüleyin.
+
+** Egzersiz 2
+
+Bir yapı türü bildirin ve bu türün bir değerini oluşturun. Bu yapı türündeki 
+bir alanın değerini değiştirebilen bir fonksiyon bildirin. Fonksiyonunuza çağrı yapmadan 
+önce ve sonra değeri görüntüleyin.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go
