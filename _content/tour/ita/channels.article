@@ -1,0 +1,187 @@
+Channels
+Channels permettono alle goroutine di comunicare tra loro attraverso l'uso della semantica dei segnali.
+
+* Channels
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+E' importante pensare ad un Channel non come una struttura dati, ma come un meccanismo per segnalazione.
+Questo va in linea con l' idea che mandi e ricevi da un channel,
+non leggi e scrivi. Se il problema che hai davanti non può essere risolto con i segnali,
+se la parola segnalazione non esce fuori dalla tua bocca, devi mettere in discussione l'uso dei channels.
+
+** Code Review
+
+- *Example* *1:* Aspettare per un risultato
+- *Example* *2:* Fan out
+- *Example* *3:* Aspettare per un task
+- *Example* *4:* Pooling
+- *Example* *5:* Fan out semaforo
+- *Example* *6:* Bounded work pooling
+- *Example* *7:* Drop
+- *Example* *8:* Cancellazione
+- *Example* *9:* Retry timeout
+- *Example* *10:* Cancellazione Channel
+
+.play channels/example1.go
+.play channels/example2.go
+.play channels/example3.go
+.play channels/example4.go
+.play channels/example5.go
+.play channels/example6.go
+.play channels/example7.go
+.play channels/example8.go
+.play channels/example9.go
+.play channels/example10.go
+
+** Meccanica dei Channel
+
+Il costo di avere la garanzia a livello di segnali è la latenza sconosciuta.
+Il mittente non sa quanto dovrà aspettare per l' accetazione del segnale da parte del ricevente.
+Dover aspettare per il ricevente crea una latenza bloccante.
+In questo caso, un quantitativo sconosciuto di latenza bloccante. Il mittente deve aspettare, per una quantità sconosciuta di tempo,
+finchè il ricevente diventa disponibile a ricevere il segnale.
+
+Aspettare per il ricevente significa meccanicamente, l'operazione di ricezione avviene prima
+dell' invio. Con i channels, la ricezione avviene nanosecondi prima, ma è prima.
+Questo significa che il ricevente prende il segnale e prosegue, permettendo al mittente di andare avanti in maniera garantita.
+
+Cosa succede se il processo non può attendere per un periodo di tempo sconosciuto? Cosa succede se quel tipo di latenza non funziona?
+Così la garanzia del funzionamento non può essere a livello del segnale, deve essere fuori da esso.
+Il meccanismo dietro questo funzionamento è che l' invio ora avviene prima della ricezione.
+Il mittente può inviare il segnale senza che il ricevente sia disponibile. Così il mittente può andarsene e non aspettare.
+Infine speri che il ricevente compaia e prenda il segnale.
+
+Questo è ridurre il costo della latenza sul mittente, ma esso crea incertezza sui segnali ricevuti  e perciò sapere se ci sono problemi a monte con i riceventi.
+Ciò può creare il processo per accettare un lavoro che non viene mai iniziato o finito.
+Esso potrebbe creare un grande pressione all' indietro e portare il sistema ad un crash.
+
+La seconda cosa su cui focalizzarsi, hai necessità di inviare dati con il segnale ?
+Se il segnale richiede la trasmissione di dati, allora la segnalazione è 1:1 con le Goroutines.
+Se una nuova Goroutine necessita di ricevere il segnale, un secondo segnale deve essere inviato.
+
+Se i dati non necessitano di essere trasmessi con un segnale, allora il segnale può essere 1:1 o 1:molti tra Goroutines.
+Segnalazione senza dati è usata principalmente per cancellazione o spegnimento. E' fatta chiudendo il channel.
+
+La terza cosa su cui focalizzarsi è lo stato del channel. Lo stato di un channel può essere in tre stati.
+
+Un channel può essere nello stato nil costruendo il channel al suo valore di stato zero.
+Inviare e ricevere dai channels in questo stato sarà bloccante. Questo è buono per situazioni dove vuoi implementare interruzioni di breve durata del lavoro.
+
+Un channel può essere in uno stato aperto usando la funzione built-in make. Inviare e ricevere dai canali in questo stato funziona sotto le seguenti condizioni:
+
+*Unbuffered* *Channels:*
+
+- Garantisce a livello di segnalazione che la ricezione avviene prima dell'invio.
+Le Goroutine di invio e ricezione necessitano di riunirsi nello stesso spazio
+e tempo perchè il segnale sia processato.
+
+*Buffered* *Channels:*
+
+- Garantise fuori dal livello del segnale che l'invio avviene priam della ricezione.
+Se il buffer non è pieno, gli invii possono essere completati altrimenti vengono bloccati.
+Se il buffer non è vuoto, le ricezioni possono essere completate altrimenti vengono bloccate.
+
+Un channel può essere nello stato chiuso usando la funzione close. Tu non hai bisogno di chiudere un channel per rilasciare memoria,
+questo è per il cambiamento dello stato. Inviare un segnale su un channel chiuso causerà un panic, comunque ricevere su un channel chiuso ritornerà immediatamente la chiamata.
+
+Con tutte queste informazioni, tu puoi focalizzarsi sui patterns dei channel. Il focalizzarsi sull' uso dei segnali è importante.
+L'idea è, se hai bisogno della garanzia a livello di segnale o no,
+basando le preoccupazioni sulla latenza. Se hai bisogno di trasmettere dati con i segnali o meno, basata sulla gestione della cancellazione o meno. Vuoi convertire la sintassi di queste semantiche.
+
+** Linee guida di design
+
+- Impara sulle [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][linee guida di design]] per i channels.
+
+** Diagrammi
+
+*Garanzia* *di* *consegna*
+
+La `Garanzia di consegna` è basata sulla domanda: “Ho io bisogno della garanzia che il segnale inviato da una particolare goroutine sia stato ricevuto?”
+
+.image /tour/eng/static/img/guarantee_of_delivery.png
+
+*Segnali* *Con* *o* *senza* *dati*
+
+Quando stai andando a usare segnali `con` dati, ci sono delle configurazioni opzionali del channel
+che puoi scegliere a seconda della `garanzia` di cui hai bisogno.
+
+.image /tour/eng/static/img/signaling_with_data.png
+
+Segnali senza dati vengono utilizzati principalmente per la cancellazione. Esso permette ad una
+goroutine di segnalare ad un altra goroutine di cancellare quello che sta facendo e andare avanti.
+Cancellazione può essere implementata usando i channel sia `unbuffered` che `buffered`.
+
+.image /tour/eng/static/img/signaling_without_data.png
+
+*Stato*
+
+Il comportamento di un channel è direttamente influenzato dal suo `State` corrente. Lo stato di un channel può essere `nil`, `open` o `closed`.
+
+.image /tour/eng/static/img/state.png
+
+** Letture extra
+
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy
+- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]
+- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi
+
+** Buffer Bloat - 2011
+
+Stai attento ad usare grandi buffer con l'idea di ridurre la latenza.
+
+- Grandi buffer impedisce la notifica immediata della contropressione.
+- Sconfiggono la tua capacità di ridurre la contropressione in modo tempestivo.
+- Essi possono aumentare la latenza non ridurla.
+- Utilizza canali bufferizzati per mantenere la continuità.
+- Non usarli solo per le prestazioni.
+- Usaliper gestire raffiche di dati ben definite.
+- Usali per gestire alla velocità della luce  i problemi tra i trasferimenti.
+
+*Video*
+
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]
+
+* Exercizi
+
+Usa il template come punto di partenza per completare gli esercizi. Una soluzione possibile viene fornita.
+
+** Esercizio 1
+
+Scrivi un programma dove due goroutine si passano un intero avanti e indietro dieci volte.
+Mostra quando ciascuna goroutine riceve l'intero. Incrementa l'intero a ciascun passaggio.
+Quando l'intero è uguale a dieci, termina il programma in maniera pulita.
+
+.play channels/exercise1.go
+.play channels/answer1.go
+
+** Esercizio 2
+
+Scrivi un programma che usa il pattern fan out per generare 100 numeri random in maniera concorrente.
+Ciascuna goroutine genera un singolo numero casuale e lo restituisce alla goroutine principale
+su un canale bufferizzato. Imposta la dimensione del canale buffer in modo che non venga mai bloccato l'invio.
+Non allocare più buffer di quello che necessiti. La main goroutine mostra ciascun numero random ricevuto e poi termina il programma.
+
+.play channels/exercise2.go
+.play channels/answer2.go
+
+** Esercizio 3
+
+Scrivi un programma che genera fino a 100 numeri random in maniera concorrente. Non inviare
+tutti i 100 valori, quindi il numero di invii/ricezioni è sconosciuto.
+
+.play channels/exercise3.go
+.play channels/answer3.go
+
+** Esercizio 4
+
+Scrivi un programma che genera fino a 100 numeri random in maniera concorrente usando un worker pool.
+Rigetta i valori pari. I workers terminano il programma quando vengono raccolti 100 numeri dispari.
+
+.play channels/exercise4.go 
+.play channels/answer4.go

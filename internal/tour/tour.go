@@ -5,7 +5,7 @@
 	- internal/tour/handlers.go:13 : Add a field for the new language ui content.
 	- internal/tour/handlers.go:46 : Incorporate the new language into the switch/case statement to handle its routing properly.
 	- internal/tour/local.go:101   : Register the new language by adding a new call to addLanguage function.
-	- internal/tour/local.go:109   : Add the ui content to the root struct.
+	- internal/tour/local.go:121   : Add the ui content to the root struct.
 
 	## _content Folder
 	1. Create a new language folder:
@@ -22,6 +22,23 @@
 	   - _content/tour/[new_lang_code]/template/*.tmpl        : Replace all entries containing `tour/eng` with `tour/[new_lang_code]`.
 	   - _content/tour/[new_lang_code]/template/index.tmpl:42 : Translate the title to the new language.
 	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : Add the new language option to the language selection dropdown. Repeat this step in each language folder's template file.
+
+	## Integrating New Language
+	1. Update replace statement in all languages
+	   - _content/tour/[new_lang_code]/static/js/page.js:116 : return url.replace(/(\/tour\/)(eng|rus|per|grc|por|[new_lang_code])(\/)/, `$1${newLanguage}$3`);
+
+	2. Change Patch Number in all JS and Template files
+	   - _content/tour/eng/static/partials/list.html  -- English Only
+	   - _content/tour/[new_lang_code]/template/index.tmpl:90
+
+	3. Update Language switch in all languages
+	   - _content/tour/[new_lang_code]/template/index.tmpl:71 : <option value="[new_lang_code]">[new_lang]</option>
+
+	4. Validate the language has been added search index
+	   - internal/tour/local.go:100
+
+	4. Make sure the static/app.css, static/lib/codemirror/lib/codemirror.css, and the
+	   - template/action.tmpl is the same as the english version.
 
 	## Testing
 	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
@@ -222,8 +239,6 @@ func initLessons(tmpl *template.Template, files []fs.DirEntry, h handler) error 
 		}
 
 		lessons[name] = lsn
-
-		log.Printf("initLessons: %s: %s: %s: %d", h.Route(), name, lsn.Title, len(lsn.Pages))
 	}
 
 	h.SetLessons(lessons)

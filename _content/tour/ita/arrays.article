@@ -1,0 +1,395 @@
+Gli Array
+Gli array sono delle speciali strutture dati in Go che permettono l'allocazione contigua di blocchi di memoria di dimensione fissa.
+
+* Array
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Gli array sono delle speciali strutture dati in Go che permettono l'allocazione contigua di blocchi di memoria di dimensione fissa.
+Gli array in Go hanno caratteristiche speciali riguardo a come sono dichiarati e visti come tipi.
+
+** Code Review
+
+- *Esempio* *1:* Dichiara inizializza e itera
+- *Esempio* *2:* Differenti tipi di array
+- *Esempio* *3:* Allocazione di memoria contigue
+- *Esempio* *4:* Meccanica del range
+
+.play arrays/example1.go
+.play arrays/example2.go
+.play arrays/example3.go
+.play arrays/example4.go
+
+** Dichiarare e inizializzare i valori
+
+Dichiarare un array di cinque stringhe inizializzate al loro valore di stato zero.
+
+    var strings [5]string
+
+Una stringa è immutabile, composta da due parti, una contiene un puntatore ad un array di byte l'altra il numero totale di byte nell'array.
+Poichè questo array è settato sul suo valore di stato zero, ciascun elemento è settato sul suo valore di stato zero.
+Questo significa che ciascuna stringa ha la prima parte del puntatore settata a nil e la seconda parte a 0.
+
+.image /tour/eng/static/img/a1.png
+
+** Assegnamento delle stringhe
+
+Cosa accade quando una stringa è assegnata ad un altra stringa ?
+
+    strings[0] = "Apple"
+
+Quando una stringa è assegnata ad un altra stringa, il valore delle due parti è copiato,
+portando a due valori differenti di stringa che condividono lo stesso array di byte.
+
+.image /tour/eng/static/img/a2.png
+
+Il costo di copiare una stringa è lo stesso indipendentemente dalla dimensione della stringa, una copia delle due parti.
+
+** Iterazione delle Collection
+
+Go fornisce due diverse semantiche per iterare una collection. Io posso iterare usando la semantica per valore o per puntatore.
+
+    // Iterazione con semantica per valore
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+
+    // Iterazione con sematica con puntatore
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Quando usiamo la semantica per valore, avvengono due cose. Primo, la collection che sto iterando è copiata e tu iteri su una copia.
+Nel caso di un array la copia può essere costosa perchè l'intero array è copiato.
+Nel caso di uno slice, non c'è un vero costo perchè viene copiato solo il valore e non l'array di byte.
+Secondo, tu ricevi una copia di ciascun elemento che su cui stai iterando.
+
+Quando usi la semantica con il puntatore per iterare, tu iteri sulla collezione originale e io accedo direttamente a ciascun elemento associato con la collezione.
+
+** Iterazione con semantica per valore
+
+Dato il seguente codice e output.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+Output:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+La variabile è un array di 5 stringhe. Il ciclo itera su ciascuna stringa
+nella collezione e mostra  l'indice della posizione e il valore della stringa. Poichè questa è una iterazione con la semantica per valore,
+il for range sta iterando su una copia dell' array e a ciascuna iterazione la variabile fruit è una copia di ciascuna stringa
+(la struttura dati delle due parti).
+
+Nota come la variabile è passata alla funzione print usando la semantica per valore.
+La funzione print ottiene la sua copia del valore della stringa. Al momento che la stringa è passata alla funzione print, ci sono 4 copie del valore della stringa
+(array, shallow copy, variabile fruit e la copia della funzione print). Tutte le quattro copie condividono lo stesso array di byte.
+
+.image /tour/eng/static/img/a3.png
+
+Fare copie del valore della stringa è importante perchè previene la fuga dall' heap del valore della stringa.
+Questo elimina allocazioni non produttive sull' heap.
+
+** Semantica di iterazione con puntatore
+
+Dato il seguente codice e output.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Output:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Ancora una volta, la variabile strings è un array di 5 stringhe. Il ciclo itera su ciascuna stringa nell' array
+e mostra l' indice della posizione e il valore della stringa.
+Poichè questa è una iterazione con la semantica con puntatore, il for range sta iterando direttamente sull'array di stringhe e a ciascuna iterazione,
+il valore della stringa in ciascun posizione è acceduto direttamente dalla chiamata print.
+
+** Differenti tipi di Array
+
+E' interessante notare che il compilatore restituisce un errore quando vengono assegnati array dello stesso tipo che hanno lunghezze diverse.
+
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
+
+    five = four
+
+Compiler Error:
+
+    cannot use four (type [4]int) as type [5]int in assignment
+
+Qui dichiari un array di 4 interi e uno di 5 interi inizializzato con il loro valore zero.
+Poi provando ad assegnarli il compilatore dice, non puoi usare un array di 4 con uno di cinque in un assegnamento, "cannot use four
+(type [4]int) as type [5]int in assignment".
+
+E' importante essere chiari su cosa il compilatore sta dicendo. Esso dice che un array di 4 interi e un array di 5 interi rappresentano dati di tipo diverso.
+La dimensione di un array è parte delle informazioni sul suo tipo. In Go, la dimensione di un array deve essere conosciuto al momento della compilazione.
+
+** Costruzione di memoria contigua
+
+Vuoi provare che un array ha un layout di memoria contiguo.
+
+    five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
+
+    for i, v := range five {
+        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+            v, &v, &five[i])
+    }
+
+Output:
+
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+
+Qui dichiari un array di 5 stringhe inizializzate con dei valori.
+Poi l'uso dell'iteratore per mostrare le informazioni di ciascuna stringa.
+L'output mostra il valore di ciascuna stringa, l' indirizzo della variabile v e l' indirizzo di ciascun elemento nell' array.
+
+Puoi vedere come l' array è un blocco contiguo di memoria e come la stringa è una parola di 16 byte di struttura dati sulla mia macchina con architettura a 64 bit.
+L'indirizzo di ciascun elemento è distanziato da uno step di 16 byte.
+
+Il fatto che la variabile v ha lo stesso indirizzo a ciascuna iterazione rafforza la comprensione che v è una variabile locale di tipo stringa
+che contiene una copia del valore di ciascuna stringa durante l'iterazione.
+
+** CPU Caches
+
+Ci sono molte differenze "meccaniche" tra processori e il loro design.
+In questa sezione, parlerai ad alto livello sui processori e la semantica che sono relativamente le stesse tra loro.
+La comprensione di questa semantica ti fornisce un buon modello mentale per come i processori funzionano e la simpatia che puoi fornire.
+
+Ciascun core dentro un processore ha la sua cache locale di memoria (L1 e L2) e una cache comune
+di memoria (L3) usata per conservare/accedere dati e istruzioni.
+I threads hardware in ciascun core possono accedere alla loro cache locale L1 e L2. Dati della cache L3 o dalla memoria principale
+necessitano di essere copiati nella cache L1 o L2 per essere accessibili.
+
+.image /tour/eng/static/img/a4.png
+
+Il costo della latenza nell'accedere i dati che esiste nelle diverse cache cambia da poco a molto : L1 -> L2 -> L3 -> memoria principale.
+Come dice Scott Meyers, "Se le prestazioni sono importanti la quantità di memoria che hai è la quantità totale della cache.
+La memoria principale è lenta per essere usata, praticamente parlando, potrebbe anche non esserci."
+
+Le prestazioni oggi dipendono da quanto è efficente il flusso dei dati attraverso l'hardware. Se ciascuna parte dei dati che l'hardware necessità (in un dato momento)
+esiste solo nella memoria principale, il miei programmi saranno lenti comparati ai dati già presenti nella cache L1 o L2.
+
+    3GHz(3 clock cycles/ns) * 4 instruzioni per ciclo = 12 istruzioni per ns!
+
+    1 ns ............. 1 ns .............. 12 instructions  (one)
+    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+
+    L'industria definisce le latenze
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins
+
+Come scrivi del codice che garantisce che i dati necessari per eseguire una istruzione sia sempre presente nella cache L1 o L2 ?
+Hai bisogno di scrivere codice che sia meccanicamente comprensivo con il prefetcher (precaricatore) del processore.
+Il prefetcher cerca di predire quali dati sono necessari prima che le istruzioni richiedano i dati così che siano già presenti
+nella cache L1 o nella L2.
+
+Ci sono differenze di granularità nell' acceso alla memoria dipendentemente su dove l'accesso è avvenuto.
+Il mio codice può leggere/scrivere un byte di memoria come più piccola unità di accesso alla memoria.
+Comunque, dalla punto di vista del sistema di cache, la granularità è di 64 bytes.
+Questi blocchi di 64 byte di memoria è chiamata cache line.
+
+Il Prefetcher lavora al meglio quando le istruzioni eseguite creano pattern di accesso alla memoria precidibili.
+Un modo di creare pattern di accesso alla memoria precidibili è costruire blocchi di memoria contigui e iterandoci fornire un attraversamento lineare.
+
+L' array è la struttura dati più importante per l'hardware perchè fornsice pattern di accesso predicibili.
+Comunque, lo slice è la più importante struttura dati in Go.
+Gli slices in Go sotto usano un array.
+
+Una volta che costruisci un array, ciascun elemento è ugualmente distante dal prossimo e dal precedente.
+Come iteri un array, inizi a camminare una linea di cache connettendo la cache line con passo predicibile.
+Il Prefetcher prenderà su questo pattern di accesso dati predicibili e inizierà a mandare dati nel processore,
+riducendo così il costo della latenza dell' accesso ai dati.
+
+Immagina di avere una grande matrice quadrata di memoria e un elenco collegato di nodi che corrispondono
+al numero di elementi nella matrice. Se tu esegui un atttraversamento attraverso la linked
+list, e poi attraversi la matrice in entrambe le direzioni (Colonna e riga), come saranno diverse le prestazioni dei diversi attraversamenti ?
+
+    func RowTraverse() int {
+        var ctr int
+        for row := 0; row < rows; row++ {
+            for col := 0; col < cols; col++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+L'attraversamento della riga avrà la migliore prestazione perchè cammina attraverso la memoria, la linea di cache
+connettendo la cache line, che crea un pattern di accesso predicibile. Le linee di cache
+possono essere precaricate e copiate nella cache L1 o L2 prima che i dati siano necessari.
+
+    func ColumnTraverse() int {
+        var ctr int
+        for col := 0; col < cols; col++ {
+            for row := 0; row < rows; row++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+Attraversamento in colonna è il peggiore di un ordine di grandezza perchè questo pattern di accesso
+supera i limiti di pagina del sistema operativo a ciascun accesso alla memoria. Questo causa una linea di cache non predicibile
+e diventa essenzialmente un accesso random della memoria.
+
+    func LinkedListTraverse() int {
+        var ctr int
+        d := list
+        for d != nil {
+            if d.v == 0xFF {
+                ctr++
+            }
+            d = d.p
+        }
+        return ctr
+    }
+
+La linked list è il doppio più lenta dell' attraversamento in riga principalmente perchè ci sono delle linee di cache mancanti ma
+meno TLB (Translation Lookaside Buffer). Un bulk dei nodi connessi nella lista esiste dentro le pagine del sistema operativo.
+
+    BenchmarkLinkListTraverse-16    128      28738407 ns/op
+    BenchmarkColumnTraverse-16       30     126878630 ns/op
+    BenchmarkRowTraverse-16         310      11060883 ns/op
+
+** Translation Lookaside Buffer (TLB)
+
+Ciascun programma in esecuzione ha assegnata una mappa di memoria completa della memoria virtuale dal sistema operativo
+perciò il programma in esecuzione ritiene di avere tutta la memoria fisica della macchina a disposizione.
+La memoria fisica necessita di essere condivisa con tutti i programmi in esecuzione.
+Il sistema operativo condivide la memoria fisica suddividendo la memoria fisica in pagine e mappando le pagine nella memoria virtuale
+per qualsiasi programma in esecuzione. Ciascun sistema operativo può decidere la dimensione di una pagina,
+ma 4k, 8k, 16k sono ragionevoli dimensioni comuni.
+
+La TLB è una piccola cache dentro il processore che che aiuta a ridurre la latenza traslando un indirizzo virtuale
+in un indirizzo fisico nell' ambito di una pagina del sistema operativo e l' offset all'interno della pagina.
+Una cache miss con TLB può causare grandi latenze perché l'hardware deve attendere che il sistema operativo esegua la scansione della tabella delle pagine
+per trovare la pagina giusta per l'indirizzo virtuale in questione.
+Se il programma è eseguito su una macchina virtuale (come sul cloud) allora la tabella di paginazione della macchina virtuale deve essere scansionata prima.
+
+Ricorda quanto detto:
+
+La linked list è il doppio più lenta dell' attraversamento in riga principalmente perchè ci sono cache line mancate ma poche TLB mancanti (prossima spiegazione).
+Un bulk di nodi connessi in una lista esiste dentro la stesse pagine del sistema operativo.
+
+La LinkedList è ordini di grandezza più velcoe dell' attraversamento in colonna a causa dell'accesso TLB.
+Anche se possono esserci cache line mancanti con l'attraversamento con la linked list,
+poiché la maggior parte della memoria per un gruppo di nodi si troverà all' interno della stessa pagina,
+le latenze TLB non influiscono sulle prestazioni. Questo è perchè per programmi che usano un largo quantitativo di memoria,
+come le applicazioni sul DNA, tu puoi voler usare una distribuzione di linux che è configurata con la dimensione di pagina con ordini di megabyte.
+
+Detto questo, la progettazione orientata ai dati è importante. Scrivere un algoritmo efficiente tenendo conto dell'accesso ai dati.
+Ricorda le prestazioni oggi sono sopratutto su quanto efficientemente puoi mandare dati nel processore.
+
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski
+
+** Note culla cache della CPU
+
+.html arrays/array_list.html
+
+** Diagrammi extra
+
+*Industry* *Defined* *Latencies*
+
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    Branch mispredict ............................ 5 ns ................... 60 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Mutex lock/unlock ........................... 25 ns .................. 300 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins
+    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
+    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
+    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
+    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
+    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
+    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
+    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
+    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
+    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+
+*Cache* *Latencies* *Image*
+
+.image /tour/eng/static/img/cache_latencies_graph.png
+
+** Letture extra
+
+*CPU* *Caches* */* *Memory*
+
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson
+- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth
+
+*Data-Oriented* *Design*
+
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup
+- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora
+
+** Note
+
+- Se non comprendi i dati, non comprendi il problema.
+- Se non comprendi il costo di risolvere un problema, non puoi ragioanre sul problema.
+- Se non comprendi, non puoi ragionare sul costo di risolvere un problema.
+- Arrays sono strutture dati di lunghezza fissa che non posono cambiare.
+- Arrays di differenti diemnsioni sono considerati array di tipi diversi.
+- Memory è allocata in blocchi contigui.
+- Go ti da il controllo sulla localizzaione nello spazio.
+
+* Esercizi
+
+Usa il template come punto di partenza per compeltare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+Dichiara un array di 5 stringhe con ciascun elemento inizializzato al suo valore zero. Dichiara un secondo array
+di 5 stringhe e inizializza questo array con stringhe letterali. Assegna il secondo array al primo e mostra i risultati
+del primo array. Mostra il valore della stringa e l'indirizzo di ciascun elemento.
+
+.play arrays/exercise1.go
+.play arrays/answer1.go

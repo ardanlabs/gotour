@@ -1,0 +1,144 @@
+Esportazione
+L'esportazione offre la possibilità di dichiarare se un identificatore è accessibile al codice esterno al pacchetto in cui è dichiarato.
+
+* Esportazione
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+L'esportazione offre la possibilità di dichiarare se un identificatore è accessibile
+al codice esterno al package in cui è dichiarato.
+
+** Code Review
+
+- *Example* *1:* Declare and access exported identifiers
+- *Example* *2:* Declare unexported identifiers and restrictions
+- *Example* *3:* Access values of unexported identifiers
+- *Example* *4:* Unexported struct type fields
+- *Example* *5:* Unexported embedded types
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Meccanica della esportazione
+
+Un package è l'unità base del codice compilato in Go. Rappresenta un'unità fisica di codice compilata,
+solitamente come libreria compilata sul sistema operativo host.
+L'esportazione determina l'accesso agli identificatori oltre i confini del package.
+
+    package counters
+
+    type AlertCounter int
+
+In questo caso, poiché viene utilizzata una lettera maiuscola per denominare il tipo AlterCounter,
+il tipo viene esportato ed è possibile fare riferimento direttamente tramite
+codice esterno al package counters.
+
+    package counters
+
+    type alertCounter int
+
+Ora che hai modificato il nome del tipo in modo che inizi con una lettera minuscola, il tipo
+non viene esportato. Ciò significa che solo il codice all'interno del package counters
+può fare riferimento direttamente a questo tipo.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Anche se il codice riportato sopra ha una sintassi legale e verrà compilato, non contiene alcun valore.
+Restituire un valore di un tipo non esportato crea confusione poiché il chiamante
+(che probabilmente esisterà in un pacchetto diverso) non può fare riferimento direttamente al nome del tipo.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+In questo caso, la funzione main nel package main chiama correttamente la funzione counters.New
+e il compilatore può dichiarare e costruire una variabile del tipo non esportato.
+Ciò non significa che dovresti farlo, né significa che otterrai una vera protezione per questo.
+Ciò dovrebbe essere evitato e, se New restituirà un valore, dovrebbe essere di tipo esportato.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+Quando si tratta di campi in una struttura, la prima lettera dichiara se il campo è
+accessibile al codice esterno al package in cui è dichiarato.
+In questo caso, Nome e ID sono accessibili, ma la password no.
+È un idioma per separare i campi esportati da quelli non esportati in questo modo se ciò è ragionevole o pratico da fare.
+Normalmente tutti i campi sarebbero l'uno o l'altro.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+In questo scenario, anche se il tipo di utente non è esportato, ha due campi esportati.
+Ciò significa che quando il tipo utente è incorporato nel tipo Manager esportato,
+i campi utente vengono promossi e sono accessibili.
+È comune avere tipi non esportati con campi esportati perché il package reflection può operare solo su campi esportati.
+I Marshaller non funzioneranno altrimenti.
+
+L'esempio crea una situazione negativa in cui il codice esterno al package users possono costruire
+un Manager, ma poiché il tipo incorporato user non viene esportato, i campi per quel tipo possono essere inizializzati.
+Ciò crea problemi di costruzione parziali che porteranno a bug.
+È necessario essere coerenti nell’esportare e non esportare.
+
+** Note
+
+- Il codice in go viene compilato in package e quindi collegati insieme.
+- Gli identificatori vengono esportati (o rimangono non esportati) in base alle lettere maiuscole.
+- Importiamo packages per accedere agli identificatori esportati.
+- Qualsiasi package può utilizzare un valore di tipo non esportato, ma questo è fastidioso da usare.
+
+** Letture extra
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+*Parte* *A:* Crea un package denominato toy con un singolo tipo di struttura esportato denominato Toy.
+Aggiungi i campi esportati Name e Weight. Quindi aggiungi due campi non esportati denominati onHand
+e sold. Dichiara una funzione factory chiamata New per creare valori di tipo toy e accetta
+parametri per i campi esportati. Quindi dichiarare metodi che restituiscono e aggiornano i valori
+per i campi non esportati.
+
+*Parte* *B:* Crea un programma che importi il package toy. Utilizza la funzione New per
+creare un valore di tipo toy. Quindi utilizza i metodi per impostare i conteggi e visualizzare i
+valori di campo di quel valore del toy.
+
+.play exporting/exercise1.go
+.play exporting/answer1.go
