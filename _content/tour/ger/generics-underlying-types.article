@@ -1,14 +1,14 @@
 Zugrundeliegende Typen
-Sie können einen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren.
+Ihr könnt einen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren.
 
-* Generika - Zugrunde liegende Typen
+* Generics - Zugrunde liegende Typen
 
-Sie können einen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren.
+Ihr könnt einen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren.
 
 ** Video
 
-Schauen Sie sich den Vortrag über Generics an, der Sie durch alle
-Beispiele in diesem Abschnitt der Tour.
+Schaut euch den Vortrag über Generics an, der euch durch alle
+Beispiele in diesem Abschnitt der Tour führt.
 
 .html generics-video.html
 
@@ -24,24 +24,24 @@ Beispiele in diesem Abschnitt der Tour.
 
 ** Erläutert
 
-Was wäre, wenn ich meinen eigenen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren wollte?
+Was wäre, wenn ich meinen eigenen generischen Typ unter Verwendung eines zugrunde liegenden Typs deklarieren möchte?
 
-    Typ Vektor[T beliebig] []T
+    type vector[T any] []T
 
     func (v vector[T]) last() (T, error) {
-        var null T
+        var zero T
         
         if len(v) == 0 {
-            return zero, errors.New("leer")
+            return zero, errors.New("empty")
         }
         
         return v[len(v)-1], nil
     }
 
 Dieses Beispiel zeigt einen generischen Vektortyp, der die Konstruktion eines Vektors
-auf einen einzigen Datentyp beschränkt. Die Verwendung von eckigen Klammern erklärt, dass der Typ T ein generischer Typ ist
-Typ ist, der zur Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt
-dass es keine Beschränkung gibt, was für ein Typ T werden kann.
+auf einen einzigen Datentyp beschränkt. Die Verwendung von eckigen Klammern erklärt, dass der Typ T ein generischer Typ ist,
+der zu Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt
+dass es keine Einschränkungen gibt, welche für ein Typ T gilt.
 
 Die letzte Methode wird mit einem Werteempfänger vom Typ vector[T] deklariert, um einen
 Wert vom Typ vector mit einem zugrundeliegenden Slice vom Typ T darzustellen. Die Methode gibt einen
@@ -58,11 +58,11 @@ Wert desselben Typs T zurück.
             return
         }
 
-        wenn i < 0 {
-            fmt.Print("negative ganze Zahl: ")
+        if i < 0 {
+            fmt.Print("negative integer: ")
         }
 
-        fmt.Printf("Wert: %d\n", i)
+        fmt.Printf("value: %d\n", i)
 
         // -------------------------------------------------------------------------
 
@@ -77,68 +77,67 @@ Wert desselben Typs T zurück.
         }
 
         if !utf8.ValidString(s) {
-            fmt.Print("nicht gültiger String: ")
+            fmt.Print("non-valid string: ")
         }
 
-        fmt.Printf("Wert: %q\n", s)
+        fmt.Printf("value: %q\n", s)
     }
 
 Ausgabe:
 
-    vector[int] : negative Ganzzahl: Wert: -1
-    vector[string] : nicht gültiger String: Wert: "\xff"
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
 
 So konstruiere ich einen Wert vom Typ vector mit einem zugrunde liegenden Typ int, wenn ich
-bei der Konstruktion Werte im Vektor setzt. Ein wichtiger Aspekt dieses Codes sind die
+bei der Konstruktion Werte im Vektor setzte. Ein wichtiger Aspekt dieses Codes sind die
 Konstruktionsaufrufe.
 
-    // Nullwert-Konstruktion
+    // Zero Value Construction
     var vGenInt vector[int]
     var vGenStr vector[string]
     
-    // Nicht-Nullwert-Konstruktion
-    vGenInt := Vektor{10, -1}
+    // Non-Zero Value Construction
+    vGenInt := vector{10, -1}
     vGenStr := vector{"A", "B", string([]byte{0xff})}
 
-Wenn es darum geht, diese generischen Typen auf ihren Nullwert zu konstruieren, ist es
-ist es für den Compiler nicht möglich, den Typ zu ermitteln. In den Fällen jedoch, in denen es eine
-Initialisierung während der Konstruktion, kann der Compiler den Typ ableiten.
+Wenn es darum geht, diese generischen Typen auf ihren Nullwert zu konstruieren, 
+ist es für den Compiler nicht möglich, den Typen zu ermitteln. In den Fällen jedoch, in denen es eine
+Initialisierung während der Konstruktion gibt, kann der Compiler den Typ ableiten.
 
 Es gibt einen Aspekt der Spezifikation, der sich auf die Konstruktion eines generischen Typs in
-seinem Nullwert-Zustand.
+seinem Nullwert-Zustand konzentriert.
 
-    Typ Vektor[T beliebig] []T
+    type vector[T any] []T
     
     func (v vector[T]) last() (T, error) {
-        var null T
+        var zero T
         
         if len(v) == 0 {
-            return zero, errors.New("leer")
+            return zero, errors.New("empty")
         }
         
         return v[len(v)-1], nil
     }
 
-Sie müssen sich auf die Methodendeklaration für die letzte Methode konzentrieren und darauf, wie die Methode
-einen Wert des generischen Typs T zurückgibt. Bei der ersten Rückgabe ist eine Situation gegeben, in der Sie
-den Nullwert für den Typ T zurückgeben. Die aktuelle Implementierung bietet zwei Lösungen für die Erstellung von
-diesen Code zu schreiben. Die erste Lösung sehen Sie bereits. Eine Variable mit dem Namen Null wird konstruiert, um
-ihren Nullwert-Zustand des Typs T und dann wird diese Variable für die Rückgabe verwendet.
+Ihr müsst euch auf die Methodendeklaration für die letzte Methode konzentrieren. Auch darauf, wie die Methode
+einen Wert des generischen Typs T zurückgibt. Bei der ersten Rückgabe ist eine Situation gegeben, in der ihr
+den Nullwert für den Typ T zurückgebt. Die aktuelle Implementierung bietet zwei Lösungen für das Schreiben von diesem Code.
+Eine Variable mit dem Namen Null wird konstruiert, um ihren Nullwert-Zustand des Typs T und dann wird diese Variable für die Rückgabe verwendet.
 
-Die andere Möglichkeit ist die Verwendung der eingebauten Funktion new und die Dereferenzierung des zurückgegebenen
-Zeiger innerhalb der Return-Anweisung zu dereferenzieren.
+Die andere Möglichkeit besteht darin die built-in Funktion new zu verwenden und die Dereferenzierung des zurückgegebenen
+Zeigers innerhalb der Return-Anweisung zu dereferenzieren.
 
-    Typ Vektor[T beliebig] []T
+    type vector[T any] []T
     
     func (v vector[T]) last() (T, error) {
         if len(v) == 0 {
-            return *new(T), errors.New("leer")
+            return *new(T), errors.New("empty")
         }
         
         return v[len(v)-1], nil
     }
 
-Diese Version der letzten Methode verwendet die eingebaute Funktion new für die Nullwert
+Diese Version der letzten Methode verwendet die eingebaute Funktion new für die Nullwert,
 Konstruktion und Dereferenzierung des zurückgegebenen Zeigers, um den Rückgabetyp T zu erfüllen.
 
 Hinweis: Man könnte meinen, warum nicht T{} verwenden, um eine Nullwertkonstruktion durchzuführen? Das
@@ -147,15 +146,15 @@ string, bool). Sie ist also keine Option.
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-Deklarieren Sie einen generischen Typ namens keymap, der einen zugrundeliegenden Typ von map verwendet
-mit einem Schlüssel vom Typ string und einem Wert vom Typ T verwendet. Deklarieren Sie eine Methode
-namens set, die einen Schlüssel vom Typ string und einen Wert vom Typ T akzeptiert. Deklarieren Sie
+Deklariert einen generischen Typ namens keymap, der einen zugrundeliegenden Typ von map verwendet
+mit einem Schlüssel vom Typ string und einem Wert vom Typ T verwendet. Deklariert eine Methode
+namens set, die einen Schlüssel vom Typ string und einen Wert vom Typ T akzeptiert. Deklariert
 eine Methode namens get, die einen Schlüssel vom Typ string akzeptiert und einen Wert vom
-Typ T und true oder false zurückgibt, wenn der Schlüssel gefunden wird. Schreiben Sie dann eine Hauptfunktion
+Typ T und true oder false zurückgibt, wenn der Schlüssel gefunden wird. Schreibt dann eine Hauptfunktion
 die die Methoden verwendet.
 
 .play generics/underlying-types/exercise1.go 

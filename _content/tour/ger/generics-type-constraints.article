@@ -4,12 +4,12 @@ Dies ist ein neues Konzept in Go, bei dem eine Einschränkung auf einer Reihe vo
 * Generics - Type As Constraint
 
 Dies ist ein neues Konzept in Go, bei dem eine Einschränkung auf einem Satz konkreter Typen basieren kann.
-Dies funktioniert nur für Generika.
+Dies funktioniert nur für Generics.
 
 ** Video
 
-Schauen Sie sich den Vortrag über Generics an, der Sie durch alle
-Beispiele in diesem Abschnitt der Tour.
+Schaut sich den Vortrag über Generics an, der euch durch alle
+Beispiele in diesem Abschnitt der Tour führt.
 
 .html generics-video.html
 
@@ -26,7 +26,7 @@ Beispiele in diesem Abschnitt der Tour.
 ** Erläutert
 
 Generische Funktionen schaffen eine neue Art von Einschränkung, die nicht durch die Deklaration
-eines Methodensatzes des Verhaltens.
+von Methoden-Verhalten gelöst werden kann.
 
     func Add[T ???](v1 T, v2 T) T {
         return v1 + v2
@@ -38,35 +38,35 @@ weil der Compiler den Aufruf der Funktion auf Werte beschränken muss, die
 in einer Additionsoperation verwendet werden können. Derzeit gibt es keine Möglichkeit, diese Art von
 Art von Einschränkung.
 
-Die Entscheidung war, die Schnittstelle zur Deklaration der Einschränkung weiter zu verwenden und etwas Neues hinzuzufügen.
+Die Entscheidung war, das Interface zur Deklaration der Einschränkung weiter zu verwenden und etwas Neues hinzuzufügen.
 etwas Neues hinzuzufügen.
 
-    Typ addOnly Schnittstelle {
+    type addOnly interface {
         string | int | int8 | int16 | int32 | int64 | float64
     }
 
-Sie können eine Schnittstelle deklarieren, die einen Satz von Typen definiert, die die Einschränkung bilden. Dann
-diese Schnittstelle auf die generische Funktion anwenden.
+Ihr könnt ein interface deklarieren, welches einen Satz von Typen definiert, die die Einschränkung bilden. Dann
+dieses interface auf die generische Funktion anwenden.
 
     func Add[T addOnly](v1 T, v2 T) T {
         return v1 + v2
     }
 
 Jetzt kann der Compiler überprüfen, ob die Menge der Typen mit den Operationen übereinstimmt, die
-die die Funktion mit Werten dieser Typen durchführen muss. Wenn die Schnittstelle
-die eingebauten Typen verwendet, sind die Schnittstellen paketübergreifend wiederverwendbar. Wenn die Liste
-der Typen benutzerdefinierte Typen aus dem Paket darstellen, müssen Sie daran denken, dass diese
-generischen Funktionen an die Pakettypen gebunden sind und nichts weiter.
+die Funktion mit Werten dieser Typen durchführen muss. Wenn das interface 
+die eingebauten Typen verwendet, sind die interfaces paketübergreifend wiederverwendbar. Wenn die Liste
+benutzerdefinierte Typen aus dem Paket darstellen, müsst ihr daran denken, dass diese
+generischen Funktionen an die Pakettypen gebunden sind. 
 
-Schnittstellen, die mit einer Reihe von Typen deklariert sind, können nicht in einer traditionellen polymorphen
+Interfaces die mit einer Reihe von Typen deklariert sind, können nicht in einer traditionellen polymorphen
 Funktion verwendet werden. Das würde sowieso keinen Sinn machen, aber es ist etwas, das sich nicht nach
-Go in dem Sinne, dass diese Änderung an der Schnittstelle nicht orthogonal ist.
+Go anfühlt, in dem Sinne dass die Änderung am interface nicht orthogonal ist.
 
 Eine Idee ist es, vordeklarierte Bezeichner für allgemeine Operationsbeschränkungen zu haben.
 
     func index[T comparable](list []T, find T) int {
-        for i, v := Bereich Liste {
-            wenn v == find {
+        for i, v := range list {
+            if v == find {
                 return i
             }
         }
@@ -80,16 +80,16 @@ sind sowohl v als auch find Variablen vom Typ T und werden miteinander vergliche
 dass ein Paket in der Standardbibliothek auch einen gemeinsamen Satz von Beschränkungen bereitstellen könnte
 bereitstellen könnte.
 
-Es gibt keine Einschränkung für eine Schnittstelle, die sowohl mit einem Satz von Typen als auch mit einem
-Verhaltensmuster deklariert wird.
+Es gibt keine Einschränkung für ein interface, das sowohl mit einem Satz von Typen als auch mit einem
+Verhaltensmuster deklariert sind.
 
     type matcher[T any] interface {
-        Typ Person, Lebensmittel
+        type person, food
         match(v T) bool
     }
         
     func match[T matcher[T]](list []T, find T) int {
-        for i, v := Bereich Liste {
+        for i, v := range list {
             if v.match(find) {
                 return i
             }
@@ -98,26 +98,26 @@ Verhaltensmuster deklariert wird.
         return -1
     }
 
-Es wird eine generische Schnittstelle deklariert, wobei T der Typ des Wertes ist, der an eine
-Methode namens match übergeben wird. Die Schnittstelle schränkt ihre Verwendung auf Werte der benutzerdefinierten
-Typs Person und Essen.
+Es wird eine generisches Interface deklariert, wobei T der Typ des Wertes ist, der an eine
+Methode namens match übergeben wird. Das Interface schränkt ihre Verwendung auf Werte der benutzerdefinierten
+Typs person und food.
 
 Wenn man sich die Abgleichsfunktion ansieht, gibt es keine offensichtliche Notwendigkeit, die
-Funktion auf die Typen Person und Lebensmittel zu beschränken. Wenn dies der Fall ist, sollte die Match-Funktion
+Funktion auf die Typen person und food zu beschränken. Wenn dies der Fall ist, sollte die Match-Funktion
 eine traditionelle polymorphe Funktion sein, keine generische Funktion. Wenn es einen
 guten Grund gibt, kann eine generische Funktion verwendet werden, um diese Art von Einschränkung anzuwenden.
 
 Nebenbei bemerkt, bin ich mir nicht sicher, ob diese Funktion notwendig oder sinnvoll ist. Das ist
-etwas, das die Gemeinschaft mit der Zeit herausfinden muss.
+etwas, was die Gemeinschaft mit der Zeit herausfinden muss.
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-Implementieren Sie eine generische Funktion namens copyfy, die sich darauf beschränkt, nur
-Kopien von Slices des Typs string oder int erstellt.
+Implementiert eine generische Funktion namens copyfy, die sich darauf beschränkt, nur
+Kopien von Slices des Typs string oder int zu erstellen.
 
 .play generics/type-constraints/exercise1.go 
 .play generics/type-constraints/answer1.go
