@@ -37,8 +37,13 @@
 	4. Validate the language has been added search index
 	   - internal/tour/local.go:100
 
-	4. Make sure the static/app.css, static/lib/codemirror/lib/codemirror.css, and the
+	5. Make sure the static/app.css, static/lib/codemirror/lib/codemirror.css, and the
 	   - template/action.tmpl is the same as the english version.
+
+	6. Fix new image changes
+		- _content/tour/[new_lang_code]/static/img/ardan-labs-go-tour-banner.png
+		- _content/tour/[new_lang_code]/static/partials/list.html:8
+		- _content/tour/[new_lang_code]/template/index.tmpl:10,11,22 - new tags
 
 	## Testing
 	- After completing the above steps, thoroughly test the new language integration to ensure that all aspects function correctly and the content appears as expected.
