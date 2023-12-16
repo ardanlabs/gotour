@@ -1,13 +1,14 @@
 Gruppierung mit Typen
-Es ist wichtig, sich daran zu erinnern, dass in Go die Konzepte der Untertypisierung oder Unterklassenbildung nicht wirklich existieren und diese Entwurfsmuster vermieden werden sollten.
+Es ist wichtig zu bedenken, dass in Go die Konzepte von Subtypisierung oder Unterklassenbildung wirklich 
+nicht existieren und diese Entwurfsmuster vermieden werden sollten.
 
 * Gruppierung mit Typen
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Es ist wichtig, sich daran zu erinnern, dass in Go die Konzepte der Sub-Typisierung oder Sub-Klassifizierung
-nicht wirklich existieren und diese Entwurfsmuster vermieden werden sollten.
+Die Konzepte der Subtypisierung oder Unterklassenbildung existieren in Go wirklich nicht und diese 
+Entwurfsmuster sollten vermieden werden.
 
 ** Code-Überprüfung
 
@@ -19,81 +20,82 @@ nicht wirklich existieren und diese Entwurfsmuster vermieden werden sollten.
 
 ** Gruppierung verschiedener Datentypen
 
-Es ist wichtig, sich daran zu erinnern, dass in Go die Konzepte der Sub-Typisierung oder Sub-Klassifizierung
-nicht wirklich existieren und diese Entwurfsmuster vermieden werden sollten.
+In Go existieren die Konzepte der Subtypisierung oder Unterklassenbildung nicht, 
+und diese Entwurfsmuster sollten vermieden werden.
 
-Das Folgende ist ein Anti-Muster, das Sie nicht befolgen oder umsetzen sollten.
+Das Folgende ist ein Anti-Muster, das ihr nicht befolgen oder implementieren solltet.
 
-    Typ Tier struct {
+    type Animal struct {
         Name string
         IsMammal bool
     }
 
-Der Typ Tier wird als Basistyp deklariert, der versucht, Daten zu definieren, die
-allen Tieren gemeinsam sind. Sie versuchen auch, einem Tier ein gemeinsames Verhalten zu
-Tier auch ein gemeinsames Verhalten zu geben.
+Der Typ Animal wird als Basistyp deklariert, der versucht, Daten zu definieren, die allen Tieren 
+gemeinsam sind. Ihr versucht auch, ein gemeinsames Verhalten für ein Tier zu definieren.
 
-    func (a *Tier) Speak() {
+    func (a *Animal) Speak() {
         fmt.Println("UGH!",
-        "Mein Name ist", a.Name, ", es ist", a.IsMammal, "Ich bin ein Säugetier")
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Die meisten Tiere haben die Fähigkeit, auf die eine oder andere Weise zu sprechen. Der Versuch, dieses
-dieses allgemeine Verhalten nur auf ein Tier anzuwenden, macht keinen Sinn. An diesem
-haben Sie keine Ahnung, welches Geräusch dieses Tier macht, also schreiben Sie UGH.
+Die meisten Tiere haben die Fähigkeit zu sprechen, auf die eine oder andere Weise. 
+Aber zu versuchen, dieses gemeinsame Verhalten nur einem Tier zuzuordnen, ergibt keinen Sinn. 
+An diesem Punkt habt ihr keine Ahnung, welches Geräusch dieses Tier macht, also schreibt ihr UGH.
 
-    Typ Hund struct {
-        Tier
+    type Dog struct {
+        Animal
         PackFactor int
     }
 
-Jetzt beginnen die wirklichen Probleme. Ich versuche, mit Hilfe von Embedding einen Hund zu machen
-alles zu machen, was ein Tier ist, und noch mehr. Oberflächlich betrachtet scheint das zu funktionieren, aber es
-wird es Probleme geben. Abgesehen davon hat ein Hund eine bestimmte Art zu sprechen.
+Nun beginnen die wirklichen Probleme. Ich versuche, durch Einbettung einen Hund zu allem zu machen, 
+was ein Tier ist und mehr. An der Oberfläche scheint dies zu funktionieren, aber es wird Probleme geben. 
+in Hund hat jedoch eine spezifische Art zu sprechen.
 
     func (d *Dog) Speak() {
-        fmt.Println("Wuff!",
-            "Mein Name ist", d.Name,
-            ", es ist", d.IsMammal,
-            "Ich bin ein Säugetier mit einem Packfaktor von", d.PackFactor)
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In der Implementierung der Speak-Methode können Sie UGH gegen Woof austauschen. Dies ist
-spezifisch dafür, wie ein Hund spricht.
+In der Implementierung der Speak-Methode könnt ihr UGH durch Wuff ersetzen. 
+Dies ist spezifisch für die Art, wie ein Hund spricht.
 
-    Typ Katze struct {
-        Tier
-        SteigFaktor int
+    type Cat struct {
+        Animal
+        ClimbFactor int
     }
 
-Wenn ich einen Hund haben will, der ein Tier repräsentiert, dann musst du eine Katze haben.
-Durch die Einbettung ist eine Katze alles, was ein Tier ist, und noch mehr.
+Wenn ich einen Hund habe, der ein Tier repräsentiert, dann müsst Ihr auch eine Katze haben. 
+Durch Einbettung ist eine Katze alles, was ein Tier ist und mehr.
 
-    func (c *Katze) Sprechen() {
-        fmt.Println("Miau!",
-            "Mein Name ist", c.Name,
-            ", es ist", c.IsMammal,
-            "Ich bin ein Säugetier mit einem Kletterfaktor von", c.ClimbFactor)
+
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-Bei der Implementierung der Speak-Methode können Sie UGH gegen Meow austauschen. Diese
-ist spezifisch dafür, wie eine Katze spricht.
+In der Implementierung der Speak-Methode könnt ihr UGH durch Miau ersetzen. 
+Das ist spezifisch für die Art, wie eine Katze spricht.
 
-Alles scheint in Ordnung zu sein, und es sieht so aus, als würde die Einbettung die gleiche Funktionalität bieten
-Funktionalität wie die Vererbung in anderen Sprachen. Dann versucht man weiterzugehen und
-Hunde und Katzen nach der Tatsache zu gruppieren, dass sie eine gemeinsame DNA haben, nämlich die eines Tieres.
+Alles scheint in Ordnung zu sein, und es sieht so aus, als würde die Einbettung die 
+gleiche Funktionalität bieten wie Vererbung in anderen Sprachen. Dann versucht ihr, 
+Hunde und Katzen zu gruppieren, weil sie gemeinsame DNA als Tiere haben.
 
-    animals := []Tier{
-        Hund{
-            Tier: Tier{
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
                 Name: "Fido",
                 IsMammal: true,
             },
             PackFactor: 5,
         },
     
-        Katze{
-            Tier: Tier{
+        Cat{
+            Animal: Animal{
                 Name: "Milo",
                 IsMammal: true,
             },
@@ -105,36 +107,36 @@ Hunde und Katzen nach der Tatsache zu gruppieren, dass sie eine gemeinsame DNA h
         animal.Speak()
     }
 
-Wenn Sie dies versuchen, beschwert sich der Compiler, dass ein Hund und eine Katze kein Tier sind
-sind, und das ist richtig. Einbetten ist nicht dasselbe wie Vererbung, und das ist das Muster, das ich
-von dem ich mich fernhalten muss. Ein Hund ist ein Hund, eine Katze eine Katze, und ein Tier ein Tier. I
-kann Hunde und Katzen nicht weitergeben, als wären sie Tiere, denn das sind sie nicht.
+Wenn Ihr versucht, dies zu tun, beschwert sich der Compiler, dass ein Hund und eine Katze kein Tier sind, 
+und das stimmt. Einbettung ist nicht dasselbe wie Vererbung, und das ist das Muster, von dem ich mich 
+fernhalten muss. Ein Hund ist ein Hund, eine Katze eine Katze und ein Tier ein Tier. Ich kann keine 
+Hunde und Katzen herumschicken, als ob sie Tiere wären, weil sie es nicht sind.
 
-Diese Art von Mechanik ist auch nicht sehr flexibel. Sie erfordert eine Konfiguration durch den
-Entwickler, und wenn Sie keinen Zugang zum Code haben, können Sie keine Konfigurationsänderungen
-vornehmen.
+Diese Art von Mechanik ist auch nicht sehr flexibel. Sie erfordert eine Konfiguration durch den 
+Entwickler, und wenn ihr keinen Zugang zum Code habt, könnt ihr keine Konfigurationsänderungen 
+über die Zeit vornehmen.
 
-Wenn wir auf diese Weise nicht eine Sammlung von Hunden und Katzen erstellen können, wie können wir dann
-das in Go? Es geht nicht um Gruppierung durch gemeinsame DNA, sondern um Gruppierung
-durch gemeinsames Verhalten. Das Verhalten ist der Schlüssel.
+Wenn dies nicht der Weg ist, wie wir eine Sammlung von Hunden und Katzen konstruieren können, 
+wie können wir das in Go tun? Es geht nicht darum, durch gemeinsame DNA zu gruppieren, 
+sondern durch gemeinsames Verhalten. Verhalten ist der Schlüssel.
 
-    Typ Speaker Schnittstelle {
+    type Speaker interface {
         Speak()
     }
 
-Wenn Sie eine Schnittstelle verwenden, können Sie den gemeinsamen Methodensatz des Verhaltens definieren, den ich
-verschiedene Datentypen gruppieren möchte.
+Wenn ihr ein Interface verwendet, könnt ihr den gemeinsamen Methodensatz des Verhaltens definieren, 
+gegen den ihr verschiedene Datentypen gruppieren wollt.
 
     speakers := []Speaker{
-        &Hund{
-            Tier: Tier{
+        &Dog{
+            Animal: Animal{
                 Name: "Fido",
                 IsMammal: true,
             },
             PackFactor: 5,
         },
-        &Katze{
-            Tier: Tier{
+        &Cat{
+            Animal: Animal{
                 Name: "Milo",
                 IsMammal: true,
             },
@@ -146,83 +148,86 @@ verschiedene Datentypen gruppieren möchte.
         speaker.Speak()
     }
 
-Im neuen Code können Sie nun Hunde und Katzen auf der Grundlage ihrer gemeinsamen
-Verhalten gruppieren, nämlich die Tatsache, dass Hunde und Katzen sprechen können.
+Im neuen Code könnt ihr nun Hunde und Katzen basierend auf ihrem gemeinsamen 
+Verhaltenssatz gruppieren, nämlich der Tatsache, dass Hunde und Katzen sprechen können.
 
-Tatsächlich ist der Typ "Animal" in Wirklichkeit eine Typverschmutzung, denn einen Typ zu deklarieren, nur um
-einen Satz gemeinsamer Zustände zu teilen, ist ein Geruch und sollte vermieden werden.
+In der Tat ist der Typ Animal wirklich eine Art Typverschmutzung, denn die Deklaration 
+eines Typs nur, um einen Satz von gemeinsamen Zuständen zu teilen, ist ein Geruch 
+und sollte vermieden werden.
 
-    Typ Hund struct {
+    type Dog struct {
         Name string
         IsMammal bool
         PackFactor int
     }
     
-    Typ Katze struct {
+    type Cat struct {
         Name string
         IsMammal bool
-        SteigFaktor int
+        ClimbFactor int
     }
 
-In diesem speziellen Fall wäre es besser, wenn Sie den Typ Tier entfernen und die Felder
-kopiert und in die Typen Hund und Katze eingefügt werden. Später werden Sie Hinweise auf bessere
-Muster, die diese Szenarien ausschließen.
+In diesem speziellen Fall wäre es besser, den Typ Animal zu entfernen und die Felder in die 
+Typen Dog und Cat zu kopieren und einzufügen. Später werdet Ihr Anmerkungen zu besseren 
+Mustern haben, die diese Szenarien verhindern.
 
-Hier sind die Codegerüche des ursprünglichen Codes:
+Hier sind die Codegerüche aus dem ursprünglichen Code:
 
-- Der Typ Animal bietet eine Abstraktionsschicht für wiederverwendbare Zustände.
-- Das Programm muss nie einen Wert vom Typ Tier erstellen oder nur verwenden.
-- Die Implementierung der Methode "Speak" für den Typ "Animal" ist verallgemeinert.
-- Die Methode "Speak" für den Typ "Animal" wird nie aufgerufen werden.
+- Der Typ Animal bietet eine Abstraktionsebene des wiederverwendbaren Zustands.
+-Das Programm muss nie einen Wert des Typs Animal erstellen oder ausschließlich verwenden.
+-Die Implementierung der Speak-Methode für den Typ Animal ist generalisiert.
+-Die Speak-Methode für den Typ Animal wird nie aufgerufen werden.
 
 Richtlinien zur Deklaration von Typen:
 
-- Deklarieren Sie Typen, die etwas Neues oder Einzigartiges darstellen.
-- Erstellen Sie keine Aliasnamen, nur um die Lesbarkeit zu erhöhen.
-- Überprüfen Sie, dass ein Wert eines beliebigen Typs selbständig erstellt oder verwendet wird.
-- Betten Sie Typen nicht ein, weil Sie den Zustand brauchen, sondern weil wir das Verhalten brauchen.
-- Wenn Sie nicht über das Verhalten nachdenken, binden Sie sich selbst in ein Design ein, das Sie in der Zukunft nicht ohne kaskadierende Codeänderungen erweitern können.
-- Fragetypen, die Aliase oder Abstraktionen für einen bestehenden Typ sind.
-- Fragetypen, deren einziger Zweck es ist, einen gemeinsamen Satz von Zuständen zu teilen.
+- Deklariert Typen, die etwas Neues oder Einzigartiges repräsentieren.
+-Erstellt keine Aliase nur für Lesbarkeit.
+-Überprüft, ob ein Wert eines beliebigen Typs erstellt oder verwendet wird.
+-Bettet Typen nicht ein, weil ihr den Zustand benötigt, sondern weil ihr das Verhalten benötigt.
+-Wenn Ihr nicht über Verhalten nachdenkt, schränkt ihr euch in einem Design ein, das ihr in Zukunft nicht ohne kaskadierende Codeänderungen erweitern könnt.
+-Hinterfragt Typen, die Aliase oder Abstraktionen für einen vorhandenen Typ sind.
+-Hinterfragt Typen, deren einziger Zweck es ist, einen gemeinsamen Satz von Zuständen zu teilen.
 
-** Entwerfen Sie nicht mit Schnittstellen
+** Entwerft nicht mit Interfaces
 
-Leider versuchen zu viele Entwickler, Probleme zunächst abstrakt zu lösen.
-Sie konzentrieren sich sofort auf die Schnittstellen, was zu einer Schnittstellenverschmutzung führt. Als
-Entwickler existiert man in einem von zwei Modi: als Programmierer und dann als Ingenieur.
+Leider versuchen zu viele Entwickler, Probleme zuerst abstrakt zu lösen. Sie konzentrieren sich 
+sofort auf Interfaces, was zu einer Verschmutzung von Interfaces führt. Als Entwickler existiert Ihr 
+in einem von zwei Modi: als Programmierer und dann als Ingenieur.
 
-Wenn Sie programmieren, konzentrieren Sie sich darauf, ein Stück Code zum Laufen zu bringen. Versuchen Sie
-das Problem zu lösen und Mauern zu durchbrechen. Beweisen, dass meine ursprünglichen Ideen funktionieren. Das ist
-alles, worum man sich kümmert. Diese Programmierung sollte im Konkreten erfolgen und ist niemals
-produktionsreif.
+Wenn Ihr programmiert, konzentriert Ihr euch darauf, ein Stück Code zum Laufen zu bringen. 
+Ihr versucht, das Problem zu lösen und Mauern einzureißen. Beweist, dass eure anfänglichen 
+Ideen funktionieren. Das ist alles, worum es euch kümmert. Diese Programmierung sollte 
+im Konkreten erfolgen und ist nie produktionsbereit.
 
-Sobald Sie einen Prototyp des Codes haben, der das Problem löst, müssen Sie in den
-Entwicklungsmodus wechseln. Sie müssen sich darauf konzentrieren, wie Sie den Code auf Mikroebene schreiben, um
-Daten-Semantik und Lesbarkeit, dann auf Makroebene auf mentale Modelle und
-Wartbarkeit. Sie müssen sich auch auf Fehler und Fehlerzustände konzentrieren.
+Sobald Ihr einen Prototyp eines Codes habt, der das Problem löst, müsst Ihr in den 
+Ingenieurmodus wechseln. Ihr müsst euch darauf konzentrieren, wie Ihr den Code auf 
+Mikroebene für Datensemantik und Lesbarkeit und dann auf Makroebene für mentale Modelle 
+und Wartbarkeit schreibt. Ihr müsst euch auch auf Fehler und Ausfallzustände konzentrieren.
 
-Diese Arbeit wird in einem Refactoring-Zyklus durchgeführt. Refaktorierung für Lesbarkeit, Effizienz,
-Abstraktion und Testbarkeit. Die Abstraktion ist nur eine der wenigen Refactors, die
-durchgeführt werden müssen. Dies funktioniert am besten, wenn Sie mit einem Stück konkreten Code beginnen und
-dann die benötigten Schnittstellen ENTDECKEN. Wenden Sie keine Abstraktionen an, wenn sie
-absolut notwendig sind.
+Diese Arbeit wird in einem Zyklus des Refaktorisierens durchgeführt. Refaktorisieren für 
+Lesbarkeit, Effizienz, Abstraktion und Testbarkeit. Die Abstraktion ist nur eine von mehreren 
+Refaktorisierungen, die durchgeführt werden müssen. Dies funktioniert am besten, wenn Ihr 
+mit einem konkreten Code-Stück beginnt und dann die benötigten Schnittstellen (interfaces) 
+ENTDECKT. Wendet keine Abstraktionen an, es sei denn, sie sind absolut notwendig.
 
-Jedes Problem, das Sie mit Code lösen, ist ein Datenproblem, für das ich Datentransformationen schreiben muss.
-Transformationen zu schreiben. Wenn Sie die Daten nicht verstehen, verstehen Sie auch das Problem nicht. Wenn Sie
-das Problem nicht verstehen, können Sie keinen Code schreiben. Wenn man mit einer konkreten
-Lösung zu beginnen, die auf den konkreten Datenstrukturen basiert, ist entscheidend. Wie Rob Pike sagte,
+Jedes Problem, das Ihr mit Code löst, ist ein Datenproblem, das mich dazu veranlasst, 
+Datentransformationen zu schreiben. Wenn Ihr die Daten nicht versteht, versteht Ihr das 
+Problem nicht. Wenn Ihr das Problem nicht versteht, könnt Ihr keinen Code schreiben. 
+Der Beginn mit einer konkreten Lösung, die auf den konkreten Datenstrukturen basiert, 
+ist entscheidend. Wie Rob Pike sagte:
 
-"Daten dominieren. Wenn man die richtigen Datenstrukturen gewählt und die Dinge gut organisiert hat
-gut organisiert hat, sind die Algorithmen fast immer selbstverständlich". - Rob Pike
+"Daten dominieren. Wenn Ihr die richtigen Datenstrukturen gewählt und alles gut organisiert 
+habt, werden die Algorithmen fast immer offensichtlich sein". - Rob Pike
 
-Wann ist Abstraktion notwendig? Wenn Sie eine Stelle im Code sehen, an der sich die Daten
-ändern könnten und Sie die daraus resultierenden Kaskadeneffekte minimieren wollen. I
-Abstraktion kann helfen, den Code testbar zu machen, aber Sie sollten versuchen, dies möglichst zu vermeiden.
-wenn möglich. Die besten testbaren Funktionen sind Funktionen, die Rohdaten entgegennehmen und
-Rohdaten ausgeben. Es sollte keine Rolle spielen, woher die Daten kommen oder wohin sie gehen.
+Wann ist Abstraktion notwendig? Wenn Ihr eine Stelle im Code seht, an der sich die Daten 
+ändern könnten und Ihr die kaskadierenden Codeeffekte, die daraus resultieren würden, 
+minimieren wollt. Ich könnte Abstraktion verwenden, um den Code testbar zu machen, 
+aber Ihr solltet dies vermeiden, wenn möglich. Die besten testbaren Funktionen sind 
+Funktionen, die rohe Daten (raw data) aufnehmen und rohe Daten aussenden. Es sollte 
+keine Rolle spielen, woher die Daten kommen oder wohin sie gehen.
 
-Beginnen Sie am Ende mit einer konkreten Lösung für jedes Problem. Auch wenn der größte Teil davon
-nur Programmierung ist. Dann entdecken Sie die Schnittstellen, die für den Code unbedingt erforderlich sind.
-den Code heute.
+Letztendlich beginnt mit einer konkreten Lösung für jedes Problem. Auch wenn der Großteil 
+davon nur Programmierung ist. Entdeckt dann die Schnittstellen, die für den Code heute 
+absolut erforderlich sind.
 
-"Entwerfen Sie nicht mit Schnittstellen, entdecken Sie sie". - Rob Pike
+Entwerft nicht mit Schnittstellen, entdeckt sie". - Rob Pike

@@ -1,140 +1,244 @@
-Typkonvertierungen und Assertionen
-Erfahren Sie, wie Typumwandlungen und Assertions funktionieren.
+Typumwandlungen und Zusicherungen (Assertionen)
+Lernt, wie Typumwandlungen und Zusicherungen funktionieren.
 
-* Typkonvertierungen und Assertionen
+* Typumwandlungen und Zusicherungen (Assertionen)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Eine Typkonvertierung ermöglicht die Umwandlung von Daten eines Typs in einen anderen Typ. Eine Typ
-Assertion ermöglicht es, die Frage zu stellen, ob ein Wert des angegebenen Typs
-innerhalb einer Schnittstelle gespeichert ist.
+Eine Typumwandlung ermöglicht es, Daten eines Typs in einen anderen Typ umzuwandeln. 
+Eine Typzusicherung erlaubt euch zu fragen, ob ein Wert des gegebenen Typs in einer 
+Schnittstelle (Interface) gespeichert ist.
 
 ** Code-Überprüfung
 
-- *Beispiel* *1:* Schnittstellenkonvertierungen
-- *Beispiel* *2:* Laufzeittyp-Assertionen
+- *Beispiel* *1:* Schnittstellen-Umwandlungen
+- *Beispiel* *2:* Laufzeit-Typzusicherungen
 - *Beispiel* *3:* Verhaltensänderungen
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implizite Schnittstellenumwandlungen
+** Implizite Schnittstellen-Umwandlungen
 
-Wie Sie im letzten Beispiel gesehen haben, kann ein Schnittstellenwert eines Typs für einen
-anderen Schnittstellentyp übergeben werden, wenn der in der Schnittstelle gespeicherte konkrete Wert
-beide Verhaltensweisen implementiert. Dies könnte als implizite Schnittstellenumwandlung betrachtet werden, aber es ist
-aber es ist besser, darüber nachzudenken, wie konkrete Daten durch Schnittstellen in einem
-entkoppelten Zustand.
+Wie ihr im letzten Beispiel gesehen habt, kann ein Schnittstellenwert 
+eines Typs für einen anderen Schnittstellentyp verwendet werden, 
+wenn der konkret gespeicherte Wert beide Verhaltensweisen implementiert. 
+Dies könnte als implizite Schnittstellen-Umwandlung betrachtet werden, 
+aber es ist besser, darüber nachzudenken, wie konkrete Daten durch 
+Schnittstellen in einem entkoppelten Zustand bewegt werden.
 
-    Typ Mover Schnittstelle {
-        Move()
-    }
+    type Mover interface {
+    Move()
+}
 
-    type Locker interface {
-        Lock()
-        Unlock()
-    }
+type Locker interface {
+    Lock()
+    Unlock()
+}
 
-    Typ MoveLocker Schnittstelle {
-        Mover
-        Locker
-    }
+type MoveLocker interface {
+    Mover
+    Locker
+}
 
 Bei diesen drei Schnittstellen ist MoveLocker die Zusammensetzung von Mover und Locker.
 
-    Typ Fahrrad Struktur{}
+    type bike struct{}
 
-    func (Fahrrad) Move() {
-        fmt.Println("Das Fahrrad wird bewegt")
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
     }
 
-    func (Fahrrad) Sperren() {
-        fmt.Println("Fahrrad abschließen")
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
     }
 
-    func (Fahrrad) Entriegeln() {
-        fmt.Println("Das Fahrrad aufschließen")
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
     }
 
-Und dann gibt es diesen konkreten Typ Fahrrad, der alle drei Schnittstellen implementiert. Was können Sie tun?
+Und dann gibt es diesen konkreten Typ bike, der alle drei Schnittstellen implementiert. 
+Was könnt ihr tun?
 
     var ml MoveLocker
-    var m Beweger
+    var m Mover
 
-Sie können einen Wert des Typs MoveLocker und Mover so konstruieren, dass er den Wert Null hat.
-Dies sind Schnittstellenwerte, die wirklich wertlos sind.
+Ihr könnt einen Wert des Typs MoveLocker und Mover in ihren Nullwert-Zuständen konstruieren.
+Das sind Schnittstellenwerte, die wirklich wertlos sind.
 
-    ml = Fahrrad{}
+    ml = bike{}
 
-Dann können Sie einen Wert des Typs bike in seinen Nullwertzustand konstruieren und eine
-Kopie der MoveLocker-Variablen ml zuweisen. Dies ist möglich, weil ein Fahrrad alle drei Verhaltensweisen implementiert
-alle drei Verhaltensweisen implementiert, und der Compiler kann erkennen, dass die Implementierung existiert.
+Dann könnt Ihr einen Wert des Typs bike in seinem Nullwert-Zustand konstruieren und eine
+Kopie der Variablen MoveLocker ml zuweisen. Das ist möglich, weil ein Fahrrad alle drei
+Verhaltensweisen implementiert und der Compiler erkennen kann, dass die Implementierung existiert.
 
     m = ml
 
-Sie können dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Dies ist möglich
-weil ich nicht den Schnittstellenwert ml zuweise, sondern den konkreten Wert, der in ml
-von ml, der ein Fahrradwert ist. Der Compiler weiß, dass jeder konkrete Wert, der in
-von ml gespeichert ist, auch die Mover-Schnittstelle implementieren muss.
+Ihr könnt dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Das ist möglich,
+weil ihr nicht den Schnittstellenwert ml, sondern den konkret gespeicherten Wert in ml zuweist,
+der ein Fahrradwert ist. Der Compiler weiß, dass jeder konkrete Wert, der in ml gespeichert ist,
+auch die Mover-Schnittstelle implementieren muss.
 
-Diese Zuordnung ist jedoch nicht gültig.
+Diese Zuweisung ist jedoch nicht gültig.
 
     ml = m
 
 Ausgabe:
 
-    kann m (Typ Mover) nicht als Typ MoveLocker in der Zuweisung verwenden:
-        Mover implementiert MoveLocker nicht (fehlende Lock-Methode)
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
 
-Sie können die Mover-Variable m nicht zurück an die MoverLocker-Variable ml zuweisen, weil der
-Compiler kann nur garantieren, dass der konkrete Wert, der in m gespeichert ist, weiß, wie man sich bewegt.
-Er weiß zur Kompilierungszeit nicht, ob der konkrete Wert auch weiß, wie man sperrt und aufschließt.
+Ihr könnt die Mover-Variable m nicht der MoveLocker-Variablen ml zuweisen, weil der Compiler
+nur garantieren kann, dass der konkrete Wert, der in m gespeichert ist, weiß, wie man sich bewegt.
+Es ist zum Kompilierungszeitpunkt nicht bekannt, ob der konkrete Wert auch weiß, 
+wie man abschließt und aufschließt.
 
-** Mechanik der Typbestätigung
+** Mechanik der Typzusicherung
 
-Mit einer Typ-Assertion können Sie zur Laufzeit die Frage stellen, ob ein Wert des
-gegebenen Typs innerhalb einer Schnittstelle gespeichert. Sie sehen das an der Syntax m.(bike).
+Eine Typzusicherung ermöglicht es euch zur Laufzeit zu fragen, ob ein Wert des
+gegebenen Typs in einer Schnittstelle gespeichert ist. Ihr seht das an der Syntax m.(bike).
 
-    b := m.(Fahrrad)
+    b := m.(bike)
     ml = b
 
-In diesem Fall fragen Sie, ob zum Zeitpunkt der Ausführung des Codes ein Fahrradwert in m gespeichert ist.
-der Code ausgeführt wird. Wenn ja, dann erhält die Variable b eine Kopie des gespeicherten
-Wertes gespeichert. Diese Kopie kann dann in die Schnittstellenvariable ml kopiert werden.
+GPT
+Typumwandlungen und Zusicherungen
+Lernt, wie Typumwandlungen und Zusicherungen funktionieren.
 
-Wenn innerhalb des Schnittstellenwerts kein Fahrradwert gespeichert ist, gerät das Programm in Panik.
-Sie wollen dies, wenn unbedingt ein Fahrradwert gespeichert sein sollte. Was, wenn es eine
-Möglichkeit besteht, dass kein Wert gespeichert ist, und das ist gültig? Dann brauchen Sie die zweite Form der Typbehauptung.
+Typumwandlungen und Zusicherungen
+Eine Typumwandlung ermöglicht es, Daten eines Typs in einen anderen Typ umzuwandeln. Eine Typzusicherung erlaubt euch zu fragen, ob ein Wert des gegebenen Typs in einer Schnittstelle (Interface) gespeichert ist.
+** Code-Überprüfung
 
-    b, ok := m.(Fahrrad)
+Beispiel 1: Schnittstellen-Umwandlungen
+Beispiel 2: Laufzeit-Typzusicherungen
+Beispiel 3: Verhaltensänderungen
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
 
-In dieser Form ist ein Fahrradwert in der Schnittstelle gespeichert, wenn ok wahr ist. Wenn
-ok falsch ist, gibt es keinen Wert und das Programm gerät nicht in Panik. Die Variable b jedoch
-ist immer noch vom Typ Fahrrad, aber sie wird auf den Wert Null gesetzt.
+** Implizite Schnittstellen-Umwandlungen
+
+Wie ihr im letzten Beispiel gesehen habt, kann ein Schnittstellenwert eines Typs für einen anderen Schnittstellentyp verwendet werden, wenn der konkret gespeicherte Wert beide Verhaltensweisen implementiert. Dies könnte als implizite Schnittstellen-Umwandlung betrachtet werden, aber es ist besser, darüber nachzudenken, wie konkrete Daten durch Schnittstellen in einem entkoppelten Zustand bewegt werden.
+
+go
+Copy code
+type Mover interface {
+    Move()
+}
+
+type Locker interface {
+    Lock()
+    Unlock()
+}
+
+type MoveLocker interface {
+    Mover
+    Locker
+}
+Angenommen diese drei Schnittstellen, wobei MoveLocker eine Zusammensetzung von Mover und Locker ist.
+
+scss
+Copy code
+type bike struct{}
+
+func (bike) Move() {
+    fmt.Println("Das Fahrrad bewegen")
+}
+
+func (bike) Lock() {
+    fmt.Println("Das Fahrrad abschließen")
+}
+
+func (bike) Unlock() {
+    fmt.Println("Das Fahrrad aufschließen")
+}
+Und angenommen dieser konkrete Typ bike, der alle drei Schnittstellen implementiert. Was könnt ihr tun?
+
+csharp
+Copy code
+var ml MoveLocker
+var m Mover
+Ihr könnt einen Wert des Typs MoveLocker und Mover in ihren Nullwert-Zuständen konstruieren.
+Das sind Schnittstellenwerte, die wirklich wertlos sind.
+
+makefile
+Copy code
+ml = bike{}
+Dann könnt ihr einen Wert des Typs bike in seinem Nullwert-Zustand konstruieren und eine
+Kopie der Variablen MoveLocker ml zuweisen. Das ist möglich, weil ein Fahrrad alle drei
+Verhaltensweisen implementiert und der Compiler erkennen kann, dass die Implementierung existiert.
+
+makefile
+Copy code
+m = ml
+Ihr könnt dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Das ist möglich,
+weil ihr nicht den Schnittstellenwert ml, sondern den konkret gespeicherten Wert in ml zuweist,
+der ein Fahrradwert ist. Der Compiler weiß, dass jeder konkrete Wert, der in ml gespeichert ist,
+auch die Mover-Schnittstelle implementieren muss.
+
+Diese Zuweisung ist jedoch nicht gültig.
+
+makefile
+Copy code
+ml = m
+Ausgabe:
+
+rust
+Copy code
+cannot use m (type Mover) as type MoveLocker in assignment:
+    Mover does not implement MoveLocker (missing Lock method)
+Ihr könnt die Mover-Variable m nicht der MoveLocker-Variablen ml zuweisen, weil der Compiler
+nur garantieren kann, dass der konkrete Wert, der in m gespeichert ist, weiß, wie man sich bewegt.
+Es ist zum Kompilierungszeitpunkt nicht bekannt, ob der konkrete Wert auch weiß, wie man abschließt und aufschließt.
+
+** Mechanik der Typzusicherung
+
+Eine Typzusicherung ermöglicht es euch zur Laufzeit zu fragen, ob ein Wert des
+gegebenen Typs in einer Schnittstelle gespeichert ist. Ihr seht das an der Syntax m.(bike).
+
+makefile
+Copy code
+b := m.(bike)
+ml = b
+In diesem Fall fragt ihr, ob im Moment der Codeausführung ein Fahrradwert in m gespeichert ist.
+Wenn ja, dann wird der Variablen b eine Kopie des in m gespeicherten Fahrradwerts zugewiesen.
+Dann kann die Kopie in die Schnittstellenvariable ml kopiert werden.
+
+Wenn kein Fahrradwert in der Schnittstellenvariablen gespeichert ist, gerät das Programm in Panik. 
+Das ist gewünscht, wenn definitiv ein Fahrradwert gespeichert sein sollte. 
+Aber was, wenn es möglich ist, dass kein Fahrradwert gespeichert ist und das gültig ist? 
+Dann benötigt ihr die zweite Form der Typzusicherung.
+
+    b, ok := m.(bike)
+
+In dieser Form, wenn ok wahr ist, ist ein Fahrradwert in der Schnittstelle gespeichert. 
+Wenn ok falsch ist, dann ist kein Fahrradwert gespeichert, und das Programm gerät nicht in Panik. 
+Die Variable b ist jedoch immer noch vom Typ bike, aber sie wird auf ihren Nullwert-Zustand gesetzt.
 
     func main() {
-        mvs := []fmt.Stringer{
-            Auto{},
-            Wolke{},
-        }
-
-        for i := 0; i < 10; i++ {
-            rn := rand.Intn(2)
-
-            if v, is := mvs[rn].(Cloud); is {
-                fmt.Println("Habe Glück gehabt:", v)
-                weiter
-            }
-
-            fmt.Println("Pech gehabt")
-        }
+    mvs := []fmt.Stringer{
+        Car{},
+        Cloud{},
     }
 
-Angenommen, das Programm deklariert zwei Typen namens Auto und Wolke, die jeweils die Schnittstelle
-die Schnittstelle fmt.Stringer implementieren, können Sie eine Auflistung konstruieren, die es Ihnen ermöglicht, einen
-Wert von sowohl Car als auch Cloud speichern können. Dann wählen Sie 10 Mal zufällig eine Zahl zwischen 0 und 1,
-und führen eine Typüberprüfung durch, um festzustellen, ob der Wert an diesem Zufallsindex einen
-Cloud-Wert enthält. Da es möglich ist, dass der Wert nicht vom Typ Cloud ist, ist die zweite Form der Typ
-Behauptung hier entscheidend.
+    for i := 0; i < 10; i++ {
+        rn := rand.Intn(2)
+
+        if v, is := mvs[rn].(Cloud); is {
+            fmt.Println("Glück gehabt:", v)
+            continue
+        }
+
+        fmt.Println("Pech gehabt")
+    }
+}
+
+Unter der Annahme, dass das Programm zwei Typen namens Car und Cloud deklariert, 
+die beide das fmt.Stringer-Interface implementieren, könnt Ihr eine Sammlung konstruieren, 
+die es euch erlaubt, sowohl einen Wert von Car als auch von Cloud zu speichern. 
+Dann wählt ihr 10 Mal zufällig eine Zahl von 0 bis 1 aus und führt eine 
+Typzusicherung durch, um zu sehen, ob der Wert am zufälligen Index einen Cloud-Wert enthält. 
+Da es möglich ist, dass es nicht vom Typ Cloud ist, ist die zweite Form der 
+Typzusicherung hier entscheidend.
