@@ -87,6 +87,7 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("render russian tour")
 		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
+        }
 	default:
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 	}
