@@ -13,9 +13,11 @@ import (
 type root struct {
 	engContent []byte
 	grcContent []byte
+	itaContent []byte
 	perContent []byte
 	porContent []byte
 	polContent []byte
+	turContent []byte
 	rusContent []byte
 }
 
@@ -56,6 +58,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.grcContent); err != nil {
 			log.Println(err)
 		}
+	case "/tour/ita/":
+		log.Println("render italian tour")
+		if err := renderUI(w, rot.itaContent); err != nil {
+			log.Println(err)
+		}
 	case "/tour/per/":
 		log.Println("render persian tour")
 		if err := renderUI(w, rot.perContent); err != nil {
@@ -71,11 +78,15 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.polContent); err != nil {
 			log.Println(err)
 		}
+	case "/tour/tur/":
+		log.Println("render turkish tour")
+		if err := renderUI(w, rot.turContent); err != nil {
+			log.Println(err)
+		}
 	case "/tour/rus/":
 		log.Println("render russian tour")
 		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
-		}
 	default:
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 	}

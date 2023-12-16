@@ -1,0 +1,137 @@
+Yapı Tipleri
+Bir struct yapı türü kullanarak jenerik bir türü bildirebilirsiniz.
+
+* Generics - Yapı Tipleri
+
+Bir struct yapı türü kullanarak jenerik bir türü bildirebilirsiniz.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Bağlı Liste
+
+.play generics/struct-types/example1.go
+
+** Açıklama
+
+Kendi jenerik türünüzü bir yapı türü kullanarak bildirmek isterseniz ne yaparsınız?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Bu yapı türü, bağlı liste için bir düğümü temsil etmek üzere bildirilmiştir. Her düğüm, 
+listede saklanan ve yönetilen bireysel bir veri parçasını içerir. Köşeli parantezlerin 
+kullanımı, tür T'nin derleme zamanında belirlenecek bir jenerik tür olduğunu belirtir. 
+"any" kısıtlamasının kullanımı, tür T'nin ne tür bir kısıtlamaya tabi olmadığını tanımlar.
+
+Tür T bildirildikten sonra, Data alanı şimdi daha sonra belirlenecek bir tür T'nin alanı 
+olarak tanımlanabilir. next ve prev alanları, bağlı liste içindeki sırasıyla bir sonraki 
+ve önceki düğüme işaret etmelidir. Bu, alanların köşeli parantez kullanarak tür T'ye bağlanan 
+bir düğüm işaretçisi olarak bildirilmesiyle sağlanır.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+İkinci yapı türü list olarak adlandırılır ve bir liste içindeki ilk ve son düğüme 
+işaret ederek düğümlerin bir koleksiyonunu temsil eder. Bu alanlar, düğüm türündeki 
+next ve prev alanları gibi, bir tür T'ye işaret etmelidir.
+
+Tekrar, tanımlayıcı T, "any" somut türü için yerine konabilir olan bir jenerik tür 
+olarak tanımlanır. Ardından, first ve last alanları, bir düğümün köşeli parantez 
+kullanılarak belirli bir tür T'ye işaret eden işaretçiler olarak bildirilir.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+Bu, list türü için bir metod olan add'ın bir uygulamasıdır. (Fonksiyonlar gibi) formel jenerik 
+tür list bildirimi gerekli değildir, çünkü metod, alıcısı üzerinden list ile bağlantılıdır. 
+add metodunun alıcısı, belirli bir tür T'nin bir listesine işaret eden bir işaretçi olarak 
+bildirilmiştir ve dönüş, aynı tür T'yi işaret eden bir düğüme işaret eden bir işaretçi olarak 
+bildirilmiştir.
+
+Yeni bir düğümün inşası sonrasındaki kod her zaman aynı olacaktır, çünkü bu sadece işaretçi 
+manipülasyonudur ve yönetilecek veri türüne bağlı değildir. Jenerikler sayesinde, düğümün 
+inşası, derleme zamanında daha sonra yerine konacak tür T'ye bağlanabilir.
+
+Jenerikler olmadan, bu bütün metodun kopyalanması gerekecekti çünkü bir düğümün inşası 
+derleme öncesinde bilinen bir türe sıkı sıkıya kodlanmalıydı. Farklı veri tipleri için 
+değişmesi gereken kod miktarı (tüm liste uygulaması için) çok küçük olduğundan, bir düğümü 
+ve listeyi belirli bir tür T'nin verilerini yönetmek üzere bildirebilmek, kod kopyalama ve 
+bakım maliyetini azaltır.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // User türündeki değerleri listeye sakla.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // User türündeki işaretçileri listeye sakla.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Çıktı:
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+İşte küçük bir uygulama. user adlı bir tür bildirilir ve ardından bir liste, user 
+türündeki değerleri yönetmek üzere sıfır değerine ayarlanır. Daha sonra, sıfır değerine 
+ayarlanan bir ikinci liste oluşturulur ve bu liste user türündeki değerlerin işaretçilerini 
+yönetir. Bu iki liste arasındaki tek fark, birinin user türündeki değerleri, diğerinin user 
+türündeki işaretçileri yönetmesidir.
+
+Çünkü liste türü inşa edilirken user türü belirtilmiştir, bu nedenle add metodu da user 
+türündeki değerleri kabul eder. Aynı şekilde, liste türü inşa edilirken user türünün 
+bir işaretçisi belirtildiğinden, add metodu user türündeki işaretçileri kabul eder.
+
+Programın çıktısında, programın yapıldığı türle ilgili olarak, listelerdeki düğümlerin 
+Data alanının veri semantiğinin eşleştiğini görebilirsiniz.
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak bakın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Bir dilim türü olarak bildirilen bir tek alanlı bir yapı kullanan bir 
+jenerik tür bildirin. push adında bir metod bildirin ki bir T türündeki 
+değeri kabul etsin ve değeri dilime eklesin. pop adında bir metod bildirin 
+ki dilime eklenmiş olan en son T türündeki değeri ve bir hata döndürür. 
+Ardından, metotları kullanan bir main fonksiyonu yazın.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go

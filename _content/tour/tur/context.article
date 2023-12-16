@@ -1,0 +1,502 @@
+Bağlam Paketi (Context)
+Bağlam paketi, API sınırları ve süreçler arasında ölçümler, iptal sinyalleri ve diğer istek kapsamlı değerleri taşıyan Bağlam tipini tanımlar.
+
+* Bağlam Paketi (Context)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Paket "context", öncelikle son tarihleri, iptal sinyallerini ve diğer API sınırları arasında ve süreçler 
+arasında talep kapsamlı değerleri taşıyan "Context" türünü tanımlar.
+
+** Kod İnceleme
+
+"Context" değerleri, dağıtılmış bir sistemde programlardan geçen talep kapsamlı veriler içindir.
+
+- *Örnek* *1:* Değerleri Sakla / Al
+- *Örnek* *2:* WithCancel
+- *Örnek* *3:* WithDeadline
+- *Örnek* *4:* WithTimeout
+- *Örnek* *5:* İstek/Cevap
+- *Örnek* *6:* İptal
+
+.play context/example1.go
+.play context/example2.go
+.play context/example3.go
+.play context/example4.go
+.play context/example5.go
+.play context/example6.go
+
+** Bağlam Semantiği
+
+Go programlama dilinde, gorutinleri oluşturmak için yerleşik "go" anahtar kelimesi bulunsa da,
+gorutinleri sonlandırmak için anahtar kelimeler veya doğrudan destek bulunmamaktadır. Gerçek bir 
+hizmette, gorutinleri zaman aşımına uğratma ve sonlandırma yeteneği, bir hizmetin sağlığını ve 
+işleyişini sürdürmek için kritiktir. Hiçbir talep veya görevin sürekli çalışmasına izin verilemez, 
+bu nedenle gecikmeyi tanımlama ve yönetme görevi her programcının sorumluluğundadır.
+
+Bu sorunu çözmek için Go ekibi tarafından sağlanan bir çözüm, "Context" paketidir. Sameer Ajmani 
+tarafından 2014 yılında Gotham Go konferansında yazılmış ve tanıtılmıştır. Ayrıca Go blogu için bir 
+blog yazısı da yazmıştır.
+
+Sunum Dosyası: [[https://talks.golang.org/2014/gotham-context.slide#1][https://talks.golang.org/2014/gotham-context.slide#1]]
+
+Blog Yazısı: [[https://blog.golang.org/context][https://blog.golang.org/context]]
+
+Bu yayınlanmış çalışma ve yıllar içinde Sameer ile yapılan konuşmalardan 
+elde edilen bir dizi anlam evrimleşmiştir.
+
+*Sunucuya* *gelen* *istekler* *bir* *bağlam* *oluşturmalıdır*
+
+Bir Bağlam oluşturmanın zamanı her zaman isteğin veya görevin işlenmesinin başlangıcında 
+olmalıdır. Bağlam'ı geliştirme döngüsünde erken kullanmak, API'ları Bağlam'ı ilk 
+parametre olarak alacak şekilde tasarlamaya zorlar. Bir fonksiyonun kesin olarak bir Bağlam'a 
+ihtiyaç duyup duymadığından emin değilseniz, Bağlam'ı birkaç fonksiyondan kaldırmak, daha 
+sonra Bağlam eklemeye çalışmaktan daha kolaydır.
+ 
+    75 // Handle, HTTP fiili ve yol çifti için Handlers monte etme mekanizmamızdır, 
+    75 // bu gerçekten kolay ve kullanışlı yönlendirmeler sağlar.    
+    77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
+    ...
+    85     // Her istek için yürütülecek fonksiyon.
+    86     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
+    87         ctx, span := trace.StartSpan(r.Context(), "internal.platform.web")
+    88         defer span.End()
+    ...
+    106    // Belirtilen fiil ve rota için bu işleyiciyi ekleyin.
+    107    a.TreeMux.Handle(verb, path, h)
+    108 }
+
+Burada Ardan Labs'ta öğrettiğimiz servis projesinden alınan kodu görüyorsunuz. 
+Satır 86, tüm rotalara bağlanan bir işleyici fonksiyonu tanımlar, ki bu, satır 107'de 
+gösterilir. Bu fonksiyon, herhangi bir gelen isteği işlemeye başlayan fonksiyondur. 
+Satır 87'de, istek için bir bağlam içeren bir span oluşturulur. Bu, servis kodunda 
+bir Bağlam'ın ilk kez gerektiği yerdir.
+
+Burada harika olan şey, http.Request değerinin zaten bir Bağlam içermesi. Bu, Go'nun 1.7 
+sürümünde eklendi. Bu, kodun manuel olarak üst düzey bir Bağlam oluşturmasına gerek 
+olmadığı anlamına gelir. Eğer Go'nun 1.8 sürümünü kullanıyorsanız, context.Background 
+fonksiyonunu kullanarak StartSpan çağrısından önce boş bir Bağlam oluşturabilirsiniz.
+
+    https://golang.org/pkg/context/#Background
+
+    87         ctx := context.Background()
+    88         ctx, span := trace.StartSpan(ctx, "internal.platform.web")
+    89         defer span.End()
+
+Bu, Go'nun 1.8 sürümündeki Paket belgelerinde açıklandığı gibi kodun nasıl görünmesi 
+gerektiğini açıklar.
+
+Background, nil olmayan, boş bir Bağlam döndürür. İptal edilmemiştir, değer içermez 
+ve sona erme süresi yoktur. Genellikle ana fonksiyon, başlatma ve testlerde kullanılır 
+ve gelen istekler için üst düzey Bağlam olarak kullanılır.
+
+Go'da tüm Bağlam değerleri için değişken adı olarak genellikle ctx kullanmak bir 
+idiyomdur. Bir Bağlam bir arabirim olduğundan, işaretçi semantiği kullanılmamalıdır.
+
+    https://golang.org/pkg/context/#Context
+
+    type Context interface {
+        Deadline() (deadline time.Time, ok bool)
+        Done() <-chan struct{}
+        Err() error
+        Value(key interface{}) interface{}
+    }
+
+Herhangi bir Context'i kabul eden her fonksiyon, arayüz değerinin kendi kopyasını almalıdır.
+
+*Servers'a* *yapılan* *çağrılar*, *bir* *Bağlam* *kabul* *etmelidir*
+
+Bu semantiğin arkasındaki fikir, daha yüksek seviyeli çağrıların daha alt düzeydeki 
+çağrılara ne kadar süre beklemeye istekli olduklarını söylemeleridir. Bunun harika 
+bir örneği, http paketi ve 1.7 sürümündeki Do metoduna yapılan süre aşımına saygı 
+gösteren değişikliklerdir.
+
+    01 package main
+    02 
+    03 import (
+    04     "context"
+    05     "io"
+    06     "log"
+    07     "net/http"
+    08     "os"
+    09     "time"
+    10 )
+    11 
+    12 func main() {
+    13
+    14     // Yeni bir istek oluşturun.
+    15     req, err := http.NewRequest("GET", "https://www.ardanlabs.com/blog/post/index.xml", nil)
+    16     if err != nil {
+    17         log.Println("ERROR:", err)
+    18         return
+    19     }
+    20
+    21     // 50 milisaniyelik bir zaman aşımı ile bir bağlam oluşturun.
+    22     ctx, cancel := context.WithTimeout(req.Context(), 50*time.Millisecond)
+    23     defer cancel()
+    24
+    25     // Yeni metodu isteğe bağlayın.
+    26     req = req.WithContext(ctx)
+    27
+    28     // Web çağrısını yapın ve herhangi bir hatayı döndürün. Do, bağlam             
+    29     // düzeyindeki zaman aşımını yönetecektir.
+    30     resp, err := http.DefaultClient.Do(req)
+    31     if err != nil {
+    32       log.Println("ERROR:", err)
+    33       return
+    34     }
+    35
+    36     // Dönüşte yanıt gövdesini kapatın.
+    37     defer resp.Body.Close()
+    38
+    39     // Yanıtı stdout'a yazın.
+    40     io.Copy(os.Stdout, resp.Body)
+    41 }
+
+Bu program, 50 milisaniyelik bir süre aşımı ile Ardan rss blog beslemesi için bir 
+isteği simgeler. 15-19 satırlarda, istek, sağlanan URL'ye karşı bir GET çağrısı 
+yapmak için oluşturulur. 22-23 satırlarda, 50 milisaniyelik bir süre aşımı ile bir 
+bağlam oluşturulur. 26. satırda, bu bağlam değeri kodun tam olarak ne yaptığını gösterir.
+
+30. satırda, gerçek istek, http paketinin DefaultClient değerinden Do metodu kullanılarak 
+yapılır. Do metodu, şimdi Bağlam içinde ayarlanan 50 milisaniye süre aşımına saygı 
+gösterecektir. Gördüğünüz şey, kodun (yüksek seviyeli fonksiyon) Do metoduna (düşük seviyeli 
+fonksiyon) işlemin tamamlanması için ne kadar süre beklemeye istekli olduğunu söylemesidir.
+
+*Bir* *Bağlamı* *bir* *yapı* *türü* *içinde* *saklamayın*
+
+Bunun yerine, ihtiyacı olan her fonksiyona açıkça bir Bağlam geçirin. Temelde, giriş/çıkış 
+yapan herhangi bir fonksiyon, ilk parametre olarak bir Bağlam değeri almalı ve çağırana 
+tarafından yapılandırılan herhangi bir zaman aşımını veya son tarihini saygı göstermelidir. 
+Request için, geriye dönük uyumluluk sorunları göz önüne alınmalıdır. Bu nedenle API'lerin 
+değiştirilmesi yerine, son bölümde gösterilen mekanik uygulandı.
+
+Her kuralın istisnaları vardır. Ancak, bu gönderi ve standart kütüphanedeki herhangi 
+bir API için Bağlam kabul edenler arasında, idiyomun ilk parametreyi Bağlam değeri 
+olarak kabul etmesi gerektiğidir.
+
+.image /tour/eng/static/img/context_figure1.png
+
+Şekil, her yöntemin ilk parametresinin bir Bağlamı ilk parametre olarak alması ve 
+ctx değişken adı idiyomunu kullanması gerektiği net bir şekilde gösterir.
+
+*Aralarındaki* *fonksiyon* *çağrılarının* *zinciri* *Bağlamı* *iletmelidir*
+
+Bu, bir Bağlamın istek veya görev temelli olduğu bir kuraldır. İstek veya görevin 
+işlenmesi sırasında yapılan değişikliklerin Bağlam iletilmeli ve saygı görmelidir.
+
+    23 // List returns all the existing users in the system.
+    24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    25     ctx, span := trace.StartSpan(ctx, "handlers.User.List")
+    26     defer span.End()
+    27
+    28     users, err := user.List(ctx, u.db)
+    29     if err != nil {
+    30         return err
+    31     }
+    32
+    33     return web.Respond(ctx, w, users, http.StatusOK)
+    34 }
+
+Bu listelemede, bir kullanıcı bu uç nokta için bir HTTP isteği yaparsa yürütülen 
+bir işleyici fonksiyonu görüyorsunuz. İşleyici, bir istek parçası olduğundan ve I/O 
+gerçekleştireceğinden, ilk parametresi bir Bağlamı kabul eder. 25, 28 ve 33 satırlarda, 
+aynı Bağlam değeri call stack boyunca iletilir.
+
+Bu fonksiyonun bunu gerekli kılan herhangi bir değişiklik yapmadığı için yeni bir 
+Bağlam değeri oluşturulmaz. Eğer bu fonksiyon tarafından yeni bir üst düzey Bağlam değeri 
+oluşturulursa, bu çağrı ile ilişkilendirilmiş yukarıdaki çağrının mevcut Bağlam 
+bilgisi kaybolurdu. Bu istenmeyen bir durumdur.
+
+    33 // List retrieves a list of existing users from the database.
+    34 func List(ctx context.Context, db *sqlx.DB) ([]User, error) {
+    35     ctx, span := trace.StartSpan(ctx, "internal.user.List")
+    36     defer span.End()
+    37
+    38     users := []User{}
+    39     const q = `SELECT * FROM users`
+    40
+    41     if err := db.SelectContext(ctx, &users, q); err != nil {
+    42         return nil, errors.Wrap(err, "selecting users")
+    43     }
+    44
+    45     return users, nil
+    46 }
+
+28. satırdan çağrılan List yönteminin deklarasyonunu görüyorsunuz. Yine, bu yöntem, 
+ilk parametresi olarak bir Bağlam kabul eder. Bu değer daha sonra 35 ve 41 satırlarında 
+call stack boyunca iletilir. 41. satır bir veritabanı çağrısı olduğundan, bu fonksiyonun 
+yukarıdan gelen Bağlam içinde ayarlanan süre aşımına saygı göstermesi gerekir.
+
+*Bir* *Bağlamı* *WithCancel,* *WithDeadline,* *WithTimeout* *veya* *WithValue* *ile* *değiştirin*
+
+Her fonksiyon, kendi özel ihtiyaçlarına göre Bağlamı ekleyebileceği veya değiştirebileceği 
+için ve bu değişikliklerin herhangi bir şekilde önceki çağrıları etkilememesi gerektiği için, 
+Bağlam değerleri değer semantiği kullanır. Bu, bir Bağlam değerine yapılan herhangi bir 
+değişikliğin, ileriye doğru iletilen yeni bir Bağlam değeri oluşturduğu anlamına gelir.
+
+    01 func main() {
+    02
+    03     // Set a duration.
+    04     duration := 150 * time.Millisecond
+    05
+    06     // Create a context that is both manually cancellable and will signal
+    07     // cancel at the specified duration.
+    08     ctx, cancel := context.WithTimeout(context.Background(), duration)
+    09     defer cancel()
+    10
+    11     // Create a channel to receive a signal that work is done.
+    12     ch := make(chan data, 1)
+    13
+    14     // Ask the goroutine to do some work for us.
+    15     go func() {
+    16
+    17         // Simulate work.
+    18         time.Sleep(50 * time.Millisecond)
+    19
+    20         // Report the work is done.
+    21         ch <- data{"123"}
+    22     }()
+    23
+    24     // Wait for the work to finish. If it takes too long, move on.
+    25     select {
+    26         case d := <-ch:
+    27             fmt.Println("work complete", d)
+    28
+    29         case <-ctx.Done():
+    30             fmt.Println("work cancelled")
+    31     }
+    32 }
+
+Bu, WithTimeout fonksiyonunun değer semantiği doğasını gösteren küçük bir programdır. 
+08. satırda WithTimeout çağrısı, yeni bir Bağlam değeri ve bir iptal fonksiyonu döndirir. 
+Çağrı için bir üst Bağlam gerektiğinden, kod, üst düzey boş bir Bağlam oluşturmak için 
+Background fonksiyonunu kullanır. Bu, Background fonksiyonunun kullanım amacıdır.
+
+İlerledikçe WithTimeout fonksiyonu tarafından oluşturulan Bağlam değeri kullanılır. 
+Gelecekteki fonksiyon çağrılarında kendi belirli zaman aşımını veya son tarihini gerektiren 
+herhangi bir fonksiyon ise uygun With fonksiyonunu kullanmalı ve bu yeni Bağlam değerini üst 
+Bağlam olarak kullanmalıdır.
+
+Herhangi bir With fonksiyonundan dönen herhangi bir iptal fonksiyonunun, fonksiyonun geri 
+dönmesinden hemen önce yürütülmesi kritik öneme sahiptir. Bu nedenle idiyomun, With 
+çağrısından hemen sonra gösterildiği gibi, satır 26'da gösterildiği gibi hemen iptal 
+fonksiyonunu kullanmaktır. Bunu yapmamak, programınızda bellek sızıntılarına neden olacaktır.
+
+*Bir* *Bağlam* *iptal* *edildiğinde,* *ondan* *türetilen* *tüm* *Bağlamlar* *da* *iptal* *edilir*
+
+Bağlam API'sinin değer semantiği kullanımı, her yeni Bağlam değerinin ebeveyn 
+Bağlamın sahip olduğu her şeye sahip olduğu anlamına gelir. Bu, bir ebeveyn 
+Bağlamın iptal edildiğinde, bu ebeveyn Bağlamdan türetilen tüm çocuklarının da 
+iptal edileceği anlamına gelir.
+
+    01 func main() {
+    02
+    03     // İptal edilebilen bir bağlam oluşturun.
+    04     ctx, cancel := context.WithCancel(context.Background())
+    05     defer cancel()
+    06
+    07     // Orkestrasyon için Waitgroup kullanın.
+    08     var wg sync.WaitGroup
+    09     wg.Add(10)
+    10
+    11     // Üzerinde oluşturulan bağlamdan türeyen on gorutin
+    12     // oluşturun.
+    13     for i := 0; i < 10; i++ {
+    14         go func(id int) {
+    15             defer wg.Done()
+    16
+    17             // Bu gorutin için yeni bir bağlam oluşturun ve bunu ana
+    18             // işlevin sahip olduğu bağlamdan türetin.
+    19             ctx := context.WithValue(ctx, key, id)
+    20
+    21             // Bağlam iptal edilene kadar bekleyin.
+    22             <-ctx.Done()
+    23             fmt.Println("Cancelled:", id)
+    24         }(i)
+    25     }
+    26
+    27     // Bağlamı ve türetilmiş bağlamları iptal edin.
+    28     cancel()
+    29     wg.Wait()
+    30 }
+
+Bu program, iptal edilebilen bir Bağlam değeri oluşturur (04. satır). Sonra 11-22 
+satırları arasında on gorutin oluşturulur. Her bir gorutin, kendi benzersiz 
+kimliğini 19. satırda içeren kendi Bağlam değerini oluşturur. WithValue çağrısı, 
+ana fonksiyonun Bağlam değeri olarak geçirilir. Ardından 22. satırda, her bir Bağlam 
+iptal edilene kadar beklerler.
+
+28. satırda, ana gorutin Bağlam değerini iptal eder ve ardından 29. satırda programı 
+kapatmadan önce on tane gorutin'in de iptal sinyali almasını bekler. Cancel çağrısı 
+yapıldığında, 41. satırın tüm on gorutin'i de iptal olmuş ve iptal edildiklerini 
+belirten bir mesaj yazdırmış olmalıdır. Bir çağrı ile onların hepsini iptal eder.
+
+Bu aynı zamanda aynı Bağlamın farklı gorünümde çalışan fonksiyonlara geçirilebileceğini 
+gösterir. Bir Bağlam, aynı anda birden fazla gorutin tarafından kullanım için güvenlidir.
+
+Boş bir Bağlamı iletmeyin, hatta bir fonksiyon buna izin veriyorsa bile. Kullanılacak uygun 
+bir Bağlam hakkında belirsiz olduğunuzda context.TODO'yu kullanın. Bağlamınızın nereden 
+geldiğini tam olarak bilmeseniz bile, bir Bağlamın geçici bir üst düzey Bağlam olduğunu 
+bildiğinizde TODO fonksiyonunu kullanmalısınız. Bu, Background fonksiyonu yerine TODO fonksiyonunu 
+kullanmanız gerektiği durumlardır.
+
+*Yalnızca* *talep* *kapsamlı* *veriler* *için* *Bağlam* *değerlerini* *kullanın*
+
+İsteğe bağlı parametreleri fonksiyonlara geçirmek için Bağlamı kullanmayın. Belki de en önemli 
+anlamdır. Bir Bağlam değerini, fonksiyonun kodunu başarıyla yürütebilmesi için gereken verileri 
+işlemede kullanmayın. Başka bir deyişle, bir fonksiyon, Bağlam değeri olmadan mantığını 
+yürütebilmelidir. Bir fonksiyon, Bağlam içindeki bilgilere ihtiyaç duyuyorsa ve bu bilgi eksikse, 
+program başarısız olmalı ve uygulamanın kapatılmasını belirten bir sinyal göndermelidir.
+
+Bağlam içindeki bilgiye ihtiyaç duyan bir fonksiyonun bir örneği, veritabanı bağlantılarıyla ilgili 
+olarak Bağlamı kullanmanın yanlış kullanımıdır. Veri taşımanın en iyi yolu olan bu sırayı 
+takip etmek istersiniz:
+
+Veriyi fonksiyon parametresi olarak geçirin: Bu, veriyi gizlemeden programdaki veriyi 
+taşımanın en açık yoludur.
+
+Veriyi alıcının içinden geçirin: İhtiyacınız olan veri fonksiyonun imzasını değiştiremiyorsa, 
+o zaman bir yöntem kullanın ve veriyi alıcının içinden geçirin.
+
+Kullanıcılar için bir fonksiyonun bağlam içindeki bir bilgiyi değil, bu fonksiyonun bağlamın içindeki 
+bir bilgiyi taşıyan bir yapısı olması gerektiği bir örneği şöyle:
+
+    23 // List, sistemdeki tüm mevcut kullanıcıları döndürür.
+    24 func (u *User) List(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    25     ctx, span := trace.StartSpan(ctx, "handlers.User.List")
+    26     defer span.End()
+    27
+    28     users, err := user.List(ctx, u.db)
+    29     if err != nil {
+    30         return err
+    31     }
+    32
+    33     return web.Respond(ctx, w, users, http.StatusOK)
+    34 }
+
+Burada, servis projesindeki List metodunu görüyorsunuz. Bu metodun imzaları web 
+çerçevesi tarafından tanımlandığından değiştirilemez. Ancak, iş çağrısını yapmak 
+için 28. satırda bir veritabanı bağlantısına ihtiyaç vardır. Bu kod, Bağlam değeri 
+üzerinden bu bilgiyi almak yerine, bu bilgiyi alan alıcıdan alır.
+
+    15 // User, User API metodu işleyici setini temsil eder.
+    16 type User struct {
+    17     db            *sqlx.DB
+    18     authenticator *auth.Authenticator
+    19
+    20 // BURAYA LOGGER VE CONFIG GİBİ DİĞER DURUMLARI EKLEYİN.
+    21 }
+
+Alıcı türünün deklarasyonunu görüyorsunuz. Bir fonksiyonun ihtiyaç duyduğu her şeyi alanlar 
+olarak alan her şey bu türde tanımlanır. Bu, bilginin gizlenmediği ve iş mantığının boş 
+bir Bağlam değeriyle çalışabilmesine izin veren bir modeldir.
+
+    14 // API, tanımlanan tüm uygulama rotalarıyla bir http.Handler oluşturur.
+    15 func API(shutdown chan os.Signal, log *log.Logger, db *sqlx.DB, authenticator *auth.Authenticator) http.Handler {
+    16
+    ...
+    26     // Kullanıcı yönetimi ve kimlik doğrulama uç noktalarını kaydedin.
+    27     u := User{
+    28         db:            db,
+    29         authenticator: authenticator,
+    30     }
+    31
+    32     app.Handle("GET", "/v1/users", u.List)
+
+Bu kod bir User değeri oluşturur ve ardından List metodunu rotaya bağlar. Yine, 
+bir işleyici fonksiyonun imzası değiştirilemez olduğu için, bir alıcı ve metodları
+kullanmak, verinin gizlenmeden iletilmesi için bir sonraki en iyi yoldur.
+
+*Hata* *Ayıklama* *veya* *izleme* *verisi,* *Bir* *Bağlam* *içinde* *güvenlidir*
+
+Bir Bağlam değerinden depolanabilir ve alınabilir veri, hata ayıklama ve izleme bilgileridir.
+
+    23 // Değerler, her istek için durumu temsil eder.
+    24 type Values struct {
+    25     TraceID    string
+    26     Now        time.Time
+    27     StatusCode int
+    28 }
+
+İşte yeni bir istek için oluşturulan her Bağlam değeri içinde oluşturulan bir türün 
+bildirimi. Üç alan, isteğin izleme ve hata ayıklama bilgilerini sağlar. Bu bilgiler 
+istek ilerledikçe toplanır.
+
+    75 // Handle, belirli bir HTTP fiili ve yol çifti için Handlers monte etme mekanizmamızdır,
+    76 // bu gerçekten kolay ve kullanışlı yönlendirmeler sağlar.
+    77 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
+    78
+    ...
+    79     // Her istek için yürütülecek fonksiyon.
+    80     h := func(w http.ResponseWriter, r *http.Request, params map[string]string) {
+    …
+    84     // İsteği işlemek için gerekli değerlerle bağlamı
+    85     // ayarlayın.
+    86     v := Values{
+    87         TraceID: span.SpanContext().TraceID.String(),
+    88         Now:     time.Now(),
+    89     }
+    90     ctx = context.WithValue(ctx, KeyValues, &v)
+
+Values türünün nasıl oluşturulduğunu ve ardından Context içine nasıl depolandığını 
+gösteren kodu inceleyin. Bu bilgilerin çoğuna en çok ihtiyaç duyan kayıt ortamıdır.
+
+    20 // Middleware zincirine eklenen işleyiciyi oluşturun.
+    21 h := func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+    ...
+    25     // Eğer bağlam bu değeri içermiyorsa, hizmetin düzenli bir şekilde
+    26     // kapatılması için hizmete başvurun.
+    27     v, ok := ctx.Value(web.KeyValues).(*web.Values)
+    28     if !ok {
+    29         return web.NewShutdownError("web value missing from context")
+    30     }
+    ...
+    34     log.Printf("%s : (%d) : %s %s -> %s (%s)",
+    35         v.TraceID, v.StatusCode,
+    36         r.Method, r.URL.Path,
+    37         r.RemoteAddr, time.Since(v.Now),
+    38     )
+
+Bilgiyi Bağlam aracılığıyla iletmenin sonuçları, 27-30 satırlarındaki kodda gösterilir. 
+Kod, Values verilerini Bağlamdan almayı ve verinin orada olup olmadığını kontrol etmeyi 
+deniyor. Veri yoksa, ciddi bir bütünlük sorunu ortaya çıkar ve hizmetin kapanması gerekir. 
+Bu, hizmet kodu tarafından uygulama üzerinden özel bir hata değeri gönderilerek yapılır.
+
+Eğer bir Bağlam kullanarak iş katmanınıza veritabanı bağlantıları veya kullanıcı 
+bilgileri geçiriyorsanız, iki sorununuz var:
+
+- Bütünlük kontrolü yapmanız ve hizmeti hızlı bir şekilde kapatmak için bir mekanizmanız olmalı.
+- Test ve hata ayıklama daha zor ve karmaşık hale gelir. Kodunuzdaki daha iyi netlik ve okunabilirlikten 
+uzaklaşıyorsunuz.
+
+** Notlar
+
+- Bir sunucuya gelen istekler bir Bağlam oluşturmalıdır.
+- Sunuculara giden çağrılar bir Bağlam kabul etmelidir.
+- Onlar arasındaki fonksiyon çağrıları zinciri, Bağlam'ı iletmelidir.
+- WithCancel, WithDeadline, WithTimeout veya WithValue kullanarak bir Bağlamı değiştirin.
+- Bir Bağlam iptal edildiğinde, ondan türetilen tüm Bağlamlar da iptal edilir.
+- Bağlamları bir yapı türü içine saklamayın; bunun yerine, ihtiyacı olan her fonksiyona açıkça bir Bağlam iletin.
+- Bir nil Bağlam iletmemelisiniz, hatta bir fonksiyon buna izin verirse. Kullanılacak Bağlam konusunda emin değilseniz, context.TODO'yu kullanmanın.
+- İsteğe bağlı parametreleri fonksiyonlara iletmek için yalnızca bağlam Değerlerini kullanın.
+- Aynı Bağlam, farklı gorutinlerde çalışan fonksiyonlara geçirilebilir; Bağlamlar birden çok gorutin tarafından aynı anda kullanım için güvenlidir.
+
+** Ek Okuma
+
+- [[https://www.ardanlabs.com/blog/2019/09/context-package-semantics-in-go.html][Context Package Semantics In Go]] - William Kennedy  
+- [[https://golang.org/pkg/context][Package context]] - Go Team    
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
+- [[https://rakyll.org/leakingctx/][Using contexts to avoid leaking goroutines]] - JBD    
+
+* Egzersizler
+
+Şablonu başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Şablonu kullanın ve talimatları takip edin. Bir web işleyicisi yazacaksınız, sahte bir veritabanı çağrısı yapacak ancak çağrı çok uzun sürerse bir bağlam temelinde zaman aşımına uğrayacak. Ayrıca durumu Bağlam içine kaydedeceksiniz.
+
+.play context/exercise1.go
+.play context/answer1.go

@@ -1,0 +1,350 @@
+Hash Tables
+Una hash table è un classico esempio di un tipo di contenitore che può trarre un reale vantaggio dai generics.
+
+* Generics - Hash Tables
+
+Una hash table è un classico esempio di un tipo di contenitore che può trarre un reale vantaggio
+dai generics. Questa implementazione è stata scritta da Matt Layher (@mdlayer) in un post sul blog.
+È un ottimo esempio su ciò che è possibile fare con i generici.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Esempio* *1*: Hash Table
+
+.play generics/hash-table/example1.go
+
+** Spiegazione
+
+Questo codice è un po' più complesso di quello che hai avuto finora. È quello che puoi
+aspettatevi di vedere dalle implementazioni del mondo reale. In questa sezione
+vedrai due viste del codice. Un prima e dopo l'applicazione della nuova sintassi per
+generics.
+
+    type hashFunc func(key K, buckets int) int
+
+Questo tipo dichiara una hash function signature utilizzata dalla hash table
+per calcolare una posizione nel bucket per l'archiviazione e il recupero dei dati. L'utente deve implementare
+e fornire questa funzione durante la costruzione di una hash table. La funzione accetta una
+chiave e il numero di bucket tra cui può scegliere. Dal momento che vuoi che questo sistema sia
+generico in termini di tipi utilizzati per la chiave e il valore,dichiari un parametro
+chiamato key con il tipo della singola lettera maiuscola K.
+
+Successivamente, puoi applicare la sintassi generics per rendere K un tipo generico effettivo.
+
+    type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
+
+Dopo il nome del tipo, aggiungi le parentesi quadre con il tipo generico K e il
+vincolo di comparabilità. Poiché i valori del tipo key devono essere utilizzati in una
+operazione di confronto, documentare questo ora ha senso, anche se
+l’implementazione della funzione di hash non lo richiede. La coerenza è tutto in
+termini di leggibilità, comprensione e manutenibilità nel tempo.
+
+Questo tipo rappresenta una coppia chiave/valore di dati che verrà archiviata dalla hash table.
+
+    type keyValuePair struct {
+        Key K
+        Value V
+    }
+
+Il compito di questo tipo è conservare i dati effettivi con la chiave corrispondente. Successivamente il
+codice dichiara un campo chiave di tipo K e un campo valore di tipo V.
+
+Ora puoi applicare la sintassi dei generics per rendere K e V un tipo generico effettivo.
+
+    type keyValuePair[K comparable, V any] struct { <-- CHANGED
+        Key K
+        Value V
+    }
+
+Dopo il nome del tipo aggiungi tra parentesi quadre i tipi generici K e V. In
+questa dichiarazione, K rappresenta la chiave come prima e V rappresenta un valore, che può
+essere qualsiasi cosa.
+
+Questo tipo rappresenta una hash table che gestisce una funzione hash e un insieme di
+bucket per l'archiviazione di dati chiave/valore.
+
+    type Table struct {
+        hashFunc hashFunc
+        buckets int
+        data [][]keyValuePair
+    }
+
+Il tipo Tabella ha tre campi, una funzione hash, il numero di bucket e
+dati rappresentati come una porzione di una porzione di coppie chiave/valore. Uno slice esterno
+rappresenta i bucket e l slice interno rappresenta le coppie chiave/valore archiviate
+dentro un bucket.
+
+Ora applica la sintassi generics per dichiarare la chiave e il valore dei tipi generici e
+applicali alle dichiarazioni .
+
+    type Table[K comparable, V any] struct { <-- CHANGED
+        hashFunc hashFunc[K] <-- CHANGED
+        buckets int
+        data [][]keyValuePair[K, V] <-- CHANGED
+    }
+
+Dopo il nome del tipo aggiungere tra parentesi quadre i tipi generici K e V. The
+La dichiarazione di tipo hashFunc richiede informazioni sul tipo concreto da utilizzare
+il tasto. La dichiarazione del tipo keyValuePair richiede informazioni sul calcestruzzo
+digitare per la chiave e il valore.
+
+
+Questa è una funzione factory che può costruire una tabella da utilizzare.
+
+    func New(
+        buckets int,
+        hf hashFunc
+    ) *Table {
+        
+        return &Table{
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair, buckets),
+        }
+    }
+
+La funzione factory accetta il numero di bucket da gestire e una funzione hash
+per selezionare un bucket per l'archiviazione e la ricerca dei dati. Quando un valore della tabella è
+costruito, il numero di buckets viene utilizzato per costruire lo slice, impostandone la lunghezza
+dello slice esterno pari al numero di bucket che verranno utilizzati.
+
+Ora applica la sintassi dei generics per dichiarare la chiave e il valore dei tipi generici e
+applicali ai tipi che devono essere costruiti.
+
+    func New[K comparable, V any]( <-- CHANGED
+        buckets int,
+        hf hashFunc[K],            <-- CHANGED
+    ) *Table[K, V] {               <-- CHANGED
+        
+        return &Table[K, V]{       <-- CHANGED
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair[K, V], buckets), <-- CHANGED
+        }
+    }
+
+Dopo il nome del tipo, aggiungi le parentesi quadre e i tipi generici K e V. Quindi
+K viene applicato al parametro di input hf per completare la dichiarazione del tipo hashFunc.
+I tipi K e V vengono applicati al tipo di tabella in fase di costruzione e restituzione.
+Infine, l'inizializzazione del campo dati richiede che K e V siano applicati al file
+sintassi di costruzione per il tipo keyValuePair.
+
+Questo è un metodo che può inserire valori nella tabella hash in base a una chiave specificata.
+
+    type Table[K comparable, V any] struct {
+        hashFunc hashFunc[K]
+        buckets int
+        table [][]keyValuePair[K, V]
+    }
+
+    func (t *Table) Insert(key K, value V) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+
+        kvp := keyValuePair{
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+Il metodo Insert viene dichiarato per accettare una chiave e un valore degli stessi
+tipi generici dichiarati con il tipo Table. Il primo passaggio dell'inserimento consiste
+nell'identificare il bucket da utilizzare per lo storage.
+Ciò viene eseguito chiamando la funzione hash con la chiave specificata.
+La funzione hash restituisce un valore intero che rappresenta il bucket da utilizzare.
+
+Quindi la funzione controlla se la chiave specificata è già stata utilizzata per memorizzare
+un valore nel bucket selezionato. Questa operazione viene eseguita spaziando sull'insieme esistente di
+coppie chiave/valore nel bucket. Se la chiave esiste già, il valore per quella chiave è
+aggiornato. Se la chiave non viene trovata, viene costruito un nuovo valore della coppia chiave/valore,
+inizializzato e aggiunto alla sezione per il bucket selezionato.
+
+Ora applica la sintassi generics per dichiarare i tipi generici chiave e valore e
+applicarli ai tipi che devono essere costruiti.
+
+    func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+    
+        kvp := keyValuePair[K, V]{                 <-- CHANGED
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+Dopo il nome del tipo nel ricevente, aggiungi le parentesi quadre e il generic
+tipi K e V. L'unica altra modifica è applicare K e V alla sintassi di costruzione
+del tipo keyValuePair.
+
+Questo è un metodo in grado di recuperare valori dalla tabella hash in base a un valore specificato
+chiave.
+
+    func (t *Table) Retrieve(key K) (V, bool) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Il metodo Retrieve viene dichiarato per accettare una chiave e restituire una copia
+del valore archiviato per quella chiave. Il primo passaggio del recupero consiste
+nell'identificare il bucket utilizzato per lo storage.
+Ciò viene eseguito chiamando la funzione hash con la chiave specificata.
+La funzione hash restituisce un valore intero che rappresenta il bucket da esaminare.
+
+Quindi la funzione esegue un'iterazione sulla raccolta di coppie chiave/valore archiviate nel bucket,
+cercando la chiave specificata una per una. Se la chiave viene trovata, viene restituita
+una copia del valore e al chiamante viene fornito true.
+Se la chiave non viene trovata, viene restituito il valore zero e al chiamante viene fornito false.
+
+Ora applica la sintassi generics per dichiarare la chiave e il valore dei tipi generici e
+applicarli ai tipi che devono essere costruiti.
+
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Dopo il nome del tipo nel ricevente, aggiungi le parentesi quadre e il generic
+tipi K e V. Non sono necessarie altre modifiche al codice.
+
+Questo è un piccolo programma per testare l'implementazione della hash table.
+
+    func main() {
+        const buckets = 8
+        . . .
+    }
+
+Inizia con una costante che definisce il numero di bucket da utilizzare nella hash table.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        hashFunc1 := func(key string, buckets int) int {
+            h := fnv.New32()
+            h.Write([]byte(key))
+            return int(h.Sum32()) % buckets
+        }
+
+        . . .
+    }
+
+Successivamente, dichiara una funzione hash che dichiara una stringa per la chiave.
+L'implementazione utilizza il pacchetto fnv dalla libreria standard che implementa
+FNV-1 e FNV-1a, funzioni hash non crittografiche create da Glenn Fowler,
+Landon Curt Noll e Phong Vo. FNV sta per la funzione hash Fowler-Noll-Vo.
+
+L'operazione del modulo con il valore dei bucket forza il valore finale a rientrare
+l'intervallo per il numero di bucket.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+        
+        . . .
+    }
+
+Successivamente, costruisci una hash table, affermando esplicitamente che la chiave sarà di tipo stringa
+e il valore di tipo int. Non c'è nulla nei parametri di input che possa aiutare
+il compilatore a dedurre questa informazione.
+
+Per mostrare la natura generica della hash table, definisci una seconda funzione di hash
+e una tabella.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        hashFunc2 := func(key int, buckets int) int {
+            return key % buckets
+        }
+
+        table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+    
+        . . .
+    }
+
+Questa funzione hash dichiara un numero intero per la chiave ed esegue una semplice
+operazione di modulo con il valore del bucket rispetto alla chiave.
+Quindi viene costruita una nuova tabella dove la chiave specificata è un numero intero
+e il valore una stringa. Il contrario della prima tabella.
+
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        words := []string{"foo", "bar", "baz"}
+        for i, word := range words {
+            table1.Insert(word, i)
+            table2.Insert(i, word)
+        }
+    
+        for i, s := range append(words, "nope!") {
+            v1, ok1 := table1.Retrieve(s)
+            fmt.Printf("t1.Rtr(%v) = (%v, %v)\n", s, v1, ok1)
+            
+            v2, ok2 := table2.Retrieve(i)
+            fmt.Printf("t2.Rtr(%v) = (%v, %v)\n", i, v2, ok2)
+        }
+    }
+
+Output:
+
+    t1.Rtr(foo) = (0, true)
+    t2.Rtr(0) = (foo, true)
+    t1.Rtr(bar) = (1, true)
+    t2.Rtr(1) = (bar, true)
+    t1.Rtr(baz) = (2, true)
+    t2.Rtr(2) = (baz, true)
+    t1.Rtr(nope!) = (0, false)
+    t2.Rtr(3) = (, false)
+
+Infine scrivi del codice per memorizzare e recuperare i valori dalle due rispettive
+tabelle.
