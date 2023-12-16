@@ -1,21 +1,21 @@
-Exporting
-Exporting provides the ability to declare if an identifier is accessible to code outside of the package it’s declared in. 
+Экспортирование
+Экспортирование предоставляет возможность объявить, доступен ли идентификатор для кода за пределами пакета, в котором он объявлен.
 
-* Exporting
+* Экспортирование
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Exporting provides the ability to declare if an identifier is accessible to code
-outside of the package it’s declared in. 
+Экспортирование предоставляет возможность объявить, доступен ли идентификатор для кода за пределами пакета,
+в котором он объявлен.
 
-** Code Review
+** Обзор кода
 
-- *Example* *1:* Declare and access exported identifiers
-- *Example* *2:* Declare unexported identifiers and restrictions
-- *Example* *3:* Access values of unexported identifiers
-- *Example* *4:* Unexported struct type fields
-- *Example* *5:* Unexported embedded types
+- *Пример* *1:* Объявление и доступ к экспортированным идентификаторам
+- *Пример* *2:* Объявление неэкспортированных идентификаторов и ограничения
+- *Пример* *3:* Доступ к значениям неэкспортированных идентификаторов
+- *Пример* *4:* Неэкспортированные поля структурного типа
+- *Пример* *5:* Неэкспортированные встроенные типы
 
 .play exporting/example1.go
 .play exporting/example2.go
@@ -23,27 +23,26 @@ outside of the package it’s declared in.
 .play exporting/example4.go
 .play exporting/example5.go
 
-** Exporting Mechanics
+** Механика экспортирования
 
-A package is the basic unit of compiled code in Go. It represents a physical compiled
-unit of code, usually as a compiled library on the host operating system. Exporting
-determines access to identifiers across package boundaries.
+Пакет - это основная единица скомпилированного кода в Go. Он представляет собой физически скомпилированную
+единицу кода, обычно в виде скомпилированной библиотеки в операционной системе хоста. Экспортирование
+определяет доступ к идентификаторам через границы пакета.
 
     package counters
 
     type AlertCounter int
 
-In this case, since a capital letter is being used to name the type AlterCounter,
-the type is exported and can be referenced directly by code outside of the
-counters package.
+В этом случае, поскольку в имени типа AlertCounter используется заглавная буква,
+тип экспортируется и может быть использован кодом за пределами пакета counters.
 
     package counters
 
     type alertCounter int
 
-Now that you changed the type’s name to start with a lowercase letter, the type is
-unexported. This means only code inside the counters package can reference this
-type directly.
+Теперь, когда вы изменили имя типа, чтобы оно начиналось с маленькой буквы, тип
+не экспортируется. Это означает, что только код внутри пакета counters может ссылаться
+на этот тип напрямую.
 
     package counters
 
@@ -53,9 +52,9 @@ type directly.
         return alertCounter(value)
     }
 
-Even though the code above is legal syntax and will compile, there is no value in it.
-Returning a value of an unexported type is confusing since the caller (who will
-probably exist in a different package) can’t reference the type name directly.
+Несмотря на то, что этот код является синтаксически правильным и будет успешно компилироваться, в нем нет смысла.
+Возвращение значения неэкспортируемого типа вводит путаницу, поскольку вызывающая сторона
+(которая, вероятно, находится в другом пакете) не может ссылаться на имя типа напрямую.
 
     package main
 
@@ -70,11 +69,11 @@ probably exist in a different package) can’t reference the type name directly.
         fmt.Printf("Counter: %d\n", counter)
     }
 
-In this case, the main function in package main calls the counters.New function
-successfully and the compiler can declare and construct a variable of the unexported
-type. This doesn't mean you should do this nor does it mean your're getting any real
-protections for this. This should be avoided, and if New will return a value, it
-should be of an exported type.
+В этом случае функция main в пакете main успешно вызывает функцию counters.New
+и компилятор может объявить и создать переменную неэкспортируемого типа. Это не означает,
+что так следует поступать, и это не означает, что построив код таким образом, вы получите
+какую-либо реальную защиту. Этого следует избегать, и если New возвращает значение,
+оно должно быть экспортированного типа.
 
     package users
 
@@ -85,11 +84,11 @@ should be of an exported type.
         password string
     }
 
-When it comes to fields in a struct, the first letter declares if the field is
-accessible to code outside of the package it’s declared in. In this case, Name
-and ID are accessible, but password is not. It’s an idiom to separate exported
-and unexported fields in this manner if this is reasonable or practical to do.
-Normally all fields would be one or the other.
+Когда речь идет о полях в структуре, первая буква объявляет, доступно ли поле
+коду за пределами пакета, в котором оно объявлено. В этом случае Name
+и ID доступны, но password - нет. Разделение экспортированных и неэкспортированных полей
+в этом стиле, считается идиоматическим в случае, когда такое разделение разумно или практично.
+Обычно все поля были бы одним либо другим.
 
     package users
 
@@ -103,43 +102,43 @@ Normally all fields would be one or the other.
         user
     }
 
-In this scenario, even though the user type is unexported, it has two exported
-fields. This means that when the user type is embedded in the exported Manager
-type, the user fields promote and are accessible. It’s common to have types that
-are unexported with exported fields because the reflection package can only operate
-on exported fields. Marshallers won’t work otherwise.
+В этом сценарии, даже если тип user неэкспортируем, у него есть два экспортированных
+поля. Это означает, что когда тип user встроен в экспортированный тип Manager,
+поля user продвигаются и становятся доступными. Часто бывает, что типы являются
+неэкспортируемыми с экспортированными полями, поскольку пакет рефлексии может
+работать только с экспортированными полями. Маршаллеры иначе не будут работать.
 
-The example creates a bad situation where code outside of package users can construct
-a Manager, but since the embedded type user is unexported, the fields for those type
-can be initialized. This creates partial construction problems that will lead to bugs.
-You need to be consistent with exporting and unexporting.
+Этот пример создает плохую ситуацию, когда код за пределами пакета users может
+создать Manager, но поскольку встроенный тип user неэкспортируем, поля для
+этих типов могут быть инициализированы. Это создает проблемы с частичной
+конструкцией, которые приведут к ошибкам. Необходимо соблюдать последовательность
+экспортирования и неэкспортирования.
 
-** Notes
+** Заметки
 
-- Code in go is compiled into packages and then linked together.
-- Identifiers are exported (or remain unexported) based on letter-case.
-- We import packages to access exported identifiers.
-- Any package can use a value of an unexported type, but this is annoying to use.
+- Код Go компилируется в пакеты, а затем связывается вместе.
+- Идентификаторы экспортируются (или остаются неэкспортированными) на основе регистра букв.
+- Мы импортируем пакеты для доступа к экспортированным идентификаторам.
+- Любой пакет может использовать значение неэкспортируемого типа, но это считается плохой практикой.
 
-** Extra Reading
+** Дополнительное чтение
 
-[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Экспортированные/Неэкспортированные идентификаторы в Go]] - Уильям Кеннеди
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Здесь представлен возможный вариант решения.
 
-** Exercise 1
+** Упражнение 1
 
-*Part* *A:* Create a package named toy with a single exported struct type named Toy.
-Add the exported fields Name and Weight. Then add two unexported fields named onHand
-and sold. Declare a factory function called New to create values of type toy and accept
-parameters for the exported fields. Then declare methods that return and update values
-for the unexported fields.
+*Часть* *A:* Создайте пакет с именем toy с единственным экспортированным структурным типом Toy.
+Добавьте экспортированные поля Name и Weight. Затем добавьте два неэкспортированных поля с именами onHand
+и sold. Объявите фабричную функцию с именем New для создания значений типа toy и принимайте параметры
+для экспортированных полей. Затем объявите методы, возвращающие и обновляющие значения для неэкспортированных полей.
 
-*Part* *B:* Create a program that imports the toy package. Use the New function to
-create a value of type toy. Then use the methods to set the counts and display the
-field values of that toy value.
+*Часть* *B:* Создайте программу, импортирующую пакет toy. Используйте функцию New для
+создания значения типа toy. Затем используйте методы для установки счетчиков и отображения
+значений полей этого значения toy.
 
 .play exporting/exercise1.go
 .play exporting/answer1.go
