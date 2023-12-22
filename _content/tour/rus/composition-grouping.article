@@ -1,55 +1,53 @@
-Grouping With Types
-It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+Группировка с использованием типов
+Важно помнить, что в Go концепции подтипов или наследования действительно не существует, и этих шаблонов проектирования следует избегать.
 
-* Grouping With Types
+* Группировка с использованием типов
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Важно помнить, что в Go концепции подтипов или наследования действительно не существует, и этих шаблонов проектирования следует избегать.
 
-** Code Review
+**Обзор кода**
 
-- *Example* *1:* Grouping By State
-- *Example* *2:* Grouping By Behavior
+- *Пример* *1:* Группировка по состоянию
+- *Пример* *2:* Группировка по поведению
 
 .play composition/grouping/example1.go
 .play composition/grouping/example2.go
 
-** Grouping Different Types of Data
+**Группировка разных типов данных**
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Важно помнить, что в Go концепции подтипов или наследования действительно не существует,
+и этих шаблонов проектирования следует избегать.
 
-The following is an anti-pattern you shouldn’t follow or implement.
+Следующий код - это анти-паттерн, который не стоит использовать или реализовывать на практике.
 
     type Animal struct {
         Name string
         IsMammal bool
     }
 
-The Animal type is being declared as a base type that tries to define data that is
-common to all animals. You also attempt to provide some common behavior to an
-animal as well.
+Тип Animal объявляется как базовый тип, который пытается объявить данные, общие для всех животных.
+Он также пытается описать некоторое общее поведение свойственное животным.
 
     func (a *Animal) Speak() {
         fmt.Println("UGH!",
         "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Most animals have the ability to speak in one way or the other. However, trying to
-apply this common behavior to just an animal doesn’t make any sense. At this
-point, You have no idea what sound this animal makes, so you write UGH.
+У большинства животных есть способность, так или иначе, говорить.
+Однако попытка применить это общее поведение к животному не имеет смысла.
+На данном этапе вы не знаете, какой звук издает это животное, поэтому вы пишете `UGH`.
 
     type Dog struct {
         Animal
         PackFactor int
     }
 
-Now the real problems begin. I’m attempting to use embedding to make a Dog
-everything an Animal is plus more. On the surface this will seem to work, but there
-will be problems. With that being said, a Dog does have a specific way they speak.
+Теперь начинаются настоящие проблемы. Мы пытаемся использовать встраивание, чтобы сделать Dog всем,
+чем является Animal и даже более того. На первый взгляд это может показаться работающим решением,
+но вскоре у нас возникнут проблемы. Несмотря на это, у собаки есть конкретный способ разговаривать.
 
     func (d *Dog) Speak() {
         fmt.Println("Woof!",
@@ -58,16 +56,16 @@ will be problems. With that being said, a Dog does have a specific way they spea
             "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Woof. This is
-specific to how a dog speaks.
+В реализации метода Speak можно заменить UGH на Woof.
+Это специфика того, как говорит собака.
 
     type Cat struct {
         Animal
         ClimbFactor int
     }
 
-If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
-Using embedding, a Cat is everything an Animal is plus more.
+Если у нас есть собака, представляющая Animal, то у нас должна быть и кошка.
+Используя встраивание, Cat - это все, чем является Animal и даже больее того.
 
     func (c *Cat) Speak() {
         fmt.Println("Meow!",
@@ -76,12 +74,12 @@ Using embedding, a Cat is everything an Animal is plus more.
             "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Meow. This
-is specific to how a cat speaks.
+В реализации метода Speak можно заменить UGH на Meow.
+Это конкретная реализация для того, как говорит кошка.
 
-Everything seems fine and it looks like embedding is providing the same
-functionality as inheritance does in other languages. Then you try to go ahead and
-group dogs and cats by the fact they have a common DNA of being an Animal.
+Все вроде бы идёт хороши, и выглядит так, будто встраивание предоставляет ту же функциональность,
+что и наследование в других языках. Затем мы пытаетемся сгруппировать собак и кошек по тому факту,
+что у них есть общее ДНК животного.
 
     animals := []Animal{
         Dog{
@@ -91,7 +89,7 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
             },
             PackFactor: 5,
         },
-    
+
         Cat{
             Animal: Animal{
                 Name: "Milo",
@@ -105,25 +103,24 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
         animal.Speak()
     }
 
-When you try to do this, the compiler complains that a Dog and Cat are not an Animal
-and this is true. Embedding isn’t the same as inheritance and this is the pattern I
-need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
-can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+Когда мы пытаетемся это сделать, компилятор жалуется, что Dog и Cat не являются Animal, и это правда.
+Встраивание не то же самое, что и наследование, и это шаблон, от которого нужно держаться подальше.
+Dog - это Dog, Cat - это Cat, и Animal - это Animal. Нельзя передавать Dog и Cat, как если бы они
+были Animal, потому что это не так.
 
-This kind of mechanic is also not very flexible. It requires configuration by the
-developer and unless you have access to the code, you can’t make configuration changes
-over time.
+Такая механика также не очень гибка. Она требует настройки со стороны разработчика, и если у вас
+нет доступа к коду, вы не сможете по мере необходимости вносить конфигурационные изменения.
 
-If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
-this in Go? It’s not about grouping through common DNA, it’s about grouping
-through common behavior. Behavior is the key.
+Если таким образом мы не можем создавать коллекции собак и кошек, то как иначе мы можем это реализовать в Go?
+Здесь речь идёт не о группировке через общее ДНК, а о группировке через общее поведение.
+Поведение является ключевым элементом.
 
     type Speaker interface {
         Speak()
     }
 
-If you use an interface, then you can define the common method set of behavior that I
-want to group different types of data against.
+Если мы используем интерфейс, то мы можем определить общий набор методов поведения,
+который возможно использовать для группировки разных типов данных.
 
     speakers := []Speaker{
         &Dog{
@@ -146,83 +143,80 @@ want to group different types of data against.
         speaker.Speak()
     }
 
-In the new code, you can now group Dogs and Cats together based on their common
-set of behavior, which is the fact that Dogs and Cats can speak.
+В новом коде теперь можно группировать вместе собак и кошек на основе их общего набора поведения,
+а именно того, что собаки и кошки могут говорить.
 
-In fact, the Animal type is really type pollution because declaring a type just to
-share a set of common states is a smell and should be avoided.
+По факту, тип Animal действительно является мусорным, потому что объявление типа
+просто для хранения набора общих состояний - это плохой шаблон и его следует избегать.
 
     type Dog struct {
         Name string
         IsMammal bool
         PackFactor int
     }
-    
+
     type Cat struct {
         Name string
         IsMammal bool
         ClimbFactor int
     }
 
-In this particular case, you would rather see the Animal type removed and the fields
-copied and pasted into the Dog and Cat types. Later you will have notes about better
-patterns that eliminate these scenarios from happening.
+В этом конкретном случае мы, вероятно, предпочли бы удалить тип Animal и скопировать его поля
+в типы Dog и Cat. Позже мы рассмотрим заметки с лучшими шаблонами, которые полностью устраняют проблемы такого характера.
 
-Here are the code smells from the original code:
+Вот признаки плохого кода в нашей первичной реализации:
 
-- The Animal type provides an abstraction layer of reusable state.
-- The program never needs to create or solely use a value of Animal type.
-- The implementation of the Speak method for the Animal type is generalized.
-- The Speak method for the Animal type is never going to be called.
+- Тип Animal предоставляет абстрактный слой повторно используемого состояния.
+- Программа никогда не должна создавать или использовать значение типа Animal в чистом виде.
+- Реализация метода Speak для типа Animal является обобщенной.
+- Метод Speak для типа Animal никогда не будет вызван.
 
-Guidelines around declaring types:
+Рекомендации по объявлению типов:
 
-- Declare types that represent something new or unique.
-- Don't create aliases just for readability.
-- Validate that a value of any type is created or used on its own.
-- Embed types not because you need the state, but because we need the behavior.
-- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
-- Question types that are aliases or abstractions for an existing type.
-- Question types whose sole purpose is to share a common set of states.
+- Объявляйте типы, представляющие из себя что-то новое или уникальное.
+- Не создавайте псевдонимы только для улучшения читабельности.
+- Убедитесь в том, что значение любого типа создается или используется самостоятельно.
+- Встраивайте типы не потому, что вам нужно состояние, а потому, что вам нужно поведение.
+- Если вы не думаете о поведении, вы привязываете себя к дизайну, который вы не сможете развивать в будущем без каскадных изменений в коде.
+- Подвергайте сомнению типы, которые являются псевдонимами или абстракциями существующего типа.
+- Подвергайте сомнению типы, чьей единственной целью является общий набор состояний.
 
-** Don’t Design With Interfaces
+**Не проектируйте с использованием интерфейсов**
 
-Unfortunately, too many developers attempt to solve problems in the abstract first.
-They focus on interfaces right away and this leads to interface pollution. As a
-developer, you exist in one of two modes: a programmer and then an engineer.
+К сожалению, слишком большое колличества разработчиков подходят к задачам с попытки решить проблемы абстракций.
+Они сразу фокусируются на интерфейсах, и это приводит к загрязнению интерфейсами. Как разработчик
+вы существуете в одном из двух режимов: в первую очередь вы программист, а уже затем - вы инженер.
 
-When you are programming, you are focused on getting a piece of code to work. Trying
-to solve the problem and break down walls. Prove that my initial ideas work. That is
-all you care about. This programming should be done in the concrete and is never
-production ready.
+Когда вы программируете, вы сосредоточены на том, чтобы написать работающий код.
+Вы пытаетесь решить проблему и сломать стены. Доказать, что ваши первоначальные идеи работают.
+Это всё что вас интересует на данном этапе. Этот тип программирования следует выполнять в начальной фазе
+и код полученный таким путём никогда полностью не готов.
 
-Once you have a prototype of code that solves the problem, you need to switch to
-engineering mode. You need to focus on how to write the code at a micro-level for
-data semantics and readability, then at a macro-level for mental models and
-maintainability. You also need to focus on errors and failure states.
+Как только у нас есть прототип кода решающий проблему, нам нужно переключиться в режим инженера.
+Нам нужно сосредоточиться на том, чтобы написать код на микро-уровне для семантики данных и читабельности,
+а затем на макро-уровне для умственных моделей и поддерживаемости. Мы также должны фокусироваться
+на ошибках и состояниях при которых система может дать сбой.
 
-This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
-abstraction, and for testability. Abstracting is only one of a few refactors that need
-to be performed. This works best when you start with a piece of concrete code and
-then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
-are absolutely necessary.
+Эта работа выполняется в цикле рефакторинга. Рефакторинг для читаемости, эффективности, абстракции
+и тестируемости. Абстрагирование - это всего лишь одна из нескольких стадий рефакторингов, которые
+необходимо пройти. Это работает лучше всего, когда мы начинаем с конкретного кода и ЗАТЕМ НАХОДИМ интерфейсы,
+которые будет необходимы. Не применяйте абстракции, до тех пор пока без них уже нельзя обойтись.
 
-Every problem you solve with code is a data problem requiring me to write data
-transformations. If you don’t understand the data, you don’t understand the problem. If you
-don’t understand the problem, you can’t write any code. Starting with a concrete
-solution that is based on the concrete data structures is critical. As Rob Pike said,
+Каждую проблему, которую мы решаем с помощью кода, можно рассматривать как проблему с данными,
+требующую написания преобразований данных. Если вы не понимаете данные, вы не понимаете проблему.
+Если вы не понимаете проблему, вы не можете написать код. Очень важно начинать с конкретного решения
+на основе конкретных структур данных. Как сказал Роб Пайк,
 
-"Data dominates. If you've chosen the right data structures and organized things
-well, the algorithms will almost always be self-evident". - Rob Pike
+"Данные доминируют. Если вы выбрали правильные структуры данных и все хорошо организовали,
+алгоритмы почти всегда станут очевидными.
 
-When is abstraction necessary? When you see a place in the code where the data
-could change and you want to minimize the cascading code effects that would result. I
-might use abstraction to help make code testable, but you should try to avoid this if
-possible. The best testable functions are functions that take raw data in and send
-raw data out. It shouldn’t matter where the data is coming from or going.
+В каких случаях абстракция необходима? Абстракция необходима, когда вы находите место в коде,
+где данные могут измениться, и вы хотите минимизировать каскадные эффекты изменений в коде.
+Вы можете использовать абстракцию, чтобы облегчить тестирование кода, но по возможности старайтесь избегать этого.
+Лучшие тестируемые функции - это функции, которые принимают необработанные данные и возвращают необработанные данные.
+Неважно, откуда идут данные и куда они направляются.
 
-In the end, start with a concrete solution to every problem. Even if the bulk of that
-is just programming. Then discover the interfaces that are absolutely required for
-the code today.
+В конечном итоге начинайте с конкретного решения для каждой проблемы. Даже если большая часть этого
+сводится к программированию. Затем находите интерфейсы, которые абсолютно необходимы для вашего кода сегодня.
 
-"Don’t design with interfaces, discover them". - Rob Pike
+"Не проектируйте на основе интерфейсов, а находите их". - Роб Пайк
