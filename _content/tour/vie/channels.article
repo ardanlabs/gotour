@@ -1,16 +1,16 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
+Kênh (Channel)
+Kênh cho phép các goroutine giao tiếp với nhau thông qua việc sử dụng cơ chế gửi tín hiệu.
 
-* Channels
+* Kênh (Channel)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/][Đơn xin Học bổng]] 
+của chúng tôi.
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+Hãy nghĩ về `channel` không phải là một cấu trúc dữ liệu, mà là một cơ chế để gửi tín hiệu.
+Điều này đi theo hướng ý tưởng rằng bạn gửi và nhận từ một `channel`, không phải đọc và viết.
+Nếu vấn đề trước mặt bạn không thể được giải quyết với tín hiệu, nếu từ tín hiệu không
+xuất hiện từ miệng bạn, bạn cần phải đặt câu hỏi về việc sử dụng `channel`.
 
 ** Code Review
 
@@ -36,104 +36,105 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** Cơ chế của channel
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+Để đảm bảo sự toàn vẹn của tín hiệu, ta phải đánh đổi bằng việc không xác định được độ trễ.
+Người gửi sẽ không biết họ cần phải đợi bao lâu để người nhận chấp nhận tín hiệu.
+Phải đợi người nhận tạo ra độ trễ chặn (blocking latency). Trong trường hợp này,
+độ trễ chặn không xác định. Người gửi phải đợi trong một khoảng thời gian không xác định,
+cho đến khi người nhận có thể nhận tín hiệu.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+Chờ đợi người nhận có nghĩa là cơ chế nhận xảy ra trước cơ chế gửi.
+Với `channel`, cơ chế nhận xảy ra trước vài nanosecond, nhưng nó vẫn xảy ra trước.
+Điều này có nghĩa là người nhận nhận tín hiệu và sau đó rời đi, đảm bảo cho phép người gửi tiếp tục.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+Nếu quá trình không thể chờ đợi một khoảng thời gian không xác định thì sao?
+Nếu loại độ trễ đó không hoạt động thì sao? Như vậy thì không thể đảm bảo ở mức tín hiệu,
+nó cần phải ở bên ngoài nó. Cơ chế làm việc phía sau là gửi xảy ra trước khi nhận.
+Người gửi có thể gửi tín hiệu mà không cần người nhận có sẵn.
+Vì vậy, người gửi có thể đi ra và không phải đợi.
+Cuối cùng, bạn hy vọng, người nhận sẽ xuất hiện và lấy tín hiệu.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+Điều này giảm chi phí độ trễ của việc gửi, nhưng nó tạo ra sự không chắc chắn về việc nhận tín hiệu
+và do đó không biết có vấn đề với người nhận ở phía trên hay không.
+Điều này có thể tạo ra quá trình chấp nhận công việc mà không bao giờ được bắt đầu hoặc hoàn thành.
+Nó có thể tạo ra một sức ép lớn và hệ thống có thể bị quá tải.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+Điều thứ hai cần tập trung vào là bạn có cần gửi dữ liệu với tín hiệu không?
+Nếu tín hiệu yêu cầu truyền dữ liệu, thì tín hiệu được truyền 1 đến 1 giữa các `goroutine`.
+Nếu một `goroutine` mới cũng cần nhận tín hiệu, thì phải gửi tín hiệu thứ hai.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+Nếu dữ liệu không cần được truyền với tín hiệu, thì tín hiệu có thể được truyền 1 đến 1
+hoặc 1 đến nhiều giữa các `goroutine`.
+Tín hiệu không có dữ liệu được sử dụng chủ yếu cho việc hủy bỏ hoặc tắt.
+Nó được thực hiện bằng cách đóng `channel`.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+Điều thứ ba cần tập trung vào là trạng thái của `channel`. Một `channel` có thể ở 1 trong 3 trạng thái.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+Một `channel` có thể ở trạng thái `nil` bằng cách khởi tạo `channel` với trạng thái giá trị 0 (zero value).
+Gửi và nhận tín hiệu trên `channel` trong trạng thái này sẽ bị chặn. Điều này tốt cho các tình huống
+khi bạn muốn thực hiện dừng ngắn hạn của công việc.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+Một `channel` có thể ở trạng thái `open` bằng cách sử dụng hàm `make` tích hợp sẵn.
+Gửi và nhận tín hiệu trên `channel` trong trạng thái này sẽ hoạt động trong các điều kiện sau:
 
-*Unbuffered* *Channels:*
+*Unbuffered* *Channels:* 
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+- Đảm bảo ở mức tín hiệu với việc nhận xảy ra trước khi gửi. Các `goroutine` gửi và nhận
+cần phải đến cùng một không gian và thời gian để tín hiệu được xử lý.
 
 *Buffered* *Channels:*
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+- Đảm bảo bên ngoài mức tín hiệu với việc gửi xảy ra trước khi nhận.
+Nếu bộ đệm không đầy, việc gửi có thể hoàn thành, ngược lại sẽ bị chặn.
+Nếu bộ đệm không trống, việc nhận có thể hoàn thành, ngược lại sẽ bị chặn.
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+Một `channel` có thể ở trạng thái `closed` bằng cách sử dụng hàm tích hợp sẵn `close`.
+Bạn không cần phải đóng `channel` để giải phóng bộ nhớ, nó chỉ để thay đổi trạng thái.
+Gửi vào một `channel` đã đóng sẽ gây `panic`, tuy nhiên nhận từ một `channel` đã đóng
+sẽ trả về ngay lập tức.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+Với tất cả thông tin này, bạn có thể tập trung vào các mẫu `channel`.
+Tập trung vào sự truyền dẫn tín hiệu là quan trọng.
+Ý tưởng là, nếu bạn cần một sự đảm bảo ở mức tín hiệu hay không, dựa trên các vấn đề về độ trễ.
+Nếu bạn cần truyền dữ liệu với tín hiệu hay không, dựa trên việc xử lý hủy bỏ hoặc không.
+Bạn muốn chuyển đổi cú pháp thành các ý nghĩa này.
 
-** Design Guidelines
+** Hướng dẫn thiết kế
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
+- Đọc thêm các [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][hướng dẫn thiết kế]] cho `channel`.
 
-** Diagrams
+** Biểu đồ
 
-*Guarantee* *Of* *Delivery*
+*Guarantee* *Of* *Delivery* (*Đảm* *bảo* *giao* *nhận*)
 
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+Việc "đảm bảo giao nhận" dựa trên một câu hỏi: "Tôi có cần đảm bảo rằng tín hiệu được gửi
+bởi một `goroutine` cụ thể đã được nhận hay chưa?"
 
 .image /tour/eng/static/img/guarantee_of_delivery.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*Signaling* *With* *Or* *Without* *Data* (*Truyền* *tín* *hiệu* *với* *hoặc* *không* *dữ* *liệu*)
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+Khi bạn truyền tín hiệu với dữ liệu, có ba tùy chọn cấu hình `channel` bạn có thể chọn
+tùy thuộc vào loại "đảm bảo" bạn cần.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+Truyền tín hiệu không có dữ liệu phục vụ mục đích chính là hủy bỏ.
+Nó cho phép một `goroutine` truyền tín hiệu cho một `goroutine` khác để hủy bỏ
+những gì họ đang làm và tiếp tục. Hủy bỏ có thể được thực hiện bằng cả `unbuffered`
+và `buffered` `channel`.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*State* (*Trạng* *thái*)
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+Hành vi của một `channel` được ảnh hưởng trực tiếp bởi trạng thái hiện tại của nó.
+Trạng thái của một `channel` có thể là `nil`, `open` hoặc `closed`.
 
 .image /tour/eng/static/img/state.png
 
-** Extra Reading
+** Đọc thêm
 
 - [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
 - [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
@@ -142,60 +143,59 @@ state of a channel can be `nil`, `open` or `closed`.
 - [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
 - [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
 
-** Buffer Bloat - 2011
+** "Phù" bộ đệm - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+Hãy cẩn thận khi sử dụng bộ đệm lớn với ý tưởng làm giảm độ trễ.
 
-- Large buffers prevent timely notification of back pressure.
-- They defeat your ability to reduce back pressure in a timely matter.
-- They can increase latency not reduce it.
-- Use buffered channels to provide a way of maintaining continuity.
-- Don't use them just for performance.
-- Use them to handle well defined bursts of data.
-- Use them to deal with speed of light issues between handoffs.
+- Bộ đệm lớn ngăn chặn thông báo kịp thời về áp lực phía sau.
+- Chúng ngăn chặn khả năng giảm áp lực phía sau một cách kịp thời.
+- Chúng có thể làm tăng độ trễ thay vì giảm nó.
+- Dùng `buffered channel` để cung cấp một cách duy trì sự liên tục.
+- Đừng sử dụng chúng chỉ vì hiệu suất.
+- Sử dụng chúng để xử lý tốt các chuyển động dữ liệu được xác định trước.
+- Sử dụng chúng để đối phó với các vấn đề về tốc độ ánh sáng giữa các chuyển động.
 
-*Videos*
+*Video*
 
 - [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
 
-* Exercises
+* Bài tập
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Dùng các mẫu như một điểm khởi đầu để hoàn thành các bài tập. Một bài giải có thể được cung cấp.
 
-** Exercise 1
+** Bài tập 1
 
-Write a program where two goroutines pass an integer back and forth ten times.
-Display when each goroutine receives the integer. Increment the integer with each
-pass. Once the integer equals ten, terminate the program cleanly.
+Viết một chương trình trong đó hai `goroutine` truyền một số nguyên qua lại với nhau 10 lần.
+Hiển thị khi mỗi `goroutine` nhận số nguyên. Tăng số nguyên với mỗi lần truyền.
+Một khi số nguyên bằng 10, kết thúc chương trình một cách sạch sẽ.
 
 .play channels/exercise1.go 
 .play channels/answer1.go
 
-** Exercise 2
+** Bài tập 2
 
-Write a program that uses a fan out pattern to generate 100 random numbers concurrently.
-Have each goroutine generate a single random number and return that number to the main
-goroutine over a buffered channel. Set the size of the buffer channel so no send ever
-blocks. Don't allocate more buffers than you need. Have the main goroutine display each
-random number it receives and then terminate the program.
+Viết một chương trình sử dụng "fan out pattern" để tạo ra 100 số ngẫu nhiên đồng thời.
+Mỗi `goroutine` tạo ra một số ngẫu nhiên duy nhất và trả về số đó cho `goroutine` chính
+qua một `buffered` `channel`. Đặt kích thước bộ đệm của `channel` để việc gửi không bao giờ
+bị chặn. Đừng cấp phát nhiều bộ đệm hơn bạn cần. Cho phép `goroutine` chính hiển thị
+mỗi số ngẫu nhiên nó nhận được và sau đó kết thúc chương trình.
 
 .play channels/exercise2.go 
 .play channels/answer2.go
 
-** Exercise 3
+** Bài tập 3
 
-Write a program that generates up to 100 random numbers concurrently. Do not send
-all 100 values so the number of sends/receives is unknown.
+Viêt một chương trình tạo ra tối đa 100 số ngẫu nhiên đồng thời. Đừng gửi tất cả 100 giá trị
+để số lượng gửi/nhận là không xác định. 
 
 .play channels/exercise3.go 
 .play channels/answer3.go
  
-** Exercise 4
-
-Write a program that generates up to 100 random numbers concurrently using a worker
-pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have
-been collected.
+** Bài tập 4
+s
+Viết một chương trình tạo ra tối đa 100 số ngẫu nhiên đồng thời sử dụng một `worker pool`.
+Từ chối các giá trị chẵn. Tắt các `worker` khi 100 số lẻ đã được thu thập.
 
 .play channels/exercise4.go 
 .play channels/answer4.go
