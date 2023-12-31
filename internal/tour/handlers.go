@@ -12,6 +12,7 @@ import (
 
 type root struct {
 	engContent []byte
+	esContent  []byte
 	grcContent []byte
 	itaContent []byte
 	perContent []byte
@@ -74,6 +75,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "/tour/pol/":
 		log.Println("render polish tour")
+		if err := renderUI(w, rot.polContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/es/":
+		log.Println("render spanish tour")
 		if err := renderUI(w, rot.polContent); err != nil {
 			log.Println(err)
 		}
