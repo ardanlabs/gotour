@@ -39,12 +39,12 @@ directive('settitle', function() {
         const str = scope.lessonId
 
         if(!str)
-            return $("title").html(`Ultimate Go : ${section}`)
+            return $("title").html(`Go Definitivo : ${section}`)
 
         const grp = str.charAt(0).toUpperCase() + str.slice(1);
         const title = section ? `${grp} - ${section}` : grp
 
-        $("title").html(`Ultimate Go : ${title}`)
+        $("title").html(`Go Definitivo : ${title}`)
     };
 }).
 // onpageup executes the given expression when Page Up is released.
