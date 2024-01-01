@@ -10,8 +10,8 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'welcome',
     'title': '',
-    'description': `<p>This is material for any intermediate-level developer who has some experience with other programming languages and wants to learn Go. We believe this material is perfect for anyone who wants a jump start in learning Go or who wants a more thorough understanding of the language and its internals.</p>
-    <p><b>The first time you run an example it may take some time to complete. This is because the tour service might not be running. Please give it some time to complete.</b></p>
+    'description': `<p>Este material es para cualquier desarrollador de nivel intermedio que tenga algo de experiencia con otros lenguajes de programación y quiera aprender Go. Creemos que este manterial es perfecto para cualquiera que quiera comenzar a aprender Go o quiera una comprensión más completa del lenguaje y sus partes internas.</p>
+    <p><b>La primera vez que ejecutes un ejemplo puede ser que lleve su tiempo para ser completado. Ésto es porque el servicio del tour puede no estar ejecutándose. Por favor dale algo de tiempo para que termine.</b></p>
     `,
     'lessons': [
         'welcome',
@@ -20,7 +20,7 @@ value('tableOfContents', [{
     'id': 'language-mechanics',
     'title': 'Mecanismos del Lenguaje',
     'description': `
-        <p>This material covers all the language syntax, idioms, implementation and specification of the language. Once you are done with this material you will understand the mechanics of the language and mechanical sympathies the language has for both the hardware and operating system.</p>
+        <p>Este material cubre toda la sintáxis, idiomas, implementación y espeficación del lenguaje. Una vez que acabes con este material entenderás tanto los mecanismos del lenguaje como las simpatías mecánicas que tiene para el hardware y el sistema operativo.</p>
         `,
     'lessons': [
         'variables',
@@ -38,9 +38,9 @@ value('tableOfContents', [{
     ]
 }, {
     'id': 'composition-interfaces',
-    'title': 'Composition and Interfaces',
+    'title': 'Composición e Interfaces',
     'description': `
-        <p>This material covers the practical things you need to know about composition and interfaces.</p>
+        <p>Este material cubre las cosas prácticas que necesitas saber sobre composición e interfaces.</p>
         `,
     'lessons': [
         'composition-grouping',
@@ -52,9 +52,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'concurrency',
-    'title': 'Concurrency',
+    'title': 'Concurrencia',
     'description': `
-        <p>This material covers all the concurrency aspects of the language. Once you are done with this material you will understand the concurrent mechanics of the language and mechanical sympathies the language has for both the hardware and operating system as it related to concurrency.</p>
+        <p>Este material cubre todos los aspectos sobre concurrencia del lenguaje. Una vez hayas terminado el material entenderás los mecanismos de concurrencia del lenguaje y las simpatías mecánicas relacionadas con la concurrencia que tiene Go para tanto el hardware como para el sistema operativo.</p>
        `,
     'lessons': [
         'goroutines',
@@ -66,7 +66,7 @@ value('tableOfContents', [{
     'id': 'generics',
     'title': 'Generics',
     'description': `
-        <p>This material covers all the generics aspects of the language. Generics is about providing the ability to write concrete polymorphic functions with the support of type parameter lists.</p>
+        <p>Este material cubre todos los aspectos sobre generics del lenguaje. Generics consiste en proporcionar la habilidad de escribir funciones concretas polimórficas con el soporte de listas de parámetros de tipo.</p>
        `,
     'lessons': [
         'generics-basics',
@@ -81,9 +81,9 @@ value('tableOfContents', [{
     ]
 },{
     'id': 'algorithms',
-    'title': 'Algorithms',
+    'title': 'Algoritmos',
     'description': `
-        <p>This material provides Go code implementing a common and fun set of algorithms.</p>
+        <p>Este material proporciona código Go implementando un conjunto común y divertido de algoritmos.</p>
        `,
     'lessons': [
         'algorithms-bits-seven',
@@ -100,27 +100,27 @@ value('tableOfContents', [{
 value('translation', {
     'off': 'off',
     'on': 'on',
-    'syntax': 'Syntax-Highlighting',
-    'lineno': 'Line-Numbers',
-    'reset': 'Reset Slide',
-    'format': 'Format Source Code',
-    'kill': 'Kill Program',
-    'run': 'Run',
-    'compile': 'Compile and Run',
-    'more': 'Options',
-    'toc': 'Table of Contents',
-    'prev': 'Previous',
-    'next': 'Next',
-    'waiting': 'Waiting for remote server...',
-    'errcomm': 'Error communicating with remote server.',
-    'submit-feedback': 'Send feedback about this page',
-    'search': 'Search for content',
+    'syntax': 'Resaltado de Sintaxis',
+    'lineno': 'Números de Línea',
+    'reset': 'Reiniciar Diapositiva',
+    'format': 'Formatear Código Fuente',
+    'kill': 'Matar Programa',
+    'run': 'Ejecutar',
+    'compile': 'Compilar y Ejecutar',
+    'more': 'Opciones',
+    'toc': 'Tabla de Contenidos',
+    'prev': 'Anterior',
+    'next': 'Siguiente',
+    'waiting': 'Esperando al servidor remoto...',
+    'errcomm': 'Error comunicándose con el servidor remoto.',
+    'submit-feedback': 'Enviar feedback sobre esta página',
+    'search': 'Buscar contenido',
 
     // GitHub issue template: update repo and messaging when translating.
     'github-repo': 'github.com/ardanlabs/gotour',
     'issue-title': 'tour: [REPLACE WITH SHORT DESCRIPTION]',
     'issue-message': 'Change the title above to describe your issue and add your feedback here, including code if necessary',
-    'context': 'Context',
+    'context': 'Contexto',
 }).
 
 // Config for codemirror plugin
