@@ -1,72 +1,75 @@
 Variables
-Variables are at the heart of the language and provide the ability to read from and write to memory.
+Las variables representan el corazón del lenguaje y proporcionan la habilidad de leer de y escribir a memoria.
 
 * Variables
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Ve el Vídeo]]
+- Necesitas de Ayuda Financiera, Utiliza Nuestro [[https://www.ardanlabs.com/scholarship/][Formulario de Becas]]
 
-Variables are at the heart of the language and provide the ability to read from
-and write to memory. In Go, access to memory is type safe. This means the compiler
-takes type seriously and will not allow us to use variables outside the scope of
-how they are declared.
+Las variables representan el corazón del lenguaje y proporcionan la habilidad de leer de
+y escribir a memoria. En Go, el acceso a memoria es "type safe". Ésto significa que el compilador
+se toma los tipos muy en serio y no nos permitirá utilizar variables fuera del ámbito
+en el que fueron declaradas.
 
-** Code Review
+** Revisión de Código
 
-- *Example* *1*: Sample program that shows how to declare variables.
+- *Ejemplo* *1*: Programa de ejemplo que muestra cómo declarar variables.
 
 .play variables/example1.go
 
-** Built-in Types
-Types provide integrity and readability by asking 2 questions:
+** Tipos Básicos
+Los tipos proporcionan integridad y legibilidad haciendo 2 preguntas:
 
-- What is the amount of memory to allocate? (e.g. 1, 2, 4, 8 bytes)
-- What does that memory represent? (e.g. int, uint, bool,..)
+- ¿Cuánta memoria se asigna? (por ejemplo, 1, 2, 4, 8 bytes)
+- ¿Qué representa la memoria? (por ejemplo, int, uint, bool...) 
 
-Types can be specific to a precision such as int32 or int64:
+Los tipos pueden especificar una precisión, tales como int32 o int64:
 
-- uint8 represents an unsigned integer with 1 byte of allocation
-- int32 represents a signed integer with 4 bytes of allocation. When you declare a type
-using a non-precision based type (unit, int) the size of the value is based on the
-architecture being used to build the program:
+- uint8 representa un entero sin signo con 1 byte de asignación.
+- int32 representa un entero con signo con 4 bytes de asignación. Cuando declaras un tipo
+utilizando un tipo que no espcifica la precisión (uint, int), el tamaño del valor está basado en la
+arquitectura utilizada para construir el programa:
 
-- 32 bit arch: int represents a signed int at 4 bytes of memory allocation
-- 64 bit arch: int represents a signed int at 8 bytes of memory allocation
+- Arquitecturas de 32 bit: int representa un entero con signo con 4 bytes de asignación.
+- Arquitecturas de 64 bit: int representa un entero con signo con 8 bytes de asignación.
 
-** Word Size
+** Tamaño de Palabra
 
-The word size represents the amount of memory allocation required to store integers
-and pointers for a given architecture. For example:
+El tamaño de palabra representa la cantidad de memoria asignada requerida para almacenar enteros
+y punteros para una arquitectura dada. Por ejemplo:
 
-- 32 bit arch: word size is 4 bytes of memory allocation
-- 64 bit arch: word size is 8 bytes of memory allocation
+- Arquitecturas de 32 bit: el tamaño de palabra es 4 bytes de asignación de memoria.
+- Arquitecturas de 64 bit: el tamaño de palabra es 8 bytes de asignación de memoria.
 
-This is important because Go has internal data structures (maps, channels, slices,
-interfaces, and functions) that store integers and pointers. The size of these data
-structures will be based on the architecture being used to build the program.
+Ésto es importante porque Go tiene estructuras de datos internas (mapas, channels, slices,
+interfaces, y funciones) que almacenan enteros y punteros. El tamaño de estas estructuras
+de datos se basará en la arquitectura utilizada para construir el programa.
 
-In Go, the amount of memory allocated for a value of type int, a pointer, or a word
-will always be the same on the same architecture.
+En Go, la candidad de memoria asignada para un valor de tipo int, un puntero, o una palabra
+siempre será el mismo para una misma arquitectura.
 
-** Zero Value Concept
-Every single value you construct in Go is initialized at least to its zero value state
-unless you specify the initialization value at construction. The zero value is the setting
-of every bit in every byte to zero.
+** Concepto del Valor Cero
+Cada valor que construyes en Go es inicializado al menos en su estado de valor cero,
+a menos que especifiques el valor de inicialización al construirlo. El valor cero es la configuración
+de cada bit en cada byte como cero.
 
 This is done for data integrity and it’s not free. It takes time to push electrons
 through the machine to reset those bits, but you should always take integrity over
 performance.
+Ésto se hace por la integridad del dato, y no es gratis. Lleva tiempo empujar electrones
+a través de la máquina para resetear esos bits, pero siempre deberías preferir integridad sobre
+rendimiento.
 
-    Type               Zero Value
-    Boolean            false
-    Integer            0
-    Float              0
-    Complex            0i
-    String             "" (empty)
-    Pointer            nil
+    Tipo              Valor Cero
+    Booleano          false
+    Entero            0
+    Flotante          0
+    Complejo          0i
+    Cadena            "" (cadena vacía)
+    Puntero           nil
 
-** Declare and Initialize
-The keyword var can be used to construct values to their zero value state for all types.
+** Declaración e Inicialización
+La palabra reservada var puede utilizarse para contruir valores a su estado de valor cero, para todos los tipos.
 
     var a int
     var b string
@@ -78,89 +81,89 @@ The keyword var can be used to construct values to their zero value state for al
     fmt.Printf("var c float64 \t %T [%v]\n", c, c)
     fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-Output:
+Salida:
 
     var a int    	int [0]
     var b string 	string []
     var c float64	float64 [0]
     var d bool   	bool [false]
 
-Strings use the UTF8 character set, but are really just a collection of bytes.
+Las cadenas de caracteres utilizan UTF8 como conjunto de caracteres, pero en realidad son una colección de bytes.
 
-A string is a two-word internal data structure in Go:
+Una cadena de caracteres en Go es una estructura de datos interna compuesta de dos palabras:
 
-- The first word represents a pointer to a backing array of bytes
-- The second word represents the length or the number of bytes in the backing array
-- If the string is set to its zero value state, then the first word is nil and the
-second word is 0.
+- La primera palabra representa un puntero al arreglo que da soporte a los bytes.
+- La segunda palabra representa la longitud o el número de bytes en el arreglo de soporte.
+- Si la cadena se asigna a su estado de valor cero, entonces la primera palabra es nil y la segunda palabra es 0.
 
-Using the short variable declaration operator, you can declare, construct, and
-initialize a value all at the same time.
+Utilizando el operador corto de declaración de variable, puedes declarar, contruir,
+e inicializar un valor todo al mismo tiempo.
 
     aa := 10       // int [10]
-    bb := "hello"  // string [hello]
+    bb := "hola"   // string [hola]
     cc := 3.14159  // float64 [3.14159]
     dd := true     // bool [true]
 
     fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
-    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("bb := \"hola\" \t %T [%v]\n", bb, bb)
     fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
     fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-Output:
+Salida:
 
     aa := 10         int [10]
-    bb := "hello"    string [hello]
+    bb := "hola"     string [hola]
     cc := 3.14159    float64 [3.14159]
     dd := true       bool [true]
 
-** Conversion vs Casting
+** Conversión vs Casting
 
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a
-set of bytes to a different representation, the bytes need to be copied to a new
-memory location for the new representation.
+Go no tiene casting, pero sí conversión. En lugar de decirle al compilador que mapee un
+conjunto de bytes a una representación diferente, los bytes necesitan ser copiados al nuevo
+lugar de memoria para la nueva representación.
 
     aaa := int32(10)
     fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
 
-    Output:
+    Salida:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if you need to perform
-an actual casting operation. You should really avoid that and be honest with yourself
-why you are considering using it. Performing a conversion provides the highest level
-of integrity for these types of operations.
+Go tiene un paquete en la librería estándar llamado unsafe, por si necesitas realizar
+una operación de casting. En realidad deberías evitarlo y ser honesto contigo mismo
+sabiendo por qué estás considerando su uso. Realizar una conversión proporciona el nivel más alto
+de integridad para este tipo de operaciones.
 
-** Notes
+** Notas
 
-- The purpose of all programs and all parts of those programs is to transform data from one form to the other.
-- Code primarily allocates, reads and writes to memory.
-- Understanding type is crucial to writing good code and understanding code.
-- If you don't understand the data, you don't understand the problem.
-- You understand the problem better by understanding the data.
-- When variables are being declared to their zero value, use the keyword var.
-- When variables are being declared and initialized, use the short variable declaration operator.
+- El propósito de cualquier programa y de cualquier parte de esos programas es transformar datos de una a otra forma.
+- El código principalmente asigna, lee y escribe a memoria.
+- Comprender el tipado es crucial para escribir buen código y entenderlo.
+- Si no comprendes los datos, entonces no comprendes el problema.
+- Comprendes mejor el problema si comprendes los datos.
+- Cuando las variables son declaradas a su valor cero, utiliza la palabra reservada var.
+- Cuando las variables son declaradas e inicializadas, utiliza el operador corto de declaración de variable.
 
-** Extra Reading
+** Lecturas Extra
 
-- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
+- [[http://golang.org/ref/spec#Boolean_types][Tipos Básicos]]    
 - [[https://golang.org/doc/effective_go.html#variables][Variables]]    
 - [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
 - [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
 - [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
 
-* Exercises
+* Ejercicios
 
 Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utiliza la plantilla como punto de partida para completar los ejercicios. Una posible solución es proporcionada.
 
-** Exercise 1
+** Ejercicio 1
 
-*Part* *A:* Declare three variables that are initialized to their zero value and
-three declared with a literal value. Declare variables of type string, int and bool.
-Display the values of those variables.
+*Parte* *A:* Declara tres variables que estén inicializadas a su valor cero y
+tres declaradas con su valor literal. Declara variables de tipo cadena, entero y booleano.
+Muestra los valores de esas variables.
 
-*Part* *B:* Declare a new variable of type float32 and initialize the variable by
-converting the literal value of Pi (3.14).
+*Parte* *B:* Declara una nueva variable de tipo float32 e inicializa la variable
+convirtiendo el valor literal de Pi (3.14).
 
 .play variables/exercise1.go
 .play variables/answer1.go
