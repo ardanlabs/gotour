@@ -1,23 +1,23 @@
-Decoupling
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+Kupungua kwa(Decoupling)
+Muundo huenda zaidi ya mechanics ya aina ya kupachika na ni zaidi ya dhana tu.
 
-* Decoupling
+* Decoupling(Kupungua kwa)
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- Iwapo Unahitaji msaada wa kifedha, tumia  [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. It's the key for maintaining stability in your software by having the
-ability to adapt to the data and transformation changes that are coming.
+Njia bora ya kuchukua faida ya kupachika ni kupitia muundo wa muundo
+Mfano. Ni ufunguo wa kudumisha utulivu katika programu yako kwa kuwa na
+Uwezo wa kukabiliana na mabadiliko ya data na mabadiliko ambayo yanakuja.
 
-** Code Review
+** Mapitio ya Code
 
-- *Example* *1:* Struct Composition
-- *Example* *2:* Decoupling With Interface
-- *Example* *3:* Interface Composition
-- *Example* *4:* Decoupling With Interface Composition
-- *Example* *5:* Remove Interface Pollution
-- *Example* *6:* More Precise API
+- *Mfano wa * *1:* Muundo wa muundo(Struct)
+- *Mfano wa* *2:* Kuunganisha na interface
+- *Mfano wa* *3:*  Muundo wa interface
+- *Mfano wa* *4:* Decoupling na muundo wa interface
+- *Mfano wa* *5:* Ondoa Uchafuzi wa interface
+- *Mfano wa* *6:* API sahihi zaidi
 
 .play composition/decoupling/example1.go
 .play composition/decoupling/example2.go
@@ -26,10 +26,10 @@ ability to adapt to the data and transformation changes that are coming.
 .play composition/decoupling/example5.go
 .play composition/decoupling/example6.go
 
-** Decoupling Mechanics
+** Njia Tofauti za Decoupling
 
-The idea is to compose larger types from smaller types and focus on the composition
-of behavior.
+Wazo ni kutunga aina kubwa kutoka kwa aina ndogo na kuzingatia muundo
+ya tabia.
 
     type Xenia struct {
         Host    string
@@ -49,9 +49,9 @@ of behavior.
         }
     }
 
-The Xenia type represents a system that you need to pull data from. The implementation
-is not important. What is important is that the method Pull can succeed, fail, or
-not have any data to pull.
+Aina ya Xenia inawakilisha mfumo ambao unahitaji kuvuta data kutoka. Utekelezaji wa
+Sio ya muhimu. Cha muhimu ni kwamba njia ya kuvuta inaweza kufanikiwa, kushindwa, au
+Hakuna data ya kuvuta.
 
     type Pillar struct {
         Host    string
@@ -63,12 +63,12 @@ not have any data to pull.
         return nil
     }
 
-The Pillar type represents a system that you need to store data into. What is
-important again is that the method Store can succeed or fail.
+Aina ya Pillar inawakilisha mfumo ambao unahitaji kuhifadhi data ndani. Nini maana ya
+Muhimu tena ni kwamba njia ya kuhifadhi inaweza kufanikiwa au kushindwa.
 
-These two types represent a primitive layer of code that provides the base behavior
-required to solve the business problem of pulling data out of Xenia and storing
-that data into Pillar.
+Aina hizi mbili zinawakilisha safu ya zamani ya nambari ambayo hutoa tabia ya msingi
+Inahitajika kutatua shida ya biashara ya kuvuta data kutoka kwa Xenia na kuhifadhi
+data hiyo kwenye Pillar.
 
     func Pull(x *Xenia, data []Data) (int, error) {
         for i := range data {
@@ -90,11 +90,11 @@ that data into Pillar.
         return len(data), nil
     }
 
-The next layer of code is represented by these two functions, Pull and Store. They
-build on the primitive layer of code by accepting a collection of data values to
-pull or store in the respective systems. These functions focus on the concrete types
-of Xenia and Pillar since those are the systems the program needs to work with at
-this time.
+Safu inayofuata ya nambari inawakilishwa na kazi hizi mbili, Pull na Hifadhi. Wao
+kujenga juu ya safu ya zamani ya kanuni kwa kukubali mkusanyiko wa maadili ya data kwa
+kuvuta au kuhifadhi katika mifumo husika. Kazi hizi zinazingatia aina halisi
+ya Xenia na Pillar kwani hizo ni mifumo ambayo programu inahitaji kufanya kazi nayo
+Wakati huu.
 
     func Copy(sys *System, batch int) error {
         data := make([]Data, batch)
@@ -113,17 +113,17 @@ this time.
         }
     }
 
-The Copy function builds on top of the Pull and Store functions to move all the
-data that is pending for each run. If you notice the first parameter to Copy, it’s
-a type called System.
+Kazi ya Nakala hujenga juu ya kazi za Pull na Duka ili kuhamisha yote
+Data ambayo inasubiri kwa kila kukimbia. Ukiona parameta ya kwanza ya kunakili, ni
+Aina inayoitwa System.
 
     type System struct {
         Xenia
         Pillar
     }
 
-The initial idea of the System type is to compose a system that knows how to Pull
-and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+Wazo la awali la aina ya Mfumo ni kutunga mfumo ambao unajua jinsi ya kuvuta
+na Hifadhi. Katika kesi hii, kutunga uwezo wa Pull na Hifadhi kutoka Xenia na Pillar.
 
     func main() {
         sys := System{
@@ -142,20 +142,20 @@ and Store. In this case, composing the ability to Pull and Store from Xenia and 
         }
     }
 
-Finally, the main function can be written to construct a Xenia and Pillar within
-the composition of a System. Then the System can be passed to the Copy function
-and data can begin to flow between the two systems.
+Hatimaye, kazi kuu inaweza kuandikwa ili kujenga Xenia na Pillar ndani ya
+Muundo wa mfumo. Kisha mfumo unaweza kupitishwa kwa kazi ya Nakala
+na data inaweza kuanza kutiririka kati ya mifumo miwili.
 
-With all this code, you now have my first draft of a concrete solution to a concrete
-problem.
+Kwa nambari hii yote, sasa una rasimu yangu ya kwanza ya suluhisho halisi kwa saruji
+Tatizo.
 
-** Decoupling With Interfaces
+**  Kuunganisha na Interfaces
 
-The next step is to understand what could change in the program. In this case, what
-can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
-be Alice and Bob. With this knowledge, you want to decouple the existing concrete
-solution from this change. To do that, you want to change the concrete functions to
-be polymorphic functions.
+Hatua inayofuata ni kuelewa nini kinaweza kubadilika katika programu. Katika kesi hii, nini
+Inaweza kubadilika ni mifumo yenyewe. Leo ni Xenia na Pillar, kesho inaweza
+Alisha & Bob. Kwa ufahamu huu, unataka kuondoa saruji iliyopo
+suluhisho la mabadiliko hayo. Ili kufanya hivyo, unataka kubadilisha kazi halisi kuwa
+Kuwa na kazi za polymorphic.
 
     func Pull(p Puller, data []Data) (int, error) {
         for i := range data {
@@ -177,11 +177,11 @@ be polymorphic functions.
         return len(data), nil
     }
 
-Currently, the Pull function accepts a Xenia value and the Store function accepts
-a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
-important is a concrete value that knows how to Pull and Store. You can change these
-concrete functions to be polymorphic by asking for data based on what it can do
-instead of what it is.
+Hivi sasa, kazi ya Pull inakubali thamani ya Xenia na kazi ya Duka inakubali
+thamani ya nguzo. Mwishowe, haikuwa Xenia na Pillar ambayo ilikuwa muhimu, ni nini
+Muhimu ni thamani halisi ambayo inajua jinsi ya kuvuta na kuhifadhi. Unaweza kubadilisha hizi
+kazi halisi kuwa polymorphic kwa kuuliza data kulingana na nini inaweza kufanya
+badala ya kile ambacho ni.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,12 +191,13 @@ instead of what it is.
         Store(d *Data) error
     }
 
-These two interfaces describe what concrete data must do and it’s these types that
-are replaced in the declaration of the Pull and Store functions. Now these functions
-are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
-Storer, they can be passed into the functions.
+Violesura hivi viwili vinaelezea ni nini data halisi inapaswa kufanya na ni aina hizi ambazo
+zinabadilishwa katika tamko la kazi za Pull na Hifadhi. Kwa sasa kazi hizi
+Ni ya polymorphic. Wakati Alice na Bob wanatangazwa na kutekelezwa kama Puller na
+Hifadhi, zinaweza kupitishwa katika kazi.
 
-You am not done yet. The Copy function needs to be polymorphic as well.
+
+Bado hujafanya hivyo. Kazi ya nakala inahitaji kuwa polymorphic pia.
 
     func Copy(ps PullStorer, batch int) error {
         data := make([]Data, batch)
@@ -215,20 +216,20 @@ You am not done yet. The Copy function needs to be polymorphic as well.
         }
     }
 
-The Copy function is no longer asking for a System value, but any concrete value
-that knows how to both Pull and Store.
+Kazi ya Nakala haiombi tena thamani ya Mfumo, lakini thamani yoyote halisi
+hiyo inajua jinsi ya kuvuta na kuhifadhi.
 
     type PullStorer interface {
         Puller
         Storer
     }
 
-The PullStorer interface is declared through the use of composition. It’s composed
-of the Puller and Storer interfaces. Work towards composing larger interfaces
-from smaller ones.
+Kiolesura cha PullStorer kinatangazwa kupitia matumizi ya muundo. Imetungwa
+ya interfaces ya Puller na Storer. Kazi kuelekea kuunda interfaces kubwa
+kutoka kwa wadogo zaidi.
 
-Notice how the PullStorer variable is now being passed into the Pull and Store
-functions. How is this possible when the type information is different?
+Angalia jinsi tofauti ya PullStorer sasa inapitishwa kwenye Pull na Duka
+Kazi. Je, hii inawezekanaje wakati habari ya aina ni tofauti?
 
     // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
@@ -236,17 +237,17 @@ functions. How is this possible when the type information is different?
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-You always need to remember, you am never passing an interface value around my program
-since they don’t exist and are valueless. you can only pass concrete data. So the
-concrete data stored inside of the interface ps variable is what’s being passed
-to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
-know how to Pull and Store?
+Daima unahitaji kukumbuka, wewe kamwe kupita thamani interface karibu na programu yangu
+kwa kuwa hazipo na hazina thamani. Unaweza tu kupitisha data halisi. Kwa hivyo
+Data halisi iliyohifadhiwa ndani ya kiolesura cha PS ni nini kinachopitishwa
+Kuvuta na kuhifadhi. Sio kweli, thamani halisi iliyohifadhiwa ndani ya ps lazima
+Je, unajua jinsi ya kuhifadhi na kuhifadhi?
 
 .image /tour/eng/static/img/comp1.png
 
-Since a System is composed from a Xenia and Pillar, System implements the PullStorer
-interface. With these changes, you can now create new concrete types that implement
-the PullStorer interface.
+Kwa kuwa Mfumo umeundwa kutoka kwa Xenia na Pillar, Mfumo hutekeleza PullStorer
+Interface. Kwa mabadiliko haya, sasa unaweza kuunda aina mpya za saruji ambazo zinatekeleza
+interface ya PullStorer.?
 
     type System1 struct {
         Xenia
@@ -268,21 +269,22 @@ the PullStorer interface.
         Pillar
     }
 
-When you think about this more, declaring different System types for all the possible
-combinations is not realistic. This will work, but the maintenance nightmare requires
-a better solution.
+Unapofikiria juu ya hii zaidi, kutangaza aina tofauti za Mfumo kwa kila kitu kinachowezekana
+Mchanganyiko sio wa kweli. Hii itafanya kazi, lakini ndoto ya matengenezo inahitaji
+suluhisho bora zaidi.
 
-** Interface Composition
+** Muundo wa Interface
 
-What if you decided to compose my concrete system type from two interface types?
+
+Ikiwa umeamua kutunga aina yangu ya mfumo halisi kutoka kwa aina mbili za interface?
 
     type System struct {
         Puller
         Storer
     }
 
-This is an interesting solution. This would allow the application to inject the
-concrete Puller or Storer into the system at application startup. 
+Hii ni suluhisho la kuvutia. Hii itaruhusu programu hiyo kuingiza
+saruji Puller au Storer katika mfumo wakati wa kuanza maombi. 
 
     func main() {
         sys := System{
@@ -301,36 +303,36 @@ concrete Puller or Storer into the system at application startup.
         }
     }
 
-This one system type implements the PullStorer interface for all possible
-combinations of concrete types.
+Aina hii ya mfumo mmoja hutekeleza kiolesura cha PullStorer kwa wote iwezekanavyo
+mchanganyiko wa aina halisi.
 
 .image /tour/eng/static/img/comp2.png
 
-With this change, the application is fully decoupled from changes to a new system
-that may come online over time.
+Kwa mabadiliko haya, programu imeondolewa kabisa kutoka kwa mabadiliko ya mfumo mpya
+Hii inaweza kuwa online kwa muda.
 
-** Precision Review
+** Mapitio ya Usahihi
 
-The next question to ask is, are the polymorphic functions as precise as they
-otherwise could be? This is a part of the engineering process that can’t be skipped.
-The answer is no, two changes can be made.
+Swali linalofuata kuuliza ni, ni kazi za polymorphic kama sahihi kama wao
+vinginevyo inaweza kuwa? Hii ni sehemu ya mchakato wa uhandisi ambao hauwezi kuruka.
+Jibu ni hapana, mabadiliko mawili yanaweza kufanywa.
 
     func Copy(sys *System, batch int) error {
 
-The Copy function doesn’t need to be polymorphic anymore since there will only be a
-single System type. The PullStorer interface type can be removed from the program.
-Remember, you moved the polymorphism inside the type when you used composition with the
-interface types.
+Kazi ya Nakala haiitaji kuwa polymorphic tena kwani kutakuwa na tu
+aina ya mfumo mmoja. Aina ya kiolesura cha PullStorer inaweza kuondolewa kutoka kwa programu.
+Kumbuka, ulihamisha polymorphism ndani ya aina wakati ulitumia muundo na
+aina ya interface.
 
     func Copy(p Puller, s Storer, batch int) error {
 
-This is another change that can be made to the Copy function. This change makes the
-function more precise and polymorphic again. Now the function is asking for exactly
-what it needs based on what the concrete data can do.
+Hii ni mabadiliko mengine ambayo yanaweza kufanywa kwa kazi ya Nakala. Mabadiliko haya yanafanya
+kazi sahihi zaidi na polymorphic tena. Sasa kazi ni kuuliza kwa ajili ya hasa
+kile kinachohitajika kulingana na kile data halisi inaweza kufanya.
 
 .image /tour/eng/static/img/comp3.png
 
-With that change the System struct type can be removed from the program as well.
+Kwa mabadiliko hayo aina ya muundo wa Mfumo inaweza kuondolewa kutoka kwa programu pia.
 
     func main() {
         x := Xenia{
@@ -348,24 +350,25 @@ With that change the System struct type can be removed from the program as well.
         }
     }
 
-By removing the PullStorer and System types, the program simplifies. The main
-function can focus on constructing the concrete Puller and Storer values necessary
-for that moving data. The type system and APIs are more precise.
-This idea of precision comes from Edsger W. Dijkstra
+Kwa kuondoa aina za PullStorer na Mfumo, programu hurahisisha. Kuu
+kazi inaweza kuzingatia kujenga thamani halisi ya Puller na Storer muhimu
+kwa data hiyo ya kusonga. Mfumo wa aina na API ni sahihi zaidi.
+Wazo hili la usahihi linatokana na Edsger W. Dijkstra
 
-"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+"Lengo la abstraction sio kuwa wazi, lakini kuunda kiwango kipya cha semantic ambacho mtu anaweza kuwa sahihi kabisa". - Edsger W. Dijkstra
 
-** Notes
+** Madokezo
 
-- This is much more than the mechanics of type embedding.
-- Declare types and implement workflows with composition in mind.
-- Understand the problem you are trying to solve first. This means understanding the data.
-- The goal is to reduce and minimize cascading changes across your software.
-- Interfaces provide the highest form of composition.
-- Don't group types by a common DNA but by a common behavior.
-- Everyone can work together when we focus on what we do and not what we are.
 
-** Quotes
+- Hii ni zaidi ya mechanics ya kupachika aina.
+- Kutangaza aina na kutekeleza mtiririko wa kazi na muundo katika akili.
+- Fahamu tatizo unalojaribu kulitatua kwanza. Hii inamaanisha kuelewa data.
+- Lengo ni kupunguza na kupunguza mabadiliko ya cascading katika programu yako.
+- Interfaces hutoa aina ya juu ya muundo.
+- Usiweke aina kwa DNA ya kawaida lakini kwa tabia ya kawaida.
+- Kila mtu anaweza kufanya kazi pamoja wakati tunazingatia kile tunachofanya na sio kile tunachofanya.
+
+** Ananukuu
 
 "A good API is not just easy to use but also hard to misuse." - JBD
 
@@ -375,11 +378,11 @@ This idea of precision comes from Edsger W. Dijkstra
 
 "Duplication is far cheaper than the wrong abstraction. - Sandi Metz
 
-** Design Guidelines
+** Miongozo ya Ubunifu
 
-Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+Jifunze kuhusu [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
 
-** Extra Reading
+** Kusoma kwa ziada
 
 - [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
 - [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
@@ -388,15 +391,15 @@ Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/
 - [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
 - [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
 
-* Exercises
+* Mazoezi
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Tumia template kama hatua ya kuanza kukamilisha mazoezi. Suluhisho linalowezekana linatolewa.
 
-** Exercise 1
+** Zoezi la kwanza
 
-Using the template, declare a set of concrete types that implement the set of predefined
-interface types. Then create values of these types and use them to complete a set of
-predefined tasks.
+Kutumia template, tangaza seti ya aina halisi ambazo zinatekeleza seti ya predefined
+aina ya interface. Kisha tengeneza maadili ya aina hizi na uzitumie kukamilisha seti ya
+majukumu yaliyoainishwa awali.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go
