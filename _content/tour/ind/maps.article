@@ -1,24 +1,24 @@
 Maps
-A map is a data structure that provides support for storing and accessing data based on a key.
+Map adalah struktur data yang menyediakan dukungan untuk menyimpan dan mengakses data berdasarkan suatu kunci.
 
 * Maps
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-A map is a data structure that provides support for storing and accessing data
-based on a key. It uses a hash map and bucket system that maintains a contiguous
-block of memory underneath.
+Map adalah struktur data yang menyediakan dukungan untuk menyimpan dan mengakses data
+berdasarkan sebuah kunci. Ia menggunakan hash map dan bucket system yang menjaga kedekatan
+blok memori di bawahnya.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Declare, write, read, and delete
-- *Example* *2:* Absent keys
-- *Example* *3:* Map key restrictions
-- *Example* *4:* Map literals and range
-- *Example* *5:* Sorting maps by key
-- *Example* *6:* Taking an element's address
-- *Example* *7:* Maps are Reference Types
+- *Contoh* *1:* Pendeklarasian, penulisan, pembacaan, dan penghapusan
+- *Contoh* *2:* Kunci yang tidak ada
+- *Contoh* *3:* Batasan kunci pada map
+- *Contoh* *4:* Literal map dan operasi range
+- *Contoh* *5:* Mengurutkan map berdasarkan kunci
+- *Contoh* *6:* Mengambil alamat memori dari sebuah elemen
+- *Contoh* *7:* Map adalah sebuah tipe data referensi
 
 .play maps/example1.go
 .play maps/example2.go
@@ -28,31 +28,30 @@ block of memory underneath.
 .play maps/example6.go
 .play maps/example7.go
 
-** Declaring And Constructing Maps
+** Mendeklarasikan dan Membuat Maps
 
-Declaring and constructing a map can be done in several ways.
+Mendeklarasikan dan membuat map dapat dilakukan dengan beberapa cara.
 
     type user struct {
         name     string
         username string
     }
 
-    // Construct a map set to its zero value,
-    // that can store user values based on a key of type string.
-    // Trying to use this map will result in a runtime error (panic).
+    // Buatlah map yang diatur ke nilai nol nya,
+    // yang dapat menyimpan data pengguna berdasarkan kunci bertipe string.
+    // Mencoba menggunakan map ini akan mengakibatkan runtime error (panic).
     var users map[string]user
 
-    // Construct a map initialized using make,
-    // that can store user values based on a key of type string.
+    // Membuat map yang diinisialisasi menggunakan operasi make,
+    // yang dapat menyimpan nilai pengguna berdasarkan kunci bertipe string.
     users := make(map[string]user)
 
-    // Construct a map initialized using empty literal construction,
-    // that can store user values based on a key of type string.
+    // Membuat map yang diinisialisasi menggunakan konstruksi literal kosong,
+    // yang dapat menyimpan nilai pengguna berdasarkan kunci bertipe string.
     users := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking.
-The use of the built-in function make and literal construction constructs a map
-ready for use.
+Map yang diatur ke nilai nol nya tidak dapat digunakan dan akan menyebabkan program Anda panik.
+Penggunaan fungsi bawaan make dan konstruksi literal akan membuat map siap digunakan.
 
     func main() {
         users := make(map[string]user)
@@ -67,17 +66,17 @@ ready for use.
         }
     }
 
-Output:
+Keluaran:
 
     Roy {Rob Roy}
     Ford {Henry Ford}
     Mouse {Mickey Mouse}
     Jackson {Michael Jackson}
 
-If the built-in function make is used to construct a map, then the assignment operator
-can be used to add and update values in the map. The order of how keys/values are
-returned when ranging over a map is undefined by the spec and up to the compiler to
-implement. 
+Jika fungsi bawaan make digunakan untuk membuat map, maka operator penugasan
+dapat digunakan untuk menambah dan memperbarui nilai pada map. Urutan bagaimana kunci/nilainya
+dikembalikan ketika melakukan operasi range pada map tidak ditentukan oleh spesifikasi dan
+terserah kepada kompilator untuk melakukannya.
 
     func main() {
         users := map[string]user{
@@ -92,21 +91,21 @@ implement.
         }
     }
 
-Output:
+Keluaran:
 
     Ford {Henry Ford}
     Jackson {Michael Jackson}
     Roy {Rob Roy}
     Mouse {Mickey Mouse}
 
-In this case, the output was returned in a different order from how they are
-listed in the construction. The current algorithm for 1.16 will return the results
-in a random order once the number of values reaches a certain limit. Once again,
-this is a compiler implementation that is allowed to change. You can’t depend on it.
+Dalam hal ini, keluaran dikembalikan dalam urutan yang berbeda dari sebelumnya
+tercantum dalam pembuatan awal. Algoritma saat ini untuk versi 1.16 akan mengembalikan hasilnya
+dalam urutan acak setelah jumlah nilai mencapai batas tertentu. Sekali lagi,
+ini adalah implementasi dari kompilator yang boleh diubah. Anda tidak dapat bergantung padanya.
 
-** Lookups and Deleting Map Keys
+** Mencari dan Menghapus Kunci dari Map
 
-Once data is stored inside of a map, to extract any data a key lookup is required.
+Setelah data disimpan di dalam map, untuk mengambil data apa pun, diperlukan pencarian dengan kunci.
 
     user1, exists1 := users["Bill"]
     user2, exists2 := users["Ford"]
@@ -114,66 +113,67 @@ Once data is stored inside of a map, to extract any data a key lookup is require
     fmt.Println("Bill:", exists1, user1)
     fmt.Println("Ford:", exists2, user2)
 
-Output:
+Keluaran:
 
     Bill: false { }
     Ford: true {Henry Ford}
 
-To perform a key lookup, square brackets are used with the map variable. Two
-values can be returned from a map lookup, the value and a boolean that represents
-if the value was found or not. If you don’t need to know this, you can leave the
-"exists" variable out.
+Untuk melakukan pencarian kunci, tanda kurung siku digunakan pada variabel map. Dua
+nilai dapat dikembalikan dari pencarian map, nilai dan boolean yang mewakili
+apakah nilainya ditemukan atau tidak. Jika Anda tidak perlu mengetahui hal ini,
+Anda dapat mengabaikan variabel "exist".
 
-When a key is not found in the map, the operation returns a value of the map type
-set to its zero value state. You can see this with the "Bill" key lookup. Don’t use
-zero value to determine if a key exists in the map or not since zero value may be
-valid and what was actually stored for the key.
+Ketika kunci tidak ditemukan di map, operasi mengembalikan nilai tipe map
+diatur ke status nilai nolnya. Anda dapat melihatnya dengan pencarian kunci "Bill". Jangan gunakan
+nilai nol untuk menentukan apakah ada kunci di map atau tidak karena mungkin ada nilai nol
+valid dan apa yang sebenarnya disimpan untuk kunci tersebut.
 
     delete(users, "Roy")
 
-There is a built-in function named delete that allows for the deletion of data
-from the map based on a key.
+Ada fungsi bawaan bernama delete yang memungkinkan penghapusan data
+dari map berdasarkan kunci.
 
-** Key Map Restrictions
+** Batasan Kunci pada Map
 
-Not all types can be used as a key.
+Tidak semua tipe data bisa digunakan sebagai kunci pada map
 
     type slice []user
     Users := make(map[slice]user)
 
-Compiler Error:
+Error Kompilator:
 
     invalid map key type users
 
-A slice is a good example of a type that can’t be used as a key. Only values that
-can be run through the hash function are eligible. A good way to recognize types
-that can be a key is if the type can be used in a comparison operation. You can’t
-compare two slice values.
+Slice adalah contoh baik dari tipe data yang tidak dapat digunakan sebagai kunci.
+Hanya nilai yang dapat dijalankan melalui fungsi hash yang memenuhi syarat.
+Cara yang baik untuk mengenali tipe data yang dapat menjadi kunci adalah
+jika tipe data tersebut dapat digunakan dalam operasi perbandingan.
+Anda tidak dapat membandingkan dua nilai slice.
 
-** Notes
+** Catatan
 
-- Maps provide a way to store and retrieve key/value pairs.
-- Reading an absent key returns the zero value for the map's value type.
-- Iterating over a map is always random.
-- The map key must be a value that is comparable.
-- Elements in a map are not addressable.
-- Maps are a reference type.
+- Map menyediakan cara untuk menyimpan dan mengambil pasangan kunci/nilai.
+- Membaca kunci yang tidak ada akan mengembalikan nilai nol.
+- Iterasi pada map selalu acak.
+- Kunci pada map harus berupa nilai yang dapat dibandingkan.
+- Elemen dalam map tidak dapat diambil alamat memorinya.
+- Map adalah tipe data referensi.
 
-** Links
+** Tautan
 
-- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand    
-- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy    
-- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
-- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
+- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Solusi telah disediakan.
 
-** Exercise 1
+** Latihan 1
 
-Declare and make a map of integer values with a string as the key. Populate the
-map with five values and iterate over the map to display the key/value pairs.
+Deklarasikan dan buat map nilai integer dengan string sebagai kuncinya. Isi
+map dengan lima nilai dan lakukan iterasi pada map untuk menampilkan pasangan kunci/nilai.
 
 .play maps/exercise1.go
 .play maps/answer1.go
