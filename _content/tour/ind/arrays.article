@@ -1,28 +1,16 @@
 Arrays
-Arrays are a special data structure in Go that allow us to allocate contiguous blocks of fixed size memory.
-Array adalah struktur data khusus di Go yang memungkinkan kita mengalokasikan blok memori berukuran tetap yang berdekatan.
+Array adalah struktur data khusus di Go yang memungkinkan kita mengalokasikan blok-blok memori berukuran tetap secara berdekatan.
 
 * Arrays
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
 - Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Arrays are a special data structure in Go that allow us to allocate contiguous
-blocks of fixed size memory. Arrays have some special features in Go related to
-how they are declared and viewed as types.
-Array adalah struktur data khusus di Go yang memungkinkan kita mengalokasikan data yang berdekatan
-blok memori berukuran tetap. Array memiliki beberapa fitur khusus di Go yang berhubungan dengan
-bagaimana mereka dideklarasikan dan dipandang sebagai tipe.
+Array merupakan struktur data khusus dalam Go yang memungkinkan kita mengalokasikan blok-blok memori berukuran tetap secara berdekatan.
+Array memiliki beberapa fitur khusus dalam Go terkait dengan cara mendeklarasikannya dan cara melihat sebagai tipe data.
 
-** Code Review
 ** Ulasan Kode
 
-- *Example* *1:* Declare, initialize and iterate
-- *Example* *2:* Different type arrays
-- *Example* *3:* Contiguous memory allocations
-- *Example* *4:* Range mechanics
 - *Contoh* *1:* Deklarasikan, inisiasi, dan iterasi
 - *Contoh* *2:* Macam-macam tipe array
 - *Contoh* *3:* Alokasi memori yang berdekatan
@@ -33,54 +21,38 @@ bagaimana mereka dideklarasikan dan dipandang sebagai tipe.
 .play arrays/example3.go
 .play arrays/example4.go
 
-** Declaring and Initializing Values
-** Mendeklarasikan dan Menginisiasi Nilainya
+** Mendeklarasikan dan Menginisiasi Nilai Array
 
-Declare an array of five strings initialized to its zero value state.
-Deklarasikan array lima string yang diinisialisasi ke status nilai nolnya.
+Deklarasikan sebuah array berisi lima string yang diinisialisasi ke dalam keadaan nilai nol (zero value).
 
     var strings [5]string
 
-A string is an immutable, two word, data structure representing a pointer to a
-backing array of bytes and the total number of bytes in the backing array. Since
-this array is set to its zero value state, every element is set to its zero value
-state. This means that each string has the first word set to nil and the second
-word set to 0.
-String adalah struktur data dua kata yang tidak dapat diubah yang mewakili penunjuk ke a
-array pendukung byte dan jumlah total byte dalam array pendukung. Sejak
-array ini disetel ke status nilai nolnya, setiap elemen disetel ke nilai nolnya
-negara. Ini berarti bahwa setiap string memiliki kata pertama yang disetel ke nil dan kata kedua
-kata disetel ke 0.
+Sebuah string adalah struktur data yang tidak dapat diubah (immutable), terdiri dari 2 satuan word,
+yang terdiri dari sebuah alamat memori (pointer) ke sebuah kumpulan bytes (backing array) dan total bytes dari kumpulan data tersebut.
+Karena array ini diatur ke dalam keadaan nilai nol (zero value), setiap elemennya diatur ke dalam keadaan nilai nol.
+Ini berarti setiap string memiliki satuan word pertama diatur menjadi `nil` dan
+satuan word kedua diatur menjadi 0.
 
 .image /tour/ind/static/img/a1.png
 
-** String Assignments
-** Penugasan terhadap String
+** Pengisian Nilai String
 
-What happens when a string is assigned to another string?
-Apa yang terjadi ketika sebuah string ditugaskan ke string lain?
+Apa yang terjadi ketika sebuah string nilainya diisikan ke string lain?
 
     strings[0] = "Apple"
 
-When a string is assigned to another string, the two word value is copied,
-resulting in two different string values both sharing the same backing array.
-Ketika sebuah string ditugaskan ke string lain, nilai dua kata disalin,
-menghasilkan dua nilai string yang berbeda, keduanya berbagi array pendukung yang sama.
+Ketika sebuah string diberikan nilainya ke string lain, nilai dari dua satuan word akan disalin,
+menghasilkan dua nilai string yang berbeda tetapi keduanya berbagi backing array yang sama.
 
 .image /tour/ind/static/img/a2.png
 
-The cost of copying a string is the same regardless of the size of a string, a
-two word copy.
-Biaya penyalinan string adalah sama berapa pun ukuran stringnya, a
-salinan dua kata.
+Biaya penyalinan string adalah sama berapa pun ukuran stringnya,
+salinan dari 2 satuan word tersebut
 
-** Iterating Over Collections
-** Mengulangi Koleksi
+** Melakukan Iterasi pada Kumpulan Data
 
-Go provides two different semantics for iterating over a collection. I can iterate
-using value semantics or pointer semantics.
-Go menyediakan dua semantik berbeda untuk melakukan iterasi pada suatu koleksi. Saya bisa mengulanginya
-menggunakan semantik nilai atau semantik penunjuk.
+Go menyediakan dua semantik berbeda untuk melakukan iterasi pada suatu koleksi.
+Saya bisa melakukan iterasi menggunakan semantik nilai atau semantik penunjuk.
 
     // Value Semantic Iteration
     for i, fruit := range strings {
@@ -93,27 +65,18 @@ menggunakan semantik nilai atau semantik penunjuk.
         println(i, strings[i])
     }
 
-When using value semantic iteration, two things happen. First, the collection I’m
-iterating over is copied and you iterate over the copy. In the case of an array, the
-copy could be expensive since the entire array is copied. In the case of a slice,
-there is no real cost since only the internal slice value is copied and not the
-backing array. Second, you get a copy of each element being iterated on.
-Saat menggunakan iterasi semantik nilai, ada dua hal yang terjadi. Pertama, koleksi saya
-mengulangi disalin dan Anda mengulangi salinannya. Dalam kasus array,
-copy bisa jadi mahal karena seluruh array disalin. Dalam kasus irisan,
+Saat menggunakan iterasi semantik nilai, ada dua hal yang terjadi. Pertama,
+koleksi yang sedang diiterasi akan disalin, dan Anda melakukan iterasi pada salinan tersebut.
+Dalam kasus array, salinan bisa jadi mahal karena seluruh array disalin. Dalam kasus slice,
 tidak ada biaya nyata karena hanya nilai irisan internal yang disalin dan bukan nilai irisannya
-susunan pendukung. Kedua, Anda mendapatkan salinan setiap elemen yang diulangi.
+susunan pendukung. Kedua, Anda mendapatkan salinan dari setiap elemen yang sedang diiterasi.
 
-When using pointer semantic iteration, you iterate over the original collection and I
-access each element associated with the collection directly.
-Saat menggunakan iterasi semantik penunjuk, Anda mengulangi koleksi asli dan I
-mengakses setiap elemen yang terkait dengan koleksi secara langsung.
+Ketika menggunakan iterasi semantik pointer, Anda melakukan iterasi pada koleksi asli,
+dan saya mengakses setiap elemen yang terkait dengan koleksi tersebut secara langsung.
 
-** Value Semantic Iteration
-** Nilai Iterasi Semantik
+** Iterasi Semantik Nilai
 
-Given the following code and output.
-Diberikan kode dan output berikut.
+Diberikan kode dan keluaran berikut.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i, fruit := range strings {
@@ -128,40 +91,24 @@ Keluaran:
     3 Grape
     4 Plum
 
-The strings variable is an array of 5 strings. The loop iterates over each string
-in the collection and displays the index position and the string value. Since this
-is value semantic iteration, the for range is iterating over its own shallow copy
-of the array and on each iteration the fruit variable is a copy of each string
-(the two word data structure).
-Variabel string adalah array yang terdiri dari 5 string. Loop mengulangi setiap string
-dalam koleksi dan menampilkan posisi indeks dan nilai string. Sejak ini
-adalah iterasi semantik nilai, rentang for mengulangi salinan dangkalnya sendiri
-dari array dan pada setiap iterasi variabel buah adalah salinan dari setiap string
-(struktur data dua kata).
+Variabel strings adalah sebuah array yang berisi 5 string. Perulangan melakukan iterasi
+pada setiap string dalam koleksi dan menampilkan posisi indeks dan nilai string.
+Karena ini adalah iterasi semantik nilai, `for range` melakukan iterasi pada salinan (shallow copy) dari array,
+dan pada setiap iterasi, variabel `fruit` adalah salinan dari setiap string (struktur data dua satuan word).
 
-Notice how the fruit variable is passed to the print function using value semantics.
-The print function is getting its own copy of the string value as well. By the time
-the string is passed to the print function, there are 4 copies of the string value
-(array, shallow copy, fruit variable and the print function’s copy). All 4 copies
-are sharing the same backing array of bytes.
-Perhatikan bagaimana variabel buah diteruskan ke fungsi print menggunakan semantik nilai.
-Fungsi print juga mendapatkan salinan nilai stringnya sendiri. Pada saat
-string diteruskan ke fungsi print, ada 4 salinan nilai string
-(array, salinan dangkal, variabel buah dan salinan fungsi cetak). Semua 4 salinan
-berbagi array backing byte yang sama.
+Perhatikan bagaimana variabel `fruit` dikirimkan ke fungsi `print` menggunakan semantik nilai.
+Fungsi print mendapatkan salinan sendiri dari nilai string juga. Pada saat string dikirimkan ke fungsi print,
+ada 4 salinan dari nilai string (array, salinan dangkal, variabel `fruit`, dan salinan fungsi print).
+Keempat salinan tersebut berbagi backing array yang sama.
 
 .image /tour/ind/static/img/a3.png
 
-Making copies of the string value is important because it prevents the string value
-from ever escaping to the heap. This eliminates non-productive allocation on the heap.
-Membuat salinan nilai string penting karena mencegah nilai string
-dari pernah melarikan diri ke heap. Hal ini menghilangkan alokasi non-produktif pada heap.
+Membuat salinan dari nilai string penting karena itu mencegah nilai string tersebut keluar ke heap.
+Hal ini menghilangkan alokasi yang sia-sia di heap.
 
-** Pointer Semantic Iteration
 ** Iterasi Semantik Pointer
 
-Given the following code and output.
-Diberikan kode dan output berikut.
+Diberikan kode dan keluaran berikut.
 
     strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
     for i := range strings {
@@ -176,56 +123,38 @@ Keluaran:
     3 Grape
     4 Plum
 
-Once again, the strings variable is an array of 5 strings. The loop iterates over
-each string in the collection and displays the index position and the string value.
-Since this is pointer semantic iteration, the for range is iterating over the
-strings array directly and on each iteration, the string value for each index
-position is accessed directly for the print call.
-Sekali lagi, variabel string adalah array yang terdiri dari 5 string. Perulangan berulang
-setiap string dalam koleksi dan menampilkan posisi indeks dan nilai string.
-Karena ini adalah iterasi semantik penunjuk, rentang for diulangi
-strings array secara langsung dan pada setiap iterasi, nilai string untuk setiap indeks
-posisi diakses langsung untuk panggilan cetak.
+Sekali lagi, variabel `strings` adalah sebuah array yang berisi 5 string.
+Perulangan melakukan iterasi pada setiap string dalam koleksi dan menampilkan posisi indeks dan nilai string.
+Karena ini adalah iterasi semantik pointer, `for range` melakukan iterasi langsung pada array strings,
+dan pada setiap iterasi, nilai string untuk setiap posisi indeks diakses langsung untuk pemanggilan fungsi `print`.
 
-** Different Type Arrays
 ** Macam-macam Tipe Array
 
-It’s interesting to see what the compiler provides as an error when assigning
-arrays of the same types that are of different lengths.
-Sangat menarik untuk melihat apa yang diberikan kompiler sebagai kesalahan saat menugaskan
-array bertipe sama namun panjangnya berbeda.
+Menarik untuk melihat apa yang disediakan oleh kompilator sebagai kesalahan
+ketika memberikan nilai ke array dengan tipe yang sama namun panjangnya berbeda.
 
     var five [5]int
     four := [4]int{10, 20, 30, 40}
 
     five = four
 
-Compiler Error:
 Error Kompilator:
 
     cannot use four (type [4]int) as type [5]int in assignment
 
-Here you declare an array of 4 and 5 integers initialized to its zero value state.
-Then try to assign them to each other and the compiler says, "cannot use four
-(type [4]int) as type [5]int in assignment".
-Di sini Anda mendeklarasikan array yang terdiri dari 4 dan 5 bilangan bulat yang diinisialisasi ke status nilai nolnya.
-Kemudian cobalah untuk menugaskannya satu sama lain dan kompiler berkata, "tidak dapat menggunakan empat
-(ketik [4]int) sebagai tipe [5]int dalam tugas".
 
-It’s important to be clear about what the compiler is saying. It’s saying that an
-array of 4 integers and an array of 5 integers represent data of different types.
-The size of an array is part of its type information. In Go, the size of an array
-has to be known at compile time.
-Penting untuk memperjelas apa yang dikatakan kompiler. Dikatakan bahwa sebuah
-array yang terdiri dari 4 bilangan bulat dan array yang terdiri dari 5 bilangan bulat mewakili data dari tipe yang berbeda.
-Ukuran array adalah bagian dari informasi tipenya. Di Go, ukuran array
-harus diketahui pada waktu kompilasi.
+Di sini, Anda mendeklarasikan sebuah array dari 4 dan 5 integer yang diinisialisasi ke dalam keadaan nilai nol.
+Kemudian mencoba untuk saling memberikan nilai ke satu sama lain,
+dan kompilator mengatakan, "cannot use four (type [4]int) as type [5]int in assignment".
 
-** Contiguous Memory Construction
-** Konstruksi Memori Bersebelahan
+Penting untuk memahami dengan jelas apa yang dikatakan oleh kompilator. Kompilator mengatakan bahwa
+array dengan 4 integer dan array dengan 5 integer mewakili data dari tipe yang berbeda.
+Ukuran dari sebuah array merupakan bagian dari informasi tipe data tersebut.
+Dalam Go, ukuran dari sebuah array harus diketahui pada saat kompilasi.
 
-You want to prove that an array provides a contiguous layout of memory.
-Anda ingin membuktikan bahwa array menyediakan tata letak memori yang berdekatan.
+** Konstruksi Memori Berdekatan
+
+Anda ingin membuktikan bahwa sebuah array menyediakan susunan memori yang berdekatan.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
@@ -242,67 +171,41 @@ Keluaran:
     Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Here you declare an array of 5 strings initialized with values. Then use value
-semantic iteration to display information about each string. The output shows
-each individual string value, the address of the v variable and the address of
-each element in the array.
-Di sini Anda mendeklarasikan array 5 string yang diinisialisasi dengan nilai. Kemudian gunakan nilai
-iterasi semantik untuk menampilkan informasi tentang setiap string. Outputnya menunjukkan
-setiap nilai string individu, alamat variabel v dan alamat
-setiap elemen dalam array.
+Di sini, Anda mendeklarasikan sebuah array dari 5 string yang diinisiasi dengan suatu nilai.
+Kemudian menggunakan iterasi semantik nilai untuk menampilkan informasi tentang setiap string.
+Output menunjukkan setiap nilai string, alamat variabel `v`, dan alamat setiap elemen dalam array.
 
-You can see how the array is a contiguous block of memory and how a string is a two
-word or 16 byte data structure on my 64 bit architecture. The address for each element
-is distanced on a 16 byte stride.
-Anda dapat melihat bagaimana array merupakan blok memori yang berdekatan dan bagaimana string adalah dua
-struktur data word atau 16 byte pada arsitektur 64 bit saya. Alamat untuk setiap elemen
-berjarak dengan langkah 16 byte.
+Anda dapat melihat bagaimana array adalah blok memori yang berurutan dan bagaimana sebuah string adalah
+struktur data dua satuan word atau 16 byte pada arsitektur 64-bit.
+Alamat untuk setiap elemen dipisahkan dengan penambahan 16 byte.
 
-The fact that the v variable has the same address on each iteration strengthens the
-understanding that v is a local variable of type string which contains a copy of each
-string value during iteration.
-Fakta bahwa variabel v memiliki alamat yang sama pada setiap iterasi memperkuat argumen tersebut
-memahami bahwa v adalah variabel lokal bertipe string yang berisi salinan masing-masing variabel
-nilai string selama iterasi.
+Fakta bahwa variabel v memiliki alamat yang sama pada setiap iterasi
+memperkuat pemahaman bahwa v adalah variabel lokal dengan tipe string
+yang berisi salinan dari setiap nilai string selama iterasi.
 
-** CPU Caches
-** Cache CPU
+** Cache pada CPU
 
-There are lots of mechanical differences between processors and their design. In
-this section, you will talk at a high level about processors and the semantics that
-are relatively the same between them all. This semantic understanding will provide
-you a good mental model for how the processor works and the sympathy you can provide.
-Ada banyak perbedaan mekanis antara prosesor dan desainnya. Di dalam
-Di bagian ini, Anda akan berbicara secara mendalam tentang prosesor dan semantiknya
-relatif sama di antara semuanya. Pemahaman semantik ini akan memberikan
-Anda adalah model mental yang baik tentang cara kerja prosesor dan simpati yang dapat Anda berikan.
+Ada banyak perbedaan mekanis antara prosesor dan desainnya. Dalam bagian ini,
+Anda akan berbicara pada tingkat tinggi tentang prosesor dan semantik yang relatif sama di antara mereka.
+Pemahaman semantik ini akan memberikan Anda mental model yang baik tentang
+bagaimana prosesor bekerja dan pemahaman yang dapat Anda berikan.
 
-Each core inside the processor has its own local cache of memory (L1 and L2) and a
-common cache of memory (L3) used to store/access data and instructions. The hardware
-threads in each core can access their local L1 and L2 caches. Data from L3 or main
-memory needs to be copied into the L1 or L2 cache for access.
-Setiap inti di dalam prosesor memiliki cache memori lokalnya sendiri (L1 dan L2) dan a
-cache memori umum (L3) yang digunakan untuk menyimpan/mengakses data dan instruksi. Perangkat keras
-thread di setiap inti dapat mengakses cache L1 dan L2 lokalnya. Data dari L3 atau utama
-memori perlu disalin ke cache L1 atau L2 untuk akses.
+Setiap inti dalam prosesor memiliki cache lokal memori sendiri (L1 dan L2) dan
+cache memori bersama (L3) yang digunakan untuk menyimpan/mengakses data dan instruksi.
+Thread pada perangkat keras (hardware threads) di setiap intinya dapat mengakses
+cache lokal L1 dan L2 mereka. Data dari L3 atau memori utama perlu disalin
+ke dalam cache L1 atau L2 untuk diakses.
 
 .image /tour/ind/static/img/a4.png
 
-The latency cost of accessing data that exists in the different caches changes from
-least to most: L1 -> L2 -> L3 -> main memory. As Scott Meyers said, "If performance
-matters then the total amount of memory you have is the total amount of cache. Main
-memory is so slow to access, practically speaking, it might as well not even be there."
-Biaya latensi untuk mengakses data yang ada di cache berbeda berubah
-paling sedikit hingga paling banyak: L1 -> L2 -> L3 -> memori utama. Seperti yang dikatakan Scott Meyers, “Jika kinerja
-penting maka jumlah total memori yang Anda miliki adalah jumlah total cache. Utama
-memori sangat lambat untuk diakses, secara praktis, mungkin memori itu tidak ada di sana."
+Biaya latensi dari mengakses data yang ada di berbagai cache berubah
+dari yang terkecil ke yang terbesar: L1 -> L2 -> L3 -> memori utama. Seperti yang dikatakan Scott Meyers,
+"Jika kinerja penting, maka jumlah total memori yang Anda miliki adalah jumlah total cache.
+Memori utama sangat lambat untuk diakses, pada kenyataannya, bisa jadi sama sekali tidak ada di sana."
 
-Performance today is about how efficiently data flows through the hardware. If every
-piece of data the hardware needs (at any given time) exists only in main memory, my
-programs will run slower as compared to the data already being present in the L1 or L2 caches.
-Kinerja saat ini adalah tentang seberapa efisien aliran data melalui perangkat keras. Jika setiap
-sepotong data yang dibutuhkan perangkat keras (pada waktu tertentu) hanya ada di memori utama, ya
-program akan berjalan lebih lambat dibandingkan dengan data yang sudah ada di cache L1 atau L2.
+Kinerja saat ini berkaitan dengan seberapa efisien aliran data melalui perangkat keras.
+Jika setiap data yang dibutuhkan oleh perangkat keras (pada setiap waktu tertentu) hanya ada di memori utama,
+program saya akan berjalan lebih lambat dibandingkan dengan data yang sudah ada di cache L1 atau L2.
 
     3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
 
@@ -316,61 +219,37 @@ program akan berjalan lebih lambat dibandingkan dengan data yang sudah ada di ca
     L2 cache reference ........................... 7 ns ................... 84 ins
     Main memory reference ...................... 100 ns ................. 1200 ins
 
-How do you write code that guarantees the data that is needed to execute an instruction
-is always present in the L1 or L2 caches? You need to write code that is mechanically
-sympathetic with the processor’s prefetcher. The prefetcher attempts to predict what
-data is needed before instructions request the data so it’s already present in either
-the L1 or L2 cache.
-Bagaimana Anda menulis kode yang menjamin data yang diperlukan untuk menjalankan suatu instruksi
-selalu ada di cache L1 atau L2? Anda perlu menulis kode yang mekanis
-bersimpati dengan prefetcher prosesor. Prefetcher mencoba memprediksi apa
-data diperlukan sebelum instruksi meminta data sehingga data tersebut sudah ada di keduanya
-cache L1 atau L2.
+Bagaimana cara anda menulis kode yang menjamin data yang diperlukan untuk menjalankan sebuah instruksi
+selalu ada di cache L1 atau L2? Anda perlu menulis kode yang bersimpati secara mekanis dengan prefetcher prosesor.
+Prefetcher mencoba memprediksi data apa yang dibutuhkan sebelum instruksi
+meminta data sehingga data tersebut sudah ada di cache L1 atau L2.
 
-There are different granularities of memory access depending on where the access is
-happening. My code can read/write a byte of memory as the smallest unit of memory
-access. However, from the caching systems point of view, the granularity is 64 bytes.
-This 64 byte block of memory is called a cache line.
-Ada perincian berbeda dari akses memori tergantung pada lokasi aksesnya
-kejadian. Kode saya dapat membaca/menulis satu byte memori sebagai unit memori terkecil
-mengakses. Namun, dari sudut pandang sistem caching, granularitasnya adalah 64 byte.
-Blok memori 64 byte ini disebut baris cache.
+Ada berbagai granularitas akses memori tergantung pada lokasi aksesnya.
+Kode saya dapat membaca/menulis sebuah byte memori sebagai unit memori terkecil.
+Namun, dari sudut pandang sistem caching, granularitasnya adalah 64 byte.
+Blok memori 64 byte ini disebut sebagai cache line.
 
-The Prefetcher works best when the instructions being executed create predictable
-access patterns to memory. One way to create a predictable access pattern to memory
-is to construct a contiguous block of memory and then iterate over that memory
-performing a linear traversal with a predictable stride.
-Prefetcher berfungsi paling baik ketika instruksi yang dijalankan dapat diprediksi
-pola akses ke memori. Salah satu cara untuk membuat pola akses yang dapat diprediksi ke memori
-adalah membangun blok memori yang berdekatan dan kemudian mengulangi memori itu
-melakukan traversal linier dengan langkah yang dapat diprediksi.
+Prefetcher berfungsi paling baik ketika instruksi yang dieksekusi membuat pola akses
+yang dapat diprediksi ke memori. Salah satu cara untuk membuat pola akses yang dapat diprediksi
+ke memori adalah dengan membuat blok memori yang berurutan dan
+kemudian melakukan iterasi di atas memori tersebut dengan melakukan penelusuran linear
+dengan langkah yang dapat diprediksi.
 
-The array is the most important data structure to the hardware because it supports
-predictable access patterns. However, the slice is the most important data structure
-in Go. Slices in Go use an array underneath.
-Array adalah struktur data terpenting bagi perangkat keras karena mendukung
-pola akses yang dapat diprediksi. Namun, irisan adalah struktur data yang paling penting
-di Pergi. Irisan di Go menggunakan array di bawahnya.
+Array adalah struktur data yang paling penting bagi perangkat keras
+karena mendukung pola akses yang dapat diprediksi. Namun, slice adalah struktur data
+yang paling penting dalam Go. Slice dalam Go menggunakan array sebagai basisnya.
 
-Once you construct an array, every element is equally distant from the next or
-previous element. As you iterate over an array, you begin to walk cache line by
-connected cache line in a predictable stride. The Prefetcher will pick up on this
-predictable data access pattern and begin to efficiently pull the data into the
-processor, thus reducing data access latency costs.
-Setelah Anda membuat array, setiap elemen memiliki jarak yang sama dari atau berikutnya
-elemen sebelumnya. Saat Anda melakukan iterasi pada array, Anda mulai menelusuri baris cache
-menghubungkan baris cache dengan langkah yang dapat diprediksi. Prefetcher akan memahami hal ini
-pola akses data yang dapat diprediksi dan mulai menarik data secara efisien ke dalam
-prosesor, sehingga mengurangi biaya latensi akses data.
+Setelah Anda membuat sebuah array, setiap elemennya memiliki jarak yang sama
+dari elemen berikutnya atau sebelumnya. Saat Anda melakukan iterasi di atas array,
+Anda mulai berjalan dari cache line ke cache line yang terhubung dengan langkah yang dapat diprediksi.
+Prefetcher akan mengenali pola akses data yang dapat diprediksi ini dan mulai menarik data
+secara efisien ke dalam prosesor, sehingga mengurangi biaya latensi akses data.
 
-Imagine you have a big square matrix of memory and a linked list of nodes that match
-the number of elements in the matrix. If you perform a traversal across the linked
-list, and then traverse the matrix in both directions (Column and Row), how will
-the performance of the different traversals compare?
-Bayangkan Anda memiliki matriks memori persegi besar dan daftar node tertaut yang cocok
-jumlah elemen dalam matriks. Jika Anda melakukan traversal melintasi tautan
-daftar, lalu lintasi matriks di kedua arah (Kolom dan Baris), bagaimana caranya
-perbandingan kinerja traversal yang berbeda?
+
+Bayangkan Anda memiliki matriks memori berukuran besar dan sebuah linked list dari node
+yang sesuai dengan jumlah elemen dalam matriks tersebut. Jika Anda melakukan pembacaan melintasi linked list,
+dan kemudian melakukan pembacaan pada matriks ke arah kedua (kolom dan baris),
+bagaimana perbandingan kinerja dari pembacaan yang berbeda?
 
     func RowTraverse() int {
         var ctr int
@@ -384,12 +263,9 @@ perbandingan kinerja traversal yang berbeda?
         return ctr
     }
 
-Row traverse will have the best performance because it walks through memory, cache
-line by connected cache line, which creates a predictable access pattern. Cache lines
-can be prefetched and copied into the L1 or L2 cache before the data is needed.
-Row traverse akan memiliki performa terbaik karena melewati memori, cache
-baris demi baris cache yang terhubung, yang menciptakan pola akses yang dapat diprediksi. Garis cache
-dapat diambil terlebih dahulu dan disalin ke cache L1 atau L2 sebelum data dibutuhkan.
+Pembacaan baris akan memiliki performa terbaik karena berjalan melalui memori,
+cache line per cache line yang terhubung, yang menciptakan pola akses yang dapat diprediksi.
+Cache lines dapat di-prefetch dan disalin ke dalam cache L1 atau L2 sebelum data diperlukan.
 
     func ColumnTraverse() int {
         var ctr int
@@ -403,12 +279,9 @@ dapat diambil terlebih dahulu dan disalin ke cache L1 atau L2 sebelum data dibut
         return ctr
     }
 
-Column Traverse is the worst by an order of magnitude because this access pattern
-crosses over OS page boundaries on each memory access. This causes no predictability
-for cache line prefetching and becomes essentially random access memory.
-Column Traverse adalah yang terburuk berdasarkan urutan besarnya karena pola akses ini
-melintasi batas halaman OS pada setiap akses memori. Hal ini menyebabkan tidak dapat diprediksi
-untuk pengambilan baris cache dan pada dasarnya menjadi memori akses acak.
+Pembacaan kolom adalah yang terburuk secara signifikan karena pola akses ini
+melintasi batas halaman OS pada setiap akses memori. Hal ini menyebabkan ketidakpastian untuk
+cache line prefetching dan pada dasarnya menjadi akses memori yang acak.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -422,92 +295,59 @@ untuk pengambilan baris cache dan pada dasarnya menjadi memori akses acak.
         return ctr
     }
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB (Translation Lookaside Buffer) misses. A bulk of the nodes
-connected in the list exist inside the same OS pages.
-Daftar tertaut dua kali lebih lambat dibandingkan penjelajahan baris terutama karena terdapat cache
-garis meleset tetapi lebih sedikit TLB (Translation Lookaside Buffer) yang meleset. Sebagian besar node
-terhubung dalam daftar ada di dalam halaman OS yang sama.
+Linked list dua kali lebih lambat dibandingkan pembacaan baris utamanya karena adanya cache line misses
+tetapi lebih sedikit TLB (Translation Lookaside Buffer) misses. Sebagian besar node yang terhubung
+dalam daftar tersebut ada di dalam halaman OS yang sama.
 
     BenchmarkLinkListTraverse-16    128      28738407 ns/op
     BenchmarkColumnTraverse-16       30     126878630 ns/op
     BenchmarkRowTraverse-16         310      11060883 ns/op
 
 ** Translation Lookaside Buffer (TLB)
-** Terjemahan Lookaside Buffer (TLB)
 
-Each running program is given a full memory map of virtual memory by the OS and that
-running program thinks they have all of the physical memory on the machine. However,
-physical memory needs to be shared with all the running programs. The operating system
-shares physical memory by breaking the physical memory into pages and mapping pages
-to virtual memory for any given running program. Each OS can decide the size of a page,
-but 4k, 8k, 16k are reasonable and common sizes.
-Setiap program yang berjalan diberikan peta memori penuh memori virtual oleh OS dan itu
-program yang sedang berjalan mengira mereka memiliki semua memori fisik di mesin. Namun,
-memori fisik perlu dibagikan dengan semua program yang sedang berjalan. Sistem operasi
-berbagi memori fisik dengan memecah memori fisik menjadi halaman dan memetakan halaman
-ke memori virtual untuk setiap program yang sedang berjalan. Setiap OS dapat menentukan ukuran halaman,
-tapi 4k, 8k, 16k adalah ukuran yang wajar dan umum.
+Setiap program yang berjalan diberikan peta memori penuh dari memori virtual oleh sistem operasi,
+dan program yang berjalan menganggap bahwa mereka memiliki seluruh memori fisik pada mesin tersebut.
+Namun, memori fisik perlu dibagikan dengan semua program yang berjalan. Sistem operasi membagikan
+memori fisik dengan memecah memori fisik menjadi halaman-halaman dan memetakan halaman-halaman tersebut
+ke dalam memori virtual untuk setiap program yang berjalan.
+Setiap sistem operasi dapat memutuskan ukuran sebuah halaman, tetapi ukuran seperti
+4k, 8k, 16k adalah ukuran yang masuk akal dan umum.
 
-The TLB is a small cache inside the processor that helps to reduce latency on
-translating a virtual address to a physical address within the scope of an OS page
-and offset inside the page. A miss against the TLB cache can cause large latencies
-because now the hardware has to wait for the OS to scan its page table to locate
-the right page for the virtual address in question. If the program is running on
-a virtual machine (like in the cloud) then the virtual machine paging table needs
-to be scanned first.
-TLB adalah cache kecil di dalam prosesor yang membantu mengurangi latensi
-menerjemahkan alamat virtual ke alamat fisik dalam lingkup halaman OS
-dan offset di dalam halaman. Kegagalan terhadap cache TLB dapat menyebabkan latensi yang besar
-karena sekarang perangkat keras harus menunggu OS memindai tabel halamannya untuk mencari lokasinya
-halaman yang tepat untuk alamat virtual yang dimaksud. Jika program sedang berjalan
-mesin virtual (seperti di cloud) maka tabel paging mesin virtual dibutuhkan
-untuk dipindai terlebih dahulu.
+TLB adalah cache kecil di dalam prosesor yang membantu mengurangi latensi dalam menerjemahkan
+alamat virtual ke alamat fisik dalam lingkup halaman sistem operasi dan offset di dalam halaman tersebut.
+Ketika terjadi kesalahan pada TLB cache, dapat menyebabkan latensi besar karena sekarang
+hardware harus menunggu sistem operasi untuk memindai tabel halamannya untuk menemukan halaman yang benar
+untuk alamat virtual yang dimaksud. Jika program berjalan di mesin virtual (seperti di cloud),
+maka tabel paging mesin virtual perlu dipindai terlebih dahulu.
 
-Remember what was said:
-Ingat apa yang dikatakan:
+Ingat apa yang tadi dikatakan:
 
-The linked list is twice as slow as the row traversal mainly because there are cache
-line misses but fewer TLB misses (explained next). A bulk of the nodes connected in
-the list exist inside the same OS pages.
-Daftar tertaut dua kali lebih lambat dibandingkan penjelajahan baris terutama karena terdapat cache
-garis meleset tetapi lebih sedikit TLB yang meleset (dijelaskan selanjutnya). Sebagian besar node terhubung
-daftarnya ada di dalam halaman OS yang sama.
+Linked list dua kali lebih lambat dibandingkan dengan pembacaan baris terutama karena terjadi cache line misses,
+namun terjadi lebih sedikit TLB misses (akan dijelaskan selanjutnya).
+Sebagian besar node yang terhubung dalam daftar tersebut ada di dalam halaman OS yang sama.
 
-The LinkedList is orders of magnitude faster than the column traversal because of
-TLB access. Even though there are cache line misses with the linked list traversal,
-since a majority of the memory for a group of nodes will land inside the same page,
-TLB latencies are not affecting performance. This is why for programs that use a
-large amount of memory, like DNA based applications, you may want to use a distribution
-of Linux that is configured with page sizes in the order of a megabyte or two of memory.
-LinkedList lipat lebih cepat daripada traversal kolom karena
-Akses TLB. Meskipun ada baris cache yang hilang pada traversal daftar tertaut,
+Linked list memiliki performa yang lebih cepat seiring bertambahnya tingkatan dibandingkan
+dengan pembacaan kolom karena akses TLB. Meskipun terjadi cache line misses pada pembacaan linked list,
 karena sebagian besar memori untuk sekelompok node akan berada di dalam halaman yang sama,
-Latensi TLB tidak memengaruhi kinerja. Inilah sebabnya mengapa untuk program yang menggunakan a
-sejumlah besar memori, seperti aplikasi berbasis DNA, Anda mungkin ingin menggunakan distribusi
-Linux yang dikonfigurasi dengan ukuran halaman dalam urutan satu atau dua megabyte memori.
+latensi TLB tidak memengaruhi kinerja. Oleh karena itu, untuk program-program yang menggunakan jumlah memori besar,
+seperti aplikasi berbasis DNA, Anda mungkin ingin menggunakan distribusi Linux
+yang dikonfigurasi dengan ukuran halaman sekitar satu atau dua megabyte.
 
-All that said, data-oriented design matters. Writing an efficient algorithm has to
-take into account how the data is accessed. Remember, performance today is about
-how efficiently you can get data into the processor.
-Meski begitu, desain berorientasi data itu penting. Menulis algoritma yang efisien harus dilakukan
-memperhitungkan bagaimana data diakses. Ingat, kinerja hari ini adalah tentang
-seberapa efisien Anda dapat memasukkan data ke dalam prosesor.
+Semua yang dikatakan tersebut menunjukkan bahwa desain berbasis data sangat penting.
+Menulis algoritma yang efisien harus mempertimbangkan bagaimana data diakses.
+Ingatlah, kinerja saat ini berkaitan dengan seberapa efisien Anda dapat membawa data ke dalam prosesor.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers
 - [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski
 
-** CPU Cache Notes
 ** Catatan mengenai CPU Cache
 
 .html arrays/array_list.html
 
-** Extra Diagrams
 ** Diagram Tambahan
 
-*Industry* *Defined* *Latencies*
-*Industri* *Ditentukan* *Latensi*
+*Latensi* *yang* *Didefinisikan* *Secara* *Industri*
 
     L1 cache reference ......................... 0.5 ns ...................  6 ins
     Branch mispredict ............................ 5 ns ................... 60 ins
@@ -524,16 +364,13 @@ seberapa efisien Anda dapat memasukkan data ke dalam prosesor.
     Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
     Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
-*Cache* *Latencies* *Image*
-*Cache* *Latensi* *Gambar*
+*Gambar* *Latensi* *Cache*
 
 .image /tour/ind/static/img/cache_latencies_graph.png
 
-** Extra Reading
 ** Bacaan Tambahan
 
-*CPU* *Caches* */* *Memory*
-*CPU* *Caches* */* *Memory*
+*Memori* *CPU* */* *Caches*
 
 - [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers
 - [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click
@@ -553,8 +390,7 @@ seberapa efisien Anda dapat memasukkan data ke dalam prosesor.
 - [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski
 - [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth
 
-*Data-Oriented* *Design*
-*Data-Oriented* *Design*
+*Desain* *Berbasis* *Data*
 
 - [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton
 - [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth
@@ -564,42 +400,26 @@ seberapa efisien Anda dapat memasukkan data ke dalam prosesor.
 - [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel
 - [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora
 
-** Notes
-* Catatan
+** Catatan
 
-- If you don't understand the data, you don't understand the problem.
-- If you don't understand the cost of solving the problem, you can't reason about the problem.
-- If you don't understand the hardware, you can't reason about the cost of solving the problem.
-- Arrays are fixed length data structures that can't change.
-- Arrays of different sizes are considered to be of different types.
-- Memory is allocated as a contiguous block.
-- Go gives you control over spacial locality.
-- Jika Anda tidak memahami datanya, Anda tidak memahami masalahnya.
-- Jika Anda tidak memahami biaya penyelesaian masalah, Anda tidak dapat memikirkan masalah tersebut.
-- Jika Anda tidak memahami perangkat kerasnya, Anda tidak dapat mempertimbangkan biaya penyelesaian masalah.
-- Array adalah struktur data dengan panjang tetap yang tidak dapat diubah.
-- Array dengan ukuran berbeda dianggap memiliki tipe berbeda.
+- Jika Anda tidak memahami data, Anda tidak memahami masalahnya.
+- Jika Anda tidak memahami biaya penyelesaian masalah, Anda tidak dapat beralasan tentang masalah tersebut.
+- Jika Anda tidak memahami perangkat keras, Anda tidak dapat beralasan tentang biaya penyelesaian masalah.
+- Array adalah struktur data dengan yang tetap dan tidak dapat diubah.
+- Array dengan ukuran yang berbeda dianggap sebagai tipe yang berbeda.
 - Memori dialokasikan sebagai blok yang berdekatan.
-- Go memberi Anda kendali atas lokalitas spasial.
+- Go memberikan kontrol atas lokalitas spasial.
 
-* Exercises
 * Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution
-is provided.
 Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
 ** Latihan 1
 
-Declare an array of 5 strings with each element initialized to its zero value. Declare
-a second array of 5 strings and initialize this array with literal string values. Assign
-the second array to the first and display the results of the first array. Display the
-string value and address of each element.
-Deklarasikan array yang terdiri dari 5 string dengan setiap elemen diinisialisasi ke nilai nolnya. Menyatakan
-array kedua yang terdiri dari 5 string dan inisialisasi array ini dengan nilai string literal. Menetapkan
-array kedua ke array pertama dan menampilkan hasil array pertama. Tampilkan
-nilai string dan alamat setiap elemen.
+Deklarasikan sebuah array dari 5 string dengan setiap elemennya diinisialisasi ke nilai nol.
+Deklarasikan array kedua dari 5 string dan inisialisasi array ini dengan nilai string literal.
+Berikan nilai array kedua ke array pertama dan tampilkan hasil dari array pertama.
+Tampilkan nilai string dan alamat setiap elemennya.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go
