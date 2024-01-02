@@ -1,67 +1,66 @@
-Functions
-Functions are at the core of the language and they provide a mechanism to group and organize our code to separate and distinct pieces of functionality.
+Hàm (Functions)
+Hàm là cốt lõi của ngôn ngữ và chúng cung cấp một cơ chế để nhóm và sắp xếp mã của chúng ta để tách ra và phân biệt các phần chức năng.
 
-* Functions
+* Hàm
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-Functions are at the core of the language and they provide a mechanism to group
-and organize our code to separate and distinct pieces of functionality. They can
-be used to provide an API to the packages we write and are a core component to
-concurrency.
+Hàm là cốt lõi của ngôn ngữ và chúng cung cấp một cơ chế để nhóm và sắp xếp mã
+của chúng ta để tách ra và phân biệt các phần chức năng. Hàm có thể được sử dụng để
+cung cấp API cho các gói mà chúng ta viết và là thành phần cốt lõi cho sự đồng thời.
 
-Functions in Go play a central role in structuring code and promoting clean,
-maintainable, and efficient software. Understanding how to declare, define, and
-use functions is crucial for writing effective Go programs.
+Hàm trong Go đóng vai trò trung tâm trong việc cấu trúc mã và thúc đẩy tính sạch sẽ,
+tính có thể bảo trì và tính hiệu quả của phần mềm. Việc hiểu về cách khai báo, định nghĩa và
+sử dụng các hàm là mấu chốt để viết các chương trình Go hiệu quả.
 
-** Code Review
+** Đánh giá mã (Code Review)
 
-- *Example* *1:* Return multiple values
-- *Example* *2:* Blank identifier
-- *Example* *3:* Redeclarations
-- *Example* *4:* Anonymous Functions/Closures
-- *Example* *5:* Recover panics
+- *Ví dụ* *1:* Trả về nhiều giá trị
+- *Ví dụ* *2:* Định danh rỗng
+- *Ví dụ* *3:* Tái khai báo
+- *Ví dụ* *4:* Hàm ẩn danh/Đóng
+- *Ví dụ* *5:* Phục hồi panics (Ngoại lệ)
 
-.play functions/example1.go
-.play functions/example2.go
-.play functions/example3.go
-.play functions/example4.go
-.play functions/example5.go
+.chạy functions/example1.go
+.chạy functions/example2.go
+.chạy functions/example3.go
+.chạy functions/example4.go
+.chạy functions/example5.go
 
-Functions are a fundamental building block of programs and are used to encapsulate
-and organize code for better modularity and reusability. Functions are blocks of code
-that perform a specific task or a set of related tasks. Here's an overview of
-functions in Go:
+Hàm là khối kiến trúc nền tảng của chương trình, được sử dụng để đóng gói và
+tổ chức mã để có tính mô đun hóa và khả năng sử dụng lại tốt hơn. Hàm là
+các khối mã thực hiện một nhiệm vụ cụ thể hoặc một tập hợp các nhiệm vụ liên quan.
+Dưới đây là tổng quan về hàm trong Go:
 
-** Function Declaration
+** Khai báo Hàm
 
-To declare a function in Go, you use the `func` keyword followed by the
-function name, a list of parameters enclosed in parentheses, and an optional
-return type. The general syntax is:
+Để khai báo một hàm trong Go, bạn sử dụng từ khóa `func` theo sau là từ khóa
+tên hàm, danh sách các tham số được đặt trong dấu ngoặc đơn, và một kiểu trả về
+(không bắt buộc). Cú pháp chung là:
 
-   func functionName(parameter1 type, parameter2 type, ...) return_type {
-       // Function body
+   func tenHam(thamso1 type, thamso2 type, ...) kieu_tra_ve {
+       // thân hàm
    }
 
-For example:
+Ví dụ:
 
    func add(x int, y int) int {
        return x + y
    }
 
-** Parameters and Return Values
+** Tham số và giá trị trả về
 
-Functions can take zero or more parameters, which are the values passed to the
-function when it is called. Each parameter consists of a name and a type. In
-the example above, `add` takes two integer parameters, `x` and `y`.
+Hàm có thể nhận 0 hoặc nhiều tham số, là các giá trị được truyền cho hàm khi
+được gọi. Mỗi tham số bao gồm một tên và một kiểu. Trong ví dụ ở trên, hàm `add`
+nhận hai tham số kiểu số nguyên, `x` và `y`.
 
-Functions can return zero or one value (or none, in which case you can omit the
-return type). The `return` statement is used to specify the value to be returned.
-In the example above, `add` returns an integer.
+Hàm có thể trả về 0 hoặc một giá trị (hoặc không có giá trị nào, trong trường hợp đó
+bạn có thể bỏ qua kiểu trả về). Câu lệnh `return` được sử dụng để chỉ định giá trị
+được trả về. Trong ví dụ trên, `add` trả về một số nguyên.
 
-Go allows functions to return multiple values. This is useful in cases where you
-want to return more than one result from a function. For example:
+Go cho phép các hàm trả về nhiều giá trị. Điều này rất hữu ích trong trường hợp bạn
+muốn trả về nhiều kết quả từ một hàm. Ví dụ:
 
    func divide(x, y float64) (float64, error) {
        if y == 0 {
@@ -70,37 +69,38 @@ want to return more than one result from a function. For example:
        return x / y, nil
    }
 
-In this example, the `divide` function returns both a floating-point result and
-an error (if the division by zero occurs).
+Trong ví dụ trên, hàm `divide` trả về cả một kết quả là số thực và một lỗi
+(nếu số chia y là 0).
 
-Go allows you to specify names for the return values in a function's signature.
-Named return values are automatically initialized and can be used as regular
-variables within the function. They are particularly useful when dealing with
-complex functions or error handling. For example:
+Go cho phép bạn đặt tên cho các giá trị trả về trong chữ ký của hàm
+(function's signature). Các giá trị trả về được đặt tên sẽ tự động được
+khởi tạo và có thể được sử dụng như các biến thông thường bên trong hàm.
+Chúng đặc biệt hữu ích khi xử lý một chức năng phức tạp hoặc xử lý lỗi.
+Ví dụ:
 
    func divide(x, y float64) (result float64, err error) {
        if y == 0 {
-           err = errors.New("division by zero")
+           err = errors.New("division by zero - số chia là 0")
            return
        }
        result = x / y
        return
    }
 
-** Function Calls
+** Gọi hàm
 
-To call a function in Go, you use the function name followed by a list of arguments
-enclosed in parentheses. If the function has multiple return values, you can capture
-them in variables. For example:
+Để gọi một hàm trong Go, bạn sử dụng tên hàm theo sau là danh sách các tham số
+được đặt trong dấu ngoặc đơn. Nếu hàm có nhiều giá trị trả về, bạn có thể đặt
+chúng vào các biến. Ví dụ:
 
-   sum := add(3, 5)            // Call the add function and assign its result to sum
-   result, err := divide(8, 2) // Call the divide function and capture both result and error
+   sum := add(3, 5)            // Gọi hàm add và gán kết quả của hàm vào biến sum
+   result, err := divide(8, 2) // Gọi hàm divide và thu về cả kết quả và lỗi
 
-** Function Variadic Parameters
+** Tham số biến thiên của hàm (Function Variadic Parameters)
 
-Go supports variadic functions, which allow you to pass a variable number of
-arguments to a function. To define a variadic parameter, you use an ellipsis
-(`...`) followed by the parameter type. For example:
+Go hỗ trợ hàm biến thiên, cho phép bạn truyền những tham số có thể thay đổi
+vào một hàm. Để định nghĩa một tham số biến thiên, bạn sử dụng dấu ba chấm
+(`...`) theo sau là kiểu tham số. Ví dụ:
 
    func calculateSum(nums ...int) int {
        sum := 0
@@ -110,14 +110,14 @@ arguments to a function. To define a variadic parameter, you use an ellipsis
        return sum
    }
 
-You can call this function with any number of integers.
+Bạn có thể gọi hàm này với bất kỳ số nguyên nào.
 
-** Anonymous Functions
+** Hàm ẩn danh (Anonymous Functions)
 
-Go supports anonymous functions, also known as closures. These are functions
-without a name, and they can be assigned to variables and used as arguments to
-other functions. Closures are often used in Go for tasks like defining inline
-functions or for concurrent programming using goroutines.
+Go hỗ trợ các hàm ẩn danh, còn được gọi là các hàm đóng. Đây là những hàm
+không có tên và chúng có thể được gán cho các biến và được sử dụng làm tham số cho
+các hàm khác. Các hàm đóng thường được sử dụng trong Go cho các tác vụ như
+định nghĩa các hàm nội tuyến hoặc để lập trình đồng thời bằng cách sử dụng goroutines.
 
    add := func(x, y int) int {
        return x + y
@@ -125,11 +125,11 @@ functions or for concurrent programming using goroutines.
 
    result := add(3, 5)
 
-** Function as a Type
+** Hàm như một kiểu dữ liệu
 
-In Go, functions can also be used as types. This allows you to define functions
-that take other functions as arguments or return them as results. It's a powerful
-feature for implementing higher-order functions and callbacks.
+Trong Go, các hàm cũng có thể được sử dụng làm kiểu dữ liệu. Điều này cho phép bạn
+xây dựng các hàm lấy các hàm khác làm tham số hoặc trả chúng về dưới dạng kết quả.
+Đó là một tính năng mạnh mẽ để thực hiện các hàm bậc cao hơn và các hàm callback.
 
    type MathFunc func(int, int) int
 
@@ -137,46 +137,44 @@ feature for implementing higher-order functions and callbacks.
        return op(x, y)
    }
 
-You can then pass functions as arguments to `operate`.
+Tiếp theo bạn có thể gán hàm như tham số cho 'operate'
 
-** Defer and Panic
+** Defer và Panic
 
-Go provides two special built-in functions called `defer` and `panic` for handling
-exceptional situations and resource management. `defer` is used to schedule a function
-call to be executed just before the function returns, while `panic` is used to
-trigger a run-time error and unwind the stack.
+Go cung cấp hai hàm dựng sẵn đặc biệt gọi là `defer` và `panic` để xử lý các
+tình huống ngoại lệ và quản lý tài nguyên. `defer` được sử dụng để lên lịch cho 
+việc gọi hàm được thực thi ngay trước khi hàm trả về, trong khi `panic` được
+sử dụng để kích hoạt lỗi run-time và giải phóng ngăn xếp.
 
-** Notes
+** Ghi chú
 
-- Functions can return multiple values and most return an error value.
-- The error value should always be checked as part of the programming logic.
-- The blank identifier can be used to ignore return values.
-- Syntax: func, receiver, identifier, [parameter(s)], [return(s)], code block.
-- Variadic parameters, variadic arguments, and unfurling a slice.
-- Functions are a type: you can use functions as parameters, arguments, & returns.
-- Defer is used to schedule a function call in another function.
-- Panic triggers a run-time error and unwinds the stack.
-- Named returns are less readable and are not idiomatic
+- Hàm có thể trả về nhiều giá trị và hầu hết trả về giá trị lỗi.
+- Giá trị lỗi phải luôn được kiểm tra như một phần của logic lập trình.
+- Định danh rỗng có thể được sử dụng để bỏ qua giá trị trả về.
+- Cú pháp: func, receiver, identifier, [parameter(s)], [return(s)], code block.
+- Các tham số biến đổi, các đối số biến đổi và mở ra một slice.
+- Hàm là một kiểu: bạn có thể sử dụng hàm làm tham số, đối số và kết quả trả về.
+- Defer dùng để lên lịch gọi hàm ở hàm khác.
+- Panic kích hoạt lỗi run-time và giải phóng ngăn xếp.
+- Kết quả trả về được đặt tên khó đọc hơn và không mang tính thành ngữ.
 
-** Extra Reading
+** Đọc thêm
 
 - [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
 - [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
 - [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
 
-* Exercises
+* Bài tập
 
-Use the template as a starting point to complete the exercises. A possible
-solution is provided.
+Sử dụng bài mẫu làm điểm khởi đầu để hoàn thành các bài tập. Một câu trả lời khả thi đã được cung cấp.
 
-** Exercise 1
+** Bài tập 1
 
-*Part* *A:* Declare a struct type to maintain information about a user. Declare a
-function that creates value of and returns pointers of this type and an error
-value. Call this function from main and display the value.
+*Phần* *A:* Khai báo một kiểu cấu trúc để lưu thông tin người dùng. Khai báo một
+hàm để tạo thông tin và trả về con trỏ kiểu cấu trúc đó và một giá trị lỗi.
+Gọi hàm này từ hàm main và hiển thị kết quả.
 
-*Part* *B:* Make a second call to your function but this time ignore the value
-and just test the error value.
+*Phần* *B:* Gọi hàm của bạn lần thứ hai nhưng lần này bỏ qua kết quả và chỉ kiểm tra lỗi.
 
-.play functions/exercise1.go		
-.play functions/answer1.go
+.chạy functions/exercise1.go		
+.chạy functions/answer1.go
