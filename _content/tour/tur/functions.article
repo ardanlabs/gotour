@@ -1,0 +1,182 @@
+Fonksiyonlar
+Fonksiyonlar, dilin temelini oluşturur ve kodumuzu ayrı ve belirgin işlev parçalarına gruplamak ve düzenlemek için bir mekanizma sağlarlar.
+
+* Fonksiyonlar
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Fonksiyonlar, dilin temelini oluşturur ve kodumuzu ayrı ve belirgin işlev parçalarına 
+gruplamak ve düzenlemek için bir mekanizma sağlarlar. Yazdığımız paketlere bir API sağlamak
+için kullanılabilirler ve eşzamanlılık için temel bir bileşendirler.
+
+Go'daki fonksiyonlar, kodu yapılandırmada merkezi bir rol oynar ve temiz, bakımı
+kolay ve verimli yazılımları teşvik eder. Fonksiyonları nasıl bildireceğinizi, 
+tanımlayacağınızı ve kullanacağınızı anlamak, etkili Go programları yazmak için 
+önemlidir.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Birden çok değer döndürme
+- *Örnek* *2:* Boş tanımlayıcı
+- *Örnek* *3:* Yeniden bildirimler
+- *Örnek* *4:* Anonim Fonksiyonlar/Kapanışlar
+- *Örnek* *5:* Panikleri Kurtarma
+
+.play functions/example1.go
+.play functions/example2.go
+.play functions/example3.go
+.play functions/example4.go
+.play functions/example5.go
+
+Fonksiyonlar, programların temel yapı taşlarıdır ve kodu daha iyi modülerlik ve yeniden 
+kullanılabilirlik için kapsüller ve düzenler. Fonksiyonlar, belirli bir görevi veya 
+ilgili görev kümesini gerçekleştiren kod bloklarıdır. İşte Go'daki fonksiyonların 
+genel bir bakışı:
+
+** Fonksiyon Bildirimi
+
+Go'da bir fonksiyonu bildirmek için, `func` anahtar kelimesini, fonksiyon adını, 
+parantez içinde kapatılmış bir parametre listesini ve isteğe bağlı bir dönüş 
+türünü kullanırsınız. Genel sözdizimi şöyledir:
+
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Function body
+   }
+
+Örneğin:
+
+   func add(x int, y int) int {
+       return x + y
+   }
+
+** Parametreler ve Dönüş Değerleri
+
+Fonksiyonlar, çağrıldığında fonksiyona iletilen değerler olan sıfır veya daha 
+fazla parametre alabilir. Her parametre, bir isim ve bir tür içerir. Yukarıdaki 
+örnekte, `add` fonksiyonu iki tamsayı parametresi olan `x` ve `y`'yi alır.
+
+Fonksiyonlar sıfır veya bir değer döndürebilir (veya hiçbirini döndürmeyebilir, 
+bu durumda dönüş türünü atlayabilirsiniz). Döndürülecek değeri belirtmek için `return`
+ifadesi kullanılır. Yukarıdaki örnekte, `add` bir tamsayı döndürür.
+
+Go, fonksiyonlara birden fazla değer döndürme izni verir. Bu, bir fonksiyondan birden
+fazla sonuç döndürmek istediğiniz durumlarda kullanışlıdır. Örneğin:
+
+   func divide(x, y float64) (float64, error) {
+       if y == 0 {
+           return 0, errors.New("division by zero")
+       }
+       return x / y, nil
+   }
+
+Bu örnekte, `divide` fonksiyonu hem bir virgüllü sayı sonucu hem de bir hata (eğer 
+sıfıra bölme olursa) döndürür.
+
+Go, bir fonksiyonun imzasında dönüş değerleri için isimleri belirtmenize izin verir. 
+İsimlendirilmiş dönüş değerleri otomatik olarak başlatılır ve fonksiyon içinde normal 
+değişkenler olarak kullanılabilir. Özellikle karmaşık fonksiyonlar veya hata işleme ile 
+uğraşırken kullanışlıdırlar. Örneğin:
+
+   func divide(x, y float64) (result float64, err error) {
+       if y == 0 {
+           err = errors.New("division by zero")
+           return
+       }
+       result = x / y
+       return
+   }
+
+** Fonksiyon Çağrıları
+
+Go'da bir fonksiyonu çağırmak için, fonksiyon adını parantez içinde kapatılmış bir 
+argüman listesi ile kullanırsınız. Eğer fonksiyonun birden fazla dönüş değeri varsa, 
+bunları değişkenlere atayabilirsiniz. Örneğin:
+
+   sum := add(3, 5)            // add fonksiyonunu çağır ve sonucunu sum değişkenine ata
+   result, err := divide(8, 2) // divide fonksiyonunu çağır ve hem sonucu hem de hatayı yakala
+
+** Fonksiyon Değişken Parametreleri
+
+Go, değişken sayıda argümanı bir fonksiyona iletmeyi sağlayan değişken sayıda 
+parametreleri destekler. Değişken sayıda parametre tanımlamak için, parametre 
+türünden sonra üç nokta (`...`) kullanırsınız. Örneğin:
+
+   func calculateSum(nums ...int) int {
+       sum := 0
+       for _, num := range nums {
+           sum += num
+       }
+       return sum
+   }
+
+Bu fonksiyonu herhangi bir tamsayı sayısı ile çağırabilirsiniz.
+
+** Anonim Fonksiyonlar
+
+Go, anonim fonksiyonları da destekler, bu fonksiyonlar kapanış (closure) olarak da bilinir. 
+Bunlar isimsiz fonksiyonlardır ve değişkenlere atanabilir ve diğer fonksiyonlara 
+argüman olarak kullanılabilirler. Kapanışlar genellikle Go'da iç içe geçmiş fonksiyonları 
+tanımlama veya goroutine'ler kullanarak eşzamanlı programlama gibi görevler için kullanılır.
+
+   add := func(x, y int) int {
+       return x + y
+   }
+
+   result := add(3, 5)
+
+** Tür Olarak Fonksiyonlar
+
+Go'da, fonksiyonlar aynı zamanda tür olarak kullanılabilir. Bu, diğer fonksiyonları 
+argüman olarak alabilen veya sonuç olarak döndüren fonksiyonları tanımlamanıza olanak 
+tanır. Bu, yüksek düzeyde fonksiyonları ve geri çağırmaları uygulamak için güçlü bir 
+özelliktir.
+
+   type MathFunc func(int, int) int
+
+   func operate(x, y int, op MathFunc) int {
+       return op(x, y)
+   }
+
+Ardından fonksiyonları `operate` fonksiyonuna argüman olarak iletebilirsiniz.
+
+** Defer ve Panic
+
+Go, istisnai durumları ve kaynak yönetimini ele almak için iki özel yerleşik fonksiyon 
+olan `defer` ve `panic` sağlar. `defer`, bir fonksiyonun dönmeden hemen önce çağrılacak bir 
+fonksiyon çağrısını planlamak için kullanılır, `panic` ise çalışma zamanında bir hatayı 
+tetiklemek ve yığını geri almak için kullanılır.
+
+** Notlar
+
+- Fonksiyonlar birden çok değer döndürebilir ve çoğu zaman bir hata değeri döndürür.
+- Hata değeri, her zaman program mantığının bir parçası olarak kontrol edilmelidir.
+- Boş tanımlayıcı, dönüş değerlerini görmezden gelmek için kullanılabilir.
+- Sözdizimi: func, alıcı, tanımlayıcı, [parametre(ler)], [dönüş(ler)], kod bloğu.
+- Değişken sayıda parametreler, değişken sayıda argümanlar ve dilimi açma.
+- Fonksiyonlar bir türdür: fonksiyonları parametre olarak, argüman olarak ve dönüş olarak kullanabilirsiniz.
+- Defer, başka bir fonksiyonda bir fonksiyon çağrısını planlamak için kullanılır.
+- Panic, çalışma zamanında bir hatayı tetikler ve yığını geri alır.
+- İsimlendirilmiş dönüşler, daha az okunabilir ve idiyomatik değildir.
+
+** Ek Okuma
+
+- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+
+* Egzersizler
+
+Alıştırmaları tamamlamak için şablondan başlayın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Bir kullanıcı hakkında bilgi tutan bir yapı türü bildirin. Bu türün değerini 
+oluşturan ve bu türün işaretçilerini ve bir hata değerini döndüren bir fonksiyon bildirin. 
+Bu fonksiyonu main'den çağırın ve değeri görüntüleyin.
+
+*Kısım* *B:* Fonksiyonunuza ikinci bir çağrı yapın, ancak bu sefer değeri görmezden gelin ve 
+sadece hata değerini test edin.
+
+.play functions/exercise1.go		
+.play functions/answer1.go

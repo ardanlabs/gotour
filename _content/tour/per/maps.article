@@ -1,0 +1,158 @@
+نگاشت‌ها (Maps)
+نگاشت (Map) یک ساختار داده است که امکان ذخیره و دسترسی به داده‌ها بر اساس یک کلید را فراهم می‌کند.
+
+* Maps
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][تماشای ویدئو]]
+- نیاز به کمک مالی دارید؟ از [[https://www.ardanlabs.com/scholarship/][فرم Scholarship]] ما استفاده کنید.
+
+یک نگاشت (Map) یک ساختار داده است که امکان ذخیره و دسترسی به داده‌ها بر اساس یک کلید را فراهم می‌کند. از یک نمایه نگاشت (hash map) و سیستم تعدادی (bucket) استفاده می‌کند که یک بلوک پیوسته از حافظه را در زیر نگه می‌دارد.
+
+** بررسی کد
+
+- *مثال* *1:* اعلام کردن، نوشتن، خواندن و حذف
+- *مثال* *2:* کلیدهای موجود نیستند
+- *مثال* *3:* محدودیت‌های کلید map
+- *مثال* *4:* map متناوب و محدوده
+- *مثال* *5:* مرتب‌سازی maps بر اساس کلید
+- *مثال* *6:* گرفتن آدرس یک عنصر
+- *مثال* *7:* maps از نوع مرجع هستند
+
+.play maps/example1.go
+.play maps/example2.go
+.play maps/example3.go
+.play maps/example4.go
+.play maps/example5.go
+.play maps/example6.go
+.play maps/example7.go
+
+** اعلام و ساخت maps
+
+اعلام و ساخت نگاشت‌ها می‌تواند به چندین روش انجام شود.
+
+    type user struct {
+        name     string
+        username string
+    }
+
+    // Construct a map set to its zero value,
+    // that can store user values based on a key of type string.
+    // Trying to use this map will result in a runtime error (panic).
+    var users map[string]user
+
+    // Construct a map initialized using make,
+    // that can store user values based on a key of type string.
+    users := make(map[string]user)
+
+    // Construct a map initialized using empty literal construction,
+    // that can store user values based on a key of type string.
+    users := map[string]user{}
+
+یک نگاشت که به مقدار صفر تنظیم شده است، قابل استفاده نیست و ممکن است منجر به اشکال در برنامه شما شود. استفاده از تابع داخلی make و ساخت مستقیم (literal construction) یک map آماده برای استفاده ایجاد می‌کند.
+
+    func main() {
+        users := make(map[string]user)
+
+        users["Roy"] = user{"Rob", "Roy"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+خروجی:
+
+    Roy {Rob Roy}
+    Ford {Henry Ford}
+    Mouse {Mickey Mouse}
+    Jackson {Michael Jackson}
+
+اگر تابع داخلی make برای ساخت یک نقشه (map) استفاده شود، آپراتور تخصیص (assignment operator) می‌تواند برای افزودن و به‌روزرسانی مقادیر در نقشه (map) استفاده شود. ترتیبی که کلیدها/مقادیر در حین تکرار (ranging) بر روی نقشه ارائه می‌شوند، توسط مشخصات (spec) تعریف نشده است و وظیفه اجرای آن به عهده کامپایلر است.
+
+    func main() {
+        users := map[string]user{
+            "Roy":     {"Rob", "Roy"},
+            "Ford":    {"Henry", "Ford"},
+            "Mouse":   {"Mickey", "Mouse"},
+            "Jackson": {"Michael", "Jackson"},
+        }
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+خروجی:
+
+    Ford {Henry Ford}
+    Jackson {Michael Jackson}
+    Roy {Rob Roy}
+    Mouse {Mickey Mouse}
+
+در این مورد، خروجی به ترتیب متفاوتی نسبت به نحوه‌ی آن‌ها در ساختار لیست شده‌اند. الگوریتم فعلی برای نسخه 1.16 نتایج را به ترتیب تصادفی با توجه به تعداد مقادیر به یک حد معین می‌آورد. مجدداً، این یک پیاده‌سازی کامپایلر است که ممکن است تغییر کند. نباید به آن اعتماد کرد.
+
+** جستجوی کلیدها و حذف آنها از نقشه
+
+هنگامی که داده‌ها در داخل یک نقشه (map) ذخیره شده‌اند، برای استخراج هر داده، نیاز به جستجوی کلید (key lookup) وجود دارد.
+
+    user1, exists1 := users["Bill"]
+    user2, exists2 := users["Ford"]
+
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
+
+خروجی:
+
+    Bill: false { }
+    Ford: true {Henry Ford}
+
+برای انجام جستجوی کلید، از براکت‌های مربعی با متغیر نقشه (map variable) استفاده می‌شود. دو مقدار از یک جستجوی نقشه (map lookup) برگردانده می‌شوند، مقدار و یک مقدار بولین که نشان می‌دهد آیا مقدار پیدا شده یا نه. اگر نیاز به اطلاع از این موضوع نداشته باشید، می‌توانید متغیر "exists" را حذف کنید.
+
+هنگامی که یک کلید در نقشه پیدا نشود، عملیات یک مقدار از نوع نقشه را به حالت مقدار صفرش بازمی‌گرداند. شما این موضوع را با جستجوی کلید "Bill" می‌بینید. از مقدار صفر برای تعیین اینکه یک کلید در نقشه وجود دارد یا نه استفاده نکنید، زیرا مقدار صفر ممکن است معتبر باشد و واقعاً برای کلید ذخیره شده باشد.
+
+    delete(users, "Roy")
+
+یک تابع داخلی به نام "delete" وجود دارد که امکان حذف داده‌ها از نقشه بر اساس یک کلید را فراهم می‌کند.
+
+** محدودیت‌های کلید نقشه
+
+همه‌ی انواع نمی‌توانند به عنوان کلید استفاده شوند.
+
+    type slice []user
+    Users := make(map[slice]user)
+
+خطای کامپایلر:
+
+    invalid map key type users
+
+یک تیکه (slice) مثال خوبی از یک نوع است که نمی‌تواند به عنوان یک کلید استفاده شود. تنها مقادیری که می‌توانند از طریق تابع هش (hash function) اجرا شوند، واجد شرایط هستند. یک راه خوب برای شناسایی انواعی که می‌توانند یک کلید باشند، این است که اگر نوع می‌تواند در یک عملیات مقایسه استفاده شود، معتبر است. شما نمی‌توانید دو مقدار تیکه را مقایسه کنید.
+
+** یادداشت‌ها
+
+- نقشه‌ها یک روش برای ذخیره و بازیابی جفت‌های کلید/مقدار فراهم می‌کنند.
+- خواندن یک کلید غیرحاضر، مقدار صفر برای نوع مقدار نقشه باز می‌گرداند.
+- تکرار بر روی یک نقشه همیشه به صورت تصادفی است.
+- کلید نقشه باید یک مقدار قابل مقایسه باشد.
+- عناصر در یک نقشه قابل دسترس نیستند.
+- نقشه‌ها نوع مرجعی (reference type) هستند.
+
+** لینک ها
+
+- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
+
+* تمرین‌ها
+
+از الگو به عنوان نقطه شروع برای انجام تمرین‌ها استفاده کنید. یک راه حل ممکن ارائه شده است.
+
+** تمرین 1
+
+یک نقشه از مقادیر صحیح با یک رشته به عنوان کلید تعریف کرده و سپس آن را پر کنید. پنج مقدار را در نقشه قرار دهید و سپس بر روی نقشه تکرار کنید تا جفت‌های کلید/مقدار را نمایش دهید.
+
+.play maps/exercise1.go
+.play maps/answer1.go

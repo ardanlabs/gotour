@@ -1,0 +1,139 @@
+Tip Dönüşümleri ve Doğrulamaları
+Tip dönüşümleri ve doğrulamalar nasıl çalışır, öğrenin.
+
+* Tip Dönüşümleri ve Doğrulamalar
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bir tip dönüşümü, bir türün verisini başka bir türe dönüştürmenize olanak tanır. 
+Bir tip doğrulaması, bir arayüzde depolanan belirli bir türün değeri olup olmadığını 
+sormanıza izin verir.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Arayüz Dönüşümleri
+- *Örnek* *2:* Çalışma Zamanı Tip Doğrulamaları
+- *Örnek* *3:* Davranış Değişiklikleri
+
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+**  Belli Belirsiz Arayüz Dönüşümleri
+
+Son örnekte gördüğünüz gibi, bir türün arayüz değeri, arayüz içinde depolanan somut değer 
+her iki davranışı da uygularsa başka bir arayüz türüne geçirilebilir. Bu, belli belirsiz 
+bir arayüz dönüşümü olarak düşünülebilir, ancak somut verinin arayüzler arasında nasıl 
+hareket ettiğini düşünmek, bağlantısız bir durumda olduğunu anlamak daha iyidir.
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Bu üç arayüzü düşünürsek, MoveLocker'ın Mover ve Locker'ın bileşimi olduğunu görebiliriz.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+Ve bu arayüzleri uygulayan bike adlı somut bir türü ele alalım. Ne yapabilirsiniz?
+
+    var ml MoveLocker
+    var m Mover
+
+MoveLocker ve Mover türünde bir değeri sıfır değer durumuna getirebilirsiniz. 
+Bunlar gerçekten değersiz arayüz değerleridir.
+
+    ml = bike{}
+
+Ardından bike türünde bir değeri sıfır değer durumuna getirebilir ve bu değeri 
+MoveLocker değişkenine atayabilirsiniz. Bu, bir bike türünün tüm üç davranışı uygulamasından 
+dolayı mümkündür ve derleyici, uygulamanın var olduğunu görebilir.
+
+    m = ml
+
+Daha sonra MoveLocker değişkenini Mover değişkenine atayabilirsiniz. Bu, ml arayüz değerini 
+değil, içinde depolanan bike değerini atadığımız için mümkündür. Derleyici, ml içinde 
+depolanan herhangi bir somut değerin aynı zamanda Mover arayüzünü de uygulamış olması 
+gerektiğini bilir.
+
+Ancak bu atama geçerli değildir.
+
+    ml = m
+
+Çıktı:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+Mover değişkenini ml değişkenine geri atayamazsınız çünkü derleyici, m içinde depolanan somut 
+değerin sadece Nasıl Hareket Edeceğini bildiğini garanti edebilir. Derleme zamanında somut 
+değerin aynı zamanda Nasıl Kilitleneceğini ve Açılacağını da bilip bilmediğini bilemez.
+
+** Tip Doğrulama Mekanizmaları
+
+Bir tip doğrulaması, çalışma zamanında bir soru sormanıza izin verir: Arayüz içinde 
+belirli bir türde bir değer var mı? Bu, m.(bike) sözdizimi ile görülebilir.
+
+    b := m.(bike)
+    ml = b
+
+Bu durumda, kodun çalıştırıldığı anda m içinde bir bike değeri olup olmadığını soruyorsun. 
+Eğer varsa, değişken b, depolanan bike değerinin bir kopyasını alır. Ardından kopya, 
+ml arayüz değişkeni içine kopyalanabilir.
+
+Eğer arayüz değeri içinde bir bike değeri yoksa, program çöker. Bu, kesinlikle bir bike 
+değeri depolanmış olması gerekiyorsa istediğiniz bir durumdur. Peki ya olmamışsa ve bu geçerliyse? 
+O zaman tip doğrulamasının ikinci formuna ihtiyacınız var.
+
+    b, ok := m.(bike)
+
+Bu formda, eğer ok true ise, arayüz içinde bir bike değeri bulunmaktadır. Eğer ok 
+false ise, o zaman bir bike değeri yoktur ve program çökmeyecektir. Ancak b değişkeni 
+hala bike türündedir, ancak sıfır değer durumuna ayarlanır.
+
+    func main() {
+        mvs := []fmt.Stringer{
+            Car{},
+            Cloud{},
+        }
+
+        for i := 0; i < 10; i++ {
+            rn := rand.Intn(2)
+
+            if v, is := mvs[rn].(Cloud); is {
+                fmt.Println("Got Lucky:", v)
+                continue
+            }
+
+            fmt.Println("Got Unlucky")
+        }
+    }
+
+Varsayalım ki program, her biri fmt.Stringer arayüzünü uygulayan Car ve Cloud adında 
+iki türü bildiriyor. Hem Car hem de Cloud türünden bir değeri saklamanıza izin veren 
+bir koleksiyon oluşturabilirsiniz. Ardından, 10 kez, 0 ile 1 arasında rastgele bir sayı 
+seçersiniz ve o rastgele indeksteki değerin bir Cloud değeri içerip içermediğini kontrol 
+etmek için bir tip doğrulaması yaparsınız. Bu, tipin Cloud türünde olmama olasılığı 
+olduğundan, tip doğrulamasının ikinci formu burada kritiktir.

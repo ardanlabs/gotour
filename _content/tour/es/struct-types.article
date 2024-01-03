@@ -1,0 +1,243 @@
+Tipos Estructurados
+Los tipos estructurados (struct) son una manera de crear tipos complejos que agrupan campos de datos.
+
+* Tipos Estructurados
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Ve el Vídeo]]
+- Necesitas de Ayuda Financiera, Utiliza Nuestro [[https://www.ardanlabs.com/scholarship/][Formulario de Becas]]
+
+Los tipos estructurados (struct) son una manera de crear tipos complejos que agrupan campos de datos.
+Son una manera magnífica de organizar y compartir los diferentes aspectos de los datos que consume tu programa.
+
+El rendimiento potencial de la arquitectura de tu ordenador es determinado predominantemente por
+su longitud de palabra (el número de bits que pueden ser procesados por acceso) y, más importante,
+el tamaño de la memoria, o el número de palabras al que puede acceder.
+
+** Revisión de Código
+
+- *Ejemplo* *1:* Declarar, crear e inicializar tipos estructurados.
+- *Ejemplo* *2:* Tipos estructurados anónimos.
+- *Ejemplo* *3:* Tipos con y sin nombre. 
+- *Ejemplo* *4:* Alineamiento de tipos estructurados.
+
+.play struct-types/example1.go
+.play struct-types/example2.go
+.play struct-types/example3.go
+.play struct-types/example4.go
+
+** Struct y Mecanismos de Construcción
+
+Esta declaración representa un tipo concreto definido por el usuario como la composición de
+diferentes campos y tipos.
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Declara una variable de tipo example y la inicializa a su estado de valor cero.
+
+    var e1 example
+
+    fmt.Printf("%+v\n", e1)
+
+Salida:
+    
+    {flag:false counter:0 pi:0}
+
+Declara una variable de tipo example, no configurada a su estado de valor cero usando una sintáxis
+de construcción literal.
+
+    e2 := example{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e2.flag)
+    fmt.Println("Counter", e2.counter)
+    fmt.Println("Pi", e2.pi)
+
+Salida:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+Declara una variable de un tipo literal sin nombre, configurada a su estado de valor distinto de cero
+utilizando una sintáxis de construcción literal.
+
+    e3 := struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e3.flag)
+    fmt.Println("Counter", e3.counter)
+    fmt.Println("Pi", e3.pi)
+
+Salida:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+La idea de construcción literal es simplemente eso, construir algo literalmente sin un nombre.
+
+Deberías utilizar var para el valor cero y el operador corto de declaración de variable con
+la sintáxis { } para construcciones distintas del valor cero.
+
+** Relleno (Padding) y Alineamiento
+
+¿Cuánta memoria se asigna a un valor del tipo example?
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Un booleano es 1 byte, int16 es 2 bytes, y float32 es 4 bytes. Suma todo y obtienes 7 bytes.
+Sin embargo, la respuesta verdadera es 8 bytes. ¿Por qué?, porque existe un byte de relleno justo entre los campos flag y counter por culpa del alineamiento.
+
+.image /tour/es/static/img/f1.png
+
+La idea del alineamiento es permitir al hardware leer la memoria de manera más eficiente
+al colocar memoria en límites de alineamiento específicos. El compilador se ocupa de los
+mecanismos de los límites del alineamiento, de manera que no tengas que hacerlo tú.
+
+Dependiendo del tamaño del un campo en particular y su lugar en la estructura, Go
+determina el relleno que necesitas.
+
+    type example2 struct {
+        flag    bool
+        counter int16
+        flag2   bool
+        pi      float32
+    }
+
+En este ejemplo, he añadido un nuevo campo llamado `flag2` entre los campos counter y pi.
+Ésto añade relleno a la estructura.
+
+    type example2 struct {
+        flag    bool     // 0xc000100020 <- Dirección inicial
+                byte     // 0xc000100021 <- 1 byte de relleno
+        counter int16    // 0xc000100022 <- 2 bytes de alineamiento
+        flag2   bool     // 0xc000100024 <- 1 byte de alineamiento
+                byte     // 0xc000100025 <- 1 byte de relleno
+                byte     // 0xc000100026 <- 1 byte de relleno
+                byte     // 0xc000100027 <- 1 byte de relleno
+        pi      float32  // 0xc000100028 <- 4 bytes de alineamiento
+    }
+
+Así es como el alineamiento y el relleno actúan si un valor del tipo example2 comienza
+en la dirección 0xc000100020. El campo flag representa la dirección de inicio y es de sólo
+1 byte de tamaño. Como el campo counter requiere 2 bytes de asignación, debe ser colocado
+en memoria con un alineamiento de 2 bytes, significando que necesita caer en una dirección
+que sea múltiplo de 2. De este modo, el campo counter comienza en la dirección 0xc000100022.
+Así se crea un hueco de 1 byte entre los campos flag y counter.
+
+.image /tour/es/static/img/f2.png
+
+El campo `flag2` es un booleano y puede caer en la siguiente dirección 0xc000100024.
+El último campo es pi y requiere 4 bytes de asignación, por lo que necesita caer en un
+alineamiento de 4 bytes. La siguiente dirección para un valor de 4 bytes es 0xc000100028.
+Eso significa que 3 bytes más de relleno son necesarios para mantener un alineamiento apropiado.
+Esto resulta en un valor del tipo example2 que requiere 12 bytes de asignación total de memoria.
+
+El campo más largo en una estructura representa el límite de alineamiento para la estructura
+al completo. En este caso, el campo más largo es de 4 bytes, por lo que la dirección inicial
+para el valor de esta estructura debe ser un múltiplo de 4. Puedes comprobar que la dirección
+0xc000100020 es un múltiplo de 4.
+
+Si necesitas minimizar la cantidad de bytes de relleno, debes definir los campos
+del que más asignación necesita al menor. De este modo cualquier byte de relleno
+será empujado hacia el final de la estructura, reduciendo el número total de bytes de relleno necesarios.
+
+    type example struct {
+        pi      float32  // 0xc000100020 <- Dirección inicial
+        counter int16    // 0xc000100024 <- Alineamiento de 2 bytes
+        flag    bool     // 0xc000100026 <- Alineamiento de 1 byte
+        flag2   bool     // 0xc000100027 <- Alineamiento de 1 byte
+    }
+
+Tras reordenar los campos, el valor de la estructura sólo requiere 8 bytes de asignación,
+no 12 como antes. Como todos los campos permiten que el valor de la estructura caiga
+en un alineamiento de 4 bytes, no es necesario añadir bytes de relleno.
+
+.image /tour/es/static/img/f3.png
+
+** Asignando Valores
+
+Si tienes dos tipos con nombre diferentes que son idénticos en estructura, no puedes asignar
+un valor de uno al otro.
+
+Por ejemplo, si los tipos example1 y example2 son declarados utilizando exactamente la misma
+declaración e inicializamos dos variables.
+
+    var ex1 example1
+    var ex2 example2
+
+No es posible asignar esas dos variables la una a la otra, pues son de diferentes tipos con nombre.
+El hecho de que sean idénticas en estructura es irrelevante.
+
+    ex1 = ex2  // No permitido, error de compilación
+
+Para realizar la asignación, tendrías que utilizar la sintáxis de conversión, y puesto que
+son idénticas en estructura, el compilador lo permitirá.
+
+    ex1 = example1(ex2)  // Permitido, NO hay error de compilación
+
+Sin embargo, si ex1 fuera cambiado para ser declarado como un tipo sin nombre utilizando exactamente
+la misma declaración que ex1, no sería necesaria la sintáxis de conversión.
+
+    var ex2 struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+    ex1 = ex2  // Permitida, la sintáxis de conversión NO es necesaria
+
+El compilador permitirá la asignación sin la necesidad de una conversión.
+
+** Notas
+
+- Podemos utilizar la forma literal de la estructura para inicializar un valor de un tipo estructurado.
+- El operador punto (.) permite acceder a los valores de los campos de manera individual.
+- Es posible crear estructuras anónimas.
+
+** Citas
+
+"La conversión implícita de tipos es el Hallowing especial de la programación. Quienquiera que
+piense sobre ello se merece su propio infierno especial." - Martin Thompson
+
+** Lecturas Extra
+
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
+- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+
+* Ejercicios
+
+Utiliza la plantilla como punto de partida para completar los ejercicios. Una posible solución es proporcionada.
+
+** Ejercicio 1
+
+*Parte* *A:* Declara un tipo estructurado para mantener información sobre un usuario
+(nombre, email y edad). Crear un valor de este tipo, inicialízalo con valores y muestra
+cada campo.
+
+*Parte* *B:* Declara e inicializa un tipo estructurado anónimo con los mismos tres campos.
+Muestra el valor.
+
+.play struct-types/exercise1.go
+.play struct-types/answer1.go

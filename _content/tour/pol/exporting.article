@@ -1,0 +1,143 @@
+Eksportowanie
+Eksportowanie umożliwia deklarację, czy identyfikator jest dostępny dla kodu spoza pakietu, w którym jest deklarowany.
+
+* Eksportowanie
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Eksportowanie umożliwia deklarację, czy identyfikator jest dostępny dla kodu spoza pakietu, w którym jest deklarowany.
+
+** Przegląd kodu
+
+- *Przykład* *1:* Deklaracja i dostęp do identyfikatorów eksportowanych
+- *Przykład* *2:* Deklaracja identyfikatorów niedostępnych dla innych i ograniczenia
+- *Przykład* *3:* Dostęp do wartości identyfikatorów niedostępnych dla innych
+- *Przykład* *4:* Niedostępne pola typów struktury
+- *Przykład* *5:* Niedostępne typy osadzone
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Mechanika eksportowania
+
+Pakiet jest podstawową jednostką skompilowanego kodu w Go. Reprezentuje fizyczną
+skompilowaną jednostkę kodu, zwykle jako skompilowaną bibliotekę w systemie operacyjnym
+hosta. Eksportowanie określa dostęp do identyfikatorów między granicami pakietów.
+
+    package counters
+
+    type AlertCounter int
+
+W tym przykładzie, ponieważ wielka litera jest używana do nazwania typu AlertCounter,
+typ jest eksportowany i może być bezpośrednio odwoływany przez kod spoza pakietu liczników.
+
+    package counters
+
+    type alertCounter int
+
+Teraz po zmianie nazwy typu na zaczynającą się od małej litery, typ jest nieeksportowany. Oznacza to,
+że tylko kod wewnątrz pakietu "counters" może bezpośrednio odnosić się do tego typu.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Pomimo że kod powyżej jest składniowo poprawny i zostanie skompilowany, nie ma w nim żadnej wartości.
+Zwracanie wartości niedostępnych dla innych pakietów typu jest mylące, ponieważ wywołujący (który
+prawdopodobnie znajduje się w innym pakiecie) nie może bezpośrednio odnosić się do nazwy typu.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+W tym przypadku funkcja main w pakiecie main wywołuje funkcję counters.New z sukcesem,
+a kompilator może deklarować i tworzyć zmienną o niedostępnym dla innych pakietów typie.
+To jednak nie oznacza, że powinieneś to robić, ani że dostajesz za to rzeczywistą
+ochronę. Takie praktyki powinny być unikane, i jeśli funkcja New ma zwracać wartość,
+powinna to być wartość typu dostępnego dla innych pakietów.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+Jeśli chodzi o pola w strukturze, pierwsza litera deklaruje, czy pole jest dostępne dla kodu
+spoza pakietu, w którym jest deklarowane. W tym przypadku pola "Name" i "ID" są dostępne,
+ale pole "password" już nie. Jest to idiomatyczne podejście do oddzielania pól dostępnych dla
+innych pakietów od niedostępnych, jeśli jest to logiczne lub praktyczne. Zazwyczaj wszystkie
+pola są jednym lub drugim.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+
+W tym scenariuszu, mimo że typ "user" jest niedostępny dla innych pakietów, posiada on dwa pola
+dostępne dla innych. Oznacza to, że gdy typ "user" jest osadzany (embedded) w eksportowanym
+typie "Manager", pola "user" stają się dostępne (promowane) i można do nich odwoływać się
+spoza pakietu. Jest to powszechne, aby mieć typy, które są niedostępne dla innych pakietów,
+ale posiadają pola dostępne dla innych, ponieważ pakiet reflection może działać tylko na
+polach dostępnych dla innych. W przeciwnym razie marshallery nie będą działać.
+
+Ten przykład tworzy sytuację, w której kod spoza pakietu "users" może tworzyć obiekt typu "Manager",
+ale ponieważ osadzony typ "user" jest niedostępny, pola tego typu nie mogą być zainicjowane.
+To tworzy problemy z częściową konstrukcją, które prowadzą do błędów. Ważne jest, aby być
+konsekwentnym w kwestii eksportowania i niedostępności dla innych pakietów.
+
+** Notatki
+
+- Kod w Go jest kompilowany do pakietów, a następnie łączony razem.
+- Identyfikatory są eksportowane (lub pozostają niedostępne) na podstawie wielkości liter.
+- Importujemy pakiety, aby uzyskać dostęp do identyfikatorów eksportowanych.
+- Każdy pakiet może używać wartości niedostępnego typu, ale jest to uciążliwe do użycia.
+
+** Dodatkowe materiały
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Utwórz pakiet o nazwie 'toy' z pojedynczym eksportowanym typem struktury o nazwie 'Toy'.
+Dodaj eksportowane pola 'Name' i 'Weight'. Następnie dodaj dwa niedostępne dla innych pól o nazwach
+'onHand' i 'sold'. Zadeklaruj funkcję fabryczną o nazwie 'New' do tworzenia wartości typu 'Toy' i akceptuj
+parametry dla eksportowanych pól. Następnie zadeklaruj metody umożliwiające zwracanie i aktualizację
+wartości niedostępnych pól.
+
+*Część* *B:* Utwórz program, który importuje pakiet 'toy'. Użyj funkcji 'New' do utworzenia wartości
+typu 'toy'. Następnie użyj metod do ustawienia liczb i wyświetlenia wartości pól tej wartości typu 'toy'.
+
+.play exporting/exercise1.go
+.play exporting/answer1.go

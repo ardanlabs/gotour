@@ -1,0 +1,82 @@
+Zanieczyszczenie interfejsem
+"Zanieczyszczenie interfejsem" (interface pollution) wynika z tego, że ludzie projektują oprogramowanie z wykorzystaniem interfejsów zamiast odkrywać je.
+
+* Zanieczyszczenie interfejsem
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+"Zanieczyszczenie interfejsem" (interface pollution) wynika z tego, że ludzie projektują
+oprogramowanie z wykorzystaniem interfejsów zamiast je odkrywać.
+
+** Przegląd kodu
+
+- *Example* *1:* Tworzenie zanieczyszczonych interfejsów
+- *Example* *2:* Usuwanie zanieczyszczonych interfejsów
+
+.play composition/pollution/example1.go
+.play composition/pollution/example2.go
+
+** Zanieczyszczenie interfejsem
+
+Zanieczyszczenie interfejsu wynika z faktu, że ludzie projektują oprogramowanie z użyciem interfejsów
+zamiast je odkrywać. Powinieneś najpierw zaprojektować konkretne rozwiązanie problemu. Następnie
+możesz odkryć, gdzie program potrzebuje być polimorficzny, jeśli w ogóle.
+
+To są rzeczy, które słyszałem od innych programistów.
+
+"Używam interfejsów, ponieważ musimy używać interfejsów".
+
+Nie, nie musimy używać interfejsów. Używamy interfejsów, gdy jest to praktyczne i uzasadnione.
+Istnieje koszt używania interfejsów: poziom pośrednictwa i alokacja, gdy przechowujemy
+konkretne wartości wewnątrz nich. Jeśli koszt alokacji nie jest wart tego, co zyskuję przez
+odłączenie, nie powinieneś używać interfejsów.
+
+"Muszę być w stanie przetestować mój kod, więc muszę używać interfejsów".
+
+Nie, musisz najpierw zaprojektować moje API z myślą o użytkowniku, a nie o teście.
+Jeśli API nie jest testowalne, powinieneś zastanowić się, czy jest użyteczne.
+Istnieją różne poziomy API. Niższego poziomu API, które nie jest eksportowane,
+może i powinno skupić się na testowalności. Wyższe poziomy API dostępne publicznie
+muszą skupić się na użyteczności.
+
+Funkcje, które przyjmują surowe dane i zwracają surowe dane, są najbardziej testowalne.
+Oddziel przekształcanie danych od tego, skąd pochodzą i dokąd trafiają. To ćwiczenie
+refaktoryzacyjne, które musisz przeprowadzić podczas cyklu inżynieryjnego kodowania.
+
+Poniżej znajduje się przykład tworzenia zanieczyszczenia interfejsu przez niewłaściwe
+użycie interfejsu, gdy nie jest on potrzebny.
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+Interfejs Server definiuje umowę dla serwerów TCP. Problem polega na tym, że nie potrzebujesz umowy,
+potrzebujesz implementacji. Będzie tylko jedna implementacja, zwłaszcza że ty jesteś osobą, która
+ją implementuje. Nie potrzebujesz, aby ktoś inny to dla ciebie robił.
+
+Dodatkowo ten interfejs oparty jest na rzeczowniku, a nie czasowniku. Konkretne typy są rzeczownikami,
+ponieważ reprezentują konkretne problemy. Interfejsy opisują zachowanie, a Server to nie jest zachowanie.
+
+Oto kilka sposobów rozpoznawania zanieczyszczenia interfejsem:
+
+- Pakiet deklaruje interfejs, który pasuje do całego API swojego własnego konkretnego typu.
+- Interfejsy są eksportowane, ale konkretne typy implementujące interfejs są niewidoczne na zewnątrz.
+- Funkcja fabryczna dla konkretnego typu zwraca wartość interfejsu z niewidoczną wartością konkretnego typu wewnątrz.
+- Interfejs można usunąć, a dla użytkownika API nic się nie zmienia.
+- Interfejs nie odłącza API od zmiany.
+- Wskazówki dotyczące zanieczyszczenia interfejsem:
+
+Użyj interfejsu:
+
+- Kiedy użytkownicy API muszą dostarczyć szczegóły implementacji.
+- Kiedy API ma wiele implementacji, które wymagają utrzymania.
+- Kiedy zidentyfikowano części API, które mogą ulec zmianie i wymagają odłączenia.
+
+Zastanów się nad interfejsem:
+
+- Kiedy jego jedynym celem jest tworzenie testowalnych API (najpierw twórz użyteczne API).
+- Kiedy nie zapewnia wsparcia, aby API mogło unikać zmian.
+- Kiedy nie jest jasne, w jaki sposób interfejs poprawia jakość kodu.

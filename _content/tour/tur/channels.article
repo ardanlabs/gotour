@@ -1,0 +1,199 @@
+Kanallar (Channels)
+Kanallar, gorutinler arasında sinyal verme semantiği kullanarak iletişim kurmalarına olanak tanır.
+
+* Kanallar (Channels)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bir kanalı bir veri yapısı değil, sinyal verme mekanizması olarak düşünmek önemlidir.
+Bu, bir kanala gönderme ve alım yapmanız gerektiği fikriyle uyumludur, okuma ve yazma 
+değil. Önünüzdeki sorun sinyalle çözülemezse, eğer "sinyal" kelimesi ağzınızdan çıkmıyorsa, 
+kanalların kullanımını sorgulamanız gerekebilir.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Sonuç bekleyin
+- *Örnek* *2:* Yayılma
+- *Örnek* *3:* Görev bekleyin
+- *Örnek* *4:* Havuzlama
+- *Örnek* *5:* Yayılma semafor
+- *Örnek* *6:* Sınırlı iş havuzlama
+- *Örnek* *7:* Bırak
+- *Örnek* *8:* İptal
+- *Örnek* *9:* Yeniden deneme zaman aşımı
+- *Örnek* *10:* Kanal iptali
+
+.play channels/example1.go
+.play channels/example2.go
+.play channels/example3.go
+.play channels/example4.go
+.play channels/example5.go
+.play channels/example6.go
+.play channels/example7.go
+.play channels/example8.go
+.play channels/example9.go
+.play channels/example10.go
+
+** Kanal Mekaniği
+
+Sinyal seviyesinde garanti olmanın maliyeti bilinmeyen gecikmedir. Gönderen, alıcının 
+sinyali kabul etmek için ne kadar süre beklemesi gerektiğini bilemez. Alıcı için beklemek, 
+engelleyici gecikmeye neden olur. Bu durumda, bilinmeyen miktarlarda engelleyici gecikme 
+oluşur. Gönderen, alıcının sinyali alıncaya kadar, bilinmeyen bir süre boyunca beklemek 
+zorundadır.
+
+Alıcıyı beklemek, mekanik olarak, alım işlemi gönderimden önce gerçekleşir. Kanallarla, 
+alım nanosaniye önce gerçekleşir, ama öncedir. Bu, alıcının sinyali alıp ardından 
+uzaklaştığı anlamına gelir, bu da gönderene garanti ile devam etme olanağı tanır.
+
+Peki, sürekli bir süreyi beklemek mümkün değilse ne olacak? Eğer bu tür bir gecikme 
+işe yaramazsa? O zaman garanti, sinyal seviyesinin dışında olmalıdır. Bu çalışmanın 
+arkasındaki mekanik, gönderim şimdi alımdan önce gerçekleşir. Gönderen, alıcının hazır 
+olmasını beklemeye ihtiyaç duymadan sinyali gerçekleştirebilir. Gönderen beklemek zorunda 
+değil ve uzaklaşabilir. Sonunda, umarız, alıcı ortaya çıkar ve sinyali alır.
+
+Bu, gönderim üzerinde gecikme maliyetini azaltır, ancak sinyallerin alınıp alınmadığı 
+ve dolayısıyla alıcılarla yukarı akışta sorun olup olmadığını bilmeme belirsizliği yaratır. 
+Bu, hiç başlamayan veya bitmeyen işi kabul etmeye neden olabilir. Nihayetinde, büyük bir 
+geri baskı ve sistem çökmesine neden olabilir.
+
+Odaklanılması gereken ikinci şey, sinyalle birlikte veri gönderip göndermemeniz gerekip 
+gerekmediğidir. Eğer sinyal iletimi için veri gönderilmesi gerekiyorsa, o zaman sinyalleşme 
+Gorutinler arasında 1'e 1'dir. Eğer yeni bir Gorutinin de sinyali alması gerekiyorsa, 
+ikinci bir sinyal gönderilmelidir.
+
+Eğer veri sinyal iletmek için gönderilmemesi gerekiyorsa, o zaman sinyal Gorutinler 
+arasında 1'e 1 veya 1'e çok olabilir. Veri olmadan sinyal, genellikle iptal veya 
+kapatmalar için kullanılır. Bu, kanalı kapatmak suretiyle yapılır.
+
+Üçüncü odaklanılması gereken şey, kanal durumudur. Bir kanal 3 durumdan birinde olabilir.
+
+Bir kanal, kanalı sıfır değer durumuna inşa ederek nil durumda olabilir. Bu durumdaki 
+kanallara karşı gönderim ve alımlar engellenecektir. Bu, işin kısa vadeli duraklamalarını 
+uygulamak istediğiniz durumlar için iyidir.
+
+Bir kanalı açık durumda yapmak için yerleşik make fonksiyonunu kullanabilirsiniz. 
+Bu durumdaki kanallara karşı gönderim ve alımlar aşağıdaki koşullar altında çalışacaktır:
+
+*Tamponsuz* *Kanallar:*
+
+- "Tamponsuz Kanallar" sinyalleşme seviyesinde garanti sağlar, almanın göndermeden önce 
+gerçekleştiği durumdur. Bir sinyalin işlenmesi için gönderme ve alma işlemleri, Gorutin'lerin 
+aynı zamanda ve mekânda bir araya gelmesini gerektirir.
+
+*Tamponlu* *Kanallar:*
+
+- "Tamponlu Kanallar", sinyalleşme seviyesi dışında bir garanti sağlar; gönderme, almadan önce 
+gerçekleşir. Eğer tampon dolu değilse, göndermeler tamamlanabilir; aksi takdirde engellenirler. 
+Tampon boş değilse, alımlar tamamlanabilir; aksi takdirde engellenirler..
+
+Bir kanalı kapatmak için yerleşik close fonksiyonunu kullanabilirsiniz. Bir kanalı 
+kapatmak için hafızayı serbest bırakmanıza gerek yoktur, bu, durumu değiştirmek içindir. 
+Kapalı bir kanala gönderim yapmak bir panik oluşturacaktır, ancak kapalı bir kanal 
+üzerinde alım, hemen geri dönecektir.
+
+Tüm bu bilgilerle, kanal kalıplarına odaklanabilirsiniz. Sinyale odaklanmak önemlidir. 
+Fikir, sinyal seviyesinde bir garantiye ihtiyacınız olup olmadığına veya olmadığına dayanır, 
+gecikme endişelerine göre. Sinyal ile veri gönderip göndermemeniz gerekip gerekmediğine 
+odaklanın, iptalleri işleme alıp almadığınıza göre. Sözdizimini bu anlamsal yapılara 
+dönüştürmek istersiniz.
+
+** Tasarım İlkeleri
+
+- Kanallar için [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][tasarım ilkelerini]] öğrenin.
+
+** Diyagramlar
+
+*Teslimat* *Garantisi*
+
+`Teslimat Garantisi`, şu soruya dayanır: "Belirli bir gorutinin gönderdiği sinyalin 
+alındığına dair bir garantiye ihtiyacım var mı?"
+
+.image /tour/eng/static/img/guarantee_of_delivery.png
+
+*Veriyle* *veya* *Verisiz* *Sinyalleşme*
+
+`Veriyle` sinyal gönderecekseniz, ihtiyacınız olan `garanti` türüne bağlı olarak üç 
+kanal yapılandırma seçeneği vardır.
+
+.image /tour/eng/static/img/signaling_with_data.png
+
+Verisiz sinyalleşme, iptal etmenin temel amacına hizmet eder. Bir gorutin, başka 
+bir gorutine ne yaptıklarını iptal etmeleri için sinyal gönderip devam etmelerini 
+sağlayabilir. İptal, hem `tamponlu` hem de `tamponsuz` kanallar kullanılarak uygulanabilir.
+
+.image /tour/eng/static/img/signaling_without_data.png
+
+*Durum*
+
+Bir kanalın davranışı, doğrudan mevcut `Durumu` tarafından etkilenir. Bir kanalın 
+durumu `nil`, `açık` veya `kapalı` olabilir.
+
+.image /tour/eng/static/img/state.png
+
+** Ek Okuma
+
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
+- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
+- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy    
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
+
+** Tampon Şişmesi - 2011
+
+Gecikmeyi azaltma amacıyla büyük tamponları kullanma konusunda dikkatli olun.
+
+- Büyük tamponlar geri baskının zamanında bildirimini önler.
+- Geri baskıyı zamanında azaltma yeteneğinizi bozar.
+- Gecikmeyi artırabilir, azaltmaz.
+- Tamponlu kanalları sürekliliği sürdürmenin bir yolu olarak kullanın.
+- Sadece performans için kullanmayın.
+- Onları iyi tanımlanmış veri patlamalarıyla başa çıkmak için kullanın.
+- Onları el değiştirmeler arasındaki ışık hızı sorunlarıyla başa çıkmak için kullanın.
+
+*Videolar*
+
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Muhtemel bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+İki gorutin arasında on kez bir tamsayıyı ileten bir program yazın. Her gorutin tamsayıyı 
+ne zaman aldığını görüntüleyin. Her geçişte tamsayıyı artırın. Tamsayı ona eşit olduğunda, 
+programı temiz bir şekilde sonlandırın.
+
+.play channels/exercise1.go 
+.play channels/answer1.go
+
+** Egzersiz 2
+
+100 rastgele sayı üretmek için bir fan-out deseni kullanan bir program yazın. Her gorutine 
+bir tane rastgele sayı üretmesini sağlayın ve bu sayıyı tamponlu bir kanal aracılığıyla ana 
+gorutine geri döndürün. Kanalın tampon boyutunu öyle ayarlayın ki hiçbir gönderme asla bloke 
+olmasın. İhtiyacınızdan fazla tampon tahsis etmeyin. Ana gorutin, aldığı her rastgele sayıyı 
+görüntülesin ve ardından programı sonlandırsın.
+
+.play channels/exercise2.go 
+.play channels/answer2.go
+
+** Egzersiz 3
+
+En fazla 100 rastgele sayı üreten bir program yazın. Gönderme/alma sayısının bilinmediği 
+bir durumda 100 değeri göndermeyin.
+
+.play channels/exercise3.go 
+.play channels/answer3.go
+ 
+** Egzersiz 4
+
+Bir işçi havuzu kullanarak en fazla 100 rastgele sayı üreten bir program yazın. Çift 
+değerleri reddedin. İşçilere, 100 tek sayı toplandığında kapanmalarını söyleyin.
+
+.play channels/exercise4.go 
+.play channels/answer4.go
