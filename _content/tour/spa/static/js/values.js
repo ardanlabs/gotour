@@ -100,11 +100,11 @@ value('tableOfContents', [{
 value('translation', {
     'off': 'off',
     'on': 'on',
-    'syntax': 'Resaltado de Sintaxis',
+    'syntax': 'Resaltado de Sintáxis',
     'lineno': 'Números de Línea',
     'reset': 'Reiniciar Diapositiva',
     'format': 'Formatear Código Fuente',
-    'kill': 'Matar Programa',
+    'kill': 'Terminar Programa',
     'run': 'Ejecutar',
     'compile': 'Compilar y Ejecutar',
     'more': 'Opciones',
