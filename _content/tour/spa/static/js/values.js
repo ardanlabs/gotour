@@ -20,7 +20,7 @@ value('tableOfContents', [{
     'id': 'language-mechanics',
     'title': 'Mecanismos del Lenguaje',
     'description': `
-        <p>Este material cubre toda la sintáxis, idiomas, implementación y espeficación del lenguaje. Una vez que acabes con este material entenderás tanto los mecanismos del lenguaje como las simpatías mecánicas que tiene para el hardware y el sistema operativo.</p>
+        <p>Este material cubre toda la sintaxis, idiomas, implementación y espeficación del lenguaje. Una vez que acabes con este material entenderás tanto los mecanismos del lenguaje como las simpatías mecánicas que tiene para el hardware y el sistema operativo.</p>
         `,
     'lessons': [
         'variables',
@@ -100,7 +100,7 @@ value('tableOfContents', [{
 value('translation', {
     'off': 'off',
     'on': 'on',
-    'syntax': 'Resaltado de Sintáxis',
+    'syntax': 'Resaltado de Sintaxis',
     'lineno': 'Números de Línea',
     'reset': 'Reiniciar Diapositiva',
     'format': 'Formatear Código Fuente',
