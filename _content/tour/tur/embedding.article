@@ -1,0 +1,200 @@
+Gömme (Embedding)
+Gömme Türleri, tipler arasında durum ve davranış paylaşımını ve yeniden kullanımını sağlamanın son parçasını sunar.
+
+* Gömme (Embedding)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Gömme türleri, iç tür terfi kullanarak iç türün alanlarına ve metotlarına dış tür 
+referanslarıyla doğrudan erişilebilmesini sağlar.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Alanları Bildirme		   
+- *Örnek* *2:* Gömme Türleri
+- *Örnek* *3:* Gömülü türler ve arayüzler
+- *Örnek* *4:* Dış ve iç tür arayüz uygulamaları
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+** Gömme Mekaniği
+
+Bu ilk örnek, gömme göstermez, sadece iki yapı türünün bir türden diğerine alan 
+olarak çalıştığını gösterir.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        person user        // Gömme yok
+        level  string
+    }
+
+Bu gömme.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        user               // Değer Semantiği Gömme
+        level  string
+    }
+
+Kişi alanı kaldırıldı ve sadece tür adı bırakıldı. Bir türü ayrıca işaretçi semantiği 
+kullanarak da gömebilirsiniz.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        *user              // İşaretçi Semantiği Gömme
+        level  string
+    }
+
+Bu durumda, türün bir işaretçisi gömülüdür. Her iki durumda da gömülü değere 
+tür adının kullanılmasıyla erişilir.
+
+Gömme hakkında düşünmenin en iyi yolu, kullanıcı türünü iç tür olarak görmeniz ve admin'i 
+dış tür olarak görmenizdir. Gömme sayesinde, iç türle ilgili her şey (hem alanlar hem de metotlar) 
+dış türe yükseltilebilir.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    type admin struct {
+        *user              // İşaretçi Semantiği Gömme
+        level  string
+    }
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Dış tür terfisi
+    }
+
+Çıktı:
+
+    Sending user email To john smith<john@yahoo.com>
+    Sending user email To john smith<john@yahoo.com>
+
+Bir user türü için notify adlı bir metod eklediğinizde ve ardından küçük bir main 
+fonksiyonu eklediğinizde, çıktının aynı olduğunu görebilirsiniz. User türü için bildirilen 
+metod, iç işaretçi değeri üzerinden doğrudan veya dış tür değeri üzerinden erişilebilir. 
+Kullanıcı türü için bildirilen metod, dış tür değeri tarafından doğrudan erişilebilir.
+
+Bu kalıtım gibi görünse de dikkatli olmalısınız. Bu, durumu yeniden kullanma değil, 
+davranışı yükseltme hakkında bir şeydir.
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+Şimdi bir arayüz ekleyin ve notifier arayüzü tarafından tanımlanan davranışın tam metod 
+kümesini uygulayan herhangi bir somut değeri kabul eden polimorfik bir fonksiyon ekleyin. 
+Bu, yalnızca notify adlı bir metoda sahip olan bir metodu içerir.
+
+Gömme ve terfi nedeniyle, admin türü değerleri artık notify arayüzünü uygular.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Çıktı:
+
+    Sending user email To john smith<john@yahoo.com>
+
+Dış tür değeri, terfi nedeniyle notify arayüzünü uyguladığından, admin değerinin 
+adresini polimorfik fonksiyona iletebilirsiniz.
+
+    type admin struct {
+        *user  // İşaretçi Semantiği Gömme
+        level  string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+Dış tür, iç tür tarafından zaten uygulanan bir metodu uygularsa, terfi gerçekleşmez.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Çıktı:
+    
+    Sending admin email To john smith<john@yahoo.com>
+
+Dış türün metodu artık yürütülüyor.
+
+** Notlar
+
+- Gömme türleri, durum veya davranış paylaşmamıza izin verir.
+- İç tür hiçbir zaman kimliğini kaybetmez.
+- Bu kalıtım değildir.
+- Terfi nedeniyle iç tür alanlarına ve metotlarına dış tür üzerinden erişilebilir.
+- Dış tür, iç türün davranışını geçersiz kılabilir.
+
+** Ek Okuma
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+
+* Egzersizler
+
+Şablonu başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Şablondaki kodu düzenleyin. Yeni bir CachingFeed türü ekleyin. O Feed'i gömen ve 
+Fetch metodunu geçersiz kılan bir türdür.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go

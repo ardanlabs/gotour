@@ -106,6 +106,9 @@ func Main() {
 	grcUIContent, grcIndex := addLanguage("tour/grc/")
 	defer grcIndex.Close()
 
+	itaUIContent, itaIndex := addLanguage("tour/ita/")
+	defer itaIndex.Close()
+
 	perUIContent, perIndex := addLanguage("tour/per/")
 	defer perIndex.Close()
 
@@ -117,16 +120,22 @@ func Main() {
 
 	rusUIContent, rusIndex := addLanguage("tour/rus/")
 	defer rusIndex.Close()
+
+	turUIContent, turIndex := addLanguage("tour/tur/")
+	defer turIndex.Close()
+
 	// -------------------------------------------------------------------------
 	// Start Web Service
 
 	r := root{
 		engContent: engUIContent,
 		grcContent: grcUIContent,
+		itaContent: itaUIContent,
 		perContent: perUIContent,
 		porContent: porUIContent,
 		polContent: polUIContent,
 		rusContent: rusUIContent,
+		turContent: turUIContent,
 	}
 
 	http.HandleFunc("/", r.rootHandler)

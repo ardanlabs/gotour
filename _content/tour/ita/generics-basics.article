@@ -1,0 +1,117 @@
+Basi
+Impara come scrivere una funzione base di stampa generica.
+
+* Generics - Basi
+
+Impara come scrivere una funzione base di stampa generica.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Concrete implementation of print
+- *Example* *2*: Type Assertion implementation of print
+- *Example* *3*: Reflection implementation of print
+- *Example* *4*: Generic implementation of print
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Spiegazione
+
+Se vuoi scrivere una singola funzione di stampa in grado di produrre una sezione di qualsiasi tipo
+e non usare la reflection, puoi usare la nuova sintassi dei generics.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Si tratta di un'implementazione di una singola funzione di stampa che può produrre
+una sezione di qualsiasi tipo utilizzando la nuova sintassi dei Generics.
+La cosa bella di questa sintassi è che il codice all'interno della funzione può utilizzare
+sintassi e funzioni integrate che funzionerebbero con un tipo concreto.
+Questo non è il caso quando si utilizza l'interfaccia vuota per scrivere codice generico.
+
+Deve esserci un modo per dire al compilatore che non dichiarerai esplicitamente il tipo T,
+ma deve essere determinato dal compilatore in fase di compilazione.
+La nuova sintassi utilizza le parentesi quadre per questo.
+Le parentesi definiscono un elenco di identificatori di tipo generico che rappresentano
+tipi specifici della funzione che devono essere determinati in fase di compilazione.
+È così che tu comunichi al compilatore che i tipi con questi nomi non verranno dichiarati
+prima che il programma venga compilato. Questi tipi devono essere individuati in fase di compilazione.
+
+Nota: è possibile definire più identificatori di tipo all'interno delle parentesi tramite
+l'esempio corrente è usato solo uno. Es. [T, S, R any]
+
+Puoi nominare questi identificatori di tipo come preferisci per facilitare la leggibilità del
+codice. In questo caso, il codice utilizza la lettera maiuscola T per descrivere uno slice di qualche tipo
+Verrà passato T (da determinare in fase di compilazione). È un idioma usare una singola
+lettera maiuscola quando si tratta di collezioni ed è anche una convenzione che viene dai
+linguaggi di programmazione più vecchi come C++ e Java.
+
+C'è anche l'uso della parola any all'interno delle parentesi.
+Ciò rappresenta un vincolo su quale tipo T può essere.
+Il compilatore richiede che tutti i tipi generici abbiano un vincolo ben definito.
+Il vincolo any è pre dichiarato dal compilatore e afferma che non ci sono vincoli su quale tipo T può essere.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+Ecco come effettuare chiamate alla funzione print generica in cui si trovano le informazioni
+sul tipo T esplicitamente fornito al momento della chiamata.
+La sintassi emula l'idea che la dichiarazione di func name[T any](slice []T)
+definisce due insiemi di parametri.
+Il primo set è il tipo mappato dagli identificatori di tipo corrispondenti,
+il secondo sono i dati che vengono mappati alle variabili di input corrispondenti.
+
+Fortunatamente, il compilatore può dedurre il tipo ed eliminare la necessità di passare esplicitamente
+le informazioni al momento della chiamata.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Questo codice mostra come chiamare le funzioni di stampa generiche senza la necessità di passare
+le informazioni sul tipo in modo esplicito. Nel sito della chiamata di funzione,
+il compilatore è in grado di identificare il tipo da utilizzare per T
+e costruire una versione concreta della funzione per supportare slice di quel tipo.
+Il compilatore ha la capacità di dedurre il tipo con le informazioni in possesso
+al momento della chiamata derivanti dai dati passati.
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+Implementa una funzione generica denominata marshal che può accettare qualsiasi valore e
+effettua il marshalling di quel valore in JSON, restituendo il JSON e un errore.
+Dichiara un tipo di struct denominato User con due campi, Name ed Age.
+Quindi costruisci il valore del tipo User e passa il valore alla funzione marshal generica.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go
