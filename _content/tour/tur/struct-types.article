@@ -1,0 +1,245 @@
+Yapı Türleri (Struct Types)
+Yapı türleri, veri alanlarını bir araya getirerek karmaşık türler oluşturmanın bir yoludur.
+
+* Yapı Türleri (Struct Types)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+
+Yapı türleri, veri alanlarını bir araya getirerek karmaşık türler oluşturmanın bir yoludur. 
+Programınızın tükettiği verinin farklı yönlerini düzenlemenin ve paylaşmanın harika bir yoludur.
+
+Bir bilgisayar mimarisinin potansiyel performansı, başlıca kelime uzunluğu (erişim başına işlenebilen 
+bit sayısı) ve daha da önemlisi bellek boyutu veya erişebileceği kelime sayısı tarafından belirlenir.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Yapı türlerini bildirme, oluşturma ve başlatma
+- *Örnek* *2:* İsimsiz yapı türleri
+- *Örnek* *3:* İsimli ve isimsiz türlerin karşılaştırılması
+- *Örnek* *4:* Yapı türü hizalamaları
+
+.play struct-types/example1.go
+.play struct-types/example2.go
+.play struct-types/example3.go
+.play struct-types/example4.go
+
+** Yapı ve Oluşturma Mekanizmaları
+
+
+Bu bildiri, farklı alanların ve türlerin bir bileşeni olarak somut bir kullanıcı 
+tanımlı türü temsil eder.
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+example türünde bir değişken bildirin ve onu sıfır değer durumunda başlatın.
+
+    var e1 example
+
+    fmt.Printf("%+v\n", e1)
+
+Çıktı:
+    
+    {flag:false counter:0 pi:0}
+
+example türünde, sıfır değer durumuna ayarlanmamış bir değişkeni, literal yapım 
+sözdizimini kullanarak bildirin.
+
+    e2 := example{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e2.flag)
+    fmt.Println("Counter", e2.counter)
+    fmt.Println("Pi", e2.pi)
+
+Çıktı:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+
+Adlandırılmamış bir literal türün sıfır olmayan değer durumuna sahip bir değişkeni, 
+literal yapı sözdizimini kullanarak bildirin.
+
+    e3 := struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e3.flag)
+    fmt.Println("Counter", e3.counter)
+    fmt.Println("Pi", e3.pi)
+
+Çıktı:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+Literal yapımın fikri tam olarak budur, bir şeyi adını kullanmadan doğrudan oluşturmaktır.
+
+Sıfır değer için var'ı ve sıfır olmayan değer yapımı için { } sözdizimi ile kısa değişken 
+bildirimi operatörünü kullanmalısınız.
+
+** Dolgu ve Hizalama
+
+example türünde bir değer için kaç byte bellek ayrılmıştır?
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Bir bool 1 byte, int16 2 byte ve float32 4 byte'tır. Bunları toplarsanız 7 byte elde edersiniz. 
+Ancak gerçek cevap 8 byte'dır. Neden mi? Çünkü hizalama nedeniyle `Flag` ve `Counter` alanları 
+arasında bir dolgu byte bulunmaktadır.
+
+.image /tour/eng/static/img/f1.png
+
+Hizalama, belleği belirli bir hizalama sınırlarına yerleştirerek donanımın belleği 
+daha verimli bir şekilde okumasına izin vermek amacıyla kullanılır. Hizalama sınırları 
+mekaniğiyle ilgilenmek size düşmez, çünkü derleyici bunu halleder.
+
+Belirli bir alanın boyutuna ve yapı içindeki konumuna bağlı olarak, Go, ihtiyacınız 
+olan dolguyu belirler.
+
+    type example2 struct {
+        flag    bool
+        counter int16
+        flag2   bool
+        pi      float32
+    }
+
+Bu örnekte, counter ve pi alanları arasına yeni bir alan olan flag2 
+ekledim. Bu, yapı içinde daha fazla dolguya neden olur.
+
+    type example2 struct {
+        flag    bool     // 0xc000100020 <- Başlangıç Adresi
+                byte     // 0xc000100021 <- 1 byte dolgu
+        counter int16    // 0xc000100022 <- 2 byte hizalama
+        flag2   bool     // 0xc000100024 <- 1 byte hizalama
+                byte     // 0xc000100025 <- 1 byte dolgu
+                byte     // 0xc000100026 <- 1 byte dolgu
+                byte     // 0xc000100027 <- 1 byte dolgu
+        pi      float32  // 0xc000100028 <- 4 byte hizalama
+    }
+
+Eğer bir example2 türündeki bir değer 0xc000100020 adresinde başlıyorsa, hizalama ve 
+dolgu işlevini gösterir. Flag alanı başlangıç ​​adresini temsil eder ve yalnızca 1 byte 
+boyutundadır. Counter alanı için 2 byte tahsis gerektiğinden, bellekte 2 byte hizalama
+olması gerekir, bu da 2'nin katı olan bir adrese düşmesi gerektiği anlamına gelir. 
+Bu, counter alanının 0xc000100022 adresinden başlamasını gerektirir. Bu, flag ve counter 
+alanları arasında 1 byte boşluk oluşturur.
+
+.image /tour/eng/static/img/f2.png
+
+flag2 alanı bir bool'dur ve 0xc000100024 adresine düşebilir. Son alan pi, 4 byte tahsis 
+gerektirdiğinden 4 byte hizalamada olması gerekir. 4 byte değer için bir sonraki adres 
+0xc000100028'dir. Bu, uygun bir hizalamayı korumak için 3 daha fazla dolgu byte'ına ihtiyaç 
+duyulduğu anlamına gelir. Bu, example2 türündeki bir değerin toplamda 12 byte bellek tahsisi 
+gerektirdiği anlamına gelir.
+
+Bir yapıdaki en büyük alan, tüm yapı için hizalama sınırını temsil eder. Bu durumda en büyük 
+alan 4 byte olduğundan, bu yapı değerinin başlangıç adresi 4'ün katı olmalıdır. 0xc000100020 
+adresinin 4'ün katı olduğunu görebilirsiniz.
+
+Dolgu byte'larının miktarını en aza indirmeniz gerekiyorsa, alanları en yüksek tahsise göre 
+en düşük tahsile doğru düzenlemeniz gerekir. Bu, gerekli dolgu byte'larını yapı altına itmeye 
+ve toplam dolgu byte sayısını azaltmaya yardımcı olacaktır.
+
+    type example struct {
+        pi      float32  // 0xc000100020 <- Başlangıç Adresi
+        counter int16    // 0xc000100024 <- 2 byte hizalama
+        flag    bool     // 0xc000100026 <- 1 byte hizalama
+        flag2   bool     // 0xc000100027 <- 1 byte hizalama
+    }
+
+Alanların yeniden düzenlenmesinden sonra, yapı değeri 12 byte yerine sadece 8 byte tahsis gerektirir.
+Tüm alanlar, yapı değerinin 4 byte hizalamada düşmesine izin verdiği için ekstra dolgu byte'ları 
+gerekli değildir.
+
+.image /tour/eng/static/img/f3.png
+
+** Değer Atama
+
+Eğer aynı yapıda olan iki farklı adlandırılmış türünüz varsa, birinin değerini diğerine 
+atayamazsınız.
+
+Örneğin, example1 ve example2 tipleri tam olarak aynı bildiri kullanılarak bildirilirse ve 
+iki değişken başlatılırsa.
+
+    var ex1 example1
+    var ex2 example2
+
+Bu iki değişkeni birbirlerine atayamazsınız çünkü bunlar farklı adlandırılmış türlerdir. 
+Yapıları tamamen aynı olmaları bu durumda önemsizdir.
+
+    ex1 = ex2  // İzin verilmez, derleme hatası
+
+Bu atama işlemi için dönüşüm sözdizimini kullanmanız gerekir ve yapıları tamamen 
+aynı olduğundan derleyici buna izin verecektir.
+
+    ex1 = example1(ex2)  // İzin verilir, derleme hatası yok
+
+Ancak, eğer ex2, ex1 ile aynı deklarasyonu kullanarak adlandırılmamış bir tür olarak 
+değiştirilirse, dönüşüm sözdizimine ihtiyaç duyulmaz.
+
+    var ex2 struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+    ex1 = ex2  // İzin verilir, dönüşüm sözdizimine gerek yok
+
+Derleyici, dönüşüm gerekmeden bu atamaya izin verecektir.
+
+** Notlar
+
+- Bir yapı türünden bir değeri başlatmak için yapı literal formunu kullanabiliriz.
+- Nokta (.) operatörü, bireysel alan değerlerine erişmemize izin verir.
+- Anonim yapılar oluşturabilirsiniz.
+
+** Alıntılar
+
+"Türlerin dolaylı dönüşümü, kodlamanın Cadılar Bayramı özelidir. Onları düşünen kim 
+varsa, kendi özel cehennemini hak ediyor." - Martin Thompson
+
+** Ek Okuma
+
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
+- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+
+* Egzersizler
+
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Bir kullanıcı hakkında bilgi tutmak için bir yapı türü bildirin 
+(isim, e-posta ve yaş). Bu türde bir değer oluşturun, değerlerle başlatın ve 
+her alanı görüntüleyin.
+
+*Kısım* *B:* Aynı üç alana sahip anonim bir yapı türü bildirin ve başlatın.
+Değeri görüntüleyin.
+
+.play struct-types/exercise1.go
+.play struct-types/answer1.go

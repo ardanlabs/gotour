@@ -1,0 +1,170 @@
+Kanallar
+Go ekibinin, jenerikler sayesinde standart kütüphaneye bir eş zamanlılık deseni paketi ekleyebileceğini inceleyelim.
+
+* Generics - Kanallar
+
+Go ekibinin, jenerikler sayesinde standart kütüphaneye bir eş zamanlılık deseni paketi ekleyebileceğini inceleyelim.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İnceleme
+
+- *Örnek* *1*: Çalışma Fonksiyonu
+- *Örnek* *2*: Havuzlama
+
+.play generics/channels/example1.go
+.play generics/channels/example2.go
+
+** Açıklama
+
+Bu, jenerik türleri kullanarak kanalları ve fonksiyonları bildirmeyi gerektirir.
+
+    type workFn[Result any] func(context.Context) Result
+
+Bu örnekte, bir tür bildirilir ve bir bağlamı kabul eden ve jenerik tür Result döndüren 
+bir fonksiyonu temsil eder. Bu fonksiyon bildirimi, gerçekleştirilecek eşzamanlı çalışmayı 
+uygulayan ve bu çalışmanın sonucunu temsil eden bir fonksiyonu tanımlar.
+
+    func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
+        ch := make(chan Result, 1)
+        
+        go func() {
+            ch <- work(ctx)
+            fmt.Println("doWork : work complete")
+        }()
+        
+        return ch
+    }
+
+Şimdi, belirtilen fonksiyonu eşzamanlı olarak yürüten ve çağrıyı yapana fonksiyonun sonucunu 
+alabileceği bir kanalı döndüren doWork adında bir fonksiyon yazın. Result adında jenerik 
+bir tür, fonksiyonun dönüş türünü ve kanalın türünü temsil etmek üzere bildirilmiştir.
+
+doWork fonksiyonunun uygulamasında, jenerik tür Result'ın tamponlu bir kanalı inşa 
+edilir. Bu, eşzamanlı çalışmanın sonucunu almak için çağrılan kişiye döndürülen 
+kanaldır. Fonksiyonun ortasında, fonksiyonu eşzamanlı olarak yürütmek üzere bir gorutin 
+oluşturulur. Fonksiyonun geri dönmesi durumunda, dönüş argümanı kanal aracılığıyla 
+çağıran kişiye gönderilir.
+
+doWork fonksiyonunun kullanımını test etmek için küçük bir program yazın.
+
+    func main() {
+        duration := 100 * time.Millisecond
+        
+        ctx, cancel := context.WithTimeout(context.Background(), duration)
+        defer cancel()
+        
+        dwf := func(ctx context.Context) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return "work complete"
+        }
+
+        result := doWork(ctx, dwf)
+        
+        select {
+            case v := <-result:
+                fmt.Println("main:", v)
+            case <-ctx.Done():
+                fmt.Println("main: timeout")
+        }
+    }
+
+Çıktı:
+
+    doWork : work complete
+    main: work complete
+
+Program, 100 milisaniyede süresi dolacak bir bağlam bildirerek başlar. Sonra, 
+200 milisaniye kadar bekleyen ve "work complete" dizisini döndüren bir fonksiyon 
+bildirilir. Bağlam ve fonksiyon hazır olduğunda, doWork'a bir çağrı yapılır ve 
+bir string türünde bir kanal döndürülür ve bu kanal result değişkenine atanır.
+
+Derleyici, doWork çağrısına genel tür Result'ın hangi somut türü kullanması gerektiğini, 
+doWork fonksiyonuna iletilen literallerin fonksiyonun geri dönüş türünü inceleyerek 
+belirleyebilir. Bu harika çünkü doWork'a çağrı yaparken türü belirtmenize gerek kalmamıştır.
+
+String türünde bir kanalın result değişkenine atanmasıyla, bir select case kullanılarak 
+sonucun zamanında dönüp dönmediği veya zaman aşımının olup olmadığı beklenir. doWork 
+fonksiyonu, gerektiğinde herhangi bir somut tür için bu eşzamanlı çalışmayı gerçekleştirmek 
+için kullanılabilir.
+
+Aynı fikir, bir girişi genel olarak kabul edebilecek ve genel bir sonuç döndürebilecek 
+bir Gorutin havuzuna uygulanabilir.
+
+type workFn[Input any, Result any] func(input Input) Result
+
+Bu örnekte, fonksiyon türünü bir genel girişi kabul edecek ve genel bir sonuç döndürecek şekilde değiştirin.
+
+    func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
+        var wg sync.WaitGroup
+        wg.Add(size)
+        
+        ch := make(chan Input)
+        
+        for i := 0; i < size; i++ {
+            go func() {
+                defer wg.Done()
+                for input := range ch {
+                    result := work(input)
+                    fmt.Println("pollWork :", result)
+                }
+            }()
+        }
+        
+        cancel := func() {
+            close(ch)
+            wg.Wait()
+        }
+
+        return ch, cancel
+    }
+
+poolWork fonksiyonunda, aynı iki genel tür bildirilir, fonksiyonun giriş ve dönüş türünü 
+temsil etmek üzere. Bir WaitGroup, havuzdaki Gorutin'lerin yaşam döngüsünü yönetmek 
+için inşa edilir. Ardından, genel Input türünde bir kanal oluşturulur. Bu kanal, 
+havuzdaki Gorutin'lerin fonksiyonun giriş verilerini almak için kullanılır.
+
+Ardından, her bir Gorutin'in kanala karşı for-range döngüsünü kullanarak bekleme 
+işlemini gerçekleştirdiği bir havuzdaki Gorutin'ler oluşturulur. Son olarak, çağıran 
+kişinin havuzu kapatmasına ve tüm Gorutin'lerin sona erdiğini bildirmesine izin vermek 
+için bir iptal fonksiyonu oluşturulur.
+
+poolWork fonksiyonunun kullanımını test etmek için ikinci küçük bir program yazın.
+
+    func main() {
+        size := runtime.GOMAXPROCS(0)
+        
+        pwf := func(input int) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return fmt.Sprintf("%d : received", input)
+        }
+
+        ch, cancel := poolWork(size, pwf)
+        defer cancel()
+        
+        for i := 0; i < 4; i++ {
+            ch <- i
+        }
+    }
+
+Çıktı:
+
+    pollWork : 3 : received
+    pollWork : 2 : received
+    pollWork : 1 : received
+    pollWork : 0 : received
+
+Havuzun boyutu, eşzamanlı çalışabilecek Gorutin'lerin sayısına dayalı olarak hesaplanır. 
+Ardından, bir rastgele süre boyunca bekleyen ve ardından girişi temsil eden bir dizi 
+döndüren bir fonksiyon oluşturulur.
+
+Bununla birlikte, poolWork fonksiyonu çalıştırılır ve kanal ile iptal fonksiyonu döndürülür.
+İptal fonksiyonu ertelenir ve bir döngü, havuza 4 değer göndermek için oluşturulur. Çıktı 
+her seferinde farklı olacaktır, çünkü bu iş eşzamanlı olarak gerçekleşir.
+
+Bu küçük örnekler, nasıl bir eş zamanlılık paketinin uygulanabileceğine dair bazı fikirler sunar.

@@ -1,0 +1,112 @@
+Jenerik Temelleri (Generics)
+Temel bir genel yazdırma fonksiyonu nasıl yazılır öğrenin.
+
+* Jenerik Temelleri (Generics)
+
+Temel bir genel yazdırma fonksiyonu nasıl yazılır öğrenin.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İnceleme
+
+- *Örnek* *1*: print'in somut uygulaması
+- *Örnek* *2*: print'in Tür İddiası uygulaması
+- *Örnek* *3*: print'in Yansıma İddiası uygulaması
+- *Örnek* *4*: print'in Genel İddiası uygulaması
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Açıklama
+
+Eğer herhangi bir türden bir dilim çıktı alabilen tek bir yazdırma fonksiyonu yazmak 
+istiyorsanız ve yansımayı (reflection) kullanmak istemiyorsanız, yeni jenerik sözdizimini 
+kullanabilirsiniz.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Bu, yeni jenerik sözdizimi kullanılarak herhangi bir türden bir dilim çıktı alabilen 
+tek bir yazdırma fonksiyonunun bir uygulamasıdır. Bu sözdizimin güzel olmasının nedeni, 
+fonksiyon içindeki kodun somut bir türle çalışabilen sözdizimi ve yerleşik fonksiyonları
+kullanabilmesidir. Bu, genel kod yazmak için boş arayüzü kullanırken geçerli değildir.
+
+Belirtilen bir tür T'yi açıkça bildirmeyeceğinizi, ancak derleme zamanında belirlenmesi 
+gerektiğini bildirmenin bir yolu olmalıdır. Yeni sözdizimi bunun için köşeli parantezler 
+kullanır. Parantezler, derleme zamanında belirlenmesi gereken işleme özgü tür tanımlayıcılarının 
+bir listesini tanımlar. Bu, derleme zamanında bu türlerin adlarının bildirilmeyeceğini 
+belirtmenin bir yoludur. Bu türlerin derleme zamanında belirlenmesi gerekmektedir.
+
+Not: Bu parantezler içinde birden çok tür tanımlayıcısı belirleyebilirsiniz, ancak 
+şu anda örnek sadece bir tanesini kullanıyor. Örn. [T, S, R any]
+
+Bu tür tanımlayıcıları kodun okunabilirliğini artırmak için istediğiniz herhangi bir şeyle 
+adlandırabilirsiniz. Bu durumda, kod, bir tür T'nin (derleme zamanında belirlenecek) bir 
+dilimini ifade etmek için büyük harf T'yi kullanır. Bu, koleksiyonlarla ilgili olduğunda 
+tek büyük harfli harf kullanmak için bir deyimdir ve aynı zamanda C++ ve Java gibi eski 
+programlama dillerine dayanan bir gelenektir.
+
+Parantezler içindeki any kelimesi de kullanılır. Bu, T türünün ne olabileceğine dair 
+bir kısıtlamadır. Derleyici, tüm genel türlerin iyi tanımlanmış bir kısıtlamaya sahip 
+olmasını ister. any kısıtlaması, derleyici tarafından önceden tanımlanmış bir kısıtlamadır 
+ve T türünün ne olabileceğine dair herhangi bir kısıtlama olmadığını belirtir.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+Bu, T için tür bilgisinin çağrı noktasında açıkça sağlandığı genel print fonksiyonuna 
+çağrı yapmanın bir yoludur. Sözdizimi, func name[T any](slice []T) fonksiyon bildirisinin 
+iki setini tanımlar gibi görünür. İlk set, ilgili tür tanımlayıcılara eşlenen türdür 
+ve ikinci set, ilgili giriş değişkenlerine eşlenen veridir.
+
+Neyse ki, derleyici türü çıkarabilir ve çağrı noktasında tür bilgisini açıkça iletmeye 
+gerek olmadan türü belirleyebilir.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Bu kod, çağrı noktasında tür bilgisini açıkça iletmeye gerek olmadan genel print fonksiyonlarını
+nasıl çağırabileceğinizi gösterir. Fonksiyon çağrı noktasında, derleyici, geçirilen veriden 
+elde ettiği bilgilerle T için kullanılacak türü belirleyebilir ve fonksiyonun somut bir sürümünü 
+oluşturabilir.
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Herhangi bir değeri kabul edebilen ve bu değeri JSON'a dönüştürebilen genel 
+bir fonksiyon olan marshal adında genel bir fonksiyonu uygulayın, JSON'u ve bir hata 
+döndürün. İki alanı olan Name ve Age ile adlandırılmış bir yapı türü olan 
+User adında bir yapı türü bildirin. Daha sonra, User türünde bir değer oluşturun 
+ve bu değeri genel marshal fonksiyonuna geçirin.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

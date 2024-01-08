@@ -1,22 +1,22 @@
-Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+Указатели
+Указатели служат для передачи значений через границы внутри программы.
 
-* Pointers
+* Указатели
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+Указатели служат для передачи значений через границы внутри программы. Существует
+несколько типов программных границ. Наиболее распространенная - между вызовами функций.
+Существует также граница между горутинами, которые мы обсудим позже.
 
-** Code Review
+** Обзор кода
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *Пример* *1:* Передача по значению
+- *Пример* *2:* Совместное использование данных (часть 1)
+- *Пример* *3:* Совместное использование данных (часть 2)
+- *Пример* *4:* Aнализ утечек (из стэка на кучу)
+- *Пример* *5:* Рост стека
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,92 +24,91 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+При запуске Go-программы среда выполнения Go создает горутину. Горутины - это
+облегченные потоки на уровне приложения во многом схожие с потоками операционной системы.
+Их задача - управлять выполнением отдельного набора инструкций. В каждой программе на Go
+есть как минимум одна горутина, которую мы называем главной горутиной.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Каждой горутине отводится свой блок памяти, называемый стеком. При создании, под стек  выделяется
+2048 байт (2k) памяти. Это очень немного, но со временем стек может увеличиваться в размерах.
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Каждый раз, при вызове функции, под выполнение инструкций связанных с этой функцией,
+горутине на стэке выделяется блок памяти. Каждый такой блок называется фреймом.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
- 
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Размер фрейма для каждой функции определяется при компиляции. Значение не может быть
+создано на стеке, если на этапе компиляции компилятор не знает размера этого значения.
+Если компилятор не знает размера значения на этапе компиляции, значение вынужденно 
+создается на куче.
 
-*Pass* *By* *Value*
+Стеки являются самоочищающимися, и нулевые значения облегчают инициализацию стека.
+Каждый раз, при вызове функции, под фрейм выделяется блок памяти; память этого фрейма
+инициализируется, что позволяет самоочищение стека. При возврате из функции
+память фрейма остается нетронутой, поскольку неизвестно, потребуется ли эта память снова.
+Инициализация памяти при возврате была бы неэффективной.
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+*Передача* *по* *значению*
 
-The following code attempts to explain this more.
+По ходу выполнения программы, все данные передаются по значению. Это означает, что при
+передаче данных через границы программы, каждая функция или горутина получают свою
+собственную копию данных. Существуют два типа данных, с которыми вы будете работать:
+само значение (int, string, user) или адрес значения. Адреса - это данные,
+которые необходимо копировать и сохранять при передаче через границы программы.
+
+Следующий код пытается это более подробно продемонстрировать.
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
+        // Объявление переменной типа int со значением 10.
         count := 10
 
-        // To get the address of a value, use the & operator.
+        // Чтобы получить адрес значения, используйте оператор &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // Передача копии "значения" `count` (то, что находится в коробке)
+        // функции increment1.
         increment1(count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        // Вывод "значения" и "адреса" переменной счет.
+        // Значение count не изменится после вызова функции.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
+        // Передача копии "адреса" переменной count (где находится коробка)
+        // функции increment2. Это все равно считается передачей по значению,
+        // а не передачей по ссылке, потому что адреса - это значения.
         increment2(&count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        // Вывод "значения" и "адреса" переменной count.
+        // Значение переменной count изменилось после вызова функции.
         println(
-            "count:\tValue Of[", 
+            "count:\tValue Of[",
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // increment1 объявляет функцию, создающую свою собственной копию
+    // целочисленного значения.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Увеличить локальную копию целочисленного значения из вызывающей функции.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // increment2 объявляет функцию, принимающую копию адреса,
+    // указывающего на целочисленное значение.
+    // Переменные-указатели - это литеральные типы которые объявляются с помощью *.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // Увеличить целочисленное значение в вызывающей функции через указатель.
         *inc++
         println(
-            "inc2:\tValue Of[", 
-            inc, "]\tAddr Of[", &inc, 
+            "inc2:\tValue Of[",
+            inc, "]\tAddr Of[", &inc,
             "]\tPoints To[", *inc, "]")
     }
 
-Output:
+Результат:
 
     count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
     inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
@@ -117,35 +116,35 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** Заметки
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- Используйте указатели для совместного использования данных.
+- Значения в Go всегда передаются по значению.
+- "Значение"- это то, что находится в коробке. "Адрес" ( & )- это то, где находится коробка.
+- Оператор ( * ) объявляет переменную-указатель и "Значение, на которое указывает указатель".
 
-** Escape Analysis
+** Aнализ утечек (памяти со стэка на кучу)
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+Алгоритм, который компилятор использует для определения, следует ли создавать значение
+на стеке или куче, называется "анализом утечек". Название алгоритма может создать
+впечатление, будто значения сначала создаются на стеке, а затем "убегают" (или перемещаются)
+на кучу, когда это необходимо. Это НЕ так. Создание значения происходит только один раз,
+и алгоритм анализа утечек решает, где это произойдет (стек или куча). Только создание
+на куче называется выделением памяти в Go.
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
+Aнализ утечек требует понимания того кто владеет значением. Идея заключается
+в том, что когда значение создается внутри функции, то эта функция владеет значением.
+Затем возникает вопрос, должно ли значение, которое создается, все еще существовать
+когда после завершения работы функция-владелец возвращает значение? Если ответ - нет,
+то значение может быть создано на стеке. Если ответ - да, значение должно быть
+создано на куче.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Примечание: Правило владения - это хорошее базовое правило для идентификации кода, который
+приводит к выделению памяти. Однако нужно понимать, что анализ утечек имеет недостатки,
+которые могут привести к неочевидным выделениям. Кроме того, алгоритм использует оптимизации
+компилятора для уменьшения количества выделений памяти.
 
-    // user represents a user in the system.
+    // user представляет собой пользователя в системе.
     type user struct {
         name  string
         email string
@@ -160,14 +159,14 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+Функция stayOnStack использует семантику значения для возврата значения
+user вызывающему. Другими словами, вызывающий получает собственную  копию
+значения user, созданного функцией stayOnStack.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+Когда функция stayOnStack завершает работу, значение user, которое она создает,
+больше не должно существовать, так как вызывающий получает собственную копию.
+Поэтому создание значения user в рамках stayOnStack может происходить на стеке.
+Выделения памяти на куче не происходит.
 
     type user struct {
         name  string
@@ -183,154 +182,154 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+Функция escapeToHeap использует семантику указателя для возврата значения user
+в вызывающую функцию. Другими словами, вызывающая функция получает доступ (адрес) к
+создаваемому значению user.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+Когда функция escapeToHeap вызывается и завершает выполнение, значение user, которое она создает,
+все равно должно существовать, так как вызывающая функция получает общий доступ к значению.
+Поэтому создание значения внутри функции escapeToHeap не может происходить в стеке,
+оно должно происходить в куче. Да, это выделение памяти в куче.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Подумайте о том, что произойдет, если значение user в последнем примере будет выделено на стеке
+используя семантику указателя при возврате.
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+Вызывающая функция получит копию адреса стека из предыдущего фрейма, и целостность
+будет потеряна. Как только управление возвращается в вызывающую функцию, память на
+стеке, где находится значение user, становится снова доступной для использования.
+В момент, когда вызывающая функция выполняет очередной вызов функции, создается
+новый фрейм, и память будет перезаписана, уничтожив общее значение.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+Вот почему стоит думать о стеке как о самоочищающемся. Инициализация нулевым значением
+помогает очищать каждый стековый фрейм, без использования сборщика мусора (GC). Стек
+самоочищающийся, так как для выполнения каждого вызова функции берется и инициализируется
+фрейм. Очистка стека происходит во время вызова функций, а не при возвратах, потому
+что компилятор не знает, потребуется ли в будущем эта память на стеке.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+Aнализ утечек определяет, создается ли значение на стеке (по умолчанию) или
+в куче (при утечке). С функцией stayOnStack мы передаем копию значения обратно вызывающей
+функции, поэтому безопасно оставить значение на стеке. С функцией escapeToHeap мы передаем
+копию адреса значения обратно вызывающей функции (давая общий доступ к стеку),
+поэтому небезопасно оставлять значение на стеке.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+Существует множество мелких деталей, связанных с анализом утечек. Чтобы лучше разобраться
+в этой теме читайте пост в главе 14 под названием "Механика анализа утечек".
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Примечание: Начиная с версии 1.17, Go изменил ABI (бинарный интерфейс приложения),
+и перешел на новый способ передачи аргументов ввода и вывода функций с использованием
+регистров вместо памяти на стеке. Это работает на 64-разрядной архитектуре x86
+Linux, MacOS и Windows. Это означает, что некоторые аргументы функций не будут копироваться
+в стек, но некоторые (в зависимости от возможности использования регистров) могут.
+Это не изменяет семантики, описанной в этой главе.
 
-** Notes
+** Примечания
 
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- Когда значение может быть использовано после возврата функции, которая его создает.
+- Когда компилятор определяет, что размер значения слишком велик для размещения на стеке.
+- Когда компилятор не знает размера значения на этапе компиляции.
+- Когда значение отделяется посредством использованием функций или интерфейсов.
 
-** Garbage Collection Semantics
+** Семантика сборки мусора:
 
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+Как только значение создано в куче, включается механизм сборки мусора (GC).
+Самая важная часть GC - это алгоритм планирования. Он определяет частоту/темп, с
+которым GC должен выполняться, чтобы поддерживать наименьший объем кучи
+в сочетании с наилучшей производительностью приложения.
 
-- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Семантика сборки мусора, часть I]] - Уильям Кеннеди
 
-** Stack vs Heap
+** Стек против Кучи
 
-"The stack is for data that needs to persist only for the lifetime of the function
-that constructs it, and is reclaimed without any cost when the function exits. The
-heap is for data that needs to persist after the function that constructs it exits,
-and is reclaimed by a sometimes costly garbage collection." - Ayan George
+"Стек предназначен для данных, которые должны существовать только в течение времени
+выполнения функции, которая их создает, и он освобождаются без каких-либо затрат при выходе
+из функции. Куча предназначена для данных, которые должны существовать после завершения функции,
+которая их создала, и ее освобождение требует (иной раз дорогостоящей), сборки мусора." - Айян Джордж
 
-** Stack Growth
+** Рост стека
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+Размер фрейма для каждой функции вычисляется на этапе компиляции. Это означает,
+что если компилятор не знает размер значения на этапе компиляции, значение должно
+быть создано в куче. Примером может послужить использование встроенной функции make
+для создания среза, размер которого зависит от переменной.
 
-    b := make([]byte, size) // Backing array allocates on the heap.
+    b := make([]byte, size) // Массив для среза создается в куче.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go использует реализацию непрерывного стека, чтобы определить, как стеки растут и уменьшаются.
+Одна из альтернатив, которую мог бы использовать Go - реализация сегментированного стека,
+которая используется в некоторых операционных системах.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
+Каждый вызов функции сопровождается небольшой преамбулой, которая спрашивает: "Достаточно ли
+места на стеке для этого нового фрейма?". Если да, то проблем нет, и фрейм инициализируется.
+Если нет, то должен быть создан новый, более крупный стек, и память на существующем стеке
+должна быть скопирована в новый. Это требует изменения указателей, которые ссылаются на память
+на стеке. Преимущества непрерывной памяти и линейного обхода современного оборудования
+являются компромиссом ценой которого являются затраты на копирование.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+Из-за использования непрерывных стеков, ни одна горутина не может иметь указателя на стек
+другой горутины. Затраты среды выполнения, по отслеживанию каждого указателя на каждый стек
+и корректировки этих указателей для нового местоположения, были бы слишком велики.
 
-** Extra Reading
+** Дополнительное чтение
 
-**Pointer* *Mechanics*
+**Механика* *Указателей*
 
-- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
-- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Указатели против Значений]]
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Механика языка по стекам и указателям]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Использование указателей в Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Понимание указателей и выделения памяти]] - Уильям Кеннеди
 
-*Stacks*
+*Стеки*
 
-- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Предложение о непрерывном стеке]]
 
-*Escape* *Analysis* *and* *Inlining*
+*Анализ* *Утечек* *и* *Встраивание*
 
-- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
-- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Недостатки анализа утечек Go]]
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Оптимизации компилятора]]
 
-*Garbage* *Collection*
+*Сборка* *Мусора*
 
-- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
-- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
-- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
-- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
-- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
-- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
-- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
-- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
-- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
-- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
-- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
-- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+- [[http://gchandbook.org/][Справочник по Сборке Мусора]]
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][Пересмотр сборки мусора - 2021]] - Майкл Книсзек
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Сборка мусора с отслеживанием]]
+- [[https://blog.golang.org/go15gc][Блог Go - Сборка мусора версии 1.5]]
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Сборка мусора в Go: решение проблемы латентности]]
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Параллельная сборка мусора]]
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Планирование сборки мусора в Go 1.5]]
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Ликвидация повторного сканирования стека]]
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Почему сборщик мусора Go не реализует компактную сборку мусора?]] - Иэн Ланс Тейлор
+- [[https://blog.golang.org/ismmkeynote][Достигая Go: Путешествие сборщика мусора Go]] - Рик Хадсон
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Сборка мусора в Go, часть I - Семантика]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Сборка мусора в Go, часть II - Трассировки GC]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Сборка мусора в Go, часть III - Регулировка GC]] - Уильям Кеннеди
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Балласт памяти Go: Как я научился не волноваться и полюбил кучу]] - Росс Энгерс
 
-*Static* *Single* *Assignment* *Optimizations*
+*Оптимизации* *Статического* *Единичного* *Присваивания*
 
-- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
-- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
-- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Бен Джонсон - Статический анализ кода с использованием SSA]]
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Пакет SSA]]
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Понимание оптимизации компилятора]]
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Здесь представлен возможный вариант решения.
 
-** Exercise 1
+** Упражнение 1:
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*Часть* *А*: Объявите переменную типа int и проинициализируйте ее значением 20.
+Выведите "адрес" и "значение" переменной.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*Часть* *Б*: Объявите и инициализируйте переменную-указатель на тип int, указывающую
+на переменную, которую вы создали в предыдущем задании. Выведите "адрес", "значение"
+и "значение, на которое указывает указатель".
 
-** Exercise 2
+** Упражнение 2:
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+Объявите тип struct и создайте значение этого типа. Объявите функцию, которая
+может изменить значение какого-либо поля в этой структуре. Выведите значение до
+и после вызова вашей функции.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go

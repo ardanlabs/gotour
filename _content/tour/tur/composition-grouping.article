@@ -1,0 +1,220 @@
+Türlerle Gruplama
+Go dilinde alt türleme veya alt sınıflandırma kavramlarının gerçekten var olmadığını ve bu tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
+
+* Türlerle Gruplama
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Go dilinde alt türleme veya alt sınıflandırmanın gerçekten var olmadığını ve bu 
+tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
+
+** Kod İnceleme
+
+- *Örnek* *1:* Duruma Göre Gruplama
+- *Örnek* *2:* Davranışa Göre Gruplama
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Farklı Türde Verileri Gruplama
+
+Go dilinde alt türleme veya alt sınıflandırmanın gerçekten var olmadığını ve bu 
+tasarım kalıplarının kaçınılması gerektiğini hatırlamak önemlidir.
+
+Aşağıdaki şey, takip etmemeniz veya uygulamamanız gereken bir karşı kalıptır.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+Animal türü, tüm hayvanlar için ortak olan veriyi tanımlamaya çalışan bir temel tür 
+olarak bildiriliyor. Aynı zamanda bir hayvana bazı ortak davranışlar sağlamaya çalışıyorsunuz.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+Çoğu hayvanın bir şekilde konuşma yeteneği vardır. Ancak, bu ortak davranışı sadece 
+bir hayvana uygulamak anlamsızdır. Bu aşamada, bu hayvanın hangi sesi çıkardığını 
+bilmiyorsunuz, bu yüzden AH yazıyorsunuz.
+
+    type Dog struct {
+        Animal
+        PackFactor int
+    }
+
+Şimdi gerçek sorunlar başlıyor. Bir Köpeği bir Hayvanın sahip olduğu her şey ve daha 
+fazlası haline getirmek için gömme kullanmaya çalışıyorum. Yüzeyde bu işe yarayacak 
+gibi görünecek, ancak sorunlar olacak. Bu söylendikten sonra, bir Köpeğin belirli bir 
+şekilde konuşma yeteneği var.
+
+    func (d *Dog) Speak() {
+        fmt.Println("Woof!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+Speak metodunun uygulanmasında, AH yerine Hav yazabilirsiniz. Bu, bir köpeğin nasıl 
+konuştuğuna özeldir.
+
+    type Cat struct {
+        Animal
+        ClimbFactor int
+    }
+
+Bir Hayvanı temsil eden bir Köpeğim varsa, bir Kediye de ihtiyacım var. Gömme 
+kullanarak, Bir Kedi, Bir Hayvanın sahip olduğu her şey ve daha fazlasıdır.
+
+    func (c *Cat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+Speak metodunun uygulanmasında, AH yerine Miyav yazabilirsiniz. Bu, bir kedinin 
+nasıl konuştuğuna özeldir.
+
+Her şey güzel görünüyor ve gömme, diğer dillerdeki kalıtımın sağladığı işlevselliği 
+sunuyor gibi görünüyor. Sonra köpekleri ve kedileri, bir Hayvanın ortak bir DNA'sı 
+olduğu gerçeğine göre gruplamaya çalışırsınız.
+
+    animals := []Animal{
+        Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+Bunu yapmaya çalıştığınızda, derleyici bir Köpeğin ve Bir Kedinin bir Hayvan olmadığına dair 
+şikayet eder ve bu doğrudur. Gömme, kalıtım ile aynı değildir ve bu, uzak durmanız gereken 
+bir kalıptır. Bir Köpek bir Köpektir, bir Kedi bir Kedidir ve bir Hayvan bir Hayvandır. 
+Köpekler ve Kedileri bir Hayvan gibi geçiremezsiniz, çünkü değiller.
+
+Bu tür bir mekanizma aynı zamanda çok esnek değildir. Geliştirici tarafından yapılandırmayı 
+gerektirir ve kod erişiminiz yoksa, zamanla yapılandırma değişiklikleri yapamazsınız.
+
+Eğer bu, Köpek'lerin ve Kedilerin bir koleksiyonunu nasıl oluşturamayacağımızsa, bunu Go 
+dilinde nasıl yapabiliriz? Bu, ortak DNA üzerinden gruplama ile ilgili değil, ortak davranış 
+üzerinden gruplama ile ilgilidir. Davranış anahtardır.
+
+    type Speaker interface {
+        Speak()
+    }
+
+Eğer bir arayüz kullanırsanız, o zaman farklı veri türlerini karşılaştırmak istediğiniz
+davranışın ortak metot setini tanımlayabilirsiniz.
+
+    speakers := []Speaker{
+        &Dog{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Cat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+Yeni kodda, Köpekleri ve Kedileri, konuşabilen ortak davranışlarına dayalı olarak 
+bir araya getirebilirsiniz.
+
+Aslında, Animal türü gerçekte tür kirliliğidir çünkü ortak bir dizi durumu paylaşmak 
+için bir türü bildirmek, bir kod kokusudur ve kaçınılmalıdır.
+
+    type Dog struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Cat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+Bu özel durumdaki kod kokuları:
+
+- Animal türü, yeniden kullanılabilir durumun soyut bir katmanını sağlar.
+- Programın bir Animal türünün değerini yaratması veya yalnızca kullanması gerekmez.
+- Animal türü için Speak metodunun uygulanması genel bir uygulamadır.
+- Animal türü için Speak metodunun hiçbir zaman çağrılmayacak olması.
+
+Türleri bildirme konusundaki kurallar:
+
+- Yeni veya benzersiz bir şeyi temsil eden türleri bildirin.
+- Sadece okunabilirlik için takma adlar oluşturmayın.
+- Herhangi bir türün bir değerinin yaratıldığını veya kullanıldığını doğrulayın.
+- Durumu değil, davranışı istediğimiz için türleri gömün.
+- Davranış olmadan düşünmüyorsanız, gelecekteki kod değişikliklerini kaskad olmadan gerçekleştiremeyebilirsiniz.
+- Varolan bir tür için takma adlar veya soyutlamalar oluşturan türleri sorgulayın.
+- Yalnızca ortak bir dizi durumu paylaşmak amacıyla oluşturulan türleri sorgulayın.
+
+** Arayüzlerle Tasarlamayın
+
+Ne yazık ki, birçok geliştirici problemleri önce soyutta çözmeye çalışıyor. Hemen 
+arayüzlere odaklanıyor ve bu da arayüz kirliliğine yol açıyor. Bir geliştirici olarak, 
+iki modda var olursunuz: önce bir programcı, sonra bir mühendis.
+
+Programlama yaptığında, bir kod parçasını çalıştırmaya odaklanırsınız. Problemi çözmeye 
+ve engelleri aşmaya çalışırsınız. İlk fikirlerinizin işe yaradığını kanıtlamak, işte umurunuzda 
+olan bu olsun. Bu programlama somutta yapılmalı ve asla üretim için hazır olmamalıdır.
+
+Problemi çözen bir kod prototipiniz olduğunda, mühendislik moduna geçmelisiniz. Kodu mikro 
+düzeyde veri semantiği ve okunabilirlik için, ardından makro düzeyde zihinsel modeller ve 
+sürdürülebilirlik için nasıl yazacağınıza odaklanmalısınız. Ayrıca hatalara ve başarısızlık 
+durumlarına odaklanmalısınız.
+
+Bu çalışma, refaktoring döngüsünde yapılır. Okunabilirlik, verimlilik, soyutlama ve test edilebilirlik 
+için refaktörleme yapılır. Soyutlama, gerçekleştirilmesi gereken birkaç refaktörden sadece biridir. 
+Bu, somut bir kod parçası ile başladığınızda ve ardından ihtiyaç duyulan arayüzleri KEŞFETTİĞİNİZDE 
+en iyi şekilde çalışır. Arayüzleri MUTLAKA gerekmediği sürece soyutlamayın.
+
+Kodla çözdüğünüz her problem, veri dönüşümleri yazmanızı gerektiren bir veri problemidir. 
+Eğer veriyi anlamıyorsanız, probleminizi anlamıyorsunuz demektir. Problemi anlamıyorsanız, 
+hiçbir kod yazamazsınız. Somut veri yapılarına dayanan somut bir çözümle başlamak kritiktir. 
+Rob Pike'ın da dediği gibi,
+
+"Veri egemendir. Doğru veri yapılarını seçtiyseniz ve şeyleri iyi düzenlediyseniz, 
+algoritmalar neredeyse her zaman kendiliğinden ortaya çıkar." - Rob Pike
+
+Soyutlama ne zaman gerekli? Kodun verinin değişebileceği bir yer gördüğünüzde ve ortaya çıkacak 
+kod etkilerini en aza indirmek istediğinizde. Kodu test edilebilir yapmak için soyutlamayı 
+kullanabilirsiniz, ancak mümkünse bundan kaçınmalısınız. En iyi test edilebilir fonksiyonlar, 
+ham veriyi alıp ham veriyi gönderen fonksiyonlardır. Verinin nereden geldiği veya nereye gittiği 
+önemli olmamalıdır.
+
+Sonuç olarak, her problem için somut bir çözümle başlayın. Büyük kısmı sadece programlama olsa 
+bile. Ardından, bugünkü kod için MUTLAKA gereken arayüzleri keşfedin.
+
+"Arayüzlerle tasarlamayın, onları keşfedin." - Rob Pike
