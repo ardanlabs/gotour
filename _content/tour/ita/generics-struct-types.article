@@ -1,0 +1,143 @@
+Struct Types
+Puoi dichiarare un tipo generico utilizzando un tipo struct.
+
+* Generics - Struct Types
+
+Puoi dichiarare un tipo generico utilizzando un tipo struct.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Linked List
+
+.play generics/struct-types/example1.go
+
+** Spiegazione
+
+Cosa succederebbe se volessi dichiarare il tuo tipo generico utilizzando un tipo struct?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Questo tipo di struct viene dichiarato per rappresentare un nodo per una linked list.
+Ogni nodo contiene un singolo dato che viene archiviato e gestito dalla lisr.
+L'uso delle parentesi quadre dichiara che il tipo T è un tipo generico da determinare
+in fase di compilazione.
+L'uso del vincolo "any" descrive che non esiste alcun vincolo su quale tipo T può diventare.
+
+Con il tipo T dichiarato, il campo Dati può ora essere definito come un campo di tipo T
+da determinare in seguito. I campi next e prev devono puntare a un nodo dello stesso tipo T.
+Questi sono rispettivamente i puntatori al nodo successivo e precedente nell'elenco collegato.
+Per effettuare questa connessione, i campi vengono dichiarati come puntatori a un nodo che
+è vincolato al tipo T tramite l'uso delle parentesi quadre.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+Il secondo tipo di struttura è denominato list e rappresenta una raccolta di nodi puntando al
+primo e all'ultimo nodo di una list. Questi campi devono puntare a un nodo di tipo T, proprio
+come i campi next e prev del tipo di nodo.
+
+Ancora una volta, l'identificatore T è definito come un tipo generico (da determinare in seguito)
+che può essere sostituito da "any" di tipo concreto. Quindi il primo e l'ultimo campo vengono
+dichiarati come puntatori a un nodo di tipo T utilizzando la sintassi delle parentesi quadre.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+Questa è un'implementazione di un metodo denominato add per il tipo list.
+Non è richiesta alcuna dichiarazione formale di elenco di tipi generici (come con le funzioni) poiché
+il metodo è associato all'elenco tramite il ricevente.
+Il ricevente del metodo add è dichiarato come puntatore a un elenco di tipo T e
+il ritorno è dichiarato come puntatore a un nodo dello stesso tipo T.
+
+Il codice dopo la costruzione di un nodo sarà sempre lo stesso, indipendentemente dal tipo di
+dati memorizzati nella list poiché si tratta solo di manipolazione del puntatore.
+Solo la costruzione di un nuovo nodo risente della tipologia di dati che verranno gestiti.
+Grazie ai generici, la costruzione di un nodo può essere vincolata al tipo T
+che viene sostituito successivamente in fase di compilazione.
+
+Senza i generici, l'intero metodo dovrebbe essere duplicato poiché la costruzione di un
+nodo dovrebbe essere codificata in modo rigido su un tipo noto e dichiarato prima della compilazione.
+Poiché la quantità di codice (per l'intera implementazione della list) che deve essere modificata
+per diversi tipi di dati è molto piccola, essere in grado di dichiarare un nodo e un elenco
+per gestire dati di qualche tipo T riduce il costo della duplicazione del codice e
+della manutenzione.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Store values of type user into the list.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Store pointers of type user into the list.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Output:
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+Ecco una piccola applicazione. Viene dichiarato un tipo denominato user e quindi
+viene costruito una list con il suo stato di valore zero per gestire i valori di tipo user.
+Viene quindi costruito un secondo elenco con il suo stato di valore zero e questo elenco gestisce
+i puntatori a valori di tipo user.
+L'unica differenza tra questi due elenchi è che uno gestisce valori di tipo user e l'altro puntatori di tipo user.
+
+Poiché il tipo user viene specificato esplicitamente durante la costruzione del tipo list,
+il metodo add a sua volta accetta valori di tipo user.
+Poiché un puntatore di tipo user viene specificato esplicitamente durante la costruzione del tipo list,
+il metodo add accetta puntatori di tipo user.
+
+Puoi vedere nell'output del programma, il campo Dati per i nodi nelle rispettive
+list corrispondono alla semantica dei dati utilizzata nella costruzione.
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+Dichiarare un tipo generico denominato stack che utilizza una struct con un singolo
+campo denominato data dichiarato come slice di tipo T. Dichiara un metodo denominato
+push che accetta un valore di tipo T e aggiunge il valore allo slice.
+Dichiara un metodo denominato pop che restituisce l'ultimo valore di tipo T aggiunto allo slice e un errore.
+Quindi scrivi un main funzione che utilizza i metodi.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go

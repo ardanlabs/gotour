@@ -1,0 +1,163 @@
+Variablili
+Le variabili sono al cuore del linguaggio e forniscono la capacità di leggere e scrivere nella memoria.
+
+* Variabili
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Le variabili sono il cuore del linguaggio e forniscono la capacità di leggere e scrivere nella memoria.
+In Go, l'accesso alla memoria è sicuro. Questo significa che il compilatore
+prende sul serio il tipo e non ci consentirà di utilizzare variabili al di fuori dell'ambito di come vengono dichiarate.
+
+** Code Review
+
+- *Example* *1*: Codice di esempio che mostra come dichiarare le variabili
+
+.play variables/example1.go
+
+** Tipi incorporati
+I tipi forniscono integrità e leggibilità ponendo due domande:
+
+- Quale è l'ammontare di memoria da allocare (esempio 1, 2, 4, 8 bytes)
+- Cosa rappresenta quella memoria ? (esempio int, uint, bool,..)
+
+I tipi possono essere specifici sulla precisione come int32 o int64::
+
+- uint8 rappresenta un intero senza segno con 1 byte di allocazione
+- int32 rappresenta un intero con segno con 4 bytes di allocazione. Quando dichiari un tipo
+usando un tipo senza precisione (unit, int) la dimensione del valore è basata
+sulla architettura usata per compilare il programma:
+
+- Architettura 32 bit : int rappresenta un int con segno a 4 bytes di allocazione di memoria
+- Architettura 64 bit : int rappresenta un int con segno a 8 bytes di allocazione di memoria
+
+** Dimensione parola
+
+La dimensione della parola rappresenta la quantità di allocazione di memoria richiesta per memorizzare
+numeri interi e puntatori per una determinata architettura. Per esempio:
+
+- Architettura 32 bit : dimensione parola è 4 bytes di memoria allocata
+- Architettura 64 bit : dimensione parola è 8 bytes di memoria allocata
+
+Questo è importante perché Go ha strutture dati interne (mappe, channels, slice, interfacce e funzioni)
+che memorizzano numeri interi e puntatori.
+La dimensione di queste strutture dati sarà basata sull'architettura utilizzata per costruire il programma.
+
+In Go, l'ammontare della memoria allocata per un valore di tipo int, un puntatore, o una parola
+sarà sempre lo stesso sulla stessa architettura.
+
+** Concetto di valore zero
+Ogni singolo valore costruito in Go viene inizializzato al suo stato zero
+a meno che non si specifichi il valore di inizializzazione durante la costruzione.
+Il valore zero è l'impostazione di ogni bit in ogni byte su zero.
+
+Questo viene fatto per l'integrità dei dati e non è gratuito. Esso prende tempo per spingere
+gli elettroni attraverso la macchina per resettare quei bit, ma dovresti sempre
+dare priorità all'integrità rispetto alle prestazioni.
+
+    Type               Zero Value
+    Boolean            false
+    Integer            0
+    Float              0
+    Complex            0i
+    String             "" (empty)
+    Pointer            nil
+
+** Dichiarazione e inizializzazione
+La parola chiave var può essere utilizzata per costruire valori al loro stato zero per tutti i tipi.
+
+    var a int
+    var b string
+    var c float64
+    var d bool
+
+    fmt.Printf("var a int \t %T [%v]\n", a, a)
+    fmt.Printf("var b string \t %T [%v]\n", b, b)
+    fmt.Printf("var c float64 \t %T [%v]\n", c, c)
+    fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
+
+Output:
+
+    var a int    	int [0]
+    var b string 	string []
+    var c float64	float64 [0]
+    var d bool   	bool [false]
+
+Le stringhe utilizzano il set di caratteri UTF8, ma in realtà sono solo una raccolta di byte.
+
+Una stringa è una struttura dati interna di due parole in Go:
+
+- La prima parola rappresenta un puntatore a un array, di supporto, di byte
+- La seconda parola rappresenta la lunghezza o il numero di byte nell'array di supporto
+- Se la stringa è impostata sul suo stato zero, la prima parola è nil e la seconda parola è 0.
+
+Utilizzando l'operatore di dichiarazione breve, è possibile dichiarare, costruire e inizializzare un valore allo stesso tempo.
+
+    aa := 10       // int [10]
+    bb := "hello"  // string [hello]
+    cc := 3.14159  // float64 [3.14159]
+    dd := true     // bool [true]
+
+    fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
+    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
+    fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
+
+Output:
+
+    aa := 10         int [10]
+    bb := "hello"    string [hello]
+    cc := 3.14159    float64 [3.14159]
+    dd := true       bool [true]
+
+** Conversione contro Cast
+
+Go non ha cast, ma conversione. Invece di dire al compilatore di mappare un
+insieme di byte su una rappresentazione diversa, i byte devono essere copiati in
+una nuova posizione di memoria per la nuova rappresentazione.
+
+    aaa := int32(10)
+    fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
+
+    Output:
+    aaa := int32(10) int32 [10]
+
+Go ha un package nella libreria standard chiamato unsafe se hai bisogno di eseguire
+un'operazione di cast effettiva. Dovresti davvero evitarlo ed essere onesto con te stesso
+sul motivo per cui stai pensando di usarlo.
+L'esecuzione di una conversione fornisce il massimo livello di integrità per questi tipi di operazioni.
+
+** Note
+
+- Lo scopo di tutti i programmi e di tutte le parti di essi è trasformare i dati da una forma all'altra.
+- Il codice principalmente alloca, legge e scrive in memoria.
+- Comprendere il tipo è fondamentale per scrivere un buon codice e comprenderlo.
+- Se non capisci i dati, non capisci il problema.
+- Comprendi meglio il problema comprendendo i dati.
+- Quando le variabili vengono dichiarate al loro stato zero, utilizza la parola chiave var.
+- Quando le variabili vengono dichiarate e inizializzate, utilizzare l'operatore di dichiarazione breve.
+
+** Letture extra
+
+- [[http://golang.org/ref/spec#Boolean_types][Tipi incorporati]]
+- [[https://golang.org/doc/effective_go.html#variables][Variabili]]
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][Cosa c'è in un nome]]
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][Breve storia del “tipo”]] - Arcane Sentiment
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+*Parte* *A:* Dichiara tre variabili che sono inizializzate al loro valore zero e
+tre dichiarati con un valore letterale. Dichiarare variabili di tipo string, int e bool.
+Visualizza i valori di tali variabili.
+
+*Parte* *B:* Dichiara una nuova variabile di tipo float32 e inizializza la variabile
+convertendo il valore letterale di Pi (3.14).
+
+.play variables/exercise1.go
+.play variables/answer1.go

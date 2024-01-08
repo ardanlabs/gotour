@@ -1,0 +1,108 @@
+Comportamento come vincolo
+Every generic type requires a constraint to be declared so the compiler knows what concrete type substitutions it can accept or reject at compile time.
+
+* Generics - Comportamento come vincolo
+
+Ogni tipo generico richiede la dichiarazione di un vincolo in modo che il compilatore
+sappia quali sostituzioni di tipo concreto può accettare o rifiutare in fase di compilazione.
+Every generic type requires a constraint to be declared so the compiler knows what
+concrete type substitutions it can accept or reject at compile time. Questo è richiesto
+anche se non esiste alcun vincolo reale su quale possa essere il tipo generico,
+da qui l' identificatore del vincolo pre dichiarato any.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Concrete stringify function
+- *Example* *2*: Type assertion stringify function
+- *Example* *3*: Interface stringify function
+- *Example* *4*: Generic stringify function
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Spiegazione
+
+Abbastanza interessante, il concetto di vincolo esiste già nel linguaggio.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+Il codice definisce un tipo concreto denominato User e implementa un metodo denominato
+String che restituisce il nome dello user, Quindi viene dichiarato un tipo di interfaccia denominato
+Stringer, che dichiara un comportamento String, che restituisce una stringa. Grazie
+al metodo dichiarato per User, puoi dire che il tipo concreto User implementa
+l'interfaccia Stringer utilizzando la semantica del valore.
+
+La funzione Concrete è proprio questo, una funzione che accetta dati concreti basati su
+cosa è. Il Polimorfico è proprio questo, una funzione che accetta dati concreti
+in base a ciò che può fare. Questa è la differenza principale tra un concrete e
+una funzione polimorfica. Uno è limitato a un tipo di dati, l’altro no. Tuttavia,
+c'è un vincolo su quali dati concreti possono essere passati nella funzione polimorfica.
+
+L'interfaccia Stringer definisce tale vincolo dichiarando un insieme di metodi di comportamento
+che i dati concreti devono essere in grado di esibire. Se applicato come tipo di input,
+il compilatore può garantire che il vincolo comportamentale venga soddisfatto ogni volta che la funzione è
+chiamata.
+
+Esistono funzioni generiche che richiederanno lo stesso tipo di vincolo comportamentale.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Ecco la funzione generica stringify. Accetta una porzione di qualche tipo T e restituisce uno
+slice di valori stringa che contengono una versione stringata di ciascun valore della collezioni in input.
+La chiave per far funzionare questa funzione è la chiamata al metodo String su ciascun
+valore di tipo T.
+
+Il problema è che il compilatore deve sapere e verificare che i valori di tipo T abbiano
+un metodo chiamato String. Quando viene dichiarato il tipo generico T, l'interfaccia fmt.Stringer
+viene fornita come vincolo. Il compilatore ora sa controllare qualsiasi sostituzione di tipo
+e i dati passati alla funzione per questo insieme di comportamenti del metodo.
+
+Questo è eccellente perché l'interfaccia viene utilizzata nuovamente per lo stesso scopo e
+il linguaggio non ha bisogno di una nuova parola chiave.
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+Implementare una funzione generica denominata marshal che può eseguire il marshalling di JSON ma accetta solo
+valori che implementano l'interfaccia json.Marshaler.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go

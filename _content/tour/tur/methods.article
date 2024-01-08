@@ -1,0 +1,427 @@
+Metotlar (Methods)
+Bir fonksiyon, o işlemin bir alıcıya sahip olduğunda metot olarak adlandırılır.
+
+* Metotlar (Methods)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bir fonksiyon, o işlemin bir alıcıya sahip olduğunda metot olarak adlandırılır. 
+Alıcı, func anahtar kelimesi ve fonksiyon adı arasında bildirilen parametredir.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Bildiri ve alıcı davranışı
+- *Örnek* *2:* İsimli tipli metotlar
+- *Örnek* *3:* Fonksiyon/Metot değişkenleri
+- *Örnek* *4:* Fonksiyon Tipleri
+- *Örnek* *5:* Değer ve İşaretçi semantiği
+
+.play methods/example1.go
+.play methods/example2.go
+.play methods/example3.go
+.play methods/example4.go
+.play methods/example5.go
+
+** Metot Bildirimleri
+
+İki tür alıcı vardır, değer semantiği uygulamak için değer alıcıları ve işaretçi 
+semantiği uygulamak için işaretçi alıcıları.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func (u *user) changeEmail(email string) {
+        u.email = email
+        fmt.Printf("Changed User Email To %s\n", email)
+    }
+
+notify fonksiyonu bir değer alıcısı ile uygulanmıştır. Bu, metotun değer semantiği 
+altında çalıştığı ve çağrı için kullanılan değerin kendi kopyası üzerinde işlem 
+yapacağı anlamına gelir.
+
+changeEmail fonksiyonu işaretçi alıcısı ile uygulanmıştır. Bu, metotun işaretçi semantiği 
+altında çalıştığı ve çağrı için kullanılan değere paylaşılan erişimle işlem yapacağı 
+anlamına gelir.
+
+Bir tür için bir metot kümesinin, birkaç istisna dışında, değer ve işaretçi alıcılarını 
+karıştırmaması gerekir. Veri semantik tutarlılığı kritik öneme sahiptir ve bu, metotları 
+bildirirken de geçerlidir.
+
+** Metot Çağrıları
+
+Bir metot çağrısı yapılırken, derleyici, çağrı için kullanılan değerin alıcı 
+verisinin semantiğine tam olarak uymasını umursamaz. Derleyici sadece aynı türde 
+bir değer veya işaretçi istemektedir.
+
+    bill := user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+Görüldüğü gibi, user türünde bir değer oluşturulur ve bill değişkenine atanır. 
+notify çağrısı durumunda, bill değişkeni, bir değer alıcısı kullanan alıcının türü 
+ile eşleşir. changeEmail çağrısı durumunda, bill değişkeni, bir işaretçi alıcısı 
+kullanan alıcının türü ile eşleşmez. Ancak, derleyici metot çağrısını kabul eder 
+ve bill değişkenini metotla paylaşır. Go, çağrıyı yapmak için ayarlamalar yapacaktır.
+
+Bu, çağrı için kullanılan değişkenin bir işaretçi değişkeni olduğunda da aynı şekilde çalışır.
+
+    bill := &user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+Bu durumda, bill değişkeni, user türünde bir değerin işaretçi değişkenidir. 
+Yine, Go, notify metodu çağrısını yapmak için ayarlamalar yapacaktır.
+
+Eğer Go, bu ayarlamaları yapmasaydı, aynı metot çağrılarını yapmak için şu şekilde yapmanız gerekirdi.
+
+    bill := user{"Bill", "bill@email.com"}
+    (&bill).changeEmail("bill@hotmail.com")
+
+    bill := &user{"Bill", "bill@email.com"}
+    (*bill).notify()
+
+Go'da metot çağrıları için bunu yapmanız gerekmediği için mutluyum.
+
+**  İçsel Türler İçin Veri Semantik İlkeleri
+
+Bir kılavuz olarak, çalıştığım veri iç türleri (dilim, harita, kanal, fonksiyon, arayüz) 
+ise veri semantiği kullanarak veriyi program boyunca taşımak en iyisidir. Bu, bir 
+türdeki alanları bildirirken de geçerlidir. Ancak, okuma ve yazma işlemlerinde, 
+işaretçi semantiğini kullandığımı hatırlamam gerekiyor.
+
+    type IP []byte
+    type IPMask []byte
+
+Bu türler, standart kütüphanenin bir parçası olan net paketinde bildirilmiştir. 
+Bunlar, bir byte diliminin altında yatan türle bildirildiği için, bu türler iç 
+türler için kılavuzlara uyar.
+
+    func (ip IP) Mask(mask IPMask) IP {
+        if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
+            mask = mask[12:]
+        }
+        if len(mask) == IPv4len && len(ip) == IPv6len &&
+            bytesEqual(ip[:12], v4InV6Prefix) {
+            ip = ip[12:]
+        }
+        n := len(ip)
+        if n != len(mask) {
+            return nil
+        }
+        out := make(IP, n)
+        for i := 0; i < n; i++ {
+            out[i] = ip[i] & mask[i]
+        }
+        return out
+    }
+
+Mask metodu ile, alıcı, parametre ve dönüş argümanı için değer semantiği kullanılmaktadır. 
+Bu metot, kendi kopyasını bir Mask değeriyle kabul eder, bu değeri değiştirir ve ardından 
+mutasyonun bir kopyasını döndürür. Bu metot, değer semantiği mutasyonu kullanmaktadır. 
+Bu tesadüf veya rastgele değildir.
+
+Bir fonksiyon, hangi veri girişi ve çıkışına ihtiyaç duyduğuna karar verebilir. Ancak, veri 
+akışının içeride veya dışarıda nasıl olması gerektiğini fonksiyon belirleyemez. Veri bu kararı 
+sürükler ve fonksiyon buna uymak zorundadır. Bu nedenle Mask, bir değer semantiği mutasyonu 
+API'sini uygular. Bir dilimin program boyunca nasıl taşınması gerektiğine saygı göstermelidir.
+
+    func ipEmptyString(ip IP) string {
+        if len(ip) == 0 {
+            return ""
+        }
+        return ip.String()
+    }
+
+`ipEmptyString` fonksiyonu de giriş ve çıkış için değer semantiği kullanmaktadır. Bu fonksiyon, 
+kendi kopyasını bir IP değeriyle kabul eder ve bir dizi değeri döndürür. Veri, veri 
+semantiği tarafından belirlendiği için fonksiyonun işaretçi semantiği kullanmasına gerek yoktur.
+
+Değer semantiği kullanmanın istisnası, bir dilimi veya haritayı ayrıştırma veya kodlama 
+yapan bir fonksiyonla paylaşmanız gerektiğinde gereklidir.
+
+** Yapı Türleri İçin Veri Semantiği Kılavuzu
+
+Kılavuz olarak, çalıştığım veri yapı türü bir yapı türü ise, karar vermek için 
+verinin neyi temsil ettiğini düşünmelisiniz. İyi bir genel kural, yapının veriyi mi 
+yoksa bir API'yi mi temsil ettiğini sormaktır. Eğer yapı veriyi temsil ediyorsa, 
+değer semantiği kullanın. Eğer yapı bir API'yi temsil ediyorsa, işaretçi semantiği 
+kullanın.
+
+    type Time struct {
+        sec  int64
+        nsec int32
+        loc  *Location
+    }
+
+İşte time paketinden Time yapısı. Eğer Time'ın veriyi temsil ettiğini düşünüyorsanız, 
+bu yapı için değer semantiği kullanılmalıdır.
+
+Mevcut bir kod tabanına baktığınızda ve hangi veri semantiğinin seçildiğini bilmek 
+istediğinizde, bir fabrika fonksiyonu arayın. Bir fabrika fonksiyonunun dönüş türü, 
+geliştirici tarafından seçilen veri semantiğini belirlemelidir.
+
+    func Now() Time {
+        sec, nsec := now()
+        return Time{sec + unixToInternal, nsec, Local}
+    }
+
+`Now`, Time değerlerini oluşturan bir fabrika fonksiyonudur. Dönüşe bakın, değer 
+semantiği kullanıyor. Bu, Time değerleri için değer semantiği kullanmanız gerektiğini 
+söyler, bu da her fonksiyonun kendi Time değeri kopyasını alacağı ve bir yapı 
+içindeki alanların Time türünde değerler olarak bildirilmesi gerektiği anlamına gelir.
+
+    func (t Time) Add(d Duration) Time {
+        t.sec += int64(d / 1e9)
+        nsec := int32(t.nsec) + int32(d%1e9)
+        if nsec >= 1e9 {
+            t.sec++
+            nsec -= 1e9
+        } else if nsec < 0 {
+            t.sec--
+            nsec += 1e9
+        }
+        t.nsec = nsec
+        return t
+    }
+
+Add, bir mutasyon işlemi gerçekleştirmesi gereken bir metottur. Dikkatlice bakarsanız, 
+fonksiyon değer semantiği mutasyonunu kullanıyor. Add metodu, çağrı için kullanılan 
+Time değerinin kendi kopyasını alır, kendi kopyasını değiştirir, ardından değişikliği 
+çağrı yapana bir kopya olarak döndürür. Bir kez daha, bu, bir mutasyon işlemi 
+gerçekleştirmenin en güvenli yoludur.
+
+    func div(t Time, d Duration) (qmod2 int, r Duration) {}
+
+İşte div fonksiyonu, Time ve Duration (int64) türlerinden bir değeri kabul eder, 
+ardından int ve Duration türlerinde değerleri döndürür. Time türü ve tüm yerleşik 
+türler için değer semantiği kullanılır. Duration'ın temel türü int64'tür.
+
+    func (t *Time) UnmarshalBinary(data []byte) error {}
+    func (t *Time) GobDecode(data []byte) error {}
+    func (t *Time) UnmarshalJSON(data []byte) error {}
+    func (t *Time) UnmarshalText(data []byte) error {}
+
+Time paketinden bu dört metot, veri semantiği tutarlılığı kurallarını ihlal ediyor 
+gibi görünüyor. İşaretçi semantiği kullanıyorlar, neden? Çünkü bir arabirim uyguluyorlar 
+ve metot imzası kilitlenmiş durumda. Uygulama bir mutasyon gerektirdiğinden, işaretçi 
+semantiği tek seçenek.
+
+İşte bir kılavuz: Eğer değer semantiği devredeyse, bazı fonksiyonlar için işaretçi 
+semantiğine geçebilirsiniz, ancak geri kalan çağrı zincirindeki veriyi asla değer 
+semantiğine geçirmemelisiniz. Bir kez işaretçi semantiğine geçtiğinizde, o noktadan 
+itibaren tüm gelecekteki çağrılar işaretçi semantiğine bağlı kalmalıdır. Asla, asla, 
+asla, işaretçiden değere geçemezsiniz. Bir işaretçinin işaret ettiği bir değerin 
+kopyasını yapmak her zaman güvenli değildir.
+
+    func Open(name string) (file *File, err error) {
+        return OpenFile(name, O_RDONLY, 0)
+    }
+
+os paketinden Open fonksiyonu, File türünde bir değer kullanıldığında işaretçi 
+semantiği devrede. File değerleri paylaşılmalı ve asla kopyalanmamalıdır.
+
+    func (f *File) Chdir() error {
+        if f == nil {
+            return ErrInvalid
+        }
+        if e := syscall.Fchdir(f.fd); e != nil {
+            return &PathError{"chdir", f.name, e}
+        }
+        return nil
+    }
+
+Chdir metodu, File değerini değiştirmese de işaretçi alıcısı kullanıyor. Bu, 
+File değerlerinin paylaşılması ve kopyalanmaması gerektiği anlamına gelir.
+
+    func epipecheck(file *File, e error) {
+        if e == syscall.EPIPE {
+            if atomic.AddInt32(&file.nepipe, 1) >= 10 {
+                sigpipe()
+            }
+        } else {
+            atomic.StoreInt32(&file.nepipe, 0)
+        }
+    }
+
+epipecheck fonksiyonu da File değerlerini işaretçi semantiği kullanarak kabul ediyor.
+
+**  Metotlar Sadece Fonksiyonlardır
+
+Metotlar aslında, verinin davranışını sergileme yeteneği sağlamak için sözdizimsel 
+şeker sağlayan sadece fonksiyonlardır.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Bir tür ve iki metot bildirilmiştir. displayName metodu değer semantiği 
+kullanırken, setAge işaretçi semantiği kullanır.
+
+Not: Go'da setter ve getter'ları uygulamayın. Bunlar, amaçları olan API'lar 
+değildir ve bu durumlarda alanları açık hale getirmek daha iyidir.
+    
+    d := data{
+        name: "Bill",
+    }
+
+    d.displayName()
+    d.setAge(21)
+
+data türünde bir değer oluşturulur ve metot çağrıları yapılır.
+
+    data.displayName(d)
+    (*data).setAge(&d, 21)
+
+Metotlar aslında, sözdizimsel şeker sağlayan fonksiyonlardır. Görebileceğiniz gibi, 
+alıcı aslında bir parametredir, yani ilk parametredir. Bir metot çağırdığınızda, 
+derleyici bunu temelde bir fonksiyon çağrısına dönüştürür.
+
+Not: Bu şekilde metodları çalıştırmayın, ancak bu sözdizimini araç mesajlarında görebilirsiniz.
+
+** Kodun Davranışını Bilin
+
+Eğer devrede olan veri semantiğini biliyorsanız, kodun davranışını da bilirsiniz. 
+Kodun davranışını bildiğinizde, kodun maliyetini de bilirsiniz. Bir kez maliyeti 
+bildiğinizde, mühendislik yapmaktasınız.
+
+Bu tür ve metot kümesi verildiğinde.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Aşağıdaki kodu yazabilirsiniz.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f1 := d.displayName
+        f1()
+        d.name = "Joan"
+        f1()
+    }
+
+Çıktı:
+
+    My Name Is Bill
+    My Name Is Bill
+
+İlk olarak, bir Data tipinde bir değer oluşturarak, onu d değişkenine atıyoruz.
+Ardından, d'ye bağlı displayName metodunu alıp onu f1 değişkenine atıyoruz.
+Bu bir metot çağrısı değil, bir atama, yani bir seviye daha ekler.
+Go'da fonksiyonlar değerlerdir ve içsel tipler kümesine aittir.
+
+Atamadan sonra, f1 değişkeni aracılığıyla metodunu dolaylı olarak çağırabiliriz.
+Bu, ismi Bill olanı gösterir. Sonra veriyi değiştiririz, bu sefer isim Joan olur,
+ve tekrar f1 değişkeni aracılığıyla metodunu çağırırız. Değişikliği göremezsiniz.
+Yine Bill çıktısı alırız. Peki neden?
+
+.image /tour/eng/static/img/m1.png
+
+Oyunu etkileyen veri semantiğiyle ilgili. displayName metodunun bir değer alıcısı kullanıyor,
+bu nedenle değer semantiği devreye girer.
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+Bu, f1 değişkeninin kendi d kopyası ile işlem yaptığı ve korunan bir kopya olduğu anlamına gelir.
+Bu, değer semantiği ile istediğiniz şeydir.
+
+Şimdi aynı şeyi setAge metoduyla yapın.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f2 := d.setAge
+        f2(45)
+        d.name = "Sammy"
+        f2(45)
+    }
+
+Çıktı:
+
+    Bill Is Age 45
+    Sammy Is Age 45
+
+Bu sefer setAge metodu f2 değişkenine atanıyor. Yine metot, f2 değişkeni aracılığıyla 
+dolaylı olarak Bill'in yaşını 45 olarak ayarlamak için çağrılır. Sonra Bill'in adı 
+Sammy olarak değiştirilir ve yine f2 değişkeni kullanılarak çağrılır. Bu sefer adın 
+değiştiğini görürüz.
+
+.image /tour/eng/static/img/m2.png
+
+setAge fonksiyonu bir işaretçi alıcısı kullanıyor, bu nedenle setAge kendi d 
+değişkeninin bir kopyası üzerinde çalışmıyor, ancak doğrudan d değişkeni üzerinde 
+çalışıyor. Bu nedenle, f2 paylaşılan erişim üzerinde çalışıyor ve değişikliği görüyorsun.
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Veri semantiğini bilmeden, kodun davranışını bilemezsin. Bu veri 
+semantiği gerçektir ve davranışı etkiler.
+
+** Notlar
+
+- Metodlar, bir alıcı değişkenini bildiren fonksiyonlardır.
+- Alıcılar, bir metodun bir türle bağlanmasını sağlar ve değer veya işaretçi semantiği kullanabilir.
+- Değer semantiği, bir değerin bir program sınırı boyunca bir kopyasının iletilmesi anlamına gelir.
+- İşaretçi semantiği, bir değerin adresinin bir program sınırı boyunca bir kopyasının iletilmesi anlamına gelir.
+- Bir tür için tek bir semantiği benimse ve tutarlı ol.
+
+** Alıntılar
+
+"Metodlar, bir verinin bir yetenek ortaya koyması pratik veya makul olduğunda geçerlidir." - William Kennedy
+
+** Ek Okuma
+
+- [[https://golang.org/doc/effective_go.html#methods][Methods]]    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
+		 
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Muhtemel bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Bir beyzbol oyuncusunu temsil eden bir yapı bildirin. İsim, atBats ve hits içersin.
+Oyuncunun vuruş ortalamasını hesaplayan bir metot bildirin. Formül Hits / AtBats.
+Bu tipte bir dilim bildirin ve dilimi birkaç oyuncu ile başlatın. Dilimi üzerinde döngü yaparak
+oyuncuların adını ve vuruş ortalamasını gösterin.
+
+.play methods/exercise1.go
+.play methods/answer1.go

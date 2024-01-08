@@ -1,0 +1,156 @@
+Alt Tipler
+Alt tip kullanarak jenerik bir tür bildirebilirsiniz.
+
+* Generics - Alt Tipler
+
+Alt tip kullanarak jenerik bir tür bildirebilirsiniz.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Somut vektör türü
+- *Örnek* *2*: Arabirim vektör türü
+- *Örnek* *3*: Genel vektör türü
+
+.play generics/underlying-types/example1.go
+.play generics/underlying-types/example2.go
+.play generics/underlying-types/example3.go
+
+** Açıklama
+
+Eğer kendi genel türünüzü belirtmek istiyorsanız, alt tip kullanarak bunu yapabilirsiniz.
+
+    type vector[T any] []T
+
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Bu örnek, bir vektör türünü gösteriyor ve bir vektörün yapısını yalnızca belirli bir veri 
+türüne kısıtlar. Köşeli parantezlerin kullanımı, T'nin derleme zamanında belirlenecek genel 
+bir tür olduğunu belirtir. "any" kısıtının kullanımı, T'nin hangi tür olabileceği konusunda 
+herhangi bir kısıtlama olmadığını açıklar.
+
+Son metodun değer alıcısı, bir tür T'ye sahip bir vektör değerini temsil etmek için 
+vector[T] türünde bildirilmiştir. Metod, aynı türden bir değer döndürür.
+
+    func main() {
+        fmt.Print("vector[int] : ")
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if i < 0 {
+            fmt.Print("negative integer: ")
+        }
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
+        fmt.Print("vector[string] : ")
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if !utf8.ValidString(s) {
+            fmt.Print("non-valid string: ")
+        }
+
+        fmt.Printf("value: %q\n", s)
+    }
+
+Çıktı:
+
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
+
+İnt türünde bir alt türe sahip bir vektör tipi değeri oluşturmanın bir yolu budur. Bu 
+kodun önemli bir yönü, oluşturma çağrılarıdır.
+
+    // Sıfır Değer İnşası
+    var vGenInt vector[int]
+    var vGenStr vector[string]
+    
+    // Sıfır Olmayan Değer İnşası
+    vGenInt := vector{10, -1}
+    vGenStr := vector{"A", "B", string([]byte{0xff})}
+
+Bu genel tiplerin sıfır değerine inşa edilmesi konusunda, derleyicinin türü çıkarması 
+mümkün değildir. Ancak, inşa sırasında başlatma olduğu durumlarda, derleyici türü çıkartabilir.
+
+Dilin bir yönü, genel bir türün sıfır değer durumuna inşa edilmesine odaklanmaktadır.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Son metodun metod bildirimine odaklanmanız gerekiyor ve metodun genel tür T'nin bir değerini nasıl 
+döndürdüğüne dikkat etmelisiniz. İlk dönüşte, genel tür T için sıfır değerini döndürmeniz gereken bir 
+durum bulunmaktadır. Mevcut uygulama, bu kodu yazmak için iki çözüm sunar. İlk çözümü zaten gördünüz. 
+Bir değişken olan "zero", T türündeki sıfır değerine inşa edilir ve ardından bu değişken dönüş için kullanılır.
+
+Diğer seçenek, yerleşik fonksiyon new'i kullanmak ve dönüş ifadesi içinde döndürülen işaretçiyi çözmektir.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        if len(v) == 0 {
+            return *new(T), errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Bu versiyon, sıfır değer inşası için yeni dahili fonksiyonu ve dönen işaretçiyi T tipi 
+için derecelendirme kullanmaktadır.
+
+Not: T{} kullanmak neden sıfır değeri inşası için bir seçenek değildir diye 
+düşünebilirsiniz? Sorun şu ki, bu sözdizimi tüm türlerle (int, string, bool gibi) 
+çalışmaz. Bu yüzden bu bir seçenek değildir.
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablonu başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Alt tipi map olan ve bir string anahtarı ve T tipinde bir değeri olan bir 
+harita içeren keymap adlı genel bir tür bildiren bir jenerik tipi bildirin. 
+Bir anahtarın tipi string ve değer tipi T olan set adlı bir metodu bildirin. 
+Bir anahtarın tipi string ve değer tipi T olan get adlı bir metodu bildirin 
+ve bir değeri T tipinde ve anahtarı bulup bulamadığınıza dair bir true veya 
+false değeri ile döndürün. Daha sonra, bu metodları kullanan bir ana fonksiyon yazın.
+
+.play generics/underlying-types/exercise1.go 
+.play generics/underlying-types/answer1.go

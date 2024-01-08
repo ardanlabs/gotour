@@ -1,0 +1,123 @@
+Dilim Kısıtlamaları
+Bazen jenerik türü yalnızca bir dilim olacak şekilde sınırlamak istediğiniz durumlar olabilir.
+
+* Generics - Dilim Kısıtlamaları
+
+Bazen jenerik türü yalnızca bir dilim olacak şekilde sınırlamak istediğiniz durumlar olabilir.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Operate fonksiyonu
+
+.play generics/slice-constraints/example1.go
+
+** Açıklama
+
+Burada, kullanıcı tanımlı Numbers türünün altta yatan türü bir tamsayı dilimidir.
+
+    type Numbers []int
+
+Derleyici, değişkenleri bir tamsayı dilimi temel alan değişkenlerle Numbers türüne 
+çevirmenize izin verir. Bu genellikle iyidir ve istediğiniz şeydir. Bu işlevsellik 
+sayesinde, dilimi temel alan türü dikkate alan bir dilim üzerinde çalışabilen genel 
+bir fonksiyon yazabilirsiniz.
+
+    type operateFunc[T any] func(t T) T
+
+    func operate[T any](slice []T, fn operateFunc[T]) []T {
+        ret := make([]T, len(slice))
+            for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+Burada, operate fonksiyonu herhangi bir şey olabilen bir jenerik tür T'yi bildirir. 
+Tür, aynı tür T olan bir dilimi kabul eden bir parametre olan slice'ı bildirmek için 
+kullanılır. Fonksiyon ayrıca aynı türde T olan genel bir fonksiyonu kabul eder ve aynı 
+zamanda bir T dilimi döndürür.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        return numbers
+    }
+
+Çıktı:
+
+    []int
+
+Double fonksiyonu, Numbers türünde bir değeri kabul eder ve bu değeri operate fonksiyonuna 
+iletir. Bu durumda, tür T için altta yatan türü değer olarak kullanır ve Numbers değeri 
+fonksiyona iletilir. Ancak, çıktıda görüldüğü gibi, dönen tür int tipinde bir dilimdir.
+
+Eğer yalnızca bir Numbers değerinin iletilebileceğinden ve operate fonksiyonu tarafından 
+döndürülebileceğinden emin olmanız gerekiyorsa, aşağıdaki değişiklikleri yapabilirsiniz.
+
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+Bu arayüz, bir jenerik türü belirli bir T türündeki bir dilime sınırlamak için bir 
+kısıtlama bildirir. ~ kullanımı, altta yatan türünün T olduğu tüm türleri kısıtlar. 
+Bu arayüzü kullanarak, operate fonksiyonunu değiştirebilirsiniz.
+
+    type operateFunc[T any] func(t T) T
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+    // func operate[T any](slice []T, fn operateFunc[T]) []T {
+    //     ret := make([]T, len(slice))
+    //     for i, v := range slice {
+    //         ret[i] = fn(v)
+    //     }
+    //     return ret
+    // }
+
+    func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
+        ret := make(S, len(slice))
+        for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+Şimdi operate fonksiyonunu iki jenerik tür bildirmek için değiştirin. S türü, belirli 
+bir T türündeki bir dilim değerini temsil eder ve T türü herhangi bir şey olabilen bir 
+türdür. Fonksiyon S türünde bir değer döndürür.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        
+        return numbers
+    }
+
+Çıktı:
+
+    main.Numbers
+
+Bu sefer, Numbers değerini operate fonksiyonuna ilettiğinizde, dönen dilim Numbers 
+türündedir. Altta yatan tür ihmal edilir ve kullanıcı tanımlı türe saygı gösterilir.

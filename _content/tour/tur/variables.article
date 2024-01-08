@@ -1,0 +1,167 @@
+Değişkenler
+Değişkenler, dilin kalbinde bulunur ve bellekten okuma ve yazma yeteneği sağlar.
+
+* Değişkenler
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Değişkenler, dilin kalbinde bulunur ve bellekten okuma ve yazma yeteneği sağlar. 
+Go'da belleğe erişim tür güvenlidir. Bu, derleyicinin türü ciddiye aldığı ve değişkenleri 
+tanımlandıkları kapsamın dışında kullanmamıza izin vermeyeceği anlamına gelir.
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Değişkenleri nasıl bildireceğinizi gösteren örnek bir program.
+
+.play variables/example1.go
+
+** Dahili Tipler
+Tipler, bütünlük ve okunabilirlik sağlamak için 2 soru sorarak yardımcı olur:
+
+- Ne kadar bellek ayrılmalı? (örneğin, 1, 2, 4, 8 byte)
+- Bu bellek neyi temsil ediyor? (örneğin, int, uint, bool,..)
+
+Tipler, int32 veya int64 gibi bir hassasiyete özgü olabilir:
+
+- uint8, 1 byte'lık bir ayrılma ile temsil edilen işaretsiz bir tamsayıyı ifade eder.
+- int32, 4 byte'lık bir ayrılma ile temsil edilen işaretli bir tamsayıyı ifade eder. Bir türü
+hassasiyete dayanmayan bir türle (uint, int) bildirdiğinizde, değerin boyutu
+kullanılan mimariye dayanır:
+
+- 32 bit mimari: int, 4 byte bellek ayrılmasıyla temsil edilen işaretli bir tamsayıyı ifade eder
+- 64 bit mimari: int, 8 byte bellek ayrılmasıyla temsil edilen işaretli bir tamsayıyı ifade eder
+
+** Kelime Boyutu
+
+Kelime boyutu, bir mimari için tamsayıları ve işaretçileri depolamak için gereken 
+bellek ayrılma miktarını temsil eder. Örneğin:
+
+- 32 bit mimari: kelime boyutu 4 byte bellek ayrılmasıdır
+- 64 bit mimari: kelime boyutu 8 byte bellek ayrılmasıdır
+
+Bu önemlidir çünkü Go'nun dahili veri yapıları (haritalar, kanallar, dilimler, arayüzler 
+ve fonksiyonlar), tamsayıları ve işaretçileri depolar. Bu veri yapılarının boyutu, 
+programı derlemek için kullanılan mimariye bağlı olacaktır.
+
+Go'da, int, bir işaretçi veya bir kelime türündeki bir değer için ayrılan bellek miktarı, 
+aynı mimaride her zaman aynı olacaktır.
+
+** Sıfır Değer Kavramı
+Go'da oluşturduğunuz her değer, derleme sırasında başlatılmasını belirtmediğiniz sürece en 
+azından sıfır değer durumuna başlatılır. Sıfır değeri, her byte'ın her bit'inin sıfıra 
+ayarlanmasıdır.
+
+Bu, veri bütünlüğü için yapılır ve masrafsız değildir. Bu bitleri sıfırlamak için 
+elektronları makineye iletmek zaman alır, ancak her zaman bütünlüğü performansa 
+tercih etmelisiniz.
+
+    Type               Sıfır Değer
+    Boolean            false
+    Integer            0
+    Float              0
+    Complex            0i
+    String             "" (boş)
+    Pointer            nil
+
+** Bildir ve Başlat
+Anahtar kelime `var`, tüm tipler için değerleri sıfır değer durumuna getirmek için kullanılabilir.
+
+    var a int
+    var b string
+    var c float64
+    var d bool
+
+    fmt.Printf("var a int \t %T [%v]\n", a, a)
+    fmt.Printf("var b string \t %T [%v]\n", b, b)
+    fmt.Printf("var c float64 \t %T [%v]\n", c, c)
+    fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
+
+Çıktı:
+
+    var a int    	int [0]
+    var b string 	string []
+    var c float64	float64 [0]
+    var d bool   	bool [false]
+
+Diziler (String) UTF8 karakter kümesini kullanır, ancak aslında sadece bir byte koleksiyonudur.
+
+
+Bir dizi, Go'da iki kelime içeren dahili bir veri yapısıdır:
+
+- İlk kelime, byte'ların destek dizisine bir işaretçiyi temsil eder
+- İkinci kelime, destek dizisindeki byte sayısını veya uzunluğu temsil eder
+- Dizi sıfır değer durumuna ayarlandıysa, ilk kelime nil'dir ve ikinci kelime 0'dır.
+- Kısa değişken bildirimi operatörünü kullanarak, bir değeri aynı anda bildirebilir, 
+oluşturabilir ve başlatabilirsiniz.
+
+Kısa değişken bildirimi operatörünü kullanarak, bir değeri aynı anda bildirebilir, 
+oluşturabilir ve başlatabilirsiniz.
+
+    aa := 10       // int [10]
+    bb := "hello"  // string [hello]
+    cc := 3.14159  // float64 [3.14159]
+    dd := true     // bool [true]
+
+    fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
+    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
+    fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
+
+Çıktı:
+
+    aa := 10         int [10]
+    bb := "hello"    string [hello]
+    cc := 3.14159    float64 [3.14159]
+    dd := true       bool [true]
+
+** Dönüşüm vs. Dökme
+
+Go'nun dökme (casting) değil, dönüşüm (conversion) özelliği vardır. Derleyiciye bir 
+dizi byte'ın farklı bir temsile eşlenmesini söylemek yerine, byteların yeni bir bellek 
+konumuna yeni temsil için kopyalanması gerekiyor.
+
+    aaa := int32(10)
+    fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
+
+    Çıktı:
+    aaa := int32(10) int32 [10]
+
+Go dilinde gerçek bir dönüştürme işlemi gerçekleştirmeniz gerekiyorsa, standart kütüphanede 
+"unsafe" adlı bir paket bulunmaktadır. Ancak bunu kullanmaktan gerçekten kaçınmalısınız ve neden 
+kullanmayı düşündüğünüz konusunda dürüst olmalısınız. Dönüşüm yapmak, bu tür işlemler için 
+en yüksek bütünlüğü sağlar.
+
+** Notlar
+
+- Tüm programların ve bu programların tüm bölümlerinin amacı, veriyi bir formdan diğerine dönüştürmektir.
+- Kod, temel olarak belleğe tahsis eder, belleği okur ve belleğe yazar.
+- Türü anlamak, iyi bir kod yazmak ve kodu anlamak için çok önemlidir.
+- Veriyi anlamıyorsanız, problemi anlamıyorsunuz demektir.
+- Veriyi anlayarak problemi daha iyi anlarsınız.
+- Değişkenler sıfır değerlerine bildiriliyorsa, var anahtar kelimesini kullanın.
+- Değişkenler bildirilip başlatılıyorsa, kısa değişken bildirimi operatörünü kullanın.
+
+** Ekstra Okuma
+
+- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
+- [[https://golang.org/doc/effective_go.html#variables][Variables]]    
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablonu bir başlangıç noktası olarak kullanın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Üç değişkeni sıfır değeriyle başlatılmış olarak tanımlayın ve 
+üçünü de birer sabit değerle belirtin. String, int ve bool türünde değişkenler 
+tanımlayın. Bu değişkenlerin değerlerini görüntüleyin.
+
+*Kısım* *B:* float32 türünde yeni bir değişken tanımlayın ve bu değişkeni, 
+Pi'nin (3.14) sabit değerini dönüştürerek başlatın.
+
+.play variables/exercise1.go
+.play variables/answer1.go
