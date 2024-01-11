@@ -1,32 +1,32 @@
-Type Conversions And Assertions
-Learn how type conversations and assertions work.
+Konversi dan Pernyataan Tipe
+Belajar bagaimana konversi tipe data (type conversion) dan pernyataan tipe data (type assertion) bekerja
 
-* Type Conversions And Assertions
+* Konversi dan Pernyataan Tipe
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+Konversi tipe memungkinkan data dari satu tipe untuk dikonversi ke tipe lain.
+Pernyataan tipe memungkinkan Anda untuk menanyakan apakah ada nilai dari tipe yang diberikan
+yang disimpan di dalam sebuah antarmuka (interface).
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *Contoh* *1:* Konversi Antarmuka
+- *Contoh* *2:* Pernyataan Tipe pada Waktu Eksekusi
+- *Contoh* *3:* Perubahan Perilaku
 
 .play composition/assertions/example1.go
 .play composition/assertions/example2.go
 .play composition/assertions/example3.go
 
-** Implicit Interface Conversions
+** Konversi Antarmuka Implisit
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+Seperti yang Anda lihat pada contoh terakhir, sebuah nilai antarmuka dari satu tipe
+dapat diteruskan untuk tipe antarmuka yang berbeda jika nilai konkret yang disimpan
+di dalam antarmuka mengimplementasikan kedua perilaku tersebut. Ini dapat dianggap
+sebagai konversi antarmuka implisit, tetapi lebih baik untuk memikirkan bagaimana
+data konkret dipindahkan melalui antarmuka dalam keadaan terpisah.
 
     type Mover interface {
         Move()
@@ -42,7 +42,7 @@ decoupled state.
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+Diberikan contoh tiga antarmuka(interface) ini, di mana MoveLocker adalah komposisi dari Mover dan Locker.
 
     type bike struct{}
 
@@ -58,61 +58,63 @@ Given these three interfaces, where MoveLocker is the composition of Mover and L
         fmt.Println("Unlocking the bike")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+Dan diberikan tipe konkret bertipe `bike` yang mengimplementasikan ketiga antarmuka tersebut.
+Apa yang dapat Anda lakukan?
 
     var ml MoveLocker
     var m Mover
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+Anda dapat membuat nilai dari tipe MoveLocker dan Mover ke dalam keadaan nilai nol.
+Ini adalah nilai antarmuka yang benar-benar tidak memiliki nilai.
 
     ml = bike{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+Kemudian, Anda dapat membuat nilai dari tipe `bike` ke dalam keadaan nilai nol
+dan menetapkan salinan ke variabel MoveLocker ml. Ini dimungkinkan karena `bike`
+mengimplementasikan ketiga perilaku, dan kompiler dapat melihat bahwa implementasi tersebut ada.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+Anda kemudian dapat menetapkan variabel MoveLocker ml ke variabel Mover m.
+Ini mungkin karena saya tidak menetapkan nilai antarmuka ml
+tetapi nilai konkret yang disimpan di dalam ml yang merupakan nilai bertipe `bike`.
+Kompiler tahu bahwa setiap nilai konkret yang disimpan di dalam ml juga harus mengimplementasikan antarmuka Mover.
 
-This assignment however is not valid. 
+Namun, penugasan ini tidak valid.
 
     ml = m
 
-Output:
+Keluaran:
 
     cannot use m (type Mover) as type MoveLocker in assignment:
         Mover does not implement MoveLocker (missing Lock method)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+Anda tidak dapat menetapkan variabel Mover m kembali ke variabel MoveLocker ml karena
+kompiler hanya dapat menjamin bahwa nilai konkret yang disimpan di dalam m tahu `Move`.
+Pada waktu kompilasi, tidak diketahui apakah nilai konkret juga tahu `Lock` dan `Unlock`.
 
-** Type Assertion Mechanics
+** Mekanisme Pernyataan Tipe
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+Pernyataan tipe memungkinkan Anda pada waktu eksekusi untuk bertanya,
+apakah ada nilai dari tipe yang diberikan yang disimpan di dalam sebuah antarmuka.
+Anda melihat hal ini dengan sintaks m.(bike).
 
     b := m.(bike)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+Dalam kasus ini, Anda bertanya apakah ada nilai bertipe `bike` yang disimpan
+di dalam m pada saat kode dieksekusi. Jika ya, maka variabel b akan diberikan
+salinan nilai `bike` yang disimpan. Kemudian salinan dapat disalin ke dalam variabel antarmuka ml.
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+Jika tidak ada nilai `bike` yang disimpan di dalam nilai antarmuka, maka program akan menyebabkan panic.
+Anda menginginkan ini jika seharusnya ada nilai `bike` yang disimpan.
+Bagaimana jika ada kemungkinan tidak ada dan itu valid? Maka Anda membutuhkan bentuk kedua dari pernyataan tipe.
 
     b, ok := m.(bike)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+Dalam bentuk ini, jika ok bernilai true, ada nilai `bike` yang disimpan di dalam antarmuka.
+Jika ok bernilai false, maka tidak ada, dan program tidak menyebabkan panic.
+Namun, variabel b tetap bertipe `bike`, tetapi diatur ke dalam keadaan nilai nol.
 
     func main() {
         mvs := []fmt.Stringer{
@@ -132,9 +134,9 @@ is still of type bike, but it is set to its zero value state.
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+Dengan asumsi program mendeklarasikan dua tipe bernama Car dan Cloud yang masing-masing
+mengimplementasikan antarmuka `fmt.Stringer`, Anda dapat membuat sebuah koleksi yang
+memungkinkan Anda menyimpan nilai dari kedua Car dan Cloud. Kemudian, sebanyak 10 kali,
+Anda secara acak memilih sebuah angka dari 0 hingga 1, dan melakukan pernyataan tipe
+untuk melihat apakah nilai di indeks acak tersebut berisi nilai Cloud.
+Karena mungkin nilai tersebut bukan tipe Cloud, bentuk kedua dari pernyataan tipe sangat penting di sini.
