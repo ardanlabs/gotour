@@ -1,0 +1,174 @@
+Kanały
+Zbadaj, jak zespół Go mógłby dodać pakiet wzorców współbieżności do biblioteki standardowej dzięki użyciu typów generycznych (generics).
+
+* Typy generyczne - Kanały
+
+Zbadaj, jak zespół Go mógłby dodać pakiet wzorców współbieżności do biblioteki standardowej dzięki użyciu typów generycznych (generics).
+
+** Film
+
+Oglądnij wykład o typach generycznych, który przeprowadzi Cię przez wszystkie przykłady w tej sekcji.
+
+.html generics-video.html
+
+** Przegląd kodu
+
+- *Example* *1*: Funkcja 'work'
+- *Example* *2*: Kumulowanie
+
+.play generics/channels/example1.go
+.play generics/channels/example2.go
+
+** Wytłumaczenie
+
+To wymagałoby deklaracji kanałów i funkcji przy użyciu ogólnych typów danych.
+
+    type workFn[Result any] func(context.Context) Result
+
+W tym przykładzie deklarowany jest typ reprezentujący funkcję, która przyjmuje
+kontekst i zwraca wartość typu generycznego Result. Deklaracja tej funkcji opisuje funkcję,
+która implementuje współbieżną pracę, która zostanie wykonana, oraz wynik tej pracy.
+
+    func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
+        ch := make(chan Result, 1)
+        
+        go func() {
+            ch <- work(ctx)
+            fmt.Println("doWork : work complete")
+        }()
+        
+        return ch
+    }
+
+Teraz napisz funkcję o nazwie doWork, która wykonuje określoną funkcję pracy współbieżnie i
+zwraca kanał, aby wywołujący mógł otrzymać wynik pracy wykonanej przez funkcję pracy.
+Typ generyczny o nazwie Result jest deklarowany w celu reprezentacji typu zwracanego przez funkcję
+pracy oraz typu kanału.
+
+W implementacji funkcji doWork tworzony jest buforowany kanał o rozmiarze jeden o type generycznym Result.
+Ten kanał jest zwracany do wywołującego, aby ten mógł otrzymać wynik współbieżnej pracy. W środkowej
+części funkcji tworzona jest gorutyna, która wykonuje pracę funkcji workFunction współbieżnie.
+Gdy funkcja workFunction zwraca wynik, jest on przesyłany z powrotem do wywołującego poprzez ten kanał.
+
+Aby przetestować użycie funkcji doWork, stwórz mały program.
+
+    func main() {
+        duration := 100 * time.Millisecond
+        
+        ctx, cancel := context.WithTimeout(context.Background(), duration)
+        defer cancel()
+        
+        dwf := func(ctx context.Context) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return "work complete"
+        }
+
+        result := doWork(ctx, dwf)
+        
+        select {
+            case v := <-result:
+                fmt.Println("main:", v)
+            case <-ctx.Done():
+                fmt.Println("main: timeout")
+        }
+    }
+
+Wynik:
+
+    doWork : work complete
+    main: work complete
+
+Program rozpoczyna się od zadeklarowania kontekstu, który wygaśnie po 100 milisekundach.
+Następnie deklarowana jest funkcja pracy, która czeka na zwrócenie ciągu znaków "work complete"
+przed upływem 200 milisekund. Z kontekstem i funkcją pracy na swoim miejscu wywoływane jest
+doWork i zwracany jest kanał typu string i przypisany do zmiennej result.
+
+Kompiler jest w stanie określić konkretny typ do użycia dla typu generycznego Result
+poprzez sprawdzenie typu zwracanego przez literał funkcji pracy, który jest przekazywany do
+funkcji doWork. Jest to genialne, ponieważ oznacza to, że nie musiałeś przekazywać typu
+w wywołaniu do doWork.
+
+Z kanałem typu string przypisanym do zmiennej result używany jest select case
+do oczekiwania na zwrócenie wyniku na czas lub na upłynięcie limitu czasu. Funkcja
+doWork może być użyta do wykonania tej współbieżnej pracy dla dowolnego konkretnego
+wymaganego typu.
+
+Ten sam pomysł mógłby zostać zastosowany do puli gorutyn, które mogłyby wykonywać pracę
+na wejściu generycznym i zwracać generyczny wynik.
+
+type workFn[Input any, Result any] func(input Input) Result
+
+W tym przykładzie, zmień typ funkcji, aby akceptował generyczne dane wejściowe i zwracał
+generyczny wynik.
+
+    func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
+        var wg sync.WaitGroup
+        wg.Add(size)
+        
+        ch := make(chan Input)
+        
+        for i := 0; i < size; i++ {
+            go func() {
+                defer wg.Done()
+                for input := range ch {
+                    result := work(input)
+                    fmt.Println("pollWork :", result)
+                }
+            }()
+        }
+        
+        cancel := func() {
+            close(ch)
+            wg.Wait()
+        }
+
+        return ch, cancel
+    }
+
+W funkcji poolWork deklarowane są te same dwa generyczne typy do reprezentowania
+typu wejściowego i zwracanego dla funkcji pracy. Tworzony jest WaitGroup do zarządzania
+cyklem życia gorutyn w puli. Następnie tworzony jest kanał typu generycznego Input.
+Ten kanał jest używany przez gorutyny w puli do odbierania danych wejściowych dla
+funkcji pracy.
+
+Następnie tworzona jest pętla, która tworzy gorutyny w puli. Każda gorutyna oczekuje
+na odbiór danych wejściowych z kanału i przekazuje je do funkcji pracy. Gdy funkcja
+pracy zwraca wynik, jest on wyświetlany na konsoli. Gdy kanał jest zamknięty, gorutyna
+zakończy działanie.
+
+Aby przetestować użycie funkcji poolWork, zbuduj drugi mały program.
+
+    func main() {
+        size := runtime.GOMAXPROCS(0)
+        
+        pwf := func(input int) string {
+            time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+            return fmt.Sprintf("%d : received", input)
+        }
+
+        ch, cancel := poolWork(size, pwf)
+        defer cancel()
+        
+        for i := 0; i < 4; i++ {
+            ch <- i
+        }
+    }
+
+Wynik:
+
+    pollWork : 3 : received
+    pollWork : 2 : received
+    pollWork : 1 : received
+    pollWork : 0 : received
+
+Wielkość puli jest obliczana na podstawie liczby gorutyn, które mogą działać równolegle.
+Następnie tworzona jest funkcja pracy, która śpi przez losową ilość czasu, a następnie
+zwraca ciąg znaków, który reprezentuje dane wejściowe.
+
+Mając to na miejscu, funkcja poolWork jest wywoływana i zwracany kanał i funkcja cancel są przypisane do zmiennych.
+
+Mając to, funkcja poolWork zostaje uruchomiona, a następnie zwraca kanał i funkcję cancel. Funkcja cancel jest
+przekazywana jako odroczone (deferred), a następnie tworzona jest pętla do wysyłania 4 wartości do puli. Wynik
+będzie różny za każdym razem, gdy uruchomisz program, ponieważ ta praca jest wykonywana współbieżnie.
+
+Te małe przykłady dostarczają pewnej wiedzy na temat tego, jak pakiet współbieżności mógłby być zaimplementowany.

@@ -1,0 +1,118 @@
+Tip Olarak Kısıtlama
+Bu, Go'da bir kısıtlamanın bir dizi somut türe dayalı olabileceği yeni bir konsepttir.
+
+* Generics - Tip Olarak Kısıtlama
+
+Bu, Go'da bir kısıtlamanın bir dizi somut türe dayalı olabileceği yeni bir konsepttir.
+Bu sadece jenerikler için çalışır.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Tip tabanlı kısıtlama
+- *Örnek* *2*: Önceden tanımlanmış tip kısıtlaması "comparable"
+- *Örnek* *3*: Tip ve davranış kısıtlamalarını karıştırma
+
+.play generics/type-constraints/example1.go
+.play generics/type-constraints/example2.go
+.play generics/type-constraints/example3.go
+
+** Açıklama
+
+Jenerik fonksiyonlar, davranış setini bildirerek çözülemeyen bir tür kısıtlaması oluşturur.
+
+    func Add[T ???](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+İşte, iki değeri alacak, bunları birleştirecek ve ardından toplamı çağıran tarafsız 
+bir fonksiyon. Bu ilginç bir problem çünkü derleyici, yalnızca bir değerler kümesi 
+için bu işlemleri gerçekleştirebilen değerlerle fonksiyon çağrısını sınırlamalıdır. 
+Şu anda bu tür bir kısıtlamayı bildirmek için bir mekanizma yoktur.
+
+Karar, kısıtlamayı bildirmek ve yeni bir şey eklemektir.
+
+    type addOnly interface {
+        string | int | int8 | int16 | int32 | int64 | float64
+    }
+
+Bu, kısıtlamanın bir kümesini tanımlayan bir arabirim bildirebilirsiniz. Ardından bu 
+arabirimi jenerik fonksiyona uygulayın.
+
+    func Add[T addOnly](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Şimdi derleyici, fonksiyonun işlemleri gerçekleştirmek için uygun türler kümesini doğrulayabilir. 
+Arabirim, yerleşik türleri kullandığında arabirimler paketler arasında yeniden kullanılabilir. 
+Tür listesi, paketin kullanıcı tanımlı türlerini temsil ettiğinde, bu jenerik fonksiyonların 
+yalnızca paket türlerine bağlı olduğunu hatırlamalısınız ve başka bir şey değil.
+
+Bir tür kümesini içeren arabirimler geleneksel polimorfik bir fonksiyonda kullanılamaz. 
+Bu zaten mantıklı değil, ancak bu değişikliğin arabirimin bu yönde ortogonal olmaması 
+açısından Go'nun hissetmediği bir şeydir.
+
+Bir fikir, yaygın işlem kısıtlamaları için önceden tanımlanmış tanımlayıcıları kullanmaktır.
+
+    func index[T comparable](list []T, find T) int {
+        for i, v := range list {
+            if v == find {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Karşılaştırılabilir kısıtlaması dil tarafından bildirilir ve türlerin karşılaştırma 
+ifadesinde kullanılabilme yeteneğini kısıtlar. Bu örnekte hem v hem de find, T türündeki 
+değişkenlerdir ve karşılaştırılır. Bir paketin içinde yaygın işlem kısıtlamalarını sağlamak 
+için dil tarafından bildirilen kısıtlamalara sahip yaygın bir paketin olabileceği bir 
+fikir vardır.
+
+Bir arabirimin hem bir tür kümesi hem de davranış kümesi ile bildirilmesinde hiçbir kısıtlama yoktur.
+
+    type matcher[T any] interface {
+        type person, food
+        match(v T) bool
+    }
+        
+    func match[T matcher[T]](list []T, find T) int {
+        for i, v := range list {
+            if v.match(find) {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Jenerik bir arabirim, T'nin match adlı bir metoda geçirilecek olan bir fonksiyona sahip 
+olan bir türün tipini belirleyen bir arabirim olarak bildirilir. Arabirim aynı zamanda 
+yalnızca kullanıcı tanımlı tip person ve food türlerindeki değerlere kısıtlanmıştır.
+
+Match fonksiyonuna baktığınızda, fonksiyonu yalnızca person ve food türlerine sınırlamak 
+için açık bir ihtiyaç olmadığını görmezsiniz. Eğer durum buysa, match fonksiyonu geleneksel 
+bir polimorfik fonksiyon olmalıdır, jenerik bir fonksiyon değil. Eğer iyi bir neden varsa, 
+jenerik bir fonksiyon kullanılarak bu tür bir kısıtlamayı uygulamak mümkündür.
+
+Bir not olarak, bu işlevselliğin gerekli veya mantıklı olup olmadığından emin 
+değilim. Bu, topluluk tarafından zaman içinde anlaşılması gereken bir şeydir.
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablonu başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Yalnızca string veya int türündeki dilimleri kopyalamak için sınırlı olan 
+copyfy adlı jenerik bir fonksiyonu uygulayın.
+
+.play generics/type-constraints/exercise1.go 
+.play generics/type-constraints/answer1.go

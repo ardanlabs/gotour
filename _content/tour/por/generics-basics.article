@@ -1,0 +1,107 @@
+Básicos
+Aprenda como escrever uma função genérica básica de print.
+
+* Genéricos - Básicos
+
+Aprenda como escrever uma função genérica básica de print.
+
+** Video
+
+Assista à palestra que dei sobre Genéricos, que apresenta todos os
+exemplos desta seção do Tour.
+
+.html generics-video.html
+
+** Revisão de Código
+
+- *Exemplo* *1*: Implementação concreta do print
+- *Exemplo* *2*: Implementação de asserção de tipo para o print
+- *Exemplo* *3*: Implementação de reflexão para print
+- *Exemplo* *4*: Implementação genérica de print
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Explicação
+
+Se você deseja escrever uma única função de impressão que possa exibir uma slice 
+de qualquer tipo dado e não usar reflexão, você pode usar a nova sintaxe de genéricos.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Esta é uma implementação de uma única função de impressão que pode exibir uma slice de qualquer tipo 
+dado usando a nova sintaxe de genéricos. O que é bom nesta sintaxe é que o código dentro da função pode usar a sintaxe e 
+funções integradas que funcionariam com um tipo concreto. Isso não é o caso quando você usa a interface vazia 
+para escrever código genérico.
+
+Deve haver uma maneira de dizer ao compilador que você não irá declarar o tipo T explicitamente, 
+mas ele deve ser determinado pelo compilador durante a compilação. 
+A nova sintaxe usa colchetes para isso. Os colchetes definem uma lista de identificadores 
+de tipo genéricos que representam tipos específicos para a função que precisam ser determinados durante a compilação. 
+É assim que você diz ao compilador que os tipos com esses nomes não serão declarados antes que o programa seja compilado. 
+Esses tipos precisam ser resolvidos durante a compilação.
+
+Nota: Você pode ter vários identificadores de tipo definidos dentro dos colchetes, 
+embora o exemplo atual esteja usando apenas um. Ex. [T, S, R any]
+
+Você pode nomear esses identificadores de tipo como quiser para ajudar na legibilidade do código. 
+Neste caso, o código está usando a letra maiúscula T para descrever que uma slice de algum tipo T (a ser determinado durante a compilação) será passada. 
+É um padrão usar letras maiúsculas únicas quando se trata de coleções e também é uma convenção que remonta a linguagens de programação mais antigas, 
+como C++ e Java.
+
+Há também o uso da palavra "any" dentro dos colchetes. Isso representa uma restrição sobre o que o tipo T pode ser. 
+O compilador requer que todos os tipos genéricos tenham uma restrição bem definida. 
+A restrição "any" é pré-declarada pelo compilador e afirma que não há restrições quanto ao que o tipo T pode ser.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+Esta é a maneira de fazer chamadas para a função de print genérica, onde as informações de tipo para T são fornecidas explicitamente no local da chamada. 
+A sintaxe emula a ideia de que a declaração da função 'func name[T any](slice []T)' define dois conjuntos de parâmetros. O primeiro conjunto é o tipo que se mapeia 
+para os identificadores de tipo correspondentes e o segundo é o dado que se mapeia para as variáveis de entrada correspondentes.
+
+Felizmente, o compilador pode inferir o tipo e eliminar a necessidade de passar explicitamente 
+as informações de tipo no local da chamada.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Este código mostra como você pode chamar as funções genéricas de print sem a necessidade de passar as informações de tipo explicitamente. 
+No local da chamada da função, o compilador consegue identificar o tipo a ser usado para T e construir uma versão concreta da função para suportar slices desse tipo.
+O compilador tem a capacidade de inferir o tipo com base nas informações que possui no local da chamada a partir dos dados que estão sendo passados.
+
+* Exercícios
+
+Use o template como ponto de partida para completar os exercícios. Uma possível solução é fornecida.
+
+** Exercício 1
+
+Implemente uma função genérica chamada marshal que possa aceitar qualquer valor e
+transformar esse valor em JSON, retornando o JSON e um erro. Declare
+uma struct chamada "User" com dois campos, "Name" e "Age". Em seguida, crie um
+valor do tipo "User" e passe o valor para a função genérica "marshal".
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

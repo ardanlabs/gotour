@@ -1,0 +1,158 @@
+Zmienne
+Zmienne stanowią serce języka i umożliwiają odczytywanie i zapisywanie danych do pamięci.
+
+* Zmienne
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Obejrzyj film]]
+- Jeśli potrzebujesz wsparcia finansowego użyj naszego [[https://www.ardanlabs.com/scholarship/][formularza stypendialnego]]
+
+Zmienne stanowią rdzeń języka i umożliwiają odczytywanie z i zapisywanie do pamięci.
+W języku Go dostęp do pamięci jest bezpieczny pod względem typowania. Oznacza to, że kompilator
+traktuje typy poważnie i nie pozwoli nam używać zmiennych poza zakresem, w jakim zostały zadeklarowane.
+
+** Przegląd kodu
+
+- *Przykład* *1*: Przykładowy program który pokazuje jak deklarować zmienne.
+
+.play variables/example1.go
+
+** Typy wbudowane
+Typy zapewniają integralność i czytelność, zadając 2 pytania:
+
+- Jaka jest ilość pamięci do zarezerowania? (np. 1, 2, 4, 8 bajtów)
+- Co będzie reprezentować zarezerwowana część pamięci? (np. int, uint, bool,..)
+
+Typy mogą być określone pod względem precyzji, na przykład int32 lub int64.
+
+- uint8 reprezentuje liczbę całkowitą bez znaku, o alokacji 1 bajta.
+- int32 reprezentuje liczbę całkowitą ze znakiem, o alokacji 4 bajtów.
+Gdy deklarujesz typ używając typu bez precyzji (uint, int), rozmiar wartości zależy od architektury używanej do budowy programu.
+
+- W architekturze 32-bitowej: int reprezentuje liczbę całkowitą ze znakiem, o alokacji 4 bajtów pamięci.
+- W architekturze 64-bitowej: int reprezentuje liczbę całkowitą ze znakiem, o alokacji 8 bajtów pamięci.
+
+** Rozmiar słowa
+
+Słowo "rozmiar" (ang. "word size") reprezentuje ilość alokowanej pamięci wymaganej do przechowywania
+liczb całkowitych oraz wskaźników w danej architekturze. Na przykład:
+
+- W architekturze 32-bitowej: rozmiar słowa wynosi 4 bajty alokacji pamięci.
+- W architekturze 64-bitowej: rozmiar słowa wynosi 8 bajtów alokacji pamięci.
+
+Jest to istotne, ponieważ język Go posiada wewnętrzne struktury danych (mapy, kanały,
+wycinki, interfejsy i funkcje), które przechowują liczby całkowite i wskaźniki.
+Rozmiar tych struktur danych będzie zależał od architektury, na której jest budowany program.
+
+W języku Go ilość zaalokowanej pamięci dla wartości typu int,
+wskaźnika lub słowa (word) zawsze będzie taka sama na tej samej architekturze.
+
+** Kocepcja wartości zero
+W języku Go każda pojedyncza wartość jest inicjowana co najmniej do swojego stanu zerowego (zero value),
+chyba że określisz wartość inicjacji podczas tworzenia. Stan zerowy oznacza ustawienie każdego bitu w każdym bajcie na zero.
+
+To jest realizowane w celu zapewnienia integralności danych i nie jest to bezpłatne.
+Wymaga to czasu na przekazywanie elektronów przez maszynę, aby zresetować te bity, ale zawsze należy wybierać integralność ponad wydajność.
+
+    Typ                             Zero Value
+    Boolean:                        false
+    Całkowitoliczbowy (integer):    0
+    Zmiennoprzecinkowy (float):     0.0
+    Złożony (complex):              0i
+    Łańcuch znaków (string):        "" (pusty ciąg znaków)
+    Wskaźnik (pointer):             nil
+
+** Deklarowanie i inicjalizowanie
+Słowo kluczowe "var" może być używane do tworzenia wartości oraz inicjalizowania ich do stanu zerowego dla wszystkich typów.
+
+    var a int
+    var b string
+    var c float64
+    var d bool
+
+    fmt.Printf("var a int \t %T [%v]\n", a, a)
+    fmt.Printf("var b string \t %T [%v]\n", b, b)
+    fmt.Printf("var c float64 \t %T [%v]\n", c, c)
+    fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
+
+Wynik:
+
+    var a int    	int [0]
+    var b string 	string []
+    var c float64	float64 [0]
+    var d bool   	bool [false]
+
+Łańcuchy znaków (strings) używają zestawu znaków UTF-8, ale są w rzeczywistości tylko kolekcją bajtów.
+
+Łańcuch znaków (string) to dwuwyrazowa struktura danych wewnętrznych w Go:
+
+- Pierwsze słowo reprezentuje wskaźnik do bazowej tablicy bajtów
+- Drugie słowo reprezentuje długość lub liczbę bajtów w tablicy bazowej
+- Jeśli łańcuch znaków (string) jest ustawiony w swoim stanie zerowym (zero value), to pierwsze słowo ma wartość nil (wskaźnik),
+a drugie słowo (długość) wynosi 0.
+
+Korzystając z operatora krótkiej deklaracji zmiennych, możesz zadeklarować, skonstruować i zainicjować wartość jednocześnie.
+
+    aa := 10       // int [10]
+    bb := "hello"  // string [hello]
+    cc := 3.14159  // float64 [3.14159]
+    dd := true     // bool [true]
+
+    fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
+    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
+    fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
+
+Wynik:
+
+    aa := 10         int [10]
+    bb := "hello"    string [hello]
+    cc := 3.14159    float64 [3.14159]
+    dd := true       bool [true]
+
+** Konwersja a rzutowanie
+
+W Go nie ma rzutowania, zamiast tego używamy konwersji. Zamiast mówić kompilatorowi, aby przemapował zestaw bajtów
+na inną reprezentację, bajty muszą zostać skopiowane do nowej lokalizacji w pamięci dla nowej reprezentacji.
+
+    aaa := int32(10)
+    fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
+
+    Output:
+    aaa := int32(10) int32 [10]
+
+W języku Go istnieje pakiet w standardowej bibliotece o nazwie "unsafe",
+jeśli konieczne jest wykonywanie rzeczywistych operacji rzutowania. Jednakże należy naprawdę unikać korzystania
+z niego i być szczerym wobec siebie, dlaczego rozważasz jego użycie.
+Wykonywanie konwersji zapewnia najwyższy poziom integralności dla tego rodzaju operacji.
+
+** Notatki
+
+- Celem wszystkich programów oraz wszystkich ich części jest przekształcanie danych z jednej formy na drugą.
+- Kod głównie alokuje, odczytuje i zapisuje w pamięci.
+- Zrozumienie typów jest kluczowe dla pisania dobrego kodu i zrozumienia kodu.
+- Jeśli nie rozumiesz danych, nie rozumiesz problemu.
+- Zrozumienie danych pomaga lepiej zrozumieć problem.
+- Gdy zmienne są deklarowane do stanu zerowego, używamy słowa kluczowego "var".
+- Gdy zmienne są deklarowane i inicjowane, używamy operatora krótkiej deklaracji zmiennych.
+
+** Dodatkowe materiały
+
+- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
+- [[https://golang.org/doc/effective_go.html#variables][Variables]]    
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
+
+* Ćwiczenia
+
+Użyj szablonu jako punkt startowy do uzupełnienia ćwiczeń. Przykładowe rozwiązanie zostało dodane do materiałów.
+
+** Ćwiczenie 1
+
+*Część* *A:* Zadeklaruj trzy zmienne, które są inicjowane wartościami zerowymi oraz trzy zmienne zadeklarowane
+z ich literałami. Zadeklaruj zmienne typu string, int i bool, a następnie wyświetl wartości tych zmiennych.
+
+*Część* *B:* Zadeklaruj nową zmienną typu float32 wraz z konwersją wartości liczby Pi (3,14).
+
+.play variables/exercise1.go
+.play variables/answer1.go

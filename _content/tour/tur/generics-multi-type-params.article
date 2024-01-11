@@ -1,0 +1,36 @@
+Çoklu Tür Parametreleri
+Bir seferde sadece bir jenerik tür kullanmakla sınırlı değilsiniz.
+
+* Generics - Çoklu Tür Parametreleri
+
+Bir seferde sadece bir jenerik tür kullanmakla sınırlı değilsiniz.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İncelemesi
+
+- *Örnek* *1*: Print fonksiyonu
+
+.play generics/multi-type-params/example1.go
+
+** Açıklama
+
+    func Print[L any, V fmt.Stringer](labels []L, vals []V) {
+        for i, v := range vals {
+            fmt.Println(labels[i], v.String())
+        }
+    }
+
+Print fonksiyonu, L türündeki bir koleksiyonu ve V türündeki bir koleksiyonu kabul eder. 
+L türü herhangi bir şey olabilir, ancak V türü, String metodunu bilmek zorunda olan
+değerlerle sınırlıdır. V türündeki koleksiyon üzerinde döngü yapılır ve L türündeki 
+koleksiyondan gelen karşılık gelen etiketle birlikte yazdırılır.
+
+Jenerik türün adı herhangi bir şey olabilir. Jenerik türler için isimlendirme 
+konvansiyonu, en iyi uygulamalar için daha iyi tanımlanması gereken bir şeydir. 
+Şimdilik, okunabilirlik için tek harfli büyük harfleri kullanın.
