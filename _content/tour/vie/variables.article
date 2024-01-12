@@ -1,72 +1,74 @@
-Variables
-Variables are at the heart of the language and provide the ability to read from and write to memory.
+Biến (Variables)
+Biến là trái tim của ngôn ngữ cung cấp khả năng đọc và ghi vào bộ nhớ.
 
-* Variables
+* Biến
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-Variables are at the heart of the language and provide the ability to read from
-and write to memory. In Go, access to memory is type safe. This means the compiler
-takes type seriously and will not allow us to use variables outside the scope of
-how they are declared.
+Biến là trái tim của ngôn ngữ và cung cấp khả năng đọc và ghi vào bộ nhớ.
+Trong Go, truy cập vào bộ nhớ phải an toàn. Điều này có nghĩa là trình biên dịch
+rất coi trọng kiểu của biến và sẽ không cho phép chúng ta sử dụng biến ngoài phạm vi
+được khai báo.
 
 ** Code Review
 
-- *Example* *1*: Sample program that shows how to declare variables.
+- *Ví dụ* *1*: Chương trình này cho biết cách khai báo biến.
 
-.play variables/example1.go
+.chạy variables/example1.go
 
-** Built-in Types
-Types provide integrity and readability by asking 2 questions:
+** Các kiểu (Types) Built-in
+Các kiểu dữ liệu cung cấp tính toàn vẹn và dễ đọc bằng cách đặt 2 câu hỏi:
 
-- What is the amount of memory to allocate? (e.g. 1, 2, 4, 8 bytes)
-- What does that memory represent? (e.g. int, uint, bool,..)
+- Dung lượng bộ nhớ được phân bổ là bao nhiêu? (Ví dụ 1, 2, 4, 8 bytes)
+- Bộ nhớ đó biểu diễn cho cái gì? (Ví dụ int, uint, bool,..)
 
-Types can be specific to a precision such as int32 or int64:
+Các kiểu dữ liệu có thể được xác định rõ ràng như int32 or int64:
 
-- uint8 represents an unsigned integer with 1 byte of allocation
-- int32 represents a signed integer with 4 bytes of allocation. When you declare a type
-using a non-precision based type (unit, int) the size of the value is based on the
-architecture being used to build the program:
+- uint8 biểu diễn cho một số nguyên không dấu được cấp 1 byte
+- int32 biểu diễn cho một số nguyên có dấu được cấp 4 bytes
 
-- 32 bit arch: int represents a signed int at 4 bytes of memory allocation
-- 64 bit arch: int represents a signed int at 8 bytes of memory allocation
+Khi bạn khai báo một kiểu dữ liệu không rõ ràng (unit, int) thì kích thước của biến
+sẽ dựa trên kiến trúc được sử dụng để xây dựng chương trình:
+
+- 32 bit arch: kiểu int biểu diễn cho một số nguyên có dấu được cấp 4 bytes bộ nhớ
+- 64 bit arch: kiểu int biểu diễn cho một số nguyên có dấu được cấp 8 bytes bộ nhớ
 
 ** Word Size
 
-The word size represents the amount of memory allocation required to store integers
-and pointers for a given architecture. For example:
+Word size biểu diễn kích thước bộ nhớ cần thiết để lưu trữ số nguyên và con trỏ
+cho một kiến trúc nhất định. Ví dụ:
 
-- 32 bit arch: word size is 4 bytes of memory allocation
-- 64 bit arch: word size is 8 bytes of memory allocation
+- 32 bit arch: word size là 4 bytes bộ nhớ
+- 64 bit arch: word size là 8 bytes bộ nhớ
 
-This is important because Go has internal data structures (maps, channels, slices,
-interfaces, and functions) that store integers and pointers. The size of these data
-structures will be based on the architecture being used to build the program.
+Điều này quan trọng vì Go có cấu trúc dữ liệu nội bộ (maps, channels, slices, interfaces
+và hàm) lưu trữ số nguyên và con trỏ. Kích thước của những cấu trúc dữ liệu này
+sẽ dựa trên kiến trúc được sử dụng để xây dựng chương trình.
 
-In Go, the amount of memory allocated for a value of type int, a pointer, or a word
-will always be the same on the same architecture.
+Trong Go, kích thước bộ nhớ được cấp cho một giá trị kiểu int, con trỏ hoặc một từ
+sẽ luôn giống nhau trên cùng một kiến trúc.
 
-** Zero Value Concept
-Every single value you construct in Go is initialized at least to its zero value state
-unless you specify the initialization value at construction. The zero value is the setting
-of every bit in every byte to zero.
+** Khái niệm giá trị Zero
+Mỗi biến bạn xây dựng trong Go đều được khởi tạo ở trạng thái giá trị Zero
+trừ khi bạn chỉ định giá trị cụ thể khi khai báo. Giá trị Zero là mỗi bit
+trong mỗi byte đều được cài đặt về Zero.
 
-This is done for data integrity and it’s not free. It takes time to push electrons
-through the machine to reset those bits, but you should always take integrity over
-performance.
+Việc này được thực hiện để đảm bảo tính toàn vẹn của dữ liệu và không miễn phí.
+Cần có thời gian để đẩy electron thông qua máy để thiết lập lại các bit đó,
+nhưng bạn phải luôn đảm bảo tính toàn vẹn trên cả hiệu suất.
 
-    Type               Zero Value
+    Kiểu               Giá trị Zero
     Boolean            false
     Integer            0
     Float              0
     Complex            0i
-    String             "" (empty)
+    String             "" (chuỗi rỗng)
     Pointer            nil
 
-** Declare and Initialize
-The keyword var can be used to construct values to their zero value state for all types.
+** Khai báo và Khởi tạo
+Từ khóa var có thể được sử dụng để khai báo các biến về trạng thái giá trị Zero cho
+tất cả các kiểu dữ liệu.
 
     var a int
     var b string
@@ -78,24 +80,24 @@ The keyword var can be used to construct values to their zero value state for al
     fmt.Printf("var c float64 \t %T [%v]\n", c, c)
     fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
 
-Output:
+Đầu ra:
 
     var a int    	int [0]
     var b string 	string []
     var c float64	float64 [0]
     var d bool   	bool [false]
 
-Strings use the UTF8 character set, but are really just a collection of bytes.
+Kiểu String sử dụng bộ mã ký tự UTF8, nhưng thực ra nó chỉ là một tập hợp các bytes.
 
-A string is a two-word internal data structure in Go:
+Kiểu chuỗi là một cấu trúc dữ liệu nội bộ 2-word trong Go:
 
-- The first word represents a pointer to a backing array of bytes
-- The second word represents the length or the number of bytes in the backing array
-- If the string is set to its zero value state, then the first word is nil and the
-second word is 0.
+- Word đầu tiên đại diện cho một con trỏ tới một mảng hỗ trợ của byte
+- Word thứ hai biểu thị độ dài hoặc số byte trong mảng hỗ trợ
+- Nếu chuỗi được gán giá trị Zero của nó thì word đầu tiên là nil và
+word thứ hai là 0.
 
-Using the short variable declaration operator, you can declare, construct, and
-initialize a value all at the same time.
+Sử dụng toán tử khai báo biến ngắn, bạn có thể khai báo, xây dựng và
+khởi tạo một giá trị cùng một lúc.
 
     aa := 10       // int [10]
     bb := "hello"  // string [hello]
@@ -107,18 +109,18 @@ initialize a value all at the same time.
     fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
     fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
 
-Output:
+Đầu ra:
 
     aa := 10         int [10]
     bb := "hello"    string [hello]
     cc := 3.14159    float64 [3.14159]
     dd := true       bool [true]
 
-** Conversion vs Casting
+** Chuyển đổi vs ép kiểu (Conversion vs Casting)
 
-Go doesn't have casting, but conversion. Instead of telling the compiler to map a
-set of bytes to a different representation, the bytes need to be copied to a new
-memory location for the new representation.
+Go không có tính năng ép kiểu mà chỉ có chuyển đổi. Thay vì yêu cầu trình biên dịch ép một
+tập hợp các byte thành một cách biểu diễn khác, các byte này cần được sao chép sang một
+vị trí bộ nhớ mới cho cách biểu diễn mới.
 
     aaa := int32(10)
     fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
@@ -126,22 +128,22 @@ memory location for the new representation.
     Output:
     aaa := int32(10) int32 [10]
 
-Go does have a package in the standard library called unsafe if you need to perform
-an actual casting operation. You should really avoid that and be honest with yourself
-why you are considering using it. Performing a conversion provides the highest level
-of integrity for these types of operations.
+Go có một gói trong thư viện chuẩn có tên là unsafe nếu bạn cần thực hiện
+việc ép kiểu. Bạn thực sự nên tránh điều đó và tự hỏi chính mình tại sao
+bạn lại cân nhắc sử dụng nó. Thực hiện chuyển đổi mang lại tính toàn vẹn
+ở mức cao nhất cho các thao tác này.
 
-** Notes
+** Ghi chú
 
-- The purpose of all programs and all parts of those programs is to transform data from one form to the other.
-- Code primarily allocates, reads and writes to memory.
-- Understanding type is crucial to writing good code and understanding code.
-- If you don't understand the data, you don't understand the problem.
-- You understand the problem better by understanding the data.
-- When variables are being declared to their zero value, use the keyword var.
-- When variables are being declared and initialized, use the short variable declaration operator.
+- Mục đích của tất cả các chương trình và tất cả các phần của nó là chuyển đổi dữ liệu từ dạng này sang dạng khác.
+- Mã nguồn chủ yếu phân bổ, đọc và ghi vào bộ nhớ.
+- Hiểu rõ kiểu là tối quan trọng để viết mã tốt và hiểu mã.
+- Nếu bạn không hiểu dữ liệu, bạn không hiểu được vấn đề.
+- Bạn hiểu vấn đề tốt hơn bằng cách hiểu dữ liệu.
+- Khi các biến đang được khai báo bằng giá trị 0 thì sử dụng từ khóa var.
+- Khi các biến đang được khai báo và khởi tạo, hãy sử dụng toán tử khai báo biến ngắn gọn.
 
-** Extra Reading
+** Đọc thêm
 
 - [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]    
 - [[https://golang.org/doc/effective_go.html#variables][Variables]]    
@@ -149,18 +151,18 @@ of integrity for these types of operations.
 - [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]    
 - [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment    
 
-* Exercises
+* Bài tập
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Sử dụng bài mẫu làm điểm khởi đầu để hoàn thành các bài tập. Một câu trả lời khả thi đã được cung cấp.
 
-** Exercise 1
+** Bài tập 1
 
-*Part* *A:* Declare three variables that are initialized to their zero value and
-three declared with a literal value. Declare variables of type string, int and bool.
-Display the values of those variables.
+*Phần* *A:* Khai báo ba biến được khởi tạo bằng giá trị Zero và ba biến được khai báo
+với giá trị cụ thể. Khai báo các biến kiểu string, int và bool.
+Hiển thị giá trị của các biến đó.
 
-*Part* *B:* Declare a new variable of type float32 and initialize the variable by
-converting the literal value of Pi (3.14).
+*Phần* *B:* Khai báo một biến mới với kiểu là float32 và khởi tạo biến đó
+bằng cách chuyển đổi giá trị cụ thể của Pi (3.14).
 
-.play variables/exercise1.go
-.play variables/answer1.go
+.chạy variables/exercise1.go
+.chạy variables/answer1.go
