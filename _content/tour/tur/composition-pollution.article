@@ -1,0 +1,84 @@
+Arayüz Kirliliği
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden kaynaklanır.
+
+* Arayüz Kirliliği
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden 
+kaynaklanır.
+
+** Kod İnceleme
+
+- *Örnek* *1:* Arayüz Kirliliği Oluştur
+- *Örnek* *2:* Arayüz Kirliliğini Kaldır
+
+.play composition/pollution/example1.go
+.play composition/pollution/example2.go
+
+** Arayüz Kirliliği
+
+Arayüz kirliliği, insanların yazılımı arayüzlerle tasarlamak yerine keşfetmelerinden 
+kaynaklanır. Probleme somut bir çözüm tasarlamalısınız. Daha sonra, programın ne zaman 
+polimorfik olması gerektiğini, eğer gerekiyorsa, keşfedebilirsiniz.
+
+Bu, diğer geliştiricilerden duyduğum şeyler.
+
+"Arayüzleri kullanıyorum çünkü arayüzleri kullanmalıyız".
+
+Hayır. Arayüzleri kullanmak zorunda değiliz. Arayüzleri, bunu yapmak pratik ve mantıklı 
+olduğunda kullanırız. Arayüz kullanmanın bir maliyeti vardır: içine somut değerler 
+depoladığımızda bir seviye dolaylılık ve tahsis. Atama maliyeti, ayrıştırmayla kazandığınız 
+şeyle orantılı değilse, arayüzleri kullanmamalısınız.
+
+"Kodumu test edebilmem için arayüz kullanmam gerekiyor".
+
+Hayır. API'nizi ilk olarak kullanıcı için tasarlamalısınız, test için değil. API test edilemezse, 
+kullanılabilir olup olmadığını sorgulamalısınız. API'ların farklı katmanları da vardır. 
+Daha düşük seviyeli kullanılmayan API'lar test edilebilirliğe odaklanabilir ve odaklanmalıdır. 
+Daha yüksek seviyeli dışa aktarılan API'lar kullanılabilirliğe odaklanmalıdır.
+
+Ham veriyi içeri alıp ham veriyi dışarı veren fonksiyonlar en test edilebilir olanlardır. 
+Veri dönüşümünü, verinin nereden geldiği ve nereye gittiği yerden ayırın. Bu, 
+mühendislik kodlama döngüsü sırasında gerçekleştirmeniz gereken bir refaktörlemedir.
+
+Aşağıda, bir arayüz gerekmediği halde arayüzü yanlış şekilde kullanarak arayüz 
+kirliliği yaratan bir örnek bulunmaktadır.
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+Server arayüzü, TCP sunucuları için bir sözleşme tanımlar. Buradaki sorun, bir sözleşmeye 
+ihtiyacınız olmamasıdır, bir uygulamaya ihtiyacınız vardır. Özellikle siz uygulayan kişi 
+olduğunuzdan, sadece bir uygulama olacaktır. Bu işi başkasının sizin için uygulamasına 
+gerek yok.
+
+Ayrıca, bu arayüz bir isim ve bir fiil değil, bir isim üzerine kuruludur. Somut 
+tipler, somut problemleri temsil ettikleri için isimlerdir. Arayüzler davranışı 
+tanımlar ve Server davranış değildir.
+
+Arayüz kirliliğini belirlemenin bazı yolları şunlardır:
+
+- Bir paket, kendi somut türünün tüm API'siyle eşleşen bir arayüzü bildirir.
+- Arayüzler dışa aktarılır ancak arayüzü uygulayan somut tipler dışa aktarılmaz.
+- Somut tipin fabrika fonksiyonu, kullanılmayan somut tip değeri içeren arayüz değerini döndürür.
+- Arayüz kaldırılabilir ve API'nin kullanıcısı için hiçbir şey değişmez.
+- Arayüz, API'nin değişiklikten ayrışmasını sağlamıyor.
+
+Arayüz kirliliği etrafında kurallar:
+
+Bir arayüz kullanın:
+
+- API kullanıcıları bir uygulama ayrıntısı sağlamalıysa.
+- API'lerin birden fazla uygulamasının bakımı gerekiyorsa.
+- API'lerin değişebilecek kısımları belirlenmiş ve ayrıştırma gerektiriyorsa.
+
+Bir arayüzü sorgulayın:
+
+- Tek amacı test edilebilir API'lar yazmaksa (ilk olarak kullanılabilir API'ları yazın).
+- API'ya değişiklikten ayrışma desteği sağlamıyorsa.
+- Arayüzün kodu nasıl daha iyi hale getirdiği açık değilse.

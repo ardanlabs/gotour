@@ -1,0 +1,184 @@
+Sıralama İşlemleri
+Bu bölüm, sıralama işlemlerini gerçekleştiren örnekler sunar.
+
+* Balon Sıralama (Bubble Sort)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Örnek program, bir tamsayı kümesine karşı balon sıralama gerçekleştiren bir 
+fonksiyon içerir.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Bubble_sort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagram*
+    
+    Bubble sort, giriş listesini eleman eleman tekrar tekrar geçen basit bir 
+    sıralama algoritmasıdır. Mevcut elemanı bir sonrakiyle karşılaştırır ve 
+    gerekiyorsa değerlerini değiştirir.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Başlangıç Dizisi
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── İlk İterasyon Sonrası
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── İkinci İterasyon Sonrası / Sıralı
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Eklemeli Sıralama (Insertion Sort)
+
+Örnek program, bir tamsayı kümesine karşı eklemeli sıralama gerçekleştiren 
+bir fonksiyon içerir.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Insertion_sort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagram*
+        
+    Eklemeli sıralama, dizi uzunluğu eksi bir kadar aynı sayıda yinelemeyi 
+    içerir. 5 sayılı bir dizi için, sıralama 4 kez tekrarlanacaktır. 
+    İndeks 1'den başlayarak, sıralama o sayıyı sola taşıyarak sıralanmış 
+    bir konuma yerleştirir.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Başlangıç Dizisi
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── [1]=30 sola taşı
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── İlk İterasyon Sonrası
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── [2]=05 sola taşı
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── İkinci İterasyon Sonrası
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁── [3]=25 sola taşı
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Üçüncü İterasyon Sonrası
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁── [4]=15 sola taşı
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Dördüncü İterasyon Sonrası
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Sıralı
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Heap Sıralama (Heap Sort)
+
+Örnek program, bir tamsayı kümesine karşı heap sıralama gerçekleştiren 
+bir fonksiyon içerir.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagram*
+
+Heap sıralama, girdisini sıralanmış ve sıralanmamış bir diziye böler. Algoritma, 
+sıralanmamış bölgeyi iteratif olarak daraltarak en büyük öğeyi çıkarır ve onu sıralanmış 
+diziye yerleştirir. Algoritma iki aşamada çalışır.
+
+    Faz I    
+    Listeyi ikiye böler ve listenin ön yarısı üzerinde çalışır, bulduğumuz 
+    en büyük değeri listenin önüne taşır ve ardından ikinci en büyük değeri taşır.
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Başlangıç Dizisi
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁── [1]=16 < [4]=73 kontrol et: Takas
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── İlk İterasyon Sonrası
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁── [0]=63 < [3]=71 kontrol et: Takas
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── İkinci İterasyon Sonrası
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁── Faz I Tamamlandı
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Faz II      
+    Listeyi alın ve sayıları yeni sıralı bir liste oluşturmak üzere 
+    dışarı taşımaya başlayın. İlk konumdaki sayıyı alın ve onu nihai 
+    sıralamayı içerecek olan yeni liste üzerinden kaldırın. Daha sonra 
+    tekrar bulduğumuz en büyük sayıyı listenin başına taşıyın.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Başlangıç Dizisi
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── İlk İterasyon Sonrası
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── 73'ü dışarı taşı ve 71'i öne taşı
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁── İkinci İterasyon Sonrası
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁── 71'i dışarı taşı ve 63'ü öne taşı
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Üçüncü İterasyon Sonrası
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁── 63'ü dışarı taşı ve 40'ı öne taşı
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── Dördüncü İterasyon Sonrası
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁── 40'ı dışarı taşı ve 16'yı öne taşı
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Beşinci İterasyon Sonrası
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁── 16'yı dışarı taşı / Sıralı
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Hızlı Sıralama (Quick Sort)
+
+Örnek program, bir tamsayı kümesine karşı hızlı sıralama gerçekleştiren 
+bir fonksiyon içerir.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagram*
+    
+    Hızlı sıralama, bir böl ve fethet algoritmasıdır. Diziden bir "pivot" öğe seçerek 
+    diğer öğeleri pivotun altında mı yoksa üstünde mi olduklarına göre iki alt diziye böler.
+
+    -------------------------------------------------------------------
+    Örnek 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Başlangıç Dizisi
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Pivot Değeri 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Elemanları Sırala 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── İlk Sıralama Tamamlandı
+    └────┘└────┘└────┘└────┘└────┘
+
+    Son İki öğe sıralandı, ilk üçe odaklanın.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Pivot Değeri 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Sıralı
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Örnek 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Başlangıç Dizisi
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Pivot Değeri 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Elemanları Sırala 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── İlk Sıralama Tamamlandı
+    └────┘└────┘└────┘└────┘└────┘
+
+    İlk öğe sıralandı, son dördüne odaklanın.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pivot Değeri 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── İkinci Sıralama Tamamlandı
+    └────┘└────┘└────┘└────┘└────┘
+
+     İlk iki öğe sıralandı, son üçüne odaklanın.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Pivot Değeri 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Üçüncü Sıralama Tamamlandı
+    └────┘└────┘└────┘└────┘└────┘
+
+    İlk üç öğe sıralandı, son ikisine odaklanın.
+
+    ┌────┐┌────┐ ◁── Pivot Değeri 59
+    │ 73 ││ 59 │ ◁── Üçüncü Sıralama Tamamlandı
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Sıralı
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

@@ -1,0 +1,507 @@
+Dilimler (Slices)
+Go'da dilimler son derece önemli bir veri yapısıdır. Esnek, performanslı ve dinamik bir şekilde verileri yönetip manipüle etmenin temelini oluştururlar. Tüm Go programcılarının dilimlerin nasıl çalıştığını ve nasıl kullanılacağını öğrenmeleri çok faydalıdır.
+
+* Dilimler (Slices)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Dilimler, Go'da son derece önemli bir veri yapısıdır. Esnek, performanslı ve dinamik 
+bir şekilde verileri yönetip manipüle etmenin temelini oluştururlar. Tüm Go programcılarının 
+dilimlerin nasıl çalıştığını ve nasıl kullanılacağını öğrenmeleri çok faydalıdır.
+
+.image /tour/eng/static/img/sl1.png
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Tanımla ve Uzunluk
+- *Örnek* *2:* Referans Türleri
+- *Örnek* *3:* Dilimlere Eleman Ekleme
+- *Örnek* *4:* Dilimlerden Dilim Alma
+- *Örnek* *5:* Dilimler ve Referanslar
+- *Örnek* *6:* Diziler ve Dilimler
+- *Örnek* *7:* Çeşitli Parametreli Fonksiyonlar
+- *Örnek* *8:* Aralık Mekaniği
+- *Örnek* *9:* Verimli Dolaşımlar
+- *Örnek* *10:* Üç İndeksli Dilimleme
+
+.play slices/example1.go
+.play slices/example2.go
+.play slices/example3.go
+.play slices/example4.go
+.play slices/example5.go
+.play slices/example6.go
+.play slices/example7.go
+.play slices/example8.go
+.play slices/example9.go 
+.play slices/example10.go
+
+** Dilim Oluşturma
+
+Bir dilim oluşturmak birkaç şekilde yapılabilir.
+
+    // String dilimi sıfır değeri durumuna ayarlanmış.
+    var slice []string
+
+    // String dilimi boş durumuna ayarlanmış.
+    slice := []string{}
+
+    // Uzunluğu ve kapasitesi 5 olan string dilimi.
+    slice := make([]string, 5)
+
+    // Uzunluğu 5, kapasitesi 8 olan string dilimi.
+    slice := make([]string, 5, 8)
+
+    // Değerleriyle uzunluğu ve kapasitesi 5 olan string dilimi.
+    slice := []string{"A", "B", "C", "D", "E"}
+
+make yerleşik fonksiyonu sayesinde hem uzunluk hem de kapasite sağlayarak 
+arkadaki dizinin bellekte önceden ayrılmasını sağlayabilirsiniz. Eğer derleyici 
+derleme zamanında boyutu bilirse, arkadaki dizi yığında oluşturulabilir.
+
+** Dilim Uzunluğu vs Kapasitesi
+
+Bir dilimin uzunluğu okunabilir ve yazılabilir öğelerin sayısını temsil eder. 
+Kapasite, o noktadaki işaretçi pozisyonundan itibaren var olan toplam öğe sayısını 
+temsil eder.
+
+Söz dizimi şekeri sayesinde dilimler bir dizi gibi görünüp hissettirir.
+
+    slice := make([]string, 5)
+    slice[0] = "Apple"
+    slice[1] = "Orange"
+    slice[2] = "Banana"
+    slice[3] = "Grape"
+    slice[4] = "Plum"
+
+Dilim ve dizi oluşturma arasındaki farkı anlayabilirsiniz, çünkü bir dizi derleme 
+zamanında bilinen bir boyuta sahiptir ve dilimler gerekli değildir.
+
+Eğer dilimin uzunluğunu aşan bir öğeye erişmeye çalışırsanız, çalışma zamanında bir 
+hata alırsınız.
+
+    slice := make([]string, 5)
+    slice[5] = "Raspberry"
+
+Hata:
+
+    Error: panic: runtime error: index out of range slice[5] = "Runtime error"
+
+Bu örnekte dilimin uzunluğu 5'tir ve 6. öğeye erişmeye çalışıyoruz, fakat bu öğe 
+mevcut değil.
+
+** Dilimler İçin Veri Semantik Kılavuzu
+
+Bir kılavuz olarak, üzerinde çalıştığınız veri bir dilimse, programınızda 
+veriyi taşımak için değer semantiği kullanmalısınız. Bu, bir türün alanlarını 
+bildirmeyi içerir.
+
+    func Foo(data []byte) []byte
+
+    type Foo struct {
+        X []int
+        Y []string
+        Z []bool
+    }
+
+Bu, Go'nun iç veri yapıları için geçerlidir (dilimler, haritalar, kanallar, arabirimler ve fonksiyonlar).
+
+İşlemenin veya açıklamanın açık olmadığı durumlar dışında dilimi paylaşmanız gerekiyorsa, işaretçi 
+semantiğine geçmek mantıklıdır, ancak bunu belirtin.
+
+** Sürekli Bellek Düzeni
+
+Dilimin arkasında bir dizi bulundurmak, donanıma göre en etkili veri yapısına sahip 
+olmanın fikrini taşır. Ancak, çalışma zamanında ve gelecekteki büyümeye yönelik olarak 
+dinamik ve etkili olma yeteneğine ihtiyaç duyarsınız.
+
+    func main() {
+        slice := make([]string, 5, 8)
+        slice[0] = "Apple"
+        slice[1] = "Orange"
+        slice[2] = "Banana"
+        slice[3] = "Grape"
+        slice[4] = "Plum"
+
+        inspectSlice(slice)
+    }
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i := range slice {
+            fmt.Printf("[%d] %p %s\n", i, &slice[i], slice[i])
+        }
+    }
+
+Çıktı:
+
+    Length[5] Capacity[8]
+    [0] 0xc00007e000 Apple
+    [1] 0xc00007e010 Orange
+    [2] 0xc00007e020 Banana
+    [3] 0xc00007e030 Grape
+    [4] 0xc00007e040 Plum
+
+`inspectSlice` fonksiyonu, bir dilimin ardında sürekli bir destek dizisine sahip olduğunu 
+ve tahmin edilebilir bir adımı olduğunu gösterir. Ayrıca bir dilimin uzunluğunun ve 
+kapasitesinin farklı olabileceğini gösterir. Print fonksiyonunun bir dilimin uzunluğu 
+boyunca yinelediğine dikkat edin.
+
+** Dilimlere Öğe Ekleme
+
+Dilimlere değer eklemek için dilimlere özel bir yerleşik fonksiyon olan append 
+sağlanmaktadır.
+
+    var data []string
+
+    for record := 1; record <= 102400; record++ {
+        data = append(data, fmt.Sprintf("Rec: %d", record))
+    }
+
+append fonksiyonu, dilim sıfır değer durumuna ayarlanmış olsa bile bir dilimle çalışır. 
+Append'in API tasarımı ilginçtir çünkü değer semantik mutasyonu kullanır. Append, 
+kendi kopyasını bir dilim değeriyle alır, kendi kopyasını değiştirir, ardından bir 
+kopyayı çağırana geri döndürür.
+
+Neden API böyle tasarlanmıştır? Çünkü idiyom, bir dilim değerini program boyunca taşımak için 
+değer semantiği kullanmaktır. Bu, bir mutasyon işlemi ile bile hala dikkate alınmalıdır. 
+Ayrıca, değer semantik mutasyon, mutasyonun, fonksiyonun kendi verisinin yalıtılmış bir kopyası 
+üzerinde gerçekleştirildiği için en güvenli yoldur.
+
+Append her zaman dilimin destek dizisi için sürekli bir bellek bloğunu korur, büyüme 
+sonrasında bile. Bu, donanım için önemlidir.
+
+.image /tour/eng/static/img/sl2.png
+
+Her append fonksiyonu çağırıldığında, fonksiyon dilimin uzunluğu ve kapasitesini kontrol 
+eder. Eğer aynıysa, yeni bir değer için destek dizisinde daha fazla yer olmadığı anlamına 
+gelir. Bu durumda, append yeni bir destek dizisi oluşturur (boyutunu iki katına çıkararak 
+veya %25 büyüyerek) ve ardından eski dizideki değerleri yeni diziye kopyalar. Sonra yeni 
+değer eklenir.
+
+.image /tour/eng/static/img/sl3.png
+
+Eğer aynı değilse, eklenen değer için kapasitede ekstra bir öğe olduğu anlamına gelir. 
+Kapasiteden bir öğe alınır ve dilimin uzunluğuna eklenir. Bu, append işlemini çok verimli 
+hale getirir.
+
+Destek dizisinin kapasitesi 1024 öğe veya daha az olduğunda, yeni destek dizileri mevcut 
+dizinin boyutunu iki katına çıkararak oluşturulur. Destek dizisi 1024 öğeden fazla büyüdüğünde, 
+büyüme %25'te gerçekleşir.
+
+*NOT:* *append* *fonksiyonunun* *destek* *dizisinin* *kapasitesini* *nasıl* 
+*büyüttüğü* *Go* *1.18'den* *beri* *değişti.*
+
+- [[https://tip.golang.org/doc/go1.18#runtime][https://tip.golang.org/doc/go1.18#runtime]]
+
+** Dilimleri Dilimleme
+
+Dilimler, destek dizisinin belirli öğelerini farklı işlemler için izole etmek 
+istendiğinde, fazladan kopyalar ve heap tahsisatlarından kaçınma yeteneği sağlar.
+
+Dilimleme sözdizimi, [a:b) listesi gösterimini kullanır, bu da a'dan b'ye kadar olan 
+öğeleri içerir, ancak b'yi içermez.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+
+slice2 değişkeni, şimdi slice1'in kullandığı destek dizisini paylaşan yeni bir dilim 
+değeridir. Ancak slice2, yalnızca orijinal dilimin destek dizisinin 2 ve 3 indeksindeki 
+öğelere (C ve D) erişmenize izin verir. slice2'nin uzunluğu 2'dir ve slice1 gibi 
+5 değil, kapasitesi 3'tür, çünkü bu noktadan itibaren 3 öğe vardır.
+
+.image /tour/eng/static/img/sl4.png
+
+Dilimleme üzerine düşünmenin daha iyi bir yolu, uzunluğa odaklanmaktır ve bu gösterim 
+kullanılarak hataları azaltır [a:a+len]. Bu, yeni dilimleri hesaplarken hataları 
+azaltacaktır.
+
+Bu inspect fonksiyonunu kullanarak bunu görebilirsiniz.
+
+    func inspectSlice(slice []string) {
+        fmt.Printf("Length[%d] Capacity[%d]\n", len(slice), cap(slice))
+        for i, s := range slice {
+            fmt.Printf("[%d] %p %s\n",
+                i,
+                &slice[i],
+                s)
+        }
+    }
+
+Bu işlemi aşağıdaki örnekte görebilirsiniz.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 C     <-- DİLİM 1'DE İNDEKS 2 İLE AYNI
+    [1] 0xc00007e030 D     <-- DİLİM 1'DE İNDEKS 3 İLE AYNI
+
+Farklı dilimlerin aynı destek dizisini paylaştığını görebilirsiniz. Bunu, adresleri 
+karşılaştırarak görebilirsiniz.
+
+Buradaki güzel şey, hiç tahsisat olmamasıdır. Derleyici, dilim1'in destek dizisinin 
+boyutunu derleme zamanında bilir. Dilim değerinin bir kopyasını inspectSlice fonksiyonuna 
+geçirmek, her şeyi yığında tutar.
+
+** Destek Dizisine Mutasyonlar
+
+slice2'yi 0 indeksteki string değerini değiştirmek için kullanırsanız, aynı destek 
+dizisini paylaşan herhangi bir dilim değeri (bu indeksin adresi slice'ın uzunluğunun 
+bir parçasıdır) değişikliği görecektir.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2[0] = "CHANGED"
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 CHANGED
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[3]
+    [0] 0xc00007e020 CHANGED
+    [1] 0xc00007e030 D
+
+Her zaman bir değeri bir indeks konumunda değiştirdiğinizde, destek dizisinin başka 
+bir dilimle paylaşılıp paylaşılmadığını bilmelisiniz.
+
+.image /tour/eng/static/img/sl5.png
+
+Peki, ya yerleşik fonksiyon `append` kullanırsanız ne olur?
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 CHANGED
+    Length[3] Capacity[3]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+    [2] 0xc00007e040 CHANGED
+
+append fonksiyonu aynı yan etkiyi yaratır, ancak gizlidir. Bu durumda, slice2'nin 
+kapasitesinden daha fazla uzunluk getirmek, 0xc00007e040 adresindeki değeri değiştirmiştir. 
+Maalesef, slice1 bu adresi zaten uzunluğunun bir parçası olarak almıştı.
+
+.image /tour/eng/static/img/sl6.png
+
+Bu yan etkiyi önlemenin bir yolu, slice2'yi oluştururken üç indeksli dilim kullanarak uzunluğu 
+ve kapasitesi 2 olan dilimi kullanmaktır.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[2] Capacity[2]
+    [0] 0xc00007e020 C
+    [1] 0xc00007e030 D
+
+Üç indeksli dilim için sözdizimi [a:b:c] 'dir, çünkü [a-b] uzunluğu ayarlar ve 
+[a-c] kapasiteyi ayarlar. Şimdi slice2'nin uzunluğu ve kapasitesi aynı.
+
+Şimdi, tekrar append yerleşik fonksiyonunu kullanın.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice2 := slice1[2:4:4]
+    slice2 = append(slice2, "CHANGED")
+    inspectSlice(slice1)
+    inspectSlice(slice2)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00007e000 A
+    [1] 0xc00007e010 B
+    [2] 0xc00007e020 C
+    [3] 0xc00007e030 D
+    [4] 0xc00007e040 E
+    Length[3] Capacity[4]
+    [0] 0xc000016080 C
+    [1] 0xc000016090 D
+    [2] 0xc0000160a0 CHANGED
+
+append çağrısından sonra slice2'nin yeni bir destek dizisi olduğunu fark edin.
+
+.image /tour/eng/static/img/sl7.png
+
+Bu, her dilimin adresini karşılaştırarak görülebilir. Bu durumda, slice2'ye karşı 
+yapılan mutasyon, slice1'e karşı yan etki oluşturmamıştır.
+
+** Dilimleri El ile Kopyalama
+
+Dilimleri yüzeysel kopyalamaya izin veren copy adında yerleşik bir fonksiyon bulunmaktadır. 
+Bir dizi, değiştirilemez bir byte dizisinin destekleyici bir dizisine sahip olduğundan, 
+bir kaynak olarak kullanılabilir ancak bir hedef olarak kullanılamaz.
+
+    slice1 := []string{"A", "B", "C", "D", "E"}
+    slice3 := make([]string, len(slice1))
+    copy(slice3, slice1)
+
+    inspectSlice(slice1)
+    inspectSlice(slice3)
+
+Çıktı:
+
+    Length[5] Capacity[5]
+    [0] 0xc00005c050 A
+    [1] 0xc00005c060 B
+    [2] 0xc00005c070 C
+    [3] 0xc00005c080 D
+    [4] 0xc00005c090 E
+    Length[5] Capacity[5]
+    [0] 0xc00005c0a0 A
+    [1] 0xc00005c0b0 B
+    [2] 0xc00005c0c0 C
+    [3] 0xc00005c0d0 D
+    [4] 0xc00005c0e0 E
+
+Hedef dilimin uygun tür ve uzunluğa sahip olduğu sürece, yerleşik copy fonksiyonu 
+yüzeysel bir kopyalama yapabilir.
+
+** Dilimler İşaretçi Semantik Mutasyon Kullanır
+
+Program boyunca bir dilimi taşımak için değer semantiği kullanıyor olsanız da, bir dilimi 
+okurken ve yazarken, pointer semantiğini kullanıyorsunuz demektir. Bir dilimin bireysel 
+öğelerini programın farklı kısımlarıyla paylaşmak, istenmeyen yan etkilere neden olabilir.
+    
+    // 1 kullanıcılı bir dilim oluştur, bu kullanıcının bir işaretçisini ayarla,
+    // işaretçiyi kullanarak beğenileri güncelle.
+    users := make([]user, 1)
+    ptrUsr0 := &users[0]
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Çıktı:
+
+    User: 0 Likes: 1
+
+Bir dilim, bir kullanıcı koleksiyonunu korumak için kullanılır. Ardından bir işaretçi 
+ilk kullanıcıya ayarlanır ve beğenileri güncellemek için kullanılır. Çıktı, işaretçinin 
+çalıştığını gösterir.
+
+.image /tour/eng/static/img/sl8.png
+
+Ardından, koleksiyona yeni bir kullanıcı eklenir ve işaretçi tekrar kullanılarak ilk kullanıcıya 
+bir beğeni eklenir.
+    
+    // Koleksiyona yeni bir kullanıcı ekle. İşaretçiyi tekrar kullanarak
+    // beğenileri güncelle.
+
+    users = append(users, user{})
+    ptrUsr0.likes++
+
+    for i := range users {
+        fmt.Printf("User: %d Likes: %d\n", i, users[i].likes)
+    }
+
+Çıktı:
+
+    User: 0 Likes: 1
+    User: 1 Likes: 0
+
+Ancak, append fonksiyonu destekleyici diziyi yeni biriyle değiştirdiğinden, işaretçi 
+eski destekleyici diziyi güncelliyor ve beğeniler kayboluyor. Çıktı, ilk kullanıcının 
+beğenilerinin artmadığını gösterir.
+
+.image /tour/eng/static/img/sl9.png
+
+Bir dilimin çalışma süresi boyunca bir append işlemine tabi tutulup tutulmayacağını 
+bilmelisiniz. Dilimi nasıl paylaştığınızı düşünmelisiniz. Bireysel dizinleri paylaşmak 
+en iyi fikir olmayabilir. Bir dilimi tamamen paylaşmak, eklemeler gerçekleştiğinde işe 
+yaramayabilir. Muhtemelen bir dilimi bir yapıdaki bir alan olarak kullanmak ve yapı 
+değerini paylaşmak daha iyi bir yol olacaktır.
+
+**  Lineer Gezme Verimliliği
+Bir dilimin güzelliği, mekanik olarak duyarlı lineer gezinmeleri gerçekleştirme 
+yeteneğidir ve aynı zamanda değer semantiği kullanarak veriyi paylaşmaktır, heap 
+tahsislerini en aza indirgemek için.
+
+    x := []byte{0x0A, 0x15, 0x0e, 0x28, 0x05, 0x96, 0x0b, 0xd0, 0x0}
+
+    a := x[0]
+    b := binary.LittleEndian.Uint16(x[1:3])
+    c := binary.LittleEndian.Uint16(x[3:5])
+    d := binary.LittleEndian.Uint32(x[5:9])
+
+    println(a, b, c, d)
+
+Kod, baştan sona kadar farklı bölümleri okuyan dilim değerlerini oluşturarak 
+lineer bir gezinme gerçekleştiriyor.
+
+.image /tour/eng/static/img/sl10.png
+
+Bu kodun tüm verileri yığında kalır. Byte diliminin içindeki verinin ekstra kopyaları 
+yapılmaz.
+
+** Notlar
+
+- Dilimler, özel ve yerleşik işlevselliklere sahip dinamik diziler gibidir.
+- Bir dilimin uzunluğu ile kapasitesi arasında bir fark vardır ve her biri bir amaca hizmet eder.
+- Dilimler, aynı temel dizinin birden çok "görünümüne" izin verir.
+- Dilimler, yerleşik append fonksiyonunun kullanımına izin verir.
+
+** Ek Okuma
+
+- [[https://blog.golang.org/go-slices-usage-and-internals][Go Slices: usage and internals]] - Andrew Gerrand    
+- [[https://blog.golang.org/strings][Strings, bytes, runes and characters in Go]] - Rob Pike    
+- [[https://blog.golang.org/slices][Arrays, slices (and strings): The mechanics of 'append']] - Rob Pike        
+- [[https://www.ardanlabs.com/blog/2013/08/understanding-slices-in-go-programming.html][Understanding Slices in Go Programming]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/08/collections-of-unknown-length-in-go.html][Collections Of Unknown Length in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html][Iterating Over Slices In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/09/slices-of-slices-of-slices-in-go.html][Slices of Slices of Slices in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/12/three-index-slices-in-go-12.html][Three-Index Slices in Go 1.2]] - William Kennedy    
+- [[https://github.com/golang/go/wiki/SliceTricks][SliceTricks]]    
+- [[https://go-review.googlesource.com/c/go/+/347917][runtime: Make slice growth formula a bit smoother]] - Go Team 
+			 
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Muhtemel bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Nil bir tamsayı dilimi bildirin. Dilime 10 değer ekleyen bir döngü 
+oluşturun. Dilim üzerinde dolaşın ve her değeri gösterin.
+
+*Kısım* *B:* Beş dizi içeren bir dilim bildirin ve dilimi string literal değerleriyle 
+başlatın. Tüm öğeleri gösterin. Birinci ve ikinci indekste bir dilim alın ve yeni 
+dilimdeki her öğenin indeks konumunu ve değerini gösterin.
+
+.play slices/exercise1.go		  
+.play slices/answer1.go

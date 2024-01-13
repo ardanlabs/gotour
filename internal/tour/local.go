@@ -106,6 +106,9 @@ func Main() {
 	grcUIContent, grcIndex := addLanguage("tour/grc/")
 	defer grcIndex.Close()
 
+	itaUIContent, itaIndex := addLanguage("tour/ita/")
+	defer itaIndex.Close()
+
 	perUIContent, perIndex := addLanguage("tour/per/")
 	defer perIndex.Close()
 
@@ -115,6 +118,9 @@ func Main() {
 	polUIContent, polIndex := addLanguage("tour/pol/")
 	defer polIndex.Close()
 
+	turUIContent, turIndex := addLanguage("tour/tur/")
+	defer turIndex.Close()
+
 	rusUIContent, rusIndex := addLanguage("tour/rus/")
 	defer rusIndex.Close()
 	// -------------------------------------------------------------------------
@@ -123,9 +129,11 @@ func Main() {
 	r := root{
 		engContent: engUIContent,
 		grcContent: grcUIContent,
+		itaContent: itaUIContent,
 		perContent: perUIContent,
 		porContent: porUIContent,
 		polContent: polUIContent,
+		turContent: turUIContent,
 		rusContent: rusUIContent,
 	}
 

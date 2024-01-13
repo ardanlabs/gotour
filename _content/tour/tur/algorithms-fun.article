@@ -1,0 +1,131 @@
+Eğlenceli Problemler
+Bu bölüm, Go'nun sunduğu bazı yetenekleri sergileyen eğlenceli kod zorluklarını içerir.
+
+* Uyuyan Berber Problemi
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bu örnek program, uyuyan berber problemini uygular.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]] adresine bakın.
+
+Berber dükkanında bir berber, bir berber koltuğu ve bekleyen müşteriler için `n` 
+sandalye bulunmaktadır. Eğer müşteri yoksa, berber berber koltuğuna oturur ve 
+bir şekerleme yapar. Gelen bir müşteri, berberi uyandırmalıdır. Ardışık gelen 
+müşteriler, boş sandalye varsa bir bekleme sandalyesine oturur veya tüm sandalyeler 
+doluysa ayrılır.
+
+*Çıktı:*
+
+    Mağazayı açıyorum
+    Berber çalışmaya hazır
+    Müşteri "cust-1" mağazaya girdi
+    Müşteri "cust-1" bir koltuk alır ve bekler
+    Berber müşteri "cust-1"e hizmet veriyor
+    Berber müşteri "cust-1"i bitirdi
+    Berber şekerleme yapıyor
+    Müşteri "cust-2" mağazaya girdi
+    Müşteri "cust-2" bir koltuk alır ve bekler
+    Berber müşteri "cust-2"ye hizmet veriyor
+    Müşteri "cust-3" mağazaya girdi
+    Müşteri "cust-3" bir koltuk alır ve bekler
+    Berber müşteri "cust-2"i bitirdi
+    Berber müşteri "cust-3"e hizmet veriyor
+    Müşteri "cust-4" mağazaya girdi
+    Müşteri "cust-4" bir koltuk alır ve bekler
+    Mağazayı kapatıyorum
+    Berber müşteri "cust-3"ü bitirdi
+    Berber müşteri "cust-4"e hizmet veriyor
+    Berber müşteri "cust-4"ü bitirdi
+    Mağaza kapalı
+
+.play algorithms/fun/barber.go
+
+* Frekans
+
+Bu örnek programlar, belirli bir cümlede kullanılan belirli bir rune'ın 
+frekansını bulabilen bir fonksiyonu nasıl uygulayacağınızı gösterir.
+
+- Sıralı: Rune sayısını gerçekleştirmek için lineer bir algoritma.
+- Eşzamanlı: Rune sayısını gerçekleştirmek için eşzamanlı bir algoritma.
+
+.play algorithms/fun/freq_sequential.go
+.play algorithms/fun/freq_concurrent.go
+
+*  Değişken Uzunluklu Miktar kodlama/çözme.
+
+Bu örnek program, Go'nun değişken uzunluklu miktar kodlama/çözme uygulamak için nasıl kullanılabileceğini sergiler.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+
+Kısacası, bu kodlamanın amacı, tamsayı değerlerini byte'ları koruyacak şekilde 
+kodlamaktır. Her byte'ın sadece ilk 7 biti anlamlıdır (sağa hizalı; neredeyse 
+bir ASCII byte'ı gibi). Bu nedenle, 32 bitlik bir değere sahipseniz, onu bir dizi 
+7 bitlik byte'a açmalısınız. Elbette, tamsayınıza bağlı olarak değişken sayıda 
+byte'ınız olacaktır. Serinin son byte'ını göstermek için hangisinin olduğunu belirtmek 
+için 7. biti temiz bırakırsınız. Tüm önceki bytelarda 7. biti ayarlarınız.
+
+Bu nedenle, bir tamsayı 0-127 arasındaysa, bir byte olarak temsil edilebilir. 
+İzin verilen en büyük tamsayı 0FFFFFFF'dir, bu da 4 byte değişken uzunluğa 
+çevrilir. İşte 32 bitlik değerler olarak delta zamanlarının ve bunların çevrildiği 
+değişken uzunluklu miktar örnekleri:
+
+    NUMBER        VARIABLE QUANTITY
+    00000000              00
+    00000040              40
+    0000007F              7F
+    00000080             81 00
+    00002000             C0 00
+    00003FFF             FF 7F
+    00004000           81 80 00
+    00100000           C0 80 00
+    001FFFFF           FF FF 7F
+    00200000          81 80 80 00
+    08000000          C0 80 80 00
+    0FFFFFFF          FF FF FF 7F
+
+Bir değişken uzunluklu miktar (VLQ), keyfi büyüklükteki bir tamsayıyı temsil 
+etmek için keyfi sayıda ikili oktet (sekiz bitlik byte) kullanan evrensel bir 
+koddur. Standart MIDI dosya formatında[1] bir kaynak kısıtlı sistem için ek alan 
+tasarrufu yapmak amacıyla tanımlandı ve ayrıca sonraki Genişletilebilir Müzik 
+Formatı (XMF)’da da kullanılmaktadır. Bir VLQ, esasen bir bit eklentisiyle işaretleme
+yapmak için bir biti dışında 128 tabanlı bir sayının temsilidir. Aşağıdaki 
+örneğe bakın.
+
+	Int:    16384
+	IntHex: 0x00004000
+	IntBin: 00000000 00000000 01000000 00000000
+	VLQHex: 0x81 0x80 0x00
+	VLQBin: 00000000 10000001 10000000 00000000
+
+Şimdi, 3435'i VLQ'da temsil etmek istediğimi düşünelim. 3435'in 
+ikili tabandaki karşılığı 110101101011. Bu bir byte'a sığmaz. 
+Bu nedenle, en sondan başlayarak 7 bitlik bloklara ayıracağız.
+
+    Septet	7	6	5	4	3	2	1
+    #1		1	1	0	1	0	1	1
+    #2		0	0	1	1	0	1	0
+
+Şimdi, sonuncusu hariç hepsini bir 1 biti ile başlattık, bir oktetin 
+takip ettiğini göstermek için ve son oktete bir 0 biti ekledik, bu da 
+final oktetini belirtiyor.
+
+    Octet   8	7	6	5	4	3	2	1
+    #1      0	1	1	0	1	0	1	1
+    #2      1	0	0	1	1	0	1	0
+
+Son olarak, onları, en anlamlı oktetten başlayarak, birleştiriyoruz
+
+Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
+
+*Ek* *Kaynaklar*:
+
+- [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
+- [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
+
+*Bunun* *mükemmel* *bir* *uygulaması* *için* *buraya* *bakabilirsiniz*:
+
+- [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
+
+.play algorithms/fun/vlq.go
