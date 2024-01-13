@@ -1,0 +1,124 @@
+Vincoli degli Slice
+Potrebbero esserci momenti in cui è necessario vincolare il tipo generico ad essere uno slice.
+
+* Generics - Vincoli degli Slice
+
+Potrebbero esserci momenti in cui è necessario vincolare il tipo generico ad essere uno slice.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Esempio* *1*: Funzione Operativa
+
+.play generics/slice-constraints/example1.go
+
+** Spiegazione
+
+In questo caso il tipo Numbers definito dall'utente ha un tipo sottostante che è uno slice di
+numeri interi.
+
+    type Numbers []int
+
+Il compilatore consente di convertire variabili basate su uno slice di numeri interi
+con variabili di tipo Numbers. Questo di solito è buono ed è quello che vuoi.
+Grazie a questa funzionalità, è possibile scrivere una funzione generica
+che possa operare su uno slice rispettando il tipo sottostante.
+
+    type operateFunc[T any] func(t T) T
+
+    func operate[T any](slice []T, fn operateFunc[T]) []T {
+        ret := make([]T, len(slice))
+            for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+Qui la funzione operate dichiara un tipo generico T che può essere qualsiasi cosa. Il tipo
+viene utilizzato per dichiarare un parametro denominato slice che accetta una slice dello stesso tipo T.
+La funzione accetta anche una funzione generica dello stesso tipo T e restituisce uno slice
+di T.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        return numbers
+    }
+
+Output:
+
+    []int
+
+La funzione Double accetta un valore di tipo Numbers e passa tale valore alla funzione operate.
+In questo caso, il compilatore sfrutta il tipo sottostante per il tipo T e il valore Numbers
+può essere passato alla funzione. Tuttavia, ciò che viene restituito è uno slice di tipo int, come mostrato nell'output.
+
+Se è necessario assicurarsi che solo un valore Numbers possa essere passato e venga restituito dalla funzione operate,
+è possibile apportare le seguenti modifiche.
+
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+Questa interfaccia dichiara un vincolo per limitare un tipo generico a uno slice di un certo tipo T.
+L'uso dell'elemento di approssimazione ~ si limita a tutti i tipi il cui tipo sottostante è T.
+Con questa interfaccia è possibile modificare la funzione operate.
+
+    type operateFunc[T any] func(t T) T
+    type Slice[T any] interface {
+        ~ []T
+    }
+
+    // func operate[T any](slice []T, fn operateFunc[T]) []T {
+    //     ret := make([]T, len(slice))
+    //     for i, v := range slice {
+    //         ret[i] = fn(v)
+    //     }
+    //     return ret
+    // }
+
+    func operate[S Slice[T], T any](slice S, fn operateFunc[T]) S {
+        ret := make(S, len(slice))
+        for i, v := range slice {
+            ret[i] = fn(v)
+        }
+        
+        return ret
+    }
+
+Ora modifica la funzione operate per dichiarare due tipi generici. Il tipo S rappresenta
+uno slice di qualche tipo T, e T che è un tipo che può essere qualsiasi cosa.
+La funzione restituisce un valore di tipo S.
+
+    type Numbers []int
+    
+    func Double(n Numbers) Numbers {
+        fn := func(n int) int {
+            return 2 * n
+        }
+    
+        numbers := operate(n, fn)
+        fmt.Printf("%T", numbers)
+        
+        return numbers
+    }
+
+Output:
+
+    main.Numbers
+
+Questa volta, quando passi il valore Numbers alla funzione operate, lo slice restituito
+è di tipo Numbers. Il tipo sottostante viene ignorato e il tipo definito dall'utente viene rispettato.

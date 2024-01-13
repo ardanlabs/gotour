@@ -1,0 +1,145 @@
+Exporting
+Exporting, bir tanımlayıcının paket dışındaki koda erişilebilir olup olmadığını belirtme yeteneği sağlar.
+
+* Exporting
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Exporting, bir tanımlayıcının paket dışındaki koda erişilebilir olup olmadığını 
+belirtme yeteneği sağlar.
+
+** Kod İnceleme
+
+- *Örnek* *1:* Export edilmiş tanımlayıcıları bildirme ve erişme
+- *Örnek* *2:* Export edilmemiş tanımlayıcıları bildirme ve kısıtlamalar
+- *Örnek* *3:* Export edilmemiş tanımlayıcıların değerlerine erişme
+- *Örnek* *4:* Export edilmemiş yapı türü alanları
+- *Örnek* *5:* Export edilmemiş gömülü türler
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Exporting Mekanizmaları
+
+Go'da derlenmiş kodun temel birimi bir pakettir. Fiziksel olarak derlenmiş bir kod 
+birimi olarak genellikle ana işletim sisteminde derlenmiş bir kitaplık olarak temsil 
+edilir. Exporting, paket sınırları boyunca tanımlayıcılara erişimi belirler.
+
+    package counters
+
+    type AlertCounter int
+
+Bu durumda, AlterCounter türünü adlandırmak için büyük harf kullanıldığından tür 
+export edilir ve genellikle counters paketi dışındaki kod tarafından doğrudan 
+başvurulabilir.
+
+    package counters
+
+    type alertCounter int
+
+Şimdi türün adını küçük harfle başlatarak türün export edilmediğini görünüz. 
+Bu, yalnızca counters paketi içindeki kodun bu türü doğrudan başvurabileceği 
+anlamına gelir.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Yukarıdaki kod yasal bir sözdizimidir ve derlenir, ancak içeride hiçbir değeri yoktur. 
+Export edilmemiş bir türün değerini döndürmek, çağıran kişi (muhtemelen farklı bir 
+pakette bulunan) tür adını doğrudan başvuramayacağından kafa karıştırıcıdır.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+Bu durumda, main paketinin main fonksiyonu, counters.New fonksiyonunu başarıyla çağırır 
+ve derleyici, export edilmemiş türün bir değişkenini bildirebilir ve oluşturabilir. 
+Bu, bunu yapmalısınız anlamına gelmez veya bununla gerçek bir koruma elde ettiğiniz 
+anlamına gelmez. Bu kaçınılmalıdır ve New bir değer döndürecekse, bu export edilmiş 
+bir tür olmalıdır.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+Bir yapıdaki alanlar söz konusu olduğunda, alanın erişilebilir olup olmadığını 
+belirleyen ilk harftir. Bu durumda, Name ve ID erişilebilirken, password erişilemez. 
+Bu, bu makul veya pratikse export edilmiş ve export edilmemiş alanları ayırmak 
+için bir sözdizimidir. Normalde tüm alanlar ya biri ya diğeridir.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+Bu senaryoda, kullanıcı türü ne yazık ki dışa aktarılmamış (unexported) olsa da, 
+iki export edilmiş alanı bulunmaktadır. Bu, kullanıcı türü, export edilmemiş Manager 
+türüne gömüldüğünde, kullanıcı alanlarının yükseldiği ve erişilebilir olduğu anlamına 
+gelir. Export edilmiş alanlarda işlem yapabilen reflection paketi olduğu için, 
+genellikle dışa aktarılmamış türlerde dışa aktarılmış alanlar bulunur. Aksi takdirde, 
+Marshaller çalışmaz.
+
+Örnek, paket dışındaki kodun bir Manager oluşturmasına izin veren kötü bir durum yaratır, 
+ancak gömülü tür user export edilmediğinden, bu türün alanları başlatılamaz. Bu, bölümlü yapı 
+sorunlarına yol açacak ve hatalara neden olacaktır. Export etme ve export etmeme konusunda 
+tutarlı olmanız gerekiyor.
+
+** Notlar
+
+- Go'da kod paketlere derlenir ve ardından bir araya getirilir.
+- Tanımlayıcılar harf durumuna bağlı olarak export edilir (veya export edilmez).
+- Export edilmiş tanımlayıcılara erişmek için paketleri içe aktarırız.
+- Herhangi bir paket, export edilmemiş bir türün değerini kullanabilir, ancak bu kullanım rahatsız edicidir.
+
+** Ek Okuma
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A:* Toy adında tek bir export edilmiş yapı türüne sahip toy adında bir paket 
+oluşturun. Export edilmiş alanlar Name ve Weight'ı ekleyin. Ardından, onHand ve sold 
+adında iki export edilmemiş alan ekleyin. Toy için onHand ve sold alanları için 
+değerleri oluşturmak için New adında bir fabrika fonksiyonunu bildirin. Daha sonra, 
+onHand alanları için değerleri döndüren ve güncelleyen metodları bildirin.
+
+*Kısım* *B:* toy paketini içe aktaran bir program oluşturun. New fonksiyonunu kullanarak
+toy türünde bir değer oluşturun. Ardından, metodları kullanarak bu oyuncak değerinin 
+sayılarını ayarlayın ve alan değerlerini görüntüleyin.
+
+.play exporting/exercise1.go
+.play exporting/answer1.go

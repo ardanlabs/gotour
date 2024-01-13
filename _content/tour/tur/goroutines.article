@@ -1,0 +1,402 @@
+Gorutinler (Goroutines)
+Gorutinler, Go planlayıcısı tarafından bağımsız olarak çalıştırılmak üzere oluşturulan ve zamanlanan fonksiyonlardır.
+
+* Gorutinler (Goroutines)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Gorutinler, Go planlayıcısı tarafından oluşturulan ve bağımsız olarak çalıştırılmak 
+üzere zamanlanan fonksiyonlardır. Go planlayıcısı, gorutinlerin yönetimi ve yürütülmesinden 
+sorumludur.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Gorutinler ve Eşzamanlılık
+- *Örnek* *2:* Gorutin bağlam değiştirme
+- *Örnek* *3:* Gorutinler ve Paralelizm
+
+.play goroutines/example1.go
+.play goroutines/example2.go
+.play goroutines/example3.go
+
+** Planlayıcı Semantiği
+
+Bir Go programı başladığında, Go çalışma zamanı (sanal veya fiziksel) makineye kaç tane 
+işletim sistemi iş paralel olarak çalışabilir diye sorar. Bu, programa mevcut olan çekirdek 
+sayısına dayanmaktadır. Paralel olarak çalıştırılabilecek her iş paralelinde, çalışma zamanı 
+bir işletim sistemi iş parçacığı (M) oluşturur ve bunu program içinde bir mantıksal işlemciyi 
+temsil eden bir veri yapısına bağlar (P). Bu P ve M, Go programını çalıştırmak için hesaplama 
+gücünü veya yürütme bağlamını temsil eder.
+
+Ayrıca, seçilen bir M/P üzerinde talimatların yürütülmesini yönetmek için başlangıçta 
+bir Gorutin (G) oluşturulur. Bir M, talimatların donanımda yürütülmesini yönetirken, bir G, 
+talimatların M üzerinde yürütülmesini yönetir. Bu, işletim sistemi üzerinde yeni bir soyutlama 
+katmanı oluşturur, ancak yürütme kontrolünü uygulama düzeyine taşır.
+
+.image /tour/eng/static/img/gor1.png
+
+Go planlayıcısı, işletim sistemi planlayıcısının üzerinde oturduğundan, işletim sistemi 
+planlayıcısının ve bu planlayıcının Go planlayıcısına ve uygulamalara uyguladığı kısıtlamaları 
+anlamanın önemli olduğunu belirtmek önemlidir.
+
+İşletim sistemi planlayıcısının görevi, birden çok iş parçasının aynı anda yürütülüyormuş 
+gibi bir yanılsama yaratmaktır. Bu fiziksel olarak mümkün olmasa bile. Bu, planlayıcının 
+tasarımında bazı fedakarlıkları gerektirir. Daha ileri gitmeden önce, bazı kelimeleri 
+tanımlamak önemlidir.
+
+*İş:* Bir çalışan uygulama için yürütülecek talimatlar kümesi. Bu, iş parçacıkları 
+tarafından ve bir uygulamanın 1 ila çok sayıda iş parçacığına sahip olabilir.
+
+*İş Parçacığı:* Zamanlanmış ve gerçekleştirilen bir yürütme yolu. İş parçacıkları, 
+talimatların donanımda yürütülmesinden sorumludur.
+
+*İş Parçacığı Durumları:* Bir iş parçacığı, Çalışan, Çalışılabilir veya Bekleme 
+durumlarından birinde olabilir. Çalışan, iş parçacığının atanmış talimatlarını 
+donanımda yürütüyor demektir. Çalışılabilir, iş parçacığı, atanmış talimatlarını 
+donanımda yürütmek için zaman istiyor ve bir çalışma sırasında bekliyor demektir. 
+Bekleme, iş parçacığının işine devam edebilmesi için bir şey beklediği anlamına 
+gelir. Bekleyen iş parçacıkları, planlayıcının endişe duymadığı şeylerdir.
+
+*Eşzamanlılık:* Bu, tanımsız sırasız yürütme anlamına gelir. Başka bir deyişle, belirtilen 
+sırayla yürütülecek bir talimat kümesi verildiğinde, bu talimatlar belirli bir tanımsız 
+sırayla yürütülse de, tüm talimat kümesini belirli bir sırasız sırayla yürütmenin sonucunu 
+üretir. İşin sırasız sırayla yapılmasının önemi, iş sırasının önemli olmaksızın, tüm işin 
+tamamlanmış olmasıdır.
+
+*Paralellik:* Bu, aynı anda birçok şey yapma anlamına gelir. Bu bir seçenek olabilmesi 
+için, donanımda iki veya daha fazla işletim sistemi iş parçacığını aynı anda fiziksel 
+olarak yürütme yeteneğine ihtiyacınız vardır.
+
+*CPU* *Bağlı* *İş:* Bu, iş parçacığının doğal olarak bir bekleme durumuna geçmesine neden 
+olmayan iş demektir. Fibonacci sayılarını hesaplamak, CPU bağlı iş olarak kabul edilebilir.
+
+*Giriş/Çıkış* *Bağlı* *İş:* Bu, iş parçacığının doğal olarak bir bekleme durumuna geçmesine 
+neden olan iş demektir. Farklı URL'lerden veri almak, giriş/çıkış bağlı iş olarak kabul 
+edilebilir.
+
+*Senkronizasyon:* İki veya daha fazla Gorutinin aynı bellek konumuna aynı anda erişmesi 
+gerekiyorsa, bunlar senkronize edilmeli ve sırayla almalıdır. Bu senkronizasyon gerçekleşmezse 
+ve en az bir Gorutin yazma işlemi yapıyorsa, veri yarışı olabilir. Veri yarışları, bulması 
+zor olabilen veri bozulma hatalarının nedenidir.
+
+*Orkestrasyon:* İki veya daha fazla Gorutinin, veri olmadan veya veri ile birbirlerine 
+sinyal vermesi gerekiyorsa, orkestrasyon mekanizması gereklidir. Bu orkestrasyon 
+gerçekleşmezse, eşzamanlı olarak gerçekleştirilen ve tamamlanan işlerle ilgili garantiler 
+kaçırılır. Bu, çeşitli veri bozulma hatalarına neden olabilir.
+
+Planlama semantiği ile ilgili birçok küçük ayrıntı bulunmaktadır, bu yüzden daha fazla 
+bilgi için "Go'da Planlama" başlıklı 14. bölümdeki üç yazıyı okuyun.
+
+** Eşzamanlılık Temelleri
+
+Orkestrasyon gerektiren temel bir eşzamanlılık sorusu ile başlayalım.
+
+    func init() {
+        runtime.GOMAXPROCS(1)
+    }
+
+GOMAXPROCS'a yapılan bu çağrı, Go programını tek iş parçacıklı bir Go programı olarak 
+çalıştırmak için kullanılmaktadır. Bu program tek iş parçacıklı olacak ve tüm Gorutinleri 
+yürütmek için tek bir P/M'ye sahip olacaktır. Fonksiyon büyük harfle yazılmıştır çünkü 
+aynı zamanda bir ortam değişkenidir. Bu fonksiyon çağrısı değişkeni üzerine yazacaktır, ancak 
+bu işlev çağrısı değişkeni üzerine yazacaktır.
+
+    g := runtime.GOMAXPROCS(0)
+
+Bu fonksiyon, bir konteyner yapılandırmasına CPU kotaları atanırken önemli bir fonksiyondur. 
+0 geçildiğinde, Go programının kullanacağı iş parçacığı sayısı bildirilir. Bu sayının, 
+benim konteynerleştirilmiş ortamımda mevcut olan işletim sistemi iş parçacıkları sayısına 
+eşit olduğundan emin olmalısınız. Sayılar aynı değilse, Go programı başka türlü çalışmaz. 
+Ortam değişkenini veya bu çağrıyı kullanarak şeyleri eşleştirmek isteyebilirsiniz.
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        fmt.Println("Waiting To Finish")
+        wg.Wait()
+
+        fmt.Println("\nTerminating Program")
+    }
+
+Bu programın bir orkestrasyon sorununu çözmesi gerekiyor. Ana Gorutine, iki oluşturulan 
+Gorutinin işlerini bitirmeden önce main fonksiyonun dönmesine izin vermemelidir. Bir WaitGroup, 
+birbirlerine veri iletilmesini gerektirmeyen orkestrasyon sorunları için mükemmel bir araçtır. 
+Buradaki sinyalleme, bir Gorutinin diğer Gorutinlere işlerini bitirdiklerini bildirmelerine izin 
+veren bir API aracılığıyla gerçekleştirilir.
+
+Bu kodda, bir WaitGroup sıfır değeriyle oluşturulur ve ardından hemen Add fonksiyonu çağrılır, 
+WaitGroup'u 2'ye ayarlayarak oluşturulacak Gorutin sayısına eşleştirir. Önceden kaç Gorutinin 
+oluşturulacağını bildiğinizde, bu sayıyla bir kere Add'i çağırmalısınız. Bilmiyorsanız 
+(örneğin, bir akış hizmetinde), Add(1) çağırmak kabul edilebilir.
+
+main fonksiyonunun sonunda Wait çağrısı vardır. Wait, ana Gorutini, WaitGroup'un tekrar 0'a 
+ayarlanana kadar fonksiyonun dönmesini önler. Ana fonksiyon döndüğünde, Go programı sonlandırılır. 
+Bu nedenle, orkestrasyonu doğru garantilerle yönetmek önemlidir. Wait çağrısı, WaitGroup'u tekrar 
+0'a ayarlanana kadar bloke edecektir.
+
+Programın ortasında, iki Gorutinin oluşturulması var.
+
+    func main() {
+        . . .
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Literal fonksiyonlar, go anahtar kelimesini kullanarak bildirilir ve yürütme sırasında 
+bu fonksiyonları aynı anda yürütmesi için Go çizelgesine söylenir. Onları belirsiz bir 
+sıra içinde yürütmek için. Her Gorutinin uygulamasının içinde, Done çağrısı bulunur. 
+Bu çağrı, WaitGroup'u 1 azaltır. Her iki Done çağrısı yapıldığında, WaitGroup 2'den 0'a 
+değişecek ve ardından ana Gorutine, Wait çağrısıyla bloke edilmekten kurtulacak ve program 
+sonlandırılacaktır.
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Bu orkestrasyon şablonunun önemli bir parçası, Add ve Done çağrılarını aynı görüş 
+hizasında tutmaktır. Çağrıların kaybolmadığı bir fonksiyon parametresi olarak WaitGroup'u 
+iletmemeye çalışın. Bu, hataları azaltmaya yardımcı olacaktır.
+
+Çıktı:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
+    Terminating Program
+
+Bu programı oluşturup çalıştırdığınızda, bu programın nasıl eş zamanlı çalıştığını 
+görebilirsiniz. Oluşturulan ikinci Gorutin önce planlandı. İşini bitirdi sonra 
+diğer Gorutin çalıştı. Her ikisi de program sona ermeden önce tamamlandı. Bu programı 
+bir daha çalıştırdığınızda, aynı çıktıyı göreceğiniz garanti değil. Bu programdaki tek 
+garanti, iki Gorutin tamamlanana kadar programın sonlanmayacağıdır.
+
+    func main() {
+        . . .
+
+        fmt.Println("Waiting To Finish")
+        // wg.Wait()                           <-- DEĞİŞTİRİLDİ
+
+        fmt.Println("\nTerminating Program")
+    }
+
+Çağrıyı Wait'e yorumlarsanız, programı çalıştırdığınızda ne olacağını tahmin etmek 
+artık hiçbir şekilde garanti değil, ancak farklı olasılıklar var.
+
+Program, Println çağrıları sistem çağrıları olduğundan dolayı önceki gibi davranabilir, 
+bu da planlayıcının bir bağlam değişimi yapmasına izin verir. Program sadece iki 
+Gorutin'den birini çalıştırabilir veya belki de hemen sonlandırılabilir.
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            lowercase()
+            // wg.Done()               <-- DEĞİŞTİRİLDİ
+        }()
+
+        . . .
+    }
+
+Eğer bir Gorutin'de Done çağrısını unutursanız ne olur? Bu durumda, WaitGroup 0'a 
+inemediği için program kilitlenecek ve Wait çağrısı sonsuza kadar engellenecek.
+
+Çıktı:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
+    fatal error: all goroutines are asleep - deadlock!
+
+    goroutine 1 [semacquire]:
+    sync.runtime_Semacquire(0xc00001a0a8)
+        /usr/local/go/src/runtime/sema.go:56 +0x45
+    sync.(*WaitGroup).Wait(0xc00001a0a0)
+        /usr/local/go/src/sync/waitgroup.go:130 +0x65
+    main.main()
+        concurrency/goroutines/example1/example1.go:42 +0x145
+    exit status 2
+
+Go Runtime'ın programın Wait çağrısı olduğu 42. satırda kilitlendiğini nasıl tespit ettiğini 
+görebilirsiniz. Her bir Gorutinin bir çıkış yolu olmadan tamamen engellenmesi gerekir. 
+Bu, Add ve Done çağrılarını bir arada tutmanın neden bu kadar önemli olduğunu gösterir.
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(1)              <-- DEĞİŞTİRİLDİ, Sayı Çok Küçük
+
+        go func() {
+            lowercase()
+            wg.Done()
+        }()
+
+        go func() {
+            uppercase()
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+WaitGroup'a beklemesi gereken doğru sayıda Gorutin vermezseniz ne olur? Eğer sayı 
+çok büyükse, başka bir kilitlenme yaşarsınız. Eğer sayı çok küçükse, programın hareket 
+etmeden önce işin tamamlanmasının garantisi yoktur. Programın çıktısı tanımsızdır.
+
+** Önleyici Planlayıcı
+
+Planlayıcının uygulama kapsamında çalışmasına rağmen, planın önceden belirlenmiş 
+olduğunu görmek önemlidir. Bu, bir bağlam değişimini ne zaman gerçekleşeceğinizi 
+tahmin edemeyeceğiniz anlamına gelir ve programı her çalıştırdığınızda bu değişecektir.
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(2)
+
+        go func() {
+            printHashes("A")
+            wg.Done()
+        }()
+
+        go func() {
+            printHashes("B")
+            wg.Done()
+        }()
+
+        fmt.Println("Waiting To Finish")
+        wg.Wait()
+
+        fmt.Println("\nTerminating Program")
+    }
+
+Aynı düzenleme modelini kullanarak, bu programdaki her Gorutin daha fazla iş yapıyor. 
+İşte bir Gorutinin bir zaman diliminde tamamen bitirmek için yeterli zamanı vermeyen bir iş.
+
+    func printHashes(prefix string) {
+        for i := 1; i <= 50000; i++ {
+            num := strconv.Itoa(i)
+            sum := sha1.Sum([]byte(num))
+            fmt.Printf("%s: %05d: %x\n", prefix, i, sum)
+        }
+        fmt.Println("Completed", prefix)
+    }
+
+Bu program, her Gorutin'in daha fazla iş yaptığı aynı orkestrasyon desenini 
+kullanıyor. Planlayıcı, bir Gorutine tamamen bitmesi için yeterli zaman tanımaz.
+
+    $ ./example2 | cut -c1 | grep '[AB]' | uniq
+    B
+    A
+    B
+    A
+    B
+    A
+    B
+    A
+    B
+    A  9 Context Switches
+
+    $ ./example2 | cut -c1 | grep '[AB]' | uniq
+    B
+    A
+    B
+    A  3 Context Switches
+
+Her seferinde programı çalıştırdığınızda farklı sayıda bağlam değişimi olduğunu görebilirsiniz. 
+Bu harika bir şey çünkü bir planlayıcının tahmin edilebilir olmaması gerekmektedir. Eşzamanlılık 
+belirsiz kalmalı ve eşzamanlılık kullanırken performans sorunlarınızı çözmek için kullanmalısınız.
+
+    func init() {
+        runtime.GOMAXPROCS(2)
+    }
+
+Programı orijinal haliyle geri alırsanız, ancak GOMAXPROCS'ı değiştirerek programın iki iş parçacıklı bir Go programı olarak 
+çalışmasını sağlarsanız ne olur?
+
+Çıktı:
+
+    Start Goroutines
+    Waiting To Finish
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
+    Terminating Program
+
+Gördüğünüz gibi, programın eşzamanlılığı şimdi daha detaylı. Çıktı harfe göre belirsiz 
+ve düzensizdir.
+
+** Notlar
+
+- Gorutinler, bağımsız olarak çalıştırılacak fonksiyonlardır.
+- Her zaman çalışan gorutinlerin bir hesabını tutmalı ve temiz bir şekilde kapatmalıyız.
+- Eşzamanlılık paralellik değildir.
+- Eşzamanlılık birçok şeyle aynı anda başa çıkmakla ilgilidir.
+- Paralellik birçok şeyi aynı anda yapmakla ilgilidir.
+
+"Paralellik, fiziksel olarak iki veya daha fazla şeyi aynı anda yapma yeteneğiyle ilgilidir. Eşzamanlılık, tanımsız, sırasız yürütmeyle ilgilidir." - William Kennedy
+
+"Varsayılan olarak, gorutinler, oluşturuldukları fonksiyondan önce ölmemelidirler. Bu, sizi son derece iyi bir tasarım durumuna zorlar." - Peter Bourgon
+
+** Tasarım İlkeleri
+
+- Eşzamanlılık için [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design][tasarım ilkelerini]] öğrenin.
+
+** Ek Okuma
+
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html][Scheduling In Go - Part I]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html][Scheduling In Go - Part II]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2015/02/scheduler-tracing-in-go.html][Scheduler Tracing In Go]] - William Kennedy   
+- [[https://blog.golang.org/advanced-go-concurrency-patterns][Advanced Go Concurrency Patterns]] - Sameer Ajmani    
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
+- [[https://blog.golang.org/concurrency-is-not-parallelism][Concurrency is not parallelism]] - Rob Pike    
+- [[https://talks.golang.org/2013/distsys.slide][Go, for Distributed Systems]] - Russ Cox    
+- [[https://docs.google.com/document/d/1At2Ls5_fhJQ59kDK2DFVhFu3g5mATSXqqV5QrxinasI/edit][Go 1.5 GOMAXPROCS Default]]    
+- [[https://www.ardanlabs.com/blog/2014/01/concurrency-goroutines-and-gomaxprocs.html][Concurrency, Goroutines and GOMAXPROCS]] - William Kennedy    
+- [[http://www.ece.ubc.ca/~sasha/papers/eurosys16-final29.pdf][The Linux Scheduler: a Decade of Wasted Cores]]    
+- [[https://news.ycombinator.com/item?id=12460807][Explanation of the Scheduler]]    
+- [[http://joeduffyblog.com/2016/11/30/15-years-of-concurrency/][15 Years of Concurrency]] - Joe Duffy    
+- [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor    
+- [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi    
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablonu başlangıç noktası olarak kullanın. Bir olası çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+*Kısım* *A* 100'den 0'a kadar sayan ve 0'dan 100'e kadar sayan iki anonim fonksiyon 
+tanımlayan bir program oluşturun. Her bir gorutin için benzersiz bir tanımlayıcı ile 
+her sayıyı görüntüleyin. Ardından bu fonksiyonlardan gorutinler oluşturun ve main, 
+gorutinler tamamlanana kadar geri dönmemelidir.
+
+*Kısım* *B* Programı paralel olarak çalıştırın.
+
+.play goroutines/exercise1.go
+.play goroutines/answer1.go

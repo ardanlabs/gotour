@@ -1,0 +1,568 @@
+Data Races
+Un data race avviene quando due o più goroutine tentano di leggere e scrivere sulla stessa risorsa contemporaneamente.
+
+* Data Races
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Una gara di dati avviene quando due o più Goroutine tentano di accedere contemporaneamente alla stessa
+posizione di memoria in cui almeno una Goroutine sta eseguendo una scrittura.
+Quando ciò accade è impossibile prevederne il risultato.
+Questi tipi di bug sono difficili da trovare perché causano problemi che appaiono sempre casuali.
+
+Questi ~8 minuti di Scott Meyers sono grandi da ascoltare qui:
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care 30:09-38:30]]
+
+** Code Review
+
+- *Example* *1:* Data Race
+- *Example* *2:* Atomic Increments
+- *Example* *3:* Mutex
+- *Example* *4:* Read/Write Mutex
+- *Example* *5:* Map Data Race
+- *Example* *1:* Interface Based Race Condition
+
+.play data_race/example1.go
+.play data_race/example2.go     
+.play data_race/example3.go
+.play data_race/example4.go
+.play data_race/example5.go
+.play data_race/example6.go
+
+** Esempio di Data Race
+
+Questo è un ottimo esempio di corsa ai dati e di come questi possano essere nascosti per anni
+e alla fine apparire in momenti strani e causare la corruzione dei dati.
+
+var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    value := counter
+                    value++
+                    counter = value
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Questo programma crea due Goroutine che accedono ciascuna alla stessa variabile intera,
+incrementando la variabile due volte.
+La Goroutine esegue una lettura, modifica e scrittura sullo stato condiviso manualmente.
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Puoi vedere l'accesso allo stato condiviso all'interno del ciclo for. Quando compili ed esegui
+questo programma ottieni la risposta giusta di 4 ogni volta.
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+How is this working?
+
+    G1                            Shared State: 0                            G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Write:  1                         Shared State: 1
+    Context Switch 
+                                                                      Read: 1
+                                                                    Modify: 2
+                                    Shared State: 2                  Write: 2
+                                                               Context Switch 
+    Read:   2
+    Modify: 3
+    Write:  3                         Shared State: 3
+    Terminate
+                                                                      Read: 3
+                                                                    Modify: 4
+                                    Shared State: 4                  Write: 4
+                                                                    Terminate
+    ----------------------------------------------------------------------------
+
+Le operazioni di lettura, modifica e scrittura avvengono senza interruzioni. Solo perché
+sto ottenendo la risposta giusta non significa che non ci sia un problema.
+Cosa succede se aggiungi un'istruzione log nel mezzo dell'operazione di lettura, modifica e scrittura?
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                log.Println("logging")     <-- Add Logging Here
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Se esegui questo programma non otterrai più lo stesso risultato di 4, ora ottieni la risposta con 2.
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+
+Che cosa sta accadendo? Stai riscontrando un bug di corsa ai dati che esisteva prima, ma
+non si stava verificando. La chiamata a log sta ora facendo sì che lo scheduler effettui un cambio di contesto
+tra le due Goroutine in un momento sbagliato.
+
+    G1                                Shared State: 0                         G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Context Switch
+                                                                        Read:   0
+                                                                        Modify: 1
+                                                                   Context Switch 
+    Write:  1                         Shared State: 1
+    Read:   1
+    Modify: 2
+    Context Switch
+                                    Shared State: 1                     Write:  1
+                                                                        Read:   1
+                                                                        Modify: 2
+                                                                    Context Switch 
+    Write:  2                         Shared State: 2
+    Terminate
+                                    Shared State: 2                     Write:  2
+                                                                        Terminate
+    ----------------------------------------------------------------------------
+
+Dopo l'operazione di modifica avviene un cambio di contesto. Le tre operazioni
+non sono più ininterrotte e Goroutine 2 finisce con il suo valore locale errato
+nel momento in cui completa l'operazione di scrittura. Sei molto fortunato che ciò accada ogni volta e puoi vederlo.
+Ma normalmente una corsa ai dati come questa avviene “casualmente” ed è
+impossibile saperlo finché non è troppo tardi. Fortunatamente Go ha un race-detector per aiutarti
+trova i data race.
+
+** Race Detection
+
+Esistono diversi modi per attivare il rilevatore di gare. Puoi usarlo con il comando run, build e test.
+Se lo usi con il comando build, devi ricordarti di eseguire il programma.
+Dicono che un binario strumentato può rallentare il mio programma del 20% circa.
+
+    $ go build -race
+    $ ./example1
+
+Il flag -race indica come configurare la build con il race detector.
+Probabilmente lo utilizzerai di più con "go test", ma per questo esempio stai configurando il binario e poi lo esegui.
+
+
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    ==================
+    WARNING: DATA RACE
+    Write at 0x000001278d88 by goroutine 8:
+    main.main.func1()
+        /data_race/example1/example1.go:41 +0xa6
+
+    Previous read at 0x000001278d88 by goroutine 7:
+    main.main.func1()
+        /data_race/example1/example1.go:38 +0x4a
+
+    Goroutine 8 (running) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+
+    Goroutine 7 (finished) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+    ==================
+    2021/02/01 17:30:52 logging
+    Final Counter: 2
+    Found 1 data race(s)
+
+Puoi vedere che è stata rilevata una data-race durante l'esecuzione del programma.
+Ciò accadrebbe con o senza l'istruzione log inserita.
+Quando viene rilevata una data-race, il programma va nel panico e fornisce questa traccia.
+La traccia mostra dove si è verificato un accesso non sincronizzato allo stesso stato condiviso
+in cui almeno un accesso era di scrittura.
+
+In questa traccia, una Goroutine ha eseguito una scrittura all'indirizzo 0x000001278d88 alla riga 41,
+e c'è stata una lettura non sincronizzata allo stesso indirizzo da parte di un'altra Goroutine alla riga 38.
+Entrambe le Goroutine sono state create alla riga 36.
+
+
+    36 go func() {
+    37     for i := 0; i < 2; i++ {
+    38         value := counter
+    39         value++
+    40         log.Println("logging")
+    41         counter = value
+    42     }
+    43     wg.Done()
+    44 }()
+
+Puoi vedere chiaramente la lettura e la scrittura non sincronizzate. Come nota a margine,
+anche l'operazione plus plus sulla riga 39 sarebbe una data-race se il codice accedesse alla variabile contatore.
+L'operazione plus plus è un'operazione di lettura, modifica e scrittura sottostante
+e il sistema operativo potrebbe facilmente cambiare contesto nel mezzo di essa.
+
+Quindi come puoi correggere il codice per assicurarti di rimuovere la corsa ai dati? E
+sistono due strumenti che puoi utilizzare, istruzioni atomiche e mutex.
+
+** Atomics
+
+Gli Atomics forniscono la sincronizzazione a livello hardware. Per questo motivo è limitato
+a parole e mezze parole di dati. Quindi sono ottimi per i contatori o per i meccanismi di cambio rapido.
+L'API WaitGroup utilizza gli Atomics.
+
+Quali modifiche è necessario apportare per applicare gli Atomics al codice ?
+
+    var counter int32                             <-- CHANGED
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    atomic.AddInt32(&counter, 1)  <-- CHANGED
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Devi solo fare un paio di cose. Innanzitutto, modifica la variabile contatore
+in un numero intero basato sulla precisione. Puoi vederlo nella parte superiore dell'elenco del codice.
+Le funzioni Atomics funzionano solo con numeri interi basati sulla precisione. In secondo luogo,
+rimuovi il codice di lettura, modifica e scrittura manuale per una chiamata a atomic.AddInt32.
+Quella chiamata gestisce tutto.
+
+Tutte le funzioni associate al pacchetto Atomics portano l'indirizzo allo stato condiviso da sincronizzare.
+La sincronizzazione avviene solo a livello di indirizzo.
+Quindi diverse Goroutine che chiamano la stessa funzione, ma a un indirizzo diverso, non verranno sincronizzate.
+
+Le API per atomics sono così:
+
+    func AddInt32(addr *int32, delta int32) (new int32)
+    func AddInt64(addr *int64, delta int64) (new int64)
+    func AddUint32(addr *uint32, delta uint32) (new uint32)
+    func AddUint64(addr *uint64, delta uint64) (new uint64)
+    func AddUintptr(addr *uintptr, delta uintptr) (new uintptr)
+
+    func CompareAndSwapInt32(addr *int32, old, new int32) (swapped bool)
+    func CompareAndSwapInt64(addr *int64, old, new int64) (swapped bool)
+    func CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapped bool)
+    func CompareAndSwapUint32(addr *uint32, old, new uint32) (swapped bool)
+    func CompareAndSwapUint64(addr *uint64, old, new uint64) (swapped bool)
+    func CompareAndSwapUintptr(addr *uintptr, old, new uintptr) (swapped bool)
+
+    func LoadInt32(addr *int32) (val int32)
+    func LoadInt64(addr *int64) (val int64)
+    func LoadPointer(addr *unsafe.Pointer) (val unsafe.Pointer)
+    func LoadUint32(addr *uint32) (val uint32)
+    func LoadUint64(addr *uint64) (val uint64)
+    func LoadUintptr(addr *uintptr) (val uintptr)
+
+    func StoreInt32(addr *int32, val int32)
+    func StoreInt64(addr *int64, val int64)
+    func StorePointer(addr *unsafe.Pointer, val unsafe.Pointer)
+    func StoreUint32(addr *uint32, val uint32)
+    func StoreUint64(addr *uint64, val uint64)
+    func StoreUintptr(addr *uintptr, val uintptr)
+
+    func SwapInt32(addr *int32, new int32) (old int32)
+    func SwapInt64(addr *int64, new int64) (old int64)
+    func SwapPointer(addr *unsafe.Pointer, new unsafe.Pointer) (old unsafe.Pointer)
+    func SwapUint32(addr *uint32, new uint32) (old uint32)
+    func SwapUint64(addr *uint64, new uint64) (old uint64)
+    func SwapUintptr(addr *uintptr, new uintptr) (old uintptr)
+
+    type Value
+        func (v *Value) Load() (x interface{})
+        func (v *Value) Store(x interface{})
+
+Puoi vedere che il primo parametro è sempre l'indirizzo di un numero intero o puntatore basato sulla precisione.
+Esiste anche un tipo denominato Value che fornisce un valore sincrono con una piccola API.
+
+** Mutexes
+
+E se volessi tenere le tre righe di codice che avevi ? Allora gli Atomics non funzioneranno.
+Ciò di cui hai bisogno allora è un mutex. Un mutex mi consente di racchiudere un gruppo di codice
+in modo che solo una Goroutine alla volta possa eseguire quel codice.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex                    <-- CHANGED
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    mu.Lock()                <-- CHANGED
+                    {
+                        value := counter
+                        value++
+                        counter = value
+                    }
+                    mu.Unlock()              <-- CHANGED
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Ci sono diverse modifiche a questo codice rispetto all'originale. Hai aggiunto la costruzione
+della variabile mu in modo che sia un mutex impostato sul suo valore zero.
+Quindi all'interno del ciclo for, hai aggiunto le chiamate a Lock e Unlock con un blocco di codice artificiale.
+All'interno del blocco di codice hai il codice che deve essere sincronizzato.
+Il blocco di codice viene utilizzato per la leggibilità.
+
+Con questo codice inserito, lo scheduler consentirà solo a una Goroutine alla volta di entrare nel blocco di codice.
+È importante capire che un mutex non è una coda.
+La prima Goroutine che chiama Lock non è necessariamente la prima Goroutine che ottiene il Lock.
+Esiste un algoritmo basato sull'equità, ma questo viene fatto di proposito in modo che le persone
+non utilizzino i mutex come code.
+
+
+È importante ricordare che il Lock crea contropressione, quindi più tempo ci vuole per passare dal Lock ad Unlock,
+maggiori sono le possibilità che le Goroutine aspettino il loro turno.
+Se dimentichi di chiamare Unlock, tutte le Goroutine in attesa si bloccheranno.
+Questo è il motivo per cui è fondamentale che la chiamata a Lock e Unlock avvenga nella stessa funzione.
+Assicurati di eseguire la sincronizzazione minima necessaria nel blocco di codice, almeno il minimo.
+
+Questo è un codice pessimo in cui qualcuno tenta di entrare e uscire dal Lock così velocemente
+da perdere effettivamente la sincronizzazione e il rilevatore di corsa non riesce nemmeno a scoprire il problema.
+
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    var value int
+                    mu.Lock()              <-- Bad Use Of Mutex
+                    {
+                        value = counter
+                    }
+                    mu.Unlock()
+
+                    value++
+
+                    mu.Lock()              <-- Bad Use Of Mutex
+                    {
+                        counter = value
+                    }
+                    mu.Unlock()
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Come linea guida generale, se vedi una chiamata a Lock dallo stesso mutex due volte nella stessa funzione,
+interrompi la revisione del codice. Probabilmente c'è un errore o una complicazione eccessiva.
+In questo caso le chiamate per leggere e scrivere vengono sincronizzate, tuttavia, due Goroutine
+possono finire nella riga di codice value++ con lo stesso valore.
+Il data-race esiste ancora e il rilevatore di razza non è in grado di trovarla.
+
+** Read/Write Mutexes
+
+Esiste un secondo tipo di mutex chiamato mutex di lettura/scrittura. Mi permette di separare
+i blocchi attorno alle letture e alle scritture.
+Questo è importante poiché la lettura dei dati non rappresenta una minaccia a meno che una Goroutine
+non tenti di scrivere contemporaneamente.
+Quindi questo tipo di mutex consente a più Goroutine di leggere la stessa memoria contemporaneamente.
+Non appena viene richiesto un blocco di scrittura, le letture non vengono più emesse,
+la scrittura avviene, le letture possono ricominciare.
+
+
+    package main
+
+    import (
+        "fmt"
+        "math/rand"
+        "sync"
+        "time"
+    )
+
+    var data []string
+    var rwMutex sync.RWMutex
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(1)
+
+        go func() {
+            for i := 0; i < 10; i++ {
+                writer(i)
+            }
+            wg.Done()
+        }()
+
+        for i := 0; i < 8; i++ {
+            go func(id int) {
+                for {
+                    reader(id)
+                }
+            }(i)
+        }
+
+        wg.Wait()
+        fmt.Println("Program Complete")
+    }
+
+    func writer(i int) {
+        rwMutex.Lock()
+        {
+            time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+            fmt.Println("****> : Performing Write")
+            data = append(data, fmt.Sprintf("String: %d", i))
+        }
+        rwMutex.Unlock()
+    }
+
+    func reader(id int) {
+        rwMutex.RLock()
+        {
+            time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
+            fmt.Printf("%d : Performing Read : Length[%d]\n", id, len(data))
+        }
+        rwMutex.RUnlock()
+    }
+
+Puoi vedere l'uso di un mutex di lettura/scrittura in cui ci sono 8 Goroutine che leggono
+la lunghezza di uno slice con un ritardo di 10 millisecondi l'una dall'altra e 1 Goroutine
+che si sveglia entro 100 millisecondi per aggiungere un valore (scrittura) allo slice.
+
+La chiave è l'implementazione delle funzioni di scrittura e lettura. Nota come usi
+Lock per lo scrittore e RLock per il lettore. Uno degli errori più grandi che puoi commettere è
+ confondere le chiamate di sblocco con la versione sbagliata. Avere un Lock con un RUnlock non finirà mai bene.
+
+
+    7 : Performing Read : Length[0]
+    5 : Performing Read : Length[0]
+    0 : Performing Read : Length[0]
+    3 : Performing Read : Length[0]
+    7 : Performing Read : Length[0]
+    2 : Performing Read : Length[0]
+    1 : Performing Read : Length[0]
+    ****> : Performing Write
+    0 : Performing Read : Length[1]
+    5 : Performing Read : Length[1]
+    3 : Performing Read : Length[1]
+    6 : Performing Read : Length[1]
+    7 : Performing Read : Length[1]
+    4 : Performing Read : Length[1]
+    1 : Performing Read : Length[1]
+    2 : Performing Read : Length[1]
+    ****> : Performing Write
+    7 : Performing Read : Length[2]
+    1 : Performing Read : Length[2]
+    3 : Performing Read : Length[2]
+
+L'output mostra come più Goroutine stanno leggendo contemporaneamente, ma tutta
+la lettura si interrompe quando avviene la scrittura.
+
+** Notes
+
+- Le goroutine devono essere coordinate e sincronizzate.
+- Quando due o più goroutine tentano di accedere alla stessa risorsa, abbiamo un data-race.
+- Funzioni Atomics e mutex possono fornire il supporto di cui abbiamo bisogno.
+
+** Coerenza della cache e falsa condivisione
+
+Questo contenuto è fornito da Scott Meyers dal suo talk nel 2014 a Dive:
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care (30:09-38:30)]]  
+[[https://github.com/ardanlabs/gotraining/blob/master/topics/go/testing/benchmarks/falseshare/README.md][Code Example]]
+
+.image /tour/eng/static/img/figure1_data_race.png
+
+** Coerenza della cache e note sulla falsa condivisione
+
+- L'accesso alla memoria dei thread è importante.
+- Se il tuo algoritmo non scala, cerca falsi problemi di condivisione.
+
+** Letture extra
+
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter    
+- [[https://golang.org/ref/mem][The Go Memory Model]]    
+- [[http://blog.golang.org/race-detector][Introducing the Go Race Detector]] - Dmitry Vyukov and Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - William Kennedy    
+- [[https://golang.org/doc/articles/race_detector.html][Data Race Detector]]    
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+Dato il seguente programma, utilizzare il rilevatore di gare per trovare e correggere la gara dei dati.
+
+.play data_race/exercise1.go
+.play data_race/answer1.go

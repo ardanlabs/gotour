@@ -1,0 +1,134 @@
+Conversione dei Tipi e Asserzioni
+Impara come la conversione dei tipi e le asserzioni funzionano.
+
+* Conversione dei Tipi e Asserzioni
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+La conversione di tipi permette ai dati di un tipo di essere convertiti in un altro tipo. Una asserzione sul tipo
+consente di porre la domanda se c'è il valore di un dato tipo specificato su una interfaccia.
+
+** Code Review
+
+- *Esempio* *1:* Conversione interfacce
+- *Esempio* *2:* Asserzioni sui tipi a Runtime
+- *Esempio* *3:* Cambiamenti di comportamento
+
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+** Conversione implicita della interfaccia
+
+Come hai visto nell' ultimo esempio, Un valore di interfaccia di un tipo può essere passato per un tipo differente di interfaccia
+se il valore concreto salvato dentro l'interfaccia implementa entrambi i comportamenti.
+Questa potrebbe essere considerata una implicita conversione di interfaccia, ma è meglio pensare come i dati concreti vengono
+spostati attraverso le interfacce in uno stato disaccoppiato.
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Date queste tre interfacce, dove MoveLocker è la composizione di Mover e Locker.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+E dato il tipo concreto bike che implementa tutte e tre le interfacce. Cosa puoi fare?
+
+    var ml MoveLocker
+    var m Mover
+
+Puoi costruire un valore di tipo MoveLocker e Mover al loro stato zero.
+Questi sono valori di interfacce che sono veramente senza valore.
+
+    ml = bike{}
+
+Puoi poi costruire un valore di tipo bike al suo stato zero e assegnare una copia alla variabile ml di tipo MoveLocker.
+Questo è possibile perchè bike implementa tutti e tre i comportamenti, e il compilatore può vedere che l'implementazione esiste.
+
+    m = ml
+
+Tu puoi assegnare la variabile MoveLocker ml alla variabile Mover m. Questo è possibile perchè
+non sto assegnando il valore dell'interfaccia ml ma il calore concreto contenuto in ml che è il valore di bike.
+Il compilatore sa che qualsiasi valore concreto contenuto dentro ml deve implementare l'interfaccia Mover.
+
+Questo assegnamento comunque non è valido.
+
+    ml = m
+
+Output:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+Non puoi assegnare indietro la variabile Mover m a MoverLocker ml perchè il
+compilatore può solo garantire che il valore concreto contenuto dentro m sappia come Muoversi.
+Esso non lo conosce al momento della compilazione se il valore concreto sa come Bloccare e come Sbloccare.
+
+** Meccanica delle asserzioni di tipo
+
+Una type assertion ti permette a runtime di fare la domanda, c'è un valore di un dato tipo conservato dentro l'interfaccia.
+Puoi vedere questo con la sintassi m.(bike) .
+
+    b := m.(bike)
+    ml = b
+
+In questo caso, stai chiedendo se un valore bike è dentro m al momento in cui il codice è eseguito.
+Se c'è, allora alla variabile b viene data una copia del valore di bike.
+Quindi la copia può essere copiata dentro la variable di interfaccia ml.
+
+Se non c'è un valore di bike dentro il valore dell'interfaccia, allora il programma va in panic.
+tu vuoi questo assolutamente deve esserci un valore di bike. E se ci fosse la possibilità che non ci sia è valido?
+Quindi è necessaria la seconda forma dell'asserzione di tipo.
+
+    b, ok := m.(bike)
+
+In questa forma, se ok è vero, ci sarà il valore di bike conservato dentro l'interfaccia.
+Se ok è false, allora non c'è e il programma non va in panico. La variabile b comunque
+è ancora di tipo bike, ma è settato al suo valore di stato zero.
+
+    func main() {
+        mvs := []fmt.Stringer{
+            Car{},
+            Cloud{},
+        }
+
+        for i := 0; i < 10; i++ {
+            rn := rand.Intn(2)
+
+            if v, is := mvs[rn].(Cloud); is {
+                fmt.Println("Got Lucky:", v)
+                continue
+            }
+
+            fmt.Println("Got Unlucky")
+        }
+    }
+
+Assumendo che il programma dichiari due tipi chiamati Car e Cloud e ciascuna implementa l'interfaccia fmt.Stringer,
+tu puoi costruire una collezione che ti permette di conservare un valore di entrambi Car e Cloud. Poi dieci volte, a caso scegli un numero tra 0 e 1,
+ed esegui un asserzione di tipo per vedere se il valore a caso contiene un valore di tipo
+Cloud. Poichè è possibile che non sia di tipo Cloud, la seconda forma della asserzione di tipo qui è critica.

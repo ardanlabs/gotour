@@ -1,0 +1,177 @@
+Haritalar (Maps)
+Bir harita, verileri bir anahtar üzerinde depolamak ve erişim sağlamak için destek sunan bir veri yapısıdır.
+
+* Haritalar (Maps)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Harita, verileri bir anahtar üzerinde depolamak ve erişim sağlamak için destek 
+sunan bir veri yapısıdır. Bu, bir hash haritası ve kova sistemi kullanır ve bunların 
+altında sürekli bir bellek bloğunu korur.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Bildir, yaz, oku ve sil
+- *Örnek* *2:* Bulunmayan anahtarlar
+- *Örnek* *3:* Harita anahtar kısıtlamaları
+- *Örnek* *4:* Harita harf ve aralığı
+- *Örnek* *5:* Haritaları anahtarla sıralama
+- *Örnek* *6:* Bir elemanın adresini almak
+- *Örnek* *7:* Haritalar Referans Türleridir
+
+.play maps/example1.go
+.play maps/example2.go
+.play maps/example3.go
+.play maps/example4.go
+.play maps/example5.go
+.play maps/example6.go
+.play maps/example7.go
+
+** Haritaları Bildirme ve Oluşturma
+
+Harita bildirme ve oluşturma birkaç şekilde gerçekleştirilebilir.
+
+    type user struct {
+        name     string
+        username string
+    }
+    
+    // Sıfır değerine ayarlanmış bir harita oluştur,
+    // bu harita, string türündeki bir anahtara dayalı kullanıcı değerlerini depolayabilir.
+    // Bu haritayı kullanmaya çalışmak, çalışma zamanında bir hata (panik) ile sonuçlanacaktır.
+    var users map[string]user
+    
+    // make kullanılarak başlatılmış bir harita oluştur,
+    // bu harita, string türündeki bir anahtara dayalı kullanıcı değerlerini depolayabilir.
+    users := make(map[string]user)
+    
+    // Boş bir literal kurucu kullanılarak başlatılmış bir harita oluştur,
+    // bu harita, string türündeki bir anahtara dayalı kullanıcı değerlerini depolayabilir.
+    users := map[string]user{}
+
+Bir harita sıfır değerine ayarlandığında kullanılamaz ve programınızın çökmesine neden olabilir. 
+make fonksiyonu ve literal kurucu kullanarak hazır kullanıma uygun bir harita oluşturmak daha güvenlidir.
+
+    func main() {
+        users := make(map[string]user)
+
+        users["Roy"] = user{"Rob", "Roy"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Çıktı:
+
+    Roy {Rob Roy}
+    Ford {Henry Ford}
+    Mouse {Mickey Mouse}
+    Jackson {Michael Jackson}
+
+Eğer make içindeki yerleşik fonksiyon bir harita oluşturmak için kullanılıyorsa, atama 
+operatörü haritaya değer eklemek ve güncellemek için kullanılabilir. Harita üzerinde gezinildiğinde 
+anahtar/değer çiftlerinin sıralanma düzeni, belirtilene göre tanımsızdır ve uygulamak derleyiciye 
+bağlıdır.
+
+    func main() {
+        users := map[string]user{
+            "Roy":     {"Rob", "Roy"},
+            "Ford":    {"Henry", "Ford"},
+            "Mouse":   {"Mickey", "Mouse"},
+            "Jackson": {"Michael", "Jackson"},
+        }
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Çıktı:
+
+    Ford {Henry Ford}
+    Jackson {Michael Jackson}
+    Roy {Rob Roy}
+    Mouse {Mickey Mouse}
+
+Bu durumda, çıktı, oluşturulma sırasında listelenen sıradan farklı bir sırayla döndü. 
+1.16 için mevcut algoritma, değer sayısı belirli bir sınıra ulaştığında sonuçları rastgele 
+bir sırayla döndürecektir. Tekrar söylüyorum, bu derleyici uygulamasına bağlı bir durumdur 
+ve buna güvenmemek daha iyidir.
+
+** Anahtarları Arama ve Harita Anahtarlarını Silme
+
+Veri bir harita içine depolandığında, herhangi bir veriyi çıkarmak için bir anahtar araması gereklidir.
+
+    user1, exists1 := users["Bill"]
+    user2, exists2 := users["Ford"]
+
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
+
+Çıktı:
+
+    Bill: false { }
+    Ford: true {Henry Ford}
+
+Anahtar araması yapmak için, kare parantezler harita değişkeni ile kullanılır. 
+Bir harita aramasından iki değer dönebilir, değer ve değerin bulunup bulunmadığını 
+temsil eden bir boolean. Bunu bilmeye ihtiyacınız yoksa, "exists" değişkenini 
+dışarıda bırakabilirsiniz.
+
+Bir anahtar haritada bulunamadığında, işlem harita türünün sıfır değer durumuna 
+ayarlanmış bir değer döndürür. Bu, "Bill" anahtar aramasında görebilirsiniz. Bir 
+anahtarın haritada var olup olmadığını belirlemek için sıfır değerini kullanmayın, 
+çünkü sıfır değeri geçerli olabilir ve anahtar için gerçekte depolanan şey değildir.
+
+    delete(users, "Roy")
+
+Haritadan veri silmeye izin veren bir delete adlı yerleşik bir fonksiyon vardır.
+
+** Anahtar Harita Kısıtlamaları
+
+Tüm tipler bir anahtar olarak kullanılamaz.
+
+    type slice []user
+    Users := make(map[slice]user)
+
+Derleyici Hatası:
+
+    invalid map key type users
+
+Bir dilim, bir anahtar olarak kullanılamayan iyi bir örnektir. Sadece karma fonksiyonundan 
+geçirilebilen değerler uygundur. Bir anahtar olabilecek tipleri tanımanın iyi bir yolu, 
+tipin bir karşılaştırma işlemi içinde kullanılıp kullanılamayacağını kontrol etmektir. 
+İki dilim değerini karşılaştıramazsınız.
+
+** Notlar
+
+- Haritalar, anahtar/değer çiftlerini depolamak ve almak için bir yol sağlar.
+- Eksik bir anahtarı okumak, haritanın değer tipinin sıfır değerini döndürür.
+- Bir harita üzerinde dolaşmak her zaman rastgeledir.
+- Harita anahtarı, karşılaştırılabilir bir değer olmalıdır.
+- Haritadaki öğeler adreslenebilir değildir.
+- Haritalar bir referans türüdür.
+
+** Bağlantılar
+
+- [[https://blog.golang.org/go-maps-in-action][Go maps in action]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Macro View of Map Internals In Go]] - William Kennedy    
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Inside the Map Implementation]] - Keith Randall    
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][How the Go runtime implements maps efficiently (without generics)]] - Dave Cheney     
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Muhtemel bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+Integer değerlerin olduğu bir harita tanımlayın ve oluşturun; anahtar olarak bir string kullanın. 
+Haritayı beş değerle doldurun ve harita üzerinde döngü kullanarak anahtar/değer çiftlerini görüntüleyin.
+
+.play maps/exercise1.go
+.play maps/answer1.go

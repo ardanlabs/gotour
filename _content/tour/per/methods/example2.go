@@ -24,16 +24,15 @@ const (
 
 // setHours sets the specified number of hours.
 func (d *duration) setHours(h float64) {
-	*d = duration(h) * hour
+	*d = duration(h * float64(hour))
 }
 
 // hours returns the duration as a floating point number of hours.
 func (d duration) hours() float64 {
-	hour := d / hour
+	hours := d / hour
 	nsec := d % hour
-	return float64(hour) + float64(nsec)*(1e-9/60/60)
+	return float64(hours) + (float64(nsec) * (1e-9 / 60 / 60))
 }
-
 func main() {
 
 	// Declare a variable of type duration set to

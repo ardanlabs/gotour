@@ -1,0 +1,144 @@
+Veri Yapıları
+Bu bölüm, veri yapıları örnekleri sunar.
+
+* Hash Map
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bu örnek program, temel bir hash tablosu uygular.
+
+- hashKey(key), 0 ile len(buckets)-1 arasında bir sayı döndürür.
+
+- İki veya daha fazla anahtarın aynı kova için hashlendiği durumları ele almak için bir girişler dilimi (slice) kullanıyoruz.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Hash_table][https://en.wikipedia.org/wiki/Hash_table]]
+
+*Diagram*
+    
+    Hash map ile veriler, önce kova (bucket) ve ardından kova içindeki 
+    konum (position) tarafından dizinlenir.
+
+    hashKey(key) ──────────────┐
+                               │
+                               ▽
+     ┌────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+     │    │     │     │     │     │     │     │     │  ◁── bucket
+     └────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+             │                 │
+             ▽                 ▽
+       ┌─────────────┐   ┌─────────────┐
+       │ key │ value │   │ key │ value │  ◁── entry
+       ├─────────────┤   ├─────────────┤
+       │ key │ value │   │ key │ value │
+       ├─────────────┤   └─────────────┘
+       │ key │ value │
+       ├─────────────┤
+       │ key │ value │
+       ├─────────────┤
+       │ key │ value │
+       └─────────────┘
+
+.play algorithms/data/hash_map.go
+
+* Bağlı Liste (Linked List)
+
+Bu örnek program, temel bir çift yönlü bağlı listeyi (Linked List) uygular.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Linked_list][https://en.wikipedia.org/wiki/Linked_list]]
+
+*Diagram*
+    
+    Bağlı liste (Linked List) ile değerler, işaretçilerin (pointers)
+    kullanımıyla farklı sıralarda birbirine bağlanır.
+
+    ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐     ┌─────┐
+    │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │ ◁─▷ │ Val │
+    └─────┘     └─────┘     └─────┘     └─────┘     └─────┘
+       △                                               △
+       │                                               │
+       ────────────────────        ─────────────────────
+                          │        │
+                          │        │
+                       ┌───────────────┐
+                       │ First │  Last │
+                       └───────────────┘
+
+.play algorithms/data/list.go
+
+* Kuyruk (Queue)
+
+Bu örnek program, temel bir dairesel kuyruğu (circular queue) uygular.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Queue_(abstract_data_type)][https://en.wikipedia.org/wiki/Queue_(abstract_data_type)]]
+
+*Diagram*
+
+    Kuyruk (queue) ile ilk giren değer, ilk çıkan değerdir.
+
+               ┌──────────────────────────────────────────┐
+    ┌─────┐    │ ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐ │    ┌─────┐
+    │ V06 │ ─▷ │ │ V05 │ ─▷ │ V04 │ ─▷ │ V03 │ ─▷ │ V02 │ │ ─▷ │ V01 │
+    └─────┘    | └─────┘    └─────┘    └─────┘    └─────┘ |    └─────┘
+               └──────────────────────────────────────────┘
+
+.play algorithms/data/queue_circular.go
+
+* Yığın (Stack)
+
+Bu örnek program, temel bir yığını (stack) uygular.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Stack_(abstract_data_type)][https://en.wikipedia.org/wiki/Stack_(abstract_data_type)]]
+
+*Diagram*
+
+    Yığın (stack) ile ilk giren değer, en son çıkan değerdir.
+
+           ┌─────┐
+           │ V05 │
+           └─────┘
+              │
+              ▽          ┌─────┐
+        ┌───────────┐ ─▷ │ V04 │
+        │  ┌─────┐  │    └─────┘
+        │  │ V03 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V02 │  │
+        │  └─────┘  │
+        │  ┌─────┐  │
+        │  │ V01 │  │
+        │  └─────┘  │
+        └───────────┘
+
+.play algorithms/data/stack.go
+
+* İkili Ağaç (Binary Tree)
+
+Bu örnek program, temel bir ikili ağacı (binary tree) uygular.
+
+- Daha fazlasını şurada bulabilirsiniz: [[https://en.wikipedia.org/wiki/Binary_tree][https://en.wikipedia.org/wiki/Binary_tree]]
+
+*Diagram*
+
+    İkili ağaçta (binary tree), veriler ağacın sol veya sağ tarafına 
+    dizinlenir. Her düğüm eklenirken, ağaç dengelenir.
+
+      0     1     2     3     4     5     6    ◁─ Ekleme Sırası
+    ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 65 ││ 45 ││ 35 ││ 75 ││ 85 ││ 78 ││ 95 │
+    └────┘└────┘└────┘└────┘└────┘└────┘└────┘
+
+                   ┌────┐
+                   │ 75 │                      ◁─ Son Ağaç
+                   └────┘
+                 /        \
+           ┌────┐          ┌────┐
+           │ 45 │          │ 85 │
+           └────┘          └────┘
+           /    \          /    \
+       ┌────┐  ┌────┐  ┌────┐  ┌────┐
+       │ 35 │  │ 65 │  │ 78 │  │ 95 │
+       └────┘  └────┘  └────┘  └────┘
+
+.play algorithms/data/tree_binary.go
