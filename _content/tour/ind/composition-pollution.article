@@ -1,39 +1,39 @@
-Polusi Antarmuka (Interface Pollution)
-Polusi antarmuka berasal dari kenyataan bahwa orang merancang perangkat lunak dengan antarmuka alih-alih menemukannya.
+Polusi Interface
+Polusi Interface berasal dari kenyataan bahwa orang merancang perangkat lunak dengan interface alih-alih menemukannya.
 
-* Polusi Antarmuka
+* Polusi Interface
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
 - Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Polusi antarmuka berasal dari kenyataan bahwa orang merancang perangkat lunak
-dengan membuat antarmuka alih-alih menemukannya.
+Polusi interface berasal dari kenyataan bahwa orang merancang perangkat lunak
+dengan membuat interface alih-alih menemukannya.
 
 ** Ulasan Kode
 
-- *Contoh* *1:* Membuat Polusi Antarmuka
-- *Contoh* *2:* Menghapus Polusi Antarmuka
+- *Contoh* *1:* Membuat Polusi Interface
+- *Contoh* *2:* Menghapus Polusi Interface
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Polusi Antarmuka
+** Polusi Interface
 
-Polusi antarmuka berasal dari kenyataan bahwa orang merancang perangkat lunak
-dengan antarmuka alih-alih menemukannya. Anda sebaiknya merancang solusi konkret
+Polusi interface berasal dari kenyataan bahwa orang merancang perangkat lunak
+dengan interface alih-alih menemukannya. Anda sebaiknya merancang solusi konkret
 untuk masalah tersebut terlebih dahulu. Kemudian, Anda dapat menemukan di mana
 program perlu bersifat polimorfik, jika memang diperlukan.
 
 Ini adalah hal-hal yang saya dengar dari pengembang lain.
 
-"Saya menggunakan antarmuka karena kita harus menggunakan antarmuka."
+"Saya menggunakan interface karena kita harus menggunakan interface."
 
-Tidak. Kita tidak harus menggunakan antarmuka. Kita menggunakan antarmuka ketika
-itu praktis dan masuk akal untuk dilakukan. Ada biaya penggunaan antarmuka: tingkat penyamaran
+Tidak. Kita tidak harus menggunakan interface. Kita menggunakan interface ketika
+itu praktis dan masuk akal untuk dilakukan. Ada biaya penggunaan interface: tingkat penyamaran
 dan alokasi saat kita menyimpan nilai konkret di dalamnya. Kecuali jika biaya alokasi tersebut s
-ebanding dengan apa yang saya dapatkan dengan memisahkannya, sebaiknya Anda tidak menggunakan antarmuka.
+ebanding dengan apa yang saya dapatkan dengan memisahkannya, sebaiknya Anda tidak menggunakan interface.
 
-"Saya harus bisa menguji kode saya jadi saya perlu menggunakan antarmuka".
+"Saya harus bisa menguji kode saya jadi saya perlu menggunakan interface".
 
 Tidak. Anda harus merancang API untuk pengguna terlebih dahulu, bukan untuk pengujian.
 Jika API tidak dapat diuji, Anda sebaiknya mempertanyakan apakah itu dapat digunakan.
@@ -44,8 +44,8 @@ Fungsi yang menerima data mentah masuk dan mengembalikan data mentah keluar adal
 Pisahkan transformasi data dari tempat asal data dan tujuan data.
 Ini adalah latihan refactoring yang perlu Anda lakukan selama siklus pengkodean.
 
-Berikut adalah contoh pembuatan polusi antarmuka dengan cara yang tidak benar
-menggunakan antarmuka ketika tidak diperlukan.
+Berikut adalah contoh pembuatan polusi interface dengan cara yang tidak benar
+menggunakan interface ketika tidak diperlukan.
 
     type Server interface {
         Start() error
@@ -57,28 +57,28 @@ Antarmuka `Server` mendefinisikan kontrak untuk server TCP. Masalahnya di sini a
 saya tidak membutuhkan kontrak, Anda memerlukan implementasi. Hanya akan ada satu implementasi juga,
 terutama karena Anda yang melakukannya. Anda tidak memerlukan orang lain untuk mengimplementasikannya untuk Anda.
 
-Selain itu, antarmuka ini didasarkan pada kata benda dan bukan kata kerja.
+Selain itu, interface ini didasarkan pada kata benda dan bukan kata kerja.
 Tipe konkret adalah kata benda karena mereka mewakili masalah konkret.
 Antarmuka menggambarkan perilaku dan `Server` bukanlah perilaku.
 
-Berikut adalah beberapa cara untuk mengidentifikasi polusi antarmuka:
+Berikut adalah beberapa cara untuk mengidentifikasi polusi interface:
 
-- Sebuah paket mendeklarasikan sebuah antarmuka yang mencocokkan seluruh API dari tipe konkretnya sendiri.
-- Antarmuka diekspor tetapi tipe konkret yang mengimplementasikan antarmuka tidak diekspor.
-- Fungsi factory untuk tipe konkret mengembalikan nilai antarmuka dengan nilai tipe konkret yang tidak diekspor di dalamnya.
+- Sebuah paket mendeklarasikan sebuah interface yang mencocokkan seluruh API dari tipe konkretnya sendiri.
+- Antarmuka diekspor tetapi tipe konkret yang mengimplementasikan interface tidak diekspor.
+- Fungsi factory untuk tipe konkret mengembalikan nilai interface dengan nilai tipe konkret yang tidak diekspor di dalamnya.
 - Antarmuka dapat dihapus dan tidak ada perubahan untuk pengguna API.
 - Antarmuka tidak memisahkan API dari perubahan.
 
-Pedoman seputar polusi antarmuka:
+Pedoman seputar polusi interface:
 
-Gunakan sebuah antarmuka ketika:
+Gunakan sebuah interface ketika:
 
 - Ketika pengguna API perlu menyediakan detail implementasi.
 - Ketika API memiliki beberapa implementasi yang perlu dipelihara.
 - Ketika bagian-bagian dari API yang dapat berubah telah diidentifikasi dan memerlukan pemisahan.
 
-Pertanyakan sebuah antarmuka ketika:
+Pertanyakan sebuah interface ketika:
 
 - Ketika tujuannya hanya untuk menulis API yang dapat diuji (tulis API yang dapat digunakan terlebih dahulu).
 - Ketika tidak memberikan dukungan untuk API untuk memisahkan dari perubahan.
-- Ketika tidak jelas bagaimana antarmuka membuat kode menjadi lebih baik.
+- Ketika tidak jelas bagaimana interface membuat kode menjadi lebih baik.
