@@ -118,6 +118,9 @@ func Main() {
 	polUIContent, polIndex := addLanguage("tour/pol/")
 	defer polIndex.Close()
 
+	turUIContent, turIndex := addLanguage("tour/tur/")
+	defer turIndex.Close()
+
 	rusUIContent, rusIndex := addLanguage("tour/rus/")
 	defer rusIndex.Close()
 
@@ -134,6 +137,7 @@ func Main() {
 		perContent: perUIContent,
 		porContent: porUIContent,
 		polContent: polUIContent,
+		turContent: turUIContent,
 		rusContent: rusUIContent,
 		turContent: turUIContent,
 	}
