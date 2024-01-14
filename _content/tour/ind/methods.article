@@ -1,22 +1,21 @@
-Methods
-A function is called a method when that function has a receiver declared.
+Metode (Method)
+Sebuah fungsi disebut metode ketika fungsi tersebut memiliki penerima yang dideklarasikan.
 
-* Methods
+* Metode
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-A function is called a method when that function has a receiver declared. The
-receiver is the parameter that is declared between the keyword func and the
-function name.
+Sebuah fungsi disebut metode ketika fungsi tersebut memiliki penerima yang dideklarasikan.
+Penerima adalah parameter yang dideklarasikan di antara kata kunci `func` dan nama fungsi.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Declare and receiver behavior
-- *Example* *2:* Named typed methods
-- *Example* *3:* Function/Method variables
-- *Example* *4:* Function Types
-- *Example* *5:* Value and Pointer semantics
+- *Contoh* *1:* Mendeklarasikan dan perilaku penerima
+- *Contoh* *2:* Metode bertipe bernama
+- *Contoh* *3:* Variabel Fungsi/Metode
+- *Contoh* *4:* Tipe Fungsi
+- *Contoh* *5:* Semantik Nilai dan Penunjuk(Pointer)
 
 .play methods/example1.go
 .play methods/example2.go
@@ -24,10 +23,10 @@ function name.
 .play methods/example4.go
 .play methods/example5.go
 
-** Method Declarations
+** Mendeklarasikan Metode
 
-There are two types of receivers, value receivers for implementing value semantics
-and pointer receivers for implementing pointer semantics.
+Ada dua jenis penerima, penerima nilai untuk mengimplementasikan semantik nilai,
+dan penerima pointer untuk mengimplementasikan semantik pointer.
 
     type user struct {
         name  string
@@ -43,45 +42,44 @@ and pointer receivers for implementing pointer semantics.
         fmt.Printf("Changed User Email To %s\n", email)
     }
 
-The notify function is implemented with a value receiver. This means the method
-operates under value semantics and will operate on its own copy of the value used
-to make the call.
+Fungsi `notify` diimplementasikan dengan penerima nilai. Ini berarti metode tersebut
+beroperasi di bawah semantik nilai dan akan beroperasi pada salinan nilai sendiri
+yang digunakan untuk melakukan panggilan.
 
-The changeEmail function is implemented with a pointer receiver. This means the
-method operates under pointer semantics and will operate on shared access to the
-value used to make the call.
+Fungsi changeEmail diimplementasikan dengan penerima pointer. Ini berarti metode tersebut
+beroperasi di bawah semantik pointer dan akan beroperasi pada akses bersama ke nilai
+yang digunakan untuk melakukan panggilan.
 
-Outside of a few exceptions, a method set for a type should not contain a mix of
-value and pointer receivers. Data semantic consistency is critically important
-and this includes declaring methods.
+Di luar beberapa pengecualian, set metode untuk suatu tipe sebaiknya tidak berisi
+campuran penerima nilai dan penerima pointer. Konsistensi semantik data sangat penting,
+termasuk dalam mendeklarasikan metode.
 
-** Method Calls
+** Pemanggilan Metode
 
-When making a method call, the compiler doesn’t care if the value used to make
-the call matches the receiver’s data semantics exactly. The compiler just wants
-a value or pointer of the same type.
+Ketika melakukan panggilan metode, kompilator tidak peduli apakah nilai yang digunakan
+untuk melakukan panggilan sesuai secara tepat dengan semantik data penerima.
+Kompilator hanya menginginkan nilai atau pointer dari tipe yang sama.
 
     bill := user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
-You can see that a value of type user is constructed and assigned to the bill
-variable. In the case of the notify call, the bill variable matches the receiver
-type which is using a value receiver. In the case of the changeEmail call, the
-bill variable doesn’t match the receiver type which is using a pointer receiver.
-However, the compiler accepts the method call and shares the bill variable with
-the method. Go will adjust to make the call.
+Anda dapat melihat bahwa sebuah nilai dari tipe `user` dibangun dan ditugaskan ke variabel `bill`.
+Dalam kasus pemanggilan `notify`, variabel`bill` cocok dengan tipe penerima yang menggunakan penerima nilai.
+Dalam kasus pemanggilan `changeEmail`, variabel `bill `tidak cocok dengan tipe penerima yang menggunakan
+penerima pointer. Namun, kompilator menerima pemanggilan metode dan berbagi variabel `bill` dengan metode tersebut.
+Go akan menyesuaikan dalam melakukan pemanggilan.
 
-This works the same when the variable used to make the call is a pointer variable.
+Ini berfungsi dengan cara yang sama ketika variabel yang digunakan untuk melakukan panggilan adalah variabel pointer.
 
     bill := &user{"Bill", "bill@email.com"}
     bill.notify()
     bill.changeEmail("bill@hotmail.com")
 
-In this case, the bill variable is a pointer variable to a value of type user.
-Once again, Go adjusts to make the method call when calling the notify method.
+Dalam kasus ini, variabel `bill` adalah variabel pointer ke sebuah nilai dari tipe `user`.
+Sekali lagi, Go menyesuaikan untuk melakukan panggilan metode saat memanggil metode `notify`.
 
-If Go didn’t adjust, then this is what you would have to do to make those same method calls. 
+Jika Go tidak menyesuaikan, maka inilah yang harus Anda lakukan untuk melakukan panggilan metode yang sama.
 
     bill := user{"Bill", "bill@email.com"}
     (&bill).changeEmail("bill@hotmail.com")
@@ -89,21 +87,21 @@ If Go didn’t adjust, then this is what you would have to do to make those same
     bill := &user{"Bill", "bill@email.com"}
     (*bill).notify()
 
-I’m glad you don’t have to do that to make method calls in Go.
+Saya senang Anda tidak perlu melakukan itu untuk melakukan panggilan metode di Go.
 
-** Data Semantic Guideline For Internal Types
+**Pedoman Semantik Data untuk Tipe Internal**
 
-As a guideline, if the data I’m working with is an internal type (slice, map,
-channel, function, interface) then use value semantics to move the data around
-the program. This includes declaring fields on a type. However, when I’m reading
-and writing you need to remember I’m using pointer semantics.
+Sebagai panduan, jika data yang saya kerjakan adalah tipe internal (slice, map, channel, function, interface),
+maka gunakan semantik nilai untuk memindahkan data di sepanjang program. Ini termasuk mendeklarasikan
+sebuah atribut pada suatu tipe. Namun, ketika membaca dan menulis, Anda perlu ingat bahwa
+saya menggunakan semantik pointer.
 
     type IP []byte
     type IPMask []byte
 
-These types are declared in the net package that is part of the standard library.
-They are declared with an underlying type which is a slice of bytes. Because of
-this, these types follow the guidelines for internal types.
+Tipe-tipe ini dideklarasikan dalam paket `net` yang merupakan bagian dari pustaka standar.
+Mereka dideklarasikan dengan tipe dasar yang merupakan slice dari byte.
+Karena itu, tipe-tipe ini mengikuti panduan untuk tipe-tipe internal.
 
     func (ip IP) Mask(mask IPMask) IP {
         if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
@@ -124,15 +122,16 @@ this, these types follow the guidelines for internal types.
         return out
     }
 
-With the Mask method, value semantics are in play for both the receiver, parameter,
-and return argument. This method accepts its own copy of a Mask value, it mutates
-that value and then it returns a copy of the mutation. This method is using value
-semantic mutation. This is not an accident or random.
+Dengan metode Mask, semantik nilai berlaku untuk penerima, parameter, dan argumen kembalian.
+Metode ini menerima salinan nilai Mask sendiri, mengubah nilai tersebut,
+dan kemudian mengembalikan salinan dari mutasinya. Metode ini menggunakan mutasi semantik nilai.
+Ini bukan kebetulan atau acak.
 
-A function can decide what data input and output it needs. What it can’t decide
-is the data semantics for how the data flows in or out. The data drives that
-decision and the function must comply. This is why Mask implements a value semantic
-mutation api. It must respect how a slice is designed to be moved around the program.
+Sebuah fungsi dapat memutuskan data masukan dan keluaran apa yang diperlukan.
+Yang tidak dapat diputuskan adalah semantik data untuk bagaimana data mengalir masuk atau keluar.
+Data mengendalikan keputusan tersebut dan fungsi harus patuh.
+Inilah mengapa Mask mengimplementasikan API mutasi semantik nilai.
+Fungsi harus mematuhi bagaimana sebuah slice dirancang untuk dipindahkan di sepanjang program.
 
     func ipEmptyString(ip IP) string {
         if len(ip) == 0 {
@@ -141,20 +140,20 @@ mutation api. It must respect how a slice is designed to be moved around the pro
         return ip.String()
     }
 
-The `ipEmptyString` function is also using value semantics for the input and output.
-This function accepts its own copy of an IP value and returns a string value. No
-use of pointer semantics because the data dictates the data semantics and not the
-function.
+Fungsi `ipEmptyString` juga menggunakan semantik nilai untuk masukan dan keluaran.
+Fungsi ini menerima salinan nilai IP sendiri dan mengembalikan nilai string.
+Tidak ada penggunaan semantik pointer karena data menentukan semantik data, bukan fungsi.
 
-One exception to using value semantics is when you need to share a slice or map
-with a function that performs unmarshaling or decoding.
+Satu pengecualian untuk menggunakan semantik nilai adalah ketika Anda perlu berbagi
+sebuah slice atau map dengan sebuah fungsi yang melakukan unmarshaling atau decoding.
 
-** Data Semantic Guideline For Struct Types
+** Pedoman Semantik Data untuk Tipe Struct
 
-As a guideline, if the data I’m working with is a struct type then you have to
-think about what the data represents to make a decision. A good general rule is
-to ask if the struct represents data or an API. If the struct represents data, use
-value semantics. If the struct represents an API, use pointer semantics.
+Sebagai panduan, jika data yang sedang saya kerjakan adalah tipe struct,
+Anda harus memikirkan apa yang data tersebut wakili untuk membuat keputusan.
+Aturan umum yang baik adalah bertanya apakah struct tersebut mewakili data atau API.
+Jika struct tersebut mewakili data, gunakan semantik nilai.
+Jika struct tersebut mewakili suatu API, gunakan semantik pointer.
 
     type Time struct {
         sec  int64
@@ -162,22 +161,22 @@ value semantics. If the struct represents an API, use pointer semantics.
         loc  *Location
     }
 
-Here is the Time struct from the time package. If you consider Time to represents
-data, value semantics should be used for this struct.
+Berikut adalah tipe struct `Time` dari paket `time`. Jika Anda menganggap `Time` mewakili data,
+semantik nilai seharusnya digunakan untuk struct ini.
 
-When looking at an existing code base and you want to know what data semantic was
-chosen, look for a factory function. The return type of a factory function should
-dictate the data semantic chosen by the developer.
+Ketika melihat basis kode yang sudah ada dan Anda ingin mengetahui semantik data yang dipilih,
+carilah fungsi pabrik (factory function). Tipe kembalian dari fungsi pabrik seharusnya menentukan
+semantik data yang dipilih oleh pengembang.
 
     func Now() Time {
         sec, nsec := now()
         return Time{sec + unixToInternal, nsec, Local}
     }
 
-Now is the factory function for constructing Time values. Look at the return,
-it’s using value semantics. This tells you that you should be using value semantics
-for Time values which means every function gets its own copy of a Time value and
-fields in a struct should be declared as values of type Time.
+Sekarang fungsi pabrik untuk membuat nilai-nilai `Time`. Lihat tipe kembaliannya,
+itu menggunakan semantik nilai. Ini memberi tahu Anda bahwa Anda seharusnya menggunakan
+semantik nilai untuk nilai-nilai `Time`, yang berarti setiap fungsi mendapatkan salinan sendiri
+dari nilai `Time`, dan bidang dalam suatu struct seharusnya dideklarasikan sebagai nilai bertipe `Time`.
 
     func (t Time) Add(d Duration) Time {
         t.sec += int64(d / 1e9)
@@ -193,43 +192,41 @@ fields in a struct should be declared as values of type Time.
         return t
     }
 
-Add is a method that needs to perform a mutation operation. If you look closely,
-you will see the function is using value semantic mutation. The Add method gets its
-own copy of the Time value used to make the call, it mutates its own copy, then it
-returns a copy back to the caller. Once again, this is the safest way to perform a
-mutation operation.
+Metode `Add` adalah metode yang perlu melakukan operasi mutasi. Jika Anda melihat dengan seksama,
+Anda akan melihat bahwa fungsi ini menggunakan mutasi semantik nilai.
+Metode Add mendapatkan salinan sendiri dari nilai `Time` yang digunakan untuk melakukan panggilan,
+ia mengubah salinannya sendiri, kemudian mengembalikan salinan tersebut kepada pemanggil.
+Sekali lagi, ini adalah cara yang paling aman untuk melakukan operasi mutasi.
 
     func div(t Time, d Duration) (qmod2 int, r Duration) {}
 
-Here is another example where the div function accepts a value of type Time and
-Duration (int64), then returns values of type int and Duration. Value semantics
-for the Time type and for all the built-in types. Duration has an underlying type
-of int64.
+Berikut adalah contoh lain di mana fungsi div menerima nilai bertipe Time dan Duration (int64),
+kemudian mengembalikan nilai bertipe int dan Duration. Semantik nilai untuk tipe Time dan untuk semua tipe bawaan.
+Duration memiliki tipe dasar int64.
 
     func (t *Time) UnmarshalBinary(data []byte) error {}
     func (t *Time) GobDecode(data []byte) error {}
     func (t *Time) UnmarshalJSON(data []byte) error {}
     func (t *Time) UnmarshalText(data []byte) error {}
 
-These four methods from the Time package seem to break the rules for data semantic
-consistency. They are using pointer semantics, why? Because they are implementing
-an interface where the method signature is locked in. Since the implementation
-requires a mutation, pointer semantics are the only choice.
+Keempat metode dari paket Time ini tampaknya melanggar aturan konsistensi semantik data.
+Mereka menggunakan semantik pointer, mengapa? Karena mereka mengimplementasikan sebuah antarmuka
+di mana method signature terkunci. Karena implementasi memerlukan mutasi,
+semantik pointer menjadi satu-satunya pilihan.
 
-Here is a guideline: If value semantics are at play, you can switch to pointer
-semantics for some functions as long as you don’t let the data in the remaining
-call chain switch back to value semantics. Once you switch to pointer semantics,
-all future calls from that point need to stick to pointer semantics. You can never,
-ever, never, go from pointer to value. It’s never safe to make a copy of a value
-that a pointer points to.
+Berikut adalah panduan: Jika semantik nilai berlaku, Anda dapat beralih ke semantik pointer
+untuk beberapa fungsi selama Anda tidak membiarkan data dalam rantai panggilan yang tersisa
+beralih kembali ke semantik nilai. Setelah Anda beralih ke semantik pointer,
+semua panggilan setelah dari titik itu harus tetap menggunakan semantik pointer.
+Anda tidak boleh, sama sekali tidak boleh, beralih dari pointer ke nilai.
+Tidak pernah aman untuk membuat salinan dari nilai yang ditunjuk oleh sebuah pointer.
 
     func Open(name string) (file *File, err error) {
         return OpenFile(name, O_RDONLY, 0)
     }
 
-The Open function from the os package shows that when using a value of type File,
-pointer semantics are at play. File values need to be shared and should never be
-copied.
+Fungsi `Open` dari paket `os` menunjukkan bahwa ketika menggunakan sebuah nilai bertipe File,
+semantik pointer berlaku. Nilai-nilai File perlu dibagikan dan seharusnya tidak pernah disalin.
 
     func (f *File) Chdir() error {
         if f == nil {
@@ -241,9 +238,8 @@ copied.
         return nil
     }
 
-The method Chdir is using a pointer receiver even though this method does not
-mutate the File value. This is because File values need to be shared and can’t
-be copied.
+Metode `Chdir` menggunakan penerima pointer meskipun metode ini tidak mengubah nilai File.
+Ini karena nilai-nilai File perlu dibagikan dan tidak dapat disalin.
 
     func epipecheck(file *File, e error) {
         if e == syscall.EPIPE {
@@ -255,12 +251,12 @@ be copied.
         }
     }
 
-The epipecheck function as well accepts File values using pointer semantics.
+Fungsi `epipecheck` juga menerima nilai-nilai File menggunakan semantik pointer.
 
-** Methods Are Just Functions
+** Metode Hanyalah Fungsi
 
-Methods are really just functions that provide syntactic sugar to provide the
-ability for data to exhibit behavior.
+Metode sebenarnya hanyalah fungsi yang memberikan kemudahan sintaks
+untuk memberikan kemampuan kepada data untuk menunjukkan perilaku.
 
     type data struct {
         name string
@@ -276,12 +272,12 @@ ability for data to exhibit behavior.
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-A type and two methods are declared. The displayName method is using value
-semantics and setAge is using pointer semantics.
+Sebuah tipe dan dua metode dideklarasikan. Metode `displayName` menggunakan semantik nilai,
+sementara `setAge` menggunakan semantik pointer.
 
-Note: Do not implement setters and getters in Go. These are not apis with purpose
-and in these cases it’s better to make those fields exported.
-    
+Catatan: Jangan mengimplementasikan setter dan getter di Go. Ini bukan API dengan tujuan,
+dan dalam kasus-kasus seperti ini, lebih baik membuat atribut-atribut tersebut diekspor.
+
     d := data{
         name: "Bill",
     }
@@ -289,25 +285,24 @@ and in these cases it’s better to make those fields exported.
     d.displayName()
     d.setAge(21)
 
-A value of type data is constructed and method calls are made.
+Sebuah nilai bertipe data dibuat dan panggilan metode dilakukan.
 
     data.displayName(d)
     (*data).setAge(&d, 21)
 
-Since methods are really just functions with syntactic sugar, the methods can be
-executed like functions. You can see that the receiver is really a parameter, it’s
-the first parameter. When you call a method, the compiler converts that to a
-function call underneath.
+Karena metode sebenarnya hanya fungsi, metode dapat dieksekusi seperti fungsi.
+Anda dapat melihat bahwa penerima sebenarnya adalah parameter, itu adalah parameter pertama.
+Ketika Anda memanggil metode, kompilator mengonversinya ke panggilan fungsi.
 
-Note: Do not execute methods like this, but you may see this syntax in tooling messages.
+Catatan: Jangan menjalankan metode seperti ini, tetapi Anda mungkin melihat sintaks ini dalam tooling messages.
 
-** Know The Behavior of the Code
+** Ketahui Perilaku Kode
 
-If you know the data semantics at play, then you know the behavior of the code. If
-you know the behavior of the code, then you know the cost of the code. Once you
-know the cost, I’m engineering.
+Jika Anda mengetahui semantik data yang berlaku, maka Anda mengetahui perilaku kode.
+Jika Anda mengetahui perilaku kode, maka Anda mengetahui biaya kode tersebut.
+Setelah Anda mengetahui biaya, saya melakukan rekayasa.
 
-Given this type and method set.
+Diberikan tipe dan set metode ini.
 
     type data struct {
         name string
@@ -323,7 +318,7 @@ Given this type and method set.
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-You can write the following code.
+Kamu bisa menulis kode berikut ini.
 
     func main() {
         d := data{
@@ -336,35 +331,36 @@ You can write the following code.
         f1()
     }
 
-Output:
+Keluaran:
 
     My Name Is Bill
     My Name Is Bill
 
-You start with constructing a value of type Data assigning it to the variable d.
-Then you take the method displayName, bound to d, and assign that to a variable
-named f1. This is not a method call but an assignment which creates a level of
-indirection. Functions are values in Go and belong to the set of internal types.
+Anda memulai dengan membuat nilai bertipe `Data` dan menetapkannya ke variabel `d`.
+Kemudian Anda memanggil metode `displayName`, terikat pada `d`,
+dan menetapkannya ke variabel bernama `f1`. Ini bukan panggilan metode
+tetapi sebuah penugasan yang menciptakan tingkat indireksi.
+Fungsi adalah nilai dalam Go dan termasuk dalam kumpulan tipe internal.
 
-After the assignment, you can call the method indirectly through the use of the
-f1 variable. This displays the name Bill. Then you change the data so the name
-is now Joan, and call the method once again through the f1 variable. You don’t
-see the change. Bill is the output once again. So Why?
+Setelah penugasan, Anda dapat memanggil metode secara tidak langsung melalui penggunaan variabel `f1`.
+Itu menampilkan nama `Bill`. Kemudian Anda mengubah data sehingga nama sekarang menjadi Joan,
+an memanggil metode sekali lagi melalui variabel `f1`. Anda tidak melihat perubahan tersebut.
+Bill kembali menjadi output. Jadi mengapa?
 
-.image /tour/eng/static/img/m1.png
+.image /tour/ind/static/img/m1.png
 
-It has to do with the data semantics at play. The displayName method is using a
-value receiver so value semantics are at play.
+Hal ini terkait dengan semantik data yang berlaku.
+Metode `displayName` menggunakan penerima nilai sehingga semantik nilai berlaku.
 
     func (d data) displayName() {
         fmt.Println("My Name Is", d.name)
     }
 
-This means that the f1 variable maintains and operates against its own copy of d.
-So calling the method through the f1 variable, will always use the copy and that
-copy is protected against change. This is what you want with value semantics.
+Ini berarti bahwa variabel `f1` mempertahankan dan beroperasi terhadap salinannya sendiri dari `d`.
+Jadi memanggil metode melalui variabel `f1`, akan selalu menggunakan salinan dan salinan tersebut
+dilindungi dari perubahan. Ini adalah apa yang Anda inginkan dengan semantik nilai.
 
-Now you will do the same thing but with the setAge method.
+Sekarang Anda akan melakukan hal yang sama tetapi dengan metode setAge.
 
     func main() {
         d := data{
@@ -377,58 +373,58 @@ Now you will do the same thing but with the setAge method.
         f2(45)
     }
 
-Output:
+Keluaran:
 
     Bill Is Age 45
     Sammy Is Age 45
 
-This time the setAge method is assigned to the variable f2. Once again, the
-method is executed indirectly through the f2 variable passing 45 for Bill’s age.
-Then Bill’s name is changed to Sammy and the f2 variable is used again to make the
-call. This time you see the name has changed.
+Kali ini metode `setAge` ditugaskan ke variabel `f2`. Sekali lagi, metode dieksekusi
+secara tidak langsung melalui variabel `f2` dengan memberikan nilai 45 untuk usia Bill.
+Kemudian nama Bill diubah menjadi Sammy dan variabel `f2` digunakan lagi untuk membuat panggilan.
+Kali ini Anda melihat bahwa nama telah berubah.
 
-.image /tour/eng/static/img/m2.png
+.image /tour/ind/static/img/m2.png
 
-The setAge function is using a pointer receiver so setAge doesn’t operate on its
-own copy of the d variable, but is operating directly on the d variable. Therefore,
-f2 is operating on shared access and you see the change.
+Fungsi setAge menggunakan penerima pointer sehingga `setAge` tidak beroperasi
+pada salinannya sendiri dari variabel d, tetapi beroperasi langsung pada variabel d.
+Oleh karena itu, `f2` beroperasi dengan akses bersama dan Anda melihat perubahan tersebut.
 
     func (d *data) setAge(age int) {
         d.age = age
         fmt.Println(d.name, "Is Age", d.age)
     }
 
-Without knowing the data semantics at play, you won’t know the behavior of the code.
-These data semantics are real and affect the behavior.
+Tanpa mengetahui semantik data yang berlaku, Anda tidak akan tahu perilaku kode.
+Semantik data ini nyata dan memengaruhi perilaku.
 
-** Notes
+** Catatan
 
-- Methods are functions that declare a receiver variable.
-- Receivers bind a method to a type and can use value or pointer semantics.
-- Value semantics mean a copy of the value is passed across program boundaries.
-- Pointer semantics mean a copy of the values address is passed across program boundaries.
-- Stick to a single semantic for a given type and be consistent.
+- Metode adalah fungsi yang mendeklarasikan variabel penerima.
+- Penerima mengikat suatu metode ke suatu tipe dan dapat menggunakan semantik nilai atau pointer.
+- Semantik nilai berarti salinan nilai tersebut dilewati melintasi batas program.
+- Semantik pointer berarti salinan alamat nilai dilewati melintasi batas program.
+- Patuhi satu semantik untuk suatu tipe tertentu dan tetap konsisten.
 
-** Quotes
+** Kutipan
 
 "Methods are valid when it is practical or reasonable for a piece of data to expose a capability." - William Kennedy
 
-** Extra Reading
+** Bacaan Tambahan
 
-- [[https://golang.org/doc/effective_go.html#methods][Methods]]    
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
-		 
-* Exercises
+- [[https://golang.org/doc/effective_go.html#methods][Methods]]
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+* Latihan
 
-** Exercise 1
+Gunakan templat ini sebagai awal untuk menyelesaikan latihan. Solusi telah disediakan.
 
-Declare a struct that represents a baseball player. Include name, atBats and hits.
-Declare a method that calculates a players batting average. The formula is Hits / AtBats.
-Declare a slice of this type and initialize the slice with several players. Iterate
-over the slice displaying the players name and batting average.
+** Latihan 1
+
+Deklarasikan sebuah struktur yang mewakili seorang pemain bisbol. Sertakan `name`, `atBats`, dan `hits`.
+Deklarasikan sebuah metode yang menghitung rata-rata pukulan pemain. Rumusnya adalah `Hits` / `AtBats`.
+Deklarasikan sebuah slice dari tipe ini dan inisialisasi slice dengan beberapa pemain. Iterasi
+lewat slice, tampilkan nama pemain dan rata-rata pukulan.
 
 .play methods/exercise1.go
 .play methods/answer1.go
