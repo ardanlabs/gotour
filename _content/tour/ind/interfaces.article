@@ -1,28 +1,28 @@
 Interfaces
-Interfaces give programs structure and encourage design by composition. 
+Interfaces memberikan struktur pada program dan mendorong desain melalui komposisi
 
 * Interfaces
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Interfaces give programs structure and encourage design by composition. They enable
-and enforce clean divisions between components. The standardization of interfaces
-can set clear and consistent expectations. Decoupling means reducing the dependencies
-between components and the types they use. This leads to correctness, quality and
-maintainability.
+Interfaces memberikan struktur pada program dan mendorong desain melalui komposisi.
+Mereka memungkinkan dan memaksa pembagian yang bersih antara komponen-komponen.
+Standarisasi dari interfaces dapat menetapkan harapan yang jelas dan konsisten.
+Decoupling berarti mengurangi ketergantungan antara komponen-komponen dan tipe-tipe yang digunakan.
+Hal ini mengarah pada kebenaran, kualitas, dan kemudahan pemeliharaan.
 
-** Code Review 
+** Ulasan Kode
 
-- *Example* *1:* Repetitive Code That Needs Polymorphism
-- *Example* *2:* Polymorphism
-- *Example* *3:* Method Sets
-- *Example* *4:* Address Of Value
-- *Example* *5:* Storage By Value
-- *Example* *6:* Type Assertions
-- *Example* *7:* Conditional Type Assertions
-- *Example* *8:* The Empty Interface and Type Switches
-- *Example* *9:* Storing Values
+- *Contoh* *1:* Kode yang Berulang yang Memerlukan Polimorfisme
+- *Contoh* *2:* Polimorfisme
+- *Contoh* *3:* Set Metode
+- *Contoh* *4:* Alamat Nilai
+- *Contoh* *5:* Penyimpanan dengan Nilai
+- *Contoh* *6:* Penegasan Tipe
+- *Contoh* *7:* Penegasan Tipe Bersyarat
+- *Contoh* *8:* Interface Kosong dan Type Switches
+- *Contoh* *9:* Penyimpanan Nilai
 
 .play interfaces/example1.go
 .play interfaces/example2.go
@@ -34,63 +34,66 @@ maintainability.
 .play interfaces/example8.go
 .play interfaces/example9.go
 
-** Interface Semantics
+** Semantik Interface
 
-Interfaces allow you to group concrete data together by what the data can do.
-It’s about focusing on what data can do and not what the data is. Interfaces
-also help my code decouple itself from change by asking for concrete data based
-on what it can do. It’s not limited to one type of data.
+Interfaces memungkinkan Anda mengelompokkan data konkret bersama
+berdasarkan apa yang dapat dilakukan oleh data tersebut.
+Ini tentang fokus pada apa yang dapat dilakukan oleh data, bukan pada apa data tersebut.
+Interfaces juga membantu kode saya mengurangi ketergantungan terhadap perubahan
+dengan meminta data konkret berdasarkan kemampuannya. Ini tidak terbatas pada satu jenis data.
 
-You must do my best to understand what data changes are coming and use interfaces
-to decouple my program from that change. Interfaces should describe behavior and
-not state. They should be verbs and not nouns.
+Anda harus berusaha memahami perubahan data apa yang akan terjadi dan menggunakan interfaces
+untuk memisahkan program dari perubahan tersebut. Interfaces seharusnya mendeskripsikan perilaku dan bukan keadaan.
+Mereka seharusnya berupa kata kerja dan bukan kata benda.
 
-Generalized interfaces that focus on behavior are best. Interfaces with more than
-one method have more than one reason to change. Interfaces that are based on nouns,
-tend to be less reusable, are more susceptible to change, and defeat the purpose
-of the interface. Uncertainty about change is not a license to guess but a directive
-to STOP and learn more. You must distinguish between code that defends against
-fraud vs protects against accidents.
+Interfaces yang umum dan berfokus pada perilaku adalah yang terbaik. Interfaces dengan lebih
+dari satu metode memiliki lebih dari satu alasan untuk berubah. Interfaces yang berbasis pada kata benda
+cenderung kurang dapat digunakan kembali, lebih rentan terhadap perubahan, dan mengalahkan tujuan dari interfaces.
+Ketidakpastian tentang perubahan bukanlah untuk ditebak, tetapi merupakan petunjuk untuk BERHENTI
+dan mempelajari lebih lanjut. Anda harus membedakan antara kode yang mempertahankan diri
+terhadap penipuan vs melindungi dari kecelakaan.
 
-Use an interface when:
+Gunakan interface ketika:
 
-- Users of the API need to provide an implementation detail.
-- API’s have multiple implementations they need to maintain internally.
-- Parts of the API that can change have been identified and require decoupling.
+- Pengguna API perlu menyediakan rincian implementasi.
+- API memiliki beberapa implementasi yang perlu dipelihara secara internal.
+- Bagian dari API yang dapat berubah telah diidentifikasi dan memerlukan pemisahan.
 
-Don't use an interface:
-    
-- For the sake of using an interface.
-- To generalize an algorithm.
-- When users can declare their own interfaces.
-- If it's not clear how the interface makes the code better.
+Jangan menggunakan interface:
 
-** Interfaces Are Valueless
+- Hanya demi menggunakan interface.
+- Untuk menggeneralisasi suatu algoritma.
+- Ketika pengguna dapat mendeklarasikan interface mereka sendiri.
+- Jika tidak jelas bagaimana interface membuat kode menjadi lebih baik.
 
-The first important thing to understand is that an interface type declares a valueless type.
+** Interfaces Tanpa Nilai
+
+Hal pertama yang penting untuk dipahami adalah bahwa tipe interface mendeklarasikan tipe tanpa nilai.
 
     type reader interface {
         read(b []byte) (int, error)
     }
 
-Type reader is not a struct type, but an interface type. Its declaration is not
-based on state, but behavior. Interface types declare a method-set of behavior
-that concrete data must exhibit in order to satisfy the interface. There is nothing
-\concrete about interface types, therefore they are valueless.
+Tipe `reader` bukanlah tipe struktur (struct), melainkan tipe antarmuka (interface).
+Deklarasinya tidak didasarkan pada keadaan, tetapi pada perilaku.
+Tipe interface mendeklarasikan satu set metode perilaku yang data konkret harus tunjukkan
+untuk memenuhi interface tersebut. Tidak ada yang konkret mengenai tipe interface,
+oleh karena itu, mereka tidak memiliki nilai.
 
     var r reader
 
-Because they are valueless, the construction of a variable (like r) is odd because
-in our programming model, r does not exist, it’s valueless. There is nothing about
-r itself that you can manipulate or transform. This is a critical concept to understand.
-I’m never working with interface values, only concrete values. An interface has a
-compiler representation (internal type), but from our programming model, interfaces
-are valueless.
+Karena mereka tidak memiliki nilai, pembuatan variabel (seperti r) terasa aneh
+karena dalam model pemrograman kita, r tidak ada, itu tidak memiliki nilai.
+Tidak ada yang dapat Anda manipulasi atau ubah tentang r itu sendiri.
+Ini adalah konsep yang penting untuk dipahami.
+Saya tidak pernah berurusan dengan nilai interface, hanya nilai konkret.
+Sebuah interface memiliki representasi kompilator (tipe internal),
+tetapi dalam model pemrograman kita, interface tidak memiliki nilai.
 
-** Implementing Interfaces
+** Implementasi Antarmuka**
 
-Go is a language that is about convention over configuration. When it comes to a
-concrete type implementing an interface, there is no exception.
+Go adalah bahasa yang berfokus pada konvensi daripada konfigurasi.
+Ketika menyangkut implementasi interface oleh suatu tipe konkret, tidak ada pengecualian.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -106,14 +109,15 @@ concrete type implementing an interface, there is no exception.
         return len(s), nil
     }
 
-The code declares a type named file and then declares a method named read. Because
-of these two declarations, you can say the following:
+Kode tersebut mendeklarasikan suatu tipe bernama `file` dan kemudian mendeklarasikan
+suatu metode bernama `read`. Karena kedua deklarasi ini, Anda dapat mengatakan hal berikut:
 
-"The concrete type file now implements the reader interface using value semantics"
+"Tipe konkret `file` sekarang mengimplementasikan interface reader menggunakan semantik nilai."
 
-Every word said is important. In Go, all you have to do is declare the full method-set
-of behavior defined by an interface to implement that interface. In this case, that is
-what I’ve done since the reader interface only declares a single act of behavior named read.
+Setiap kata yang diucapkan penting. Dalam Go, yang harus Anda lakukan hanyalah mendeklarasikan
+set metode penuh perilaku yang didefinisikan oleh sebuah interface untuk mengimplementasikan interface tersebut.
+Dalam hal ini, itulah yang telah saya lakukan karena interface reader hanya mendeklarasikan
+satu tindakan perilaku bernama `read`.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -129,20 +133,20 @@ what I’ve done since the reader interface only declares a single act of behavi
         return len(s), nil
     }
 
-This code declares a type named pipe and then declares a method name read. Because
-of these two declarations, you can say the following:
+Kode ini mendeklarasikan suatu tipe bernama `pipe` dan kemudian mendeklarasikan suatu metode dengan nama `read`.
+Berdasarkan kedua deklarasi ini, Anda dapat mengatakan hal berikut:
 
-"The concrete type pipe now implements the reader interface using value semantics"
+"Tipe konkret `pipe` sekarang mengimplementasikan interface reader menggunakan semantik nilai."
 
-Now you have two concrete types implementing the reader interface. Two concrete types
-each with their unique implementation. One type is reading file systems and the other
-networks.
+Sekarang Anda memiliki dua tipe konkret yang mengimplementasikan interface reader.
+Dua tipe konkret masing-masing dengan implementasi tersendiri.
+Satu tipe membaca sistem file dan yang lainnya jaringan.
 
-** Polymorphism
+** Polimorfisme
 
-Polymorphism means that a piece of code changes its behavior depending on the concrete
-data it’s operating on. This was said by Tom Kurtz, who is the inventor of BASIC. This
-is the definition we will use moving forward.
+Polimorfisme berarti bahwa suatu potongan kode mengubah perilakunya tergantung pada data konkret
+yang sedang dioperasikan. Hal ini dikatakan oleh Tom Kurtz, yang merupakan penemu BASIC.
+Ini adalah definisi yang akan kita gunakan ke depan.
 
     // retrieve can read any device and process the data.
     func retrieve(r reader) error {
@@ -157,16 +161,16 @@ is the definition we will use moving forward.
         return nil
     }
 
-Take a look at the type of data this function accepts. It wants a value of type reader.
-That’s impossible since reader is an interface and interfaces are valueless types.
-It can’t be asking for a reader value, they don’t exist.
+Lihatlah tipe data yang diterima oleh fungsi ini. Fungsi ini menginginkan nilai bertipe reader.
+Ini tidak mungkin karena reader adalah sebuah interface dan interface adalah tipe tanpa nilai.
+Fungsi ini tidak bisa meminta nilai reader, karena nilai tersebut tidak ada.
 
-If the function is not asking for a reader value then what is the function asking
-for? It is asking for the only thing it can ask for, concrete data. 
+Jika fungsi tersebut tidak meminta nilai reader, maka apa yang diminta oleh fungsi tersebut?
+Fungsi tersebut meminta satu-satunya hal yang dapat dimintanya, yaitu data konkret.
 
-The function retrieve is a polymorphic function because it’s asking for concrete
-data not based on what the data is (concrete type), but based on what the data can
-do (interface type).
+Fungsi retrieve adalah sebuah fungsi polimorfik karena ia meminta data konkret
+bukan berdasarkan apa data tersebut (tipe konkret), melainkan berdasarkan
+apa yang dapat dilakukan oleh data tersebut (tipe interface).
 
     f := file{"data.json"}
     p := pipe{"cfg_service"}
@@ -174,37 +178,37 @@ do (interface type).
     retrieve(f)
     retrieve(p)
 
-You can construct two concrete values, one of type file and one of type pipe. Then
-you can pass a copy of each value to the polymorphic function. This is because each
-of these values implement the full method set of behavior defined by the reader interface.
+Anda dapat membuat dua nilai konkret, satu dengan tipe file dan satu dengan tipe pipe.
+Kemudian, Anda dapat meneruskan salinan dari masing-masing nilai ke fungsi polimorfik ini.
+Hal ini karena setiap nilai ini mengimplementasikan set metode penuh perilaku
+yang didefinisikan oleh interface reader.
 
-When the concrete file value is passed into retrieve, the value is stored inside a
-two word internal type representing the interface value.
+Ketika nilai konkret tipe file diteruskan ke retrieve, nilai tersebut disimpan
+di dalam tipe internal dua satuan word yang mewakili nilai interface.
 
-.image /tour/eng/static/img/i1.png
+.image /tour/ind/static/img/i1.png
 
-The second word of the interface value points to the value being stored. In this
-case, it’s a copy of the file value since value semantics are at play. The first
-word points to a special data structure that is called the iTable.
+Satuan word kedua dari nilai interface menunjuk ke nilai yang disimpan.
+Dalam hal ini, itu adalah salinan dari nilai file karena semantik nilai sedang berlaku.
+Satuan word pertama menunjuk ke struktur data khusus yang disebut iTable.
 
-The iTable serves 2 purposes:
+iTable memiliki dua tujuan:
 
-- It describes the type of value being stored. In my case, it’s a file value.
-- It provides function pointers to the concrete implementations of the method set for the type of value being stored.
+- Menjelaskan tipe nilai yang disimpan. Dalam kasus saya, itu adalah nilai file.
+- Menyediakan pointer fungsi ke implementasi konkret dari set metode untuk tipe nilai yang disimpan.
 
-When the read call is made against the interface value, an iTable lookup is performed
-to find the concrete implementation of the read method associated with the type.
-Then the method call is made against the value being stored in the second word.
+Ketika panggilan read dilakukan terhadap nilai interface, pencarian iTable dilakukan
+untuk menemukan implementasi konkret dari metode read yang terkait dengan tipe tersebut.
+Kemudian panggilan metode dilakukan terhadap nilai yang disimpan dalam satuan word kedua.
 
-You can say retrieve is a polymorphic function because the concrete value pipe can be
-passed into retrieve and now the call to read against the interface value changes
-its behavior. This time that call to read is reading a network instead of reading
-a file.
+Anda dapat mengatakan bahwa retrieve adalah fungsi polimorfik karena nilai konkret pipe
+dapat diteruskan ke retrieve, dan sekarang panggilan ke read terhadap nilai interface mengubah perilakunya.
+Kali ini panggilan ke read sedang membaca jaringan bukan membaca file.
 
-** Method Set Rules
+** Aturan Set Metode
 
-Implementing an interface using pointer semantics applies some constraints on
-interface compliance.
+Mengimplementasikan sebuah interface menggunakan semantik pointer menerapkan
+beberapa batasan pada kepatuhan interface.
 
     type notifier interface {
         notify()
@@ -228,37 +232,35 @@ interface compliance.
         sendNotification(u)
     }
 
-The notifier interface is implemented by the user type using pointer semantics.
-When value semantics are used to make the polymorphic call, the following compiler
-message is produced.
+Interface notifier diimplementasikan menggunakan semantik pointer.
+Ketika semantik nilai digunakan untuk melakukan panggilan polimorfik, pesan kompilator berikut dihasilkan.
 
     "cannot use u (type user) as type notifier in argument to sendNotification:
     user does not implement notifier (notify method has pointer receiver)"
 
-This is because there is a special set of rules in the specification about method
-sets. These rules define what methods are attached to values and pointers of a type.
-They are in place to maintain the highest level of integrity in my program.
+Hal ini disebabkan oleh adanya seperangkat aturan khusus dalam spesifikasi mengenai set metode.
+Aturan-aturan ini menentukan metode mana yang terlampir pada nilai dan pointer dari suatu tipe.
+Aturan-aturan ini diterapkan untuk menjaga tingkat integritas tertinggi dalam program.
 
-These are the rules defined in the specification:
+Ini adalah aturan-aturan yang didefinisikan dalam spesifikasi:
 
-- For any value of type T, only those methods implemented with a value receiver for that type belong to the method set of that value.
-- For any address of type T, all methods implemented for that type belong to the method set of that value.
-      
-In other words, when working with an address (pointer), all methods implemented are
-attached and available to be called. When working with a value, only those methods
-implemented with value receivers are attached and available to be called.
+- Untuk setiap nilai tipe T, hanya metode yang diimplementasikan dengan penerima nilai untuk tipe tersebut termasuk dalam set metode dari nilai tersebut.
+- Untuk alamat tipe T, semua metode yang diimplementasikan untuk tipe tersebut termasuk dalam set metode dari nilai tersebut.
 
-In the previous lesson about methods, you were able to call a method against a
-concrete piece of data regardless of the data semantics declared by the receiver.
-This is because the compiler can adjust to make the call. In this case, a value is
-being stored inside an interface and the methods must exist. No adjustments can
-be made.
+Dengan kata lain, ketika bekerja dengan suatu alamat (pointer), semua metode yang diimplementasikan
+terlampir dan tersedia untuk dipanggil. Ketika bekerja dengan suatu nilai, hanya metode yang diimplementasikan
+dengan penerima nilai yang terlampir dan tersedia untuk dipanggil.
 
-The question now becomes: Why can't methods implemented with pointer receivers be
-attached to values of type T? What is the integrity issue here?
+Pada pelajaran sebelumnya tentang metode, Anda dapat memanggil metode terhadap suatu data konkret
+tanpa memperhatikan semantik data yang dinyatakan oleh penerima. Ini karena kompilator dapat menyesuaikan
+untuk melakukan panggilan tersebut. Dalam kasus ini, sebuah nilai disimpan dalam sebuah interface dan metode harus ada.
+Tidak ada penyesuaian yang dapat dilakukan.
 
-One reason is because you can’t guarantee that every value of type T is addressable.
-If a value doesn’t have an address, it can’t be shared.
+Pertanyaannya sekarang menjadi: Mengapa metode yang diimplementasikan dengan penerima pointer
+tidak dapat terlampir pada nilai tipe T? Apa masalah integritas di sini?
+
+Salah satu alasan adalah karena Anda tidak dapat menjamin bahwa setiap nilai tipe T dapat diakses dengan alamat.
+Jika suatu nilai tidak memiliki alamat, maka nilai tersebut tidak dapat dibagikan.
 
     type duration int
 
@@ -270,37 +272,36 @@ If a value doesn’t have an address, it can’t be shared.
         duration(42).notify()
     }
 
-Compiler Error:
+Error Kompilator:
 
     cannot call pointer method on duration(42)
     cannot take the address of duration(42)
 
-In this example, the value of 42 is a constant of kind int. Even though the value
-is converted into a value of type duration, it’s not being stored inside a variable.
-This means the value is never on the stack or heap. There isn’t an address. Constants
-only live at compile time.
+Dalam contoh ini, nilai 42 adalah konstanta bertipe int. Meskipun nilai tersebut dikonversi
+menjadi nilai bertipe duration, tetapi tidak disimpan dalam suatu variabel.
+Ini berarti nilai tersebut tidak pernah berada di stack atau heap. Tidak ada alamatnya.
+Konstanta hanya ada selama waktu kompilasi.
 
-The second reason is the bigger reason. The compiler is telling you that you are not
-allowed to use value semantics if you have chosen to use pointer semantics. In other
-words, you are being forced to share the value with the interface since it’s not
-safe to make a copy of a value that a pointer points to. If you chose to implement
-the method with pointer semantics, you are stating that a value of this type isn’t
-safe to be copied.
+Alasan kedua adalah alasan yang lebih besar. Kompilator memberi tahu Anda bahwa Anda
+tidak diizinkan menggunakan semantik nilai jika Anda telah memilih menggunakan semantik pointer.
+Dengan kata lain, Anda dipaksa untuk berbagi nilai dengan interface karena tidak aman membuat salinan nilai
+yang ditunjuk oleh pointer. Jika Anda memilih untuk mengimplementasikan metode dengan semantik pointer,
+Anda menyatakan bahwa nilai tipe ini tidak aman untuk disalin.
 
     func main() {
         u := user{"Bill", "bill@email.com"}
         sendNotification(&u)
     }
 
-To fix the compiler message, you must use pointer semantics on the call to the
-polymorphic function and share u. The answer is not to change the method to use
-value semantics.
 
-** Slice of Interface
+Untuk memperbaiki pesan kompilator, Anda harus menggunakan semantik pointer pada panggilan fungsi polimorfik
+dan berbagi u. Jawabannya bukan untuk mengubah metode untuk menggunakan semantik nilai.
 
-When you declare a slice of an interface type, I’m capable of grouping different
-concrete values together based on what they can do. This is why Go doesn’t need
-the concept of sub-typing. It’s not about a common DNA, it’s about a common behavior.
+** Slice dari Interface
+
+Ketika Anda mendeklarasikan slice dari tipe interface, saya dapat mengelompokkan berbagai nilai konkret
+bersama berdasarkan apa yang dapat mereka lakukan. Inilah mengapa Go tidak memerlukan konsep sub-typing.
+Ini bukan tentang DNA yang sama, tetapi tentang perilaku yang sama.
 
     type printer interface {
         print()
@@ -338,32 +339,30 @@ the concept of sub-typing. It’s not about a common DNA, it’s about a common 
         }
     }
 
-Output:
+Keluaran:
 
     Printer Name: PIXMA TR4520
     Printer Name: Home XP-4100
 
-The code shows how a slice of the interface type printer allows me to create a
-collection of different concrete printer types. Iterating over the collection and
-leveraging polymorphism since the call to p.print changes its behavior depending
-on the concrete value the code is operating against.
+Kode tersebut menunjukkan bagaimana sebuah slice dari tipe interface printer memungkinkan saya
+membuat koleksi dari berbagai tipe konkret printer. Melakukan iterasi pada koleksi dan memanfaatkan polimorfisme
+karena panggilan ke `p.print` mengubah perilakunya tergantung pada nilai konkret yang sedang dioperasikan oleh kode.
 
-The example also shows how the choice of data semantics changes the behavior of the
-program. When storing the data using value semantics, the change to the original
-value is not seen. This is because a copy is stored inside the interface. When
-pointer semantics are used, any changes to the original value are seen.
+Contoh ini juga menunjukkan bagaimana pilihan semantik data mengubah perilaku program. Saat menyimpan data
+menggunakan semantik nilai, perubahan terhadap nilai asli tidak terlihat. Ini karena salinan disimpan di dalam interface.
+Saat semantik pointer digunakan, perubahan apapun terhadap nilai asli terlihat.
 
-** Notes
+** Catatan
 
-- The method set for a value, only includes methods implemented with a value receiver.
-- The method set for a pointer, includes methods implemented with both pointer and value receivers.
-- Methods declared with a pointer receiver, only implement the interface with pointer values.
-- Methods declared with a value receiver, implement the interface with both a value and pointer receiver.
-- The rules of method sets apply to interface types.
-- Interfaces are reference types, don't share with a pointer.
-- This is how we create polymorphic behavior in go.
+- Set metode untuk sebuah nilai hanya mencakup metode yang diimplementasikan dengan penerima nilai.
+- Set metode untuk sebuah pointer mencakup metode yang diimplementasikan baik dengan penerima pointer maupun penerima nilai.
+- Metode yang dideklarasikan dengan penerima pointer hanya mengimplementasikan interface dengan nilai pointer.
+- Metode yang dideklarasikan dengan penerima nilai mengimplementasikan interface baik dengan nilai maupun pointer sebagai penerima.
+- Aturan-aturan dari set metode berlaku untuk tipe interface.
+- Interface adalah tipe referensi, jangan dibagikan dengan pointer.
+- Inilah cara kita membuat perilaku polimorfik di Go.
 
-** Quotes
+** Kutipan
 
 "Polymorphism means that you write a certain program and it behaves differently depending on the data that it operates on." - Tom Kurtz (inventor of BASIC)
 
@@ -373,34 +372,35 @@ pointer semantics are used, any changes to the original value are seen.
 
 "A proper abstraction decouples the code so that every change doesn’t echo throughout the entire code base." - Ronna Steinburg
 
-** Extra Reading
+** Bacaan Tamabahan
 
-- [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]    
-- [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike    
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
-- [[https://rakyll.org/interface-pollution/][Interface Pollution]] - JBD    
-- [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraction Considered Harmful]] - Tyler Treat    
-- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy    
-- [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum  
+- [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]
+- [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy
+- [[https://rakyll.org/interface-pollution/][Interface Pollution]] - JBD
+- [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraction Considered Harmful]] - Tyler Treat
+- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy
+- [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum
 - [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Engineering Innovation - Why Constraints Are Critical]] - André Eriksson (MUST WATCH)
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-*Part* *A:* Declare an interface named speaker with a method named speak. Declare a
-struct named english that represents a person who speaks english and declare a struct
-named chinese for someone who speaks chinese. Implement the speaker interface for each
-struct using a value receiver and these literal strings "Hello World" and "你好世界".
-Declare a variable of type speaker and assign the address of a value of type english
-and call the method. Do it again for a value of type chinese.
+*Bagian* *A:* Deklarasikan sebuah interface bernama speaker dengan sebuah metode bernama speak.
+Deklarasikan sebuah struct bernama english yang mewakili seseorang yang berbicara dalam bahasa Inggris,
+dan mendeklarasikan sebuah struct bernama chinese untuk seseorang yang berbicara dalam bahasa Cina.
+Mengimplementasikan interface speaker untuk masing-masing struct dengan menggunakan penerima nilai
+dan string literal "Hello World" dan "你好世界". Mendeklarasikan sebuah variabel bertipe speaker dan
+memberikan alamat dari suatu nilai bertipe english, dan memanggil metodenya.
+Lakukan hal yang sama untuk nilai bertipe chinese.
 
-*Part* *B:* Add a new function named sayHello that accepts a value of type speaker.
-Implement that function to call the speak method on the interface value. Then create
- new values of each type and use the function.
+*Bagian* *B:* Tambahkan fungsi baru bernama sayHello yang menerima suatu nilai bertipe speaker.
+Mengimplementasikan fungsi tersebut untuk memanggil metode speak pada nilai interface.
+Kemudian membuat nilai baru untuk setiap tipe dan menggunakan fungsi tersebut.
 
 .play interfaces/exercise1.go
 .play interfaces/answer1.go
