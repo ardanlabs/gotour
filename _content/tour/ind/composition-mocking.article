@@ -1,28 +1,28 @@
 Mocking
-Since the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+Karena kompilator dapat melakukan analisis kode statis untuk menentukan apakah nilai konkret mengimplementasikan sebuah interface,
+pengembang yang mendeklarasikan tipe konkret tidak perlu menyediakan interface juga.
 
 * Mocking
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. The idea is to compose larger types from smaller types and focus on the
-composition of behavior.
+Cara terbaik untuk memanfaatkan penyematan (embedding) adalah melalui pola desain komposisional.
+Ide ini adalah untuk menyusun tipe-tipe yang lebih besar dari tipe-tipe yang lebih kecil
+dan fokus pada komposisi perilaku.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Mocking
+- *Contoh* *1:* Mocking
 
 .play composition/mocking/example1.go
 
-** Interface Ownership
+** Kepemilikan Interface
 
-One thing that is different about Go from other languages is the idea of convention
-over configuration. This really shows itself with how Go handles interface compliance.
-Because the compiler can perform static code analysis to determine if a concrete value
-implements an interface, the developer declaring the concrete type doesn’t need to
-provide interfaces as well.
+Salah satu hal yang berbeda dari Go dibanding bahasa pemrograman lain adalah ide konvensi daripada konfigurasi.
+Hal ini sangat terlihat dalam bagaimana Go mengelola kesesuaian interface. Karena kompilator dapat melakukan
+analisis kode statis untuk menentukan apakah nilai konkret mengimplementasikan sebuah interface,
+pengembang yang mendeklarasikan tipe konkret tidak perlu menyediakan interface juga.
 
     package pubsub
 
@@ -46,13 +46,13 @@ provide interfaces as well.
         return nil
     }
 
-You've just implemented a new API that provides a concrete implementation for publish
-and subscribe. There are no interfaces being provided because this API does not
-need one. This is a single concrete implementation.
+Anda baru saja mengimplementasikan API baru yang menyediakan implementasi konkret
+untuk operasi publish dan subscribe. Tidak ada interface yang disediakan karena API ini tidak memerlukannya.
+Ini merupakan satu implementasi konkret.
 
-What if the application developer wanting to use this new API needs an interface
-because they have the need to mock this implementation during tests? In Go, that
-developer can declare the interface and the compiler can identify the compliance.
+Bagaimana jika pengembang aplikasi yang ingin menggunakan API baru ini membutuhkan sebuah interface
+karena mereka perlu melakukan mocking terhadap implementasi ini selama pengujian? Di Go, pengembang tersebut
+dapat mendeklarasikan interface, dan kompilator dapat mengidentifikasi kesesuaian terhadap interface tersebut.
 
     package main
 
@@ -73,11 +73,11 @@ developer can declare the interface and the compiler can identify the compliance
         return nil
     }
 
-This code in the main package is declaring an interface. This interface represents
-the API that the application is using from the pubsub package. The developer has
-implemented their own pubsub implementation for testing. The key here is that this
-application developer doesn’t use any concrete implementation directly, but decouples
-themselves through their own interface.
+Kode ini di dalam paket main mendeklarasikan sebuah interface. Interface ini mewakili
+API yang digunakan oleh aplikasi dari paket pubsub. Pengembang telah mengimplementasikan i
+mplementasi pubsub sendiri untuk pengujian. Kuncinya di sini adalah bahwa pengembang aplikasi ini
+tidak menggunakan implementasi konkret secara langsung, tetapi memisahkan diri
+melalui interface yang mereka buat sendiri.
 
     func main() {
         pubs := []publisher{
@@ -91,7 +91,7 @@ themselves through their own interface.
         }
     }
 
-To provide an example, the main function constructs a collection that is initialized
-with the pubsub implementation and the mock implementation. The publisher interface
-allows this. Then a for range loop is implemented to show how the application code
-is abstracted from any concrete implementation.
+Sebagai contoh, fungsi main membuat sebuah koleksi yang diinisialisasi dengan
+implementasi pubsub dan implementasi mock. Interface publisher membolehkan hal ini.
+Kemudian, dilakukan sebuah perulangan menggunakan for range untuk menunjukkan
+bagaimana kode aplikasi diabstraksi dari implementasi konkret apapun.
