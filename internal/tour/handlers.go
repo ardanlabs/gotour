@@ -17,7 +17,6 @@ type root struct {
 	perContent []byte
 	porContent []byte
 	polContent []byte
-	turContent []byte
 	rusContent []byte
 	turContent []byte
 }
@@ -76,11 +75,6 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "/tour/pol/":
 		log.Println("render polish tour")
 		if err := renderUI(w, rot.polContent); err != nil {
-			log.Println(err)
-		}
-	case "/tour/tur/":
-		log.Println("render turkish tour")
-		if err := renderUI(w, rot.turContent); err != nil {
 			log.Println(err)
 		}
 	case "/tour/rus/":
