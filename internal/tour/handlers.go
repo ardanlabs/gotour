@@ -19,11 +19,11 @@ type root struct {
 	polContent []byte
 	turContent []byte
 	rusContent []byte
+	turContent []byte
 }
 
 // rootHandler returns a handler for all the requests except the ones for lessons.
 func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
-
 	// Get the cookies from the request.
 	cookies := r.Cookies()
 	var langPref string
@@ -87,7 +87,12 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("render russian tour")
 		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
-        }
+		}
+	case "/tour/tur/":
+		log.Println("render turkish tour")
+		if err := renderUI(w, rot.turContent); err != nil {
+			log.Println(err)
+		}
 	default:
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 	}
