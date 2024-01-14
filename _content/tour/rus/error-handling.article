@@ -1,32 +1,32 @@
-Error Handling
-Error handling is critical for making your programs reliable, trustworthy and respectful to those who depend on them. 
+Обработка Ошибок
+Обработка ошибок критически важна для обеспечения надежности, доверия и уважения к программам со стороны пользователей.
 
-* Error Handling Design
+* Дизайн Обработки Ошибок
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-Integrity matters and it’s a big part of the engineering process. At the heart of
-integrity is error handling. When it comes to Go, error handling is not an exception
-to be handled later or somewhere else in the code. It’s a part of the main path and
-needs to be a main focus.
+Целостность имеет значение, и это важная часть процесса разработки ПО. Краеугольным камнем целостности
+является обработка ошибок. В Go обработка ошибок не считается исключительной ситуацией, которую нужно
+обработать позже в какой-то другой части кода. Обработка ошибок считается частью основного пути
+и требует полного внимания разработчика.
 
-Developers have the responsibility to return enough context about any error so a
-user can make an informed decision about how to proceed. Handling an error is
-about three things: logging the error, not propagating the error any further, and
-determining if the Goroutine/program needs to be terminated.
+У разработчиков есть обязанность предоставить достаточно контекста об ошибке, чтобы пользователь
+мог принять информированное решение о том, как поступить дальше. Обработка ошибок сводится к трем вещам:
+логирование информации об ошибке, предотвращение дальнейшего распространения ошибки и принятие
+решения нужно ли завершить работу горутины/программы.
 
-In Go, errors are just values so they can be anything you need them to be. They
-can maintain any state or behavior.
+В Go ошибки - это просто значения, поэтому они могут быть чем разработчику угодно. Они могут хранить
+любое состояние или поведение.
 
-** Code Review
+** Обзор Кода
 
-- *Example* *1:* Default Error Values
-- *Example* *2:* Error Variables
-- *Example* *3:* Type As Context
-- *Example* *4:* Behavior As Context   
-- *Example* *5:* Find The Bug
-- *Example* *6:* Wrapping Errors With stdlib
+- *Пример* *1:* Значения Error по Умолчанию
+- *Пример* *2:* Переменные типа Error
+- *Пример* *3:* Тип как Контекст
+- *Пример* *4:* Поведение как Контекст
+- *Пример* *5:* Найти Ошибку
+- *Пример* *6:* Обертывание Ошибок в stdlib
 
 .play error-handling/example1.go
 .play error-handling/example2.go
@@ -35,23 +35,22 @@ can maintain any state or behavior.
 .play error-handling/example5.go
 .play error-handling/example6.go
 
-** Error Handling Basics
+** Основы Обработки Ошибок
 
-The error interface is built into the language. 
+error интерфейс  встроен в язык.
 
     // http://golang.org/pkg/builtin/#error
     type error interface {
         Error() string
     }
 
-This is why it appears to be an unexported identifier. Any concrete value that
-implements this interface can be used as an error value.
+Поэтому он выглядит как неэкспортированный идентификатор. Любое конкретное значение,
+реализующее этот интерфейс, может быть использовано как значение error.
 
-One important aspect of Go is that error handling is done in a decoupled state
-through this interface. A key reason for this is because error handling is an
-aspect of my application that is more susceptible to change and improvement.
-This interface is the type Go applications must use as the return type for error
-handling.
+Важным аспектом Go является то, что обработка ошибок выполняется без привязки к реализации
+этого интерфейса. Основной причиной этого является то, что обработка ошибок - это аспект
+моего приложения, позволяющий приложению проще изменяться и улучшаться. Приложения Go
+должны возвращать error интерфейс для обработки ошибок.
 
     // http://golang.org/src/pkg/errors/errors.go
     type errorString struct {
@@ -63,26 +62,26 @@ handling.
         return e.s
     }
 
-This is the most commonly used error value in Go programs. It’s declared in the
-errors package from the standard library. Notice how the type is unexported and
-it has one unexported field which is a string. You can also see how pointer semantics
-are used to implement the error interface. This means only addresses to values
-of this type can be shared and stored inside the interface. The method just returned
-the error string.
+В программах Go это наиболее часто используемое значение error.  Оно объявлено
+в пакете стандартной библиотеки errors. Обратите внимание, что тип является
+неэкспортированным, и у него есть одно неэкспортированное поле - строка.
+Также видно, что для реализации интерфейса error используются семантика указателя.
+Это означает, что только адреса значений этого типа могут храниться внутри интерфейса.
+Метод просто возвращает строку ошибки.
 
-It’s important to remember, the implementation of the Error method serves the
-purpose of implementing the interface and for logging. If any user needs to parse
-the string returned from this method, You have failed to provide the user the
-right amount of context to make an informed decision.
+Важно помнить, что метод Error необходим для реализации интерфейса и для логирования.
+Если пользователю приходится разбирать строку, возвращаемую из этого метода,
+это говорит о том, что вы не предоставили пользователю достаточно контекста
+для принятия информированного решения.
 
     // http://golang.org/src/pkg/errors/errors.go
     func New(text string) error {
         return &errorString{text}
     }
 
-The New function is how an error using the concrete type errorString is constructed.
-Notice how the function returns the error using the error interface. Also notice
-how pointer semantics are being used. 
+Функция New - позволяет сконструировать error с использованием конкретного
+типа errorString. Обратите внимание, как функция возвращает ошибку, используя интерфейс error.
+Также обратите внимание, что при этом используются семантика указателя.
 
     func main() {
         if err := webCall(); err != nil {
@@ -96,34 +95,33 @@ how pointer semantics are being used.
         return New("bad request")
     }
 
-Context is everything with errors. Each error must provide enough context to allow
-the caller to make an informed decision about the state of the goroutine/application.
-In this example, the webCall function returns an error with the message Bad Request.
-In the main function, a call is made to webCall and then a check is made to see
-if an error has occurred with the call.
+При работе с ошибками, контекста черезвычайно важен. Каждая ошибка должна предоставлять
+достаточно контекста, чтобы позволить вызывающему принять информированное решение
+о состоянии горутины/приложения. В этом примере функция webCall возвращает ошибку с сообщением
+Bad Request. В функции main делается вызов webCall, а затем выполняется проверка, произошла
+ли ошибка при вызове.
 
     if err := webCall(); err != nil {
         fmt.Println(err)
         return
     }
 
-The key to the check is err != nil. What this condition is asking is, is there a
-concrete value stored inside the err interface value. When the interface value is
-storing a concrete value, there is an error. In this case, the context is literally
-just the fact that a concrete value exists, it’s not important what the concrete
-value is.
+Ключ к проверке заключается в err != nil. Это условие задает вопрос: хранится ли
+внутри переменной интерфейса err конкретное значение. Если переменная интерфейса хранит
+конкретное значение, мы знаем что произошла ошибка. В этом случае важно то,
+что существует конкретное значение и при этом не важно, какое именно значение.
 
-What if it’s important to know what error value exists inside the err interface
-variable? Then error variables are a good option.
+Но как быть если важно знать, какое значение ошибки содержится внутри
+переменной интерфейса err? Для этого можно использовать переменные error.
 
     var (
         ErrBadRequest = errors.New("Bad Request")
         ErrPageMoved = errors.New("Page Moved")
     )
 
-Error variables provide a mechanic to identify what specific error is being returned.
-They have an idiom of starting with the prefix Err and are based on the concrete type
-errorString from the errors package.
+Переменные error предоставляют механизм для определения того, какая именно ошибка возвращается.
+Идиоматически имена таких переменных начинаться с префикса Err и основаны на конкретном типе
+errorString из пакета errors.
 
     func webCall(b bool) error {
         if b {
@@ -132,8 +130,8 @@ errorString from the errors package.
         return ErrPageMoved
     }
 
-In this new version of webCall, the function returns one or the other error variable.
-This allows the caller to determine which error took place.
+В этой новой версии webCall, функция возвращает одну из переменных ошибок.
+Следующий пример позволяет пользователю определить, какая ошибка произошла.
 
     func main() {
         if err := webCall(true); err != nil {
@@ -155,15 +153,14 @@ This allows the caller to determine which error took place.
         fmt.Println("Life is good")
     }
 
-In the application after the call to webCall is made, a check can be performed to
-see if there is a concrete value stored inside the err interface variable. If there
-is, then a switch statement is used to determine which error it was by comparing err
-to the different error variables.
+В приложении после вызова webCall делается проверка на наличие конкретного значения
+внутри переменной интерфейса err. Если оно есть, то используется оператор switch
+для определения, какая именно это ошибка, сравнивая err с различными переменными error.
 
-In this case, the context of the error is based on which error variable was returned.
-What if an error variable is not enough context? What if some special state needs
-to be checked, like with networking errors? In these cases, a custom concrete error
-type is the answer.
+В этом случае контекст ошибки основан на том, какая error переменная была возвращена.
+Но что если переменная error не дает достаточного контекста? Что если нужно проверить
+какое-то специальное состояние, например, как в случае с сетевыми ошибками?
+В этих ситуациях ответ - это создание своего собственного нового типа ошибки.
 
     type UnmarshalTypeError struct {
         Value string
@@ -175,11 +172,10 @@ type is the answer.
             " into Go value of type " + e.Type.String()
     }
 
-This is a custom concrete error type implemented in the json package. Notice the
-name has a suffix of Error in the naming of the type. Also notice the use of
-pointer semantics for the implementation of the error interface. Once again the
-implementation is for logging and should display information about all the fields
-being captured.
+Это собственный конкретный тип ошибки, реализованный в пакете json. Обратите внимание,
+что имя имеет суффикс Error в названии типа. Также обратите внимание на использование
+семантики указателя для реализации интерфейса ошибки. Опять же реализация служит
+для логирования и должна включать информацию о всех используемых полях.
 
     type InvalidUnmarshalError struct {
         Type reflect.Type
@@ -195,9 +191,9 @@ being captured.
         return "json: Unmarshal(nil " + e.Type.String() + ")"
     }
 
-This is a second custom concrete error type found in the json package. The implementation
-of the Error method is a bit more complex, but once again just for logging and
-using pointer semantics.
+Вот еще один конкретный тип ошибки, из пакета json. Реализация метода Error
+немного сложнее, но и в данном случае тот метод необходим для логирования
+и использует семантику указателя.
 
     func Unmarshal(data []byte, v interface{}) error {
         rv := reflect.ValueOf(v)
@@ -207,13 +203,12 @@ using pointer semantics.
         return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
     }
 
-Here is a portion of the Unmarshal function. Notice how it constructs the concrete
-error values in the return, passing them back to the caller through the error interface.
-Pointer semantic construction is being used because pointer semantics were used in
-the declaration of the Error method.
+Выше приведена часть функции Unmarshal. Обратите внимание, что с помощью интерфейса error
+она возвращает конкретные значения ошибок. Значение создается с помощью семантики указателя,
+потому что эта семантика использовалась при объявлении метода Error.
 
-The context of the error here is more about the type of error stored inside the
-error interface. There needs to be a way to determine that.
+Контекст ошибки здесь скорее связан с типом ошибки, хранящимся внутри интерфейса error.
+Нам необходимо иметь возможность определить этот тип.
 
     func main() {
         var u user
@@ -233,21 +228,21 @@ error interface. There needs to be a way to determine that.
         fmt.Println("Name:", u.Name)
     }
 
-A generic type assertion within the scope of the switch statement is how you can
-write code to test what type of value is being stored inside the err interface value.
-Type is the context here and now you can test and take action with access to all
-the states of the error.
+Утверждение типа в рамках оператора switch используется для проверки типа значения,
+хранящегося внутри интерфейсного значения err. Здесь контекстом является тип, и теперь
+вы можете тестировать и выполнять все необходимые действия так как у вас есть доступ
+ко всем состояниям error.
 
-However, this poses one problem. I’m no longer decoupled from the concrete error
-value. This means if the concrete error value is changed, my code can break. The
-beautiful part of using an interface for error handling is being decoupled from
-breaking changes.
+Однако здесь возникает одна проблема. Теперь я привязан к конкретному значению error.
+Это означает, что если конкретное значение ошибки изменится, мой код может сломаться.
+Прелесть использования интерфейса для обработки ошибок заключается в том, что он не
+привязывает ваш код к изменениям, которые могут привести к поломке.
 
-If the concrete error value has a method set, then you can use an interface for
-the type check. As an example, the net package has many concrete error types that
-implement different methods. One common method is called Temporary. This method
-allows the user to test if the networking error is critical or just something
-that can recover on its own.
+Если конкретное значение ошибки имеет набор методов, вы можете использовать интерфейс
+для проверки типа. В качестве примера, пакет net содержит множество конкретных типов ошибок,
+реализующих разные методы. Один общий метод - Temporary. Этот метод позволяет пользователю
+проверить, является ли сетевая ошибка критической или просто чем-то, что может
+восстановиться самостоятельно.
 
     type temporary interface {
         Temporary() bool
@@ -275,17 +270,17 @@ that can recover on its own.
         }
     }
 
-In this code, the call to ReadString could fail with an error from the net package.
-In this case, an interface is declared that represents the common behavior a given
-concrete error value could implement. Then with a generic type assertion, you test
-if that behavior exists and you can call into it. The best part, you stay in a
-decoupled state with my error handling.
+В этом коде вызов ReadString может завершиться ошибкой из пакета net.
+В этом случае объявляется интерфейс, представляющий общее поведение конкретного
+значения error. Затем с помощью утверждения типа вы проверяете, существует ли
+такое поведение, и можете вызывать его. Что еще лучше - такой способ обработки ошибок
+не привязывает вас к деталям реализации.
 
-** Always Use The Error Interface
+** Всегда используйте интерфейс error
 
-One mistake Go developers can make is when they use the concrete error type and
-not the error interface for the return type for handling errors. If you were to
-do this, bad things could happen.
+Одной из ошибок, которую иногда совершают разработчики Go, является использование
+конкретного типа ошибки, а не интерфейса error для возвращаемого типа обработки ошибок.
+Если вы пошли этим путем, впереди вас ждут неприятности.
 
     type customError struct{}
 
@@ -305,26 +300,27 @@ do this, bad things could happen.
         log.Println("No Error")
     }
 
-Output:
-    
+Вывод:
+
     Why did this fail?
 
-Why does this code think there is an error when the fail function returns nil for
-the error? It’s because the fail function is using the concrete error type and not
-the error interface. In this case, there is a nil pointer of type customError stored
-inside the err variable. That is not the same as a nil interface value of type error.
+Почему этот код считает, что произошла ошибка, когда функция fail возвращает nil для ошибки?
+Это потому, что функция fail использует конкретный тип ошибки, а не интерфейс error.
+В этом случае в переменной err хранится нулевой указатель типа customError.
+Это не то же самое, что нулевое значение интерфейса типа error.
 
-** Handling Errors
+** Обработка ошибок
 
-Handling errors is more of a macro level engineering conversation. In my world, error
-handling means the error stops with the function handling the error, the error is
-logged with full context, and the error is checked for its severity. Based on the
-severity and ability to recover, a decision to recover, move on, or shutdown is made.
+Обработка ошибок - это скорее инженерный диалог на макро уровне.
+В моем мире обработка ошибок означает, что:
+1) ошибка останавливается на функции, обрабатывающей ошибку
+2) ошибка регистрируется с полным контекстом, и проверяется серьезность ошибки
+3) в зависимости от серьезности и возможности восстановления принимается решение о восстановлении, продолжении или завершении работы.
 
-One problem is that not all functions can handle an error. One reason could be because
-not all functions are allowed to log. What happens when an error is being passed back
-up the call stack and can’t be handled by the function receiving it? An error needs to
-be wrapped in context so the function that eventually handles it, can properly do so.
+Одной из проблем является то, что не все функции могут обработать ошибку. Причиной этому
+может быть то, что не все функции имеют право на логирование. Что происходит, когда ошибка
+передается вверх по стеку вызовов и не может быть обработана вызывающей функцией?  Ошибку нужно
+обернуть в контекст, чтобы функция, обрабатывающая ее в конечном счете, могла сделать это правильно.
 
     package main
 
@@ -382,7 +378,7 @@ be wrapped in context so the function that eventually handles it, can properly d
         return &AppError{99}
     }
 
-Output:
+Вывод:
 
     Is AppError, State: 99
 
@@ -390,60 +386,60 @@ Output:
 
     secondCall(10) : App Error, State: 99
 
-** Notes
+** Заметки
 
-- Use the default error value for static and simple formatted messages.
-- Create and return error variables to help the caller identify specific errors.
-- Create custom error types when the context of the error is more complex.
-- Error Values in Go aren't special, they are just values like any other, and so you have the entire language at your disposal.
+- Используйте значение error по умолчанию для статических и просто форматированных сообщений.
+- Создавайте и возвращайте error переменные, чтобы помочь вызывающему определить специфические ошибки.
+- Создавайте пользовательские типы ошибок, в ситуациях когда контекст ошибки более сложный.
+- Значения ошибок в Go не являются чем-то особенным, это просто значения, и поэтому в вашем распоряжении есть весь арсенал языка Go.
 
-** Quotes
+** Цитаты
 
-"Systems cannot be developed assuming that human beings will be able to write millions
-of lines of code without making mistakes, and debugging alone is not an efficient way
-to develop reliable systems." - Al Aho (inventor of AWK)
+"Системы не могут быть разработаны основываясь на предположении, что люди смогут написать
+миллионы строк кода, не допуская ошибок, и одной только работы в отладчике
+не достаточно для разработки надежных систем." - Эл Ахо (изобретатель AWK)
 
-** Extra Reading
+** Дополнительное чтение
 
-- [[https://go.dev/blog/error-handling-and-go][Error handling and Go]]
-- [[https://go.dev/blog/go1.13-errors][Working with Errors in Go 1.13]]
-- [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Error Handling In Go, Part I]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2014/11/error-handling-in-go-part-ii.html][Error Handling In Go, Part II]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2017/05/design-philosophy-on-logging.html][Design Philosophy On Logging]] - William Kennedy    
-- [[https://clipperhouse.com/bugs-are-a-failure-of-prediction/][Bugs are a failure of prediction]] - Matt Sherman    
-- [[https://dave.cheney.net/2014/12/24/inspecting-errors][Inspecting errors]] - Dave Cheney    
-- [[https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully][Don’t just check errors, handle them gracefully]] - Dave Cheney    
-- [[https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package][Stack traces and the errors package]] - Dave Cheney    
-- [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Error handling in Upspin]] - Rob Pike    
-- [[https://rauljordan.com/why-go-error-handling-is-awesome/][Why Go's Error Handling is Awesome]] - Raul Jordan
-   
-* Exercises
+- [[https://go.dev/blog/error-handling-and-go][Обработка ошибок и Go]]
+- [[https://go.dev/blog/go1.13-errors][Работа с ошибками в Go 1.13]]
+- [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Обработка ошибок на Go, часть I]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2014/11/error-handling-in-go-part-ii.html][Обработка ошибок на Go, часть II]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2017/05/design-philosophy-on-logging.html][Философия дизайна логирования]] - Уильям Кеннеди
+- [[https://clipperhouse.com/bugs-are-a-failure-of-prediction/][Баги - это ошибочные предсказания]] - Мэтт Шерман
+- [[https://dave.cheney.net/2014/12/24/inspecting-errors][Инспекция ошибок]] - Дейв Чейни
+- [[https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully][Не просто проверяйте ошибки, обрабатывайте их грамотно]] - Дейв Чейни
+- [[https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package][Стек-трейсы и пакет errors]] - Дейв Чейни
+- [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Обработка ошибок в Upspin]] - Роб Пайк
+- [[https://rauljordan.com/why-go-error-handling-is-awesome/][Почему обработка ошибок в Go - это здорово]] - Рауль Джордан
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+* Упражнения
 
-** Exercise 1
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Здесь представлен возможный вариант решения.
 
-Create two error variables, one called ErrInvalidValue and the other called
-ErrAmountTooLarge. Provide the static message for each variable. Then write a
-function called checkAmount that accepts a float64 type value and returns an
-error value. Check the value for zero and if it is, return the ErrInvalidValue.
-Check the value for greater than $1,000 and if it is, return the ErrAmountTooLarge.
-Write a main function to call the checkAmount function and check the return error
-value. Display a proper message to the screen.
+** Упражнение 1
+
+Создайте две переменные error: ErrInvalidValue и ErrAmountTooLarge.
+Задайте каждой переменной статическое сообщение. Затем напишите функцию checkAmount,
+которая принимает значение типа float64 и возвращает значение error.
+Проверьте входящее значение на равенство нулю и, если оно таково, верните ErrInvalidValue.
+Проверьте превышает ли входящее значение $1,000, и если это так - верните ErrAmountTooLarge.
+Напишите функцию main для вызова функции checkAmount и проверки значения ошибки.
+Выведите соответствующее сообщение на экран.
 
 .play error-handling/exercise1.go
 .play error-handling/answer1.go
 
-** Exercise 2
+** Упражнение 2
 
-Create a custom error type called appError that contains three fields, err error,
-message string and code int. Implement the error interface providing your own message
-using these three fields. Implement a second method named temporary that returns
-false when the value of the code field is 9. Write a function called checkFlag that
-accepts a bool value. If the value is false, return a pointer of your custom error
-type initialized as you like. If the value is true, return a default error. Write a
-main function to call the checkFlag function and check the error using the temporary
-interface.
+Создайте пользовательский тип ошибки с именем appError, содержащий три поля:
+err типа error, message типа string и code типа int. Реализуйте интерфейс error,
+предоставив свое сообщение с помощью этих трех полей. Реализуйте второй метод
+с именем temporary, который возвращает false, когда значение поля code равно 9.
+Напишите функцию checkFlag, которая принимает значение типа bool. Если значение равно false,
+верните указатель на ваш пользовательский тип ошибки, инициализированный по вашему усмотрению.
+Если значение равно true, верните ошибку по умолчанию. Напишите функцию main для вызова
+функции checkFlag и проверки ошибки с использованием интерфейса temporary.
 
 .play error-handling/exercise2.go
 .play error-handling/answer2.go
