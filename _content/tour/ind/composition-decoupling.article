@@ -1,23 +1,23 @@
-Decoupling
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+Pemisahan (Decoupling)
+Komposisi melampaui mekanisme tipe penyematan (embedding) dan lebih dari sekadar paradigma.
 
-* Decoupling
+* Pemisahan (Decoupling)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. It's the key for maintaining stability in your software by having the
-ability to adapt to the data and transformation changes that are coming.
+Cara terbaik untuk memanfaatkan penyematan adalah melalui pola desain komposisional.
+Ini merupakan kunci untuk menjaga stabilitas perangkat lunak dengan memiliki kemampuan
+untuk beradaptasi dengan perubahan data dan transformasi yang akan datang.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Struct Composition
-- *Example* *2:* Decoupling With Interface
-- *Example* *3:* Interface Composition
-- *Example* *4:* Decoupling With Interface Composition
-- *Example* *5:* Remove Interface Pollution
-- *Example* *6:* More Precise API
+- *Contoh* *1:* Komposisi Struct
+- *Contoh* *2:* Pemisahan dengan Interface
+- *Contoh* *3:* Komposisi Interface
+- *Contoh* *4:* Pemisahan dengan Komposisi Interface
+- *Contoh* *5:* Menghilangkan Polusi Interface
+- *Contoh* *6:* API yang Lebih Tepat
 
 .play composition/decoupling/example1.go
 .play composition/decoupling/example2.go
@@ -26,10 +26,10 @@ ability to adapt to the data and transformation changes that are coming.
 .play composition/decoupling/example5.go
 .play composition/decoupling/example6.go
 
-** Decoupling Mechanics
+** Mekanisme Pemisahan
 
-The idea is to compose larger types from smaller types and focus on the composition
-of behavior.
+Ide ini adalah untuk menggabungkan tipe-tipe yang lebih besar dari tipe-tipe yang lebih kecil
+dan fokus pada komposisi perilaku.
 
     type Xenia struct {
         Host    string
@@ -49,9 +49,8 @@ of behavior.
         }
     }
 
-The Xenia type represents a system that you need to pull data from. The implementation
-is not important. What is important is that the method Pull can succeed, fail, or
-not have any data to pull.
+Tipe Xenia mewakili sistem tempat Anda akan menarik data. Implementasinya tidak penting.
+Yang penting adalah bahwa metode Pull dapat berhasil, gagal, atau tidak memiliki data untuk ditarik.
 
     type Pillar struct {
         Host    string
@@ -63,12 +62,11 @@ not have any data to pull.
         return nil
     }
 
-The Pillar type represents a system that you need to store data into. What is
-important again is that the method Store can succeed or fail.
+Tipe Pillar mewakili sistem di mana Anda perlu menyimpan data. Yang penting sekali lagi adalah
+bahwa metode Store dapat berhasil atau gagal.
 
-These two types represent a primitive layer of code that provides the base behavior
-required to solve the business problem of pulling data out of Xenia and storing
-that data into Pillar.
+Kedua tipe ini mewakili lapisan kode primitif yang menyediakan perilaku dasar yang diperlukan
+untuk menyelesaikan masalah bisnis menarik data dari Xenia dan menyimpan data tersebut ke Pillar.
 
     func Pull(x *Xenia, data []Data) (int, error) {
         for i := range data {
@@ -90,11 +88,11 @@ that data into Pillar.
         return len(data), nil
     }
 
-The next layer of code is represented by these two functions, Pull and Store. They
-build on the primitive layer of code by accepting a collection of data values to
-pull or store in the respective systems. These functions focus on the concrete types
-of Xenia and Pillar since those are the systems the program needs to work with at
-this time.
+Lapisan kode berikutnya direpresentasikan oleh dua fungsi ini, Pull dan Store.
+Mereka membangun pada lapisan kode primitif dengan menerima kumpulan nilai data
+yang akan ditarik atau disimpan dalam sistem yang bersangkutan. Fungsi-fungsi ini
+berfokus pada tipe konkret Xenia dan Pillar karena itulah sistem-sistem
+yang program perlu tangani pada saat ini.
 
     func Copy(sys *System, batch int) error {
         data := make([]Data, batch)
@@ -113,17 +111,17 @@ this time.
         }
     }
 
-The Copy function builds on top of the Pull and Store functions to move all the
-data that is pending for each run. If you notice the first parameter to Copy, it’s
-a type called System.
+Fungsi Copy dibangun di atas fungsi Pull dan Store untuk memindahkan semua data
+yang tertunda untuk setiap eksekusi. Jika Anda perhatikan parameter pertama Copy,
+itu adalah tipe yang disebut System.
 
     type System struct {
         Xenia
         Pillar
     }
 
-The initial idea of the System type is to compose a system that knows how to Pull
-and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+Ide awal dari tipe System adalah menggabungkan sistem yang tahu cara Pull dan Store.
+Dalam hal ini, menggabungkan kemampuan Pull dan Store dari Xenia dan Pillar.
 
     func main() {
         sys := System{
@@ -142,20 +140,18 @@ and Store. In this case, composing the ability to Pull and Store from Xenia and 
         }
     }
 
-Finally, the main function can be written to construct a Xenia and Pillar within
-the composition of a System. Then the System can be passed to the Copy function
-and data can begin to flow between the two systems.
+Akhirnya, fungsi utama dapat ditulis untuk membuat objek Xenia dan Pillar dalam komposisi dari sebuah System.
+Kemudian, System dapat diteruskan ke fungsi Copy dan data dapat mulai mengalir antara kedua sistem tersebut.
 
-With all this code, you now have my first draft of a concrete solution to a concrete
-problem.
+Dengan semua kode ini, Anda sekarang memiliki konsep awal dari solusi konkret untuk masalah konkret.
 
-** Decoupling With Interfaces
+** Pemisahan dengan Interface
 
-The next step is to understand what could change in the program. In this case, what
-can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
-be Alice and Bob. With this knowledge, you want to decouple the existing concrete
-solution from this change. To do that, you want to change the concrete functions to
-be polymorphic functions.
+Langkah berikutnya adalah memahami apa yang bisa berubah dalam program. Dalam hal ini,
+yang dapat berubah adalah sistem-sistem itu sendiri. Hari ini mungkin Xenia dan Pillar,
+besok bisa jadi Alice dan Bob. Dengan pengetahuan ini, Anda ingin memisahkan solusi konkret
+yang ada dari perubahan ini. Untuk melakukannya, Anda ingin mengubah fungsi-fungsi konkret
+menjadi fungsi-fungsi polimorfik.
 
     func Pull(p Puller, data []Data) (int, error) {
         for i := range data {
@@ -177,11 +173,10 @@ be polymorphic functions.
         return len(data), nil
     }
 
-Currently, the Pull function accepts a Xenia value and the Store function accepts
-a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
-important is a concrete value that knows how to Pull and Store. You can change these
-concrete functions to be polymorphic by asking for data based on what it can do
-instead of what it is.
+Saat ini, fungsi Pull menerima nilai Xenia dan fungsi Store menerima nilai Pillar.
+Pada akhirnya, bukan Xenia dan Pillar yang penting, yang penting adalah nilai konkret
+yang tahu cara Pull dan Store. Anda dapat mengubah fungsi-fungsi konkret ini menjadi polimorfik
+dengan meminta data berdasarkan apa yang dapat dilakukannya daripada tipe apa itu.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,12 +186,13 @@ instead of what it is.
         Store(d *Data) error
     }
 
-These two interfaces describe what concrete data must do and it’s these types that
-are replaced in the declaration of the Pull and Store functions. Now these functions
-are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
-Storer, they can be passed into the functions.
+Kedua interface ini menjelaskan apa yang harus dilakukan oleh data konkret dan
+tipe-tipe inilah yang diganti dalam deklarasi fungsi Pull dan Store.
+Sekarang fungsi-fungsi ini bersifat polimorfik.Ketika Alice dan Bob dideklarasikan
+dan diimplementasikan sebagai Puller dan Storer,mereka dapat diteruskan
+ke dalam fungsi-fungsi tersebut.
 
-You am not done yet. The Copy function needs to be polymorphic as well.
+Ini belum selesai. Fungsi Copy juga perlu bersifat polimorfik.
 
     func Copy(ps PullStorer, batch int) error {
         data := make([]Data, batch)
@@ -215,20 +211,19 @@ You am not done yet. The Copy function needs to be polymorphic as well.
         }
     }
 
-The Copy function is no longer asking for a System value, but any concrete value
-that knows how to both Pull and Store.
+Fungsi Copy tidak lagi meminta nilai System,
+melainkan nilai konkret apa pun yang tahu cara Pull dan Store.
 
     type PullStorer interface {
         Puller
         Storer
     }
 
-The PullStorer interface is declared through the use of composition. It’s composed
-of the Puller and Storer interfaces. Work towards composing larger interfaces
-from smaller ones.
+Interface PullStorer dideklarasikan melalui penggunaan komposisi. Ini terdiri dari antarmuka Puller dan Storer.
+Berusaha untuk menggabungkan interface yang lebih besar dari yang lebih kecil.
 
-Notice how the PullStorer variable is now being passed into the Pull and Store
-functions. How is this possible when the type information is different?
+Perhatikan bagaimana variabel PullStorer sekarang diteruskan ke dalam fungsi Pull dan Store.
+Bagaimana ini bisa terjadi ketika informasi tipe berbeda?
 
     // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
@@ -236,17 +231,15 @@ functions. How is this possible when the type information is different?
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-You always need to remember, you am never passing an interface value around my program
-since they don’t exist and are valueless. you can only pass concrete data. So the
-concrete data stored inside of the interface ps variable is what’s being passed
-to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
-know how to Pull and Store?
+Anda selalu perlu mengingat, Anda tidak pernah meneruskan nilai interface di sekitar program Anda
+karena interface tidak ada dan tidak punya nilai. Anda hanya dapat meneruskan data konkret.
+Jadi, data konkret yang disimpan di dalam variabel interface ps lah yang diteruskan ke Pull dan Store.
+Bukankah benar, nilai konkret yang disimpan di dalam ps harus tahu cara Pull dan Store?
 
-.image /tour/eng/static/img/comp1.png
+.image /tour/ind/static/img/comp1.png
 
-Since a System is composed from a Xenia and Pillar, System implements the PullStorer
-interface. With these changes, you can now create new concrete types that implement
-the PullStorer interface.
+Karena System terdiri dari Xenia dan Pillar, System mengimplementasikan interface PullStorer.
+Dengan perubahan ini, Anda sekarang dapat membuat tipe konkret baru yang mengimplementasikan interface PullStorer.
 
     type System1 struct {
         Xenia
@@ -268,21 +261,21 @@ the PullStorer interface.
         Pillar
     }
 
-When you think about this more, declaring different System types for all the possible
-combinations is not realistic. This will work, but the maintenance nightmare requires
-a better solution.
+Ketika Anda memikirkan ini lebih lanjut, mendeklarasikan tipe-tipe System yang berbeda
+untuk semua kombinasi mungkin tidak realistis. Ini akan berfungsi, tetapi masalah pemeliharaan
+memerlukan solusi yang lebih baik.
 
-** Interface Composition
+** Komposisi Interface
 
-What if you decided to compose my concrete system type from two interface types?
+Bagaimana jika Anda memutuskan untuk menggabungkan tipe sistem konkret Anda dari dua tipe interface?
 
     type System struct {
         Puller
         Storer
     }
 
-This is an interesting solution. This would allow the application to inject the
-concrete Puller or Storer into the system at application startup. 
+Ini adalah solusi yang menarik. Ini akan memungkinkan aplikasi untuk menyuntikkan Puller atau Storer konkret
+ke dalam sistem saat startup aplikasi.
 
     func main() {
         sys := System{
@@ -301,36 +294,34 @@ concrete Puller or Storer into the system at application startup.
         }
     }
 
-This one system type implements the PullStorer interface for all possible
-combinations of concrete types.
+Tipe sistem ini mengimplementasikan antarmuka PullStorer untuk semua kombinasi tipe konkret yang mungkin.
 
-.image /tour/eng/static/img/comp2.png
+.image /tour/ind/static/img/comp2.png
 
-With this change, the application is fully decoupled from changes to a new system
-that may come online over time.
+Dengan perubahan ini, aplikasi sepenuhnya terpisah dari perubahan ke sistem baru
+yang mungkin muncul seiring waktu.
 
-** Precision Review
+**Ulasan yang Lebih Teliti
 
-The next question to ask is, are the polymorphic functions as precise as they
-otherwise could be? This is a part of the engineering process that can’t be skipped.
-The answer is no, two changes can be made.
+Pertanyaan selanjutnya yang harus diajukan adalah, apakah fungsi-fungsi polimorfik ini telah akurat?
+Ini adalah bagian dari proses rekayasa yang tidak bisa dilewatkan.
+Jawabannya adalah tidak, dua perubahan dapat dilakukan.
 
     func Copy(sys *System, batch int) error {
 
-The Copy function doesn’t need to be polymorphic anymore since there will only be a
-single System type. The PullStorer interface type can be removed from the program.
-Remember, you moved the polymorphism inside the type when you used composition with the
-interface types.
+Fungsi Copy tidak perlu bersifat polimorfik lagi karena hanya akan ada satu tipe System.
+Tipe interface PullStorer dapat dihapus dari program. Ingat, Anda memindahkan polimorfisme
+ke dalam tipe ketika Anda menggunakan komposisi dengan tipe interface.
 
     func Copy(p Puller, s Storer, batch int) error {
 
-This is another change that can be made to the Copy function. This change makes the
-function more precise and polymorphic again. Now the function is asking for exactly
-what it needs based on what the concrete data can do.
+Ini adalah perubahan lain yang dapat dilakukan pada fungsi Copy. Perubahan ini
+membuat fungsi lebih tepat dan polimorfik lagi. Sekarang fungsi ini meminta persis
+apa yang dibutuhkannya berdasarkan apa yang dapat dilakukan data konkret.
 
-.image /tour/eng/static/img/comp3.png
+.image /tour/ind/static/img/comp3.png
 
-With that change the System struct type can be removed from the program as well.
+Dengan perubahan tersebut, tipe struct System juga dapat dihapus dari program.
 
     func main() {
         x := Xenia{
@@ -348,24 +339,24 @@ With that change the System struct type can be removed from the program as well.
         }
     }
 
-By removing the PullStorer and System types, the program simplifies. The main
-function can focus on constructing the concrete Puller and Storer values necessary
-for that moving data. The type system and APIs are more precise.
-This idea of precision comes from Edsger W. Dijkstra
+Dengan menghapus tipe PullStorer dan System, program menjadi lebih sederhana.
+Fungsi utama dapat fokus pada pembuatan nilai konkret Puller dan Storer
+yang diperlukan untuk memindahkan data tersebut. Sistem tipe dan API lebih tepat.
+Ide presisi ini berasal dari Edsger W. Dijkstra.
 
 "The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
 
-** Notes
+** Catatan
 
-- This is much more than the mechanics of type embedding.
-- Declare types and implement workflows with composition in mind.
-- Understand the problem you are trying to solve first. This means understanding the data.
-- The goal is to reduce and minimize cascading changes across your software.
-- Interfaces provide the highest form of composition.
-- Don't group types by a common DNA but by a common behavior.
-- Everyone can work together when we focus on what we do and not what we are.
+- Ini jauh lebih dari mekanika penyematan tipe (embedding).
+- Deklarasikan tipe dan implementasikan alur kerja dengan komposisi dalam pikiran.
+- Pahami masalah yang ingin Anda selesaikan terlebih dahulu. Ini berarti memahami data.
+- Tujuannya adalah mengurangi dan meminimalkan perubahan berantai di seluruh perangkat lunak Anda.
+- Interface memberikan bentuk komposisi tertinggi.
+- Jangan kelompokkan tipe berdasarkan DNA bersama tetapi berdasarkan perilaku bersama.
+- Semua orang dapat bekerja sama ketika kita fokus pada apa yang kita lakukan dan bukan pada apa yang kita miliki.
 
-** Quotes
+** Kutipan
 
 "A good API is not just easy to use but also hard to misuse." - JBD
 
@@ -375,28 +366,28 @@ This idea of precision comes from Edsger W. Dijkstra
 
 "Duplication is far cheaper than the wrong abstraction. - Sandi Metz
 
-** Design Guidelines
+** Pedoman Desain
 
-Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+Belajar lebih lanjut mengenai [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][pedoman desain]] untuk komposisi.
 
-** Extra Reading
+** Bacaan Tambahan
 
-- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
-- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef
+- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-Using the template, declare a set of concrete types that implement the set of predefined
-interface types. Then create values of these types and use them to complete a set of
-predefined tasks.
+Menggunakan templat ini, deklarasikan serangkaian tipe konkret yang mengimplementasikan
+serangkaian tipe interface yang telah ditentukan. Kemudian buat nilai-nilai dari tipe-tipe tersebut
+dan gunakan mereka untuk menyelesaikan serangkaian tugas yang telah ditentukan.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go
