@@ -1,23 +1,23 @@
-Decoupling
-Composition goes beyond the mechanics of type embedding and is more than just a paradigm. 
+Разделение
+Композиция выходит за рамки механики встраивания типов и представляет собой нечто большее чем просто парадигму.
 
-* Decoupling
+* Разделение
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-The best way to take advantage of embedding is through the compositional design
-pattern. It's the key for maintaining stability in your software by having the
-ability to adapt to the data and transformation changes that are coming.
+Лучший способ воспользоваться встраиванием - через паттерн композиционного дизайна.
+Это ключ к обеспечению стабильности в вашем программном обеспечении, позволяющий 
+адаптироваться к ожидаемым изменениям в структуре данных и их трансформации.
 
-** Code Review
+** Обзор Кода
 
-- *Example* *1:* Struct Composition
-- *Example* *2:* Decoupling With Interface
-- *Example* *3:* Interface Composition
-- *Example* *4:* Decoupling With Interface Composition
-- *Example* *5:* Remove Interface Pollution
-- *Example* *6:* More Precise API
+- *Пример* *1:* Структурная Композиция
+- *Пример* *2:* Разделение с помощью Интерфейсов
+- *Пример* *3:* Композиция Интерфейсов
+- *Пример* *4:* Разделение с Композицией Интерфейсов
+- *Пример* *5:* Удаление Интерфейсного Загрязнения
+- *Пример* *6:* Более Точный API
 
 .play composition/decoupling/example1.go
 .play composition/decoupling/example2.go
@@ -26,10 +26,10 @@ ability to adapt to the data and transformation changes that are coming.
 .play composition/decoupling/example5.go
 .play composition/decoupling/example6.go
 
-** Decoupling Mechanics
+** Механика Разделения
 
-The idea is to compose larger types from smaller types and focus on the composition
-of behavior.
+Идея состоит в том, чтобы создавать более крупные типы из более мелких
+и сосредотачиваться на композиции поведения.
 
     type Xenia struct {
         Host    string
@@ -49,9 +49,9 @@ of behavior.
         }
     }
 
-The Xenia type represents a system that you need to pull data from. The implementation
-is not important. What is important is that the method Pull can succeed, fail, or
-not have any data to pull.
+Тип Xenia представляет собой систему, из которой вам нужно извлечь данные.
+Реализация не важна. Важно то, что метод Pull может быть успешным, неудачным
+или не иметь данных для извлечения.
 
     type Pillar struct {
         Host    string
@@ -63,12 +63,12 @@ not have any data to pull.
         return nil
     }
 
-The Pillar type represents a system that you need to store data into. What is
-important again is that the method Store can succeed or fail.
+Тип Pillar представляет собой систему, в которую вам нужно сохранять данные.
+Важно то, что метод Store так же может быть удачным или неудачным.
 
-These two types represent a primitive layer of code that provides the base behavior
-required to solve the business problem of pulling data out of Xenia and storing
-that data into Pillar.
+Эти два типа представляют собой первоначальный слой кода, который предоставляет
+базовое поведение, необходимое для решения бизнес-проблемы извлечения данных
+из Xenia и сохранения этих данных в Pillar.
 
     func Pull(x *Xenia, data []Data) (int, error) {
         for i := range data {
@@ -90,11 +90,11 @@ that data into Pillar.
         return len(data), nil
     }
 
-The next layer of code is represented by these two functions, Pull and Store. They
-build on the primitive layer of code by accepting a collection of data values to
-pull or store in the respective systems. These functions focus on the concrete types
-of Xenia and Pillar since those are the systems the program needs to work with at
-this time.
+Следующий слой кода представлен двумя функциями, Pull и Store. Они строятся
+на первоначальном слое кода, принимая коллекцию значений данных для извлечения
+или сохранения в соответствующих системах. Эти функции сосредотачиваются
+на конкретных типах Xenia и Pillar, так как именно с ними программа должна
+взаимодействовать в данный момент.
 
     func Copy(sys *System, batch int) error {
         data := make([]Data, batch)
@@ -113,17 +113,18 @@ this time.
         }
     }
 
-The Copy function builds on top of the Pull and Store functions to move all the
-data that is pending for each run. If you notice the first parameter to Copy, it’s
-a type called System.
+Функция Copy строится поверх функций Pull и Store, чтобы перемещать все данные,
+которые необходимы для каждого запуска. Если вы обратите внимание на первый параметр Copy,
+это тип с именем System.
 
     type System struct {
         Xenia
         Pillar
     }
 
-The initial idea of the System type is to compose a system that knows how to Pull
-and Store. In this case, composing the ability to Pull and Store from Xenia and Pillar.
+Исходная идея типа System заключается в том, чтобы составить систему, которая знает,
+как выполнить операции Pull и Store. В данном случае компоновка способностей
+Pull и Store из Xenia и Pillar.
 
     func main() {
         sys := System{
@@ -142,20 +143,19 @@ and Store. In this case, composing the ability to Pull and Store from Xenia and 
         }
     }
 
-Finally, the main function can be written to construct a Xenia and Pillar within
-the composition of a System. Then the System can be passed to the Copy function
-and data can begin to flow between the two systems.
+Наконец, функция main может быть написана для создания Xenia и Pillar
+внутри композиции System. Затем System можно передать в функцию Copy
+и начать передачу данных между двумя подсистемами.
 
-With all this code, you now have my first draft of a concrete solution to a concrete
-problem.
+С этим кодом у нас теперь есть первый черновик конкретного решения для конкретной
+проблемы.
 
-** Decoupling With Interfaces
+** Разделение с помощью Интерфейсов
 
-The next step is to understand what could change in the program. In this case, what
-can change is the systems themselves. Today it’s Xenia and Pillar, tomorrow it could
-be Alice and Bob. With this knowledge, you want to decouple the existing concrete
-solution from this change. To do that, you want to change the concrete functions to
-be polymorphic functions.
+Следующий шаг - понять, что может измениться в программе. В данном случае - что
+может измениться, так это сами подсистемы. Сегодня это Xenia и Pillar, завтра может
+быть Alice и Bob. Зная это, вы хотите защитить вашу реализацию от этих изменений. 
+Для этого вы хотите заменить конкретные функции полиморфными.
 
     func Pull(p Puller, data []Data) (int, error) {
         for i := range data {
@@ -177,11 +177,11 @@ be polymorphic functions.
         return len(data), nil
     }
 
-Currently, the Pull function accepts a Xenia value and the Store function accepts
-a Pillar value. In the end, it wasn’t Xenia and Pillar that was important, what’s
-important is a concrete value that knows how to Pull and Store. You can change these
-concrete functions to be polymorphic by asking for data based on what it can do
-instead of what it is.
+На данный момент функция Pull принимает значение Xenia, а функция Store - значение
+Pillar. В конце концов, важно не то, чтобы ваша реализация работала с Xenia и Pillar, 
+важно чтобы конкретное значение умело выполнить действия Pull и Store.
+Вы можете изменить эти конкретные функции на полиморфные, запрашивая данные на основе того, 
+что они могут делать, а не на основе того, что они из себя представляют.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,12 +191,12 @@ instead of what it is.
         Store(d *Data) error
     }
 
-These two interfaces describe what concrete data must do and it’s these types that
-are replaced in the declaration of the Pull and Store functions. Now these functions
-are polymorphic. When Alice and Bob are declared and implemented as a Puller and a
-Storer, they can be passed into the functions.
+Эти два интерфейса описывают, что должны делать конкретные данные,
+и именно они заменяются в объявлении функций Pull и Store. Теперь
+эти функции полиморфны. Когда Alice и Bob объявлены и реализованы как Puller
+и Storer, их можно передать в эти функции.
 
-You am not done yet. The Copy function needs to be polymorphic as well.
+Мы еще не закончили. Функция Copy также должна быть полиморфной.
 
     func Copy(ps PullStorer, batch int) error {
         data := make([]Data, batch)
@@ -215,20 +215,20 @@ You am not done yet. The Copy function needs to be polymorphic as well.
         }
     }
 
-The Copy function is no longer asking for a System value, but any concrete value
-that knows how to both Pull and Store.
+Функция Copy больше не ожидает значение System, а любое конкретное значение,
+знающее, как выполнить действия Pull, и Store.
 
     type PullStorer interface {
         Puller
         Storer
     }
 
-The PullStorer interface is declared through the use of composition. It’s composed
-of the Puller and Storer interfaces. Work towards composing larger interfaces
-from smaller ones.
+Интерфейс PullStorer объявлен с использованием композиции. Он состоит
+из интерфейсов Puller и Storer. Мы движемся в сторону композиции более крупных интерфейсов
+из более мелких.
 
-Notice how the PullStorer variable is now being passed into the Pull and Store
-functions. How is this possible when the type information is different?
+Обратите внимание, как переменная PullStorer теперь передается в функции Pull и Store.
+Как это возможно, когда информация о типе различна?
 
     // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
@@ -236,17 +236,17 @@ functions. How is this possible when the type information is different?
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-You always need to remember, you am never passing an interface value around my program
-since they don’t exist and are valueless. you can only pass concrete data. So the
-concrete data stored inside of the interface ps variable is what’s being passed
-to Pull and Store. Isn’t it true, the concrete value stored inside of ps must
-know how to Pull and Store?
+Всегда нужно помнить, что вы никогда не передаете по программе значение интерфейса,
+поскольку они не существуют и не несут в себе значения. Вы можете передать только конкретные данные.
+Поэтому конкретное значение, хранящееся внутри переменной интерфейса ps, передаётся
+в функции Pull и Store. Верно ли, что конкретное значение, хранящееся внутри ps, должно
+знать, как выполнить действия Pull и Store?
 
-.image /tour/eng/static/img/comp1.png
+.image /tour/rus/static/img/comp1.png
 
-Since a System is composed from a Xenia and Pillar, System implements the PullStorer
-interface. With these changes, you can now create new concrete types that implement
-the PullStorer interface.
+Поскольку System составлен из Xenia и Pillar, то System реализует интерфейс PullStorer.
+С этими изменениями вы можете создавать новые конкретные типы, реализующие
+интерфейс PullStorer.
 
     type System1 struct {
         Xenia
@@ -268,21 +268,21 @@ the PullStorer interface.
         Pillar
     }
 
-When you think about this more, declaring different System types for all the possible
-combinations is not realistic. This will work, but the maintenance nightmare requires
-a better solution.
+Думая об этом подробнее, объявление различных типов System для всех возможных
+комбинаций не является реалистичным. Это будет работать, но управление этим будет
+настоящим кошмаром, поэтому нам нужно решение получше.
 
-** Interface Composition
+** Композиция Интерфейсов
 
-What if you decided to compose my concrete system type from two interface types?
+Что, если бы вы решили составить свой конкретный тип из двух типов интерфейсов?
 
     type System struct {
         Puller
         Storer
     }
 
-This is an interesting solution. This would allow the application to inject the
-concrete Puller or Storer into the system at application startup. 
+Это интересное решение. Это позволило бы приложению принять конкретные Puller 
+или Storer при запуске приложения.
 
     func main() {
         sys := System{
@@ -301,36 +301,39 @@ concrete Puller or Storer into the system at application startup.
         }
     }
 
-This one system type implements the PullStorer interface for all possible
-combinations of concrete types.
+Этот тип системы реализует интерфейс PullStorer для всех возможных
+комбинаций конкретных типов.
 
-.image /tour/eng/static/img/comp2.png
+.image /tour/rus/static/img/comp2.png
 
-With this change, the application is fully decoupled from changes to a new system
-that may come online over time.
+С этим изменением приложение полностью отделено от изменений в новой системе,
+которая может появиться со временем.
 
-** Precision Review
+** Обзор Точности
 
-The next question to ask is, are the polymorphic functions as precise as they
-otherwise could be? This is a part of the engineering process that can’t be skipped.
-The answer is no, two changes can be made.
+Вопрос, который следует задать, — дают ли нам полиморфные функции, максимальный
+уровень точности? Этот этап инженерного процесса нельзя пропустить. Ответ — нет,
+можно внести два изменения.
 
     func Copy(sys *System, batch int) error {
 
-The Copy function doesn’t need to be polymorphic anymore since there will only be a
-single System type. The PullStorer interface type can be removed from the program.
-Remember, you moved the polymorphism inside the type when you used composition with the
-interface types.
+Функции Copy больше не нужно быть полиморфной, поскольку будет только один тип System.
+Интерфейсный тип PullStorer можно удалить из программы. Помните, что вы переместили
+полиморфизм внутрь типа, когда использовали композицию с интерфейсными типами.
 
     func Copy(p Puller, s Storer, batch int) error {
 
-This is another change that can be made to the Copy function. This change makes the
-function more precise and polymorphic again. Now the function is asking for exactly
-what it needs based on what the concrete data can do.
+Еще одно изменение, которое можно внести в функцию Copy. Это изменение делает функцию
+более точной и снова полиморфной. Теперь функция запрашивает ровно то, что ей нужно,
+основываясь на том, что может делать конкретные данные.
 
-.image /tour/eng/static/img/comp3.png
+.image /tour/rus/static/img/comp3.png
 
-With that change the System struct type can be removed from the program as well.
+С этим изменением тип System можно также удалить из программы.
+
+.image /tour/rus/static/img/comp3.png
+
+С этим изменением тип System также можно удалить из программы.
 
     func main() {
         x := Xenia{
@@ -348,55 +351,56 @@ With that change the System struct type can be removed from the program as well.
         }
     }
 
-By removing the PullStorer and System types, the program simplifies. The main
-function can focus on constructing the concrete Puller and Storer values necessary
-for that moving data. The type system and APIs are more precise.
-This idea of precision comes from Edsger W. Dijkstra
+Убрав типы PullStorer и System, программа упрощается. Функция main может
+сосредоточиться на создании конкретных значений Puller и Storer, необходимых
+для перемещения данных. Система типов и API становятся более точными.
+Эта идея точности происходит от Эдсгера В. Дейкстры:
 
-"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise". - Edsger W. Dijkstra
+"Целью абстракции не является быть неопределённой, а создать новый семантический
+уровень, на котором можно быть абсолютно точным." - Эдсгер В. Дейкстра
 
-** Notes
+** Примечания
 
-- This is much more than the mechanics of type embedding.
-- Declare types and implement workflows with composition in mind.
-- Understand the problem you are trying to solve first. This means understanding the data.
-- The goal is to reduce and minimize cascading changes across your software.
-- Interfaces provide the highest form of composition.
-- Don't group types by a common DNA but by a common behavior.
-- Everyone can work together when we focus on what we do and not what we are.
+- Это гораздо больше, чем механика встраивания типов.
+- Объявляйте типы и реализуйте рабочие процессы с учетом композиции.
+- Сначала поймите проблему, которую вы пытаетесь решить. Для этого вам потребуется понять данные.
+- Цель — минимизировать каскадные изменения в вашем программном обеспечении.
+- Интерфейсы обеспечивают самую высокую форму композиции.
+- Группируйте типы не общим ДНК, а общим поведением.
+- Все могут работать вместе, когда мы сосредотачиваемся на том, что мы делаем, а не на том, что мы из себя представляем.
 
-** Quotes
+** Цитаты
 
-"A good API is not just easy to use but also hard to misuse." - JBD
+"Хороший API не только легко использовать - его ещё сложно использовать неправильно." - Джон Бенгтсон
 
-"You can always embed, but you cannot decompose big interfaces once they are out there. Keep interfaces small." - JBD
+"Встраивать просто. Гораздо сложнее разбивать большие существующие интерфейсы, как только они укоренились. Держите интерфейсы маленькими." - Джон Бенгтсон
 
-"Don't design with interfaces, discover them." - Rob Pike
+"Не проектируйте с интерфейсами, а обнаруживайте их." - Роб Пайк
 
-"Duplication is far cheaper than the wrong abstraction. - Sandi Metz
+"Дублирование гораздо дешевле неправильной абстракции." - Санди Мец
 
-** Design Guidelines
+** Рекомендации по проектированию
 
-Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]] for composition.
+Изучите [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][рекомендации по проектированию]] для композиции.
 
-** Extra Reading
+** Дополнительное чтение
 
-- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
-- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
-- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Повторяйтесь, делайте больше одной вещи и переписывайте всё]] - Теф
+- [[https://golang.org/doc/effective_go.html#embedding][Встраивание]]
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Методы, интерфейсы и встраивание]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Композиция в Go]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Сокращение иерархий типов]] - Уильям Кеннеди
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Избегайте загрязнения интерфейсами]] - Уильям Кеннеди
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений.  Здесь представлен возможный вариант решения.
 
-** Exercise 1
+** Упражнение 1
 
-Using the template, declare a set of concrete types that implement the set of predefined
-interface types. Then create values of these types and use them to complete a set of
-predefined tasks.
+Используя шаблон, объявите набор конкретных типов, реализующих набор предопределенных
+интерфейсных типов. Затем создайте значения этих типов и используйте их для выполнения
+набора предопределенных задач.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go
