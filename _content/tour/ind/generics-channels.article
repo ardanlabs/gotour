@@ -1,73 +1,72 @@
 Channels
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+Telusuri bagaimana tim Go dapat menambahkan paket pola konkurensi ke dalam pustaka standar berkat generic.
 
 * Generics - Channels
 
-Explore how the Go team could add a package of concurrency patterns into the standard library thanks to generics.
+Telusuri bagaimana tim Go dapat menambahkan paket pola konkurensi ke dalam pustaka standar berkat generic.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Tontonlah presentasi yang saya berikan tentang Generik yang
+akan membimbing Anda melalui semua contoh dalam bagian ini dari Tur.
 
 .html generics-video.html
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1*: Work Function
-- *Example* *2*: Pooling
+- *Contoh* *1*: Work Function
+- *Contoh* *2*: Pooling
 
 .play generics/channels/example1.go
 .play generics/channels/example2.go
 
-** Explained
+** Penjelasan
 
-This would require declaring channels and functions using generic types.
+Ini akan memerlukan deklarasi channel dan fungsi menggunakan tipe generic.
 
     type workFn[Result any] func(context.Context) Result
 
-In this example, a type is declared that represents a function which accepts a context
-and returns a value of generic type Result. This function declaration describes a
-function that implements the concurrent work that will be performed and the result
-of that work.
+Dalam contoh ini, sebuah tipe dideklarasikan yang mewakili sebuah fungsi yang menerima suatu context
+dan mengembalikan nilai tipe generik Result. Deklarasi fungsi ini menggambarkan sebuah fungsi
+yang mengimplementasikan pekerjaan konkuren yang akan dilakukan dan hasil dari pekerjaan tersebut.
 
     func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
         ch := make(chan Result, 1)
-        
+
         go func() {
             ch <- work(ctx)
             fmt.Println("doWork : work complete")
         }()
-        
+
         return ch
     }
 
-Now write a function named doWork that executes the specified work function
-concurrently and returns a channel so the caller can receive the result of the work
-performed by the work function. A generic type named Result is declared to
-represent the return type for the work function and the type for the channel.
+Sekarang tulis sebuah fungsi yang diberi nama doWork yang mengeksekusi
+fungsi work yang ditentukan secara konkuren dan mengembalikan sebuah channel agar
+pemanggil dapat menerima hasil dari pekerjaan yang dilakukan oleh fungsi work tersebut.
+Sebuah tipe generic yang diberi nama Result dideklarasikan untuk mewakili tipe pengembalian
+untuk fungsi work dan tipe untuk channel.
 
-In the implementation of the doWork function, a buffered channel of one is
-constructed of generic type Result. That’s the channel returned to the caller to
-receive the result of the concurrent work. In the middle of the function, a goroutine
-is constructed to execute the work function concurrently. Once the work function
-returns, the return argument is sent back to the caller through the channel.
+Dalam implementasi fungsi doWork, sebuah channel berbuffer satu dibangun dengan tipe generic Result.
+Itu adalah channel yang dikembalikan kepada pemanggil untuk menerima hasil dari pekerjaan konkuren.
+Di tengah fungsi, sebuah gorutin dibuat untuk mengeksekusi fungsi pekerjaan secara konkuren.
+Begitu fungsi pekerjaan mengembalikan nilai, argumen kembalian dikirim kembali ke pemanggil melalui channel.
 
-To test the use of the doWork function, build a small program.
+Untuk menguji penggunaan fungsi doWork, buatlah sebuah program kecil.
 
     func main() {
         duration := 100 * time.Millisecond
-        
+
         ctx, cancel := context.WithTimeout(context.Background(), duration)
         defer cancel()
-        
+
         dwf := func(ctx context.Context) string {
             time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
             return "work complete"
         }
 
         result := doWork(ctx, dwf)
-        
+
         select {
             case v := <-result:
                 fmt.Println("main:", v)
@@ -76,41 +75,37 @@ To test the use of the doWork function, build a small program.
         }
     }
 
-Output:
+Keluaran:
 
     doWork : work complete
     main: work complete
 
-The program starts by declaring a context that will timeout in 100 milliseconds.
-Then a work function is declared that waits for up to 200 milliseconds before
-returning the string, "work complete". With the context and the work function in
-place, a call to doWork is made and a channel of type string is returned and
-assigned to the variable result.
+Program ini dimulai dengan mendeklarasikan sebuah context yang akan timeout dalam 100 milidetik.
+Kemudian sebuah fungsi pekerjaan dideklarasikan yang menunggu hingga 200 milidetik
+sebelum mengembalikan string, "pekerjaan selesai". Dengan context dan fungsi pekerjaan yang telah disiapkan,
+pemanggilan ke doWork dilakukan dan sebuah channel dengan tipe string dikembalikan dan ditugaskan ke variabel `result`.
 
-The compiler is able to determine the concrete type to use for the generic type
-Result by inspecting the return type of the literal work function that is passed into
-the doWork function. This is brilliant because it means you didn’t have to pass the type
-in on the call to doWork.
+Kompilator mampu menentukan tipe konkret yang akan digunakan untuk tipe generic Result
+dengan memeriksa tipe pengembalian dari fungsi pekerjaan literal yang diteruskan ke dalam fungsi doWork.
+Ini pintar karena artinya Anda tidak perlu menyertakan tipe pada pemanggilan doWork.
 
-With the channel of type string assigned to the variable result, a select case is used
-to wait for the result to be returned on time, or for the timeout to occur. The
-doWork function can be used to perform this concurrent work for any concrete type
-required.
+Dengan channel berjenis string yang ditugaskan ke variabel result, sebuah sintaks select
+digunakan untuk menunggu hasil yang dikembalikan tepat waktu atau untuk timeout terjadi.
+Fungsi doWork dapat digunakan untuk melakukan pekerjaan konkuren untuk setiap tipe konkret yang diperlukan.
 
-This same idea could be applied to a pool of goroutines that could execute work on
-a generic input and return a generic result.
+Ide yang sama ini dapat diterapkan pada sebuah pool goroutine yang dapat mengeksekusi pekerjaan
+pada input generic dan mengembalikan hasil generic.
 
 type workFn[Input any, Result any] func(input Input) Result
 
-In this example, change the function type to accept a generic input and return a
-generic result.
+Dalam contoh ini, ubah tipe fungsi untuk menerima input generic dan mengembalikan hasil generic.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
         var wg sync.WaitGroup
         wg.Add(size)
-        
+
         ch := make(chan Input)
-        
+
         for i := 0; i < size; i++ {
             go func() {
                 defer wg.Done()
@@ -120,7 +115,7 @@ generic result.
                 }
             }()
         }
-        
+
         cancel := func() {
             close(ch)
             wg.Wait()
@@ -129,22 +124,20 @@ generic result.
         return ch, cancel
     }
 
-In the poolWork function, the same two generic types are declared to represent the
-input and return type for the work function. A WaitGroup is constructed to manage
-the lifecycle of the Goroutines in the pool. Then a channel is constructed of the
-generic Input type. This channel is used by the Goroutines in the pool to receive the
-input data for the work function.
+Dalam fungsi poolWork, dua tipe generic yang sama dideklarasikan untuk mewakili tipe input
+dan tipe pengembalian untuk fungsi work. Sebuah WaitGroup dibuat untuk mengelola siklus hidup Goroutine dalam pool.
+Kemudian sebuah channel dibangun dari tipe Input generic. Channel ini digunakan oleh Goroutine dalam pool
+untuk menerima data input untuk fungsi work.
 
-Then the pool of Goroutines are created with each Goroutine waiting in a receive
-operation using a for-range loop against the channel. Finally, a cancel function is
-constructed to allow the caller to shutdown the pool and wait for all the Goroutines
-to signal they have terminated.
+Kemudian, pool Goroutine dibuat dengan setiap Goroutine menunggu dalam operasi penerimaan
+menggunakan loop for-range terhadap channel. Terakhir, fungsi pembatalan dibuat untuk memungkinkan pemanggil
+menonaktifkan pool dan menunggu semua Goroutine memberi sinyal bahwa mereka telah selesai.
 
-To test the use of the poolWork function, built a second small program.
+Untuk menguji penggunaan fungsi poolWork, bangunlah sebuah program kecil kedua.
 
     func main() {
         size := runtime.GOMAXPROCS(0)
-        
+
         pwf := func(input int) string {
             time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
             return fmt.Sprintf("%d : received", input)
@@ -152,27 +145,25 @@ To test the use of the poolWork function, built a second small program.
 
         ch, cancel := poolWork(size, pwf)
         defer cancel()
-        
+
         for i := 0; i < 4; i++ {
             ch <- i
         }
     }
 
-Output:
+Keluaran:
 
     pollWork : 3 : received
     pollWork : 2 : received
     pollWork : 1 : received
     pollWork : 0 : received
 
-The size of the pool is calculated based on the number of Goroutines that can run in
-parallel. Then a work function is constructed to sleep for a random amount of time
-and then return a string that represents the input.
+Ukuran pool dihitung berdasarkan jumlah Goroutine yang dapat berjalan secara parallel.
+Kemudian, fungsi pekerjaan dibuat untuk tidur selama jangka waktu acak dan kemudian
+mengembalikan sebuah string yang merepresentasikan input.
 
-With that in place, the poolWork function is executed and the channel and cancel
-function returned. The cancel function is deferred and a loop is constructed to send
-4 values into the pool. The output will be different each time you run the program
-since this work is happening concurrently.
+Dengan itu, fungsi poolWork dijalankan, dan channel serta fungsi pembatalan dikembalikan.
+Dilakukan defer pada pemanggilan fungsi cancel, dan sebuah loop dibuat untuk mengirimkan 4 nilai ke dalam pool.
+Keluaran akan berbeda setiap kali Anda menjalankan program karena pekerjaan ini terjadi secara konkuren.
 
-These little examples provide some insight into how a concurrent package could be
-implemented.
+Contoh-contoh kecil ini memberikan wawasan tentang bagaimana paket konkuren dapat diimplementasikan.
