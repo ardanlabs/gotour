@@ -39,17 +39,16 @@ Wartbarkeit.
 
 Mit Hilfe von Interfaces könnt ihr konkrete Daten nach ihren Funktionen gruppieren.
 Es geht darum, sich darauf zu konzentrieren, was Daten tun können und nicht darauf, was die Daten sind. Interfaces
-helfen dem Code auch, sich von Änderungen zu entkoppeln, indem ihr nach konkreten Daten fragt, 
+helfen dem Code auch sich von Änderungen zu entkoppeln, indem konkret Daten angefragt werden, 
 was diese tun können. Ihr seid nicht auf eine bestimmte Art von Daten beschränkt.
 
 Man muss sein Bestes tun, um zu verstehen welche Datenänderungen anstehen, und dabei Interfaces verwenden
 um mein Programm von diesen Änderungen zu entkoppeln. Interfaces sollten Verhalten beschreiben und
-nicht den Zustand. Ihr solltet aus Verben und keinen Substantiven bestehen.
+nicht den Zustand. Sie sollten aus Verben und keinen Substantiven bestehen.
 
 Am besten sind verallgemeinerte Interfaces, die sich auf das Verhalten konzentrieren. Interfaces mit mehr als
 einer Methode haben mehr als einen Grund sich zu ändern. Interfaces die auf Substantiven beruhen,
-sind tendenziell weniger wiederverwendbar, anfälliger für Änderungen und verfehlen den Zweck
-der Interface. Ungewissheit über Änderungen ist kein Freibrief für Vermutungen, sondern eine Anweisung
+sind tendenziell weniger wiederverwendbar, anfälliger für Änderungen und verfehlen ihren Zweck. Ungewissheit über Änderungen ist kein Freibrief für Vermutungen, sondern eine Anweisung
 zu STOPPEN und mehr zu lernen. Man muss unterscheiden zwischen Code, der vor Betrug schützt
 und Code der vor Unfällen schützt.
 
@@ -61,12 +60,12 @@ Verwendet ein Interface, wenn:
 
 Verwendet keine Interface:
     
-- Um ein Interface zu verwenden.
+- Bloss um ein Interface zu verwenden.
 - Um einen Algorithmus zu verallgemeinern.
 - Damit Benutzer ihre eigenen Interfaces deklarieren können.
 - Wenn es nicht klar ist, wie die Interface den Code verbessert.
 
-** Interfaces sind wertlos
+** Interfaces sind ohne Wert
 
 Zunächst ist es wichtig zu verstehen, dass ein Interfacestyp einen wertfreien Typ deklariert.
 
@@ -77,21 +76,21 @@ Zunächst ist es wichtig zu verstehen, dass ein Interfacestyp einen wertfreien T
 Der Typ reader ist kein struct-Typ, sondern ein Interfacestyp. Seine Deklaration ist nicht
 auf dem Zustand, sondern auf dem Verhalten. Interfacestypen deklarieren einen Methodensatz des Verhaltens
 die konkrete Daten aufweisen müssen, um das Interface zu erfüllen. Es gibt nichts
-Konkretes über Interfacestypen, daher sind sie wertlos.
+Konkretes über Interfacestypen, daher sind sie ohne Wert.
 
     var r reader 
 
-Da sie wertlos sind, ist die Konstruktion einer Variablen (wie r) merkwürdig, denn
+Da sie ohne Wert sind, ist die Konstruktion einer Variablen (wie r) merkwürdig, denn
 in unserem Programmiermodell existiert r nicht, es ist wertlos. Es gibt nichts an
 r selbst, das man manipulieren oder transformieren kann. Dies ist ein wichtiges Konzept, das man verstehen muss.
 Ich arbeite nie mit Interfacewerten, sondern nur mit konkreten Werten. Ein Interface hat eine
 Compiler-Darstellung (interner Typ), aber nach unserem Programmiermodell sind Interfaces
-wertlos.
+ohne Wert.
 
 ** Implementierung von Interfaces
 
-Go ist eine Sprache, in der Konvention vor Konfiguration geht. Wenn es sich um einen
-konkreten Typ, der eine Interface implementiert, gibt es keine Ausnahme.
+Go ist eine Sprache in der Konvention vor Konfiguration geht. Wenn es sich um einen
+konkreten Typ der eine Interface implementiert handelt, gibt es keine Ausnahme.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -107,12 +106,12 @@ konkreten Typ, der eine Interface implementiert, gibt es keine Ausnahme.
         return len(s), nil
     }
 
-Der Code deklariert einen Typ namens file und dann eine Methode namens read. Weil
+Der Code deklariert einen Typ namens file und dann eine Methode namens read. Aufgrund 
 dieser beiden Deklarationen kann man folgendes sagen:
 
 "Die konkrete Typdatei implementiert nun die Leserschnittstelle unter Verwendung der Wertesemantik"
 
-Jedes Wort, das gesagt wird, ist wichtig. In Go müsst ihr nur den gesamten Methodensatz deklarieren
+Jedes Wort das gesagt wird ist wichtig. In Go müsst ihr nur den gesamten Methodensatz 
 des durch eine Interface definierten Verhaltens deklarieren, um diese Schnittstelle zu implementieren. In diesem Fall ist das
 was ich in diesem Fall getan habe, da die Leserschnittstelle nur einen einzigen Verhaltensakt namens read deklariert.
 
@@ -173,11 +172,11 @@ sondern nach der Grundlage dessen, was die Daten tun können (Interfacestyp).
     retrieve(f)
     retrieve(p)
 
-Ihr könnt zwei konkrete Werte konstruieren, einen vom Typ Datei und einen vom Typ pipe. Dann
+Ihr könnt zwei konkrete Werte konstruieren, einen vom Typ file und einen vom Typ pipe. Dann
 könnt ihr eine Kopie jedes Wertes an die polymorphe Funktion übergeben. Dies ist möglich, weil jeder
 dieser Werte den gesamten Methodensatz des durch die Leserschnittstelle definierten Verhaltens implementiert.
 
-Wenn der Wert der konkreten Datei an retrieve übergeben wird, wird der Wert in einem
+Wenn der Wert des konkreten Typ file an retrieve übergeben wird, wird der Wert in einem
 zwei Worte umfassenden internen Typs gespeichert, der den Interfaceswert darstellt.
 
 .image /tour/eng/static/img/i1.png
@@ -197,8 +196,7 @@ Dann wird der Methodenaufruf mit dem im zweiten Wort gespeicherten Wert durchgef
 
 Man kann sagen, dass retrieve eine polymorphe Funktion ist, weil der konkrete Wert pipe an retrieve übergeben werden kann
 und der Aufruf zum Lesen gegen den Interfaceswert nun
-dessen Verhalten ändert. Diesmal liest der Leseaufruf ein Netzwerk statt einer
-eine Datei.
+dessen Verhalten ändert. Diesmal liest der Leseaufruf ein Netzwerk statt des Typs file.
 
 ** Methodensatzregeln
 
@@ -245,9 +243,9 @@ Dies sind die in der Spezifikation festgelegten Regeln:
       
 Mit anderen Worten: Wenn ihr mit einer Adresse (Zeiger) arbeitet, sind alle implementierten Methoden
 zugeordnet und können aufgerufen werden. Bei der Arbeit mit einem Wert sind nur die Methoden
-die mit Wertempfängern implementiert sind, angehängt und können aufgerufen werden.
+die mit Wertempfängern implementiert sind angehängt und können aufgerufen werden.
 
-In der vorangegangenen Lektion über Methoden konntet ihr eine Methode gegen ein
+In der vorangegangenen Lektion über Methoden konntet ihr eine Methode gegen 
 ein konkretes Datenelement aufrufen, unabhängig von der vom Empfänger deklarierten Datensemantik.
 Das liegt daran, dass der Compiler den Aufruf anpassen kann. In diesem Fall wird ein Wert
 innerhalb eines Interfaces gespeichert während die Methoden existieren müssen. Es können keine Anpassungen
@@ -281,9 +279,9 @@ leben nur zur Kompilierzeit.
 
 Der zweite Grund ist der wichtigere Grund. Der Compiler sagt Ihnen, dass ihr keine
 Wertesemantik verwenden dürft, wenn ihr euch für die Zeigersemantik entschieden habt. 
-Mit anderen Worten, Ihr seid gezwungen, den Wert mit dem Interface zu teilen, da es nicht
-sicher ist, eine Kopie eines Wertes zu erstellen, auf den ein Zeiger zeigt. Wenn ihr euch für die Implementierung
-Methode mit Zeigersemantik entscheidet, gebet damit an, dass ein Wert dieses Typs nicht
+Mit anderen Worten: Ihr seid gezwungen, den Wert mit dem Interface zu teilen, da es nicht
+sicher ist eine Kopie eines Wertes zu erstellen, auf den ein Zeiger zeigt. Wenn ihr euch für die Implementierung
+Methode mit Zeigersemantik entscheidet, gebt damit an, dass ein Wert dieses Typs nicht
 sicher kopiert werden kann.
 
     func main() {
@@ -298,7 +296,7 @@ Wert-Semantik zu verwenden.
 ** Slice of Interface
 
 Wenn ihr ein Slice eines Interfacestyps deklariert, kann ich verschiedene
-konkrete Werte auf der Grundlage ihrer Fähigkeiten zusammenzufassen. Aus diesem Grund braucht Go nicht
+konkrete Werte auf der Grundlage ihrer Fähigkeiten zusammenzufassen. Aus diesem Grund benutzt Go nicht
 das Konzept der Untertypisierung. Es geht nicht um eine gemeinsame DNA, es geht um ein gemeinsames Verhalten.
 
     type printer interface {
