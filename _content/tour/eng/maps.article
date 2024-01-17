@@ -27,6 +27,8 @@ block of memory underneath.
 .play maps/example5.go
 .play maps/example6.go
 .play maps/example7.go
+.play maps/example8.go
+.play maps/example9.go
 
 ** Declaring And Constructing Maps
 
@@ -39,7 +41,7 @@ Declaring and constructing a map can be done in several ways.
 
     // Construct a map set to its zero value,
     // that can store user values based on a key of type string.
-    // Trying to use this map will result in a runtime error (panic).
+    // Trying to to set any value to this map will result in a runtime error (panic).
     var users map[string]user
 
     // Construct a map initialized using make,
@@ -50,7 +52,8 @@ Declaring and constructing a map can be done in several ways.
     // that can store user values based on a key of type string.
     users := map[string]user{}
 
-A map set to its zero value is not usable and will result in your program panicking.
+A map set to its zero value is not usable and will result in your program panicking 
+if you try to set any value.
 The use of the built-in function make and literal construction constructs a map
 ready for use.
 
@@ -149,6 +152,42 @@ A slice is a good example of a type that can’t be used as a key. Only values t
 can be run through the hash function are eligible. A good way to recognize types
 that can be a key is if the type can be used in a comparison operation. You can’t
 compare two slice values.
+
+** Nil map
+
+You can get a nil map different ways:
+
+Construct a map set to its zero value.
+
+    var users map[string]user
+
+When create a structure that has a map as a field (technically zero value as well).
+
+    type user struct {
+        name        string
+        contactInfo map[string]string
+    }
+
+    u := user{}
+    fmt.Println(container.name)         // print "" - empty string. zero value for string
+    fmt.Println(u.contactInfo == nil)   // true
+
+Set manually.
+
+    users := make(map[string]users) // users is not a nil map
+    users = nil                     // now it's a nil map
+
+The most dangerous case with a nil map is a set operation, it causes panic.
+
+    var users map[string]user
+    users["Roy"] = user{"Rob", "Roy"} // panic: assignment to entry in nil map
+
+But getting value from a nil map is a safe operation,
+it returns a zero value and false as a second parameter.
+
+    var users map[string]user
+    user, exists := users["Roy"] // user is {} (empty struct), exists is false
+
 
 ** Notes
 
