@@ -1,14 +1,13 @@
 Arrays
-Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglicht, zusammenhängende Blöcke mit fester Speichergröße zuzuweisen.
+Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglichen, zusammenhängende Blöcke mit fester Größe im Speicher zu belegen.
 
 * Arrays
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglicht, zusammenhängende
-Blöcke fester Größe zuzuweisen. Arrays haben in Go einige besondere Eigenschaften in Bezug auf
-wie sie deklariert und als Typen betrachtet werden.
+Arrays sind eine spezielle Datenstruktur in Go, die es ermöglicht, zusammenhängende Blöcke von Speicher fester Größe zuzuweisen. 
+Arrays haben einige besondere Eigenschaften in Go, die sich auf ihre Deklaration und ihre Betrachtung als Typen beziehen.
 
 ** Code-Überprüfung
 
@@ -24,191 +23,192 @@ wie sie deklariert und als Typen betrachtet werden.
 
 ** Deklarieren und Initialisieren von Werten
 
-Deklarieren Sie ein Array mit fünf Strings, die mit dem Wert Null initialisiert werden.
+Deklariere ein Array aus fünf Zeichenketten (Strings), initialisiert auf dessen Nullwert-Zustand.
 
     var strings [5]string
 
-Eine Zeichenkette ist eine unveränderliche Datenstruktur mit zwei Wörtern, die einen Zeiger auf ein
-Backing-Array von Bytes und die Gesamtzahl der Bytes im Backing-Array darstellt. Da
-dieses Array auf seinen Nullwertstatus gesetzt wird, wird jedes Element auf seinen Nullwert
-Zustand gesetzt. Das bedeutet, dass bei jeder Zeichenkette das erste Wort auf Null und das zweite
-Wort auf 0 gesetzt.
+Ein String ist eine unveränderliche, zweiteilige Datenstruktur, die einen Zeiger auf ein zugrunde 
+liegendes Array von Bytes und die Gesamtanzahl der Bytes im zugrunde liegenden Array darstellt. 
+Da dieses Array auf seinen Nullwert-Zustand gesetzt ist, ist jedes Element auf seinen Nullwert-Zustand 
+gesetzt. Das bedeutet, dass jeder String das erste Wort auf nil und das zweite Wort auf 0 gesetzt hat.
 
 .image /tour/eng/static/img/a1.png
 
 ** String-Zuweisungen
 
-Was passiert, wenn eine Zeichenkette einer anderen Zeichenkette zugewiesen wird?
+Was passiert, wenn eine Zeichenkette (String) einem anderen String zugewiesen wird?
 
-    strings[0] = "Apfel"
+    strings[0] = "Apple"
 
-Wenn eine Zeichenkette einer anderen Zeichenkette zugewiesen wird, wird der Zweiwortwert kopiert,
-was dazu führt, dass zwei verschiedene Zeichenkettenwerte das gleiche Backing-Array teilen.
+Wenn einem String ein anderer String zugewiesen wird, wird der zweiteilige Wert kopiert, 
+was zu zwei verschiedenen String-Werten führt, die beide dasselbe zugrunde liegende Array teilen.
 
 .image /tour/eng/static/img/a2.png
 
-Die Kosten für das Kopieren einer Zeichenkette sind unabhängig von der Größe der Zeichenkette gleich, eine
-Zwei-Wort-Kopie.
+Die Kosten für das Kopieren eines Strings sind gleich, unabhängig von der Größe eines Strings, 
+eine Zweifach-Kopie.
 
 ** Iteration über Sammlungen
 
-Go bietet zwei verschiedene Semantiken für die Iteration über eine Sammlung. Ich kann iterieren
-mit der Wert-Semantik oder der Zeiger-Semantik.
+Go bietet zwei verschiedene Semantiken für die Iteration über eine Sammlung. Ich kann entweder mit Wertsemantik 
+oder Zeigersemantik iterieren.
 
-    // Wertesemantische Iteration
-    for i, fruit := Bereich strings {
-        println(i, fruit)
-    }
-
-
-    // Semantische Iteration von Zeigern
-    for i := Bereich strings {
-        println(i, strings[i])
-    }
-
-Bei der Verwendung der wertesemantischen Iteration geschehen zwei Dinge. Erstens wird die Sammlung, über die ich
-über die ich iteriere, kopiert und Sie iterieren über diese Kopie. Im Falle eines Arrays kann die
-kann die Kopie teuer sein, da das gesamte Array kopiert wird. Im Falle eines Slice,
-gibt es keine wirklichen Kosten, da nur der interne Slice-Wert kopiert wird und nicht das
-Hintergrund-Array kopiert wird. Zweitens erhalten Sie eine Kopie von jedem Element, über das iteriert wird.
-
-Bei der semantischen Iteration mit Zeigern iterieren Sie über die ursprüngliche Sammlung und I
-greifen direkt auf jedes mit der Sammlung verbundene Element zu.
-
-** Wert Semantische Iteration
-
-Geben Sie den folgenden Code und die folgende Ausgabe ein.
-
-    strings := [5]string{"Apfel", "Orange", "Banane", "Traube", "Pflaume"}
+   // Iteration mit Wertsemantik
     for i, fruit := range strings {
-        println(i, fruit)
+    println(i, fruit)
+    }
+
+
+   // Iteration mit Zeigersemantik
+    for i := range strings {
+    println(i, strings[i])
+    }
+
+Bei der Iteration mit Wertsemantik passieren zwei Dinge. Erstens wird die Sammlung, über die ich 
+iteriere, kopiert und man iteriert über die Kopie. Im Fall eines Arrays könnte die Kopie teuer sein, 
+da das gesamte Array kopiert wird. Im Fall eines Slices gibt es keine wirklichen Kosten, 
+da nur der interne Slice-Wert kopiert wird und nicht das zugrunde liegende Array. 
+Zweitens erhält man eine Kopie jedes Elements, über das iteriert wird.
+
+Bei der Iteration mit Zeigersemantik iteriert man über die ursprüngliche Sammlung und greift direkt auf 
+jedes Element zu, das mit der Sammlung verbunden ist.
+
+** Iteration mit Wertsemantik
+
+Gegeben sei der folgende Code und Ausgabe.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+    println(i, fruit)
     }
 
 Ausgabe:
 
-    0 Apfel
+   0 Apple
     1 Orange
-    2 Banane
-    3 Weintraube
-    4 Pflaume
+    2 Banana
+    3 Grape
+    4 Plum
 
-Die Variable strings ist ein Array mit 5 Zeichenketten. Die Schleife iteriert über jede Zeichenkette
-in der Sammlung und zeigt die Indexposition und den Wert der Zeichenkette an. Da dies
-wertesemantische Iteration ist, iteriert der for-Bereich über seine eigene flache Kopie
-des Arrays und bei jeder Iteration ist die Fruchtvariable eine Kopie jeder Zeichenkette
-(die Zwei-Wort-Datenstruktur).
+Die Variable strings ist ein Array aus 5 Strings. Die Schleife iteriert über jeden String in 
+der Sammlung und zeigt die Indexposition und den Stringwert an. Da dies eine Iteration mit 
+Wertsemantik ist, iteriert die for-range-Schleife über ihre eigene flache Kopie des Arrays 
+und bei jeder Iteration ist die Variable fruit eine Kopie jedes Strings (die zweiteilige Datenstruktur).
 
-Beachten Sie, dass die Variable fruit mit Hilfe der Wertesemantik an die Druckfunktion übergeben wird.
-Die Druckfunktion erhält ebenfalls eine eigene Kopie des Zeichenkettenwerts. Zu dem Zeitpunkt
-die Zeichenkette an die Druckfunktion übergeben wird, gibt es 4 Kopien des Zeichenkettenwerts
-(Array, oberflächliche Kopie, Fruchtvariable und die Kopie der Druckfunktion). Alle 4 Kopien
-teilen sich dasselbe Backing-Array aus Bytes.
+Beachte, wie die fruit-Variable mit Wertsemantik an die Druckfunktion übergeben wird. 
+Die Druckfunktion erhält ihre eigene Kopie des Stringwerts. Bis der String an die Druckfunktion 
+übergeben wird, gibt es 4 Kopien des Stringwerts (Array, flache Kopie, fruit-Variable und die Kopie 
+der Druckfunktion). Alle 4 Kopien teilen sich dasselbe zugrunde liegende Array von Bytes.
 
 .image /tour/eng/static/img/a3.png
 
-Die Erstellung von Kopien des Zeichenkettenwerts ist wichtig, da sie verhindert, dass der Zeichenkettenwert
-nicht in den Heap entweicht. Dadurch wird eine unproduktive Zuweisung auf dem Heap vermieden.
+Kopien des String-Wertes anzufertigen ist wichtig, da sie verhindern, dass der String-Wert auf den Heap entkommt. 
+Dies eliminiert nicht-produktive Zuweisungen auf dem Heap.
 
-** Semantische Iteration von Zeigern
+**  Iteration mit Zeigersemantik
 
-Geben Sie den folgenden Code und die folgende Ausgabe ein.
+Gegeben ist der folgende Code und Ausgabe.
 
-    strings := [5]string{"Apfel", "Orange", "Banane", "Traube", "Pflaume"}
-    for i := range strings {
-        println(i, strings[i])
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+     for i := range strings {
+    println(i, strings[i])
     }
 
 Ausgabe:
 
-    0 Apfel
+    0 Apple
     1 Orange
-    2 Banane
-    3 Weintraube
-    4 Pflaume
+    2 Banana
+    3 Grape
+    4 Plum
 
-Auch hier ist die Variable strings ein Array mit 5 Zeichenketten. Die Schleife iteriert über
-jede Zeichenkette in der Sammlung und zeigt die Indexposition und den Wert der Zeichenkette an.
-Da es sich um eine semantische Iteration mit Zeigern handelt, iteriert der for-Bereich direkt über das
-Strings-Array und bei jeder Iteration wird für den Druckaufruf direkt auf den String-Wert für jede Indexposition
-Position direkt für den Druckaufruf abgerufen.
+Nochmals, die Variable strings ist ein Array aus 5 Strings. Die Schleife iteriert über jeden 
+String in der Sammlung und zeigt die Indexposition und den Stringwert an. Da dies eine 
+Iteration mit Zeigersemantik ist, iteriert die for-range-Schleife direkt über das strings-Array 
+und bei jeder Iteration wird der Stringwert für jede Indexposition direkt für den Druckaufruf 
+zugegriffen.
 
-** Verschiedene Arten von Arrays
+** Arrays unterschiedlicher Typen
 
-Es ist interessant zu sehen, was der Compiler als Fehler meldet, wenn er
-Arrays desselben Typs, die unterschiedlich lang sind.
+Es ist interessant zu sehen, welchen Fehler der Compiler ausgibt, wenn Arrays des gleichen Typs, 
+die unterschiedliche Längen haben, zugewiesen werden.
 
-    var fünf [5]int
-    vier := [4]int{10, 20, 30, 40}
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
 
-    fünf = vier
+    five = four
 
 Compiler-Fehler:
 
-    kann vier (Typ [4]int) nicht als Typ [5]int in einer Zuweisung verwenden
+    cannot use four (type [4]int) as type [5]int in assignment
 
-Hier deklarieren Sie ein Array mit 4 und 5 Ganzzahlen, die mit dem Wert Null initialisiert sind.
-Dann versuchen Sie, sie einander zuzuweisen, und der Compiler sagt: "cannot use four
-(Typ [4]int) als Typ [5]int in Zuweisung".
+Hier deklariert ihr ein Array aus 4 und 5 Ganzzahlen, initialisiert auf ihren Nullwert-Zustand. 
+Dann versucht ihr, sie einander zuzuweisen, und der Compiler sagt: "cannot use four (type [4]int) as type [5]int in assignment".
 
-Es ist wichtig, dass Sie sich darüber im Klaren sind, was der Compiler sagt. Er sagt, dass ein
-Array aus 4 Ganzzahlen und ein Array aus 5 Ganzzahlen Daten unterschiedlichen Typs darstellen.
-Die Größe eines Arrays ist Teil der Typinformation. In Go muss die Größe eines Arrays
-zur Kompilierzeit bekannt sein.
+Es ist wichtig, klarzustellen, was der Compiler sagt. Er sagt, dass ein Array aus 4 Ganzzahlen und ein Array 
+aus 5 Ganzzahlen Daten unterschiedlicher Typen darstellen. Die Größe eines Arrays ist Teil seiner Typinformation. 
+In Go muss die Größe eines Arrays zur Kompilierzeit bekannt sein.
 
-** Zusammenhängender Speicheraufbau
+** Kontinuierliche Speicherzuweisung
 
-Sie wollen beweisen, dass ein Array ein zusammenhängendes Layout des Speichers bietet.
+Ihr möchtet beweisen, dass ein Array ein kontinuierliches Speicherlayout bietet.
 
     five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
 
     for i, v := range five {
-        fmt.Printf("Wert[%s]\tAdresse[%p] IndexAddr[%p]\n",
-            v, &v, &five[i])
+    fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+        v, &v, &five[i])
     }
 
 Ausgabe:
 
-    Wert[Annie] Adresse[0xc000010250] IndexAddr[0xc000052180]
-    Wert[Betty] Adresse[0xc000010250] IndexAddr[0xc000052190]
-    Wert[Charley] Adresse[0xc000010250] IndexAddr[0xc0000521a0]
-    Wert[Doug] Adresse[0xc000010250] IndexAddr[0xc0000521b0]
-    Wert[Bill] Adresse[0xc000010250] IndexAddr[0xc0000521c0]
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
-Hier deklarieren Sie ein Array mit 5 Strings, die mit Werten initialisiert werden. Dann verwenden Sie value
-semantische Iteration, um Informationen über jede Zeichenkette anzuzeigen. Die Ausgabe zeigt
-die Adresse der Variablen v und die Adresse jedes Elements im Array.
+Hier wird ein Array aus 5 Strings deklariert, das mit Werten initialisiert ist. 
+Dann verwendet ihr die Wertsemantik-Iteration, um Informationen über jeden String anzuzeigen. 
+Die Ausgabe zeigt jeden einzelnen String-Wert, die Adresse der Variablen v und die Adresse 
 jedes Elements im Array.
 
-Sie können sehen, dass das Array ein zusammenhängender Speicherblock ist und dass eine Zeichenkette eine Zwei
-Wort- oder 16-Byte-Datenstruktur auf meiner 64-Bit-Architektur ist. Die Adresse für jedes Element
-ist auf einem 16-Byte-Stride verteilt.
+Ihr könnt sehen, wie das Array ein zusammenhängender Speicherblock ist und wie ein String eine 
+Zwei-Wort- oder 16-Byte-Datenstruktur auf meiner 64-Bit-Architektur ist. Die Adresse für jedes 
+Element ist in einem 16-Byte-Abstand.
 
-Die Tatsache, dass die Variable v bei jeder Iteration die gleiche Adresse hat, verstärkt das
-Verständnis, dass v eine lokale Variable vom Typ String ist, die eine Kopie jedes
-String-Wertes während der Iteration enthält.
+Die Tatsache, dass die Variable v bei jeder Iteration dieselbe Adresse hat, verstärkt das Verständnis, 
+dass v eine lokale Variable vom Typ String ist, die bei jeder Iteration eine Kopie jedes String-Wertes 
+enthält.
 
-** CPU-Caches
 
-Es gibt viele mechanische Unterschiede zwischen den Prozessoren und ihrem Design. In
-diesem Abschnitt werden Sie auf einer hohen Ebene über Prozessoren und die Semantik sprechen, die
-die bei allen relativ gleich ist. Dieses semantische Verständnis wird Ihnen
-ein gutes mentales Modell für die Funktionsweise des Prozessors und die Sympathie, die Sie ihm entgegenbringen können.
 
-Jeder Kern innerhalb des Prozessors hat seinen eigenen lokalen Cache-Speicher (L1 und L2) und einen
-gemeinsamen Cache-Speicher (L3), in dem Daten und Befehle gespeichert und abgerufen werden. Die Hardware
-Threads in jedem Kern können auf ihre lokalen L1- und L2-Caches zugreifen. Daten aus L3 oder dem Hauptspeicher
-Speicher müssen für den Zugriff in den L1- oder L2-Cache kopiert werden.
+** CPU-Caches (CPU-Zwischenspeicher)
+
+Es gibt viele mechanische Unterschiede zwischen Prozessoren und ihrem Design. 
+In diesem Abschnitt werdet ihr auf hohem Niveau über Prozessoren und die Semantik sprechen, 
+die zwischen ihnen allen relativ gleich ist. Dieses semantische Verständnis wird euch ein gutes 
+mentales Modell dafür liefern, wie der Prozessor funktioniert  und die Sympathie, 
+die Ihr ihm entgegenbringen könnt.
+
+Jeder Kern innerhalb des Prozessors hat seinen eigenen lokalen Speicher-Cache (L1 und L2) und einen 
+gemeinsamen Speicher-Cache (L3), der zum Speichern/Zugreifen auf Daten und Anweisungen verwendet wird. 
+Die Hardware-Threads in jedem Kern können auf ihre lokalen L1- und L2-Caches zugreifen. 
+Daten aus dem L3- oder Hauptspeicher müssen in den L1- oder L2-Cache kopiert werden, um darauf 
+zugreifen zu können.
 
 .image /tour/eng/static/img/a4.png
 
-Die Latenzkosten für den Zugriff auf Daten, die sich in den verschiedenen Caches befinden, ändern sich von
-geringsten zu den höchsten: L1 -> L2 -> L3 -> Hauptspeicher. Wie Scott Meyers sagte: "Wenn Leistung
-zählt, dann ist die Gesamtmenge des Speichers die Gesamtmenge des Cache. Hauptspeicher
-Der Hauptspeicher ist so langsam, dass er praktisch gar nicht vorhanden ist."
+Die Latenzkosten für den Zugriff auf Daten, die in den verschiedenen Caches existieren, ändern sich 
+von am wenigsten bis am meisten: L1 -> L2 -> L3 -> Hauptspeicher. Wie Scott Meyers sagte: 
+"Wenn die Leistung wichtig ist, dann ist die gesamte Menge an Speicher, die ihr habt, die 
+Gesamtmenge des Caches. Der Hauptspeicher ist so langsam im Zugriff, praktisch gesehen, könnte er 
+genauso gut nicht vorhanden sein."
 
-Bei der Leistung geht es heute darum, wie effizient Daten durch die Hardware fließen. Wenn alle
-Daten, die die Hardware (zu einem bestimmten Zeitpunkt) benötigt, nur im Hauptspeicher vorhanden sind, werden meine
-Programme langsamer laufen, als wenn die Daten bereits in den L1- oder L2-Caches vorhanden sind.
+Bei der Leistung geht es heute darum, wie effizient Daten durch die Hardware fließen. Wenn jedes 
+Datenstück, das die Hardware zu einem gegebenen Zeitpunkt benötigt, nur im Hauptspeicher existiert, 
+werden meine Programme langsamer laufen, verglichen mit Daten, die bereits im L1- oder L2-Cache 
+vorhanden sind.
 
     3GHz(3 Taktzyklen/ns) * 4 Anweisungen pro Zyklus = 12 Anweisungen pro ns!
 
@@ -222,36 +222,34 @@ Programme langsamer laufen, als wenn die Daten bereits in den L1- oder L2-Caches
     L2-Cache-Referenz ........................... 7 ns ................... 84 ns
     Hauptspeicher-Referenz ...................... 100 ns ................. 1200 ins
 
-Wie schreibt man Code, der garantiert, dass die Daten, die zur Ausführung eines Befehls benötigt werden
-immer in den L1- oder L2-Caches vorhanden sind? Sie müssen einen Code schreiben, der mechanisch
-mit dem Prefetcher des Prozessors zusammenarbeitet. Der Prefetcher versucht vorherzusagen, welche
-vorhersagen, welche Daten benötigt werden, bevor die Befehle die Daten anfordern, so dass sie bereits entweder im
-dem L1- oder L2-Cache vorhanden sind.
+Wie schreibt ihr Code, der garantiert, dass die Daten, die benötigt werden, um eine Anweisung 
+auszuführen, immer im L1- oder L2-Cache vorhanden sind? Ihr müsst Code schreiben, der mechanisch 
+sympathisch mit dem Prefetcher des Prozessors ist. Der Prefetcher versucht vorherzusagen, 
+welche Daten benötigt werden, bevor Anweisungen die Daten anfordern, damit sie bereits im 
+L1- oder L2-Cache vorhanden sind.
 
-Es gibt verschiedene Granularitäten des Speicherzugriffs, je nachdem, wo der Zugriff erfolgt
-geschieht. Mein Code kann ein Byte Speicher als kleinste Einheit des Speicherzugriffs lesen/schreiben
-zugreifen. Aus der Sicht der Cache-Systeme beträgt die Granularität jedoch 64 Byte.
-Dieser 64-Byte-Block des Speichers wird als Cache-Zeile bezeichnet.
+Es gibt unterschiedliche Granularitäten des Speicherzugriffs, abhängig davon, wo der Zugriff 
+stattfindet. Mein Code kann ein Byte Speicher als kleinste Einheit des Speicherzugriffs lesen/schreiben. 
+Aus Sicht der Caching-Systeme ist die Granularität jedoch 64 Bytes. Dieser 64-Byte-Block Speicher 
+wird als Cache-Zeile bezeichnet
 
-Der Prefetcher funktioniert am besten, wenn die auszuführenden Anweisungen vorhersehbare
-Zugriffsmuster auf den Speicher erzeugen. Eine Möglichkeit, ein vorhersehbares Zugriffsmuster auf den Speicher zu erzeugen
-ist es, einen zusammenhängenden Speicherblock zu konstruieren und dann über diesen Speicher zu iterieren
-einen linearen Durchlauf mit einem vorhersagbaren Schritt durchzuführen.
+Der Prefetcher arbeitet am besten, wenn die ausgeführten Anweisungen vorhersehbare Zugriffsmuster auf den 
+Speicher erzeugen. Eine Möglichkeit, ein vorhersehbares Zugriffsmuster auf den Speicher zu erstellen, 
+besteht darin, einen zusammenhängenden Speicherblock zu konstruieren und dann über diesen Speicher zu iterieren, 
+wobei eine lineare Durchquerung mit vorhersehbarem Schritt ausgeführt wird.
 
-Das Array ist die wichtigste Datenstruktur für die Hardware, da es
-vorhersehbare Zugriffsmuster unterstützt. Allerdings ist das Slice die wichtigste Datenstruktur
-in Go. Slices in Go verwenden ein darunter liegendes Array.
+Das Array ist die wichtigste Datenstruktur für die Hardware, weil es vorhersehbare Zugriffsmuster unterstützt. 
+Jedoch ist die Slice die wichtigste Datenstruktur in Go. Slices in Go verwenden darunter ein Array.
 
-Sobald Sie ein Array aufgebaut haben, ist jedes Element gleich weit vom nächsten oder
-vorherigen Element. Wenn Sie über ein Array iterieren, beginnen Sie, Cache-Zeile für
-verbundene Cache-Zeile in einem vorhersehbaren Schritt. Der Prefetcher wird dieses
-vorhersehbaren Datenzugriffsmuster auf und beginnt, die Daten effizient in den Prozessor zu ziehen
-Prozessor zu ziehen und so die Latenzkosten für den Datenzugriff zu reduzieren.
+Sobald ihr ein Array konstruiert, ist jedes Element gleich weit vom nächsten oder vorherigen Element entfernt. 
+Wenn ihr über ein Array iteriert, geht ihr von Cache-Zeile zu verbundener Cache-Zeile in einem vorhersehbaren Schritt. 
+Der Prefetcher wird dieses vorhersehbare Datenzugriffsmuster erkennen und beginnen, die Daten effizient in den Prozessor 
+zu ziehen, wodurch die Latenzkosten für den Datenzugriff verringert werden.
 
-Stellen Sie sich vor, Sie haben eine große quadratische Speichermatrix und eine verknüpfte Liste von Knoten, die der
-der Anzahl der Elemente in der Matrix entspricht. Wenn Sie einen Traversal über die verknüpfte
-Liste durchführen und dann die Matrix in beide Richtungen (Spalte und Zeile) durchlaufen, wie wird
-die Leistung der verschiedenen Traversals vergleichen?
+Stellt euch vor, ihr habt eine große quadratische Matrix aus Speicher und eine verkettete Liste von Knoten, 
+die der Anzahl der Elemente in der Matrix entsprechen. Wenn ihr eine Durchquerung über die verkettete Liste 
+durchführt und dann die Matrix in beide Richtungen (Spalte und Zeile) durchquert, wie wird sich die Leistung 
+der verschiedenen Durchquerungen vergleichen?
 
     func RowTraverse() int {
         var ctr int
@@ -265,9 +263,9 @@ die Leistung der verschiedenen Traversals vergleichen?
         return ctr
     }
 
-Row Traverse hat die beste Leistung, weil es den Speicher Cache
-Cache-Zeile für Cache-Zeile durchläuft, wodurch ein vorhersehbares Zugriffsmuster entsteht. Cache-Zeilen
-können im Voraus abgerufen und in den L1- oder L2-Cache kopiert werden, bevor die Daten benötigt werden.
+Die Zeilendurchquerung hat die beste Leistung, weil sie durch den Speicher geht, Cache-Zeile 
+für Cache-Zeile, was ein vorhersehbares Zugriffsmuster schafft. Cache-Zeilen können vorausgeladen 
+und in den L1- oder L2-Cache kopiert werden, bevor die Daten benötigt werden.
 
     func ColumnTraverse() int {
         var ctr int
@@ -281,9 +279,10 @@ können im Voraus abgerufen und in den L1- oder L2-Cache kopiert werden, bevor d
         return ctr
     }
 
-Column Traverse ist um eine Größenordnung schlechter, weil dieses Zugriffsmuster
-bei jedem Speicherzugriff die OS-Seitengrenzen überquert. Dies führt zu keiner Vorhersagbarkeit
-für das Prefetching von Cache-Zeilen und wird im Wesentlichen zu einem Speicher mit wahlfreiem Zugriff.
+Die Spaltendurchquerung ist um eine Größenordnung schlechter, weil dieses Zugriffsmuster bei jedem 
+Speicherzugriff über die Grenzen der Betriebssystemseiten hinweggeht. Dies führt zu keiner 
+Vorhersehbarkeit für das Vorausladen der Cache-Zeilen und wird im Wesentlichen zu einem zufälligen 
+Speicherzugriff.
 
     func LinkedListTraverse() int {
         var ctr int
@@ -297,51 +296,51 @@ für das Prefetching von Cache-Zeilen und wird im Wesentlichen zu einem Speicher
         return ctr
     }
 
-Die verknüpfte Liste ist doppelt so langsam wie die Zeilentraversierung, vor allem weil es Cache
-Zeilenfehler, aber weniger TLB-Fehler (Translation Lookaside Buffer). Ein Großteil der Knoten
-die in der Liste verbunden sind, befinden sich in denselben Betriebssystemseiten.
+Die verkettete Liste ist doppelt so langsam wie die Zeilendurchquerung, hauptsächlich weil es 
+Cache-Zeilenverfehlungen gibt, aber weniger TLB (Translation Lookaside Buffer)-Verfehlungen. 
+Ein Großteil der Knoten in der Liste befindet sich innerhalb derselben Betriebssystemseiten.
 
-    BenchmarkLinkListTraverse-16 128 28738407 ns/op
-    BenchmarkColumnTraverse-16 30 126878630 ns/op
-    BenchmarkRowTraverse-16 310 11060883 ns/op
+    BenchmarkLinkListTraverse-16    128 28738407 ns/op
+    BenchmarkColumnTraverse-16      30 126878630 ns/op
+    BenchmarkRowTraverse-16         310 11060883 ns/op
 
-** Übersetzungs-Lookaside-Puffer (TLB)
+** Translation Lookaside Buffer (TLB)
 
-Jedes laufende Programm erhält vom Betriebssystem eine vollständige Speicherabbildung des virtuellen Speichers, und das
-laufende Programm denkt, dass es über den gesamten physischen Speicher des Rechners verfügt. Das ist aber nicht der Fall,
-muss der physische Speicher jedoch mit allen laufenden Programmen geteilt werden. Das Betriebssystem
-teilt den physischen Speicher, indem es den physischen Speicher in Seiten aufteilt und die Seiten
-auf den virtuellen Speicher für ein bestimmtes laufendes Programm. Jedes Betriebssystem kann die Größe einer Seite selbst bestimmen,
-aber 4k, 8k, 16k sind vernünftige und übliche Größen.
+Jedem laufenden Programm wird vom Betriebssystem eine vollständige Speicherkarte des virtuellen 
+Speichers gegeben, und das laufende Programm glaubt, es habe den gesamten physischen Speicher der 
+Maschine. Allerdings muss der physische Speicher mit allen laufenden Programmen geteilt werden. 
+Das Betriebssystem teilt den physischen Speicher, indem es den physischen Speicher in Seiten aufteilt 
+und Seiten dem virtuellen Speicher eines jeden laufenden Programms zuordnet. Jedes Betriebssystem 
+kann die Größe einer Seite bestimmen, aber 4k, 8k, 16k sind vernünftige und übliche Größen.
 
-Der TLB ist ein kleiner Cache innerhalb des Prozessors, der dazu beiträgt, die Latenzzeit bei der
-Übersetzung einer virtuellen Adresse in eine physikalische Adresse im Rahmen einer Betriebssystemseite
-und dem Offset innerhalb der Seite. Ein Fehler im TLB-Cache kann große Latenzzeiten verursachen
-weil die Hardware nun darauf warten muss, dass das Betriebssystem seine Seitentabelle durchsucht, um die richtige Seite für die virtuelle Adresse
-die richtige Seite für die betreffende virtuelle Adresse zu finden. Läuft das Programm auf
-einer virtuellen Maschine läuft (z. B. in der Cloud), muss die Auslagerungstabelle der virtuellen Maschine
-zuerst gescannt werden.
+Der TLB (Translation Lookaside Buffer) ist ein kleiner Cache innerhalb des Prozessors, der dabei hilft, 
+die Latenz bei der Umwandlung einer virtuellen Adresse in eine physische Adresse innerhalb des Bereichs 
+einer Betriebssystemseite und des Offsets innerhalb der Seite zu reduzieren. Ein Fehlzugriff gegen den 
+TLB-Cache kann große Latenzen verursachen, weil die Hardware jetzt darauf warten muss, dass das 
+Betriebssystem seine Seitentabelle durchsucht, um die richtige Seite für die fragliche virtuelle Adresse 
+zu finden. Wenn das Programm auf einer virtuellen Maschine (wie in der Cloud) läuft, dann muss zuerst 
+die Seitentabelle der virtuellen Maschine durchsucht werden.
 
-Denken Sie daran, was gesagt wurde:
+Erinnert euch an das Gesagte:
 
-Die verknüpfte Liste ist doppelt so langsam wie der Zeilentraversal, hauptsächlich weil es Cache
-Zeilenfehlern, aber weniger TLB-Fehlern kommt (siehe unten). Ein Großteil der in der Liste verbundenen Knoten
-der Liste verbunden sind, befinden sich innerhalb derselben Betriebssystemseiten.
+Die verkettete Liste ist doppelt so langsam wie die Zeilendurchquerung, hauptsächlich weil es 
+Cache-Zeilen-Fehlzugriffe gibt, aber weniger TLB-Fehlzugriffe (wie als nächstes erklärt). 
+Ein Großteil der Knoten in der Liste befindet sich innerhalb derselben Betriebssystemseiten.
 
-Die LinkedList ist aufgrund des TLB-Zugriffs um Größenordnungen schneller als das Spalten-Traversal.
-TLB-Zugriffs. Auch wenn es beim LinkedList-Traversal zu Cache Line Misses kommt,
-da ein Großteil des Speichers für eine Gruppe von Knoten in derselben Seite landet,
-wirken sich TLB-Latenzen nicht auf die Leistung aus. Dies ist der Grund, warum bei Programmen, die eine
-viel Speicher benötigen, wie DNA-basierte Anwendungen, sollten Sie eine Linux-Distribution verwenden
-von Linux verwenden, die mit Seitengrößen in der Größenordnung von einem oder zwei Megabyte Speicher konfiguriert ist.
+Die LinkedList ist um Größenordnungen schneller als die Spaltendurchquerung aufgrund des TLB-Zugriffs. 
+Auch wenn es Cache-Zeilen-Fehlzugriffe bei der Durchquerung der verketteten Liste gibt, da ein Großteil 
+des Speichers für eine Gruppe von Knoten auf derselben Seite landen wird, beeinflussen TLB-Latenzen 
+die Leistung nicht. Deshalb möchtet ihr für Programme, die eine große Menge an Speicher verwenden, 
+wie DNA-basierte Anwendungen, eine Linux-Distribution verwenden, die mit Seitengrößen in der 
+Größenordnung eines Megabytes oder zwei konfiguriert ist.
 
-Dennoch ist ein datenorientierter Entwurf wichtig. Das Schreiben eines effizienten Algorithmus muss
-berücksichtigen, wie auf die Daten zugegriffen wird. Denken Sie daran, dass es bei der Leistung heute darum geht
-wie effizient man Daten in den Prozessor bringen kann.
+All das gesagt, ist das datenorientierte Design wichtig. Das Schreiben eines effizienten Algorithmus 
+muss berücksichtigen, wie auf die Daten zugegriffen wird. Denkt daran, dass Leistung heute darum geht, 
+wie effizient ihr Daten in den Prozessor bringen könnt.
 
-- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU-Caches und warum Sie das interessiert (18:50-20:30)]] - Scott Meyers
-- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU-Caches und warum Sie das interessiert (44:36-45:40)]] - Scott Meyers
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Leistung durch Cache-Freundlichkeit (4:25-5:48)]] - Damian Gryski
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
 
 ** Hinweise zum CPU-Cache
 
@@ -351,20 +350,20 @@ wie effizient man Daten in den Prozessor bringen kann.
 
 *Industrie* *Defined* *Latenzen*
 
-    L1-Cache-Referenz ......................... 0,5 ns ...................  6 ins
-    Zweigfehlvorhersage ............................ 5 ns ................... 60 ns
-    L2-Cache-Referenz ........................... 7 ns ................... 84 ns
-    Mutex sperren/entsperren ........................... 25 ns .................. 300 ns
-    Hauptspeicher-Referenz ...................... 100 ns ................. 1200 ns
-    Komprimierung von 1K Bytes mit Zippy ............. 3.000 ns (3 µs) ........... 36k ins
-    Senden von 2K Bytes über ein 1-Gbit/s-Netzwerk ....... 20.000 ns (20 µs) ........ 240k ins
-    Zufälliges Lesen von SSDs ........................ 150.000 ns (150 µs) ........ 1.8M ins
-    Lesen von 1 MB sequentiell aus dem Speicher ..... 250.000 ns (250 µs) .......... 3M ins
-    Hin- und Rückfahrt innerhalb desselben Rechenzentrums ...... 500.000 ns (0,5 ms) .......... 6M ins
-    Lesen von 1 MB sequentiell von SSD- ..... 1.000.000 ns (1 ms) ........... 12M ins
-    Festplattensuche ........................... 10.000.000 ns (10 ms) ......... 120M ins
-    1 MB sequentiell von der Festplatte lesen .... 20.000.000 ns (20 ms) ......... 240M ins
-    Senden eines Pakets CA->Niederlande->CA .... 150.000.000 ns (150 ms) ........ 1,8B ins
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    Branch mispredict ............................ 5 ns ................... 60 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Mutex lock/unlock ........................... 25 ns .................. 300 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins           
+    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
+    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
+    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
+    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
+    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
+    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
+    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
+    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
+    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
 
 *Cache* *Latenzzeiten* *Bild*
 
@@ -374,55 +373,52 @@ wie effizient man Daten in den Prozessor bringen kann.
 
 *CPU* *Caches* */* *Speicher*
 
-- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU-Caches und warum Sie das interessiert - Video]] - Scott Meyers
-- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][Ein Crashkurs in moderner Hardware - Video]] - Cliff Click
-- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Reihe]] - Frank Denneman
-- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU-Caches und warum Sie das interessiert - Deck]] - Scott Meyers
-- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting moderner Hardware zur Gewinnung von 'mechanischer Sympathie']] - Martin Thompson
-- [[http://www.akkadia.org/drepper/cpumemory.pdf][Was jeder Programmierer über Speicher wissen sollte]] - Ulrich Drepper
-- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][Wie CPU-Caches funktionieren und warum]] - Joel Hruska
-- [[http://www.lighterra.com/papers/modernmicroprocessors][Moderne Mikroprozessoren - ein 90-Minuten-Leitfaden]] - Jason Robert Carey Patterson
-- [[http://lwn.net/Articles/252125][Speicher Teil 2: CPU-Caches]] - Ulrich Drepper
-- [[http://www.gotw.ca/publications/concurrency-ddj.htm][Das kostenlose Mittagessen ist vorbei]] - Herb Sutter
-- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Computer für Rechenzentren: Moderne Herausforderungen beim CPU-Design]] - Dick Sites
-- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirths Gesetz]] - Wikipedia
-- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Falsches Teilen eliminieren]] - Herb Sutter
-- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][Der Mythos vom Widder]] - Emil Ernerfeldt
-- [[https://www.infoq.com/presentations/hardware-transactional-memory][Verstehen von Transaktions-Hardware-Speicher]] - Gil Gene
-- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Leistung durch Cache-Freundlichkeit (4:25-5:48)]] - Damian Gryski
-- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Nirgendwo schneller hinkommen]] - Chandler Carruth
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
+- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
 
 *Datenorientiert* *Design*
 
-- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Datenorientiertes Design und C++]] - Mike Acton
-- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Effizienz mit Algorithmen, Leistung mit Datenstrukturen]] - Chandler Carruth
-- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Die Zähmung der Leistungsbestie]] - Klaus Iglberger
-- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Fallstricke der OOP]] - Tony Albrecht
-- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Warum Sie Linked Lists vermeiden sollten]] - Bjarne Stroustrup
-- [[http://gamesfromwithin.com/data-oriented-design][Datenorientiertes Design (oder warum Sie sich mit OOP selbst ins Bein schießen)]] - Noel
-- [[https://www.quora.com/Was-object-oriented-programming-a-failure][War die objektorientierte Programmierung ein Fehlschlag?]] - Quora
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
+- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
 
 ** Anmerkungen
 
-- Wenn man die Daten nicht versteht, versteht man das Problem nicht.
-- Wenn man die Kosten für die Lösung des Problems nicht versteht, kann man nicht über das Problem nachdenken.
-- Wenn man die Hardware nicht versteht, kann man auch nicht über die Kosten für die Lösung des Problems nachdenken.
-- Arrays sind Datenstrukturen mit fester Länge, die sich nicht ändern können.
-- Arrays unterschiedlicher Größe werden als unterschiedliche Typen betrachtet.
-- Speicher wird als zusammenhängender Block zugewiesen.
-- Go gibt Ihnen die Kontrolle über die räumliche Lokalität.
-
-* Übungen
-
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung
-ist vorhanden.
+Wenn ihr die Daten nicht versteht, versteht ihr das Problem nicht.
+Wenn ihr die Kosten für die Lösung des Problems nicht versteht, könnt ihr nicht über das Problem nachdenken.
+Wenn ihr die Hardware nicht versteht, könnt ihr nicht über die Kosten für die Lösung des Problems nachdenken.
+Arrays sind Datenstrukturen fester Länge, die sich nicht ändern können.
+Arrays unterschiedlicher Größen werden als unterschiedliche Typen betrachtet.
+Speicher wird als zusammenhängender Block zugewiesen.
+Go gibt euch Kontrolle über die räumliche Lokalität.
+Übungen
+Verwendet die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. Eine mögliche Lösung wird bereitgestellt.
 
 ** Übung 1
 
-Deklarieren Sie ein Array mit 5 Strings, wobei jedes Element mit dem Wert Null initialisiert wird. Deklarieren Sie
-ein zweites Array mit 5 Strings und initialisiere dieses Array mit literalen Stringwerten. Weisen Sie
-das zweite Array dem ersten zu und zeige die Ergebnisse des ersten Arrays an. Zeigen Sie den
-String-Wert und die Adresse jedes Elements an.
+Deklariert ein Array aus 5 Strings, wobei jedes Element auf seinen Nullwert initialisiert wird. 
+Deklariert ein zweites Array aus 5 Strings und initialisiert dieses Array mit literalen Stringwerten. 
+Weist das zweite Array dem ersten zu und zeigt die Ergebnisse des ersten Arrays an. Zeigt den Stringwert und die 
+Adresse jedes Elements an.
 
 .play arrays/exercise1.go
 .play arrays/answer1.go

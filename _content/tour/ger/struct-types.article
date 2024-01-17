@@ -7,8 +7,7 @@ Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfeld
 - Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Strukturtypen sind eine Möglichkeit, komplexe Typen zu erstellen, die Datenfelder zusammenfassen.
-Ihr seid eine gute Möglichkeit, die verschiedenen Aspekte der Daten zu organisieren und gemeinsam zu nutzen
-die Ihr Programm verwendet.
+Sie sind eine gute Möglichkeit, die verschiedenen Aspekte der Daten die das Prgoramm benutzt zu organisieren und gemeinsam zu nutzen.
 
 Die potenzielle Leistung einer Computerarchitektur wird in erster Linie durch ihre
 Wortlänge bestimmt (die Anzahl der Bits, die pro Zugriff verarbeitet werden können) und noch wichtiger: 
@@ -89,7 +88,7 @@ Ausgabe:
     Counter 10
     Pi 3.141592
 
-Die Idee der buchstäblichen Konstruktion ist genau das: etwas buchstäblich zu konstruieren
+Die Idee der literalen Konstruktion ist genau das: etwas buchstäblich zu konstruieren
 ohne einen Namen.
 
 Ihr solltet var für Nullwerte und den kurzen Variablen-Deklarationsoperator mit
@@ -111,8 +110,8 @@ zwischen dem Flag- und dem Zählerfeld ein Auffüllungsbyte befindet, um die Aus
 
 .image /tour/eng/static/img/f1.png
 
-Die Idee der Ausrichtung besteht darin, der Hardware zu ermöglichen, den Speicher effizienter zu lesen
-indem Speicher an bestimmten Ausrichtungsgrenzen platziert wird. Der Compiler kümmert sich um die Mechanik der Ausrichtungsgrenzen, damit ihr euch nicht darum kümmern müsst.
+Die Idee der Ausrichtung besteht darin, der Hardware zu ermöglichen den Speicher effizienter zu lesen,
+indem Speicher an bestimmten Ausrichtungsgrenzen platziert wird. Der Compiler kümmert sich um die Mechanik der Ausrichtungsgrenzen, damit wir uns nicht darum kümmern müssen.
 
 Abhängig von der Größe eines bestimmten Feldes und seiner Platzierung in der Struktur, legt Go
 das benötigte Padding fest.
@@ -138,18 +137,18 @@ Feldern. Dies führt zu mehr Padding innerhalb der Struktur.
         pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
-So sehen die Ausrichtung und das Auffüllen aus, wenn ein Wert vom Typ example2 an folgender Stelle beginnt
-an der Adresse 0xc000100020 beginnt. Das Flag-Feld stellt die Startadresse dar und ist
-nur 1 Byte groß. Da das Zählerfeld 2 Byte an Zuweisung benötigt, muss es
-muss es mit einer 2-Byte-Ausrichtung im Speicher platziert werden, d. h. es muss auf eine Adresse fallen
-Adresse fallen, die ein Vielfaches von 2 ist. Dies erfordert, dass das Zählerfeld an der Adresse
-0xc000100022 beginnen. Dadurch entsteht eine 1-Byte-Lücke zwischen dem Flag- und dem Zählerfeld.
+So sehen die Ausrichtung und das Auffüllen aus, wenn ein Wert vom Typ example2 an folgender Stelle beginnt:
+an der Adresse 0xc000100020. Das Flag-Feld stellt die Startadresse dar und ist
+nur 1 Byte groß. Da das Zählerfeld 2 Byte an Zuweisung benötigt, 
+muss es mit einer 2-Byte-Ausrichtung im Speicher platziert werden, d. h. es muss auf eine Adresse fallen,
+die ein Vielfaches von 2 ist. Dies erfordert, dass das Zählerfeld an der Adresse
+0xc000100022 beginnt. Dadurch entsteht eine 1-Byte-Lücke zwischen dem Flag- und dem Zählerfeld.
 
 .image /tour/eng/static/img/f2.png
 
 Das Feld `flag2` ist ein bool und kann auf die nächste Adresse 0xc000100024 fallen. Das
 letzte Feld ist pi und erfordert 4 Byte Zuweisung, so dass es auf eine
-4-Byte-Ausrichtung fallen. Die nächste Adresse für einen 4-Byte-Wert liegt bei 0xc000100028. Das
+4-Byte-Ausrichtung fällt. Die nächste Adresse für einen 4-Byte-Wert liegt bei 0xc000100028. Das
 bedeutet, dass 3 weitere Auffüllungsbytes benötigt werden, um eine korrekte Ausrichtung zu gewährleisten. Dies führt dazu
 dass ein Wert des Typs example2 insgesamt 12 Byte Speicherplatz benötigt.
 

@@ -1,63 +1,80 @@
+Lustige Probleme
 Dieser Abschnitt enthält eine Reihe von unterhaltsamen Code-Herausforderungen, die einige der Möglichkeiten von Go zeigen.
 
 * Problem des schlafenden Friseurs
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Video anschauen]]
-- Finanzielle Unterstützung benötigt? Nutzt unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Dieses Beispielprogramm implementiert das Problem des schlafenden Friseurs.
 
 - Mehr dazu unter [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-Es gibt einen Friseur im Friseursalon, einen Friseurstuhl und `n` Stühle für wartende Kunden. Wenn keine Kunden da sind, setzt sich der Friseur in den Friseurstuhl und macht ein Nickerchen. Ein ankommender Kunde muss den Friseur wecken. Nachfolgende ankommende Kunden nehmen einen Wartestuhl ein, falls welche frei sind, oder verlassen den Salon, falls alle Stühle besetzt sind.
+Es gibt einen Friseur im Friseursalon, einen Friseurstuhl und `n` Stühle 
+für wartende Kunden. Wenn keine Kunden da sind, setzt sich der Friseur in 
+den Friseurstuhl und macht ein Nickerchen. 
+Ein neu ankommender Kunde muss den Friseur wecken. 
+Nachfolgende ankommende Kunden nehmen einen Wartestuhl ein, 
+falls welche frei sind, oder verlassen den Salon, 
+falls alle Stühle besetzt sind.
 
 *Ausgabe:*
 
-    Eröffnung des Ladens
-    Friseur bereit zur Arbeit
+    Das Geschäft öffnet
+    Friseur ist bereit zur Arbeit
     Kunde "cust-1" betritt den Laden
     Kunde "cust-1" nimmt Platz und wartet
     Friseur bedient Kunde "cust-1"
-    Friseur fertig mit Kunde "cust-1"
+    Friseur ist fertig mit Kunde "cust-1"
     Friseur macht ein Nickerchen
     Kunde "cust-2" betritt den Laden
     Kunde "cust-2" nimmt Platz und wartet
     Friseur bedient Kunde "cust-2"
     Kunde "cust-3" betritt den Laden
     Kunde "cust-3" nimmt Platz und wartet
-    Friseur fertig mit Kunde "cust-2"
+    Friseur ist fertig mit Kunde "cust-2"
     Friseur bedient Kunde "cust-3"
     Kunde "cust-4" betritt den Laden
     Kunde "cust-4" nimmt Platz und wartet
-    Schließen des Ladens
-    Friseur fertig mit Kunde "cust-3"
+    Das Geschäft schließt
+    Friseur ist fertig mit Kunde "cust-3"
     Friseur bedient Kunde "cust-4"
-    Friseur fertig mit Kunde "cust-4"
-    Laden geschlossen
+    Friseur ist fertig mit Kunde "cust-4"
+    Das Geschäft ist geschlossen
 
 .play algorithms/fun/barber.go
 
 * Häufigkeit
 
-Dieses Beispielprogramm zeigt, wie man eine Funktion implementiert, die die Häufigkeit eines bestimmten Runen in einem Satz ermittelt.
+Dieses Beispielprogramm zeigt, wie man eine Funktion implementiert, 
+die die Häufigkeit eines bestimmten Runensymbols in einem Satz ermittelt.
 
 - Sequenziell: Ein linearer Algorithmus zur Durchführung einer Runenzählung.
-- Nebenläufig: Ein nebenläufiger Algorithmus zur Durchführung einer Runenzählung.
+- Parallel: Ein paralleler Algorithmus zur Durchführung einer Runenzählung.
 
 .play algorithms/fun/freq_sequential.go
 .play algorithms/fun/freq_concurrent.go
 
-* Variable Length Quantity Codierung/Dekodierung
+* Kodierung/Dekodierung für variable längencodierte Grössen [Variable Length Quantity (VLQ)]
 
-Dieses Beispielprogramm zeigt, wie Go genutzt werden kann, um variable Length Quantity Codierung/Dekodierung zu implementieren.
+In diesem Beispielprogramm wird gezeigt, wie man mit Go die Kodierung/Dekodierung 
+von variablen längencodierten Grössen (variable length quantity encoding/decoding) umsetzen kann.
 
 - Mehr dazu unter [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-Kurz gesagt, das Ziel dieser Codierung ist es, Integer-Werte so zu speichern, dass Bytes eingespart werden. Nur die ersten 7 Bits jedes Bytes sind signifikant (rechtsbündig; ähnlich wie ein ASCII-Byte). Wenn man also einen 32-Bit-Wert hat, muss man ihn in eine Reihe von 7-Bit-Bytes zerlegen. Natürlich hat man je nach Integer eine variable Anzahl von Bytes. Um anzugeben, welches das letzte Byte der Serie ist, lässt man Bit #7 frei. In allen vorhergehenden Bytes setzt man Bit #7.
+Kurz gesagt, das Ziel dieser Codierung ist es, ganzzahlige (Integer) Werte so zu speichern, dass Bytes eingespart werden. 
+Nur die ersten 7 Bits jedes Bytes sind wichtig (rechtsbündig; ähnlich wie ein ASCII-Byte). 
+Wenn man also einen 32-Bit-Wert hat, muss man ihn in eine Reihe von 7-Bit-Bytes zerlegen. 
+Natürlich hat man je nach Ganzzahl (Integer) eine variable Anzahl von Bytes. 
+Um anzugeben, welches das letzte Byte der Serie ist, lässt man Bit #7 frei. 
+In allen vorhergehenden Bytes legt man Bit #7 fest.
 
-Wenn also ein Integer zwischen 0-127 liegt, kann er als ein Byte dargestellt werden. Der größte erlaubte Integer ist 0FFFFFFF, was sich in 4 Bytes variable Length übersetzt. Hier sind Beispiele von Delta-Zeiten als 32-Bit-Werte und die variablen Length-Quantitäten, in die sie übersetzt werden:
+Wenn also eine Ganzzahl (Integer) zwischen 0-127 liegt, kann diese Ganzzahl als ein Byte dargestellt werden. 
+Die größte erlaubte Ganzzahl (Integer) ist 0FFFFFFF, was sich in 4 Bytes variabler Länge übersetzt. 
+Hier sind Beispiele von Delta-Zeiten als 32-Bit-Werte und die variablen längencodierten Grössen, 
+in die sie übersetzt werden:
 
-    NUMBER        VARIABLE QUANTITY
+    NUMBER        VARIABLE GRÖSSE
     00000000              00
     00000040              40
     0000007F              7F
@@ -73,7 +90,13 @@ Wenn also ein Integer zwischen 0-127 liegt, kann er als ein Byte dargestellt wer
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-Eine variable Length Quantity (VLQ) ist ein universeller Code, der eine beliebig große Anzahl von binären Oktetten (acht Bit Bytes) verwendet, um eine beliebig große Ganzzahl darzustellen. Sie wurde für die Verwendung im standard MIDI-Dateiformat definiert, um zusätzlichen Platz für ein ressourcenbeschränktes System zu sparen, und wird auch im späteren Extensible Music Format (XMF) verwendet. Ein VLQ ist im Wesentlichen eine Basis-128-Darstellung einer vorzeichenlosen Ganzzahl mit dem Zusatz des achten Bits, um die Fortsetzung der Bytes zu markieren. Siehe das Beispiel unten.
+Eine Variable Length Quantity (VLQ) ist ein universeller Code, der eine beliebige Anzahl 
+von Binäroktetten (Acht-Bit-Bytes) verwendet, um eine beliebig große Ganzzahl darzustellen.
+Er wurde für die Verwendung im standardisierten MIDI-Dateiformat definiert, um zusätzlichen Speicherplatz für 
+ein ressourcenbeschränktes System zu sparen, und wird auch im späteren Extensible Music Format (XMF) verwendet.
+Ein VLQ ist im Wesentlichen eine Basis-128-Darstellung einer vorzeichenlosen 
+Ganzzahl mit der Hinzufügung des achten Bits, um die Fortsetzung der Bytes zu markieren. 
+Siehe das Beispiel unten.
 
 	Int:    16384
 	IntHex: 0x00004000
@@ -81,21 +104,25 @@ Eine variable Length Quantity (VLQ) ist ein universeller Code, der eine beliebig
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Angenommen, ich möchte die Zahl 3435 in VLQ darstellen. 3435 in Binär ist 110101101011. Wir können dies nicht in ein Byte passen. Also teilen wir es vom Ende her in 7-Bit-Blöcke auf.
+Angenommen, ich möchte die Zahl 3435 in VLQ darstellen. 3435 in Binär ist 110101101011. 
+Wir können dies nicht in ein Byte packen. Also teilen wir es vom Ende her in 7-Bit-Blöcke auf.
 
     Septet	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-Nun fügen wir allen bis auf dem letzten einen 1-Bit hinzu, um anzuzeigen, dass ein Oktett folgt, und dem letzten einen 0-Bit, um das letzte Oktett zu signalisieren.
+GPT
+Jetzt fügen wir allen bis auf dem letzten einen 1-Bit voran, um zu signalisieren, 
+dass ein weiteres Oktett folgt, und fügen dem letzten einen 0-Bit voran, 
+um das finale Oktett zu kennzeichnen.
 
     Oktett   8	7	6	5	4	3	2	1
     #1      0	1	1	0	1	0	1	1
     #2      1	0	0	1	1	0	1	0
 
-Schließlich fügen wir sie, mit dem signifikantesten Oktett zuerst, zu
+Zum Schluss verketten wir sie, beginnend mit dem signifikantesten Oktett, zu
 
-Kodiert: 10011010 01101011  ToHex: 0x9A 0x6B
+Kodiert: 10011010 01101011  ZuHex: 0x9A 0x6B
 
 *Zusätzliche* *Ressourcen:*
 

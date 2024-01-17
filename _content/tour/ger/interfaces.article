@@ -109,11 +109,11 @@ konkreten Typ der eine Interface implementiert handelt, gibt es keine Ausnahme.
 Der Code deklariert einen Typ namens file und dann eine Methode namens read. Aufgrund 
 dieser beiden Deklarationen kann man folgendes sagen:
 
-"Die konkrete Typdatei implementiert nun die Leserschnittstelle unter Verwendung der Wertesemantik"
+"Die konkrete Typdatei implementiert nun das Reader-Interface unter Verwendung der Wertesemantik"
 
-Jedes Wort das gesagt wird ist wichtig. In Go müsst ihr nur den gesamten Methodensatz 
-des durch eine Interface definierten Verhaltens deklarieren, um diese Schnittstelle zu implementieren. In diesem Fall ist das
-was ich in diesem Fall getan habe, da die Leserschnittstelle nur einen einzigen Verhaltensakt namens read deklariert.
+Jedes Wort, das gesagt wird, ist wichtig. In Go müsst ihr nur den gesamten Methodensatz deklarieren
+des durch eine Interface definierten Verhaltens deklarieren, um dieses interface zu implementieren. In diesem Fall ist das
+was ich in diesem Fall getan habe, da das Reader-Interface nur einen einzigen Verhaltensakt namens read deklariert.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -133,7 +133,7 @@ In diesem Code wird ein Typ namens pipe deklariert und dann eine Methode namens 
 
 "Der konkrete Typ Pipe implementiert jetzt das Interface mit Wertesemantik".
 
-Jetzt haben wir zwei konkrete Typen, welche die Leserschnittstelle implementieren. Zwei konkrete Typen
+Jetzt haben wir zwei konkrete Typen, welche das Reader-Interface implementieren. Zwei konkrete Typen
 jeder mit seiner eigenen Implementierung. Ein Typ liest Dateisysteme und der andere
 Netzwerke.
 
@@ -174,7 +174,7 @@ sondern nach der Grundlage dessen, was die Daten tun können (Interfacestyp).
 
 Ihr könnt zwei konkrete Werte konstruieren, einen vom Typ file und einen vom Typ pipe. Dann
 könnt ihr eine Kopie jedes Wertes an die polymorphe Funktion übergeben. Dies ist möglich, weil jeder
-dieser Werte den gesamten Methodensatz des durch die Leserschnittstelle definierten Verhaltens implementiert.
+dieser Werte den gesamten Methodensatz des durch das Reader-Interface definierten Verhaltens implementiert.
 
 Wenn der Wert des konkreten Typ file an retrieve übergeben wird, wird der Wert in einem
 zwei Worte umfassenden internen Typs gespeichert, der den Interfaceswert darstellt.

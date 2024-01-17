@@ -47,7 +47,7 @@ Die Funktion notify ist mit einem Werteempfänger implementiert. Das bedeutet, d
 unter Wertesemantik operiert und mit ihrer eigenen Kopie des Wertes arbeite.
 
 Die Funktion changeEmail ist mit einem Zeigerempfänger implementiert. Das bedeutet, dass die
-Methode Zeiger-Semantik operiert auf den gemeinsamen Wert zugreift der auch für den Aufruf verwendet wird.
+Methode mit Zeiger-Semantik operiert und auf den gemeinsamen Wert zugreift der auch für den Aufruf verwendet wird.
 
 Abgesehen von einigen wenigen Ausnahmen sollte ein Methodensatz für einen Typ keine Mischung aus
 Wert- und Zeigerempfängern enthalten. Die semantische Konsistenz der Daten ist von entscheidender Bedeutung
@@ -92,7 +92,7 @@ Ich bin froh, dass man das nicht tun muss, um Methodenaufrufe in Go zu machen.
 ** Semantische Leitlinie für interne Datentypen
 
 Wenn es sich bei den Daten, mit denen ich arbeite, um einen internen Typ handelt (Slice, Map,
-Kanal, Funktion, Schnittstelle), dann Verwendet die Wertesemantik, um die Daten im
+Channel, Funktion, Interface), dann Verwendet die Wertesemantik, um die Daten im
 Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Typen. Wenn ich jedoch Lese
 -und Schhreiberechte gebraucht werden, müsst ihr daran denken, die Zeigersemantik zu verwende.
 
@@ -100,7 +100,7 @@ Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Ty
     type IPMask []byte
 
 Diese Typen werden im Netzpaket deklariert, das Teil der Standardbibliothek ist.
-Sie werden mit einem zugrundeliegenden Typen deklariert, der eine Scheibe von Bytes ist. Aus diesem Grund
+Sie werden mit einem zugrundeliegenden Typen deklariert, der eine Slice von Bytes ist. Aus diesem Grund
 folgen diese Typen den Richtlinien für interne Typen.
 
     func (ip IP) Mask(mask IPMask) IP {
@@ -149,7 +149,7 @@ die Unmarshaling oder Dekodierung durchführt.
 
 ** Datensemantische Leitlinie für Strukturtypen
 
-Wenn es sich bei den Daten, mit denen wir arbeite, um einen Strukturtyp handelt, müsst ihr
+Wenn es sich bei den Daten, mit denen wir arbeiten, um einen Strukturtyp handelt, müsst ihr
 was die Daten betrifft eine Entscheidung treffen. Eine gute allgemeine Regel ist
 zu fragen, ob die Struktur Daten oder eine API repräsentiert. Wenn die Struktur Daten repräsentiert, verwendet 
 Wert-Semantik. Wenn die Struktur eine API darstellt, Verwendet die Zeigersemantik.
@@ -210,7 +210,7 @@ von int64.
     func (t *Time) UnmarshalText(data []byte) error {}
 
 Diese vier Methoden aus dem Time-Paket scheinen die Regeln für die semantische Datenkonsistenz zu verletzen.
-Sie verwenden Zeigersemantik, warum? Weil sie eine Schnittstelle implementieren,
+Sie verwenden Zeigersemantik, warum? Weil sie ein interface implementieren,
 bei der die Methodensignatur miteingeschlossen ist. Da die Implementierung
 eine Mutation erfordert, ist die Zeigersemantik die einzige Wahl.
 
@@ -414,7 +414,7 @@ Diese Datensemantiken sind real und beeinflussen das Verhalten.
 ** Extra Lesen
 
 - [[https://golang.org/doc/effective_go.html#methods][Methoden]]
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, Schnittstellen und eingebettete Typen in Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, interfaces und eingebettete Typen in Go]] - William Kennedy
 - [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Fehler bei der Escape-Analyse]] - William Kennedy
 		 
 * Übungen
