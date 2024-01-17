@@ -1,29 +1,29 @@
-Channels
-Channels allow goroutines to communicate with each other through the use of signaling semantics.
+Каналы
+Каналы позволяют горутинам взаимодействовать друг с другом с помощью сигнальной семантики.
 
-* Channels
+* Каналы
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Смотреть видео]]
+Если вам нужна финансовая помощь - заполните нашу [[https://www.ardanlabs.com/scholarship/][заявку на стипендию]]
 
-It’s important to think of a channel not as a data structure, but as a mechanic for
-signaling. This goes in line with the idea that you send and receive from a channel,
-not read and write. If the problem in front of you can’t be solved with signaling,
-if the word signaling is not coming out of your mouth, you need to question the use of
-channels.
+Важно думать о канале не как о структуре данных, а как о механизме для
+передачи сигналов. Это согласуется с идеей, что вы отправляете и получаете из канала,
+а не читаете и записываете. Если проблема, стоящая перед вами, не может быть решена с помощью сигнализации,
+если слово "сигнализация" не сходит с ваших уст, вам нужно поставить под сомнение использование
+каналов.
 
-** Code Review
+** Обзор кода
 
-- *Example* *1:* Wait for result
-- *Example* *2:* Fan out
-- *Example* *3:* Wait for task
-- *Example* *4:* Pooling
-- *Example* *5:* Fan out semaphore
-- *Example* *6:* Bounded work pooling
-- *Example* *7:* Drop
-- *Example* *8:* Cancellation
-- *Example* *9:* Retry timeout
-- *Example* *10:* Channel cancellation
+- *Пример* *1:* Дождитесь результата
+- *Пример* *2:* Веерный выход
+- *Пример* *3:* Ожидание задачи
+- *Пример* *4:* Пул
+- *Пример* *5:* Веерный выход с семафором
+- *Пример* *6:* Ограниченный пул работ
+- *Пример* *7:* Отбрасывание
+- *Пример* *8:* Отмена
+- *Пример* *9:* Время ожидания перед повторной попыткой
+- *Пример* *10:* Отмена с помощью канала
 
 .play channels/example1.go
 .play channels/example2.go
@@ -36,166 +36,165 @@ channels.
 .play channels/example9.go
 .play channels/example10.go
 
-** Channel Mechanics
+** Механика канала
 
-The cost of having the guarantee at the signaling level is unknown latency. The
-sender won’t know how long they need to wait for the receiver to accept the signal.
-Having to wait for the receiver creates blocking latency. In this case, unknown
-amounts of blocking latency. The sender has to wait, for an unknown amount of time,
-until the receiver becomes available to receive the signal.
+Ценой гарантии на сигнальном уровне является неизвестная задержка. Отправитель 
+не знает, как долго ему придется ждать, пока получатель примет сигнал.
+Необходимость ждать получателя создает задержку из-за блокировки. 
+В этом случае количество задержек из-за блокировки неизвестно. Отправителю приходится ждать неизвестно сколько времени,
+пока приемник не станет доступен для приема сигнала.
 
-Waiting for the receiver means mechanically, the receive operation happens before
-the send. With channels, the receive happens nanoseconds before, but it’s before.
-This means the receiver takes the signal and then walks away, allowing the sender
-to now move on with a guarantee.
+Ожидание получателя означает, что механически операция получения происходит раньше
+отправки. В каналах прием происходит на наносекунды раньше, но это раньше.
+Это означает, что получатель принимает сигнал и уходит, позволяя отправителю
+продолжить работу с гарантией.
 
-What if the process can’t wait for an unknown amount of time? What if that kind of
-latency won’t work? Then the guarantee can’t be at the signaling level, it needs
-to be outside of it. The mechanics behind this working is that the send now happens
-before the receive. The sender can perform the signal without needing the receiver
-to be available. So the sender gets to walk away and not wait. Eventually, you hope,
-the receiver shows up and takes the signal.
+А что, если процесс не может ждать неизвестное количество времени? Что, если такая
+задержка не сработает? Тогда гарантия не может быть на уровне сигнала, она должна быть
+быть вне его. Механика этой работы заключается в том, что отправка теперь происходит
+до получения. Отправитель может выполнить сигнал, не нуждаясь в том, чтобы получатель 
+был доступен. Таким образом, отправитель может уйти и не ждать. В конце концов, вы надеетесь,
+что получатель появится и примет сигнал.
 
-This is reducing latency cost on the send, but it’s creating uncertainty about signals
-being received and therefore knowing if there are problems upstream with receivers.
-This can create the process to accept work that never gets started or finished. It
-could eventually cause massive back pressure and systems to crash.
+Это снижает затраты на задержку при отправке, но создает неопределенность в отношении сигналов
+и, следовательно, не известно, есть ли проблемы с получателем.
+Это может привести к принятию работы, которая так и не будет начата или закончена. Это
+В конечном итоге это может привести к огромному обратному давлению и отказу систем.
 
-The second thing to focus on is, do you need to send data with the signal? If the signal
-requires the transmission of data, then the signaling is a 1 to 1 between Goroutines.
-If a new Goroutine needs to receive the signal as well, a second signal must be sent.
+Второе, на чем следует сосредоточиться, - нужно ли вам передавать данные вместе с сигналом? Если сигнал
+требует передачи данных, то сигнал передается между горутинами по схеме 1 к 1.
+Если новая горутина должна получить сигнал, необходимо отправить второй сигнал.
 
-If data doesn’t need to be transmitted with the signal, then the signal can be a 1 to
-1 or 1 to many between Goroutines. Signaling without data is primarily used for
-cancellation or shutdowns. It’s done by closing the channel.
+Если при передаче сигнала не требуется передача данных, то сигнал может быть 1 к
+1 или 1 ко многим между горутинами. Сигнал без данных используется в основном для
+отмены или отключения. Это делается путем закрытия канала.
 
-The third thing to focus on is channel state. A channel can be in 1 of 3 states.
+Третье, на чем следует сосредоточиться, - это состояние канала. Канал может находиться в одном из трех состояний.
 
-A channel can be in a nil state by constructing the channel to its zero value state.
-Sends and receives against channels in this state will block. This is good for situations
-where you want to implement short term stoppages of work.
+Канал может находиться в состоянии nil, если установить его в состояние нулевого значения.
+Отправка и получение по каналам в этом состоянии будут блокироваться. Это хорошо подходит для ситуаций.
+когда необходимо реализовать кратковременные остановки работы.
 
-A channel can be in an open state by using the built-in function make. Sends and
-receives against channels in this state will work under the following conditions:
+Канал можно перевести в открытое состояние с помощью встроенной функции make. Отправка и
+получение по каналам в этом состоянии будут работать при следующих условиях:
 
-*Unbuffered* *Channels:*
+*Небуферизованные* *Каналы:*
 
-- Guarantees at the signaling level with the receive happening before send. Sending
-and receiving Goroutines need to come together in the same space and time for a
-signal to be processed.
+- Гарантии на уровне сигналов с получением перед отправкой. Отправляющая
+и получающая горутины должны сойтись в одном месте и времени, чтобы
+чтобы сигнал был обработан.
 
-*Buffered* *Channels:*
+*Буферизованные* *Каналы:*
 
-- Guarantees outside of the signaling level with the send happening before the
-receive. If the buffer is not full, sends can complete else they block. If the
-buffer is not empty, receives can complete else they block.
+- Гарантии вне сигнального уровня с отправкой перед получением. Если буфер не заполнен, отправка может завершиться, иначе она блокируется. Если
+буфер не пуст, получатели могут завершить передачу, иначе они блокируются.
 
-A channel can be in a closed state by using the built-in function close. You don’t
-need to close a channel to release memory, this is for changing the state. Sending
-on a closed channel will cause a panic, however receiving on a closed channel
-will return immediately.
+Канал может быть переведен в закрытое состояние с помощью встроенной функции close. Вам не
+нужно закрывать канал для освобождения памяти, этот механизм служит для изменения состояния. Отправка
+в закрытый каналу вызовет панику, однако прием из закрытого канала
+произойдет немедленно.
 
-With all this information, you can focus on channel patterns. The focus on signaling
-is important. The idea is, if you need a guarantee at the signaling level or not,
-based on latency concerns. If you need to transmit data with the signal or not, based
-on handling cancellations or not. You want to convert the syntax to these semantics.
+Получив всю эту информацию, вы можете сосредоточиться на шаблонах каналов. Фокус на сигнализации
+очень важен. Идея заключается в том, нужна ли вам гарантия на уровне сигналов или нет,
+исходя из соображений задержки. Нужно ли передавать данные вместе с сигналом или нет, основываясь
+обрабатывать отмены или нет. Вы хотите преобразовать синтаксис в эту семантику.
 
-** Design Guidelines
+** Руководство по проектированию
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][design guidelines]] for channels.
+- Ознакомьтесь с [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design]] [рекомендациями по проектированию]] для каналов.
 
-** Diagrams
+** Диаграммы
 
-*Guarantee* *Of* *Delivery*
+*Гарантия* *Доставки*
 
-The `Guarantee Of Delivery` is based on one question: “Do I need a guarantee that
-the signal sent by a particular goroutine has been received?”
+В основе ``Гарантии доставки`` лежит один вопрос: "Нужна ли мне гарантия того, что
+сигнал, посланный конкретной горутиной, был получен?"
 
 .image /tour/eng/static/img/guarantee_of_delivery.png
 
-*Signaling* *With* *Or* *Without* *Data*
+*Сигнализация* *С* *Или* *Без* *Данных*
 
-When you are going to signal `with` data, there are three channel configuration
-options you can choose depending on the type of `guarantee` you need.
+Если вы собираетесь подавать сигнал `с данными`, есть три варианта конфигурации канала
+в зависимости от типа `гарантии`, которая вам нужна.
 
 .image /tour/eng/static/img/signaling_with_data.png
 
-Signaling without data serves the main purpose of cancellation. It allows one
-goroutine to signal another goroutine to cancel what they are doing and move on.
-Cancellation can be implemented using both `unbuffered` and `buffered` channels.
+Сигнализация без данных служит основной механизма отмены. Он позволяет одной
+горутине сигнализировать другой горутине, чтобы та отменила свои действия и двигалась дальше.
+Отмена может быть реализована с использованием как `небуферизованных`, так и `буферизованных` каналов.
 
 .image /tour/eng/static/img/signaling_without_data.png
 
-*State*
+*Состояние*
 
-The behavior of a channel is directly influenced by its current `State`. The
-state of a channel can be `nil`, `open` or `closed`.
+Поведение канала напрямую зависит от его текущего `состояния`. 
+Состояние канала может быть `nil`, `open` (открыт) или `closed` (закрыт).
 
 .image /tour/eng/static/img/state.png
 
-** Extra Reading
+** Дополнительное чтение
 
-- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
-- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
-- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand    
-- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy    
-- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
-- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - Уильям Кеннеди  
+- [[https://golang.org/ref/mem#tmp_7][Коммуникация каналов]]    
+- [[http://blog.golang.org/share-memory-by-communicating][Делимся памятью, общаясь]] - Эндрю Джерранд    
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][Природа каналов в Go]] - Уильям Кеннеди    
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][Ретроспектива SEDA]] - Мэтт Уэлш    
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Понимание каналов]] - Kavya Joshi    
 
 ** Buffer Bloat - 2011
 
-Be careful about using large buffers with the idea of reducing latency.
+Будьте осторожны с использованием больших буферов с целью снижения задержки.
 
-- Large buffers prevent timely notification of back pressure.
-- They defeat your ability to reduce back pressure in a timely matter.
-- They can increase latency not reduce it.
-- Use buffered channels to provide a way of maintaining continuity.
-- Don't use them just for performance.
-- Use them to handle well defined bursts of data.
-- Use them to deal with speed of light issues between handoffs.
+- Большие буферы препятствуют своевременному оповещению об обратной нагрузке.
+- Они лишают вас возможности своевременно снижать обратную нагрузку.
+- Они могут увеличить задержку, а не уменьшить ее.
+- Используйте буферизованные каналы для обеспечения непрерывности.
+- Не используйте их только для повышения производительности.
+- Используйте их для обработки четко определенных всплесков данных.
+- Используйте их для решения проблем скорости света между передачами.
 
-*Videos*
+*Видео*
 
-- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: темные буферы в Интернете]]  
 - [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Приведены возможные решения.
 
-** Exercise 1
+** Упражнение 1
 
-Write a program where two goroutines pass an integer back and forth ten times.
-Display when each goroutine receives the integer. Increment the integer with each
-pass. Once the integer equals ten, terminate the program cleanly.
+Напишите программу, в которой две горутины передают целое число туда и обратно десять раз.
+Выведите на экран момент получения целого числа каждой горутиной. Увеличивайте целое число при каждом
+передаче. Как только целое число станет равным десяти, завершите программу.
 
 .play channels/exercise1.go 
 .play channels/answer1.go
 
-** Exercise 2
+** Упражнение 2
 
-Write a program that uses a fan out pattern to generate 100 random numbers concurrently.
-Have each goroutine generate a single random number and return that number to the main
-goroutine over a buffered channel. Set the size of the buffer channel so no send ever
-blocks. Don't allocate more buffers than you need. Have the main goroutine display each
-random number it receives and then terminate the program.
+Напишите программу, которая использует шаблон веерной генерации для одновременной генерации 100 случайных чисел.
+Пусть каждая горутина генерирует одно случайное число и возвращает его главному,
+буферизованному каналу. Установите размер буфера канала так, чтобы ни одна отправка никогда не
+блокировалась. Не выделяйте буфер больше, чем вам нужно. Пусть главная горутина отображает каждое
+случайное число, которое она получает, а затем завершает программу.
 
 .play channels/exercise2.go 
 .play channels/answer2.go
 
-** Exercise 3
+** Упражнение 3
 
-Write a program that generates up to 100 random numbers concurrently. Do not send
-all 100 values so the number of sends/receives is unknown.
+Напишите программу, которая одновременно генерирует до 100 случайных чисел. Не отправляйте
+все 100 значений, поэтому количество отправленных/полученных чисел неизвестно.
 
 .play channels/exercise3.go 
 .play channels/answer3.go
  
-** Exercise 4
+** Упражнение 4
 
-Write a program that generates up to 100 random numbers concurrently using a worker
-pool. Reject even values. Instruct the workers to shutdown with 100 odd numbers have
-been collected.
+Напишите программу, которая одновременно генерирует до 100 случайных чисел, используя пул
+работ. Отклоняйте четные значения. Прикажите рабочим прекратить работу, когда 100 нечетных чисел 
+собраны.
 
 .play channels/exercise4.go 
 .play channels/answer4.go
