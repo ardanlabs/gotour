@@ -26,33 +26,17 @@ Christiane:
 
 - [ ] composition-grouping.article
 
-Borja:
+- [ ] composition-mocking.article (neu: word count 97)
 
-- [ ] composition-mocking.article
+- [ ] composition-pollution.article (neu: word count 86)
 
-- [ ] composition-pollution.article
+- [ ] constants.article (neu: word count 180)
 
-- [ ] constants.article
+- [ ] context.article (neu: word count 525)
 
-- [ ] context.article
+- [ ] data_race.article (neu: word count 565)
 
-- [ ] data_race.article
-
-- [ ] embedding.article
-
-- [ ] error-handling.article
-
-- [ ] exporting.article
-
-- [ ] functions.article
-
-- [ ] generics-basics.article
-
-- [ ] generics-behavior-constraints.article
-
-- [ ] generics-channels.article
-
-- [ ] generics-hash-table.article
+- [ ] embedding.article (neu: word count 205)
 
 Dominik:
 
@@ -83,3 +67,17 @@ Dominik:
 - [x] variables.article
 
 - [x] welcome.article
+
+- [ ] error-handling.article (neu: word count 450)
+
+- [ ] exporting.article (neu: word count 182)
+
+- [ ] functions.article (neu: word count 349)
+
+- [ ] generics-basics.article (neu: word count 114)
+
+- [ ] generics-behavior-constraints.article (neu: word count 107)
+
+- [ ] generics-channels.article (neu: word count 178)
+
+- [ ] generics-hash-table.article (neu: word count 349)
