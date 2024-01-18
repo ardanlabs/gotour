@@ -7,7 +7,7 @@ Exportieren bietet die Möglichkeit zu deklarieren, ob ein Bezeichner für Code 
 - Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Exportieren bietet die Möglichkeit zu bestimmen, ob ein Bezeichner auch  
-außerhalb des Pakets, in dem er deklariert wurde, zugänglich ist.
+außerhalb des Pakets in dem er deklariert wurde zugänglich ist.
 
 ** Code-Überprüfung
 
@@ -33,7 +33,7 @@ bestimmt den Zugriff auf Bezeichner über Paketgrenzen hinaus.
 
     type AlertCounter int
 
-Da in diesem Fall ein Großbuchstaben verwendet werden, um den Typ AlterCounter zu benennen,
+Da in diesem Fall ein Großbuchstaben verwendet wurde, um den Typ AlterCounter zu benennen,
 ist der Typ exportiert und kann direkt von Code außerhalb des Zähler-Paket referenziert werden.
 
     package counters
@@ -84,9 +84,9 @@ sollte er von einem exportierten Typ sein.
         password string
     }
 
-Wenn es um Felder in einem struct geht, gibt der erste Buchstabe an, ob das Feld
-für Code außerhalb des Pakets, in dem es deklariert wurde, zugänglich ist. In diesem Fall sind Name
-und ID zugänglich, aber Passwort nicht. Es ist common Practice, exportierte
+Wenn es um Felder in einem struct geht, gibt der erste Buchstabe an ob das Feld
+für Code außerhalb des Pakets in dem es deklariert wurde zugänglich ist. In diesem Fall sind Name
+und ID zugänglich aber Passwort nicht. Es ist common Practice exportierte
 und nicht exportierte Felder auf diese Weise zu trennen, wenn dies sinnvoll oder praktisch ist.
 Normalerweise würden alle Felder entweder das Eine oder das Andere sein.
 
@@ -104,13 +104,13 @@ Normalerweise würden alle Felder entweder das Eine oder das Andere sein.
 
 In diesem Szenario hat der user Typ, obwohl er nicht exportiert wird, zwei exportierte
 Felder. Das bedeutet, dass die user Felder beim Einbetten des user Typs in den exportierten Managertyp
-eingebettet sind, werden die user Felder werden befördert und sind zugänglich. Es ist üblich Nicht-exportierte 
+eingebettet sind. Nun werden die user Felder befördert und sind zugänglich. Es ist üblich Nicht-exportierte 
 Typen mit exportierten Feldern zu haben, da das reflection package nur mit exportierten Feldern arbeiten kann. 
 Sonst würden Marshallers nicht funktionieren.
 
-Das Beispiel schafft eine schlechte Situation, in der Code außerhalb von Paketbenutzern einen Manager konstruieren kann,
-aber da der eingebettete Typ user nicht exportiert wird, können die Felder für diesen Typ
-initialisiert werden. Dies führt zu partiellen Konstruktionsproblemen, die zu Fehlern führen.
+Das Beispiel schafft eine schlechte Situation, in der Code außerhalb von Paketbenutzern einen Manager konstruieren kann.
+Da aber der eingebettete Typ user nicht exportiert wird, können die Felder für diesen Typ
+initialisiert werden. Dies führt zu partiellen Konstruktionsproblemen die zu Fehlern führen.
 Sie müssen beim Exportieren und Nichtexportieren konsistent sein.
 
 ** Anmerkungen

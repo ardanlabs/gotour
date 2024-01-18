@@ -14,7 +14,7 @@ muss ein Hauptaugenmerk sein.
 Die Entwickler haben die Verantwortung, genügend Kontext über jeden Fehler zu liefern, damit ein
 Benutzer eine fundierte Entscheidung treffen kann, wie er weiter vorgehen soll. Bei der Behandlung eines Fehlers
 geht es um drei Dinge: den Fehler protokollieren, den Fehler nicht weiter verbreiten und
-Feststellung, ob die Goroutine/das Programm beenden soll.
+Feststellen, ob die Goroutine/das Programm beenden soll.
 
 In Go sind Fehler einfach nur Werte, die alles sein können. Ihr 
 könnt jeden Zustand oder jedes Verhalten beibehalten.
@@ -66,10 +66,10 @@ errors-Paket der Standardbibliothek. Beachtet , dass der Typ nicht exportiert is
 ein nicht exportiertes Feld beinhält, das ein String ist. Ihr könnt auch sehen, wie die Zeigersemantik
 verwendet wird, um die Fehlerschnittstelle zu implementieren.
 Das heisst: Nur Adressen auf Werte dieses Typs können in diesem Interface gespeichert werden. 
-Die Methode gab gerade den Fehlerstring zurück.
+Die Methode gibt gerade den Fehlerstring zurück.
 
 Es ist wichtig, daran zu denken dass die Implementierung der Error-Methode dem Zweck
-der Schnittstellen-Implementierun und der Protokollierung dient. Wenn ein Benutzer die von dieser Methode
+der Schnittstellen-Implementierung und der Protokollierung dient. Wenn ein Benutzer die von dieser Methode
 zurückgegebene Zeichenkette analysiert werden muss, habt Ihr es versäumt, dem Benutzer die
 Kontext zu liefern, damit er eine fundierte Entscheidung treffen kann.
 
@@ -107,12 +107,10 @@ ob bei diesem Aufruf ein Fehler aufgetreten ist.
 
 Der Schlüssel zur Prüfung ist err != nil. Diese Bedingung besagt, ob ein 
 konkreter Wert innerhalb des err-Schnittstellenwertes gespeichert ist. Wenn der Schnittstellenwert
-einen konkreten Wert speichert, liegt ein Fehler vor. In diesem Fall ist der Kontext buchstäblich
-nur die Tatsache, dass ein konkreter Wert existiert, es ist nicht wichtig was der konkrete
+einen konkreten Wert speichert, liegt ein Fehler vor. In diesem Fall sagt uns der Kontext, dass ein konkreter Wert existiert, es ist unwichtig was der konkrete
 Wert ist.
 
-Was ist, wenn es wichtig ist zu wissen, welcher Fehlerwert in der Schnittstellenvariable err
-steht? Dann sind Fehlervariablen eine gute Option.
+Wenn es wichtig ist zu wissen, welcher Fehlerwert in der Schnittstellenvariable err steht, sind Fehlervariablen eine gute Option.
 
     var (
         ErrBadRequest = errors.New("Bad Request")
@@ -174,7 +172,7 @@ die Antwort.
     }
 
 Dies ist ein benutzerdefinierter konkreter Fehlertyp, der im json-Paket implementiert ist. Beachtet, dass der
-Name hat ein Suffix von Error in der Benennung des Typs beinhält. Beachtet auch die Verwendung von
+Name den Suffix Error in der Benennung des Typs beinhält. Beachtet auch die Verwendung von
 Zeigersemantik für die Implementierung der Fehlerschnittstelle. Auch hier ist die
 Implementierung für die Protokollierung da und sollte Informationen über alle Felder anzeigen.
 
@@ -204,7 +202,7 @@ Zeiger-Semantik zu verwenden.
         return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
     }
 
-Hier ist ein Teil der Unmarshal-Funktion. Beachtet, wie sie die konkreten
+Hier ist ein Teil der Unmarshal-Funktion. Beachtet wie diese die konkreten
 Fehlerwerte in der Rückgabe konstruiert und sie über die Fehlerschnittstelle an den Aufrufer zurückgibt.
 Es wird eine semantische Zeigerkonstruktion verwendet, da die Zeigersemantik in der Deklaration der Methode Error verwendet wurde.
 
@@ -230,8 +228,8 @@ Fehlerschnittstelle gespeichert ist. Es muss eine Möglichkeit geben dies zu bes
     }
 
 Mit einer generischen Typ-Assertion im Rahmen der switch-Anweisung könnt Ihr
-Code schreiben, um zu testen, welcher Typ von Wert in dem Wert der err-Schnittstelle gespeichert ist.
-Der Typ ist hier der Kontext, und jetzt könnt Ihr testen und Maßnahmen ergreifen, die Zugriff auf
+Code schreiben um zu testen, welcher Typ von Wert in dem Wert der err-Schnittstelle gespeichert ist.
+Der Typ ist hier der Kontext. Jetzt könnt Ihr testen und Maßnahmen ergreifen, die Zugriff auf
 alle Zustände des Fehlers erlauben.
 
 Das bringt allerdings ein Problem mit sich. Ich bin nicht mehr vom konkreten Fehlerwert entkoppelt.
@@ -243,7 +241,7 @@ Wenn der konkrete Fehlerwert eine Methode hat, dann könnt Ihr eine Schnittstell
 die Typprüfung verwenden. Das Netzpaket hat zum Beispiel viele konkrete Fehlertypen, die
 verschiedene Methoden implementieren. Eine gängige Methode heißt Temporary. Diese Methode
 ermöglicht es dem Benutzer zu testen, ob der Netzwerkfehler kritisch ist oder nur etwas
-dasich von selbst beheben kann.
+was sich von selbst beheben kann.
 
     type temporary interface {
         Temporary() bool
@@ -274,7 +272,7 @@ dasich von selbst beheben kann.
 In diesem Code könnte der Aufruf von ReadString mit einem Fehler aus dem Netzpaket fehlschlagen.
 In diesem Fall wird eine Schnittstelle deklariert, die das allgemeine Verhalten darstellt, das ein bestimmter
 konkreter Fehlerwert implementieren könnte. Mit einer generischen Typprüfung wird dann getestet,
-ob dieses Verhalten existiert und man kann es aufrufen. Das Beste daran: Sie bleiben in einem
+ob dieses Verhalten existiert und es kann aufgerufen werden. Das Beste daran: Sie bleiben in einem
 entkoppelten Zustand mit meiner Fehlerbehandlung.
 
 ** Verwendet immer die Fehlerschnittstelle
@@ -303,7 +301,7 @@ dies tut können schlimme Dinge passieren.
 
 Ausgabe:
     
-    Warum ist das gescheitert?
+    Why did this fail?
 
 Warum glaubt dieser Code, dass ein Fehler vorliegt, obwohl die Fail-Funktion den Wert Null für
 den Fehler zurückgibt? Das liegt daran, dass die Fail-Funktion den konkreten Fehlertyp verwendet und nicht
@@ -320,7 +318,7 @@ Schweregrads und der Fähigkeit zur Wiederherstellung wird entschieden, ob der F
 Ein Problem ist, dass nicht alle Funktionen mit einem Fehler umgehen können. Ein Grund dafür könnte sein, dass
 nicht alle Funktionen protokollieren dürfen. Was passiert, wenn ein Fehler zurück
 auf den Call-Stack gereicht wird und von der Funktion, die ihn erhält nicht behandelt werden kann? Ein Fehler muss
-in einen Kontext verpackt werden, damit die Funktion, die ihn schließlich behandelt, dies ordnungsgemäß tun kann.
+in einen Kontext verpackt werden, damit die Funktion die ihn schließlich behandelt, dies ordnungsgemäß tun kann.
 
     package main
 
@@ -391,7 +389,7 @@ Ausgabe:
 - Verwendet den Standardfehlerwert für statische und einfach formatierte Meldungen.
 - Erstellt Fehlervariablen und gebt diese zurück, um dem Aufrufer zu helfen, bestimmte Fehler zu identifizieren.
 - Erstellt eigene Fehlertypen, wenn der Kontext des Fehlers komplexer ist.
-- Fehlerwerte in Go sind nichts Besonderes, sie sind einfach Werte wie alle anderen, und so steht Ihnen die gesamte Sprache zur Verfügung.
+- Fehlerwerte in Go sind nichts Besonderes, sie sind einfach Werte wie alle anderen und so steht Ihnen die gesamte Sprache zur Verfügung.
 
 ** Zitate
 

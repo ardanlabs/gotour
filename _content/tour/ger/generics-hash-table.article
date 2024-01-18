@@ -22,26 +22,26 @@ Beispiele in diesem Abschnitt der Tour.
 
 ** Erläutert
 
-Dieser Code ist etwas komplexer als das, was Ihr bisher gesehen habt. In diesem Abschnitt werdet Ihr 
+Dieser Code ist etwas komplexer als das was Ihr bisher gesehen habt. In diesem Abschnitt werdet Ihr 
 zwei Ansichten des Codes sehen. Eine vor und eine nach der Anwendung der neuen Syntax für
 Generics.
 
     type hashFunc func(key K, buckets int) int
 
-Dieser Typ deklariert eine Hash-Funktionssignatur, die von der Hash-Tabelle verwendet wird, um
+Dieser Typ deklariert eine Hash-Funktionssignatur, die von der Hash-Tabelle verwendet wird um
 eine Bucket-Position für die Speicherung und den Abruf von Daten zu berechnen. Der Benutzer muss diese Funktion implementieren
 und diese Funktion bereitstellen, wenn er eine Hash-Tabelle konstruiert. Die Funktion akzeptiert einen
-Schlüssel und die Anzahl der Buckets, aus denen sie wählen kann. Da Ihr wissen wollt, dass dieses System
-generisch sein soll, was die Schlüssel und Werte der verwendeten Typen angeht, deklariert einen Parameter
+Schlüssel und die Anzahl der Buckets aus denen sie wählen kann. Da Ihr wissen wollt dass dieses System
+generisch sein soll, was die Schlüssel und Werte der verwendeten Typen angeht, deklariert Ihr einen Parameter
 mit dem Namen key, dessen Typ der einzelne Großbuchstabe K ist.
 
-Als Nächstes könnt Ihr die Generics-Syntax anwenden, um K zu einem echten generischen Typ zu machen.
+Als Nächstes könnt Ihr die Generics-Syntax anwenden um K zu einem echten generischen Typ zu machen.
 
     type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
 
 Nach dem Typnamen fügt Ihr die eckigen Klammern mit dem generischen Typ K und einem
 constraint von comparable. Da die Werte des Schlüsseltyps in einer
-Vergleichsoperation verwendet werden müssen, ist es jetzt sinnvoll, dies zu dokumentieren, auch wenn die
+Vergleichsoperation verwendet werden müssen, ist es jetzt sinnvoll dies zu dokumentieren auch wenn die
 Implementierung der Hash-Funktion dies nicht erfordert. Konsistenz ist alles in Bezug auf
 Lesbarkeit, Verständlichkeit und Wartbarkeit im Laufe der Zeit.
 
@@ -52,7 +52,7 @@ Dieser Typ steht für ein Schlüssel/Wert-Paar von Daten, die in der Hashtabelle
         Value V
     }
 
-Die Aufgabe dieses Typs ist es, die aktuellen Daten mit dem entsprechenden Schlüssel zu speichern. Als nächstes deklariert der
+Die Aufgabe dieses Typs ist es die aktuellen Daten mit dem entsprechenden Schlüssel zu speichern. Als nächstes deklariert der
 Code ein Schlüsselfeld des Typs K und ein Wertfeld des Typs V deklariert.
 
 Jetzt könnt Ihr die Syntax der Generics anwenden, um K und V zu einem echten generischen Typ zu machen.
@@ -63,7 +63,7 @@ Jetzt könnt Ihr die Syntax der Generics anwenden, um K und V zu einem echten ge
     }
 
 Fügt nach dem Typnamen die eckigen Klammern mit den generischen Typen K und V hinzu.
-Dieser Deklaration steht K wie zuvor für den Schlüssel und V für einen Wert, der
+Dieser Deklaration steht K wie zuvor für den Schlüssel und V für einen Wert der
 alles sein kann.
 
 Dieser Typ stellt eine Hash-Tabelle dar, die eine Hash-Funktion und eine Reihe von
@@ -76,7 +76,7 @@ Bereichen für die Speicherung von Schlüssel/Wertdaten verwaltet.
     }
 
 Der Typ Tabelle hat drei Felder, eine Hash-Funktion, die Anzahl der Buckets und die
-Daten, die als ein Slice eines Slice von Schlüssel/Wert-Paaren dargestellt werden. Das äußere Slice
+Daten als ein Slice eines Slice von Schlüssel/Wert-Paaren dargestellt werden. Das äußere Slice
 repräsentiert Buckets und das innere Slice repräsentiert Schlüssel/Wertpaare, die in einem Bucket gespeichert sind.
 
 Wendet nun die Syntax der Generics an, um die generischen Schlüssel- und Werttypen zu deklarieren und
@@ -87,8 +87,7 @@ sie auf die Felddeklarationen anzuwenden.
         buckets int
         data [][]keyValuePair[K, V] <-- CHANGED
     }
-
-Fügen Sie nach dem Typnamen die eckigen Klammern mit den generischen Typen K und V hinzu.
+Fügt nach dem Typnamen die eckigen Klammern mit den generischen Typen K und V hinzu.
 hashFunc-Typdeklaration erfordert Informationen über den konkreten Typ.
 Die Deklaration des Typs keyValuePair erfordert Informationen über den konkreten
 Typ für den Schlüssel und den Wert.
@@ -109,10 +108,10 @@ Dies ist eine Factory-Funktion, die eine Tabelle zur Verwendung konstruieren kan
 
 Die Factory-Funktion akzeptiert die Anzahl der zu verwaltenden Buckets und eine Hash-Funktion
 zur Auswahl eines Bereichs für die Datenspeicherung und -suche. Wenn ein Tabellenwert
-konstruiert wird, wird die Anzahl der Buckets verwendet, um das Slices zu konstruieren, wobei die Länge
+konstruiert wird, wird die Anzahl der Buckets verwendet um das Slices zu konstruieren wobei die Länge
 des äußeren Slice auf die Anzahl der zu verwendenden Buckets gesetzt ist.
 
-Wenden Sie nun die Syntax der Generics an, um die generischen Schlüssel- und Werttypen zu deklarieren und
+Wendet nun die Syntax der Generics an um die generischen Schlüssel- und Werttypen zu deklarieren und
 sie auf die zu konstruierenden Typen anzuwenden.
 
     func New[K comparable, V any]( <-- CHANGED
@@ -128,12 +127,12 @@ sie auf die zu konstruierenden Typen anzuwenden.
     }
 
 Fügt nach dem Typnamen die eckigen Klammern und die generischen Typen K und V hinzu.
-K wird auf den Eingabeparameter hf angewendet, um die Deklaration des Typs hashFunc zu vervollständigen.
+K wird auf den Eingabeparameter hf angewendet damit die Deklaration des Typs hashFunc zu vollständig ist.
 Die Typen K und V werden auf den Typ Table angewandt, der konstruiert und zurückgegeben wird.
 Schließlich erfordert die Initialisierung des Datenfelds die Anwendung von K und V auf die
 Konstruktionssyntax für den Typ keyValuePair.
 
-Dies ist eine Methode, mit der Werte in die Hashtabelle auf der Grundlage eines bestimmten Schlüssels eingefügt werden können.
+Dies ist eine Methode mit der Werte in die Hashtabelle auf der Grundlage eines bestimmten Schlüssels eingefügt werden können.
 
     type Table[K comparable, V any] struct {
         hashFunc hashFunc[K]
@@ -160,14 +159,14 @@ Dies ist eine Methode, mit der Werte in die Hashtabelle auf der Grundlage eines 
 Die Insert-Methode ist so deklariert, dass sie einen Schlüssel und einen Wert der gleichen generischen Typen akzeptiert,
 die mit dem Typ Table deklariert wurden. Der erste Schritt des Einfügens ist die Identifizierung des
 Bucket für die Speicherung zu verwenden. Dies geschieht durch den Aufruf der Hash-Funktion mit dem
-angegebenen Schlüssel. Die Hash-Funktion gibt einen Integer-Wert zurück, der den zu verwendenden Bucket verwendet.
+angegebenen Schlüssel. Die Hash-Funktion gibt einen Integer-Wert zurück, der den zu verwendenden Bucket beinhält.
 
-Dann prüft die Funktion, ob der angegebene Schlüssel bereits verwendet wurde, um
+Dann prüft die Funktion, ob der angegebene Schlüssel bereits verwendet wurde um
 einen Wert im ausgewählten Bereich zu speichern. Wenn der Schlüssel bereits existiert, wird der Wert für diesen Schlüssel
 aktualisiert. Wird der Schlüssel nicht gefunden, wird ein neuer Wert für das Schlüssel/Wert-Paar erstellt,
 initialisiert und an das Slice für den ausgewählten Bucket angehängt.
 
-Wendet nun die Syntax der Generics an, um die generischen Schlüssel- und Werttypen zu deklarieren und
+Wendet nun die Syntax der Generics an um die generischen Schlüssel- und Werttypen zu deklarieren und
 sie auf die zu konstruierenden Typen anzuwenden.
 
     func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
@@ -187,7 +186,7 @@ sie auf die zu konstruierenden Typen anzuwenden.
     }
 
 Fügt nach dem Typnamen im Empfänger die eckigen Klammern und die generischen
-Typen K und V. Die einzige weitere Änderung besteht darin, K und V auf die Konstruktionssyntax
+Typen K und V ein. Die einzige weitere Änderung besteht darin, K und V auf die Konstruktionssyntax
 des Typs keyValuePair anzuwenden.
 
 Dies ist eine Methode, die Werte aus der Hash-Tabelle auf der Grundlage eines angegebenen Schlüssels abrufen kann.
@@ -204,13 +203,13 @@ Dies ist eine Methode, die Werte aus der Hash-Tabelle auf der Grundlage eines an
         return zero, false
     }
 
-Die Retrieve-Methode ist so deklariert, dass sie einen Schlüssel akzeptiert und eine Kopie des Wertes zurückgibt
-, der für diesen Schlüssel gespeichert ist. Der erste Schritt des Abrufs besteht darin, den Bereich zu identifizieren, der
+Die Retrieve-Methode ist so deklariert, dass sie einen Schlüssel akzeptiert und eine Kopie des Wertes zurückgibt,
+der für diesen Schlüssel gespeichert ist. Der erste Schritt des Abrufs besteht darin den Bereich zu identifizieren der
 für die Speicherung verwendet wurde. Dies geschieht durch den Aufruf der Hash-Funktion mit dem angegebenen
-Schlüssel. Die Hashfunktion gibt einen ganzzahligen Wert zurück, der den zu untersuchenden Bereich darstellt.
+Schlüssel. Die Hashfunktion gibt einen ganzzahligen Wert zurück der den zu untersuchenden Bereich darstellt.
 
 Anschließend durchläuft die Funktion die Sammlung von Schlüssel/Wertpaaren, die im
-Bucket gespeichert sind, und sucht nach dem angegebenen Schlüssel. Eins nach dem Anderen. Wenn der Schlüssel gefunden wird, wird eine Kopie des
+Bucket gespeichert sind und sucht nach dem angegebenen Schlüssel. Eins nach dem Anderen. Wenn der Schlüssel gefunden wird, wird eine Kopie des
 Wertes zurückgegeben und true an den Aufrufer übermittelt. Wenn der Schlüssel nicht gefunden wird, wird Null
 zurückgegeben und false an den Aufrufer übermittelt.
 
@@ -257,9 +256,9 @@ Beginnt mit einer Konstante, die die Anzahl der in der Hashtabelle zu verwendend
         . . .
     }
 
-Als nächstes Deklariert eine Hash-Funktion, die eine Zeichenkette als Schlüssel deklariert. Die
+Als nächstes deklariert eine Hash-Funktion, die eine Zeichenkette als Schlüssel deklariert. Die
 Implementierung verwendet das fnv-Paket aus der Standardbibliothek, das die
-FNV-1 und FNV-1a implementiert. Nicht-kryptographische Hash-Funktionen, die von Glenn Fowler,
+FNV-1 und FNV-1a implementiert. Nicht-kryptographische Hash-Funktionen die von Glenn Fowler,
 Landon Curt Noll und Phong Vo. FNV stehen für die Fowler-Noll-Vo-Hash-Funktion.
 
 Die Modulus-Operation mit dem Bucketwert erzwingt, dass der Endwert in den Bereich
@@ -278,10 +277,10 @@ den Bereich für die Anzahl der Bereiche fallen.
     }
 
 Als Nächstes konstruiert eine Hashtabelle, wobei Ihr ausdrücklich angebt, dass der Schlüssel vom Typ string
-und der Wert vom Typ int ist. Es gibt nichts in den Eingabeparametern, das dem Compiler helfen könnte
-diese Information ableiten kann.
+und der Wert vom Typ int ist. Es gibt nichts in den Eingabeparametern das dem Compiler helfen könnte
+diese Information abzuleiten.
 
-Um zu zeigen, dass es sich bei der Hash-Tabelle um eine generische Tabelle handelt, wurde eine zweite Hash
+Um zu zeigen dass es sich bei der Hash-Tabelle um eine generische Tabelle handelt, wurde eine zweite Hash
 Funktion und Tabelle erstellt.
 
     import (
@@ -302,7 +301,7 @@ Funktion und Tabelle erstellt.
 
 Diese Hash-Funktion deklariert eine ganze Zahl als Schlüssel und führt eine einfache Modulus
 Operation mit dem Bucket-Wert gegen den Schlüssel durch. Dann wird eine neue Tabelle 
-erstellt, in der der Schlüssel als Ganzzahl und der Wert als Zeichenkette angegeben ist. Die Umkehrung der
+erstellt in welcher der Schlüssel als Ganzzahl und der Wert als Zeichenkette angegeben ist. Die Umkehrung der
 ersten Tabelle.
 
     import (

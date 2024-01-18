@@ -26,9 +26,9 @@ Dies würde die Deklaration von channels und Funktionen unter Verwendung generis
 
     type workFn[Ergebnis any] func(context.Context) Ergebnis
 
-In diesem Beispiel wird ein Typ deklariert, der eine Funktion darstellt, die einen Kontext akzeptiert
+In diesem Beispiel wird ein Typ deklariert, der eine Funktion darstellt die einen Kontext akzeptiert
 und einen Wert vom generischen Typ Result zurückgibt. Diese Funktionsdeklaration beschreibt eine
-Funktion, die concurrent Arbeit die ausgeführt wird implementiert und das Resultat dieser Arbeit zurückgibt.
+Funktion, die zeitgleiche (concurrent) Arbeit ausgeführt und das Resultat dieser Arbeit zurückgibt.
 
 
     func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
@@ -42,15 +42,15 @@ Funktion, die concurrent Arbeit die ausgeführt wird implementiert und das Resul
         return ch
     }
 
-Schreibt nun eine Funktion namens doWork, die die angegebene work-Funktion 
+Schreibt nun eine Funktion namens doWork, welche die angegebene work-Funktion 
 ausführt und einen Channel zurückgibt, damit der Aufrufer das Ergebnis der Arbeit
 der Work-Funktion erhält. Ein generischer Typ namens Result wird deklariert, um
 den Rückgabetyp für die work-Funktion und den Typ für den Channel darzustellen.
 
 In der Implementierung der Funktion doWork wird ein gepufferter Channel von 1 
-vom generischen Typ Result konstruiert. Das ist der Channel, der an den Aufrufer zurückgegeben wird, um
-das Ergebnis der concurrent Arbeit zu erhalten. In der Mitte der Funktion wird eine Goroutine
-konstruiert, um die work-Funktion gleichzeitig auszuführen. Sobald die work-Funktion
+vom generischen Typ Result konstruiert. Das ist der Channel, der an den Aufrufer zurückgegeben wird um
+das Ergebnis der zeitgleichen (concurrent) Arbeit zu erhalten. In der Mitte der Funktion wird eine Goroutine
+konstruiert um die work-Funktion gleichzeitig auszuführen. Sobald die work-Funktion
 returned, wird das Rückgabeargument über den Channel an den Aufrufer zurückgeschickt.
 
 Um die Verwendung der doWork-Funktion zu testen, Erstellt ein kleines Programm.
@@ -87,21 +87,21 @@ die Zeichenfolge "work complete" zurückgibt. Mit dem Kontext und der work-Funkt
 wird doWork aufgerufen und ein Channel vom Typ string zurückgegeben und
 der Variablen result zugewiesen.
 
-Der Compiler kann den konkreten Typ bestimmen, der für den generischen Typ
-Ergebnis zu verwenden ist, indem er den Rückgabetyp der literalen work-Funktion untersucht, die an 
-die doWork-Funktion übergeben wird. Das ist genial, denn es bedeutet, dass Sie den Typ
+Der Compiler kann den konkreten Typ bestimmen der für den generischen Typ
+Ergebnis zu verwenden ist indem er den Rückgabetyp der literalen work-Funktion untersucht, welche an 
+die doWork-Funktion übergeben wird. Das ist genial denn es bedeutet, dass Sie den Typ
 beim Aufruf von doWork übergeben.
 
-Mit dem Channel vom Typ String, der der Variablen result zugewiesen ist, wird ein Select Case 
-verwendet, um auf die rechtzeitige Rückgabe des Ergebnisses oder auf das Eintreten der Zeitüberschreitung zu warten.
-Die Funktion doWork kann verwendet werden, um diese concurrent Arbeit für jeden erforderlichen konkreten Typ.
+Mit dem Channel vom Typ String welcher der Variablen result zugewiesen ist, wird ein Select Case 
+verwendet um auf die rechtzeitige Rückgabe des Ergebnisses oder auf das Eintreten der Zeitüberschreitung zu warten.
+Die Funktion doWork kann verwendet werden um diese zeitgleiche Arbeit für jeden erforderlichen konkreten Typ auszuführen.
 
-Dieselbe Idee könnte auf einen Pool von Goroutinen angewandt werden, die Arbeit an
+Dieselbe Idee könnte auf einen Pool von Goroutinen angewandt werden, welche die Arbeit an
 einer generischen Eingabe ausführen und ein generisches Ergebnis zurückgeben.
 
 type workFn[Input any, Result any] func(input Input) Ergebnis
 
-In diesem Beispiel ändern Sie den Funktionstyp so, dass er eine generische Eingabe akzeptiert und ein
+In diesem Beispiel ändern Sie den Funktionstyp so dass er eine generische Eingabe akzeptiert und ein
 allgemeines Ergebnis zurück.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
@@ -129,15 +129,15 @@ allgemeines Ergebnis zurück.
     }
 
 In der Funktion poolWork werden dieselben beiden generischen Typen deklariert, die den
-Eingabe- und Rückgabetyp für die work-Funktion repräsentieren. Eine WaitGroup wird konstruiert, um 
+Eingabe- und Rückgabetyp für die work-Funktion repräsentieren. Eine WaitGroup wird konstruiert um 
 den Lebenszyklus der Goroutinen im Pool zu verwalten. Dann wird ein Channel mit dem
-generischen Typs Input generiert. Dieser Channel wird von den Goroutinen im Pool verwendet, um die
+generischen Typs Input generiert. Dieser Channel wird von den Goroutinen im Pool verwendet um die
 Eingabedaten für die work-Funktion zu empfangen.
 
-Dann wird ein Pool von Goroutinen erstellt, wobei jede Goroutine auf eine Empfangsvorgang-Operation wartet,
-wobei eine for-range-Schleife für den Channel verwendet wird. Schließlich wird eine Abbruchfunktion
-erstellt, die es dem Aufrufer ermöglicht, den Pool zu schließen und zu warten, bis alle Goroutines
-signalisieren, dass sie beendet sind.
+Dann wird ein Pool von Goroutinen erstellt wobei jede Goroutine auf eine Empfangsvorgang-Operation wartet
+und eine for-range-Schleife für den Channel verwendet wird. Schließlich wird eine Abbruchfunktion
+erstellt, die es dem Aufrufer ermöglicht den Pool zu schließen und zu warten bis alle Goroutines
+signalisieren dass sie beendet sind.
 
 Um die Verwendung der poolWork-Funktion zu testen, wurde ein zweites kleines Programm erstellt.
 
@@ -166,11 +166,11 @@ Output:
 
 Die Größe des Pools wird auf der Grundlage der Anzahl der Goroutinen berechnet, die parallel laufen können.
 Dann wird eine work-Funktion konstruiert, die für eine zufällige Zeitspanne schläft
-und dann eine Zeichenkette zurückgibt, die die Eingabe darstellt.
+und dann eine Zeichenkette zurückgibt welche die Eingabe darstellt.
 
 Damit wird die Funktion poolWork ausgeführt und der Channel und die Funktion cancel
-zurückgegeben. Die Funktion cancel wird aufgeschoben und eine Schleife wird konstruiert, um
-4 Werte an den Pool zu senden. Die Ausgabe ist jedes Mal anders, wenn Ihr das Programm ausführt
+zurückgegeben. Die Funktion cancel wird aufgeschoben und eine Schleife wird konstruiert um
+4 Werte an den Pool zu senden. Die Ausgabe ist jedes Mal anders wenn Ihr das Programm ausführt,
 da diese Arbeit gleichzeitig abläuft.
 
 Diese kleinen Beispiele geben einen Einblick, wie ein concurrent Paket

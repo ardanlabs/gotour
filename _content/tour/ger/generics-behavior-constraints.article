@@ -4,7 +4,7 @@ Für jeden generischen Typ muss eine Einschränkung deklariert werden, damit der
 * Generics - Verhalten als Einschränkung
 
 Für jeden generischen Typ muss eine Einschränkung deklariert werden, damit der Compiler weiß, welche
-konkrete Typsubstitutionen er zur Kompilierzeit akzeptieren oder ablehnen kann. Dies ist erforderlich,
+konkrete Typsubstitutionen er zur Kompilierzeit akzeptieren oder ablehnen kann. Dies ist erforderlich
 auch wenn es keine wirkliche Einschränkung gibt, was der generische Typ sein kann. Daher der
 vordeklarierte Einschränkungsbezeichner any.
 
@@ -58,14 +58,14 @@ Stringer deklariert, der einen Akt des Verhaltens String deklariert, der eine Ze
 der Methode, die für User deklariert wurde, kann man sagen, dass der konkrete Typ User
 die Schnittstelle Stringer unter Verwendung der Wertesemantik implementiert.
 
-Die Funktion "Konkret" ist genau das: eine Funktion, die konkrete Daten akzeptiert. Die polymorphe Funktion ist ebenfalls genau das: eine Funktion, die konkrete Daten annimmt
+Die Funktion "Konkret" ist genau das: eine Funktion die konkrete Daten akzeptiert. Die polymorphe Funktion ist ebenfalls genau das: eine Funktion die konkrete Daten annimmt
 basierend auf dem was sie tun kann. Dies ist der Hauptunterschied zwischen einer konkreten und einer
-polymorphen Funktion. Die eine ist auf eine bestimmte Art von Daten beschränkt, die andere nicht. Allerdings,
-gibt es eine Einschränkung, welche konkreten Daten an die polymorphe Funktion übergeben werden können.
+polymorphen Funktion. Die Eine ist auf eine bestimmte Art von Daten beschränkt, die Andere nicht. Allerdings
+gibt es eine Einschränkung welche konkreten Daten an die polymorphe Funktion übergeben werden können.
 
 Die Stringer-Schnittstelle definiert diese Einschränkung durch die Deklaration eines Methodensatzes von Verhaltensweisen
 die konkrete Daten aufweisen müssen. Wenn sie als Eingabetyp verwendet wird, kann der
-Compiler garantieren, dass die Verhaltensbeschränkung jedes Mal erfüllt wird, wenn die Funktion
+Compiler garantieren, dass die Verhaltensbeschränkung jedes Mal erfüllt wird wenn die Funktion
 aufgerufen wird.
 
 Es gibt generische Funktionen die dieselbe Art von Verhaltensbeschränkung erfordern.
@@ -82,11 +82,11 @@ Es gibt generische Funktionen die dieselbe Art von Verhaltensbeschränkung erfor
 
 Hier ist die generische Funktion stringify. Sie akzeptiert ein Slice vom Typ T und gibt ein
 Slice von String-Werten zurück, die eine stringifizierte Version jedes Wertes aus der Eingabe
-Sammlung enthalten. Der Schlüssel zum Funktionieren dieser Funktion ist der Methodenaufruf von String an jeden Wert vom Typ T.
+Sammlung enthält. Der Schlüssel zum Funktionieren dieser Funktion ist der Methodenaufruf von String an jeden Wert vom Typ T.
 
-Das Problem ist, dass der Compiler wissen und überprüfen muss, dass Werte vom Typ T
-eine Methode namens String haben. Wenn der generische Typ T deklariert wird, wird die Schnittstelle fmt.Stringer
-als Einschränkung bereitgestellt. Der Compiler weiß nun, dass er jeden Typ-Ersatz und Daten, die an die Funktion übergeben werden, auf das Verhalten dieser Methode überprüfen muss.
+Das Problem ist dass der Compiler wissen und überprüfen muss, dass Werte vom Typ T
+eine Methode namens String hat. Wenn der generische Typ T deklariert wird, wird die Schnittstelle fmt.Stringer
+als Einschränkung bereitgestellt. Der Compiler weiß nun, dass er jeden Typ-Ersatz und Daten die an die Funktion übergeben werden, auf das Verhalten dieser Methode überprüfen muss.
 
 Das ist hervorragend, weil das interface wiederverwendet wird und 
 die Sprache kein neues Schlüsselwort dafür braucht.
@@ -97,8 +97,8 @@ Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine möglic
 
 ** Übung 1
 
-Implementiert eine generische Funktion namens marshal, die JSON marshalen kann, aber nur
-Werte annimmt, die die Schnittstelle json.Marshaler implementieren.
+Implementiert eine generische Funktion namens marshal, die JSON marshalen kann, dabei aber nur
+Werte annimmt welche die Schnittstelle json.Marshaler implementieren.
 
 .play generics/behavior-constraints/exercise1.go 
 .play generics/behavior-constraints/answer1.go
