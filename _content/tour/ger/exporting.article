@@ -6,8 +6,8 @@ Exportieren bietet die Möglichkeit zu deklarieren, ob ein Bezeichner für Code 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
 - Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Exportieren bietet die Möglichkeit zu deklarieren, ob ein Bezeichner für Code
-außerhalb des Pakets, in dem er deklariert ist, zugänglich ist.
+Exportieren bietet die Möglichkeit zu bestimmen, ob ein Bezeichner auch  
+außerhalb des Pakets, in dem er deklariert wurde, zugänglich ist.
 
 ** Code-Überprüfung
 
@@ -26,24 +26,23 @@ außerhalb des Pakets, in dem er deklariert ist, zugänglich ist.
 ** Mechanik exportieren
 
 Ein Paket ist die Grundeinheit des kompilierten Codes in Go. Es repräsentiert eine physische kompilierte
-Einheit von Code, normalerweise als kompilierte Bibliothek auf dem Host-Betriebssystem. Der Export von
-bestimmt den Zugriff auf Bezeichner über Paketgrenzen hinweg.
+Einheit von Code, normalerweise als kompilierte Bibliothek auf dem Host-Betriebssystem. Der Export 
+bestimmt den Zugriff auf Bezeichner über Paketgrenzen hinaus.
 
     Paketzähler
 
     Typ AlertCounter int
 
-Da in diesem Fall ein Großbuchstabe verwendet wird, um den Typ AlterCounter,
-ist der Typ exportiert und kann direkt von Code außerhalb des
-Zähler-Paket referenziert werden.
+Da in diesem Fall ein Großbuchstaben verwendet werden, um den Typ AlterCounter zu benennen,
+ist der Typ exportiert und kann direkt von Code außerhalb des Zähler-Paket referenziert werden.
 
     Paketzähler
 
     Typ alertCounter int
 
-Da Sie nun den Namen des Typs so geändert haben, dass er mit einem Kleinbuchstaben beginnt, ist der Typ
-nicht exportiert. Das bedeutet, dass nur Code innerhalb des Zählerpakets auf diesen
-Typ direkt referenzieren.
+Da Ihr nun den Namen des Typs so geändert habt, dass er mit einem Kleinbuchstaben beginnt, ist der Typ
+nicht exportiert. Das bedeutet, dass nur Code innerhalb des Pakets auf diesen
+Typ direkt referenzieren kann.
 
     Paketzähler
 
@@ -54,7 +53,7 @@ Typ direkt referenzieren.
     }
 
 Obwohl der obige Code eine legale Syntax aufweist und kompiliert werden kann, hat er keinen Wert.
-Die Rückgabe eines Wertes eines nicht exportierten Typs ist verwirrend, da der Aufrufer (der
+Die Rückgabe eines Wertes von einem nicht exportierten Typ ist verwirrend, da der Aufrufer (der
 wahrscheinlich in einem anderen Paket existiert) den Typnamen nicht direkt referenzieren kann.
 
     Paket Haupt
@@ -72,8 +71,8 @@ wahrscheinlich in einem anderen Paket existiert) den Typnamen nicht direkt refer
 
 In diesem Fall ruft die Hauptfunktion im Paket main die Funktion counters.New
 erfolgreich auf und der Compiler kann eine Variable des nicht exportierten
-Typs deklarieren und konstruieren. Das bedeutet weder, dass Sie dies tun sollten, noch, dass Sie einen echten
-Schutz für dieses Vorgehen. Dies sollte vermieden werden, und wenn New einen Wert zurückgibt, sollte dieser
+Typs deklarieren und konstruieren. Das bedeutet weder, dass Ihr dies tun solltet, noch dass es einen echten
+Schutzmechanismus für dieses Vorgehen gibt. Dies sollte vermieden werden, und wenn New einen Wert zurückgibt, sollte dieser
 sollte er von einem exportierten Typ sein.
 
     Paketnutzer
@@ -85,11 +84,11 @@ sollte er von einem exportierten Typ sein.
         passwort string
     }
 
-Wenn es um Felder in einer Struktur geht, gibt der erste Buchstabe an, ob das Feld
-für Code außerhalb des Pakets, in dem es deklariert ist, zugänglich ist. In diesem Fall sind Name
-und ID zugänglich, aber Passwort nicht. Es ist eine Redewendung, exportierte
+Wenn es um Felder in einem struct geht, gibt der erste Buchstabe an, ob das Feld
+für Code außerhalb des Pakets, in dem es deklariert wurde, zugänglich ist. In diesem Fall sind Name
+und ID zugänglich, aber Passwort nicht. Es ist common Practice, exportierte
 und nicht exportierte Felder auf diese Weise zu trennen, wenn dies sinnvoll oder praktisch ist.
-Normalerweise würden alle Felder entweder das eine oder das andere sein.
+Normalerweise würden alle Felder entweder das Eine oder das Andere sein.
 
     Paketnutzer
 
@@ -103,15 +102,15 @@ Normalerweise würden alle Felder entweder das eine oder das andere sein.
         Benutzer
     }
 
-In diesem Szenario hat der Benutzertyp, obwohl er nicht exportiert wird, zwei exportierte
-Felder. Das bedeutet, dass die Benutzerfelder beim Einbetten des Benutzertyps in den exportierten Managertyp
-Typ eingebettet ist, werden die Benutzerfelder gefördert und sind zugänglich. Es ist üblich, dass Typen, die
-mit exportierten Feldern, weil das Reflection-Paket nur auf exportierte Felder
-auf exportierte Felder arbeiten kann. Marshallers werden sonst nicht funktionieren.
+In diesem Szenario hat der user Typ, obwohl er nicht exportiert wird, zwei exportierte
+Felder. Das bedeutet, dass die user Felder beim Einbetten des user Typs in den exportierten Managertyp
+eingebettet sind, werden die user Felder werden befördert und sind zugänglich. Es ist üblich Nicht-exportierte 
+Typen mit exportierten Feldern zu haben, da das reflection package nur mit exportierten Feldern arbeiten kann. 
+Sonst würden Marshallers nicht funktionieren.
 
-Das Beispiel schafft eine schlechte Situation, in der Code außerhalb von Paketbenutzern einen Manager konstruieren kann
-einen Manager konstruieren kann, aber da der eingebettete Typ user nicht exportiert wird, können die Felder für diesen Typ
-initialisiert werden können. Dies führt zu partiellen Konstruktionsproblemen, die zu Fehlern führen.
+Das Beispiel schafft eine schlechte Situation, in der Code außerhalb von Paketbenutzern einen Manager konstruieren kann,
+aber da der eingebettete Typ user nicht exportiert wird, können die Felder für diesen Typ
+initialisiert werden. Dies führt zu partiellen Konstruktionsproblemen, die zu Fehlern führen.
 Sie müssen beim Exportieren und Nichtexportieren konsistent sein.
 
 ** Anmerkungen
@@ -137,9 +136,9 @@ und sold. Deklarieren Sie eine Factory-Funktion namens New, um Werte vom Typ toy
 Parameter für die exportierten Felder akzeptiert. Deklarieren Sie dann Methoden, die Werte zurückgeben und aktualisieren
 für die nicht exportierten Felder.
 
-*Teil* *B:* Erstellen Sie ein Programm, das das Spielzeugpaket importiert. Verwenden Sie die Funktion New, um
+*Teil* *B:* Erstellen Sie ein Programm, das das toy package importiert. Verwenden Sie die Funktion New, um
 einen Wert vom Typ toy zu erzeugen. Verwenden Sie dann die Methoden, um die Zählerstände zu setzen und die
-Feldwerte dieses toy-Wertes.
+Feldwerte dieses toy-Wertes anzuzeigen.
 
 .play exporting/exercise1.go
 .play exporting/answer1.go
