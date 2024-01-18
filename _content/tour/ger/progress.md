@@ -1,10 +1,10 @@
 Christiane:
 
-- [ ] algorithms-bits-seven.article
+- [ ] algorithms-bits-seven.article (proof read done)
 
-- [ ] algorithms-data.article
+- [ ] algorithms-data.article (proof read done)
 
-- [ ] algorithms-fun.article
+- [ ] algorithms-fun.article (proof read done)
 
 - [ ] algorithms-numbers.article
 

@@ -93,9 +93,9 @@ in die sie übersetzt werden:
 Eine Variable Length Quantity (VLQ) ist ein universeller Code, der eine beliebige Anzahl 
 von Binäroktetten (Acht-Bit-Bytes) verwendet, um eine beliebig große Ganzzahl darzustellen.
 Er wurde für die Verwendung im standardisierten MIDI-Dateiformat definiert, um zusätzlichen Speicherplatz für 
-ein ressourcenbeschränktes System zu sparen, und wird auch im späteren Extensible Music Format (XMF) verwendet.
+ein ressourcenbeschränktes System zu sparen und wird auch im späteren Extensible Music Format (XMF) verwendet.
 Ein VLQ ist im Wesentlichen eine Basis-128-Darstellung einer vorzeichenlosen 
-Ganzzahl mit der Hinzufügung des achten Bits, um die Fortsetzung der Bytes zu markieren. 
+Ganzzahl mit der Hinzufügung des achten Bits um die Fortsetzung der Bytes zu markieren. 
 Siehe das Beispiel unten.
 
 	Int:    16384
@@ -104,23 +104,23 @@ Siehe das Beispiel unten.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Angenommen, ich möchte die Zahl 3435 in VLQ darstellen. 3435 in Binär ist 110101101011. 
+Angenommen ich möchte die Zahl 3435 in VLQ darstellen. 3435 in Binär ist 110101101011. 
 Wir können dies nicht in ein Byte packen. Also teilen wir es vom Ende her in 7-Bit-Blöcke auf.
 
     Septet	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-GPT
-Jetzt fügen wir allen bis auf dem letzten einen 1-Bit voran, um zu signalisieren, 
-dass ein weiteres Oktett folgt, und fügen dem letzten einen 0-Bit voran, 
+
+Jetzt fügen wir allen bis auf dem letzten einen 1-Bit voran um zu signalisieren, 
+dass ein weiteres Oktett folgt und fügen dem letzten einen 0-Bit voran 
 um das finale Oktett zu kennzeichnen.
 
     Oktett   8	7	6	5	4	3	2	1
     #1      0	1	1	0	1	0	1	1
     #2      1	0	0	1	1	0	1	0
 
-Zum Schluss verketten wir sie, beginnend mit dem signifikantesten Oktett, zu
+Zum Schluss verketten wir sie, beginnend mit dem signifikantesten Oktett
 
 Kodiert: 10011010 01101011  ZuHex: 0x9A 0x6B
 
