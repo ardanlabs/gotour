@@ -3,17 +3,17 @@ Funktionen sind das Herzstück der Sprache und bieten einen Mechanismus, um unse
 
 * Funktionen
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Funktionen sind das Herzstück der Sprache und bieten einen Mechanismus zur Gruppierung
-zu gruppieren und unseren Code in getrennte und unterschiedliche Teile der Funktionalität zu organisieren. Sie können
-können verwendet werden, um eine API für die von uns geschriebenen Pakete bereitzustellen und sind eine Kernkomponente für
-Gleichzeitigkeit.
+von unserem Code in getrennte und unterschiedliche Teile der Funktionalität. 
+Sie können verwendet werden, um eine API für die von uns geschriebenen Pakete bereitzustellen und sind eine Kernkomponente für
+Concurrency.
 
 Funktionen in Go spielen eine zentrale Rolle bei der Strukturierung von Code und der Förderung sauberer,
-wartbare und effiziente Software. Zu verstehen, wie man Funktionen deklariert, definiert und
-Funktionen zu deklarieren, zu definieren und zu verwenden, ist entscheidend für das Schreiben effektiver Go-Programme.
+wartbare und effiziente Software. Zu verstehen, wie man Funktionen deklariert und definiert
+ist für das Schreiben effektiver Go-Programme entscheidend.
 
 ** Code-Überprüfung
 
@@ -31,18 +31,18 @@ Funktionen zu deklarieren, zu definieren und zu verwenden, ist entscheidend für
 
 
 Funktionen sind ein grundlegender Baustein von Programmen und werden verwendet, um Code zu kapseln
-und organisieren den Code für eine bessere Modularität und Wiederverwendbarkeit. Funktionen sind Codeblöcke
-die eine bestimmte Aufgabe oder eine Reihe von zusammenhängenden Aufgaben ausführen. Hier ist ein Überblick über
+und organisieren, sowie den Code für eine bessere Modularität und Wiederverwendbarkeit aufzubereiten.
+Funktionen sind Codeblöcke die eine bestimmte Aufgabe oder eine Reihe von zusammenhängenden Aufgaben ausführen. Hier ist ein Überblick über
 Funktionen in Go:
 
 ** Funktionserklärung
 
-Um eine Funktion in Go zu deklarieren, verwenden Sie das Schlüsselwort `func`, gefolgt von dem
+Um eine Funktion in Go zu deklarieren, Verwendet das Schlüsselwort `func`, gefolgt von dem
 Funktionsnamen, einer Liste von Parametern, die in Klammern eingeschlossen sind, und einem optionalen
 Rückgabetyp. Die allgemeine Syntax lautet:
 
-   func Funktionsname(parameter1 typ, parameter2 typ, ...) return_type {
-       // Funktionskörper
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Function body
    }
 
 Zum Beispiel:
@@ -54,19 +54,19 @@ Zum Beispiel:
 ** Parameter und Rückgabewerte
 
 Funktionen können null oder mehr Parameter haben, d. h. die Werte, die der Funktion beim Aufruf
-Funktion übergeben werden, wenn sie aufgerufen wird. Jeder Parameter besteht aus einem Namen und einem Typ. In
+übergeben werden. Jeder Parameter besteht aus einem Namen und einem Typ. In
 obigen Beispiel nimmt `add` zwei Integer-Parameter, `x` und `y`.
 
-Funktionen können null oder einen Wert zurückgeben (oder keinen, in diesem Fall können Sie den
+Funktionen können null oder einen Wert zurückgeben (oder keinen, in diesem Fall könnt Ihr den
 Rückgabetyp weglassen). Die Anweisung `return` wird verwendet, um den zurückzugebenden Wert anzugeben.
 Im obigen Beispiel gibt `add` eine ganze Zahl zurück.
 
-Go erlaubt es Funktionen, mehrere Werte zurückzugeben. Dies ist in Fällen nützlich, in denen Sie
-mehr als ein Ergebnis von einer Funktion zurückgeben wollen. Zum Beispiel:
+Go erlaubt es Funktionen, mehrere Werte zurückzugeben. Dies ist in Fällen nützlich, in denen Ihr 
+mehr als ein Ergebnis von einer Funktion zurückgeben wollt. Zum Beispiel:
 
    func divide(x, y float64) (float64, error) {
        if y == 0 {
-           return 0, errors.New("Division durch Null")
+           return 0, errors.New("division by zero")
        }
        return x / y, nil
    }
@@ -74,78 +74,78 @@ mehr als ein Ergebnis von einer Funktion zurückgeben wollen. Zum Beispiel:
 In diesem Beispiel gibt die Funktion `divide` sowohl ein Fließkomma-Ergebnis als auch
 einen Fehler (wenn die Division durch Null erfolgt).
 
-Mit Go können Sie Namen für die Rückgabewerte in der Signatur einer Funktion angeben.
+Mit Go könnt Ihr Namen für die Rückgabewerte in der Signatur einer Funktion angeben.
 Benannte Rückgabewerte werden automatisch initialisiert und können als reguläre
 Variablen innerhalb der Funktion verwendet werden. Sie sind besonders nützlich beim Umgang mit
 komplexen Funktionen oder bei der Fehlerbehandlung. Zum Beispiel:
 
    func divide(x, y float64) (result float64, err error) {
        if y == 0 {
-           err = errors.New("Division durch Null")
+           err = errors.New("division by zero")
            return
        }
-       ergebnis = x / y
+       result = x / y
        return
    }
 
 ** Funktionsaufrufe
 
-Um eine Funktion in Go aufzurufen, verwenden Sie den Funktionsnamen, gefolgt von einer Liste von Argumenten
-eingeschlossen in Klammern. Wenn die Funktion mehrere Rückgabewerte hat, können Sie
+Um eine Funktion in Go aufzurufen, Verwendet den Funktionsnamen, gefolgt von einer Liste von Argumenten
+eingeschlossen in Klammern. Wenn die Funktion mehrere Rückgabewerte hat, könnt Ihr
 sie in Variablen erfassen. Zum Beispiel:
 
-   sum := add(3, 5) // Aufruf der Additionsfunktion und Zuweisung ihres Ergebnisses an sum
-   result, err := divide(8, 2) // Rufe die Funktion divide auf und erfasse sowohl Ergebnis als auch Fehler
+   sum := add(3, 5)            // Call the add function and assign its result to sum
+   result, err := divide(8, 2) // Call the divide function and capture both result and error
 
 ** Funktion Variadische Parameter
 
 Go unterstützt variadische Funktionen, die es Ihnen ermöglichen, eine variable Anzahl von
-Argumente an eine Funktion übergeben können. Um einen variadischen Parameter zu definieren, verwenden Sie eine Ellipse
+Argumente an eine Funktion zu übergeben. Um einen variadischen Parameter zu definieren, Verwendet eine Ellipse
 (`...`) gefolgt von dem Parametertyp. Zum Beispiel:
 
    func calculateSum(nums ...int) int {
-       Summe := 0
-       for _, num := Bereich nums {
-           Summe += num
+       sum := 0
+       for _, num := range nums {
+           sum += num
        }
-       return Summe
+       return sum
    }
 
-Sie können diese Funktion mit einer beliebigen Anzahl von Ganzzahlen aufrufen.
+Ihr könnt diese Funktion mit einer beliebigen Anzahl von Ganzzahlen aufrufen.
 
 ** Anonyme Funktionen
 
 Go unterstützt anonyme Funktionen, auch bekannt als Closures. Dies sind Funktionen
 ohne Namen, die Variablen zugewiesen und als Argumente für andere Funktionen verwendet werden können.
-andere Funktionen. Closures werden in Go häufig für Aufgaben wie die Definition von Inline
+Closures werden in Go häufig für Aufgaben wie die Definition von Inline
 Funktionen oder für die gleichzeitige Programmierung mit Goroutinen verwendet.
 
    add := func(x, y int) int {
        return x + y
    }
 
-   Ergebnis := add(3, 5)
+   result := add(3, 5)
 
 ** Funktion als Typ
 
-In Go können Funktionen auch als Typen verwendet werden. Dies ermöglicht es Ihnen, Funktionen zu definieren
+In Go können Funktionen auch als Typen verwendet werden. Dies ermöglicht es Ihnen, Funktionen 
 zu definieren, die andere Funktionen als Argumente annehmen oder als Ergebnisse zurückgeben. Dies ist eine mächtige
-Funktion, um Funktionen höherer Ordnung und Rückrufe zu implementieren.
+Anwendung, um Funktionen höherer Ordnung und Rückrufe zu implementieren.
 
-   Typ MathFunc func(int, int) int
+   type MathFunc func(int, int) int
 
    func operate(x, y int, op MathFunc) int {
        return op(x, y)
    }
-
-Sie können dann Funktionen als Argumente an `operate` übergeben.
+   
+Ihr könnt dann Funktionen als Argumente an `operate` übergeben.
 
 ** Aufschub und Panik
 
 Go bietet zwei spezielle eingebaute Funktionen namens `defer` und `panic` für den Umgang mit
-Ausnahmesituationen und Ressourcenmanagement. `defer` wird verwendet, um einen Funktions
-Funktionsaufruf so zu planen, dass er kurz vor der Rückkehr der Funktion ausgeführt wird, während `panic` verwendet wird, um
-einen Laufzeitfehler auslöst und den Stack abwickelt.
+Ausnahmesituationen und Ressourcenmanagement. `defer` wird verwendet, um einen
+Funktionsaufruf so zu planen, dass er kurz vor dem Return der Funktion ausgeführt wird, während `panic` verwendet wird, um
+einen Laufzeitfehler auszulösen.
 
 ** Anmerkungen
 
@@ -167,17 +167,17 @@ einen Laufzeitfehler auslöst und den Stack abwickelt.
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche
 Lösung ist angegeben.
 
 ** Übung 1
 
-*Teil* *A:* Deklarieren Sie einen struct-Typ, um Informationen über einen Benutzer zu erhalten. Deklarieren Sie eine
+*Teil* *A:* Deklariert einen struct-Typ, um Informationen über einen Benutzer zu erhalten. Deklariert eine
 Funktion, die Werte von Zeigern dieses Typs erzeugt und zurückgibt, sowie einen Fehler
-Wert zurückgibt. Rufen Sie diese Funktion von main aus auf und zeigen Sie den Wert an.
+Wert zurückgibt. Ruft diese Funktion von main aus auf und zeigt den Wert an.
 
-*Teil* *B:* Rufen Sie Ihre Funktion ein zweites Mal auf, aber ignorieren Sie dieses Mal den Wert
-und testen Sie nur den Fehlerwert.
+*Teil* *B:* Ruft Ihre Funktion ein zweites Mal auf, aber ignoriert dieses Mal den Wert
+und testet nur den Fehlerwert.
 
 .play functions/exercise1.go		
 .play functions/answer1.go

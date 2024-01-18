@@ -68,16 +68,16 @@ Dominik:
 
 - [x] welcome.article
 
-- [ ] error-handling.article (neu: word count 450)
+- [x] error-handling.article (neu: word count 450)
 
-- [ ] exporting.article (neu: word count 182)
+- [x] exporting.article (neu: word count 182)
 
-- [ ] functions.article (neu: word count 349)
+- [x] functions.article (neu: word count 349)
 
-- [ ] generics-basics.article (neu: word count 114)
+- [x] generics-basics.article (neu: word count 114)
 
-- [ ] generics-behavior-constraints.article (neu: word count 107)
+- [x] generics-behavior-constraints.article (neu: word count 107)
 
-- [ ] generics-channels.article (neu: word count 178)
+- [x] generics-channels.article (neu: word count 178)
 
-- [ ] generics-hash-table.article (neu: word count 349)
+- [x] generics-hash-table.article (neu: word count 349)

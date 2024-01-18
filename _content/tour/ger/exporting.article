@@ -3,8 +3,8 @@ Exportieren bietet die Möglichkeit zu deklarieren, ob ein Bezeichner für Code 
 
 * Exportieren
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Exportieren bietet die Möglichkeit zu bestimmen, ob ein Bezeichner auch  
 außerhalb des Pakets, in dem er deklariert wurde, zugänglich ist.
@@ -29,44 +29,44 @@ Ein Paket ist die Grundeinheit des kompilierten Codes in Go. Es repräsentiert e
 Einheit von Code, normalerweise als kompilierte Bibliothek auf dem Host-Betriebssystem. Der Export 
 bestimmt den Zugriff auf Bezeichner über Paketgrenzen hinaus.
 
-    Paketzähler
+    package counters
 
-    Typ AlertCounter int
+    type AlertCounter int
 
 Da in diesem Fall ein Großbuchstaben verwendet werden, um den Typ AlterCounter zu benennen,
 ist der Typ exportiert und kann direkt von Code außerhalb des Zähler-Paket referenziert werden.
 
-    Paketzähler
+    package counters
 
-    Typ alertCounter int
+    type alertCounter int
 
 Da Ihr nun den Namen des Typs so geändert habt, dass er mit einem Kleinbuchstaben beginnt, ist der Typ
 nicht exportiert. Das bedeutet, dass nur Code innerhalb des Pakets auf diesen
 Typ direkt referenzieren kann.
 
-    Paketzähler
+    package counters
 
-    Typ alertCounter int
+    type alertCounter int
 
-    func New(wert int) alertCounter {
-        return alertCounter(wert)
+    func New(value int) alertCounter {
+        return alertCounter(value)
     }
 
 Obwohl der obige Code eine legale Syntax aufweist und kompiliert werden kann, hat er keinen Wert.
 Die Rückgabe eines Wertes von einem nicht exportierten Typ ist verwirrend, da der Aufrufer (der
 wahrscheinlich in einem anderen Paket existiert) den Typnamen nicht direkt referenzieren kann.
 
-    Paket Haupt
+    package main
 
-    importieren (
+    import (
         "fmt"
 
         "github.com/ardanlabs/.../exporting/example3/counters"
     )
 
     func main() {
-        Zähler := Zähler.Neu(10)
-        fmt.Printf("Zähler: %d\n", Zähler)
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
     }
 
 In diesem Fall ruft die Hauptfunktion im Paket main die Funktion counters.New
@@ -75,13 +75,13 @@ Typs deklarieren und konstruieren. Das bedeutet weder, dass Ihr dies tun solltet
 Schutzmechanismus für dieses Vorgehen gibt. Dies sollte vermieden werden, und wenn New einen Wert zurückgibt, sollte dieser
 sollte er von einem exportierten Typ sein.
 
-    Paketnutzer
+    package users
 
-    Typ Benutzer struct {
+    type User struct {
         Name string
-        ID int
+        ID   int
 
-        passwort string
+        password string
     }
 
 Wenn es um Felder in einem struct geht, gibt der erste Buchstabe an, ob das Feld
@@ -90,16 +90,16 @@ und ID zugänglich, aber Passwort nicht. Es ist common Practice, exportierte
 und nicht exportierte Felder auf diese Weise zu trennen, wenn dies sinnvoll oder praktisch ist.
 Normalerweise würden alle Felder entweder das Eine oder das Andere sein.
 
-    Paketnutzer
+    package users
 
-    Typ user struct {
+    type user struct {
         Name string
-        ID int
+        ID   int
     }
 
     type Manager struct {
-        Titel string
-        Benutzer
+        Title string
+        user
     }
 
 In diesem Szenario hat der user Typ, obwohl er nicht exportiert wird, zwei exportierte
@@ -126,18 +126,18 @@ Sie müssen beim Exportieren und Nichtexportieren konsistent sein.
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
 
 ** Übung 1
 
-*Teil* *A:* Erstellen Sie ein Paket namens toy mit einem einzigen exportierten struct-Typ namens Toy.
-Fügen Sie die exportierten Felder Name und Weight hinzu. Dann fügen Sie zwei nicht exportierte Felder namens onHand
-und sold. Deklarieren Sie eine Factory-Funktion namens New, um Werte vom Typ toy zu erzeugen und
-Parameter für die exportierten Felder akzeptiert. Deklarieren Sie dann Methoden, die Werte zurückgeben und aktualisieren
+*Teil* *A:* Erstellt ein Paket namens toy mit einem einzigen exportierten struct-Typ namens Toy.
+Fügt die exportierten Felder Name und Weight hinzu. Dann fügt zwei nicht exportierte Felder namens onHand
+und sold. Deklariert eine Factory-Funktion namens New, um Werte vom Typ toy zu erzeugen und
+Parameter für die exportierten Felder akzeptiert. Deklariert dann Methoden, die Werte zurückgeben und aktualisieren
 für die nicht exportierten Felder.
 
-*Teil* *B:* Erstellen Sie ein Programm, das das toy package importiert. Verwenden Sie die Funktion New, um
-einen Wert vom Typ toy zu erzeugen. Verwenden Sie dann die Methoden, um die Zählerstände zu setzen und die
+*Teil* *B:* Erstellt ein Programm, das das toy package importiert. Verwendet die Funktion New, um
+einen Wert vom Typ toy zu erzeugen. Verwendet dann die Methoden, um die Zählerstände zu setzen und die
 Feldwerte dieses toy-Wertes anzuzeigen.
 
 .play exporting/exercise1.go

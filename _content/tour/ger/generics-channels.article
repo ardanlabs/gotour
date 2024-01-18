@@ -1,13 +1,13 @@
-Kanäle
-Untersuchen Sie, wie das Go-Team dank der Generika ein Paket von Gleichzeitigkeitsmustern in die Standardbibliothek aufnehmen konnte.
+Generics - Channels
+Untersucht, wie das Go-Team dank der Generics ein Paket von concurrency patterns in die Standardbibliothek aufnehmen konnte.
 
-* Generika - Kanäle
+* Generics - Cahnnels 
 
-Untersuchen Sie, wie das Go-Team dank der Generika ein Paket von Gleichzeitigkeitsmustern in die Standardbibliothek aufnehmen konnte.
+Untersucht, wie das Go-Team dank der Generics ein Paket von concurrency patterns in die Standardbibliothek aufnehmen konnte.
 
 ** Video
 
-Schauen Sie sich den Vortrag über Generics an, der Sie durch alle
+Schaut sich den Vortrag über Generics an, der Sie durch alle
 Beispiele in diesem Abschnitt der Tour.
 
 .html generics-video.html
@@ -22,54 +22,54 @@ Beispiele in diesem Abschnitt der Tour.
 
 ** Erläutert
 
-Dies würde die Deklaration von Kanälen und Funktionen unter Verwendung generischer Typen erfordern.
+Dies würde die Deklaration von channels und Funktionen unter Verwendung generischer Typen erfordern.
 
     type workFn[Ergebnis any] func(context.Context) Ergebnis
 
 In diesem Beispiel wird ein Typ deklariert, der eine Funktion darstellt, die einen Kontext akzeptiert
-akzeptiert und einen Wert vom generischen Typ Ergebnis zurückgibt. Diese Funktionsdeklaration beschreibt eine
-Funktion, die die gleichzeitige Arbeit, die ausgeführt wird, und das Ergebnis
-dieser Arbeit.
+und einen Wert vom generischen Typ Result zurückgibt. Diese Funktionsdeklaration beschreibt eine
+Funktion, die concurrent Arbeit die ausgeführt wird implementiert und das Resultat dieser Arbeit zurückgibt.
 
-    func doWork[Ergebnis beliebig](ctx context.Context, work workFn[Ergebnis]) chan Ergebnis {
-        ch := make(chan Ergebnis, 1)
+
+    func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
+        ch := make(chan Result, 1)
         
         go func() {
-            ch <- Arbeit(ctx)
+            ch <- work(ctx)
             fmt.Println("doWork : work complete")
         }()
         
         return ch
     }
 
-Schreiben Sie nun eine Funktion namens doWork, die die angegebene Arbeitsfunktion ausführt
-ausführt und einen Kanal zurückgibt, damit der Aufrufer das Ergebnis der Arbeit
+Schreibt nun eine Funktion namens doWork, die die angegebene work-Funktion 
+ausführt und einen Channel zurückgibt, damit der Aufrufer das Ergebnis der Arbeit
 der Work-Funktion erhält. Ein generischer Typ namens Result wird deklariert, um
-der den Rückgabetyp für die Arbeitsfunktion und den Typ für den Kanal darstellt.
+den Rückgabetyp für die work-Funktion und den Typ für den Channel darzustellen.
 
-In der Implementierung der Funktion doWork wird ein gepufferter Kanal von eins
-vom generischen Typ Result konstruiert. Das ist der Kanal, der an den Aufrufer zurückgegeben wird, um
-das Ergebnis der gleichzeitigen Arbeit zu erhalten. In der Mitte der Funktion wird eine Goroutine
-konstruiert, um die Arbeitsfunktion gleichzeitig auszuführen. Sobald die Arbeitsfunktion
-zurückkehrt, wird das Rückgabeargument über den Kanal an den Aufrufer zurückgeschickt.
+In der Implementierung der Funktion doWork wird ein gepufferter Channel von 1 
+vom generischen Typ Result konstruiert. Das ist der Channel, der an den Aufrufer zurückgegeben wird, um
+das Ergebnis der concurrent Arbeit zu erhalten. In der Mitte der Funktion wird eine Goroutine
+konstruiert, um die work-Funktion gleichzeitig auszuführen. Sobald die work-Funktion
+returned, wird das Rückgabeargument über den Channel an den Aufrufer zurückgeschickt.
 
-Um die Verwendung der doWork-Funktion zu testen, erstellen Sie ein kleines Programm.
+Um die Verwendung der doWork-Funktion zu testen, Erstellt ein kleines Programm.
 
     func main() {
-        Dauer := 100 * Zeit.Millisekunde
+        duration := 100 * time.Millisecond
         
         ctx, cancel := context.WithTimeout(context.Background(), duration)
-        cancel() aufschieben
+        defer cancel()
         
         dwf := func(ctx context.Context) string {
             time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
-            return "Arbeit abgeschlossen"
+            return "work complete"
         }
 
-        Ergebnis := doWork(ctx, dwf)
+        result := doWork(ctx, dwf)
         
-        auswählen {
-            case v := <-Ergebnis:
+        select {
+            case v := <-result:
                 fmt.Println("main:", v)
             case <-ctx.Done():
                 fmt.Println("main: timeout")
@@ -78,24 +78,23 @@ Um die Verwendung der doWork-Funktion zu testen, erstellen Sie ein kleines Progr
 
 Ausgabe:
 
-    doWork : Arbeit abgeschlossen
-    main: Arbeit abgeschlossen
+    doWork : work complete
+    main: work complete
 
 Das Programm beginnt mit der Deklaration eines Kontexts, der nach 100 Millisekunden eine Zeitüberschreitung verursacht.
-Dann wird eine Arbeitsfunktion deklariert, die bis zu 200 Millisekunden wartet, bevor sie
-die Zeichenfolge "work complete" zurückgibt. Mit dem Kontext und der work-Funktion in
-wird doWork aufgerufen und ein Kanal vom Typ string zurückgegeben und
+Dann wird eine work-Funktion deklariert, die bis zu 200 Millisekunden wartet, bevor sie
+die Zeichenfolge "work complete" zurückgibt. Mit dem Kontext und der work-Funktion 
+wird doWork aufgerufen und ein Channel vom Typ string zurückgegeben und
 der Variablen result zugewiesen.
 
 Der Compiler kann den konkreten Typ bestimmen, der für den generischen Typ
-Ergebnis zu verwenden, indem er den Rückgabetyp der literalen Arbeitsfunktion untersucht, die an die
+Ergebnis zu verwenden ist, indem er den Rückgabetyp der literalen work-Funktion untersucht, die an 
 die doWork-Funktion übergeben wird. Das ist genial, denn es bedeutet, dass Sie den Typ
 beim Aufruf von doWork übergeben.
 
-Mit dem Kanal vom Typ String, der der Variablen result zugewiesen ist, wird ein Select Case verwendet
-verwendet, um auf die rechtzeitige Rückgabe des Ergebnisses oder auf das Eintreten der Zeitüberschreitung zu warten. Die Funktion
-doWork-Funktion kann verwendet werden, um diese gleichzeitige Arbeit für jeden konkreten Typ
-erforderlich.
+Mit dem Channel vom Typ String, der der Variablen result zugewiesen ist, wird ein Select Case 
+verwendet, um auf die rechtzeitige Rückgabe des Ergebnisses oder auf das Eintreten der Zeitüberschreitung zu warten.
+Die Funktion doWork kann verwendet werden, um diese concurrent Arbeit für jeden erforderlichen konkreten Typ.
 
 Dieselbe Idee könnte auf einen Pool von Goroutinen angewandt werden, die Arbeit an
 einer generischen Eingabe ausführen und ein generisches Ergebnis zurückgeben.
@@ -107,14 +106,14 @@ allgemeines Ergebnis zurück.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
         var wg sync.WaitGroup
-        wg.Add(Größe)
+        wg.Add(size)
         
         ch := make(chan Input)
         
         for i := 0; i < size; i++ {
             go func() {
-                wg.Done() aufschieben
-                for eingabe := bereich ch {
+                defer wg.Done()
+                for input := range ch {
                     result := work(input)
                     fmt.Println("pollWork :", result)
                 }
@@ -130,14 +129,14 @@ allgemeines Ergebnis zurück.
     }
 
 In der Funktion poolWork werden dieselben beiden generischen Typen deklariert, die den
-Eingabe- und Rückgabetyp für die Arbeitsfunktion zu repräsentieren. Eine WaitGroup wird konstruiert, um den
-den Lebenszyklus der Goroutinen im Pool zu verwalten. Dann wird ein Kanal mit dem
-generischen Typs Input. Dieser Kanal wird von den Goroutinen im Pool verwendet, um die
-Eingabedaten für die Arbeitsfunktion zu empfangen.
+Eingabe- und Rückgabetyp für die work-Funktion repräsentieren. Eine WaitGroup wird konstruiert, um 
+den Lebenszyklus der Goroutinen im Pool zu verwalten. Dann wird ein Channel mit dem
+generischen Typs Input generiert. Dieser Channel wird von den Goroutinen im Pool verwendet, um die
+Eingabedaten für die work-Funktion zu empfangen.
 
-Dann wird ein Pool von Goroutinen erstellt, wobei jede Goroutine auf einen Empfangsvorgang
-Operation wartet, wobei eine for-range-Schleife für den Kanal verwendet wird. Schließlich wird eine Abbruchfunktion
-Funktion erstellt, die es dem Aufrufer ermöglicht, den Pool zu schließen und zu warten, bis alle Goroutines
+Dann wird ein Pool von Goroutinen erstellt, wobei jede Goroutine auf eine Empfangsvorgang-Operation wartet,
+wobei eine for-range-Schleife für den Channel verwendet wird. Schließlich wird eine Abbruchfunktion
+erstellt, die es dem Aufrufer ermöglicht, den Pool zu schließen und zu warten, bis alle Goroutines
 signalisieren, dass sie beendet sind.
 
 Um die Verwendung der poolWork-Funktion zu testen, wurde ein zweites kleines Programm erstellt.
@@ -147,32 +146,32 @@ Um die Verwendung der poolWork-Funktion zu testen, wurde ein zweites kleines Pro
         
         pwf := func(input int) string {
             time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
-            return fmt.Sprintf("%d : empfangen", input)
+            return fmt.Sprintf("%d : received", input)
         }
 
-        ch, cancel := poolWork(Größe, pwf)
-        cancel() aufschieben
+        ch, cancel := poolWork(size, pwf)
+        defer cancel()
         
         for i := 0; i < 4; i++ {
             ch <- i
         }
     }
 
-Ausgabe:
+Output:
 
-    pollWork : 3 : erhalten
-    pollWork : 2 : erhalten
-    pollWork : 1 : empfangen
-    pollWork : 0 : empfangen
+    pollWork : 3 : received
+    pollWork : 2 : received
+    pollWork : 1 : received
+    pollWork : 0 : received
 
 Die Größe des Pools wird auf der Grundlage der Anzahl der Goroutinen berechnet, die parallel laufen können.
-parallel laufen können. Dann wird eine Arbeitsfunktion konstruiert, die für eine zufällige Zeitspanne schläft
+Dann wird eine work-Funktion konstruiert, die für eine zufällige Zeitspanne schläft
 und dann eine Zeichenkette zurückgibt, die die Eingabe darstellt.
 
-Damit wird die Funktion poolWork ausgeführt und der Kanal und die Funktion cancel
-Funktion zurückgegeben. Die Funktion cancel wird aufgeschoben und eine Schleife wird konstruiert, um
-4 Werte an den Pool zu senden. Die Ausgabe ist jedes Mal anders, wenn Sie das Programm ausführen
+Damit wird die Funktion poolWork ausgeführt und der Channel und die Funktion cancel
+zurückgegeben. Die Funktion cancel wird aufgeschoben und eine Schleife wird konstruiert, um
+4 Werte an den Pool zu senden. Die Ausgabe ist jedes Mal anders, wenn Ihr das Programm ausführt
 da diese Arbeit gleichzeitig abläuft.
 
-Diese kleinen Beispiele geben einen Einblick, wie ein gleichzeitiges Paket
+Diese kleinen Beispiele geben einen Einblick, wie ein concurrent Paket
 implementiert werden kann.
