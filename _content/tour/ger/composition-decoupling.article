@@ -6,8 +6,8 @@ Die Zusammensetzung geht über die Mechanik der Typeneinbettung hinaus und ist m
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
 - Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Der beste Weg, die Vorteile der Einbettung zu nutzen, ist durch das kompositionelle Designmuster. 
-Es ist der Schlüssel, um Stabilität in eurer Software zu erhalten, indem Ihr die Fähigkeit habt, 
+Der beste Weg die Vorteile einer Einbettung zu nutzen, ist durch das kompositionelle Designmuster. 
+Es ist der Schlüssel um Stabilität in eurer Software zu erhalten, indem Ihr die Fähigkeit habt, 
 euch an die kommenden Daten- und Transformationsänderungen anzupassen.
 
 ** Code-Überprüfung
@@ -29,7 +29,7 @@ euch an die kommenden Daten- und Transformationsänderungen anzupassen.
 
 ** Mechanik der Entkopplung
 
-Die Idee ist, größere Typen aus kleineren Typen zu komponieren 
+Die Idee ist größere Typen aus kleineren Typen zu komponieren 
 und sich auf die Zusammensetzung des Verhaltens zu konzentrieren.
 
     type Xenia struct {
@@ -51,7 +51,7 @@ und sich auf die Zusammensetzung des Verhaltens zu konzentrieren.
     }
 
 Der Typ Xenia repräsentiert ein System, von dem Ihr Daten abrufen müsst. Die Implementierung 
-ist nicht wichtig. Wichtig ist, dass die Methode Pull erfolgreich sein kann, 
+ist nicht wichtig. Wichtig ist, dass die Methode Pull erfolgreich ausgeführt, 
 fehlschlagen oder keine Daten zum Abrufen haben kann.
 
     type Pillar struct {
@@ -68,7 +68,7 @@ Der Typ Pillar repräsentiert ein System, in das Ihr Daten speichern müsst.
 Wichtig ist wieder, dass die Methode Store erfolgreich sein oder fehlschlagen kann.
 
 Diese beiden Typen repräsentieren eine primitive Schicht von Code, die das 
-grundlegende Verhalten bereitstellt, das erforderlich ist, um das Geschäftsproblem 
+grundlegende Verhalten bereitstellt, das erforderlich ist um das Geschäftsproblem 
 des Abrufens von Daten aus Xenia und Speichern dieser Daten in Pillar zu lösen.
 
     func Pull(x *Xenia, data []Data) (int, error) {
@@ -92,7 +92,7 @@ des Abrufens von Daten aus Xenia und Speichern dieser Daten in Pillar zu lösen.
     }
 
 Die nächste Ebene des Codes wird durch die beiden Funktionen Pull und Store dargestellt. Sie
-bauen auf der primitiven Codeschicht auf, indem sie eine Sammlung von Datenwerten akzeptieren, 
+bauen auf der primitiven Codeschicht auf, indem sie eine Sammlung von Datenwerten akzeptieren
 um in den jeweiligen Systemen abzurufen oder zu speichern. Diese Funktionen konzentrieren sich 
 auf die konkreten Typen von Xenia und Pillar, da dies die Systeme sind, mit denen das Programm 
 zu diesem Zeitpunkt arbeiten muss.
@@ -124,7 +124,7 @@ einen Typ namens System.
         Pillar
     }
 
-Die ursprüngliche Idee des System-Typs ist es, ein System zu komponieren, das weiß, 
+Die ursprüngliche Idee des System-Typs ist es, ein System zu komponieren das weiß, 
 wie man Pull und Store durchführt. In diesem Fall, die Fähigkeit, Pull und Store von 
 Xenia und Pillar zu komponieren.
 
@@ -147,7 +147,7 @@ Xenia und Pillar zu komponieren.
 
 Schließlich kann die Hauptfunktion geschrieben werden, um ein Xenia und Pillar innerhalb 
 der Zusammensetzung eines Systems zu konstruieren. Dann kann das System an die Copy-Funktion 
-übergeben werden und Daten können zwischen den beiden Systemen zu fließen beginnen.
+übergeben werden und Daten können zwischen den beiden Systemen fliessen zu beginnen.
 
 Mit all diesem Code habt ihr jetzt meinen ersten Entwurf einer konkreten Lösung für ein konkretes Problem.
 
@@ -155,7 +155,7 @@ Mit all diesem Code habt ihr jetzt meinen ersten Entwurf einer konkreten Lösung
 
 Der nächste Schritt besteht darin zu verstehen, was sich im Programm ändern könnte. In diesem Fall können 
 sich die Systeme selbst ändern. Heute sind es Xenia und Pillar, morgen könnten es Alice und Bob sein. 
-Mit diesem Wissen wollt ihr die bestehende konkrete Lösung von dieser Änderung entkoppeln. Um das zu tun, 
+Mit diesem Wissen wollt ihr die bestehende konkrete Lösung von dieser Änderung entkoppeln. Um das zu tun 
 solltet ihr die konkreten Funktionen in polymorphe Funktionen ändern.
 
     func Pull(p Puller, data []Data) (int, error) {
@@ -179,9 +179,9 @@ solltet ihr die konkreten Funktionen in polymorphe Funktionen ändern.
     }
 
 Aktuell akzeptiert die Pull-Funktion einen Xenia-Wert und die Store-Funktion einen Pillar-Wert. 
-Letztendlich war es nicht Xenia und Pillar, was wichtig war, sondern ein konkreter Wert, der weiß, 
+Letztendlich war es nicht Xenia und Pillar was wichtig war, sondern ein konkreter Wert der weiß 
 wie man Pull und Store durchführt. Ihr könnt diese konkreten Funktionen polymorph gestalten, 
-indem ihr nach Daten basierend darauf fragt, was sie tun können, anstatt darauf, was sie sind.
+indem ihr nach Daten basierend darauf fragt, was sie tun können, anstatt darauf was sie sind.
 
     type Puller interface {
         Pull(d *Data) error
@@ -191,7 +191,7 @@ indem ihr nach Daten basierend darauf fragt, was sie tun können, anstatt darauf
         Store(d *Data) error
     }
 
-Diese beiden Schnittstellen beschreiben, was konkrete Daten tun müssen, und es sind diese Typen, 
+Diese beiden Schnittstellen beschreiben was konkrete Daten tun müssen und es sind diese Typen, 
 die in der Deklaration der Pull- und Store-Funktionen ersetzt werden. Jetzt sind diese Funktionen 
 polymorph. Wenn Alice und Bob als Puller und Storer deklariert und implementiert werden, können sie 
 in die Funktionen eingegeben werden.
@@ -239,8 +239,8 @@ Wie ist das möglich, wenn die Typinformation unterschiedlich ist?
 Ihr müsst euch immer daran erinnern, dass Ihr niemals einen Schnittstellenwert in eurem 
 Programm herumreicht, da sie nicht existieren und wertlos sind. Ihr könnt nur konkrete 
 Daten weitergeben. Also sind die konkreten Daten, die in der Schnittstellenvariablen ps 
-gespeichert sind, das, was an Pull und Store weitergegeben wird. Ist es nicht wahr, dass 
-der konkrete Wert, der in ps gespeichert ist, wissen muss, wie man Pull und Store durchführt?
+gespeichert sind, das was an Pull und Store weitergegeben wird. Ist es nicht so, dass 
+der konkrete Wert der in ps gespeichert ist, wissen muss wie man Pull und Store durchführt?
 
 .image /tour/eng/static/img/comp1.png
 
@@ -269,13 +269,12 @@ die die PullStorer-Schnittstelle implementieren.
         Pillar
     }
 
-Wenn Ihr darüber nachdenkt, ist es nicht realistisch, verschiedene Systemtypen für alle 
-möglichen Kombinationen zu deklarieren. Das würde funktionieren, aber der Wartungsalptraum 
-erfordert eine bessere Lösung.
+Verschiedene Systeme-Typen für alle möglichen Kombinationen zu erstellen ist nicht realistisch.
+Obwohl es grundätzlich funktionieren würde, wäre der Wartungsaufwand dafür ein Alptraum.
 
 ** Schnittstellenkomposition
 
-Was wäre, wenn Ihr euch entscheidet, euren konkreten Systemtyp aus zwei Schnittstellentypen zu komponieren?
+Was wäre wenn Ihr euch dafür entscheidet, euren konkreten Systemtyp aus zwei Schnittstellentypen zu komponieren?
 
     type System struct {
         Puller
@@ -284,9 +283,6 @@ Was wäre, wenn Ihr euch entscheidet, euren konkreten Systemtyp aus zwei Schnitt
 
 Dies ist eine interessante Lösung. Dies würde es der Anwendung ermöglichen, den konkreten Puller oder Storer 
 beim Anwendungsstart in das System zu injizieren.
-
-
-
 
     func main() {
         sys := System{
@@ -315,9 +311,9 @@ das im Laufe der Zeit online kommen könnte.
 
 ** Präzisionsüberprüfung
 
-Die nächste Frage, die gestellt werden muss, ist, ob die polymorphen Funktionen so präzise sind, 
-wie sie sein könnten. Dies ist ein Teil des Ingenieurprozesses, der nicht übersprungen werden kann. 
-Die Antwort lautet nein, es können zwei Änderungen vorgenommen werden.
+Die nächste Frage die gestellt werden muss ist, ob die polymorphen Funktionen so präzise sind,
+wie sie sein könnten. Dies ist ein Teil des Ingenieurprozesses, der nicht übersprungen werden darf. 
+Die Antwort lautet nein. Es können zwei Änderungen vorgenommen werden.
 
     func Copy(sys *System, batch int) error {
 
@@ -327,9 +323,9 @@ Polymorphismus in den Typ verschoben, als ihr die Komposition mit den Schnittste
 
     func Copy(p Puller, s Storer, batch int) error {
 
-Dies ist eine weitere Änderung, die an der Copy-Funktion vorgenommen werden kann. Diese Änderung macht 
-die Funktion wieder präziser und polymorph. Jetzt fragt die Funktion genau nach dem, was sie benötigt, 
-basierend darauf, was die konkreten Daten tun können.
+Dies ist eine weitere Änderung die an der Copy-Funktion vorgenommen werden kann. Diese Änderung macht 
+die Funktion wieder präziser und polymorph. Jetzt fragt die Funktion genau nach dem was sie benötigt, 
+basierend darauf was die konkreten Daten tun können.
 
 .image /tour/eng/static/img/comp3.png
 
@@ -353,20 +349,20 @@ Mit dieser Änderung kann auch der System-Strukturtyp aus dem Programm entfernt 
 
 Durch das Entfernen der PullStorer- und Systemtypen vereinfacht sich das Programm. Die Hauptfunktion kann sich 
 auf den Aufbau der konkreten Puller- und Storer-Werte konzentrieren, die für die Datenbewegung notwendig sind. 
-Das Typsystem und die APIs sind präziser. Diese Idee der Präzision stammt von Edsger W. Dijkstra:
+Das Typsystem und die APIs sind so präziser. Diese Idee der Präzision stammt von Edsger W. Dijkstra:
 
-"Der Zweck der Abstraktion ist nicht, vage zu sein, sondern eine neue semantische Ebene zu schaffen, 
+"Der Zweck der Abstraktion ist nicht vage zu sein, sondern eine neue semantische Ebene zu schaffen, 
 in der man absolut präzise sein kann." - Edsger W. Dijkstra
 
 ** Anmerkungen
 
-- Dies ist viel mehr als die Mechanik der Typeneinbettung.
+-Dies ist viel mehr als die Mechanik der Typeneinbettung.
 -Deklariert Typen und implementiert Workflows mit Komposition im Sinn.
--Versteht zuerst das Problem, das Ihr lösen wollt. Das bedeutet, die Daten zu verstehen.
+-Versteht zuerst das Problem das Ihr lösen wollt. Das bedeutet die Daten zu verstehen.
 -Das Ziel ist es, kaskadierende Änderungen in eurer Software zu reduzieren und zu minimieren.
 -Schnittstellen bieten die höchste Form der Komposition.
 -Gruppiert Typen nicht nach einem gemeinsamen DNA, sondern nach einem gemeinsamen Verhalten.
--Alle können zusammenarbeiten, wenn wir uns auf das konzentrieren, was wir tun, und nicht darauf, was wir sind.
+-Alle können zusammenarbeiten, wenn wir uns auf das konzentrieren, was wir tun und nicht darauf was wir sind.
 
 ** Zitate
 
@@ -398,8 +394,8 @@ Verwendet die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. E
 
 ** Übung 1
 
-Verwendet die Vorlage, um eine Reihe von konkreten Typen zu deklarieren, die die vorgegebenen Schnittstellentypen implementieren. 
-Erstellt dann Werte dieser Typen und verwendet sie, um eine Reihe von vorgegebenen Aufgaben zu erledigen.
+Verwendet die Vorlage um eine Reihe von konkreten Typen zu deklarieren, welche die vorgegebenen Schnittstellentypen implementieren. 
+Erstellt dann Werte dieser Typen und verwendet sie um eine Reihe von vorgegebenen Aufgaben zu erledigen.
 
 .play composition/decoupling/exercise1.go
 .play composition/decoupling/answer1.go

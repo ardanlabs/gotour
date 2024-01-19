@@ -1,12 +1,12 @@
 Arrays
-Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglichen, zusammenhängende Blöcke mit fester Größe im Speicher zu belegen.
+Arrays sind eine spezielle Datenstruktur in Go, die es uns ermöglichen zusammenhängende Blöcke mit fester Größe im Speicher zu belegen.
 
 * Arrays
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
 - Braucht Ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Arrays sind eine spezielle Datenstruktur in Go, die es ermöglicht, zusammenhängende Blöcke von Speicher fester Größe zuzuweisen. 
+Arrays sind eine spezielle Datenstruktur in Go, die es ermöglicht zusammenhängende Blöcke von Speicher fester Größe zuzuweisen. 
 Arrays haben einige besondere Eigenschaften in Go, die sich auf ihre Deklaration und ihre Betrachtung als Typen beziehen.
 
 ** Code-Überprüfung
@@ -64,11 +64,11 @@ oder Zeigersemantik iterieren.
     println(i, strings[i])
     }
 
-Bei der Iteration mit Wertsemantik passieren zwei Dinge. Erstens wird die Sammlung, über die ich 
+Bei der Iteration mit Wertsemantik passieren zwei Dinge. Erstens wird die Sammlung über die ich 
 iteriere, kopiert und man iteriert über die Kopie. Im Fall eines Arrays könnte die Kopie teuer sein, 
 da das gesamte Array kopiert wird. Im Fall eines Slices gibt es keine wirklichen Kosten, 
 da nur der interne Slice-Wert kopiert wird und nicht das zugrunde liegende Array. 
-Zweitens erhält man eine Kopie jedes Elements, über das iteriert wird.
+Zweitens erhält man eine Kopie jedes Elements über das iteriert wird.
 
 Bei der Iteration mit Zeigersemantik iteriert man über die ursprüngliche Sammlung und greift direkt auf 
 jedes Element zu, das mit der Sammlung verbunden ist.
@@ -143,9 +143,9 @@ Compiler-Fehler:
     cannot use four (type [4]int) as type [5]int in assignment
 
 Hier deklariert ihr ein Array aus 4 und 5 Ganzzahlen, initialisiert auf ihren Nullwert-Zustand. 
-Dann versucht ihr, sie einander zuzuweisen, und der Compiler sagt: "cannot use four (type [4]int) as type [5]int in assignment".
+Dann versucht ihr, sie einander zuzuweisen und der Compiler sagt: "cannot use four (type [4]int) as type [5]int in assignment".
 
-Es ist wichtig, klarzustellen, was der Compiler sagt. Er sagt, dass ein Array aus 4 Ganzzahlen und ein Array 
+Es ist wichtig klarzustellen, was der Compiler sagt. Er sagt, dass ein Array aus 4 Ganzzahlen und ein Array 
 aus 5 Ganzzahlen Daten unterschiedlicher Typen darstellen. Die Größe eines Arrays ist Teil seiner Typinformation. 
 In Go muss die Größe eines Arrays zur Kompilierzeit bekannt sein.
 
@@ -169,7 +169,7 @@ Ausgabe:
     Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
 
 Hier wird ein Array aus 5 Strings deklariert, das mit Werten initialisiert ist. 
-Dann verwendet ihr die Wertsemantik-Iteration, um Informationen über jeden String anzuzeigen. 
+Dann verwendet ihr die Wertsemantik-Iteration um Informationen über jeden String anzuzeigen. 
 Die Ausgabe zeigt jeden einzelnen String-Wert, die Adresse der Variablen v und die Adresse 
 jedes Elements im Array.
 
@@ -177,7 +177,7 @@ Ihr könnt sehen, wie das Array ein zusammenhängender Speicherblock ist und wie
 Zwei-Wort- oder 16-Byte-Datenstruktur auf meiner 64-Bit-Architektur ist. Die Adresse für jedes 
 Element ist in einem 16-Byte-Abstand.
 
-Die Tatsache, dass die Variable v bei jeder Iteration dieselbe Adresse hat, verstärkt das Verständnis, 
+Die Tatsache dass die Variable v bei jeder Iteration dieselbe Adresse hat, verstärkt das Verständnis, 
 dass v eine lokale Variable vom Typ String ist, die bei jeder Iteration eine Kopie jedes String-Wertes 
 enthält.
 
@@ -188,7 +188,7 @@ enthält.
 Es gibt viele mechanische Unterschiede zwischen Prozessoren und ihrem Design. 
 In diesem Abschnitt werdet ihr auf hohem Niveau über Prozessoren und die Semantik sprechen, 
 die zwischen ihnen allen relativ gleich ist. Dieses semantische Verständnis wird euch ein gutes 
-mentales Modell dafür liefern, wie der Prozessor funktioniert  und die Sympathie, 
+mentales Modell dafür liefern, wie der Prozessor funktioniert und die Sympathie, 
 die Ihr ihm entgegenbringen könnt.
 
 Jeder Kern innerhalb des Prozessors hat seinen eigenen lokalen Speicher-Cache (L1 und L2) und einen 
@@ -201,13 +201,13 @@ zugreifen zu können.
 
 Die Latenzkosten für den Zugriff auf Daten, die in den verschiedenen Caches existieren, ändern sich 
 von am wenigsten bis am meisten: L1 -> L2 -> L3 -> Hauptspeicher. Wie Scott Meyers sagte: 
-"Wenn die Leistung wichtig ist, dann ist die gesamte Menge an Speicher, die ihr habt, die 
-Gesamtmenge des Caches. Der Hauptspeicher ist so langsam im Zugriff, praktisch gesehen, könnte er 
+"Wenn die Leistung wichtig ist, dann ist die gesamte Menge an Speicher die ihr habt, die 
+Gesamtmenge des Caches. Der Hauptspeicher ist so langsam im Zugriff, praktisch gesehen könnte er 
 genauso gut nicht vorhanden sein."
 
 Bei der Leistung geht es heute darum, wie effizient Daten durch die Hardware fließen. Wenn jedes 
 Datenstück, das die Hardware zu einem gegebenen Zeitpunkt benötigt, nur im Hauptspeicher existiert, 
-werden meine Programme langsamer laufen, verglichen mit Daten, die bereits im L1- oder L2-Cache 
+werden meine Programme langsamer laufen, verglichen mit Daten die bereits im L1- oder L2-Cache 
 vorhanden sind.
 
     3GHz(3 Taktzyklen/ns) * 4 Anweisungen pro Zyklus = 12 Anweisungen pro ns!
@@ -222,19 +222,19 @@ vorhanden sind.
     L2-Cache-Referenz ........................... 7 ns ................... 84 ns
     Hauptspeicher-Referenz ...................... 100 ns ................. 1200 ins
 
-Wie schreibt ihr Code, der garantiert, dass die Daten, die benötigt werden, um eine Anweisung 
-auszuführen, immer im L1- oder L2-Cache vorhanden sind? Ihr müsst Code schreiben, der mechanisch 
+Wie schreibt ihr Code der garantiert, dass die Daten die benötigt werden um eine Anweisung 
+auszuführen immer im L1- oder L2-Cache vorhanden sind? Ihr müsst Code schreiben, der mechanisch 
 sympathisch mit dem Prefetcher des Prozessors ist. Der Prefetcher versucht vorherzusagen, 
-welche Daten benötigt werden, bevor Anweisungen die Daten anfordern, damit sie bereits im 
+welche Daten benötigt werden, bevor Anweisungen die Daten anfordern damit sie bereits im 
 L1- oder L2-Cache vorhanden sind.
 
-Es gibt unterschiedliche Granularitäten des Speicherzugriffs, abhängig davon, wo der Zugriff 
+Es gibt unterschiedliche Granularitäten des Speicherzugriffs, abhängig davon wo der Zugriff 
 stattfindet. Mein Code kann ein Byte Speicher als kleinste Einheit des Speicherzugriffs lesen/schreiben. 
 Aus Sicht der Caching-Systeme ist die Granularität jedoch 64 Bytes. Dieser 64-Byte-Block Speicher 
 wird als Cache-Zeile bezeichnet
 
 Der Prefetcher arbeitet am besten, wenn die ausgeführten Anweisungen vorhersehbare Zugriffsmuster auf den 
-Speicher erzeugen. Eine Möglichkeit, ein vorhersehbares Zugriffsmuster auf den Speicher zu erstellen, 
+Speicher erzeugen. Eine Möglichkeit ein vorhersehbares Zugriffsmuster auf den Speicher zu erstellen, 
 besteht darin, einen zusammenhängenden Speicherblock zu konstruieren und dann über diesen Speicher zu iterieren, 
 wobei eine lineare Durchquerung mit vorhersehbarem Schritt ausgeführt wird.
 
@@ -265,7 +265,7 @@ der verschiedenen Durchquerungen vergleichen?
 
 Die Zeilendurchquerung hat die beste Leistung, weil sie durch den Speicher geht, Cache-Zeile 
 für Cache-Zeile, was ein vorhersehbares Zugriffsmuster schafft. Cache-Zeilen können vorausgeladen 
-und in den L1- oder L2-Cache kopiert werden, bevor die Daten benötigt werden.
+und in den L1- oder L2-Cache kopiert werden bevor die Daten benötigt werden.
 
     func ColumnTraverse() int {
         var ctr int
@@ -307,13 +307,13 @@ Ein Großteil der Knoten in der Liste befindet sich innerhalb derselben Betriebs
 ** Translation Lookaside Buffer (TLB)
 
 Jedem laufenden Programm wird vom Betriebssystem eine vollständige Speicherkarte des virtuellen 
-Speichers gegeben, und das laufende Programm glaubt, es habe den gesamten physischen Speicher der 
+Speichers gegeben und das laufende Programm glaubt, es habe den gesamten physischen Speicher der 
 Maschine. Allerdings muss der physische Speicher mit allen laufenden Programmen geteilt werden. 
 Das Betriebssystem teilt den physischen Speicher, indem es den physischen Speicher in Seiten aufteilt 
 und Seiten dem virtuellen Speicher eines jeden laufenden Programms zuordnet. Jedes Betriebssystem 
 kann die Größe einer Seite bestimmen, aber 4k, 8k, 16k sind vernünftige und übliche Größen.
 
-Der TLB (Translation Lookaside Buffer) ist ein kleiner Cache innerhalb des Prozessors, der dabei hilft, 
+Der TLB (Translation Lookaside Buffer) ist ein kleiner Cache innerhalb des Prozessors der dabei hilft, 
 die Latenz bei der Umwandlung einer virtuellen Adresse in eine physische Adresse innerhalb des Bereichs 
 einer Betriebssystemseite und des Offsets innerhalb der Seite zu reduzieren. Ein Fehlzugriff gegen den 
 TLB-Cache kann große Latenzen verursachen, weil die Hardware jetzt darauf warten muss, dass das 
@@ -330,12 +330,11 @@ Ein Großteil der Knoten in der Liste befindet sich innerhalb derselben Betriebs
 Die LinkedList ist um Größenordnungen schneller als die Spaltendurchquerung aufgrund des TLB-Zugriffs. 
 Auch wenn es Cache-Zeilen-Fehlzugriffe bei der Durchquerung der verketteten Liste gibt, da ein Großteil 
 des Speichers für eine Gruppe von Knoten auf derselben Seite landen wird, beeinflussen TLB-Latenzen 
-die Leistung nicht. Deshalb möchtet ihr für Programme, die eine große Menge an Speicher verwenden, 
+die Leistung nicht. Deshalb möchtet ihr für Programme die eine große Menge an Speicher verwenden, 
 wie DNA-basierte Anwendungen, eine Linux-Distribution verwenden, die mit Seitengrößen in der 
 Größenordnung eines Megabytes oder zwei konfiguriert ist.
 
 All das gesagt, ist das datenorientierte Design wichtig. Das Schreiben eines effizienten Algorithmus 
-muss berücksichtigen, wie auf die Daten zugegriffen wird. Denkt daran, dass Leistung heute darum geht, 
 wie effizient ihr Daten in den Prozessor bringen könnt.
 
 - [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  

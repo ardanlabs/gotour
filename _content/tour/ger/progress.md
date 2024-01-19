@@ -6,25 +6,25 @@ Christiane:
 
 - [ ] algorithms-fun.article (proof read done)
 
-- [ ] algorithms-numbers.article
+- [ ] algorithms-numbers.article (proof read done)
 
-- [ ] algorithms-searches.article
+- [ ] algorithms-searches.article (proof read done)
 
-- [ ] algorithms-slices.article
+- [ ] algorithms-slices.article (proof read done)
 
-- [ ] algorithms-sorting.article
+- [ ] algorithms-sorting.article (proof read done)
 
-- [ ] algorithms-strings.article
+- [ ] algorithms-strings.article (proof read done)
 
-- [ ] arrays.article
+- [ ] arrays.article (proof read done)
 
-- [ ] channels.article
+- [ ] channels.article (proof read done)
 
-- [ ] composition-assertions.article
+- [ ] composition-assertions.article (proof read done)
 
-- [ ] composition-decoupling.article
+- [ ] composition-decoupling.article (proof read done)
 
-- [ ] composition-grouping.article
+- [ ] composition-grouping.article (proof read done)
 
 - [ ] composition-mocking.article (neu: word count 97)
 
