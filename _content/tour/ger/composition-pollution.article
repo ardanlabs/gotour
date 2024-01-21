@@ -1,86 +1,86 @@
-Schnittstellenverschmutzung
-Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen, anstatt sie zu entdecken.
+Interface Pollution
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, 
+anstatt sie zu entdecken.
 
-* Schnittstelle Umweltverschmutzung
+* Interface Pollution
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen
-Schnittstellen entwickeln, anstatt sie zu entdecken.
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, anstatt sie zu entdecken.
 
 ** Code-Überprüfung
 
-- *Beispiel* *1:* Interface Pollution erstellen
-- *Beispiel* *2:* Interface Verschmutzung entfernen
+- *Beispiel* *1:* Erzeuge Interface-Pollution
+- *Beispiel* *2:* Entferne Interface-Pollution
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Schnittstellenverschmutzung
+** Interface Pollution
 
-Schnittstellenverschmutzung entsteht dadurch, dass Menschen Software mit Schnittstellen entwerfen
-Schnittstellen entwerfen, anstatt sie zu entdecken. Sie sollten zuerst eine konkrete Lösung für das
-Problem entwerfen. Dann kann man herausfinden, wo das Programm polymorph sein muss, wenn
-wenn überhaupt.
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, anstatt 
+sie zu entdecken. Ihr solltet zuerst eine konkrete Lösung für das Problem entwerfen. 
+Dann könnt ihr entdecken, wo das Programm polymorph sein muss, wenn überhaupt.
 
 Das sind Dinge, die ich von anderen Entwicklern gehört habe.
 
-"Ich verwende Schnittstellen, weil wir Schnittstellen verwenden müssen".
+"Ich verwende Interfaces, weil wir Interfaces verwenden müssen".
 
-Nein. Wir müssen keine Schnittstellen verwenden. Wir verwenden Schnittstellen, wenn es praktisch und
-vernünftig ist, dies zu tun. Die Verwendung von Schnittstellen hat ihren Preis: eine Ebene der Indirektion
-und Zuweisung, wenn wir konkrete Werte in ihnen speichern. Wenn die Kosten der
-Zuweisung nicht wert ist, was ich durch die Entkopplung gewinne, sollten Sie keine Schnittstellen verwenden.
+Nein. Wir müssen keine Interfaces verwenden. Wir verwenden Interfaces, wenn es praktisch und 
+vernünftig ist, dies zu tun. Es gibt einen Kostenfaktor bei der Verwendung von Interfaces: 
+eine Ebene der Indirektion und Allokation, wenn wir konkrete Werte in ihnen speichern. 
+Es sei denn, der Kostenfaktor der Allokation ist es wert, was ich durch Entkopplung gewinne, 
+solltet ihr keine Interfaces verwenden.
 
-"Ich muss in der Lage sein, meinen Code zu testen, also muss ich Schnittstellen verwenden".
+"Ich muss meinen Code testen können, also muss ich Interfaces verwenden".
 
-Nein. Sie müssen meine API zuerst für den Benutzer entwerfen, nicht für meinen Test. Wenn die API nicht testbar ist,
-sollten Sie hinterfragen, ob sie brauchbar ist. Auch bei APIs gibt es verschiedene Ebenen. Die
-Die nicht exportierten APIs der unteren Ebene können und sollten sich auf die Testbarkeit konzentrieren. Die höheren Ebenen
-exportierten APIs müssen sich auf die Benutzerfreundlichkeit konzentrieren.
+Nein. Ihr müsst meine API zuerst für den Benutzer entwerfen, nicht für meinen Test. 
+Wenn die API nicht testbar ist, solltet ihr euch fragen, ob sie überhaupt nutzbar ist. 
+Es gibt auch verschiedene Ebenen von APIs. Die niedrigeren, nicht exportierten APIs können 
+und sollten sich auf Testbarkeit konzentrieren. Die höheren, exportierten APIs müssen sich 
+auf Benutzerfreundlichkeit konzentrieren.
 
 Funktionen, die Rohdaten entgegennehmen und Rohdaten zurückgeben, sind am besten testbar.
-Trennen Sie die Datentransformation davon, woher die Daten kommen und wohin sie
-gehen. Dies ist eine Refactoring-Übung, die Sie während des technischen
-Kodierungszyklus durchführen müssen.
+Trennt die Datentransformation davon, wo die Daten herkommen und wohin sie gehen. 
+Dies ist eine Refactoring-Übung, die ihr während des Engineering-Coding-Zyklus durchführen müsst.
 
-Nachfolgend ein Beispiel, bei dem Schnittstellenverschmutzung durch unsachgemäße Verwendung einer
-Schnittstelle verwendet wird, wenn diese nicht benötigt wird.
+Unten ist ein Beispiel, das Interface-Pollution erzeugt, indem es ein Interface unangemessen 
+verwendet, wenn es nicht benötigt wird.
 
-    Typ Server Schnittstelle {
-        Start() Fehler
-        Stop() Fehler
-        Wait() error
-    }
+   type Server interface {
+    Start() error
+    Stop() error
+    Wait() error
+}
 
-Die Server-Schnittstelle definiert einen Vertrag für TCP-Server. Das Problem hier ist, dass ich
-Sie brauchen keinen Vertrag, sondern eine Implementierung. Es wird nur eine Implementierung geben
-geben, zumal Sie derjenige sind, der sie implementiert. Sie brauchen niemanden, der
-der dies für Sie implementiert.
+Das Server-Interface definiert einen Vertrag für TCP-Server. Das Problem hier ist, ich brauche 
+keinen Vertrag, ihr braucht eine Implementierung. Es wird auch nur eine Implementierung geben, 
+besonders da ihr diejenigen seid, die sie implementieren. Ihr braucht niemanden, der dies 
+für euch implementiert.
 
-Außerdem basiert diese Schnittstelle auf einem Substantiv und nicht auf einem Verb. Konkrete Typen sind Substantive
-da sie das konkrete Problem darstellen. Schnittstellen beschreiben das Verhalten und
-Server ist kein Verhalten.
+Außerdem basiert dieses Interface auf einem Substantiv und nicht auf einem Verb. 
+Konkrete Typen sind Substantive, da sie das konkrete Problem repräsentieren. 
+Interfaces beschreiben das Verhalten, und Server ist kein Verhalten.
 
-Hier sind einige Möglichkeiten, die Verschmutzung von Schnittstellen zu erkennen:
+Hier sind einige Möglichkeiten, Interface-Pollution zu identifizieren:
 
-- Ein Paket deklariert eine Schnittstelle, die der gesamten API des eigenen konkreten Typs entspricht.
-- Die Schnittstellen werden exportiert, aber die konkreten Typen, die die Schnittstelle implementieren, werden nicht exportiert.
-- Die Fabrikfunktion für den konkreten Typ gibt den Schnittstellenwert mit dem nicht exportierten Wert des konkreten Typs zurück.
-- Die Schnittstelle kann entfernt werden, ohne dass sich für den Nutzer der API etwas ändert.
-- Die Schnittstelle entkoppelt die API nicht von Änderungen.
+-Ein Paket deklariert ein Interface, das die gesamte API seines eigenen konkreten Typs entspricht.
+-Die Interfaces werden exportiert, aber die konkreten Typen, die das Interface implementieren, werden nicht exportiert.
+-Die Factory-Funktion für den konkreten Typ gibt den Interface-Wert mit dem nicht exportierten konkreten Typwert im Inneren zurück.
+-Das Interface kann entfernt werden, und für den Benutzer der API ändert sich nichts.
+-Das Interface entkoppelt die API nicht von Veränderungen.
 
-Leitlinien zur Schnittstellenverschmutzung:
+Richtlinien zur Interface-Pollution:
 
-Verwenden Sie eine Schnittstelle:
+Verwendet ein Interface:
 
 - Wenn die Nutzer der API ein Implementierungsdetail bereitstellen müssen.
 - Wenn APIs mehrere Implementierungen haben, die gepflegt werden müssen.
 - Wenn Teile der APIs, die sich ändern können, identifiziert wurden und entkoppelt werden müssen.
 
-Hinterfragen Sie eine Schnittstelle:
+Hinterfragt ein Interface:
 
-- Wenn ihr einziger Zweck darin besteht, testbare APIs zu schreiben (schreiben Sie zuerst brauchbare APIs).
-- Wenn sie keine Unterstützung für die API bietet, um sich von Änderungen zu entkoppeln.
+-Wenn sein einziger Zweck darin besteht, testbare APIs zu schreiben (schreibt zuerst benutzbare APIs).
+-Wenn es keine Unterstützung für die API bietet, um sich von Veränderungen zu entkoppeln.
 - Wenn nicht klar ist, wie die Schnittstelle den Code besser macht.
