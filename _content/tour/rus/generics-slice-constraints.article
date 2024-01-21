@@ -1,34 +1,33 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Ограничения на срезы
+Бывают случаи, когда необходимо ограничить дженерики, чтобы они были только срезами.
 
-* Generics - Slice Constraints
+* Дженерики - ограничения на срезы
 
-There may be times where you need to constrain the generic type to be only a slice.
+Бывают случаи, когда необходимо ограничить общий тип только срезом.
 
-** Video
+** Видео
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Посмотрите доклад о дженериках, в котором я рассказываю обо всех
+примерах, приведенных в этом разделе.
 
 .html generics-video.html
 
-** Code Review
+** Обзор кода
 
-- *Example* *1*: Operate function
+- *Пример* *1*: Функция оперирования
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Объяснение
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Здесь пользовательский тип `Numbers` имеет базовый тип, который является срезом целых чисел.
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+Компилятор позволяет преобразовывать переменные, основанные на срезе целых чисел
+с переменными типа `Numbers`. Как правило, это хорошо, и это то, что вам нужно.
+Благодаря этой функциональности вы можете написать дженерик функцию, которая может работать 
+со срезом с соблюдением базового типа.
 
     type operateFunc[T any] func(t T) T
 
@@ -41,10 +40,9 @@ slice respecting the underlying type.
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Здесь функция `operate` объявляет дженерик  `T`, который может быть чем угодно. Тип
+используется для объявления параметра с именем `slice`, который принимает срез того же типа `T`.
+Функция также принимает дженерик функцию того же типа T и возвращает срез T.
 
     type Numbers []int
     
@@ -62,21 +60,21 @@ Output:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+Функция `Double` принимает значение типа `Numbers` и передает его в функцию
+`operate`. В этом случае компилятор использует базовый тип in для типа
+`T` и значение `Numbers` может быть передано в функцию. Однако то, что
+возвращается фрагмент типа int, как видно из вывода.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Если вам нужно убедиться, что в функцию может быть передано и возвращено только значение типа `Numbers`
+функцией `operate`, вы можете сделать следующие изменения.
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Этот интерфейс позволяет ограничить дженерик фактическим срезом
+некоторого типа T. Использование элемента аппроксимации ~ ограничивает все типы, в которых
+базовым типом  является T. С помощью этого интерфейса вы можете изменить функцию `operate`.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -100,9 +98,9 @@ underlying type is T. With this interface, you can change the operate function.
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Теперь измените функцию `operate`, чтобы объявить два дженерика. Тип S, который представляет
+значение среза некоторого типа T, и T, который может быть чем угодно. Функция
+возвращает значение типа S.
 
     type Numbers []int
     
@@ -121,6 +119,5 @@ Output:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+На этот раз, когда вы передаете значение `Numbers` в функцию `operate`, срез, который возвращается, имеет тип `Numbers`.
+Базовый тип игнорируется, а принимаеться определенный пользователем.
