@@ -1,30 +1,30 @@
-Underlying Types
-You can declare a generic type using an underlying type.
+Базовые типы
+Вы можете объявить дженерики, используя базовый тип.
 
-* Generics - Underlying Types
+* Дженерики - базовые типы
 
-You can declare a generic type using an underlying type.
+Вы можете объявить дженерик, используя базовый тип.
 
-** Video
+** Видео
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Посмотрите лекцию о дженериках, в которой я рассказываю обо всех
+примерах в этом разделе.
 
 .html generics-video.html
 
-** Code Review
+** Обзор кода
 
-- *Example* *1*: Concrete vector type
-- *Example* *2*: Interface vector type
-- *Example* *3*: Generic vector type
+- *Пример* *1*: Конкретный векторный тип
+- *Пример* *2*: Интерфейсный векторный тип
+- *Пример* *3*: Векторный дженерик тип
 
 .play generics/underlying-types/example1.go
 .play generics/underlying-types/example2.go
 .play generics/underlying-types/example3.go
 
-** Explained
+** Объяснения
 
-What if you wanted to declare my own generic type using an underlying type?
+Что, если вы хотите объявить мой собственный дженерик, используя базовый тип?
 
     type vector[T any] []T
 
@@ -38,14 +38,12 @@ What if you wanted to declare my own generic type using an underlying type?
         return v[len(v)-1], nil
     }
 
-This example shows a generic vector type that restricts the construction of a vector
-to a single type of data. The use of square brackets declares that type T is a generic
-type to be determined at compile time. The use of the constraint "any" describes
-there is no constraint on what type T can become.
+В этом примере показан дженерик вектора, который ограничивает построение вектора
+только одним типом данных. Использование квадратных скобок объявляет, что тип T является дженериком, который будет определен во время компиляции. Использование ограничения "any" описывает
+что нет никаких ограничений на то, каким типом может стать T.
 
-The last method is declared with a value receiver of type vector[T] to represent a
-value of type vector with an underlying slice of some type T. The method returns a
-value of that same type T.
+Последний метод объявлен с приемником значения типа `vector[T]` для представления
+значение типа `vector` с базовым срезом некоторого типа T. Метод возвращает значение того же типа T.
 
     func main() {
         fmt.Print("vector[int] : ")
@@ -88,9 +86,9 @@ Output:
     vector[int] : negative integer: value: -1
     vector[string] : non-valid string: value: "\xff"
 
-This is how to construct a value of type vector with an underlying type of int when I
-will set values in the vector at construction. An important aspect of this code is the
-construction calls.
+Вот как сконструировать значение типа `vector` с базовым типом int, когда мы
+будем задавать значения  вектора при построении. Важным аспектом этого кода являются
+вызов конструкции.
 
     // Zero Value Construction
     var vGenInt vector[int]
@@ -100,12 +98,12 @@ construction calls.
     vGenInt := vector{10, -1}
     vGenStr := vector{"A", "B", string([]byte{0xff})}
 
-When it comes to constructing these generic types to their zero value, it’s not
-possible for the compiler to infer the type. However, in cases where there is
-initialization during construction, the compiler can infer the type.
+Когда дело доходит до конструирования дженериков до их нулевого значения, это не возможно,
+компилятор не может вывести тип. Однако в тех случаях, когда
+инициализация при построении, компилятор может вывести тип.
 
-There is an aspect of the spec that focuses on the construction of a generic type to
-its zero value state.
+Существует аспект спецификации, который фокусируется на построении дженерик типа до
+его состояния с нулевым значением.
 
     type vector[T any] []T
     
@@ -119,14 +117,14 @@ its zero value state.
         return v[len(v)-1], nil
     }
 
-You need to focus on the method declaration for the last method and how the method
-returns a value of the generic type T. On the first return is a situation where you need
-to return the zero value for type T. The current implementation provides two solutions to write
-this code. The first solution you see already. A variable named zero is constructed to
-its zero value state of type T and then that variable is used for the return.
+Вам нужно обратить внимание на объявление для последнего метода и на то, как этот метод
+возвращает значение дженерик типа T. При первом возврате возникает ситуация, когда необходимо
+вернуть нулевое значение для типа T. Текущая реализация предоставляет два решения для написания
+этого кода. Первое решение вы уже видели. Переменная  `zero` конструируется до
+состояния нулевого значения типа T, а затем эта переменная используется для возврата.
 
-The other option is to use the built-in function new and dereference the returned
-pointer within the return statement.
+Другой вариант - использовать встроенную функцию `new` и разыменовать возвращаемый
+указатель в операторе возврата.
 
     type vector[T any] []T
     
@@ -138,25 +136,25 @@ pointer within the return statement.
         return v[len(v)-1], nil
     }
 
-This version of the last method is using the built-in function new for zero value
-construction and dereferencing of the returned pointer to satisfy return type T.
+Эта версия последнего метода использует встроенную функцию `new` для построения нулевого значения
+и разыменования возвращаемого указателя для удовлетворения возвращаемого типа T.
 
-Note: You might think why not use T{} to perform zero value construction? The
-problem is this syntax does not work with all types, such as the scalar types (int,
-string, bool). So it’s not an option.
+Примечание: Вы можете подумать, почему бы не использовать T{} для построения нулевого значения? Но
+проблема в том, что этот синтаксис работает не со всеми типами, например со скалярными типами (int,
+string, bool). Так что это не вариант.
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Приведены возможные решения.
 
-** Exercise 1
+** Упражнение 1
 
-Declare a generic type named keymap that uses an underlying type of map
-with a key of type string and a value of some type T. Declare a method
-named set that accepts a key of type string and a value of type T. Declare
-a method named get that accepts a key of type string and return a value of
-type T and true or false if the key is found. Then write a main function
-that uses the methods.
+Объявите дженерик тип с именем `keymap`, который использует базовый тип `map`
+с ключом типа `string` и значением некоторого типа T. Объявите метод
+`set`, который принимает ключ типа `string` и значение типа T. Объявите
+метод `get`, который принимает ключ типа `string` и возвращает значение
+типа `T` и `true` или `false`, если ключ найден. Затем напишите `main` функцию
+которая использует эти методы.
 
 .play generics/underlying-types/exercise1.go 
 .play generics/underlying-types/answer1.go
