@@ -1,42 +1,42 @@
 Christiane:
 
-- [ ] algorithms-bits-seven.article (proof read done)
+- [x] algorithms-bits-seven.article (proof read done)
 
-- [ ] algorithms-data.article (proof read done)
+- [x] algorithms-data.article (proof read done)
 
-- [ ] algorithms-fun.article (proof read done)
+- [x] algorithms-fun.article (proof read done)
 
-- [ ] algorithms-numbers.article (proof read done)
+- [x] algorithms-numbers.article (proof read done)
 
-- [ ] algorithms-searches.article (proof read done)
+- [x] algorithms-searches.article (proof read done)
 
-- [ ] algorithms-slices.article (proof read done)
+- [x] algorithms-slices.article (proof read done)
 
-- [ ] algorithms-sorting.article (proof read done)
+- [x] algorithms-sorting.article (proof read done)
 
-- [ ] algorithms-strings.article (proof read done)
+- [x] algorithms-strings.article (proof read done)
 
-- [ ] arrays.article (proof read done)
+- [x] arrays.article (proof read done)
 
-- [ ] channels.article (proof read done)
+- [x] channels.article (proof read done)
 
-- [ ] composition-assertions.article (proof read done)
+- [x] composition-assertions.article (proof read done)
 
-- [ ] composition-decoupling.article (proof read done)
+- [x] composition-decoupling.article (proof read done)
 
-- [ ] composition-grouping.article (proof read done)
+- [x] composition-grouping.article (proof read done)
 
-- [ ] composition-mocking.article (neu: word count 97)
+- [x] composition-mocking.article (neu: word count 97)
 
-- [ ] composition-pollution.article (neu: word count 86)
+- [x] composition-pollution.article (neu: word count 86)
 
-- [ ] constants.article (neu: word count 180)
+- [x] constants.article (neu: word count 180)
 
-- [ ] context.article (neu: word count 525)
+- [x] context.article (neu: word count 525)
 
-- [ ] data_race.article (neu: word count 565)
+- [x] data_race.article (neu: word count 565)
 
-- [ ] embedding.article (neu: word count 205)
+- [x] embedding.article (neu: word count 205)
 
 Dominik:
 
