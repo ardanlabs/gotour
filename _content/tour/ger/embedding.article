@@ -1,19 +1,19 @@
 Einbettung
-Die Einbettung von Typen stellt den letzten Teil der gemeinsamen Nutzung und Wiederverwendung von Zustand und Verhalten zwischen Typen dar.
+Einbettungstypen bieten das letzte Stück zum Teilen und Wiederverwenden von Zustand und Verhalten zwischen Typen.
 
 * Einbettung
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
-- Benötigen Sie finanzielle Unterstützung, nutzen Sie unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Die Einbettung von Typen stellt den letzten Teil der gemeinsamen Nutzung und Wiederverwendung von Zustand und Verhalten
-zwischen Typen. Durch die Verwendung von Inner Type Promotion kann auf die Felder und Methoden eines inneren Typs
-Methoden eines inneren Typs kann durch Referenzen des äußeren Typs direkt zugegriffen werden.
+Einbettungstypen bieten das letzte Stück zum Teilen und Wiederverwenden von Zustand und Verhalten 
+zwischen Typen. Durch die Verwendung der Förderung (promotion) von inneren Typen können Felder und 
+Methoden eines inneren Typs direkt durch Referenzen des äußeren Typs zugegriffen werden.
 
 ** Code-Überprüfung
 
-- *Beispiel* *1:* Felder deklarieren
-- *Beispiel* *2:* Einbettung von Typen
+- *Beispiel* *1:* Deklarieren von Feldern
+- *Beispiel* *2:* Einbetten von Typen
 - *Beispiel* *3:* Eingebettete Typen und Schnittstellen
 - *Beispiel* *4:* Äußere und innere Typschnittstellenimplementierungen
 	
@@ -25,8 +25,8 @@ Methoden eines inneren Typs kann durch Referenzen des äußeren Typs direkt zuge
 
 ** Mechanik der Einbettung
 
-Dieses erste Beispiel zeigt keine Einbettung, sondern nur die Deklaration von zwei struct
-Typen, die zusammen als ein Feld von einem Typ zum anderen arbeiten.
+Das erste Beispiel zeigt keine Einbettung, sondern nur die Deklaration von zwei Strukturtypen, 
+die als Feld von einem Typ zum anderen zusammenarbeiten.
 
     Typ user struct {
         name string
@@ -34,7 +34,7 @@ Typen, die zusammen als ein Feld von einem Typ zum anderen arbeiten.
     }
 
     Typ admin struct {
-        person user // NOT Embedding
+        person user // KEINE Einbettung
         level string
     }
 
@@ -46,12 +46,12 @@ Dies ist die Einbettung.
     }
 
     Typ admin struct {
-        user // Wert Semantische Einbettung
+        user // Einbettung mit Wertsemantik
         level string
     }
 
-Das Personenfeld wird entfernt, und es bleibt nur der Typname übrig. Sie können auch einen
-Typ mit Zeiger-Semantik einbetten.
+Das person-Feld wird entfernt, und nur der Typname bleibt übrig. Ihr könnt auch einen Typ mit 
+Zeigersemantik einbetten.
 
     Typ user struct {
         name string
@@ -59,17 +59,17 @@ Typ mit Zeiger-Semantik einbetten.
     }
 
     Typ admin struct {
-        *user // Semantische Einbettung von Zeigern
+        *user // Einbettung mit Zeigersemantik
         level string
     }
 
-In diesem Fall wird ein Zeiger des Typs eingebettet. In beiden Fällen erfolgt der Zugriff auf den
-eingebetteten Wertes erfolgt durch die Verwendung des Typnamens.
+In diesem Fall wird ein Zeiger des Typs eingebettet. In beiden Fällen erfolgt der Zugriff auf den 
+eingebetteten Wert durch Verwendung des Typnamens.
 
-Die beste Art, über die Einbettung nachzudenken, ist, den Benutzertyp als einen inneren Typ und
-Admin als einen äußeren Typ zu betrachten. Diese Beziehung zwischen innerem und äußerem Typ ist das Magische
-denn mit der Einbettung kann alles, was mit dem inneren Typ zusammenhängt (sowohl Felder als auch Methoden)
-auf den äußeren Typ übertragen werden kann.
+Die beste Art, über Einbettung nachzudenken, ist, den user-Typ als inneren Typ und admin als 
+äußeren Typ zu betrachten. Es ist diese innere/äußere Typbeziehung, die magisch ist, denn mit 
+Einbettung kann alles, was mit dem inneren Typ zusammenhängt (sowohl Felder als auch Methoden), 
+zum äußeren Typ hochgefördert werden.
 
     Typ user struct {
         name string
@@ -83,7 +83,7 @@ auf den äußeren Typ übertragen werden kann.
     }
 
     Typ admin struct {
-        *user // Semantische Einbettung von Zeigern
+        *user // Einbettung mit Zeigersemantik
         level string
     }
 
@@ -97,7 +97,7 @@ auf den äußeren Typ übertragen werden kann.
         }
 
         ad.user.notify()
-        ad.notify() // Äußere Form der Werbung
+        ad.notify() // Förderung des äußeren Typs
     }
 
 Ausgabe:
@@ -105,50 +105,51 @@ Ausgabe:
     Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
     Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
 
-Fügen Sie einmal eine Methode namens notify für den Benutzertyp und dann eine kleine Hauptfunktion hinzu.
-Sie sehen, dass die Ausgabe dieselbe ist, egal ob Sie die notify-Methode über den inneren
-Zeigerwert direkt oder über den Wert des äußeren Typs aufrufen. Die für den Benutzertyp deklarierte notify-Methode
-deklarierte notify-Methode ist direkt über den Wert des Typs admin zugänglich.
+Sobald Ihr eine Methode namens notify für den user-Typ hinzufügt und dann eine kleine Hauptfunktion 
+(main function), könnt Ihr sehen, dass die Ausgabe gleich ist, egal ob Ihr die notify-Methode 
+direkt über den inneren Zeigerwert oder über den äußeren Typwert aufruft. Die für den user-Typ 
+deklarierte notify-Methode ist direkt durch den admin-Typwert zugänglich.
 
-Auch wenn dies wie Vererbung aussieht, müssen Sie vorsichtig sein. Hier geht es nicht um die Wiederverwendung
-Zustand, sondern um die Förderung von Verhalten.
+Obwohl dies wie Vererbung aussieht, müsst Ihr vorsichtig sein. Es geht hier nicht um die 
+Wiederverwendung von Zustand, sondern um die Förderung von Verhalten.
 
-    Typ notifier Schnittstelle {
-        notify()
+   type notifier interface {
+    notify()
+}
+
+func sendNotification(n notifier) {
+    n.notify()
+}
+
+Nun fügt Ihr eine Schnittstelle und eine polymorphe Funktion hinzu, die jeden konkreten Wert 
+akzeptiert, der das vollständige Methodenset des Verhaltens, das durch die notifier-Schnittstelle 
+definiert ist, implementiert. Dies ist nur eine Methode namens notify.
+
+Durch die Einbettung und Förderung implementieren Werte des Typs admin jetzt die 
+notifier-Schnittstelle.
+
+
+func main() {
+    ad := admin{
+        user: &user{
+            name:  "john smith",
+            email: "john@yahoo.com",
+        },
+        level: "super",
     }
 
-    func sendNotification(n notifier) {
-        n.notify()
-    }
-
-Jetzt fügen Sie eine Schnittstelle und eine polymorphe Funktion hinzu, die jeden konkreten Wert akzeptiert
-akzeptiert, der den gesamten Methodensatz des Verhaltens implementiert, der durch die Schnittstelle notifier definiert ist.
-Das ist einfach eine Methode namens notify.
-
-Aufgrund der Einbettung und Heraufstufung implementieren Werte vom Typ admin nun die Schnittstelle Notifier
-Schnittstelle.
-
-    func main() {
-        ad := admin{
-            Benutzer: &Benutzer{
-                name: "john smith",
-                email: "john@yahoo.com",
-            },
-            level: "super",
-        }
-
-        sendNotification(&ad)
-    }
+    sendNotification(&ad)
+}
 
 Ausgabe:
 
     Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
 
-Sie können die Adresse des Admin-Wertes an die polymorphe Funktion senden, da
-die Einbettung das Benachrichtigungsverhalten bis zum Admin-Typ fördert.
+Ihr könnt die Adresse des admin-Werts in die polymorphe Funktion senden, da die Einbettung 
+das notify-Verhalten bis zum admin-Typ fördert.
 
     Typ admin struct {
-        *user // Semantische Einbettung von Zeigern
+        *user // Einbettung mit Zeigersemantik
         level string
     }
 
@@ -162,44 +163,44 @@ Wenn der äußere Typ eine Methode implementiert, die bereits durch den inneren 
 findet die Beförderung nicht statt.
 
     func main() {
-        ad := admin{
-            Benutzer: &Benutzer{
-                name: "john smith",
-                email: "john@yahoo.com",
-            },
-            level: "super",
-        }
-
-        sendNotification(&ad)
+    ad := admin{
+        user: &user{
+            name:  "john smith",
+            email: "john@yahoo.com",
+        },
+        level: "super",
     }
+
+    sendNotification(&ad)
+}
 
 Ausgabe:
     
     Senden einer Admin-E-Mail an john smith<john@yahoo.com>
 
-Sie sehen, dass die Methode des äußeren Typs jetzt ausgeführt wird.
+Ihr könnt sehen, dass jetzt die Methode des äußeren Typs ausgeführt wird.
 
 ** Anmerkungen
 
-- Durch die Einbettung von Typen können wir den Zustand oder das Verhalten zwischen Typen gemeinsam nutzen.
-- Der innere Typ verliert nie seine Identität.
+- Einbettungstypen ermöglichen es uns, Zustand oder Verhalten zwischen Typen zu teilen.
+- Der innere Typ verliert niemals seine Identität.
 - Dies ist keine Vererbung.
-- Durch Promotion kann auf Felder und Methoden des inneren Typs über den äußeren Typ zugegriffen werden.
+- Durch Förderung können Felder und Methoden des inneren Typs durch den äußeren Typ zugegriffen werden.
 - Der äußere Typ kann das Verhalten des inneren Typs außer Kraft setzen.
 
-** Extra Lesen
+** Zusätzliche Lektüre
 
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, Interfaces und eingebettete Typen in Go]] - William Kennedy
 - [[https://rakyll.org/typesystem/][Einbettung ist keine Vererbung]] - JBD
 
 * Übungen
 
-Verwenden Sie die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+Verwendet die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. Eine mögliche Lösung wird bereitgestellt.
 
 ** Übung 1
 
-Bearbeiten Sie den Code der Vorlage. Fügen Sie einen neuen Typ CachingFeed hinzu, der Feed einbettet und
-die Fetch-Methode überschreibt.
+Bearbeitet den Code aus der Vorlage. Fügt einen neuen Typ CachingFeed hinzu, der Feed einbettet 
+und die Fetch-Methode überschreibt.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go
