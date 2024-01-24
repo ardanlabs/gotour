@@ -68,11 +68,11 @@ Dominik:
 
 - [x] welcome.article
 
-- [x] error-handling.article (neu: word count 450)
+- [x] error-handling.article (neu: word count 450) (proof read done)
 
-- [x] exporting.article (neu: word count 182)
+- [x] exporting.article (neu: word count 182) (proof read done)
 
-- [x] functions.article (neu: word count 349)
+- [x] functions.article (neu: word count 349) (proof read done)
 
 - [x] generics-basics.article (neu: word count 114)
 
