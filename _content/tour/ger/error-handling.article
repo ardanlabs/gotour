@@ -14,17 +14,16 @@ muss ein Hauptaugenmerk sein.
 Die Entwickler haben die Verantwortung, genügend Kontext über jeden Fehler zu liefern, damit ein
 Benutzer eine fundierte Entscheidung treffen kann, wie er weiter vorgehen soll. Bei der Behandlung eines Fehlers
 geht es um drei Dinge: den Fehler protokollieren, den Fehler nicht weiter verbreiten und
-Feststellen, ob die Goroutine/das Programm beenden soll.
+Feststellen, ob die Goroutine/das Programm beendet werden muss.
 
-In Go sind Fehler einfach nur Werte, die alles sein können. Ihr 
-könnt jeden Zustand oder jedes Verhalten beibehalten.
+In Go sind Fehler einfach nur Werte, die alles sein können. Sie können jeden Zustand oder jedes Verhalten beibehalten.
 
 ** Code-Überprüfung
 
 - *Beispiel* *1:* Standard-Fehlerwerte
 - *Beispiel* *2:* Fehlervariablen
-- *Beispiel* *3:* Type As Context
-- *Beispiel* *4:* Verhalten als Kontext
+- *Beispiel* *3:* Type als Context
+- *Beispiel* *4:* Verhalten als Context
 - *Beispiel* *5:* Finde den Fehler
 - *Beispiel* *6:* Wrapping von Fehlern mit stdlib
 
@@ -45,11 +44,11 @@ Die Fehlerschnittstelle ist in die Sprache integriert.
     }
 
 Aus diesem Grund scheint es sich um einen nicht exportierten Bezeichner zu handeln. Jeder konkrete Wert, der
-diese Schnittstelle implementiert, kann als Fehlerwert verwendet werden.
+dieses Interface implementiert, kann als Fehlerwert verwendet werden.
 
 Ein wichtiger Aspekt von Go ist, dass die Fehlerbehandlung in einem entkoppelten Zustand erfolgt.
 Ein Hauptgrund dafür ist, dass die Fehlerbehandlung ein Aspekt der Anwendung ist, der anfälliger für Änderungen und Verbesserungen ist.
-Diese Schnittstelle ist der Typ, den Go-Anwendungen als Rückgabetyp für die Fehlerbehandlung verwenden müssen.
+Dieses Interface ist der Typ, den Go-Anwendungen als Rückgabetyp für die Fehlerbehandlung verwenden müssen.
 
     // http://golang.org/src/pkg/errors/errors.go
     type errorString struct {
@@ -62,16 +61,16 @@ Diese Schnittstelle ist der Typ, den Go-Anwendungen als Rückgabetyp für die Fe
     }
 
 Dies ist der am häufigsten verwendete Fehlerwert in Go-Programmen. Er ist deklariert im
-errors-Paket der Standardbibliothek. Beachtet , dass der Typ nicht exportiert ist und
+errors-Paket der Standardbibliothek. Beachtet, dass der Typ nicht exportiert ist und
 ein nicht exportiertes Feld beinhält, das ein String ist. Ihr könnt auch sehen, wie die Zeigersemantik
 verwendet wird, um die Fehlerschnittstelle zu implementieren.
 Das heisst: Nur Adressen auf Werte dieses Typs können in diesem Interface gespeichert werden. 
 Die Methode gibt gerade den Fehlerstring zurück.
 
 Es ist wichtig, daran zu denken dass die Implementierung der Error-Methode dem Zweck
-der Schnittstellen-Implementierung und der Protokollierung dient. Wenn ein Benutzer die von dieser Methode
-zurückgegebene Zeichenkette analysiert werden muss, habt ihr es versäumt, dem Benutzer die
-Kontext zu liefern, damit er eine fundierte Entscheidung treffen kann.
+der Interface Implementierung und der Protokollierung dient. Wenn ein Benutzer die von dieser Methode
+zurückgegebene Zeichenkette analysieren muss, habt ihr es versäumt, dem Benutzer den richtigen
+Context zu liefern, damit er eine fundierte Entscheidung treffen kann.
 
     // http://golang.org/src/pkg/errors/errors.go
     func New(text string) error {
@@ -94,7 +93,7 @@ wie die Zeigersemantik verwendet wird.
         return New("bad request")
     }
 
-Bei Fehlern ist der Kontext alles. Jeder Fehler muss genügend Kontext bieten, damit
+Bei Fehlern ist der Context alles. Jeder Fehler muss genügend Context bieten, damit
 der Aufrufer in die Lage versetzt wird, eine fundierte Entscheidung über den Zustand der Goroutine/Anwendung zu treffen.
 In diesem Beispiel gibt die Funktion webCall einen Fehler mit der Meldung Bad Request zurück.
 In der Hauptfunktion wird webCall aufgerufen und dann geprüft,
@@ -107,7 +106,7 @@ ob bei diesem Aufruf ein Fehler aufgetreten ist.
 
 Der Schlüssel zur Prüfung ist err != nil. Diese Bedingung besagt, ob ein 
 konkreter Wert innerhalb des err-Schnittstellenwertes gespeichert ist. Wenn der Schnittstellenwert
-einen konkreten Wert speichert, liegt ein Fehler vor. In diesem Fall sagt uns der Kontext, dass ein konkreter Wert existiert, es ist unwichtig was der konkrete
+einen konkreten Wert speichert, liegt ein Fehler vor. In diesem Fall sagt uns der Context, dass ein konkreter Wert existiert, es ist unwichtig was der konkrete
 Wert ist.
 
 Wenn es wichtig ist zu wissen, welcher Fehlerwert in der Schnittstellenvariable err steht, sind Fehlervariablen eine gute Option.
@@ -156,8 +155,8 @@ ob ein konkreter Wert in der Schnittstellenvariablen err gespeichert ist. Falls
 ein konkreter Wert in der Schnittstellenvariablen err gespeichert ist, wird mit Hilfe einer switch-Anweisung ermittelt, um welchen Fehler es sich handelt, indem err
 mit den verschiedenen Fehlervariablen verglichen wird.
 
-In diesem Fall richtet sich der Kontext des Fehlers danach, welche Fehlervariable zurückgegeben wurde.
-Was ist, wenn eine Fehlervariable als Kontext nicht ausreicht? Was ist, wenn ein spezieller Zustand
+In diesem Fall richtet sich der Context des Fehlers danach, welche Fehlervariable zurückgegeben wurde.
+Was ist, wenn eine Fehlervariable als Context nicht ausreicht? Was ist, wenn ein spezieller Zustand
 geprüft werden muss, wie bei Netzwerkfehlern? In diesen Fällen ist ein eigener konkreter Fehlertyp
 die Antwort.
 
@@ -228,8 +227,8 @@ Fehlerschnittstelle gespeichert ist. Es muss eine Möglichkeit geben dies zu bes
     }
 
 Mit einer generischen Typ-Assertion im Rahmen der switch-Anweisung könnt ihr
-Code schreiben um zu testen, welcher Typ von Wert in dem Wert der err-Schnittstelle gespeichert ist.
-Der Typ ist hier der Kontext. Jetzt könnt ihr testen und Maßnahmen ergreifen, die Zugriff auf
+Code schreiben um zu testen, welcher Typ von Wert in dem err-Interface Wert gespeichert ist.
+Der Typ ist hier der Context. Jetzt könnt ihr testen und Maßnahmen ergreifen, die Zugriff auf
 alle Zustände des Fehlers erlauben.
 
 Das bringt allerdings ein Problem mit sich. Ich bin nicht mehr vom konkreten Fehlerwert entkoppelt.
@@ -237,7 +236,7 @@ Das heißt, wenn der konkrete Fehlerwert geändert wird, kann mein Code zusammen
 schöne Teil der Verwendung einer Schnittstelle zur Fehlerbehandlung ist die Entkopplung von
 Änderungen.
 
-Wenn der konkrete Fehlerwert eine Methode hat, dann könnt ihr eine Schnittstelle für 
+Wenn der konkrete Fehlerwert eine Methode hat, dann könnt ihr ein Interface für 
 die Typprüfung verwenden. Das Netzpaket hat zum Beispiel viele konkrete Fehlertypen, die
 verschiedene Methoden implementieren. Eine gängige Methode heißt Temporary. Diese Methode
 ermöglicht es dem Benutzer zu testen, ob der Netzwerkfehler kritisch ist oder nur etwas
@@ -269,11 +268,11 @@ was sich von selbst beheben kann.
         }
     }
 
-In diesem Code könnte der Aufruf von ReadString mit einem Fehler aus dem Netzpaket fehlschlagen.
-In diesem Fall wird eine Schnittstelle deklariert, die das allgemeine Verhalten darstellt, das ein bestimmter
+In diesem Code könnte der Aufruf von ReadString mit einem Fehler aus dem net Paket fehlschlagen.
+In diesem Fall wird ein Interface deklariert, das das gemeinsame Verhalten darstellt, das ein bestimmter
 konkreter Fehlerwert implementieren könnte. Mit einer generischen Typprüfung wird dann getestet,
-ob dieses Verhalten existiert und es kann aufgerufen werden. Das Beste daran: Sie bleiben in einem
-entkoppelten Zustand mit meiner Fehlerbehandlung.
+ob dieses Verhalten existiert und es aufgerufen werden kann. Das Beste daran ist, dass ihr in einem
+entkoppelten Zustand mit Eurer Fehlerbehandlung bleibt.
 
 ** Verwendet immer die Fehlerschnittstelle
 
@@ -311,9 +310,9 @@ in der err-Variable gespeichert. Das ist nicht dasselbe wie ein Nullwert der Sch
 ** Fehlerbehandlung
 
 Der Umgang mit Fehlern ist eher eine technische Angelegenheit auf Makroebene. In meiner Welt 
-bedeutet Fehlerbehandlung, dass der Fehler bei der fehlerbehandelnden Funktion aufhört, 
-der Fehler mit vollständigem Kontext protokolliert und der Fehler auf seinen Schweregrad geprüft wird. Basierend auf de
-Schweregrads und der Fähigkeit zur Wiederherstellung wird entschieden, ob der Fehler behoben, fortgesetzt oder beendet werden soll.
+bedeutet Fehlerbehandlung, dass der Fehler bei der fehlerbehandelnden Funktion endet, 
+der Fehler mit vollständigem Kontext protokolliert und der Fehler auf seinen Schweregrad geprüft wird. Basierend auf der
+Schwere und der Fähigkeit zur Wiederherstellung wird entschieden, ob der Fehler behoben, fortgesetzt oder beendet werden soll.
 
 Ein Problem ist, dass nicht alle Funktionen mit einem Fehler umgehen können. Ein Grund dafür könnte sein, dass
 nicht alle Funktionen protokollieren dürfen. Was passiert, wenn ein Fehler zurück
@@ -393,10 +392,10 @@ Ausgabe:
 
 ** Zitate
 
-"Systeme können nicht in der Annahme entwickelt werden, dass Menschen in der Lage sind, Millionen von Codezeilen fehlerfrei zu schreiben, ohne dabei Fehler zu machen. Die Fehlersuche allein ist kein effizienter Weg
-um zuverlässige Systeme zu entwickeln." - Al Aho (Erfinder von AWK)
+"Systeme können nicht in der Annahme entwickelt werden, dass Menschen in der Lage sind, Millionen von Codezeilen fehlerfrei zu schreiben, ohne dabei Fehler zu machen. 
+Die Fehlersuche allein ist kein effizienter Weg um zuverlässige Systeme zu entwickeln." - Al Aho (Erfinder von AWK)
 
-** Extra Lesen
+** Zusatzlektüre
 
 - [[https://go.dev/blog/error-handling-and-go][Fehlerbehandlung und Go]]
 - [[https://go.dev/blog/go1.13-errors][Arbeiten mit Fehlern in Go 1.13]]
@@ -417,12 +416,12 @@ Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine möglic
 ** Übung 1
 
 Erstellt zwei Fehlervariablen, eine mit dem Namen ErrInvalidValue und die andere mit dem Namen
-ErrAmountTooLarge. Geben Sie die statische Meldung für jede Variable an. Schreiben Sie dann eine
+ErrAmountTooLarge. Gebt die statische Meldung für jede Variable an. Schreibt dann eine
 Funktion namens checkAmount, die einen Wert vom Typ float64 akzeptiert und einen
-Fehlerwert zurückgibt. Prüfen Sie den Wert auf Null und geben Sie in diesem Fall den Wert ErrInvalidValue zurück.
-Prüfen Sie, ob der Wert größer als $1.000 ist, und geben Sie in diesem Fall den Fehler ErrAmountTooLarge zurück.
-Schreiben Sie eine Hauptfunktion, die die Funktion checkAmount aufruft und den zurückgegebenen Fehler.
-Geben Sie eine entsprechende Meldung auf dem Bildschirm aus.
+Fehlerwert zurückgibt. Überprüft den Wert auf Null und gebt, falls er Null ist, den Wert ErrInvalidValue zurück.
+Prüft, ob der Wert größer als $1.000 ist, und gebt in diesem Fall den Fehler ErrAmountTooLarge zurück.
+Schreibt eine Hauptfunktion, die die Funktion checkAmount aufruft und den zurückgegebenen Fehler überprüft.
+Gebt eine entsprechende Meldung auf dem Bildschirm aus.
 
 .play error-handling/exercise1.go
 .play error-handling/answer1.go
@@ -430,11 +429,11 @@ Geben Sie eine entsprechende Meldung auf dem Bildschirm aus.
 ** Übung 2
 
 Erstellt einen benutzerdefinierten Fehlertyp namens appError, der drei Felder enthält: err error,
-message string und code int. Implementieren Sie die Fehlerschnittstelle mit ihrer eigenen Nachricht
-unter Verwendung dieser drei Felder. Implementieren Sie eine zweite Methode namens temporary, die 
-false zurückgibt, wenn der Wert des Feldes code 9 ist. Schreiben Sie eine Funktion namens checkFlag, die
-einen boolschen Wert annimmt. Wenn der Wert false ist, geben Sie einen Zeiger ihres eigenen Fehlertyps
-zurück, der wie gewünscht initialisiert wird. Wenn der Wert true ist, wird ein Standardfehler zurückgegeben. Schreiben Sie eine
+message string und code int. Implementiert die Fehlerschnittstelle mit ihrer eigenen Nachricht
+unter Verwendung dieser drei Felder. Implementiert eine zweite Methode namens temporary, die 
+false zurückgibt, wenn der Wert des Feldes code 9 ist. Schreibt eine Funktion namens checkFlag, die
+einen boolschen Wert annimmt. Wenn der Wert false ist, gebt einen Zeiger ihres eigenen Fehlertyps
+zurück, der wie gewünscht initialisiert wird. Wenn der Wert true ist, wird ein Standardfehler zurückgegeben. 
 Schreibt eine main Funktion um checkFalg aufzurufen und überprüft den Fehler unter Verwendung des temporären Interface.
 
 .play error-handling/exercise2.go
