@@ -74,7 +74,7 @@ Dominik:
 
 - [x] functions.article (neu: word count 349) (proof read done)
 
-- [x] generics-basics.article (neu: word count 114)
+- [x] generics-basics.article (neu: word count 114) (proof read done)
 
 - [x] generics-behavior-constraints.article (neu: word count 107)
 
