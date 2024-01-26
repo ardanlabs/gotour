@@ -40,7 +40,7 @@ Christiane:
 
 Dominik:
 
-- [x] generics-multi-type-params.article
+- [x] generics-multi-type-params.article (proof read done)
 
 - [x] generics-slice-constraints.article
 
@@ -76,8 +76,8 @@ Dominik:
 
 - [x] generics-basics.article (neu: word count 114) (proof read done)
 
-- [x] generics-behavior-constraints.article (neu: word count 107)
+- [x] generics-behavior-constraints.article (neu: word count 107) (proof read done)
 
-- [x] generics-channels.article (neu: word count 178)
+- [x] generics-channels.article (neu: word count 178) (proof read done)
 
 - [x] generics-hash-table.article (neu: word count 349)
