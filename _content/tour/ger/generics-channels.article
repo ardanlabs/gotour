@@ -7,8 +7,7 @@ Untersucht, wie das Go-Team dank der Generics ein Paket von concurrency patterns
 
 ** Video
 
-Schaut sich den Vortrag über Generics an, der Sie durch alle
-Beispiele in diesem Abschnitt der Tour.
+Seht euch den Vortrag an, den ich über Generics (Generika) gehalten habe, der euch durch alle Beispiele in diesem Abschnitt der Tour führt.
 
 .html generics-video.html
 
@@ -28,7 +27,7 @@ Dies würde die Deklaration von channels und Funktionen unter Verwendung generis
 
 In diesem Beispiel wird ein Typ deklariert, der eine Funktion darstellt die einen Kontext akzeptiert
 und einen Wert vom generischen Typ Result zurückgibt. Diese Funktionsdeklaration beschreibt eine
-Funktion, die zeitgleiche (concurrent) Arbeit ausgeführt und das Resultat dieser Arbeit zurückgibt.
+Funktion, die zeitgleiche (concurrent) Arbeit ausgeführt hat und das Resultat dieser Arbeit zurückgibt.
 
 
     func doWork[Result any](ctx context.Context, work workFn[Result]) chan Result {
@@ -53,7 +52,7 @@ das Ergebnis der zeitgleichen (concurrent) Arbeit zu erhalten. In der Mitte der 
 konstruiert um die work-Funktion gleichzeitig auszuführen. Sobald die work-Funktion
 returned, wird das Rückgabeargument über den Channel an den Aufrufer zurückgeschickt.
 
-Um die Verwendung der doWork-Funktion zu testen, Erstellt ein kleines Programm.
+Um die Verwendung der doWork-Funktion zu testen, erstellt ein kleines Programm.
 
     func main() {
         duration := 100 * time.Millisecond
@@ -88,21 +87,21 @@ wird doWork aufgerufen und ein Channel vom Typ string zurückgegeben und
 der Variablen result zugewiesen.
 
 Der Compiler kann den konkreten Typ bestimmen der für den generischen Typ
-Ergebnis zu verwenden ist indem er den Rückgabetyp der literalen work-Funktion untersucht, welche an 
-die doWork-Funktion übergeben wird. Das ist genial denn es bedeutet, dass Sie den Typ
-beim Aufruf von doWork übergeben.
+result bestimmen, indem er den Rückgabetyp der literalen work-Funktion untersucht, welche an 
+die doWork-Funktion übergeben wird. Das ist genial denn es bedeutet, dass ihr den Typ
+beim Aufruf von doWork übergeben müsst.
 
-Mit dem Channel vom Typ String welcher der Variablen result zugewiesen ist, wird ein Select Case 
+Mit dem Channel vom Typ String welcher der Variablen result zugewiesen ist, wird eine Select Anweisung 
 verwendet um auf die rechtzeitige Rückgabe des Ergebnisses oder auf das Eintreten der Zeitüberschreitung zu warten.
 Die Funktion doWork kann verwendet werden um diese zeitgleiche Arbeit für jeden erforderlichen konkreten Typ auszuführen.
 
 Dieselbe Idee könnte auf einen Pool von Goroutinen angewandt werden, welche die Arbeit an
-einer generischen Eingabe ausführen und ein generisches Ergebnis zurückgeben.
+einer generischen Eingabe ausführen und ein generisches Ergebnis zurückgeben könnten.
 
 type workFn[Input any, Result any] func(input Input) Ergebnis
 
-In diesem Beispiel ändern Sie den Funktionstyp so dass er eine generische Eingabe akzeptiert und ein
-allgemeines Ergebnis zurück.
+In diesem Beispiel ändert die Funktion ihren Typ, um eine generische Eingabe zu akzeptieren und ein
+allgemeines Ergebnis zurückzugeben.
 
     func poolWork[Input any, Result any](size int, work workFn[Input, Result]) (chan Input, func()) {
         var wg sync.WaitGroup
@@ -136,7 +135,7 @@ Eingabedaten für die work-Funktion zu empfangen.
 
 Dann wird ein Pool von Goroutinen erstellt wobei jede Goroutine auf eine Empfangsvorgang-Operation wartet
 und eine for-range-Schleife für den Channel verwendet wird. Schließlich wird eine Abbruchfunktion
-erstellt, die es dem Aufrufer ermöglicht den Pool zu schließen und zu warten bis alle Goroutines
+erstellt, die es dem Aufrufer ermöglicht den Pool zu schließen und zu warten bis alle Goroutinen
 signalisieren dass sie beendet sind.
 
 Um die Verwendung der poolWork-Funktion zu testen, wurde ein zweites kleines Programm erstellt.
