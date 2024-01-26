@@ -1,13 +1,13 @@
 Interface Pollution
 
-Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, anstatt sie zu entdecken.
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen anstatt sie zu entdecken.
 
 * Interface Pollution
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
 - Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, anstatt sie zu entdecken.
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen anstatt sie zu entdecken.
 
 ** Code-Überprüfung
 
@@ -19,18 +19,18 @@ Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entw
 
 ** Interface Pollution
 
-Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen, anstatt 
+Interface-Pollution entsteht dadurch, dass Menschen Software mit Interfaces entwerfen anstatt 
 sie zu entdecken. Ihr solltet zuerst eine konkrete Lösung für das Problem entwerfen. 
-Dann könnt ihr entdecken, wo das Programm polymorph sein muss, wenn überhaupt.
+Dann könnt ihr entdecken, wo das Programm polymorph sein muss (wenn überhaupt).
 
 Das sind Dinge, die ich von anderen Entwicklern gehört habe.
 
 "Ich verwende Interfaces, weil wir Interfaces verwenden müssen".
 
 Nein. Wir müssen keine Interfaces verwenden. Wir verwenden Interfaces, wenn es praktisch und 
-vernünftig ist, dies zu tun. Es gibt einen Kostenfaktor bei der Verwendung von Interfaces: 
+vernünftig ist dies zu tun. Es gibt einen Kostenfaktor bei der Verwendung von Interfaces: 
 eine Ebene der Indirektion und Allokation, wenn wir konkrete Werte in ihnen speichern. 
-Es sei denn, der Kostenfaktor der Allokation ist es wert, was ich durch Entkopplung gewinne, 
+Es sei denn der Kostenfaktor der Allokation, den ich durch Entkoppelung gewinne, ist es wert, 
 solltet ihr keine Interfaces verwenden.
 
 "Ich muss meinen Code testen können, also muss ich Interfaces verwenden".
@@ -41,7 +41,7 @@ Es gibt auch verschiedene Ebenen von APIs. Die niedrigeren, nicht exportierten A
 und sollten sich auf Testbarkeit konzentrieren. Die höheren, exportierten APIs müssen sich 
 auf Benutzerfreundlichkeit konzentrieren.
 
-Funktionen, die Rohdaten entgegennehmen und Rohdaten zurückgeben, sind am besten testbar.
+Funktionen, die Rohdaten entgegennehmen und Rohdaten zurückgeben sind am besten testbar.
 Trennt die Datentransformation davon, wo die Daten herkommen und wohin sie gehen. 
 Dies ist eine Refactoring-Übung, die ihr während des Engineering-Coding-Zyklus durchführen müsst.
 
@@ -54,10 +54,10 @@ verwendet, wenn es nicht benötigt wird.
     Wait() error
 }
 
-Das Server-Interface definiert einen Vertrag für TCP-Server. Das Problem hier ist, ich brauche 
-keinen Vertrag, ihr braucht eine Implementierung. Es wird auch nur eine Implementierung geben, 
-besonders da ihr diejenigen seid, die sie implementieren. Ihr braucht niemanden, der dies 
-für euch implementiert.
+Das Server-Interface definiert einen Vertrag für TCP-Server. Das Problem ist, ich brauche 
+keinen Vertrag, ich brauche eine Implementierung. Es wird auch nur eine Implementierung geben, 
+besonders da ihr diejenigen seid die die Implementierung umsetzten werdet. Ihr braucht niemanden der dies 
+für euch tut.
 
 Außerdem basiert dieses Interface auf einem Substantiv und nicht auf einem Verb. 
 Konkrete Typen sind Substantive, da sie das konkrete Problem repräsentieren. 
@@ -65,11 +65,11 @@ Interfaces beschreiben das Verhalten, und Server ist kein Verhalten.
 
 Hier sind einige Möglichkeiten, Interface-Pollution zu identifizieren:
 
--Ein Paket deklariert ein Interface, das die gesamte API seines eigenen konkreten Typs entspricht.
--Die Interfaces werden exportiert, aber die konkreten Typen, die das Interface implementieren, werden nicht exportiert.
--Die Factory-Funktion für den konkreten Typ gibt den Interface-Wert mit dem nicht exportierten konkreten Typwert im Inneren zurück.
--Das Interface kann entfernt werden, und für den Benutzer der API ändert sich nichts.
--Das Interface entkoppelt die API nicht von Veränderungen.
+- Ein Paket deklariert ein Interface, das die gesamte API seines eigenen konkreten Typs entspricht.
+- Die Interfaces werden exportiert, aber die konkreten Typen, die das Interface implementieren werden nicht exportiert.
+- Die Factory-Funktion für den konkreten Typ gibt den Interface-Wert mit dem nicht exportierten konkreten Typwert im Inneren zurück.
+- Das Interface kann entfernt werden, während sich für den Benutzer der API nichts ändert.
+- Das Interface entkoppelt die API nicht von Veränderungen.
 
 Richtlinien zur Interface-Pollution:
 
@@ -77,10 +77,10 @@ Verwendet ein Interface:
 
 - Wenn die Nutzer der API ein Implementierungsdetail bereitstellen müssen.
 - Wenn APIs mehrere Implementierungen haben, die gepflegt werden müssen.
-- Wenn Teile der APIs, die sich ändern können, identifiziert wurden und entkoppelt werden müssen.
+- Wenn Teile der APIs die sich ändern können, identifiziert wurden und entkoppelt werden müssen.
 
 Hinterfragt ein Interface:
 
--Wenn sein einziger Zweck darin besteht, testbare APIs zu schreiben (schreibt zuerst benutzbare APIs).
--Wenn es keine Unterstützung für die API bietet, um sich von Veränderungen zu entkoppeln.
+- Wenn sein einziger Zweck darin besteht, testbare APIs zu schreiben (schreibt zuerst benutzbare APIs).
+- Wenn es keine Unterstützung für die API bietet, um sich von Veränderungen zu entkoppeln.
 - Wenn nicht klar ist, wie die Schnittstelle den Code besser macht.

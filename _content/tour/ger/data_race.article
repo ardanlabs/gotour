@@ -1,14 +1,14 @@
 Data Races
-Ein Data Race liegt vor, wenn zwei oder mehr Goroutinen gleichzeitig versuchen, dieselbe Ressource zu lesen und zu beschreiben.
+Ein Data Race liegt vor, wenn zwei oder mehr Goroutinen gleichzeitig versuchen dieselbe Ressource zu lesen und zu beschreiben.
 
 * Data Races
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
 - Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
-Ein Datenwettlauf liegt vor, wenn zwei oder mehr Goroutinen versuchen, gleichzeitig auf denselben Speicherort zuzugreifen, 
+Ein Data Race liegt vor, wenn zwei oder mehr Goroutinen versuchen, gleichzeitig auf denselben Speicherort zuzugreifen, 
 wobei mindestens eine Goroutine eine Schreiboperation durchführt. Wenn dies geschieht, ist das Ergebnis nicht vorhersehbar. 
-Diese Art von Fehlern sind schwer zu finden, da sie Probleme verursachen, die immer zufällig erscheinen.
+Diese Art von Fehlern sind schwer zu finden, da sie Probleme verursachen, die zufällig erscheinen.
 
 Diese ~8 Minuten von Scott Meyers sind hier sehr aufschlussreich:
 
@@ -30,10 +30,10 @@ Diese ~8 Minuten von Scott Meyers sind hier sehr aufschlussreich:
 .play data_race/example5.go
 .play data_race/example6.go
 
-** Beispiel für ein Datenrennen
+** Beispiel für ein Data Race
 
-Dies ist ein großartiges Beispiel für ein Datenrennen und wie sie jahrelang verborgen bleiben können, um dann zu 
-ungeraden Zeiten aufzutauchen und Datenkorruption zu verursachen.
+Dies ist ein großartiges Beispiel für einen Data Race und wie ein solcher jahrelang verborgen bleiben kann, um dann zu 
+unpassender Zeit wieder aufzutauchen und Datenkorruption zu verursachen.
 
 var counter int
 
@@ -80,7 +80,7 @@ Operation gegen den gemeinsamen Zustand manuell durch.
     }
 
 Ihr könnt den Zugriff auf den gemeinsamen Zustand innerhalb der for-Schleife sehen. Wenn Ihr 
-dieses Programm baut und ausführt, erhaltet Ihr jedes Mal die richtige Antwort von 4.
+dieses Programm builded und ausführt, erhaltet Ihr jedes Mal die richtige Antwort von 4.
 
     
     $ ./example1
@@ -114,9 +114,9 @@ Beenden
                                                                 Beenden
 ----------------------------------------------------------------------------
 
-Die Lesen-, Modifizieren- und Schreiboperationen erfolgen ununterbrochen. Nur weil ich die richtige 
-Antwort bekomme, heißt das nicht, dass kein Problem vorliegt. Was passiert, wenn ihr eine 
-Log-Anweisung in der Mitte der Lesen-, Modifizieren- und Schreiboperation hinzufügt?
+Die Lese-, Modifikations- und Schreiboperationen erfolgen ununterbrochen. Nur weil ich die richtige 
+Antwort bekomme heißt es nicht, dass kein Problem vorliegt. Was passiert, wenn ihr eine 
+Log-Anweisung in der Mitte der Lese-, Modifizikations- und Schreiboperation hinzufügt?
 
     var counter int
 
@@ -136,8 +136,7 @@ Log-Anweisung in der Mitte der Lesen-, Modifizieren- und Schreiboperation hinzuf
         . . .
     }
 
-GPT
-Um dieses Programm auszuführen, erhaltet Ihr nun nicht mehr das gleiche Ergebnis von 4, 
+Um dieses Programm auszuführen, erhaltet ihr nun nicht mehr das gleiche Ergebnis von 4, 
 sondern das Ergebnis von 2.
 
     $ ./example1
@@ -151,8 +150,7 @@ sondern das Ergebnis von 2.
 
 
 
-GPT
-Es passiert folgendes: Ihr stoßt auf einen Datenrennen-Fehler (data race bug), der zuvor bereits 
+Es passiert folgendes: ihr stoßt auf einen Data Race-Fehler, der zuvor bereits 
 existierte, aber nicht auftrat. Der Aufruf von log verursacht nun, dass der Scheduler zu einem 
 ungünstigen Zeitpunkt zwischen den beiden Goroutinen einen Kontextwechsel (context switch) durchführt.
 
@@ -180,11 +178,11 @@ Beenden
 --------------------------------------------------------------------------------
 
 Nach der Änderungsoperation (modify operation) findet ein Kontextwechsel statt. Die drei Operationen 
-sind nicht länger ununterbrochen, und die lokale Variable der Goroutine 2 ist falsch, wenn sie die 
-Schreiboperation (write operation) abschließt. Ihr habt Glück, dass dies jedes Mal passiert und 
-Ihr es sehen könnt. Normalerweise tritt ein Datenrennen wie dieses "zufällig" auf und ist 
-unmöglich zu erkennen, bis es zu spät ist. Glücklicherweise verfügt Go über einen 
-Rennzustands-Detektor (race detector), um solche Datenrennen zu finden.
+sind nicht länger ununterbrochen und die lokale Variable der Goroutine 2 ist falsch, zum Zeitpunkt wenn sie die 
+Schreiboperation abschließt. Ihr habt Glück, dass dies jedes Mal passiert deshalb offensichtlich ist.
+Normalerweise tritt ein Data Race wie dieser "zufällig" auf und ist 
+unmöglich zu erkennen. Glücklicherweise verfügt Go über einen 
+Race-Detector, welcher solche Data Races aufspüren kann.
 
 ** Race Detection
 
@@ -196,9 +194,9 @@ Es wird gesagt, dass ein instrumentiertes Binary (instrumented binary) mein Prog
     $ go build -race
     $ ./example1
 
-Das -race-Flag ist die Methode, um den Build mit dem Rennzustands-Detektor zu instrumentieren. 
-Wahrscheinlich werdet Ihr es mehr mit "go test" verwenden, aber in diesem Beispiel instrumentiert 
-Ihr das Binary und führt es dann aus.
+Das -race-Flag ist die Methode, um den Build mit dem Data-Race-Detektor zu analysieren. 
+Wahrscheinlich werdet Ihr es mehr mit "go test" verwenden, aber in diesem Beispiel analysiert 
+ihr das Binary und führt es dann aus.
 
 2021/02/01 17:30:52 logging
 2021/02/01 17:30:52 logging
@@ -223,13 +221,13 @@ main.main()
 ==================
 2021/02/01 17:30:52 logging
 Endgültiger Zählerstand (Final Counter): 2
-Gefunden 1 Datenrennen
+Gefunden 1 Data Race
 
 
-Ihr könnt sehen, dass ein Rennen erkannt wurde, als das Programm ausgeführt wurde. Dies würde mit 
-oder ohne das Einfügen der log-Anweisung passieren. Wenn ein Rennen erkannt wird, gerät das Programm 
+Wie ihr sehen könnt wrude ein Race, als das Programm ausgeführt wurde. Dies würde mit 
+oder ohne das Einfügen der log-Anweisung passieren. Wenn ein Race erkannt wird, gerät das Programm 
 in Panik und liefert diese Rückverfolgung. Die Rückverfolgung zeigt, wo es unkoordinierten Zugriff 
-auf den gleichen gemeinsamen Zustand gab, bei dem mindestens ein Zugriff ein Schreiben war.
+auf den gleichen gemeinsamen Zustand gab, bei dem mindestens ein Zugriff ein Schreibzugriff war.
 
 In dieser Rückverfolgung hat eine Goroutine an der Adresse 0x000001278d88 in Zeile 41 geschrieben, 
 und es gab ein unkoordiniertes Lesen an derselben Adresse durch eine andere Goroutine in Zeile 38. 
@@ -246,21 +244,21 @@ Beide Goroutinen wurden in Zeile 36 erstellt.
   44 }()
 
 Ihr könnt das unkoordinierte Lesen und Schreiben deutlich sehen. Als Randnotiz: Die Plus-Plus-Operation 
-in Zeile 39 wäre ebenfalls ein Datenrennen, wenn der Code auf die Variable counter zugreifen würde. 
+in Zeile 39 wäre ebenfalls ein Data Race, wenn der Code auf die Variable counter zugreifen würde. 
 Die Plus-Plus-Operation ist eine Lese-, Änderungs- und Schreiboperation darunter, und das 
 Betriebssystem könnte leicht in der Mitte davon einen Kontextwechsel durchführen.
 
-Wie könnt Ihr also den Code ändern, um sicherzustellen, dass Ihr das Datenrennen entfernt? 
-Es gibt zwei Werkzeuge, die Ihr verwenden könnt: atomare Anweisungen (atomics) und Mutexe.
+Wie könnt Ihr also den Code ändern, um sicherzustellen, dass Ihr den Data Race entfernt? 
+Es gibt zwei Werkzeuge die Ihr verwenden könnt: atomic insturctions und Mutexes.
 
 
 ** Atomics
 
 Atomics bietet eine Synchronisierung auf der Hardware-Ebene. Deshalb sind sie auf Worte und 
 Halbworte von Daten beschränkt. Sie sind also großartig für Zähler oder schnelle Umschaltmechanismen. 
-Die WaitGroup-APIs verwenden Atomares.
+Die WaitGroup-APIs verwenden atomics.
 
-Welche Änderungen müsst Ihr vornehmen, um Atomares im Code anzuwenden?
+Welche Änderungen müsst Ihr vornehmen, um atomics im Code anzuwenden?
 
     var counter int32                             <-- CHANGED
 
@@ -285,13 +283,13 @@ Welche Änderungen müsst Ihr vornehmen, um Atomares im Code anzuwenden?
 
 Ihr müsst nur ein paar Dinge tun. Zuerst ändert die counter-Variable in eine präzisionsbasierte 
 Ganzzahl (precision based integer). Ihr könnt das am Anfang der Code-Auflistung sehen. 
-Die atomaren Funktionen (atomic functions) funktionieren nur mit präzisionsbasierten Ganzzahlen. 
+Die atomics Funktionen funktionieren nur mit präzisionsbasierten Ganzzahlen. 
 Zweitens entfernt den manuellen Lese-, Änderungs- und Schreibcode für einen Aufruf 
 von atomic.AddInt32. Dieser eine Aufruf erledigt alles.
 
 Alle Funktionen, die mit dem atomic-Paket verbunden sind, nehmen die Adresse des gemeinsamen 
 Zustands, der synchronisiert werden soll. Die Synchronisation erfolgt nur auf Adressenebene. 
-So werden verschiedene Goroutinen, die dieselbe Funktion aufrufen, aber an einer anderen Adresse, 
+So werden verschiedene Goroutinen, die dieselbe Funktion an einer unterschiedlichen Adresse aufrufen 
 nicht synchronisiert.
 
 Die API für Atomics sieht folgendermaßen aus:
@@ -340,7 +338,7 @@ kleinen API bereitstellt.
 
 ** Mutexe
 
-Was, wenn Ihr die drei Codezeilen behalten wollt? Dann funktionieren Atomics nicht. Was Ihr dann 
+Was wenn ihr die drei Codezeilen behalten wollt? Dann funktionieren Atomics nicht. Was Ihr dann 
 braucht, ist ein Mutex. Ein Mutex lässt mich eine Gruppe von Code "einsperren", sodass nur 
 eine Goroutine zur gleichen Zeit diesen Code ausführen kann.
 
@@ -376,26 +374,25 @@ func main() {
 
 
 Es gibt mehrere Änderungen an diesem Code im Vergleich zum Original. Ihr habt die Erstellung der 
-mu-Variable hinzugefügt, um einen Mutex auf seinen Nullwert zu setzen. Dann habt Ihr innerhalb der 
+mu-Variable hinzugefügt, um einen Mutex auf seinen Nullwert zu setzen. Dann habt ihr innerhalb der 
 for-Schleife Aufrufe zu Lock und Unlock mit einem künstlichen Codeblock hinzugefügt. 
 Innerhalb des Codeblocks befindet sich der Code, der synchronisiert werden muss. 
 Der Codeblock wird zur besseren Lesbarkeit verwendet.
 
 Mit diesem Code wird der Scheduler nur einer Goroutine erlauben, den Codeblock zu einem Zeitpunkt 
 zu betreten. Es ist wichtig zu verstehen, dass ein Mutex keine Warteschlange ist. 
-Die erste Goroutine, die Lock aufruft, ist nicht unbedingt die erste Goroutine, die das 
-Lock erhält. Es gibt einen Fairness-basierten Algorithmus, aber dies wird absichtlich so gemacht, 
-damit Leute keine Mutexe als Warteschlangen verwenden.
+Die erste Goroutine die Lock aufruft, ist nicht unbedingt die erste Goroutine die das 
+Lock erhält. Es gibt einen Fairness-basierten Algorithmus der mit Absicht verhindert, dass man Mutexes als Warteschlangen verwendet.
 
-Es ist wichtig zu bedenken, dass das Lock einen Rückstau erzeugt, sodass je länger es dauert, 
-von Lock zu Unlock zu gelangen, desto größer ist die Chance, dass Goroutinen auf ihre Reihe warten. 
-Wenn Ihr vergesst, Unlock aufzurufen, werden alle wartenden Goroutinen in einen Deadlock geraten. 
+Es ist wichtig zu bedenken, dass das Lock einen Rückstau erzeugt. Das heisst je länger es dauert von Lock zu Unlock zu gelangen, desto 
+grösser ist die Wahrscheinlichkeit das Goroutinen darauf Warten an der Reihe zu sein.
+ 
+Wenn Ihr vergesst Unlock aufzurufen, werden alle wartenden Goroutinen in einen Deadlock geraten. 
 Daher ist es kritisch, dass der Aufruf von Lock und Unlock in derselben Funktion erfolgt. 
-Stellt sicher, dass Ihr die minimal notwendige Synchronisation im Codeblock durchführt, 
-aber zumindest das Minimum.
+Stellt sicher, dass Ihr die minimal notwendige Synchronisation im Codeblock durchführt.
 
 Das ist sehr schlechter Code, bei dem jemand versucht, so schnell in und aus dem Lock zu gelangen, 
-dass sie tatsächlich die Synchronisation verlieren und der Rennzustands-Detektor (race detector) 
+dass sie tatsächlich die Synchronisation verlieren und der Race-Detector
 das Problem nicht einmal entdecken kann.
 
     var counter int
@@ -437,16 +434,16 @@ das Problem nicht einmal entdecken kann.
 Als allgemeine Richtlinie: Wenn Ihr einen Aufruf von Lock vom gleichen Mutex zweimal in derselben 
 Funktion seht, haltet die Code-Überprüfung an. Es gibt wahrscheinlich einen Fehler oder eine 
 Überkomplikation. In diesem Fall werden die Aufrufe zum Lesen und Schreiben synchronisiert, 
-jedoch können zwei Goroutinen am value++-Code mit demselben Wert enden. Das Datenrennen existiert 
-weiterhin und der Rennzustands-Detektor ist machtlos, es zu finden.
+jedoch können zwei Goroutinen am value++-Code mit demselben Wert enden. Der Data Race existiert 
+weiterhin und der Race-Detector ist machtlos diesen zu finden.
 
 ** Lese-/Schreib-Mutexe
 
-Es gibt eine zweite Art von Mutex, genannt Lese-/Schreib-Mutex (read/write mutex). Es erlaubt mir, 
-die Locks um Lesen und Schreiben zu trennen. Das ist wichtig, da das Lesen von Daten keine Bedrohung 
-darstellt, es sei denn, eine Goroutine versucht gleichzeitig zu schreiben. Daher erlaubt dieser 
-Mutex-Typ mehreren Goroutinen, gleichzeitig denselben Speicher zu lesen. Sobald ein Schreib-Lock 
-angefordert wird, werden keine weiteren Lesevorgänge ausgegeben, der Schreibvorgang findet statt, 
+Es gibt eine zweite Art von Mutex, genannt Read-Write-Mutex. Dieser erlaubt mir
+die Locks von Lesen und Schreiben zu trennen. Das ist wichtig, da das Lesen von Daten keine Bedrohung 
+darstellt, es sei denn eine Goroutine versucht gleichzeitig zu schreiben. Daher erlaubt dieser 
+Mutex-Typ mehreren Goroutinen gleichzeitig denselben Speicher zu lesen. Sobald ein Schreib-Lock 
+angefordert wird, werden keine weiteren Lesevorgänge ausgegeben. Der Schreibvorgang findet statt, 
 und die Lesevorgänge können wieder beginnen.
 
 
@@ -504,13 +501,13 @@ und die Lesevorgänge können wieder beginnen.
         rwMutex.RUnlock()
     }
 
-Ihr könnt die Verwendung eines Lese-/Schreib-Mutex (read/write mutex) sehen, bei dem 8 Goroutinen 
+Ihr könnt die Verwendung eines Read-Write-Mutex sehen, bei dem 8 Goroutinen 
 die Länge eines Slices innerhalb einer Verzögerung von jeweils 10 Millisekunden lesen und 1 
-Goroutine innerhalb von 100 Millisekunden aufwacht, um einen Wert (schreiben) an das Slice anzuhängen.
+Goroutine innerhalb von 100 Millisekunden aufwacht, um einen Wert mit einem Schreibzugriff an das Slice anzuhängen.
 
-Der Schlüssel liegt in der Implementierung der writer- und reader-Funktionen. Beachtet, wie 
+Der Schlüssel liegt in der Implementierung der writer- und reader-Funktionen. Beachtet wie 
 Ihr Lock für den Schreiber (writer) und RLock für den Leser (reader) verwendet. Einer der 
-größten Fehler, die Ihr mit diesem machen könnt, ist das Verwechseln der Unlock-Aufrufe mit 
+größten Fehler, die ihr mit diesem machen könnt, ist das Verwechseln der Unlock-Aufrufe mit 
 der falschen Version. Ein Lock mit einem RUnlock wird niemals gut enden.
 
     7 : Performing Read : Length[0]
@@ -535,15 +532,15 @@ der falschen Version. Ein Lock mit einem RUnlock wird niemals gut enden.
     3 : Performing Read : Length[2]
 
 Die Ausgabe zeigt, dass mehrere Goroutinen gleichzeitig lesen, aber alle
-das Lesen stoppt, wenn das Schreiben stattfindet.
+das Lesen stoppen sobald das Schreiben stattfindet.
 
 ** Anmerkungen
 
 - Goroutinen müssen koordiniert und synchronisiert werden.
 - GPT
-Wenn zwei oder mehr Goroutinen versuchen, auf dieselbe Ressource zuzugreifen, haben wir ein 
-Datenrennen (data race).
-- Atomare Funktionen (atomic functions) und Mutexe können die Unterstützung bieten, die wir benötigen.
+Wenn zwei oder mehr Goroutinen versuchen, auf dieselbe Ressource zuzugreifen haben wir ein 
+Data Race.
+- atomic functions und Mutexe können die Unterstützung bieten, die wir benötigen.
 
 ** Cache-Kohärenz und Falsches Teilen (False Sharing)
 

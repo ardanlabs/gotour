@@ -26,17 +26,17 @@ Christiane:
 
 - [x] composition-grouping.article (proof read done)
 
-- [x] composition-mocking.article (neu: word count 97)
+- [x] composition-mocking.article (neu: word count 97)(proof read done)
 
-- [x] composition-pollution.article (neu: word count 86)
+- [x] composition-pollution.article (neu: word count 86)(proof read done)
 
-- [x] constants.article (neu: word count 180)
+- [x] constants.article (neu: word count 180) (proof read done)
 
-- [x] context.article (neu: word count 525)
+- [x] context.article (neu: word count 525)(proof read done)
 
-- [x] data_race.article (neu: word count 565)
+- [x] data_race.article (neu: word count 565)(proof read done)
 
-- [x] embedding.article (neu: word count 205)
+- [x] embedding.article (neu: word count 205) (proof read done)
 
 Dominik:
 

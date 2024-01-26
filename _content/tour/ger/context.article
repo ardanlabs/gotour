@@ -1,5 +1,5 @@
 Context-Paket
-Das Paket Context definiert den Typ Context, welcher Fristen, Abbruchsignale und andere anfragespezifische Werte über API-Grenzen und zwischen Prozessen trägt.
+Das Paket Context definiert den Typ Context, welcher Fristen, Abbruchsignale und andere anfragespezifische Werte über API-Grenzen hinaus und zwischen Prozessen trägt.
 
 * Context-Paket
 
@@ -7,7 +7,7 @@ Das Paket Context definiert den Typ Context, welcher Fristen, Abbruchsignale und
 - Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
 
 Das Paket Context definiert den Typ Context, welcher Fristen, Abbruchsignale und andere anfragespezifische 
-Werte über API-Grenzen und zwischen Prozessen trägt.
+Werte über API-Grenzen hinuas und zwischen Prozessen trägt.
 
 ** Code-Überprüfung
 
@@ -29,9 +29,9 @@ Werte über API-Grenzen und zwischen Prozessen trägt.
 
 ** Context-Semantik
 
-Die Programmiersprache Go verfügt über das eingebaute Schlüsselwort go, um Goroutinen zu erstellen, bietet jedoch keine 
+Die Programmiersprache Go verfügt über das eingebaute Schlüsselwort go, um Goroutinen zu erstellen. Die Sprache bietet jedoch keine 
 Schlüsselwörter oder direkte Unterstützung für das Beenden von Goroutinen. In einem realen Dienst ist es jedoch entscheidend, 
-Goroutinen zeitlich zu begrenzen und zu beenden, um die Gesundheit und den Betrieb eines Dienstes aufrechtzuerhalten. 
+Goroutinen zeitlich zu begrenzen und zu beenden, damit die Gesundheit und der Betrieb eines Dienstes gewährleistet ist. 
 Keine Anfrage oder Aufgabe darf ewig laufen, daher ist es die Verantwortung jedes Programmierers, Latenz zu identifizieren und zu verwalten.
 
 Eine vom Go-Team bereitgestellte Lösung für dieses Problem ist das Context-Paket. Es wurde 2014 von Sameer Ajmani 
@@ -41,14 +41,14 @@ Präsentation: [[https://talks.golang.org/2014/gotham-context.slide#1][https://t
 
 Blog Post: [[https://blog.golang.org/context][https://blog.golang.org/context]]
 
-Aus dieser veröffentlichten Arbeit und aus Gesprächen mit Sameer im Laufe der Jahre
+Aus dieser veröffentlichten Arbeit und dem Gesprächen mit Sameer im Laufe der Jahre
 hat sich eine Reihe von Semantiken entwickelt.
 
 *Eingehende* *Anfragen* *an* *einen* *Server* *sollten* *einen* *Context* erstellen
 
-Der richtige Zeitpunkt, einen Context zu erstellen, ist immer so früh wie möglich in der Bearbeitung einer Anfrage oder 
-Aufgabe. Die frühe Arbeit mit Context zwingt Sie dazu, APIs so zu entwerfen, dass sie Context als ersten Parameter nehmen. 
-Selbst wenn Sie sich nicht sicher sind, ob eine Funktion Context benötigt, ist es einfacher, Context aus einigen Funktionen 
+Der richtige Zeitpunkt einen Context in der Bearbeitung einer Anfrage oder Bewältigung einer Aufgabe zu erstellen, ist immer so früh wie möglich.
+Die frühe Initialisierung des Context zwingt Sie dazu APIs so zu entwerfen, dass sie Context als ersten Parameter nehmen. 
+Selbst wenn ihr euch nicht sicher seid ob eine Funktion Context benötigt, ist es einfacher Context aus einigen Funktionen 
 zu entfernen, als später Context hinzuzufügen.
 
     75 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
@@ -64,8 +64,8 @@ zu entfernen, als später Context hinzuzufügen.
     107    a.TreeMux.Handle(verb, path, h)
     108 }
 
-In diesem Auszug aus dem Serviceprojekt von Ardan Labs wird in Zeile 86 eine Handler-Funktion definiert, die an alle Routen 
-gebunden ist, wie in Zeile 107 gezeigt. Diese Funktion beginnt mit der Bearbeitung aller eingehenden Anfragen. 
+In diesem Auszug aus dem Serviceprojekt von Ardan Labs wird in Zeile 86 eine Handler-Funktion definiert, die an alle Routes 
+gebunden ist, wie Zeile 107 zeigt. Diese Funktion beginnt mit der Bearbeitung aller eingehenden Anfragen. 
 In Zeile 87 wird für die Anfrage ein Span erstellt, der als ersten Parameter einen Context nimmt. Dies ist das erste Mal 
 im Service-Code, dass ein Context benötigt wird.
 
@@ -80,13 +80,13 @@ erstellen.
     88         ctx, span := trace.StartSpan(ctx, "internal.platform.web")
     89         defer span.End()
 
-In der Version 1.8 von Go müsste der Code wie folgt aussehen, wie es in der Paketdokumentation beschrieben ist:
+In der Version 1.8 von Go müsste der Code wie folgt aussehen, wie es in der Dokumentation beschrieben ist:
 
 Background gibt einen nicht-nullen, leeren Context zurück. Er wird niemals abgebrochen, hat keine Werte und keine 
 Deadline. Er wird typischerweise von der Hauptfunktion, Initialisierung und Tests verwendet und als Top-Level-Context 
 für eingehende Anfragen genutzt.
 
-Es ist ein Idiom in Go, den Variablennamen ctx für alle Context-Werte zu verwenden. Da ein Context eine 
+Es ist ein Idiom in Go den Variablennamen ctx für alle Context-Werte zu verwenden. Da ein Context eine 
 Interface ist, sollten keine Zeigersemantiken verwendet werden.
 
     https://golang.org/pkg/context/#Context
@@ -98,7 +98,7 @@ Interface ist, sollten keine Zeigersemantiken verwendet werden.
         Value(key interface{}) interface{}
     }
 
-Jede Funktion, die einen Context akzeptiert, sollte ihre eigene Kopie des Interface Wertes erhalten.
+Jede Funktion, die einen Context akzeptiert sollte ihre eigene Kopie des Interface Wertes erhalten.
 
 *Ausgehende* *Aufrufe* *an* *Server* *sollten* *einen* *Context* akzeptieren
 
@@ -155,19 +155,19 @@ ist die WithContext-Methode. Diese Methode ermöglicht es, das Context-Feld des 
 In Zeile 26 ist genau das, was der Code tut.
 
 In Zeile 30 wird die eigentliche Anfrage mit der Do-Methode aus dem http-Paket des DefaultClient-Werts gemacht. 
-Die Do-Methode wird das Timeout von 50 Millisekunden respektieren, das jetzt im Context innerhalb des Request-Werts gesetzt ist. 
-Was man sieht, ist der Code (höherstufige Funktion), der der Do-Methode sagt, wie lange 
+Die Do-Methode wird das Timeout von 50 Millisekunden respektieren, welches jetzt im Context innerhalb des Request-Werts gesetzt ist. 
+Was man sieht ist der Code (höherstufige Funktion), welcher der Do-Methode sagt, wie lange 
 wir bereit sind zu warten, bis die Do-Operation abgeschlossen ist.
 
 Speichert*keine*Contexte*in*einem*Struct-Typ*
 
-Stattdessen sollte ein Context explizit an jede Funktion übergeben werden, die ihn benötigt. Im Wesentlichen sollte jede 
-Funktion, die I/O ausführt, einen Contextwert als ihren ersten Parameter akzeptieren und jegliche Timeout- oder 
+Stattdessen sollte ein Context explizit an jede Funktion übergeben werden die ihn benötigt. Im Wesentlichen sollte jede 
+Funktion, die I/O ausführt einen Contextwert als ihren ersten Parameter akzeptieren und jegliche Timeout- oder 
 Deadline-Konfigurationen des Aufrufers respektieren. Im Falle von Request gab es Rückwärtskompatibilitätsprobleme 
 zu berücksichtigen. Daher wurde anstatt die API zu ändern, der Mechanismus aus dem letzten Abschnitt implementiert.
 
 Es gibt Ausnahmen zu jeder Regel. Jedoch ist innerhalb des Rahmens dieses Beitrags und jeder API aus der Standardbibliothek, 
-die einen Context akzeptiert, das Idiom, den ersten Parameter den Contextwert akzeptieren zu lassen.
+die einen Context akzeptiert das Idiom, den ersten Parameter den Contextwert akzeptieren zu lassen.
 
 .image /tour/eng/static/img/context_figure1.png
 
@@ -177,7 +177,7 @@ nimmt und das ctx-Variablennamen-Idiom verwendet.
 *Die* *Kette* *von* *Funktionsaufrufen* *zwischen*ihnen*muss* *den* *Context* *weitergeben*
 
 Dies ist eine wichtige Regel, da ein Context anfrage- oder aufgabenbasiert ist. Man möchte, dass der Context und alle 
-Änderungen, die während der Verarbeitung der Anfrage oder Aufgabe daran vorgenommen wurden, weitergegeben und 
+Änderungen, die während der Verarbeitung der Anfrage oder Aufgabe daran vorgenommen wurden weitergegeben und 
 respektiert werden.
 
     23 // List returns all the existing users in the system.
@@ -195,12 +195,12 @@ respektiert werden.
 
 In diesem Listing sieht man eine Handler-Funktion namens List, die ausgeführt wird, wenn ein
 Benutzer eine HTTP-Anfrage an diesen Endpunkt stellt. Der Handler akzeptiert als ersten Parameter einen 
-Context, da er Teil einer Anfrage ist und I/O durchführt. Sie können in den Zeilen 25, 28 und 33 sehen, 
+Context, da er Teil einer Anfrage ist und I/O durchführt. Ihr könnt in den Zeilen 25, 28 und 33 sehen, 
 dass derselbe Contextwert den Aufrufstapel hinunter weitergegeben wird.
 
-Ein neuer Contextwert wird nicht erstellt, da diese Funktion keine Änderungen daran benötigt. Würde ein neuer Top-Level-Contextwert 
-von dieser Funktion erstellt werden, gingen alle bestehenden Contextinformationen von einem höherstufigen Aufruf, 
-der mit dieser Anfrage verbunden ist, verloren. Das ist nicht wünschenswert.
+Ein neuer Contextwert wird nicht erstellt, da diese Funktion keine Änderungen daran vornimmt. Würde ein neuer Top-Level-Contextwert 
+von dieser Funktion erstellt werden, gingen alle bestehenden Contextinformationen von einem höherstufigen Aufruf verloren, welcher 
+mit dieser Anfrage verbunden ist.
 
     33 // List retrieves a list of existing users from the database.
     34 func List(ctx context.Context, db *sqlx.DB) ([]User, error) {
@@ -219,13 +219,13 @@ der mit dieser Anfrage verbunden ist, verloren. Das ist nicht wünschenswert.
 
 Ihr seht die Deklaration der Methode List, die in Zeile 28 aufgerufen wurde. Auch diese Methode akzeptiert einen 
 Context als ihren ersten Parameter. Dieser Wert wird dann erneut in den Aufrufstapel hinunter weitergegeben, 
-in den Zeilen 35 und 41. Da Zeile 41 ein Datenbankaufruf ist, sollte diese Funktion jegliche Timeout-Informationen 
+in den Zeilen 35 und 41. Da Zeile 41 ein Datenbankaufruf ist sollte diese Funktion jegliche Timeout-Informationen 
 im Context von jedem darüberliegenden Aufrufer respektieren.
 
 *Ersetzen* *eines* *Contexts* *mit* *WithCancel,* *WithDeadline,* * *WithTimeout,* * *oder* *WithValue*
 
 Da jede Funktion den Context für ihre spezifischen Bedürfnisse hinzufügen/ändern kann und diese Änderungen keine 
-vor ihr aufgerufene Funktion beeinflussen sollten, verwendet der Context Wertesemantik. Das bedeutet, dass 
+vor ihr aufgerufene Funktion beeinflussen sollte, verwendet der Context Wertesemantik. Das bedeutet, dass 
 jede Änderung an einem Contextwert einen neuen Contextwert erzeugt, der dann weitergeleitet wird.
 
     01 func main() {
@@ -263,7 +263,7 @@ jede Änderung an einem Contextwert einen neuen Contextwert erzeugt, der dann we
 
 Dies ist ein kleines Programm, das die Wertesemantik der WithTimeout-Funktion zeigt. In Zeile 08 gibt der Aufruf 
 von WithTimeout einen neuen Contextwert und eine Abbruchfunktion zurück. Da der Funktionsaufruf einen übergeordneten 
-Context benötigt, verwendet der Code die Background-Funktion, um einen Top-Level-leeren Context zu erstellen. 
+Context benötigt, verwendet der Code die Background-Funktion um einen Top-Level-leeren Context zu erstellen. 
 Dafür ist die Background-Funktion gedacht.
 
 Im weiteren Verlauf wird der mit der Funktion WithTimeout erstellte Context-Wert verwendet. Wenn
@@ -272,13 +272,13 @@ sollten sie ebenfalls die entsprechende With-Funktion und diesen neuen Context-W
 den übergeordneten Wert verwenden.
 
 Es ist von entscheidender Bedeutung, dass jede Abbruchfunktion, die von einer With-Funktion
-zurückgegeben wird, ausgeführt wird, bevor diese Funktion zurückkehrt. Aus diesem Grund ist es üblich, das Schlüsselwort defer
-direkt nach dem With-Aufruf zu verwenden, wie man in Zeile 26 sieht. Dies nicht zu tun, würde Speicherlecks im Programm verursachen.
+zurückgegeben wird ausgeführt wird, bevor diese Funktion zurückkehrt. Aus diesem Grund ist es üblich, das Schlüsselwort defer
+direkt nach dem With-Aufruf zu verwenden (Zeiele 26). Dies nicht zu tun würde Speicherlecks im Programm verursachen.
 
 *Wenn *ein* *Context* *abgebrochen* wird, *werden* alle* *Contexte*, die *von* diesem *abgeleitet* sind, *auch* abgebrochen*.
 
 Die Verwendung von Wertsemantik für die Context-API bedeutet, dass jeder neue Contextwert alles erhält, was der 
-übergeordnete Context hat, plus etwaige neue Änderungen. Das bedeutet, wenn ein übergeordneter Context abgebrochen wird, 
+übergeordnete Context hat, inklusive etwaiger neuer Änderungen. Wenn ein übergeordneter Context abgebrochen wird, 
 werden auch alle von diesem übergeordneten Context abgeleiteten untergeordneten Contexte abgebrochen.
 
     01 func main() {
@@ -319,8 +319,7 @@ darauf, dass ihr Context abgebrochen wird.
 
 In Zeile 28 bricht die Hauptgoroutine ihren Context ab und wartet dann in Zeile 29 darauf, dass alle zehn Goroutinen 
 das Signal erhalten, bevor das Programm beendet wird. Sobald die Abbruchfunktion aufgerufen wird, werden alle zehn 
-Goroutinen in Zeile 41 freigegeben und geben aus, dass sie abgebrochen wurden. Ein Aufruf zum Abbrechen, um sie alle 
-abzubrechen.
+Goroutinen in Zeile 41 freigegeben und geben aus, dass sie abgebrochen wurden.
 
 Dies zeigt auch, dass derselbe Context an Funktionen übergeben werden kann, die in verschiedenen Goroutinen 
 ausgeführt werden. Ein Context ist sicher für die gleichzeitige Verwendung durch mehrere Goroutinen.
@@ -329,22 +328,22 @@ Gebt keinen nil-Context weiter, auch wenn eine Funktion dies zulässt. Gebt eine
 wenn ihre unsicher seid, welchen Context ihr verwenden sollt. Einer meiner Lieblingsteile des Context-Pakets ist 
 die TODO-Funktion. Ich bin fest davon überzeugt, dass ein Programmierer immer Code entwirft. Dies unterscheidet 
 sich nicht von einem Schriftsteller, der Versionen eines Artikels entwirft. Man weiss nie alles, während man 
-Code schreibt, aber hoffentlich wisst ihr genug, um die Dinge voranzutreiben. Am Ende lernt, refaktorisiert
-und testet selbständig auf dem Weg.
+Code schreibt, aber hoffentlich wisst ihr genug um die Dinge voranzutreiben. Am Ende gilt es selbständig Lernen, Refaktorisieren
+und Testen.
 
-Es gab viele Situationen, in denen ich wusste, dass ich einen Context benötigte, aber unsicher war, woher er 
-kommen würde. Ich wusste, dass ich nicht für das Erstellen des Top-Level-Contexts verantwortlich war, daher 
+Es gab viele Situationen in denen ich wusste, dass ich einen Context benötigte, aber unsicher war woher er 
+kommen sollte. Ich wusste, dass ich nicht für das Erstellen des Top-Level-Contexts verantwortlich bin, daher 
 kam die Verwendung der Background-Funktion nicht in Frage. Ich benötigte einen vorübergehenden Top-Level-Context, 
-bis ich herausfand, woher der tatsächliche Context kam.
+bis ich herausfand, woher der tatsächliche Context kommt.
 In diesem Fall solltet ihr die TODO-Funktion über die Background-Funktion verwenden.
 
 *Verwendung* von *Context* *Werten* *nur* *für* *anforderungsspezifische* *Daten*
 
-Verwendet den Context nicht, um optionale Parameter an Funktionen zu übergeben. Das könnte die wichtigste Semantik 
-von allen sein. Verwendet den Contextwert nicht, um Daten in eine Funktion zu übergeben, wenn diese Daten von der 
+Verwendet den Context nicht um optionale Parameter an Funktionen zu übergeben. Das könnte die wichtigste Semantik 
+von allen sein. Verwendet den Contextwert nicht um Daten in eine Funktion zu übergeben, wenn diese Daten von der 
 Funktion benötigt werden, um ihren Code erfolgreich auszuführen. Mit anderen Worten, eine Funktion sollte in der 
-Lage sein, ihre Logik mit einem leeren Contextwert auszuführen. In Fällen, in denen eine Funktion Informationen 
-im Context erfordert, wenn diese Informationen fehlen, sollte das Programm fehlschlagen und das Anwendungsprogramm 
+Lage sein ihre Logik mit einem leeren Contextwert auszuführen. In Fällen, in denen eine Funktion Informationen 
+im Context erfordert, sollte das Programm fehlschlagen und das Anwendungsprogramm 
 zum Herunterfahren auffordern.
 
 Ein klassisches Beispiel für den Missbrauch der Datenübergabe in einen Funktionsaufruf über den Context sind 
@@ -353,7 +352,7 @@ Datenbankverbindungen. Als Faustregel solltet ihr dieser Reihenfolge folgen, wen
 Gebt die Daten als Funktionsparameter weiter. Dies ist die klarste Möglichkeit, Daten im Programm zu bewegen, 
 ohne sie zu verbergen.
 
-Gebt die Daten über den Empfänger weiter. Wenn die Funktion, die die Daten benötigt, ihre Signatur nicht ändern kann, 
+Gebt die Daten über den Empfänger weiter. Wenn die Funktion, welche die Daten benötigt ihre Signatur nicht ändern kann, 
 verwendet eine Methode und gebt die Daten über den Empfänger weiter.
 
 Schnelles Beispiel zur Verwendung eines Empfängers:
@@ -375,9 +374,9 @@ Deklaration gebunden ist, kann die Signatur des Handlers nicht geändert werden.
     34 }
 
 Hier seht ihr die List-Handler-Methode aus dem Service-Projekt. Die Signatur dieser Methoden ist an das gebunden, 
-was das Web-Framework definiert hat, und sie kann nicht geändert werden. Um jedoch den Geschäftsanruf in Zeile 28 
+was das Web-Framework definiert hat und sie kann nicht geändert werden. Um jedoch den Geschäftsanruf in Zeile 28 
 durchzuführen, wird eine Datenbankverbindung benötigt. Dieser Code findet den Verbindungspool nicht im Contextwert, 
-der übergeben wird, sondern im Empfänger.
+der übergeben wird sondern im Empfänger.
 
     15 // User represents the User API method handler set.
     16 type User struct {
@@ -387,8 +386,8 @@ der übergeben wird, sondern im Empfänger.
     20 // ADD OTHER STATE LIKE THE LOGGER AND CONFIG HERE.
     21 }
 
-Ihr seht die Deklaration des Empfängertyps. Alles, was ein Request-Handler benötigt, ist als Felder definiert. 
-Dies ermöglicht es, Informationen nicht zu verbergen und es der Business-Schicht zu ermöglichen, mit einem 
+Ihr seht die Deklaration des Empfängertyps. Alles was ein Request-Handler benötigt, ist als Feld definiert. 
+Dies ermöglicht es, Informationen nicht zu verbergen und es der Business-Schicht zu ermöglichen mit einem 
 leeren Contextwert zu funktionieren.
 
     14 // API constructs an http.Handler with all application routes defined.
@@ -403,13 +402,13 @@ leeren Contextwert zu funktionieren.
     31
     32     app.Handle("GET", "/v1/users", u.List)
 
-Dieser Code erstellt einen Benutzerwert und bindet dann die List-Methode in die Route ein. Wie schon zuvor, 
+Dieser Code erstellt einen Benutzerwert und bindet dann die List-Methode in die Route ein. Wie schon zuvor,
 da die Signatur einer Handler-Funktion nicht geändert werden kann, ist die Verwendung eines Empfängers und 
-von Methoden der nächstbeste Weg, um Daten zu übergeben, ohne sie zu verbergen.
+von Methoden der nächstbeste Weg um Daten zu übergeben ohne sie zu verbergen.
 
 *Debugging* *oder* *Trace* *Daten* *können* *sicher* *in* *einem* *Context*übergeben*werden
 
-Daten, die von einem Context-Wert gespeichert und empfangen werden können, sind Debug- und Tracing-Informationen.
+Daten, die von einem Context-Wert gespeichert und empfangen werden können sind Debug- und Tracing-Informationen.
 
     23 // Values represent state for each request.
     24 type Values struct {
@@ -438,7 +437,7 @@ während des Fortschritts der Anfrage gesammelt.
     89     }
     90     ctx = context.WithValue(ctx, KeyValues, &v)
 
-Schaut euch an, wie der Typ "Values" in Zeile 86 erstellt und dann in Zeile 90 im Context gespeichert wird. 
+Schaut euch an wie der Typ "Values" in Zeile 86 erstellt und dann in Zeile 90 im Context gespeichert wird. 
 Die Logging-Middleware benötigt die meisten dieser Informationen.
 
     20 // Create the handler that will be attached in the middleware chain.
@@ -458,15 +457,15 @@ Die Logging-Middleware benötigt die meisten dieser Informationen.
     38     )
 
 Die Konsequenz der Übermittlung von Informationen durch den Context wird im Code in den Zeilen 27-30 gezeigt. 
-Der Code versucht, die Daten aus dem Context abzurufen und zu überprüfen, ob die Daten vorhanden waren. 
-Wenn die Daten nicht vorhanden sind, besteht ein erhebliches Integritätsproblem, und der Dienst muss heruntergefahren 
+Der Code versucht die Daten aus dem Context abzurufen und zu überprüfen, ob die Daten vorhanden waren. 
+Wenn die Daten nicht vorhanden sind, besteht ein erhebliches Integritätsproblem und der Dienst muss heruntergefahren 
 werden. Dies wird im Dienstcode durch das Senden eines speziellen Fehlerwerts durch die Anwendung durchgeführt.
 
-Wenn ihr Datenbankverbindungen oder Benutzerinformationen in eure Business-Schicht über einen Context übergebt, 
+Wenn ihr Datenbankverbindungen oder Benutzerinformationen in eure Business-Schicht über einen Context übergebt 
 habt ihr zwei Probleme:
 
 -Ihr müsst die Integrität überprüfen und einen Mechanismus zum schnellen Herunterfahren des Dienstes haben.
--Das Testen und Debuggen wird viel schwieriger und komplizierter. Ihr entfernt euch von besserer Klarheit und 
+-Das Testen und Debuggen wird viel schwieriger und komplizierter. Ihr entfernt euch von Klarheit und 
 Lesbarkeit in eurem Code.
 
 ** Anmerkungen
@@ -477,9 +476,9 @@ Lesbarkeit in eurem Code.
 - Ersetzt einen Context mit WithCancel, WithDeadline, WithTimeout oder WithValue.
 - Wenn ein Context abgebrochen wird, werden alle von ihm abgeleiteten Contexte ebenfalls abgebrochen.
 - Speichert keine Contexte innerhalb eines Strukturtyps; übergebt stattdessen einen Context explizit an jede Funktion, die ihn benötigt.
--Übergebt keinen nil-Context, selbst wenn eine Funktion dies zulässt. Verwendet stattdessen context.TODO, wenn ihr unsicher seid, welchen Context ihr verwenden sollt.
--Verwendet Contextwerte nur für anfragespezifische Daten, die Prozesse und APIs durchlaufen, nicht für das Übergeben optionaler Parameter an Funktionen.
--Derselbe Context kann an Funktionen übergeben werden, die in verschiedenen Goroutinen ausgeführt werden; Contexte sind sicher für die gleichzeitige Verwendung durch mehrere Goroutinen.
+- Übergebt keinen nil-Context, selbst wenn eine Funktion dies zulässt. Verwendet stattdessen context.TODO. Wenn ihr unsicher seid, welchen Context ihr verwenden sollt.
+- Verwendet Contextwerte nur für anfragespezifische Daten, die Prozesse und APIs durchlaufen, nicht für das Übergeben optionaler Parameter an Funktionen.
+- Derselbe Context kann an Funktionen übergeben werden, die in verschiedenen Goroutinen ausgeführt werden; Contexte sind sicher für die gleichzeitige Verwendung durch mehrere Goroutinen.
 
 ** Extra Lektüre
 
