@@ -1,22 +1,22 @@
-Pointers
-Pointers serve the purpose of sharing values across program boundaries.
+Punteros
+Los punteros tienen como propósito el compartir valores entre los límites del programa.
 
-* Pointers
+* Punteros
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Ver el video]]
 - Si necesita asistencia financiera, utilice nuestro [[https://www.ardanlabs.com/scholarship/][Formulario de becas]]
 
-Pointers serve the purpose of sharing values across program boundaries. There are
-several types of program boundaries. The most common one is between function calls.
-There is also a boundary between Goroutines which you have notes for later.
+Los punteros tienen como propósito el compartir valores entre los límites del programa.
+Existen varios tipos de límites en un programa. El más común es entre llamadas a funciones.
+Existe otro límite entre Goroutines, como veremos más adelante.
 
-** Code Review
+** Revisión de código
 
-- *Example* *1:* Pass by Value
-- *Example* *2:* Sharing Data I
-- *Example* *3:* Sharing Data II
-- *Example* *4:* Escape Analysis
-- *Example* *5:* Stack Grow
+- *Ejemplo* *1:* Paso por Valor
+- *Ejemplo* *2:* Compartiendo Datos I
+- *Ejemplo* *3:* Compartiendo Datos II
+- *Ejemplo* *4:* Análisis de Escape
+- *Ejemplo* *5:* Crecimiento de la Pila
 
 .play pointers/example1.go
 .play pointers/example2.go
@@ -24,84 +24,85 @@ There is also a boundary between Goroutines which you have notes for later.
 .play pointers/example4.go
 .play pointers/example5.go
 
-When a Go program starts up, the Go runtime creates a Goroutine. Goroutines are
-lightweight application level threads with many of the same semantics as operating
-system threads. Their job is to manage the physical execution of a distinct set of
-instructions. Every Go program has at least 1 Goroutine that you call the main Goroutine.
+Cuando un programa Go empieza, el runtime de Go crea una Goroutine. Las Goroutines son
+hilos ligeros en el nivel de aplicación con muchas de las mismas semánticas que los hilos
+del sistema operativo. Su trabajo es manejar la ejecución física de un conjunto distinto
+de instrucciones. Cada programa Go tiene al menos 1 Goroutine, llamada Goroutine principal.
 
-Each Goroutine is given its own block of memory called a stack. Each stack starts
-out as a 2048 byte (2k) allocation. It’s very small, but stacks can grow in size over time.
+Cada Goroutine recibe su propio bloque de memoria, llamado pila o stack. Cada pila comienza
+como una asignación de 2048 bytes (2k). Es muy pequeña, pero las pilas pueden crecer en tamaño
+a lo largo del tiempo.
 
 .image /tour/eng/static/img/p1.png
 
-Every time a function is called, a block of stack space is taken to help the Goroutine
-execute the instructions associated with that function. Each individual block of memory
-is called a frame.
+Cada vez que una función es llamada, un bloque del espacio de la pila es tomado para ayudar
+a que la Goroutine ejecute las instrucciones asociadas con esa función. Cada bloque de memoria
+individual es llamado marco, o frame.
 
-The size of a frame for a given function is calculated at compile time. No value
-can be constructed on the stack unless the compiler knows the size of that value at
-compile time. If the compiler doesn’t know the size of a value at compile time, the
-value has to be constructed on the heap.
+El tamaño de un frame para una función dada es calculada en tiempo de compilación. Ningún valor
+puede ser construido en la pila a menos que el compilador sepa el tamaño de ese valor en
+tiempo de compilación. Si el compilador no sabe el tamaño en tiempo de compilación, el valor
+tiene que ser construido en el montón, o heap.
  
-Stacks are self cleaning and zero value helps with the initialization of the stack.
-Every time you make a function call, and a frame of memory is blocked out, the memory
-for that frame is initialized, which is how the stack is self cleaning. On a function
-return, the memory for the frame is left alone since it’s unknown if that memory
-will be needed again. It would be inefficient to initialize memory on returns.
+Las pilas se limpian ellas mismas, y el valor cero ayuda con la inicialización de la pila.
+Cada vez que haces una llamada a una función, y el frame de memoria está bloqueado, la memoria
+para ese frame queda inicializada, que es lo que hace a la pila auto-limpiante.
+Cuando la función retorna, la memoria para el frame se queda ahí pues no se sabe si esa
+memoria va a ser necesitada de nuevo. No sería eficiente inicializar la memoria en los retornos.
 
-*Pass* *By* *Value*
+*Paso* *Por* *Valor*
 
-All data is moved around the program by value. This means as data is being passed
-across program boundaries, each function or Goroutine is given its own copy of the
-data. There are two types of data you will work with, the value itself (int,
-string, user) or the value's address. Addresses are data that need to be copied
-and stored across program boundaries.
+Todos los datos se mueven por el programa por valor. Ésto significa que, mientras los datos
+se pasan entre los límites del programa, cada función o Goroutine recibe su propia copia
+de los datos. Existen dos tipos de datos con los que trabajar: el propio valor (entero,
+cadena o definido por el usuario), o la dirección de memoria del valor. Las direcciones son datos
+que necesitan ser copiados y almacenados entre los límites del programa.
 
-The following code attempts to explain this more.
+El siguiente código intenta explicar ésto con mayor extensión:
 
     func main() {
 
-        // Declare variable of type int with a value of 10.
+        // Declaración de variable de tipo int con un valor de 10.
         count := 10
 
-        // To get the address of a value, use the & operator.
+        // Para obtener la dirección del valor, utiliza el operador &.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "value of" count (what’s in the box)
-        // to the increment1 function.
+        // Pasa una copia del "valor de" count (lo que está en la caja)
+        // a la función increment1.
         increment1(count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count will not change after the function call.
+        // Imprime el "valor de" y "dirección de" count.
+        // El valor de count no cambiará después de la llamada a la función.
         println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
 
-        // Pass a copy of the "address of" count (where is the box)
-        // to the increment2 function. This is still considered a pass by
-        // value and not a pass by reference because addresses are values.
+        // Pasa una copia de la "dirección de" count (donde está la caja)
+        // a la función increment2. Ésto se considera paso por valor y no
+        // por referencia porque las direcciones son valores.
         increment2(&count)
 
-        // Print out the "value of" and "address of" count.
-        // The value of count has changed after the function call.
+        // Imprime el "valor de" y "dirección de" count.
+        // El valor de count ha cambiado tras la llamada a la función.
         println(
             "count:\tValue Of[", 
             count, "]\tAddr Of[", &count, "]")
     }
 
-    // increment1 declares the function to accept its own copy of
-    // and integer value.
+    // increment1 declara la función que acepta su propia copia
+    // de un valor entero.
     func increment1(inc int) {
 
-        // Increment the local copy of the caller’s int value.
+        // Incrementa el valor de la copia local del código que llama.
         inc++
         println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
     }
 
-    // increment2 declares the function to accept its own copy of
-    // an address that points to an integer value.
-    // Pointer variables are literal types and are declared using *.
+    // increment2 declara la función que acepta su propia copia de
+    // una dirección que apunta a un valor entero.
+    // Las variables de tipo puntero son tipos literales y son declarados con *.
     func increment2(inc *int) {
 
-        // Increment the caller’s int value through the pointer.
+        // Incrementa el valor entero del código llamante a través del puntero.
         *inc++
         println(
             "inc2:\tValue Of[", 
@@ -117,33 +118,34 @@ Output:
     inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
     count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
 
-** Notes
+** Notas
 
-- Use pointers to share data.
-- Values in Go are always pass by value.
-- "Value of", what's in the box. "Address of" ( & ), where is the box.
-- The ( * ) operator declares a pointer variable and the "Value that the pointer points to".
+- Usa punteros para compartir datos.
+- Los valores en Go son siempre pasador por valor.
+- "Valor de", lo que está en la caja. "Dirección de" ( & ), dónde está la caja.
+- El operador ( * ) declara una variable de tipo puntero y el "valor al que apunta el puntero".
 
-** Escape Analysis
+** Análisis de Escape
 
-The algorithm the compiler uses to determine if a value should be constructed
-on the stack or heap is called "escape analysis". The name of the algorithm makes
-it sound like values are constructed on the stack first and then escape (or move)
-to the heap when necessary. This is NOT the case. The construction of a value only
-happens once, and the escape analysis algorithm decides where that will be (stack
-or heap). Only construction on the heap is called an allocation in Go.
+El algoritmo que usa el compilador para determinar si un valor debe ser construido
+en la pila o en el heap es llamado "análisis de escape". El nombre del algoritmo parece
+indicar que los valores son contruídos primero en la pila y luego escapan (o se mueven)
+al heap cuando es necesario. Pero éste NO es el caso. La construcción de un valor ocurre
+una única vez, y el algoritmo de análisis de escape decide dónde ocurrirá (en la pila
+o en el heap). En Go, únicamente la construcción en el heap es denominada
+una asignación (allocation).
 
-Understanding escape analysis is about understanding value ownership. The idea is,
-when a value is constructed within the scope of a function, then that function
-owns the value. From there ask the question, does the value being constructed still
-have to exist when the owning function returns? If the answer is no, the value can
-be constructed on the stack. If the answer is yes, the value must be constructed on
-the heap.
+Comprender el análisis de escape consiste en entender dónde está la propiedad del valor.
+La idea es que, cuando un valor es construido dentro del ámbito de una función, entonces
+esa función es dueña del valor. En ese momento haz la siguiente pregunta: ¿el valor que está
+siendo construido aún debe existir cuando la función que lo posee retorna? Si la respuesta es
+no, el valor puede ser contruido en la pila. Si la respuesta es sí, el valor debe ser
+construido en el heap.
 
-Note: The ownership rule is a good base rule for identifying code that causes
-allocations. However, you must appreciate that escape analysis has flaws that can
-result in non-obvious allocations. Also, the algorithm takes opportunities to
-leverage compiler optimizations to save on allocations.
+Nota: la regla de propiedad es una buena regla base para identificar código que causa
+asignaciones. Sin embargo, debes apreciar que el análisis de escape tiene alguna imperfección
+que puede resulta en asignaciones que no son obvias. Además, el algoritmo busca
+oportunidades para aprovechar optimizaciones del compilador y ahorrar asignaciones.
 
     // user represents a user in the system.
     type user struct {
@@ -160,14 +162,14 @@ leverage compiler optimizations to save on allocations.
         return u
     }
 
-The stayOnStack function is using value semantics to return a user value back to
-the caller. In other words, the caller gets their own copy of the user value being
-constructed.
+La función stayOnStack utiliza semánticas de valor para retornar un valor de user al
+código llamante. En otras palabras, el llamante tiene su propia copia del valor de user
+que se está contruyendo.
 
-When the stayOnStack function is called and returns, the user value it constructs
-no longer needs to exist, since the caller is getting their own copy. Therefore,
-the construction of the user value inside of stayOnStack can happen on the stack.
-No allocation.
+Cuando la función stayOnStack es llamada y retorna, el valor de user que construye
+ya no necesita existir, puesto que el llamante está obteniendo su propia copia. Por tanto,
+la construcción del valor de user dentro de stayOnStack puede ocurrir en la pila.
+No hay asignación.
 
     type user struct {
         name  string
@@ -183,114 +185,113 @@ No allocation.
         return &u
     }
 
-The escapeToHeap function is using pointer semantics to return a user value back
-to the caller. In other words, the caller gets shared access (an address) to the
-user value being constructed.
+La función escapeToHeap utiliza semánticas de puntero para retornar un valor de user
+al llamante. En otras palabras, el llamante obtiene acceso compartido (una dirección)
+al valor de user en construcción.
 
-When the escapeToHeap function is called and returns, the user value it constructs
-does still need to exist, since the caller is getting shared access to the value.
-Therefore, the construction of the user value inside of escapeToHeap can’t happen
-on the stack, it must happen on the heap. Yes allocation.
+Cuando la función escapeToHeap es llamada y retorna, el valor de user que construye
+aún necesita existir, puesto que el llamante está obteniendo un acceso compartido al valor.
+Por tanto, la construcción del valor de user dentro de escapeToHeap no puede ocurrir
+en la pila, debe ocurrir en el heap. Sí hay asignación.
 
-Think about what would happen if the user value in the last example was constructed
-on the stack when using pointer semantics on the return.
+Piensa sobre lo que ocurriría si el valor de user en el último ejemplo fuese contruido
+en la pila si utilizásemos semánticas de puntero en el retorno.
 
 .image /tour/eng/static/img/p2.png
 
-The caller would get a copy of a stack address from the frame below and integrity
-would be lost. Once control goes back to the calling function, the memory on the
-stack where the user value exists is reusable again. The moment the calling function
-makes another function call, a new frame is sliced and the memory will be overridden,
-destroying the shared value.
+El llamante obtendría una copia de la dirección en la pila desde el marco o frame inferior,
+y la integridad se perdería. Una vez el control vuelve a la función llamante, la memoria en
+la pila donde el valor de usuario existe es reutilizada de nuevo. En el momento que la
+función llamante hace una nueva llamada a función, el nuevo marco es movido y la memoria será
+sobrescrita, destruyendo el valor compartido.
 
-This is why you think about the stack being self cleaning. Zero value initialization
-helps every stack frame that you need to be cleaned without the use of GC. The stack
-is self cleaning since a frame is taken and initialized for the execution of each
-function call. The stack is cleaned during function calls and not on returns because
-the compiler doesn't know if that memory on the stack will ever be needed again.
+Por esta razón debes pensar sobre que la pila es auto-limpiante. La inicialización del
+valor cero ayuda a que cada marco de pila que necesites a ser limpiado sin el uso del GC.
+La pila es auto-limpiando desde que un marco es tomado e inicializado para cada ejecución
+de cada llamada a función. La pila es limpiada durante las llamadas a función y no en
+los retornos porque el compilador no sabe si la memoria en la pila será necesitada de nuevo.
 
-Escape analysis decides if a value is constructed on the stack (the default) or the
-heap (the escape). With the stayOnStack function, I’m passing a copy of the value
-back to the caller, so it’s safe to keep the value on the stack. With the escapeToHeap
-function, I’m passing a copy of the value’s address back to the caller (sharing up
-the stack) so it’s not safe to keep the value on the stack.
+El análisis de escape decide si el valor es construido en la pila (por defecto) o en el
+heap (el escape). Con la función stayOnStack, estamos pasando una copia del valor al llamante,
+por lo que es seguro mantener el valor en la pila. Con la función escapeToHeap, estamos
+pasando una copia del valor de la dirección de vuelta al llamante (compartiendo la pila)
+por lo que no es seguro mantener el valor en la pila.
 
-There are lots of little details related to the escape analysis, so to learn more
-read the post in chapter 14 titled, Escape Analysis Mechanics.
+Existen muchos pequeños detalles relacionados con el análisis de escape, por lo que para
+aprender más por favor lee el post en el capítulo 14, titulado Escape Analysis Mechanics.
 
-Note: As of version 1.17, Go changed the ABI (application binary interface) to
-implement a new way of passing function input and output arguments using registers
-instead of memory on the stack. This is enabled for Linux, MacOS, and Windows on
-the 64-bit x86 architectures. This means that some function arguments won’t be
-copied on the stack, but some may depending on the viability of using registers.
-This doesn’t change any of the semantics described in this chapter.
+Nota: Desde la versión 1.17, Go ha cambiado el ABI (application binary interface) para
+implementar una nueva manera de pasar argumentos de entrada y salida a funciones, utilizando
+registros en lugar de memoria en la pila. Ésto significa que algunos argumentos de función
+no serán copiados a la pila, pero algunos podrán serlo dependiendo de la viabilidad del uso
+de registros. Ésto no cambia ninguna de las semánticas descritas en el capítulo.
 
-** Notes
+** Notas
 
-- When a value could be referenced after the function that constructs the value returns.
-- When the compiler determines a value is too large to fit on the stack.
-- When the compiler doesn’t know the size of a value at compile time.
-- When a value is decoupled through the use of function or interface values.
+- Cuando se puede hacer referencia a un valor después de que regresa la función que construye el valor.
+- Cuando el compilador determina que un valor es demasiado grande para se ajuste al tamaño del stack.
+- Cuando el compilador no conoce el tamaño del valor en tiempo de compilación.
+- Cuando el valor se desacopla mediante del uso de valores de función o interfaz.
 
-** Garbage Collection Semantics
+** Semánticas de Recolección de Basura (Garbage Collection)
 
-Once a value is constructed on the heap, the Garbage Collector (GC) has to get
-involved. The most important part of the GC is the pacing algorithm. It determines
-the frequency/pace that the GC has to run in order to maintain the smallest heap
-possible in conjunction with the best application throughput.
+Una vez un valor es contruido en el heap, el Recolector de Basura (GC) tiene que ser
+involucrado. La parte más importante del GC es el algoritmo de ritmo, que determina
+la frecuencia o ritmo con el que el GC tiene que ejecutarse para mantener el mínimo
+heap posible en conjunción con el mejor rendimiento de aplicación.
 
 - [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
 
-** Stack vs Heap
+** Pila vs Heap
 
-"The stack is for data that needs to persist only for the lifetime of the function
-that constructs it, and is reclaimed without any cost when the function exits. The
-heap is for data that needs to persist after the function that constructs it exits,
-and is reclaimed by a sometimes costly garbage collection." - Ayan George
+"La pila es para datos que necesitan persistir sólo por el tiempo de vida de la función
+que los construye, y es reclamada sin ningún coste cuando la función termina. El heap
+es para los datos que necesitan persistir después de que la función que los construye termina,
+y es reclamado por una, algunas veces costosa, recolección de basura." - Ayan George
 
-** Stack Growth
+** Crecimiento de Pila
 
-The size of each frame for every function is calculated at compile time. This means,
-if the compiler doesn’t know the size of a value at compile time, the value must be
-constructed on the heap. An example of this is using the built-in function make to
-construct a slice whose size is based on a variable.
+El tamaño de cada marco para cada función es calculado en tiempo de compilación.
+Ésto significa que, si el compilador no sabe el tamaño de un valor en tiempo de compilación,
+el valor debe ser construido en el heap. Un ejemplo de esto es el uso de la función
+incorporada en el lenguaje make, para construir un slice cuyo tamaño está basado en una variable.
 
-    b := make([]byte, size) // Backing array allocates on the heap.
+    b := make([]byte, size) // El array de soporte se asigna en el heap.
 
-Go uses a contiguous stack implementation to determine how stacks grow and shrink.
-One alternative Go could have used is a segmented stack implementation, which is
-used by some operating systems.
+Go utiliza una implementación de pila contigua para determinar cómo crecen y decrecen las pilas.
+Una alternativa que Go podría haber utilizado es una implementación de pila segmentada, que es
+usada por algunos sistemas operativos.
 
-Every function call comes with a little preamble that asks, "Is there enough stack
-space for this new frame?". If yes, then no problem and the frame is taken and
-initialized. If not, then a new larger stack must be constructed and the memory on
-the existing stack must be copied over to the new one. This requires changes to
-pointers that reference memory on the stack. The benefits of contiguous memory and
-linear traversals with modern hardware is the tradeoff for the cost of the copy.
+Cada llamada a función viene con un pequeño preámbulo que pregunta, "¿Hay suficiente espacio
+de pila para este nuevo marco?". Si sí, entonces no hay problema y el marco es obtenido
+e inicializado. Si no, entonces una nueva pila más grande debe ser construida y la memoria
+de la pila actual debe ser copiada sobre la nueva. Ésto requiere cambios a los punteros que
+referencien a la memoria en la pila. Los beneficios de memoria contigua y recorridos lineales
+con hardware moderno suponen la compensación por el coste de la copia.
 
-Because of the use of contiguous stacks, no Goroutine can have a pointer to some
-other Goroutine’s stack. There would be too much overhead for the runtime to keep
-track of every pointer to every stack and readjust those pointers to the new location.
+Debido al uso de pilas contiguas, ninguna Goroutine puede tener un puntero a alguna otra
+pila de la Goroutine. Habría demasiado overhead para el runtime para mantener el rastro
+de cada puntero a cada pila y reajustar esos punteros a la nueva ubicación.
 
-** Extra Reading
+** Lecturas Extra
 
-**Pointer* *Mechanics*
+**Mecánicas* *de* *Punteros*
 
 - [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
 - [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
 
-*Stacks*
+*Pilas*
 
 - [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
 
-*Escape* *Analysis* *and* *Inlining*
+*Análisis* *de* *Escape* *e* *Inlining*
 
 - [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
 - [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
 
-*Garbage* *Collection*
+*Recolección* *de* *Basura*
 
 - [[http://gchandbook.org/][The Garbage Collection Handbook]]  
 - [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
@@ -307,30 +308,30 @@ track of every pointer to every stack and readjust those pointers to the new loc
 - [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
 - [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
 
-*Static* *Single* *Assignment* *Optimizations*
+*Optimizaciones* *Estáticas* *de* *Asignaciones* *Únicas*
 
 - [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
 - [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
 - [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
 
-* Exercises
+* Ejercicios
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utiliza la plantilla como un punto de partida para completar los ejercicios. Una posible solución es propocionada.
 
-** Exercise 1
+** Ejercicio 1
 
-*Part* *A:* Declare and initialize a variable of type int with the value of 20.
-Display the "address of" and "value of" the variable.
+*Parte* *A*: Declara e inicializa una variable de tipo int con un valor de 20.
+Muestra la "dirección de" y el "valor de" la variable.
 
-*Part* *B:* Declare and initialize a pointer variable of type int that points to
-the last variable you just created. Display the "address of" , "value of" and the
-"value that the pointer points to".
+*Parte* *B:* Declara e inicializa una variable de tipo puntero a int que apunte a
+la última variable que creaste. Muestra la "dirección de", "valor de" y el
+"valor al que apunta el puntero".
 
-** Exercise 2
+** Ejercicio 2
 
-Declare a struct type and create a value of this type. Declare a function that
-can change the value of some field in this struct type. Display the value before
-and after the call to your function.
+Declara un tipo struct y crea un valor de este tipo. Declara una función que puede
+cambiar el valor de algún campo en este tipo struct. Muestra el valor antes y después
+de la llamada a la función.
 
 .play pointers/exercise1.go
 .play pointers/answer1.go
