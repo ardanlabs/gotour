@@ -42,15 +42,15 @@ Dominik:
 
 - [x] generics-multi-type-params.article (proof read done)
 
-- [x] generics-slice-constraints.article
+- [x] generics-slice-constraints.article (proof read done)
 
-- [x] generics-struct-types.article
+- [x] generics-struct-types.article (proof read done)
 
-- [x] generics-type-constraints.article
+- [x] generics-type-constraints.article (proof read done)
 
-- [x] generics-underlying-types.article
+- [x] generics-underlying-types.article (proof read done)
 
-- [x] goroutines.article
+- [x] goroutines.article (proof read done)
 
 - [x] interfaces.article
 
@@ -80,4 +80,4 @@ Dominik:
 
 - [x] generics-channels.article (neu: word count 178) (proof read done)
 
-- [x] generics-hash-table.article (neu: word count 349)
+- [x] generics-hash-table.article (neu: word count 349) (proof read done)
