@@ -35,17 +35,17 @@ Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt,
 was für ein Typ T werden kann.
 
 Mit der Deklaration des Typs T kann das Feld Data nun als Feld eines später zu bestimmenden Typs T definiert werden.
-später bestimmt werden. Die Felder next und prev müssen auf einen Knoten desselben
-Typs T zeigen. Dies sind die Zeiger auf den nächsten und vorherigen Knoten in der verketteten Liste,
-beziehungsweise. Um diese Verbindung herzustellen, werden die Felder als Zeiger auf einen Knoten deklariert
-deklariert, der durch die Verwendung eckiger Klammern an den Typ T gebunden ist.
+Die Felder next und prev müssen auf einen Knoten desselben
+Typs T zeigen. Dies sind die Zeiger auf den nächsten und vorherigen Knoten in der verketteten Liste. 
+Um diese Verbindung herzustellen, werden die Felder als Zeiger auf einen Knoten deklariert, 
+der durch die Verwendung eckiger Klammern an den Typ T gebunden ist.
 
     type list[T any] struct {
         next *node[T]
         prev *node[T]
     }
 
-Der zweite Strukturtyp heißt Liste und stellt eine Sammlung von nodes dar, indem er
+Der zweite Strukturtyp heißt list und stellt eine Sammlung von nodes dar, indem er
 auf den ersten und letzten node einer Liste verweist. Diese Felder müssen auf einen node vom
 Typs T zeigen, genau wie die Felder next und prev vom Typ node.
 
@@ -85,8 +85,8 @@ gebunden werden, der später zur Kompilierzeit ersetzt wird.
 Ohne Generics müsste diese gesamte Methode dupliziert werden, da die
 Konstruktion eines nodes vor der Kompilierung fest mit einem bekannten, deklarierten Typ kodiert
 werden müsste. Da die Menge des Codes (für die gesamte Listenimplementierung), die sich für verschiedene Datentypen
-ändern muss, sehr gering ist, verringert sich dadurch die Möglichkeit, einen Knoten und eine Liste zur Verwaltung
-von Daten eines bestimmten Typs T zu deklarieren, der Aufwand für Code-Duplizierung und Wartung."
+ändern muss, sehr gering ist, ermöglicht die Deklarierung eines Knotens und einer Liste zur Verwaltung von 
+Daten eines Typs T, die Kosten für Code-Duplizierung und -Wartung zu reduzieren.
 
 
     type user struct {
@@ -117,7 +117,7 @@ Hier ist eine kleine Anwendung. Ein Typ namens user wird deklariert und dann wir
 mit dem Wert Null erstellt, um die Werte des Typs user zu verwalten. Eine zweite Liste wird
 konstruiert und diese Liste verwaltet Zeiger auf Werte des Typs user.
 Der einzige Unterschied zwischen diesen beiden Listen besteht darin, dass die eine die Werte vom
-Typ user und die andere Zeiger des Typs user beinhält.
+Typ user verwaltet und die andere Zeiger des Typs user.
 
 Da der Typ user bei der Konstruktion des Listentyps explizit angegeben wird, akzeptiert die Methode add
 ihrerseits Werte vom Typ user. Da ein Zeiger vom Typ user bei der Konstruktion des Listentyps explizit
