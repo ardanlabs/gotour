@@ -44,7 +44,7 @@ und Zeigerempfänger für die Umsetzung der Zeigersemantik.
     }
 
 Die Funktion notify ist mit einem Werteempfänger implementiert. Das bedeutet, dass die Methode
-unter Wertesemantik operiert und mit ihrer eigenen Kopie des Wertes arbeite.
+unter Wertesemantik operiert und mit ihrer eigenen Kopie des Wertes arbeitet.
 
 Die Funktion changeEmail ist mit einem Zeigerempfänger implementiert. Das bedeutet, dass die
 Methode mit Zeiger-Semantik operiert und auf den gemeinsamen Wert zugreift der auch für den Aufruf verwendet wird.
@@ -91,10 +91,10 @@ Ich bin froh, dass man das nicht tun muss, um Methodenaufrufe in Go zu machen.
 
 ** Semantische Leitlinie für interne Datentypen
 
-Wenn es sich bei den Daten, mit denen ich arbeite, um einen internen Typ handelt (Slice, Map,
-Channel, Funktion, Interface), dann Verwendet die Wertesemantik, um die Daten im
-Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Typen. Wenn ich jedoch Lese
--und Schhreiberechte gebraucht werden, müsst ihr daran denken, die Zeigersemantik zu verwende.
+Wenn es sich bei den Daten, mit denen ihr arbeitet, um einen internen Typ handelt (Slice, Map,
+Channel, Funktion, Interface), dann verwendet die Wertesemantik, um die Daten im
+Programm zu bewegen. Dazu gehört auch die Deklaration von Feldern für einen Typen. Wenn ihr jedoch Lese
+-und Schhreiberechte gebraucht, müsst ihr daran denken, die Zeigersemantik zu verwenden.
 
     type IP []byte
     type IPMask []byte
@@ -152,7 +152,7 @@ die Unmarshaling oder Dekodierung durchführt.
 Wenn es sich bei den Daten, mit denen wir arbeiten, um einen Strukturtyp handelt, müsst ihr
 was die Daten betrifft eine Entscheidung treffen. Eine gute allgemeine Regel ist
 zu fragen, ob die Struktur Daten oder eine API repräsentiert. Wenn die Struktur Daten repräsentiert, verwendet 
-Wert-Semantik. Wenn die Struktur eine API darstellt, Verwendet die Zeigersemantik.
+Wert-Semantik. Wenn die Struktur eine API darstellt verwendet die Zeigersemantik.
 
     type Time struct {
         sec  int64
@@ -172,7 +172,7 @@ die vom Entwickler gewählte Datensemantik vorgeben.
         sec, nsec := now()
         return Time{sec + unixToInternal, nsec, Local}
     }
-Dies ist die Factory-Funktion für die Erstellung von Zeitwerten. Seht euch sich die Rückgabe an,
+Dies ist die Factory-Funktion für die Erstellung von Zeitwerten. Seht euch die Rückgabe an,
 sie verwendet die Wertesemantik. Dies zeigt euch, dass ihr die Wertesemantik für Zeitwerte verwenden sollt,
 was bedeutet, dass jede Funktion ihre eigene Kopie eines Zeitwerts erhält und
 Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
@@ -194,12 +194,12 @@ Felder in einer Struktur sollten als Werte vom Typ Time deklariert werden.
 Add ist eine Methode, die eine Mutationsoperation durchführen muss. Wenn ihr genau hinschaut,
 werdet ihr sehen, dass die Funktion die semantische Mutation von Werten verwendet. Die Add-Methode erhält ihre
 eigene Kopie des Time-Werts, mutiert ihre eigene Kopie und gibt dann
-gibt sie eine Kopie an den Aufrufer zurück. Auch dies ist der sicherste Weg, eine
+eine Kopie an den Aufrufer zurück. Auch dies ist der sicherste Weg, einen
 Mutationsvorgang durchzuführen.
 
     func div(t Zeit, d Dauer) (qmod2 int, r Dauer) {}
 
-Hier ein weiteres Beispiel, bei dem die Funktion div einen Wert vom Typ Zeit und
+Hier ein weiteres Beispiel, bei dem die Funktion die einen Wert vom Typ Zeit und
 Dauer (int64) akzeptiert und dann Werte vom Typ int und Dauer zurückgibt. Semantik der Werte
 für den Typ Time und für alle eingebauten Typen. Dauer hat einen zugrunde liegenden Typ
 von int64.
@@ -210,14 +210,14 @@ von int64.
     func (t *Time) UnmarshalText(data []byte) error {}
 
 Diese vier Methoden aus dem Time-Paket scheinen die Regeln für die semantische Datenkonsistenz zu verletzen.
-Sie verwenden Zeigersemantik, warum? Weil sie ein interface implementieren,
+Sie verwenden Zeigersemantik, warum? Weil sie ein Interface implementieren,
 bei der die Methodensignatur miteingeschlossen ist. Da die Implementierung
 eine Mutation erfordert, ist die Zeigersemantik die einzige Wahl.
 
 Hier ist ein Leitfaden: Wenn Wertesemantik im Spiel ist, könnt ihr für einige Funktionen zur Zeigersemantik wechseln,
 solange ihr die Daten in der verbleibenden Aufrufkette nicht zurück zur Wertesemantik wechselt. Sobald ihr zur Zeigersemantik wechselt,
 müssen alle zukünftigen Aufrufe von diesem Punkt an die Zeigersemantik beibehalten. Ihr könnt niemals von Zeigern zu Werten wechseln.
-Es ist niemals sicher, eine Kopie eines Wertes zu erstellen zu machen, auf den ein Zeiger zeigt.
+Es ist niemals sicher, eine Kopie eines Wertes zu erstellen, auf den ein Zeiger zeigt.
 
     func Open(name string) (file *File, err error) {
         return OpenFile(name, O_RDONLY, 0)
@@ -256,8 +256,8 @@ Auch die Funktion epipecheck akzeptiert File-Werte in Zeiger-Semantik.
 
 ** Methoden sind nur Funktionen
 
-Methoden sind eigentlich nur Funktionen, die syntaktischen Zucker bieten, um die
-Verhalten von Daten zu gegen aussen darzustellen.
+Methoden sind eigentlich nur Funktionen, die syntaktischen Zucker bieten, um 
+Daten die Möglichkeit zu geben, Verhalten zu zeigen.
 
     type data struct {
         name string
@@ -276,7 +276,7 @@ Verhalten von Daten zu gegen aussen darzustellen.
 Es werden ein Typ und zwei Methoden deklariert. Die Methode displayName verwendet die Wert
 Semantik und setAge verwendet die Zeiger-Semantik.
 
-Hinweis: Implementiert keine Setter und Getter in Go. Dies sind keine Apis die einen Sinn und Zweck habne.
+Hinweis: Implementiert keine Setter und Getter in Go. Dies sind keine Apis die einen Sinn und Zweck haben.
 In solchen Fällen ist es besser, die entsprechenden Felder zu exportieren.
     
     d := data{
@@ -338,15 +338,15 @@ Ausgabe:
     My Name Is Bill
     My Name Is Bill
 
-Ihr beginnt mit der Konstruktion eines Wertes vom Typ Data und weisen ihn der Variablen d zu.
-Dann nehmt ihr die Methode displayName, die an d gebunden ist, und weisen sie einer Variablen
-namens f1 zu. Dies ist kein Methodenaufruf, sondern eine Zuweisungt.
-Funktionen sind in Go Werte und gehören zur Menge der internen Typen.
+Ihr beginnt mit der Konstruktion eines Wertes vom Typ Data und weist ihn der Variablen d zu.
+Dann nehmt ihr die Methode displayName, die an d gebunden ist, und weist diese einer Variablen
+namens f1 zu. Dies ist kein Methodenaufruf, sondern eine Zuweisung,die eine Ebene der Umleitung schafft.
+Funktionen sind Werte in Go und gehören zur Menge der internen Typen.
 
 Nach der Zuweisung könnt ihr die Methode indirekt durch die Verwendung der
-f1-Variable aufrufen. Dadurch wird der Name Bill angezeigt. Dann Ändert die Daten so, dass der Name
-Joan ist, und rufen die Methode erneut über die Variable f1 auf. Ihr seht die Änderung nicht?
-Bill ist wieder die Ausgabe. Warum also?
+f1-Variable aufrufen. Dadurch wird der Name Bill angezeigt. Dann ändert die Daten so, dass der Name
+Joan ist, und ruft die Methode erneut über die Variable f1 auf. Ihr seht die Änderung nicht?
+Bill ist wieder die Ausgabe. Warum?
 
 .image /tour/eng/static/img/m1.png
 
@@ -381,13 +381,13 @@ Ausgabe:
 
 Diesmal wird die Methode setAge der Variablen f2 zugewiesen. Auch hier wird die
 Methode indirekt über die Variable f2 ausgeführt, wobei 45 als Bills Alter übergeben wird.
-Dann wird Bills Name in Sammy geändert und die Variable f2 wird erneut für den aufgerufen.
+Dann wird Bills Name in Sammy geändert und die Variable f2 wird erneut aufgerufen.
 Diesmal hat sich der Name geändert.
 
 .image /tour/eng/static/img/m2.png
 
 Die Funktion setAge verwendet einen Zeigerempfänger, so dass setAge nicht auf seine
-eigene Kopie der Variable d, sondern direkt auf die Variable d. Daher
+eigene Kopie der Variable d arbeitet, sondern direkt auf der Variablen d. Daher operiert
 f2 auf den gemeinsamen Zugriff und ihr seht die Änderung.
 
     func (d *data) setAge(age int) {
@@ -411,7 +411,7 @@ Diese Datensemantiken sind real und beeinflussen das Verhalten.
 
 "Methoden sind gültig, wenn es praktisch oder vernünftig ist, dass ein Teil der Daten eine Fähigkeit aufzeigt." - William Kennedy
 
-** Extra Lesen
+** Zusatzlektüre
 
 - [[https://golang.org/doc/effective_go.html#methods][Methoden]]
 - [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, interfaces und eingebettete Typen in Go]] - William Kennedy
@@ -425,8 +425,8 @@ Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine möglic
 
 Deklariert eine Struktur, die einen Baseballspieler darstellt. Enthält Name, atBats und Hits.
 Deklariert eine Methode, die den Schlagdurchschnitt eines Spielers berechnet. Die Formel ist Hits / AtBats.
-Deklariert ein Slice dieses Typs und Initialisiert  das Slice mit mehreren Spielern. Iteriert
-über das Slice und zeigt den Namen und den Schlagdurchschnitt des Spielers an.
+Deklariert einen Slice dieses Typs und initialisiert den Slice mit mehreren Spielern. Iteriert
+über den Slice und zeigt den Namen und den Schlagdurchschnitt der Spieler an.
 
 .play methods/exercise1.go
 .play methods/answer1.go
