@@ -21,7 +21,7 @@ Wartbarkeit.
 - *Beispiel* *5:* Speicherung nach Wert
 - *Beispiel* *6:* Typ-Assertionen
 - *Beispiel* *7:* Bedingte Typ-Assertionen
-- *Beispiel* *8:* Die leere Interface und Typschalter
+- *Beispiel* *8:* Die leeren Interface und Typschalter
 - *Beispiel* *9:* Speichern von Werten
 
 .play interfaces/example1.go
@@ -111,9 +111,9 @@ dieser beiden Deklarationen kann man folgendes sagen:
 
 "Die konkrete Typdatei implementiert nun das Reader-Interface unter Verwendung der Wertesemantik"
 
-Jedes Wort, das gesagt wird, ist wichtig. In Go müsst ihr nur den gesamten Methodensatz deklarieren
-des durch eine Interface definierten Verhaltens deklarieren, um dieses interface zu implementieren. In diesem Fall ist das
-was ich in diesem Fall getan habe, da das Reader-Interface nur einen einzigen Verhaltensakt namens read deklariert.
+Jedes Wort, das gesagt wird, ist wichtig. In Go müsst ihr nur den gesamten Methodensatz des Verhaltens deklarieren,
+der durch ein Interface definiert wird, um dieses Interface zu implementieren. In diesem Fall habe ich
+genau das getan, da das Reader-Interface nur einen einzigen Verhaltensakt namens read deklariert.
 
     type reader interface {
         read(b []byte) (int, error)
@@ -140,7 +140,7 @@ Netzwerke.
 ** Polymorphismus
 
 Polymorphismus bedeutet, dass ein Teil des Codes sein Verhalten in Abhängigkeit von den konkreten
-Daten ändern kann mit dem gearbeitet wird. Dies wurde von Tom Kurtz, dem Erfinder von BASIC, gesagt. Diese
+Daten ändert, mit denen er arbeitet. Dies wurde von Tom Kurtz, dem Erfinder von BASIC, gesagt. Diese
 ist die Definition, die wir im Folgenden verwenden werden.
 
     // retrieve can read any device and process the data.
@@ -156,8 +156,8 @@ ist die Definition, die wir im Folgenden verwenden werden.
         return nil
     }
 
-Schaut Euch den Datentyp an, den diese Funktion akzeptiert. Diese will einen Wert vom Typ reader.
-Das ist unmöglich, da reader eine Interface ist und Interfaces wertlose Typen sind.
+Schaut Euch den Datentyp an, den diese Funktion akzeptiert. Sie möchte einen Wert vom Typ reader.
+Das ist unmöglich, da reader ein Interface ist und Interfaces wertlose Typen sind.
 Sie kann nicht nach einem Wert des Typs "reader" fragen, denn es gibt ihn nicht.
 
 Wenn die Funktion nicht nach einem Leserwert fragt, wonach fragt die Funktion
@@ -177,11 +177,11 @@ könnt ihr eine Kopie jedes Wertes an die polymorphe Funktion übergeben. Dies i
 dieser Werte den gesamten Methodensatz des durch das Reader-Interface definierten Verhaltens implementiert.
 
 Wenn der Wert des konkreten Typ file an retrieve übergeben wird, wird der Wert in einem
-zwei Worte umfassenden internen Typs gespeichert, der den Interfaceswert darstellt.
+zwei Worte umfassenden internen Typ gespeichert, der den Interface-Wert darstellt.
 
 .image /tour/eng/static/img/i1.png
 
-Das zweite Wort des Interfaceswertes verweist auf den zu speichernden Wert. In diesem
+Das zweite Wort des Interface-Wertes verweist auf den zu speichernden Wert. In diesem
 Fall handelt es sich um eine Kopie des Dateiwertes, da die Semantik des Wertes eine Rolle spielt. Das erste
 Wort verweist auf eine spezielle Datenstruktur, die iTable genannt wird.
 
@@ -200,8 +200,8 @@ dessen Verhalten ändert. Diesmal liest der Leseaufruf ein Netzwerk statt des Ty
 
 ** Methodensatzregeln
 
-Bei der Implementierung einer Interface mit Zeigersemantik gelten einige Einschränkungen für die
-Einhaltung der Interfaces.
+Bei der Implementierung eines Interface mit Zeigersemantik gelten einige Einschränkungen für die
+Einhaltung des Interfaces.
 
     type notifier interface {
         notify()
@@ -347,7 +347,7 @@ je nach dem konkreten Wert, mit dem der Code arbeitet ändert.
 
 Das Beispiel zeigt auch, wie die Wahl der Datensemantik das Verhalten des
 Programms verändert. Wenn die Daten mit der Wertesemantik gespeichert werden, wird die Änderung des ursprünglichen
-Wertes nicht gesehen. Dies liegt daran, dass eine Kopie innerhalb der Interface gespeichert wird. Bei der 
+Wertes nicht gesehen. Dies liegt daran, dass eine Kopie innerhalb des Interface gespeichert wird. Bei der 
 Zeigersemantik werden alle Änderungen am Originalwert sichtbar.
 
 ** Anmerkungen
@@ -370,7 +370,7 @@ Zeigersemantik werden alle Änderungen am Originalwert sichtbar.
 
 "Eine gute Abstraktion entkoppelt den Code, so dass sich nicht jede Änderung auf die gesamte Codebasis auswirkt." - Ronna Steinburg
 
-** Extra Lesen
+** Zusatzlektüre
 
 - [[https://golang.org/doc/effective_go.html#interfaces][Grenzflächen]]
 - [[https://blog.golang.org/laws-of-reflection][Die Gesetze der Reflexion]] - Rob Pike
