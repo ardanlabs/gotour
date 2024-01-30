@@ -52,11 +52,11 @@ Dominik:
 
 - [x] goroutines.article (proof read done)
 
-- [x] interfaces.article
+- [x] interfaces.article (proof read done)
 
-- [x] maps.article
+- [x] maps.article (proof read done)
 
-- [x] methods.article
+- [x] methods.article (proof read done)
 
 - [x] pointers.article
 
