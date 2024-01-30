@@ -1,34 +1,33 @@
-Slice Constraints
-There may be times where you need to constrain the generic type to be only a slice.
+Batasan Slice
+Mungkin ada saat-saat di mana Anda perlu membatasi tipe generic hanya menjadi sebuah slice.
 
-* Generics - Slice Constraints
+* Generics - Batasan Slice
 
-There may be times where you need to constrain the generic type to be only a slice.
+Mungkin ada saat-saat di mana Anda perlu membatasi tipe generic hanya menjadi sebuah slice.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Tontonlah presentasi yang saya berikan tentang Generik yang
+akan membimbing Anda melalui semua contoh dalam bagian ini dari Tur.
 
 .html generics-video.html
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1*: Operate function
+- *Contoh* *1*: Fungsi operate
 
 .play generics/slice-constraints/example1.go
 
-** Explained
+** Penjelasan
 
-Here the user-defined Numbers type has an underlying type that is a slice of
-integers.
+Di sini, tipe Numbers yang didefinisikan pengguna memiliki tipe dasar berupa slice dari bilangan bulat.
 
     type Numbers []int
 
-The compiler allows you to convert variables based on a slice of integers
-with variables of type Numbers. This is usually good and what you want.
-Because of this functionality, you can write a generic function that can operate on a
-slice respecting the underlying type.
+Kompilator memungkinkan Anda mengonversi variabel berdasarkan sebuah slice dari bilangan bulat
+dengan variabel berjenis Numbers. Ini biasanya baik dan sesuai dengan yang diinginkan.
+Berkat fungsionalitas ini, Anda dapat menulis fungsi generic yang dapat beroperasi pada suatu slice
+dengan memperhatikan tipe dasarnya.
 
     type operateFunc[T any] func(t T) T
 
@@ -37,46 +36,45 @@ slice respecting the underlying type.
             for i, v := range slice {
             ret[i] = fn(v)
         }
-        
+
         return ret
     }
 
-Here the operate function declares a generic type T that can be anything. The type
-is used to declare a parameter named slice that accepts a slice of that same type T.
-The function also accepts a generic function of the same type T and returns a slice
-of T as well.
+Di sini, fungsi operate mendeklarasikan tipe generik T yang dapat menjadi apa saja.
+Tipe tersebut digunakan untuk mendeklarasikan parameter bernama slice
+yang menerima sebuah slice dari tipe T yang sama. Fungsi ini juga menerima sebuah fungsi generik
+dari tipe T yang sama, dan mengembalikan sebuah slice dari T juga.
 
     type Numbers []int
-    
+
     func Double(n Numbers) Numbers {
         fn := func(n int) int {
             return 2 * n
         }
-    
+
         numbers := operate(n, fn)
         fmt.Printf("%T", numbers)
         return numbers
     }
 
-Output:
+Keluaran:
 
     []int
 
-The Double function accepts a value of type Numbers and passes that value to the
-operate function. In this case, the compiler leverages the underlying type in for type
-T and the Numbers value can be passed into the function. However, what is
-returned is a slice of type int, as seen in the output.
+Fungsi Double menerima sebuah nilai bertipe Numbers dan meneruskan nilai tersebut ke dalam fungsi operate.
+Dalam hal ini, kompilator memanfaatkan tipe dasar untuk tipe T, dan nilai Numbers dapat diteruskan ke dalam fungsi.
+Namun, yang dikembalikan adalah sebuah slice bertipe int, seperti yang terlihat dalam keluaran.
 
-If you need to make sure that only a Numbers value can be passed in, and is returned
-by the operate function, you can make the following changes.
+Jika Anda perlu memastikan bahwa hanya nilai Numbers yang dapat diteruskan masuk dan dikembalikan oleh fungsi operate,
+Anda dapat melakukan perubahan sebagai berikut.
 
     type Slice[T any] interface {
         ~ []T
     }
 
-This interface declares a constraint to restrict a generic type to an actual slice of
-some type T. The use of the approximation element ~ restricts to all types whose
-underlying type is T. With this interface, you can change the operate function.
+Interface ini mendeklarasikan sebuah batasan untuk membatasi tipe generic menjadi sebuah slice dari suatu tipe T.
+Penggunaan elemen perkiraan ~ membatasi ke semua tipe yang memiliki tipe dasar T.
+Dengan interface ini, Anda dapat mengubah fungsi operate.
 
     type operateFunc[T any] func(t T) T
     type Slice[T any] interface {
@@ -96,31 +94,30 @@ underlying type is T. With this interface, you can change the operate function.
         for i, v := range slice {
             ret[i] = fn(v)
         }
-        
+
         return ret
     }
 
-Now change the operate function to declare two generic types. Type S which represents
-a slice value of some type T, and T which is a type that can be anything. The
-function returns a value of type S.
+Sekarang ubah fungsi operate untuk mendeklarasikan dua tipe generic. Tipe S yang mewakili
+nilai slice dari suatu tipe T, dan T yang merupakan tipe yang dapat menjadi apa saja.
+Fungsi ini mengembalikan sebuah nilai bertipe S.
 
     type Numbers []int
-    
+
     func Double(n Numbers) Numbers {
         fn := func(n int) int {
             return 2 * n
         }
-    
+
         numbers := operate(n, fn)
         fmt.Printf("%T", numbers)
-        
+
         return numbers
     }
 
-Output:
+Keluaran:
 
     main.Numbers
 
-This time when you pass the Numbers value into the operate function, the slice that is
-returned is of type Numbers. The underlying type is ignored and the user-defined
-type is respected.
+Kali ini, ketika Anda meneruskan nilai Numbers ke dalam fungsi operate, slice yang dikembalikan adalah bertipe Numbers.
+Tipe dasarnya diabaikan dan tipe yang didefinisikan oleh pengguna digunakan.
