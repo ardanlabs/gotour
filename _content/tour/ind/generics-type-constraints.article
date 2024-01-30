@@ -1,68 +1,67 @@
-Type As Constraint
-This is a new concept in Go where a constraint can be based on a set of concrete types.
+Tipe Data Sebagai Batasan
+Ini adalah konsep baru dalam Go di mana batasan dapat didasarkan pada kumpulan tipe konkret.
 
-* Generics - Type As Constraint
+* Generics - Tipe Data Sebagai Batasan
 
-This is a new concept in Go where a constraint can be based on a set of concrete types.
-This only works for generics.
+Ini adalah konsep baru dalam Go di mana batasan dapat didasarkan pada kumpulan tipe konkret.
+Ini hanya berlaku pada generics.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Tontonlah presentasi yang saya berikan tentang Generik yang
+akan membimbing Anda melalui semua contoh dalam bagian ini dari Tur.
 
 .html generics-video.html
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1*: Type based constraint
-- *Example* *2*: Predeclared type constraint "comparable"
-- *Example* *3*: Mix type and behavior constraints
+- *Contoh* *1*: Batasan berbasis tipe
+- *Contoh* *2*: Batasan tipe yang telah dideklarasikan sebelumnya "comparable"
+- *Contoh* *3*: Tipe data campuran dan batasan perilaku
 
 .play generics/type-constraints/example1.go
 .play generics/type-constraints/example2.go
 .play generics/type-constraints/example3.go
 
-** Explained
+** Penjelasan
 
-Generic functions create a new type of constraint that can’t be resolved by declaring
-a method set of behavior.
+Fungsi generic menciptakan tipe batasan baru yang tidak dapat dipecahkan
+dengan mendeklarasikan kumpulan metode perilaku.
 
     func Add[T ???](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Here is a generic function that wants to accept two values of some type T, add them
-together, and then return the sum back to the caller. This is an interesting problem
-because the compiler needs to constrain the call to the function for only values that
-can be used in an add operation. Currently there is no mechanic for declaring this
-kind of constraint.
+Berikut adalah fungsi generic yang ingin menerima dua nilai dari suatu tipe T, menjumlahkannya,
+dan kemudian mengembalikan jumlahnya ke pemanggil. Ini adalah masalah menarik karena kompilator
+perlu membatasi pemanggilan fungsi hanya untuk nilai-nilai yang dapat digunakan dalam operasi penjumlahan.
+Saat ini tidak ada mekanisme untuk mendeklarasikan jenis batasan ini.
 
-The decision was to continue to use the interface to declare the constraint and add
-something new.
+Keputusan yang diambil adalah untuk tetap menggunakan interface untuk mendeklarasikan batasan
+dan menambahkan sesuatu yang baru.
 
     type addOnly interface {
         string | int | int8 | int16 | int32 | int64 | float64
     }
 
-You can declare an interface that defines a set of types that form the constraint. Then
-apply this interface to the generic function.
+Anda dapat mendeklarasikan sebuah interface yang mendefinisikan kumpulan tipe-tipe yang membentuk batasan.
+Kemudian terapkan interface ini ke fungsi generic.
 
     func Add[T addOnly](v1 T, v2 T) T {
         return v1 + v2
     }
 
-Now the compiler can validate that the set of types is compliant with the operations
-the function needs to perform against values of those types. When the interface is
-using the built-in types, the interfaces are reusable across packages. When the list
-of types represent user-defined types from the package, You must remember these
-generic functions are bound to the packages types and nothing more.
+Sekarang kompilator dapat memvalidasi bahwa kumpulan tipe itu sesuai dengan operasi
+yang perlu dilakukan oleh fungsi terhadap nilai-nilai dari tipe-tipe tersebut.
+Ketika interface menggunakan tipe-tipe bawaan, interface dapat digunakan kembali di seluruh paket.
+Ketika daftar tipe mewakili tipe-tipe yang didefinisikan oleh pengguna dari paket, A
+nda harus ingat bahwa fungsi generic ini terikat pada tipe-tipe paket dan tidak lebih dari itu.
 
-Interfaces declared with a set of types can’t be used in a traditional polymorphic
-function. This wouldn’t make sense anyway, but it’s something that doesn’t feel like
-Go in the sense that this change to the interface is not orthogonal.
+Interface yang dideklarasikan dengan kumpulan tipe tidak dapat digunakan dalam fungsi polimorfik tradisional.
+Ini tidak akan masuk akal, tetapi ini adalah sesuatu yang tidak terasa seperti Go dalam artian bahwa
+perubahan terhadap interface ini tidak bersifat selaras.
 
-One idea is to have pre-declared identifiers for common operation constraints.
+Salah satu ide adalah memiliki identifier yang telah dideklarasikan sebelumnya untuk batasan operasi umum.
 
     func index[T comparable](list []T, find T) int {
         for i, v := range list {
@@ -70,54 +69,53 @@ One idea is to have pre-declared identifiers for common operation constraints.
                 return i
             }
         }
-        
+
         return -1
     }
 
-The comparable constraint is declared by the language and applies a constraint that
-types must be capable of being used in a comparison statement. In this example,
-both v and find are variables of type T and are being compared. There is an idea
-that a package in the standard library could provide a common set of constraints as
-well.
+Batasan "comparable" dideklarasikan oleh bahasa dan menerapkan batasan bahwa tipe-tipe
+harus dapat digunakan dalam pernyataan perbandingan. Dalam contoh ini, baik v maupun find
+adalah variabel bertipe T dan sedang dibandingkan. Ada ide bahwa suatu paket dalam pustaka standar
+juga dapat menyediakan kumpulan batasan umum.
 
-There is no restriction on an interface being declared with both a set of types and a
-method set of behavior.
+Tidak ada pembatasan pada sebuah interface yang dideklarasikan
+dengan kumpulan tipe dan set metode perilaku.
 
     type matcher[T any] interface {
         type person, food
         match(v T) bool
     }
-        
+
     func match[T matcher[T]](list []T, find T) int {
         for i, v := range list {
             if v.match(find) {
                 return i
             }
         }
-        
+
         return -1
     }
 
-A generic interface is declared where T is the type of value to be passed into a
-method named match. The interface also constrains its use to only values of userdefined
-type person and food.
+Deklarasikan sebuah interface generic di mana T adalah tipe nilai yang akan diteruskan
+ke dalam metode bernama match. Interface ini juga membatasi penggunaannya hanya pada nilai-nilai
+dari tipe yang didefinisikan oleh pengguna, yaitu person dan food.
 
-When you look at the match function, there isn’t an obvious need to restrict the
-function to just the person and food types. If this is the case, the match function
-should be a traditional polymorphic function, not a generic function. If there was a
-good reason, a generic function can be used to apply this type of constraint.
+Ketika Anda melihat fungsi match, tidak ada kebutuhan yang jelas untuk membatasi fungsi
+hanya pada tipe person dan food. Jika ini adalah kasusnya, fungsi match seharusnya menjadi
+fungsi polimorfik tradisional, bukan fungsi generik. Jika ada alasan yang baik,
+fungsi generic dapat digunakan untuk menerapkan jenis batasan ini.
 
-As a side note, not sure this functionality is necessary or makes sense. This is
-something the community will need to figure out over time.
+Sebagai catatan, diragukan fungsionalitas ini perlu atau masuk akal.
+Ini adalah sesuatu yang mungkin perlu diatasi oleh komunitas seiring berjalannya waktu.
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-Implement a generic function named copyfy that is constrained to only making
-copies of slices of type string or int.
+Implementasikan fungsi generik bernama copyfy yang dibatasi hanya untuk membuat
+salinan dari slice bertipe string atau int.
 
-.play generics/type-constraints/exercise1.go 
+.play generics/type-constraints/exercise1.go
 .play generics/type-constraints/answer1.go
