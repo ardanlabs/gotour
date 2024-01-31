@@ -113,13 +113,13 @@ deklarierte notify-Methode ist direkt durch den admin-Typwert zugänglich.
 Obwohl dies wie Vererbung aussieht, müsst Ihr vorsichtig sein. Es geht hier nicht um die 
 Wiederverwendung von Zustand, sondern um die Förderung von Verhalten.
 
-   type notifier interface {
-    notify()
-}
+    type notifier interface {
+        notify()
+    }
 
-func sendNotification(n notifier) {
-    n.notify()
-}
+    func sendNotification(n notifier) {
+        n.notify()
+    }
 
 Nun fügt Ihr eine Schnittstelle und eine polymorphe Funktion hinzu die jeden konkreten Wert 
 akzeptiert, der das vollständige Methodenset des Verhaltens das durch die notifier-Schnittstelle 
@@ -129,17 +129,17 @@ Durch die Einbettung und Förderung implementieren Werte des Typs admin jetzt di
 notifier-Schnittstelle.
 
 
-func main() {
-    ad := admin{
-        user: &user{
-            name:  "john smith",
-            email: "john@yahoo.com",
-        },
-        level: "super",
-    }
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
 
-    sendNotification(&ad)
-}
+        sendNotification(&ad)
+    }
 
 Ausgabe:
 
@@ -163,16 +163,16 @@ Wenn der äußere Typ eine Methode implementiert, die bereits durch den inneren 
 findet die Beförderung nicht statt.
 
     func main() {
-    ad := admin{
-        user: &user{
-            name:  "john smith",
-            email: "john@yahoo.com",
-        },
-        level: "super",
-    }
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
 
-    sendNotification(&ad)
-}
+        sendNotification(&ad)
+    }
 
 Ausgabe:
     
