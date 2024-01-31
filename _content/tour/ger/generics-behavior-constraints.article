@@ -55,14 +55,14 @@ Der Code definiert einen konkreten Typ namens User und implementiert eine Method
 String, die den Namen des Benutzers zurückgibt. Dann wird ein interface Typ namens
 Stringer deklariert, der einen Akt des Verhaltens String deklariert, der eine Zeichenkette zurückgibt. Dank
 der Methode, die für User deklariert wurde, kann man sagen, dass der konkrete Typ User
-die Schnittstelle Stringer unter Verwendung der Wertesemantik implementiert.
+das Interface Stringer unter Verwendung der Wertesemantik implementiert.
 
 Die Funktion "Konkret" ist genau das: eine Funktion die konkrete Daten akzeptiert. Die polymorphe Funktion ist ebenfalls genau das: eine Funktion die konkrete Daten annimmt
 basierend auf dem was sie tun kann. Dies ist der Hauptunterschied zwischen einer konkreten und einer
 polymorphen Funktion. Die Eine ist auf eine bestimmte Art von Daten beschränkt, die Andere nicht. Allerdings
 gibt es eine Einschränkung welche konkreten Daten an die polymorphe Funktion übergeben werden können.
 
-Die Stringer-Schnittstelle definiert diese Einschränkung durch die Deklaration eines Methodensatzes von Verhaltensweisen
+Das Stringer-Interface definiert diese Einschränkung durch die Deklaration eines Methodensatzes von Verhaltensweisen
 die konkrete Daten aufweisen müssen. Wenn sie als Eingabetyp verwendet wird, kann der
 Compiler garantieren, dass die Verhaltensbeschränkung jedes Mal erfüllt wird wenn die Funktion
 aufgerufen wird.
@@ -84,7 +84,7 @@ Slice von String-Werten zurück, die eine stringifizierte Version jedes Wertes a
 Sammlung enthält. Der Schlüssel zum Funktionieren dieser Funktion ist der Methodenaufruf von String an jeden Wert vom Typ T.
 
 Das Problem ist dass der Compiler wissen und überprüfen muss, dass Werte vom Typ T
-eine Methode namens String hat. Wenn der generische Typ T deklariert wird, wird die Schnittstelle fmt.Stringer
+eine Methode namens String hat. Wenn der generische Typ T deklariert wird, wird das Interface fmt.Stringer
 als Einschränkung bereitgestellt. Der Compiler weiß nun, dass er jeden Typ-Ersatz und Daten die an die Funktion übergeben werden, auf das Verhalten dieser Methode überprüfen muss.
 
 Das ist hervorragend, weil das interface wiederverwendet wird und 
@@ -97,7 +97,7 @@ Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine möglic
 ** Übung 1
 
 Implementiert eine generische Funktion namens marshal, die JSON marshalen kann, dabei aber nur
-Werte annimmt welche die Schnittstelle json.Marshaler implementieren.
+Werte annimmt welche das Interface json.Marshaler implementieren.
 
 .play generics/behavior-constraints/exercise1.go 
 .play generics/behavior-constraints/answer1.go

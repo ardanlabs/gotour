@@ -24,26 +24,26 @@ wie Go die Einhaltung von Interfaces handhabt. Da der Compiler statische Codeana
 muss der Entwickler der den konkreten Typ deklariert, keine Interfaces bereitstellen.
 
     package pubsub
-
-type PubSub struct {
-    host string
-}
-
-func New(host string) *PubSub {
-    return &PubSub{
-        host: host,
+    
+    type PubSub struct {
+        host string
     }
-}
 
-func (ps *PubSub) Publish(key string, v interface{}) error {
-    // TUT SO, ALS OB ES EINE SPEZIFISCHE IMPLEMENTIERUNG GÄBE.
-    return nil
-}
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
 
-func (ps *PubSub) Subscribe(key string) error {
-    // TUT SO, ALS OB ES EINE SPEZIFISCHE IMPLEMENTIERUNG GÄBE.
-    return nil
-}
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
 
 Ihr habt gerade eine neue API implementiert, die eine konkrete Implementierung für Publish und Subscribe bereitstellt. 
 Es werden keine Interfaces bereitgestellt, da diese API keine benötigt. Dies ist eine einzelne konkrete Implementierung.
@@ -52,24 +52,24 @@ Was ist wenn der Anwendungsentwickler, der diese neue API nutzen möchte ein Int
 Implementierung während der Tests mocken muss? In Go kann dieser Entwickler das Interface deklarieren und der Compiler 
 kann die Einhaltung identifizieren.
 
-package main
+    package main
 
-type publisher interface {
-    Publish(key string, v interface{}) error
-    Subscribe(key string) error
-}
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
 
-type mock struct{}
+    type mock struct{}
 
-func (m *mock) Publish(key string, v interface{}) error {
-    // FÜGT MEIN MOCK FÜR DEN PUBLISH-AUFRUF HINZU.
-    return nil
-}
+    func (m *mock) Publish(key string, v interface{}) error {
+        // ADD MY MOCK FOR THE PUBLISH CALL.
+        return nil
+    }
 
-func (m *mock) Subscribe(key string) error {
-    // FÜGT MEIN MOCK FÜR DEN SUBSCRIBE-AUFRUF HINZU.
-    return nil
-}
+    func (m *mock) Subscribe(key string) error {
+        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        return nil
+    }
 
 Dieser Code im Hauptpaket deklariert ein Interface. Dieses Interface repräsentiert die API, die die Anwendung aus 
 dem PubSub-Paket verwendet. Der Entwickler hat seine eigene PubSub-Implementierung für Tests implementiert. 
@@ -77,16 +77,16 @@ Der Schlüssel hierbei ist, dass dieser Anwendungsentwickler keine konkrete Impl
 sondern sich durch sein eigenes Interface entkoppelt.
 
     func main() {
-    pubs := []publisher{
-        pubsub.New("localhost"),
-        &mock{},
-    }
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
 
-    for _, p := range pubs {
-        p.Publish("key", "value")
-        p.Subscribe("key")
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
     }
-}
 
 Um ein Beispiel zu geben, konstruiert die Hauptfunktion einer Sammlung, die mit der PubSub-Implementierung 
 und der Mock-Implementierung initialisiert wird. Das Publisher-Interface ermöglicht dies. 

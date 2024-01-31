@@ -13,10 +13,10 @@ euch an die kommenden Daten- und Transformationsänderungen anzupassen.
 ** Code-Überprüfung
 
 - *Beispiel* *1:* Strukturzusammensetzung
-- *Beispiel* *2:* Entkopplung mit Schnittstelle
-- *Beispiel* *3:* Schnittstellenzusammensetzung
-- *Beispiel* *4:* Entkopplung mit Schnittstellenzusammensetzung
-- *Beispiel* *5:* Entfernen von Schnittstellenverschmutzung
+- *Beispiel* *2:* Entkopplung mit Interfaces 
+- *Beispiel* *3:* Interfacezusammensetzung
+- *Beispiel* *4:* Entkopplung mit Interfacezusammensetzung
+- *Beispiel* *5:* Entfernen von Interfaceverschmutzung
 - *Beispiel* *6:* Präzisere API
 
 
@@ -119,7 +119,7 @@ Die Copy-Funktion baut auf den Pull- und Store-Funktionen auf, um alle anstehend
 jeden Lauf zu bewegen. Wenn ihr den ersten Parameter von Copy bemerkt, handelt es sich um 
 einen Typ namens System.
 
-     type System struct {
+    type System struct {
         Xenia
         Pillar
     }
@@ -151,7 +151,7 @@ der Zusammensetzung eines Systems zu konstruieren. Dann kann das System an die C
 
 Mit all diesem Code habt ihr jetzt meinen ersten Entwurf einer konkreten Lösung für ein konkretes Problem.
 
-** Entkopplung mit Schnittstellen
+** Entkopplung mit Interfaces
 
 Der nächste Schritt besteht darin zu verstehen, was sich im Programm ändern könnte. In diesem Fall können 
 sich die Systeme selbst ändern. Heute sind es Xenia und Pillar, morgen könnten es Alice und Bob sein. 
@@ -191,7 +191,7 @@ indem ihr nach Daten basierend darauf fragt, was sie tun können, anstatt darauf
         Store(d *Data) error
     }
 
-Diese beiden Schnittstellen beschreiben was konkrete Daten tun müssen und es sind diese Typen, 
+Diese beiden Interfaces beschreiben was konkrete Daten tun müssen und es sind diese Typen, 
 die in der Deklaration der Pull- und Store-Funktionen ersetzt werden. Jetzt sind diese Funktionen 
 polymorph. Wenn Alice und Bob als Puller und Storer deklariert und implementiert werden, können sie 
 in die Funktionen eingegeben werden.
@@ -223,30 +223,30 @@ der sowohl Pull als auch Store durchführen kann.
         Storer
     }
 
-Die PullStorer-Schnittstelle wird durch Komposition deklariert. Sie setzt sich aus den 
-Schnittstellen Puller und Storer zusammen. Arbeitet daran, größere Schnittstellen aus 
+Das PullStorer-Interface wird durch Komposition deklariert. Sie setzt sich aus den 
+Interfaces Puller und Storer zusammen. Arbeitet daran, größere Interface aus 
 kleineren zu komponieren.
 
 Beachtet, wie die PullStorer-Variable jetzt in die Pull- und Store-Funktionen eingegeben wird. 
 Wie ist das möglich, wenn die Typinformation unterschiedlich ist?
 
-     // func Pull(p Puller, data []Data) (int, error) {
+    // func Pull(p Puller, data []Data) (int, error) {
     i, err := Pull(ps, data)
 
     // func Store(s Storer, data []Data) (int, error) {
     if _, err := Store(ps, data[:i]); err != nil {
 
-Ihr müsst euch immer daran erinnern, dass ihr niemals einen Schnittstellenwert in eurem 
+Ihr müsst euch immer daran erinnern, dass ihr niemals einen Interface-Wert in eurem 
 Programm herumreicht, da sie nicht existieren und wertlos sind. Ihr könnt nur konkrete 
-Daten weitergeben. Also sind die konkreten Daten, die in der Schnittstellenvariablen ps 
+Daten weitergeben. Also sind die konkreten Daten, die in der Interfacevariablen ps 
 gespeichert sind, das was an Pull und Store weitergegeben wird. Ist es nicht so, dass 
 der konkrete Wert der in ps gespeichert ist, wissen muss wie man Pull und Store durchführt?
 
 .image /tour/eng/static/img/comp1.png
 
 Da ein System aus einem Xenia und einem Pillar zusammengesetzt ist, implementiert das System 
-die PullStorer-Schnittstelle. Mit diesen Änderungen könnt ihr jetzt neue konkrete Typen erstellen, 
-die die PullStorer-Schnittstelle implementieren.
+das PullStorer-Interface. Mit diesen Änderungen könnt ihr jetzt neue konkrete Typen erstellen, 
+die das PullStorer-Interface implementieren.
 
 
     type System1 struct {
@@ -272,9 +272,9 @@ die die PullStorer-Schnittstelle implementieren.
 Verschiedene Systeme-Typen für alle möglichen Kombinationen zu erstellen ist nicht realistisch.
 Obwohl es grundätzlich funktionieren würde, wäre der Wartungsaufwand dafür ein Alptraum.
 
-** Schnittstellenkomposition
+** Interfacekomposition
 
-Was wäre wenn ihr euch dafür entscheidet, euren konkreten Systemtyp aus zwei Schnittstellentypen zu komponieren?
+Was wäre wenn ihr euch dafür entscheidet, euren konkreten Systemtyp aus zwei Interfacetypen zu komponieren?
 
     type System struct {
         Puller
@@ -301,7 +301,7 @@ beim Anwendungsstart in das System zu injizieren.
         }
     }
 
-Dieser eine Systemtyp implementiert die PullStorer-Schnittstelle für alle möglichen
+Dieser eine Systemtyp implementiert das PullStorer-Interface für alle möglichen
 Kombinationen von konkreten Typen.
 
 .image /tour/eng/static/img/comp2.png
@@ -318,8 +318,8 @@ Die Antwort lautet nein. Es können zwei Änderungen vorgenommen werden.
     func Copy(sys *System, batch int) error {
 
 Die Copy-Funktion muss nicht mehr polymorph sein, da es nur noch einen Systemtyp geben wird. 
-Der PullStorer-Schnittstellentyp kann aus dem Programm entfernt werden. Erinnert euch, ihr habt den 
-Polymorphismus in den Typ verschoben, als ihr die Komposition mit den Schnittstellentypen verwendet habt.
+Der PullStorer-Interfacetyp kann aus dem Programm entfernt werden. Erinnert euch, ihr habt den 
+Polymorphismus in den Typ verschoben, als ihr die Komposition mit den Interfacetypen verwendet habt.
 
     func Copy(p Puller, s Storer, batch int) error {
 
@@ -356,22 +356,22 @@ in der man absolut präzise sein kann." - Edsger W. Dijkstra
 
 ** Anmerkungen
 
--Dies ist viel mehr als die Mechanik der Typeneinbettung.
--Deklariert Typen und implementiert Workflows mit Komposition im Sinn.
--Versteht zuerst das Problem das ihr lösen wollt. Das bedeutet die Daten zu verstehen.
--Das Ziel ist es, kaskadierende Änderungen in eurer Software zu reduzieren und zu minimieren.
--Schnittstellen bieten die höchste Form der Komposition.
--Gruppiert Typen nicht nach einem gemeinsamen DNA, sondern nach einem gemeinsamen Verhalten.
--Alle können zusammenarbeiten, wenn wir uns auf das konzentrieren, was wir tun und nicht darauf was wir sind.
+- Dies ist viel mehr als die Mechanik der Typeneinbettung.
+- Deklariert Typen und implementiert Workflows mit Komposition im Sinn.
+- Versteht zuerst das Problem das ihr lösen wollt. Das bedeutet die Daten zu verstehen.
+- Das Ziel ist es, kaskadierende Änderungen in eurer Software zu reduzieren und zu minimieren.
+- Interface bieten die höchste Form der Komposition.
+- Gruppiert Typen nicht nach einem gemeinsamen DNA, sondern nach einem gemeinsamen Verhalten.
+- Alle können zusammenarbeiten, wenn wir uns auf das konzentrieren, was wir tun und nicht darauf was wir sind.
 
 ** Zitate
 
 "Eine gute API ist nicht nur einfach zu bedienen, sondern auch schwer falsch zu verwenden." - JBD
 
-"Man kann immer einbetten, aber man kann große Schnittstellen nicht mehr zerlegen, 
-wenn sie einmal draußen sind. Haltet Schnittstellen klein." - JBD
+"Man kann immer einbetten, aber man kann große Interface nicht mehr zerlegen, 
+wenn sie einmal draußen sind. Haltet Interface klein." - JBD
 
-"Entwerft nicht mit Schnittstellen, entdeckt sie." - Rob Pike
+"Entwerft nicht mit Interface, entdeckt sie." - Rob Pike
 
 "Duplikation ist viel billiger als die falsche Abstraktion." - Sandi Metz
 
@@ -394,7 +394,7 @@ Verwendet die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. E
 
 ** Übung 1
 
-Verwendet die Vorlage um eine Reihe von konkreten Typen zu deklarieren, welche die vorgegebenen Schnittstellentypen implementieren. 
+Verwendet die Vorlage um eine Reihe von konkreten Typen zu deklarieren, welche die vorgegebenen Interfacetypen implementieren. 
 Erstellt dann Werte dieser Typen und verwendet sie um eine Reihe von vorgegebenen Aufgaben zu erledigen.
 
 .play composition/decoupling/exercise1.go

@@ -105,11 +105,11 @@ ob bei diesem Aufruf ein Fehler aufgetreten ist.
     }
 
 Der Schlüssel zur Prüfung ist err != nil. Diese Bedingung besagt, ob ein 
-konkreter Wert innerhalb des err-Schnittstellenwertes gespeichert ist. Wenn der Schnittstellenwert
+konkreter Wert innerhalb des err-Interface-Wertes gespeichert ist. Wenn der Interface-Wert
 einen konkreten Wert speichert, liegt ein Fehler vor. In diesem Fall sagt uns der Context, dass ein konkreter Wert existiert, es ist unwichtig was der konkrete
 Wert ist.
 
-Wenn es wichtig ist zu wissen, welcher Fehlerwert in der Schnittstellenvariable err steht, sind Fehlervariablen eine gute Option.
+Wenn es wichtig ist zu wissen, welcher Fehlerwert in der Interfacevariable err steht, sind Fehlervariablen eine gute Option.
 
     var (
         ErrBadRequest = errors.New("Bad Request")
@@ -151,8 +151,8 @@ Dadurch kann der Aufrufer feststellen, welcher Fehler aufgetreten ist.
     }
 
 In der Anwendung kann nach dem Aufruf von webCall geprüft werden, 
-ob ein konkreter Wert in der Schnittstellenvariablen err gespeichert ist. Falls
-ein konkreter Wert in der Schnittstellenvariablen err gespeichert ist, wird mit Hilfe einer switch-Anweisung ermittelt, um welchen Fehler es sich handelt, indem err
+ob ein konkreter Wert in der Interfacevariablen err gespeichert ist. Falls
+ein konkreter Wert in der Interfacevariablen err gespeichert ist, wird mit Hilfe einer switch-Anweisung ermittelt, um welchen Fehler es sich handelt, indem err
 mit den verschiedenen Fehlervariablen verglichen wird.
 
 In diesem Fall richtet sich der Context des Fehlers danach, welche Fehlervariable zurückgegeben wurde.
@@ -233,7 +233,7 @@ alle Zustände des Fehlers erlauben.
 
 Das bringt allerdings ein Problem mit sich. Ich bin nicht mehr vom konkreten Fehlerwert entkoppelt.
 Das heißt, wenn der konkrete Fehlerwert geändert wird, kann mein Code zusammenbrechen. Der
-schöne Teil der Verwendung einer Schnittstelle zur Fehlerbehandlung ist die Entkopplung von
+schöne Teil der Verwendung einem Interface zur Fehlerbehandlung ist die Entkopplung von
 Änderungen.
 
 Wenn der konkrete Fehlerwert eine Methode hat, dann könnt ihr ein Interface für 
@@ -304,8 +304,8 @@ Ausgabe:
 
 Warum glaubt dieser Code, dass ein Fehler vorliegt, obwohl die Fail-Funktion den Wert Null für
 den Fehler zurückgibt? Das liegt daran, dass die Fail-Funktion den konkreten Fehlertyp verwendet und nicht
-die Fehlerschnittstelle verwendet. In diesem Fall ist ein Null-Zeiger des Typs customError
-in der err-Variable gespeichert. Das ist nicht dasselbe wie ein Nullwert der Schnittstelle vom Typ error.
+das Error-Interface verwendet. In diesem Fall ist ein Null-Zeiger des Typs customError
+in der err-Variable gespeichert. Das ist nicht dasselbe wie ein Nullwert des Interface vom Typ error.
 
 ** Fehlerbehandlung
 

@@ -29,8 +29,8 @@ leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken 
 System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
 Anweisungen zu verwalten. Jedes Go-Programm hat mindestens eine Goroutine, die wir die Main-Goroutine nennen.
 
-Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stapel beginnt
-mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stapel können im Laufe der Zeit größer werden.
+Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stack beginnt
+mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stacks können im Laufe der Zeit größer werden.
 
 .image /tour/eng/static/img/p1.png
 
@@ -43,9 +43,9 @@ kann auf dem Stack abgelegt werden, es sei denn, der Compiler kennt die Größe 
 Kompilierzeit. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nicht kennt, muss der
 Wert auf dem Heap konstruiert werden.
  
-Stapel sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stapels.
+Stacks sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stacks.
 Jedes Mal, wenn wir eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
-für diesen Frame initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktionsrückkehr
+für diesen Frame initialisiert, wodurch der Stack selbstreinigend ist. Bei einer Funktionsrückkehr
 wird der Speicher für den Frame unangetastet gelassen, da nicht bekannt ist, ob dieser Speicher
 wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr zu initialisieren.
 
@@ -135,7 +135,7 @@ oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichne
 Beim Verständnis der Fluchtanalyse geht es um das Verständnis von Werteigentum. Die Idee dahinter ist,
 wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann besitzt diese Funktion den Wert. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
 existiert wenn die Funktion returned. Wenn die Antwort nein lautet, kann der Wert
-auf dem Stapel konstruiert werden. Lautet die Antwort ja, muss der Wert auf
+auf dem Stack konstruiert werden. Lautet die Antwort ja, muss der Wert auf
 dem Heap konstruiert werden.
 
 Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
@@ -201,7 +201,7 @@ Stack, in dem sich der Benutzerwert befindet, wiederverwendbar. In dem Moment, i
 einen weiteren Funktionsaufruf tätigt, wird ein neuer Frame gesliced und der Speicher überschrieben,
 wodurch der gemeinsam genutzte Wert vernichtet wird.
 
-Aus diesem Grund kann man davon ausgehen, dass sich der Stapel selbst bereinigt. Nullwert-Initialisierung
+Aus diesem Grund kann man davon ausgehen, dass sich der Stack selbst bereinigt. Nullwert-Initialisierung
 hilft dabei, dass jeder Stack-Frame, der benötigt wird, ohne den Einsatz von GC bereinigt werden kann. Der Stack
 ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame gebraucht und initialisiert wird.
 Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei returns, weil
@@ -261,14 +261,14 @@ die von einigen Betriebssystemen verwendet wird.
 
 Jeder Funktionsaufruf kommt mit einer kleinen Präambel, die fragt: "Gibt es genug Stack
 Platz für diesen neuen Frame?". Wenn ja, dann ist das kein Problem und der Rahmen wird übernommen und
-initialisiert. Wenn nicht, muss ein neuer, größerer Stapel angelegt werden und der Speicher auf dem
-bestehenden Stapel muss auf den neuen kopiert werden. Dies erfordert Änderungen an
+initialisiert. Wenn nicht, muss ein neuer, größerer Stack angelegt werden und der Speicher auf dem
+bestehenden Stack muss auf den neuen kopiert werden. Dies erfordert Änderungen an
 Zeigern, die auf Speicher auf dem Stack verweisen. Die Vorteile von zusammenhängendem Speicher und
 linearen Traversalen mit moderner Hardware ist der Ausgleich für die Kosten des Kopierens.
 
 Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf 
-den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, 
-jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
+den Stack einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, 
+jeden Zeiger auf jeden Stack zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
 
 ** Zusatzlektüre
 
@@ -279,9 +279,9 @@ jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anz
 - [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Verwendung von Zeigern in Go]] - William Kennedy
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Zeiger und Speicherzuweisung verstehen]] - William Kennedy
 
-*Stapel*
+*Stack*
 
-- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Vorschlag für einen zusammenhängenden Stapel]]
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Vorschlag für einen zusammenhängenden Stack]]
 
 *Escape* *Analyse* *und* *Inlining*
 
