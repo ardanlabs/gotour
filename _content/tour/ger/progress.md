@@ -58,15 +58,15 @@ Dominik:
 
 - [x] methods.article (proof read done)
 
-- [x] pointers.article
+- [x] pointers.article (proof read done)
 
-- [x] slices.article
+- [x] slices.article (proof read done)
 
-- [x] struct-types.article
+- [x] struct-types.article (proof read done)
 
-- [x] variables.article
+- [x] variables.article (proof read done)
 
-- [x] welcome.article
+- [x] welcome.article (proof read done)
 
 - [x] error-handling.article (neu: word count 450) (proof read done)
 

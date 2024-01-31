@@ -8,7 +8,7 @@ Variablen sind das Herzstück der Sprache und bieten die Möglichkeit, aus dem S
 
 Variablen sind das Herzstück der Sprache und bieten die Möglichkeit, aus dem Speicher zu lesen
 und in den Speicher zu schreiben. In Go ist der Zugriff auf den Speicher typsicher. Das bedeutet, der Compiler
-nimmt den Typ ernst und lässt nicht zu, dass wir Variablen außerhalb des Bereichs brauchen in dem sie deklariert wruden.
+nimmt den Typ ernst und lässt nicht zu, Variablen außerhalb des Geltungsbereichs ihrer Deklaration zu verwenden.
 
 ** Code-Überprüfung
 
@@ -27,7 +27,7 @@ Typen können spezifisch für eine Genauigkeit wie int32 oder int64 sein:
 - uint8 steht für eine ganze Zahl ohne Vorzeichen mit einer Zuweisung von 1 Byte
 - int32 steht für eine ganze Zahl mit Vorzeichen und 4 Byte Zuweisung. 
 
-Wenn ihr einen Typen deklariert mit einem nicht-präzisionsbasierten Typen (unit, int), richtet sich die Größe des Wertes nach der
+Wenn ihr einen Typen mit einem nicht-präzisionsbasierten Typen (unit, int) deklariert, richtet sich die Größe des Wertes nach der
 Architektur, die für die Erstellung des Programms verwendet wird:
 
 - 32-Bit-Bogen: int stellt einen vorzeichenbehafteten int mit 4 Byte Speicherzuweisung dar
@@ -36,16 +36,16 @@ Architektur, die für die Erstellung des Programms verwendet wird:
 ** Wortgröße
 
 Die Wortgröße stellt die Menge an Speicherzuweisung dar, die für die Speicherung von Ganzzahlen
-und Zeigern für eine bestimmte Architektur sind. Zum Beispiel:
+und Zeigern für eine bestimmte Architektur benötigt wird. Zum Beispiel:
 
 - 32-Bit-Bogen: Die Wortgröße beträgt 4 Byte Speicherzuweisung
 - 64-Bit-Bogen: Die Wortgröße beträgt 8 Byte Speicherzuweisung
 
-Dies ist wichtig, da Go über interne Datenstrukturen (Maps, Channels, Slices,
-Interfaces und Funktionen), die Ganzzahlen und Zeiger speichert. Die Größe dieser Datenstrukturen
-Strukturen hängt von der Architektur ab, die für die Erstellung des Programms verwendet wird.
+Dies ist wichtig, da Go über interne Datenstrukturen hay (Maps, Channels, Slices,
+Interfaces und Funktionen), die Ganzzahlen und Zeiger speichern. Die Größe dieser Datenstrukturen
+hängt von der Architektur ab, die für die Erstellung des Programms verwendet wird.
 
-In Go ist die Menge an Speicher, die für einen Wert vom Typ int, einen Zeiger oder ein Wort
+In Go ist die Menge an Speicher für einen Wert vom Typ int, einen Zeiger oder ein Wort
 auf der gleichen Architektur immer gleich groß.
 
 ** Nullwert-Konzept
@@ -115,7 +115,7 @@ Ausgabe:
 
 ** Umwandlung vs. Casting 
 
-Go kennt kein Casting, sondern eine Konvertierung. Anstatt dem Compiler mitzuteilen, dass er eine
+Go kennt kein Casting, sondern eine Konvertierung. Anstatt dem Compiler mitzuteilen, dass er einen
 Satz von Bytes auf eine andere Darstellung abbilden soll, müssen die Bytes an einen neuen
 Speicherplatz für die neue Darstellung kopiert werden.
 
@@ -125,7 +125,7 @@ Speicherplatz für die neue Darstellung kopiert werden.
     Output:
     aaa := int32(10) int32 [10]
 
-Go verfügt über ein Paket in der Standardbibliothek namens unsafe, für den Fall dass ihr eine tatsächliche Casting-Operation durchführen müsst. Ihr solltet das wirklich vermeiden und sich selbst gegenüber ehrlich sein
+Go verfügt über ein Paket in der Standardbibliothek namens unsafe, für den Fall dass ihr eine tatsächliche Casting-Operation durchführen müsst. Ihr solltet das wirklich vermeiden und euch selbst gegenüber ehrlich sein
 warum ihr es verwenden wollt. Die Durchführung einer Konvertierung bietet den höchsten Grad an
 der Integrität für diese Art von Operationen.
 
