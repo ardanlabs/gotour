@@ -8,7 +8,7 @@ Zeiger dienen dem Zweck der gemeinsamen Nutzung von Werten über Programmgrenzen
 
 Zeiger dienen dem Zweck, Werte über Programmgrenzen hinweg auszutauschen. Es gibt
 verschiedene Arten von Programmgrenzen. Die häufigste ist die zwischen Funktionsaufrufen.
-Es gibt auch eine Grenze zwischen Goroutinen, zu der wir später Notizen machen werden.
+Es gibt auch eine Grenze zwischen Goroutinen, für die ihr später Notizen habt.
 
 ** Code-Überprüfung
 
@@ -27,7 +27,7 @@ Es gibt auch eine Grenze zwischen Goroutinen, zu der wir später Notizen machen 
 Wenn ein Go-Programm gestartet wird, erstellt die Go-Laufzeitumgebung eine Goroutine. Goroutinen sind
 leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken wie
 System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
-Anweisungen. Jedes Go-Programm hat mindestens eine Goroutine, die wir die Main-Goroutine nennen.
+Anweisungen zu verwalten. Jedes Go-Programm hat mindestens eine Goroutine, die wir die Main-Goroutine nennen.
 
 Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stapel beginnt
 mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stapel können im Laufe der Zeit größer werden.
@@ -45,8 +45,8 @@ Wert auf dem Heap konstruiert werden.
  
 Stapel sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stapels.
 Jedes Mal, wenn wir eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
-für diesen Frame initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktion
-wird der Speicher für den Frame in Ruhe gelassen, da nicht bekannt ist, ob dieser Speicher
+für diesen Frame initialisiert, wodurch der Stapel selbstreinigend ist. Bei einer Funktionsrückkehr
+wird der Speicher für den Frame unangetastet gelassen, da nicht bekannt ist, ob dieser Speicher
 wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr zu initialisieren.
 
 *Pass* *By* *Value*
@@ -121,7 +121,7 @@ Ausgabe:
 
 - Verwendet Zeiger, um Daten gemeinsam zu nutzen.
 - Werte in Go werden immer als Wert übergeben.
-- "Value of", was in der Box ist. "Adresse von" ( & ), wo sich die Box befindet.
+- "Value of", was in der Box ist. "Address of" ( & ), wo sich die Box befindet.
 - Der Operator ( * ) deklariert eine Zeigervariable und den "Wert, auf den der Zeiger zeigt".
 
 ** Fluchtanalyse
@@ -135,7 +135,7 @@ oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichne
 Beim Verständnis der Fluchtanalyse geht es um das Verständnis von Werteigentum. Die Idee dahinter ist,
 wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann besitzt diese Funktion den Wert. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
 existiert wenn die Funktion returned. Wenn die Antwort nein lautet, kann der Wert
-auf dem Stapel konstruiert wird. Lautet die Antwort ja, muss der Wert auf dem
+auf dem Stapel konstruiert werden. Lautet die Antwort ja, muss der Wert auf
 dem Heap konstruiert werden.
 
 Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
@@ -190,8 +190,8 @@ immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
 Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap 
 nicht auf dem Stack, sondern auf dem Heap erfolgen. 
 
-uÜberlegen , was passieren würde, wenn der Benutzerwert im letzten Beispiel
-auf dem Stack konstruiert würde, wenn beim Return die Zeigersemantik verwendet würde.
+Denkt darüber nach, was passieren würde, wenn der Benutzerwert im letzten Beispiel
+auf dem Stack konstruiert würde, während beim Zeigersemantik beim Return verwendet wird.
 
 .image /tour/eng/static/img/p2.png
 
@@ -214,11 +214,11 @@ an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalt
 den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
 
 Es gibt viele kleine Details im Zusammenhang mit der Fluchtanalyse.
-lest dazu den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
+Lest dazu den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
 
 Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert, um
-eine neue Art der Übergabe von Funktionsein- und -ausgangsargumenten unter Verwendung von Registern
-anstelle von Speicher auf dem Stack. Dies ist aktiviert für Linux, MacOS und Windows auf
+eine neue Art zur Übergabe von Funktionseingabe- und - ausgabeargumenten zu implementieren, indem Register
+anstelle von Speicher auf dem Stack verwendet werden. Dies ist für Linux, MacOS und Windows auf
 den 64-Bit-x86-Architekturen aktiviert. Dies bedeutet, dass einige Funktionsargumente nicht
 auf den Stack kopiert werden. Aber einige können, abhängig von der Machbarkeit der Verwendung von Registern kopiert werden.
 Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
@@ -256,21 +256,21 @@ ein Slice zu konstruieren, dessen Größe auf einer Variablen basiert.
     b := make([]byte, size) // Backing-Array wird auf dem Heap alloziert.
 
 Go verwendet eine zusammenhängende Stack-Implementierung, um zu bestimmen, wie Stacks wachsen und schrumpfen.
-Eine Alternative, die Go hätte verwenden können, ist eine segmentierte Stack-Implementierung, die
+Eine Alternative, die Go hätte verwenden können, ist eine segmentierte Stack-Implementierung, 
 die von einigen Betriebssystemen verwendet wird.
 
 Jeder Funktionsaufruf kommt mit einer kleinen Präambel, die fragt: "Gibt es genug Stack
 Platz für diesen neuen Frame?". Wenn ja, dann ist das kein Problem und der Rahmen wird übernommen und
 initialisiert. Wenn nicht, muss ein neuer, größerer Stapel angelegt werden und der Speicher auf dem
-Speicher des bestehenden Stapels auf den neuen kopiert werden. Dies erfordert Änderungen an
+bestehenden Stapel muss auf den neuen kopiert werden. Dies erfordert Änderungen an
 Zeigern, die auf Speicher auf dem Stack verweisen. Die Vorteile von zusammenhängendem Speicher und
 linearen Traversalen mit moderner Hardware ist der Ausgleich für die Kosten des Kopierens.
 
-Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf den Stapel einer anderen Goroutine haben.
-den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, jeden Zeiger
+Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf 
+den Stapel einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, 
 jeden Zeiger auf jeden Stapel zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
 
-** Extra Lesen
+** Zusatzlektüre
 
 **Zeiger* *Mechanik*
 
