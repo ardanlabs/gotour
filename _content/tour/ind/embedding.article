@@ -1,31 +1,32 @@
 Embedding
-Embedding types provide the final piece of sharing and reusing state and behavior between types.
+Tipe embedding (penyematan) menyediakan elemen terakhir dalam berbagi dan
+menggunakan kembali status dan perilaku antar tipe.
 
 * Embedding
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Embedding types provide the final piece of sharing and reusing state and behavior
-between types. Through the use of inner type promotion, an inner type's fields and
-methods can be directly accessed by references of the outer type.
+Tipe embedding memberikan bagian terakhir dari berbagi dan menggunakan kembali
+status dan perilaku antar tipe. Melalui penggunaan promosi tipe bagian dalam,
+atribut dan metode tipe bagian dalam dapat diakses secara langsung melalui referensi tipe luar.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Declaring Fields			   
-- *Example* *2:* Embedding types
-- *Example* *3:* Embedded types and interfaces
-- *Example* *4:* Outer and inner type interface implementations
-	
+- *Contoh* *1:* Mendeklarasikan Atribut
+- *Contoh* *2:* Tipe Embedding
+- *Contoh* *3:* Tipe-tipe Embedding dan Interfaces
+- *Contoh* *4:* Implementasi Interface Tipe Luar dan Tipe bagian Dalam
+
 .play embedding/example1.go
 .play embedding/example2.go
-.play embedding/example3.go		   
+.play embedding/example3.go
 .play embedding/example4.go
 
-** Embedding Mechanics
+** Mekanisme Embedding
 
-This first example does not show embedding, just the declaration of two struct
-types working together as a field from one type to the other.
+Contoh pertama ini tidak menunjukkan embedding, hanya deklarasi dua tipe struct
+yang bersatu bersama sebagai atribut dari satu tipe ke tipe lainnya.
 
     type user struct {
         name  string
@@ -37,7 +38,7 @@ types working together as a field from one type to the other.
         level  string
     }
 
-This is embedding.
+Ini embedding.
 
     type user struct {
         name  string
@@ -49,8 +50,8 @@ This is embedding.
         level  string
     }
 
-The person field is removed and just the type name is left. You can also embed a
-type using pointer semantics.
+Atribut "person" dihapus dan hanya nama tipe yang tersisa. Anda juga dapat
+menyematkan (embed) sebuah tipe menggunakan semantik pointer.
 
     type user struct {
         name  string
@@ -62,13 +63,13 @@ type using pointer semantics.
         level  string
     }
 
-In this case, a pointer of the type is embedded. In either case, accessing the
-embedded value is done through the use of the type’s name.
+Dalam kasus ini, pointer dari tipe tersebut disematkan. Dalam kedua kasus tersebut,
+mengakses nilai yang disematkan dilakukan melalui penggunaan nama tipe.
 
-The best way to think about embedding is to view the user type as an inner type and
-admin as an outer type. It’s this inner/outer type relationship that is magical
-because with embedding, everything related to the inner type (both fields and methods)
-can be promoted up to the outer type. 
+Cara terbaik untuk memahami embedding adalah dengan melihat tipe user sebagai tipe dalam
+dan admin sebagai tipe luar. Hubungan tipe dalam/luar inilah yang memiliki keajaiban,
+karena dengan embedding, semua yang terkait dengan tipe inner (baik atribut maupun metode)
+dapat dipromosikan ke tipe luar.
 
     type user struct {
         name  string
@@ -99,18 +100,18 @@ can be promoted up to the outer type.
         ad.notify() // Outer type promotion
     }
 
-Output:
+Keluaran:
 
     Sending user email To john smith<john@yahoo.com>
     Sending user email To john smith<john@yahoo.com>
 
-Once you add a method named notify for the user type and then a small main function.
-You can see the output is the same whether you call the notify method through the inner
-pointer value directly or through the outer type value. The notify method declared for
-the user type is accessible directly by the admin type value.
+Setelah Anda menambahkan metode bernama "notify" untuk tipe user dan kemudian sebuah fungsi main yang kecil,
+Anda dapat melihat bahwa keluarannya sama, baik Anda memanggil metode "notify" melalui nilai pointer bagian dalam
+secara langsung maupun melalui nilai tipe bagian luar. Metode "notify" yang dideklarasikan untuk tipe user
+dapat diakses secara langsung melalui nilai tipe admin.
 
-Though this looks like inheritance, you must be careful. This is not about reusing
-state, but about promoting behavior.
+Meskipun ini terlihat seperti inheritance, Anda harus berhati-hati. Ini bukan tentang penggunaan kembali status,
+melainkan tentang mempromosikan perilaku.
 
     type notifier interface {
         notify()
@@ -120,12 +121,12 @@ state, but about promoting behavior.
         n.notify()
     }
 
-Now you add an interface and a polymorphic function that accepts any concrete value
-that implements the full method set of behavior defined by the notifier interface.
-Which is just a method named notify.
+Sekarang Anda menambahkan sebuah interface dan fungsi polimorfik yang menerima nilai konkret apa pun
+yang mengimplementasikan set metode penuh perilaku yang didefinisikan oleh interface notifier.
+Yang hanya memiliki metode bernama "notify".
 
-Because of embedding and promotion, values of type admin now implement the notifier
-interface.
+Karena adanya embedding dan promosi, nilai dengan tipe admin sekarang mengimplementasikan
+interface notifier.
 
     func main() {
         ad := admin{
@@ -139,12 +140,12 @@ interface.
         sendNotification(&ad)
     }
 
-Output:
+Keluaran:
 
     Sending user email To john smith<john@yahoo.com>
 
-You can send the address of the admin value into the polymorphic function since
-embedding promotes the notify behavior up to the admin type.
+Anda dapat mengirimkan alamat nilai admin ke dalam fungsi polimorfik karena
+embedding mempromosikan perilaku "notify" ke tipe admin.
 
     type admin struct {
         *user  // Pointer Semantic Embedding
@@ -157,8 +158,8 @@ embedding promotes the notify behavior up to the admin type.
             a.email)
     }
 
-When the outer type implements a method already implemented by the inner type,
-the promotion doesn’t take place.
+Ketika tipe yang luar mengimplementasikan metode yang sudah diimplementasikan
+oleh tipe bagian dalam, promosi tidak terjadi.
 
     func main() {
         ad := admin{
@@ -172,33 +173,32 @@ the promotion doesn’t take place.
         sendNotification(&ad)
     }
 
-Output:
-    
+Keluaran:
+
     Sending admin email To john smith<john@yahoo.com>
 
-You can see the outer type’s method is now being executed.
+Anda dapat melihat bahwa metode tipe bagian luar sekarang dieksekusi.
 
-** Notes
+** Catatan
 
-- Embedding types allow us to share state or behavior between types.
-- The inner type never loses its identity.
-- This is not inheritance.
-- Through promotion, inner type fields and methods can be accessed through the outer type.
-- The outer type can override the inner type's behavior.
+- Tipe embedding memungkinkan kita untuk berbagi status keadaan atau perilaku antar tipe.
+- Tipe bagian dalam tidak pernah kehilangan identitasnya.
+- Ini bukanlah pewarisan (inheritance).
+- Melalui promosi, atribut dan metode tipe bagian dalam dapat diakses melalui tipe luar.
+- Tipe luar dapat menggantikan perilaku tipe bagian dalam.
 
-** Extra Reading
+** Bacaan Tambahan
 
-- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
-- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-Edit the code from the template. Add a new type CachingFeed which embeds Feed and
-overrides the Fetch method.
+Edit kode dari templat ini. Tambahkan tipe baru CachingFeed yang menyematkan Feed dan mengganti metode Fetch.
 
 .play embedding/exercise1.go
 .play embedding/answer1.go
