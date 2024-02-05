@@ -1,0 +1,185 @@
+Funzioni
+Le funzioni sono al centro del linguaggio e forniscono un meccanismo per raggruppare e organizzare il nostro codice in parti di funzionalità separate e distinte.
+
+* Funzioni
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Le funzioni sono al centro del linguaggio e forniscono un meccanismo per raggruppare
+e organizzare il nostro codice in parti di funzionalità separate e distinte.
+Possono essere utilizzati per fornire un'API ai package che scriviamo e
+sono un componente fondamentale della concorrenza.
+
+Le funzioni in Go svolgono un ruolo centrale nella strutturazione del codice e
+nella promozione di software pulito, manutenibile ed efficiente.
+Comprendere come dichiarare, definire e utilizzare le funzioni
+è fondamentale per scrivere programmi Go efficaci.
+
+** Code Review
+
+- *Example* *1:* Return multiple values
+- *Example* *2:* Blank identifier
+- *Example* *3:* Redeclarations
+- *Example* *4:* Anonymous Functions/Closures
+- *Example* *5:* Recover panics
+
+.play functions/example1.go
+.play functions/example2.go
+.play functions/example3.go
+.play functions/example4.go
+.play functions/example5.go
+
+Le funzioni sono un elemento fondamentale dei programmi e vengono utilizzate per incapsulare
+e organizzare il codice per una migliore modularità e riusabilità.
+Le funzioni sono blocchi di codice che eseguono un'attività specifica
+o una serie di attività correlate. Ecco una panoramica delle funzioni di Go:
+
+** Dichiarazione di funzione
+
+Per dichiarare una funzione in Go, si utilizza la parola chiave `func` seguita da
+nome della funzione, un elenco di parametri racchiusi tra parentesi e un tipo restituito facoltativo.
+La sintassi generale è:
+
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Function body
+   }
+
+For example:
+
+   func add(x int, y int) int {
+       return x + y
+   }
+
+** Parametri e valori di ritorno
+
+Le funzioni possono accettare zero o più parametri, ovvero i valori passati alla funzione
+quando viene chiamata. Ogni parametro è costituito da un nome e un tipo.
+Nell'esempio precedente, "add" accetta due parametri interi, `x` and `y`.
+
+Le funzioni possono restituire zero o un valore (o nessuno, nel qual caso è possibile omettere il tipo restituito).
+L'istruzione `return`  viene utilizzata per specificare il valore da restituire.
+Nell'esempio precedente, `add` restituisce un numero intero.
+
+Go consente alle funzioni di restituire più valori.
+Ciò è utile nei casi in cui desideri restituire più di un risultato da una funzione. Per esempio:
+
+   func divide(x, y float64) (float64, error) {
+       if y == 0 {
+           return 0, errors.New("division by zero")
+       }
+       return x / y, nil
+   }
+
+In questo esempio, la funzione `divide` restituisce sia un risultato in virgola
+mobile che un errore (se si verifica la divisione per zero).
+
+
+Go ti consente di specificare i nomi per i valori restituiti nella firma di una funzione.
+I valori restituiti con nome vengono inizializzati automaticamente e possono essere
+utilizzati come variabili regolari all'interno della funzione.
+Sono particolarmente utili quando si hanno a che fare con funzioni complesse
+o nella gestione degli errori. Per esempio:
+
+   func divide(x, y float64) (result float64, err error) {
+       if y == 0 {
+           err = errors.New("division by zero")
+           return
+       }
+       result = x / y
+       return
+   }
+
+** Chiamate di funzione
+
+Per chiamare una funzione in Go, si utilizza il nome della funzione seguito da un elenco
+di argomenti racchiusi tra parentesi.
+Se la funzione ha più valori restituiti, puoi catturarli in variabili. Per esempio:
+
+   sum := add(3, 5)            // Call the add function and assign its result to sum
+   result, err := divide(8, 2) // Call the divide function and capture both result and error
+
+** Parametri variadici delle funzioni
+
+Go supporta le funzioni variadiche, che consentono di passare un numero variabile di
+argomenti di una funzione. Per definire un parametro variadico, si utilizzano i puntini di sospensione
+(`...`) seguito dal tipo di parametro. Per esempio:
+
+   func calculateSum(nums ...int) int {
+       sum := 0
+       for _, num := range nums {
+           sum += num
+       }
+       return sum
+   }
+
+Puoi chiamare questa funzione con qualsiasi numero di numeri interi.
+
+** Funzioni anonime
+
+Go supporta funzioni anonime, note anche come closures. Queste sono funzioni
+senza nome e possono essere assegnate a variabili e utilizzate come argomenti per altre funzioni.
+Le closures vengono spesso utilizzate in Go per attività come la definizione di funzioni in linea
+o per la programmazione simultanea utilizzando le goroutine.
+
+   add := func(x, y int) int {
+       return x + y
+   }
+
+   result := add(3, 5)
+
+** Funzioni come tipo
+
+In Go, le funzioni possono essere utilizzate anche come tipi.
+Ciò consente di definire funzioni che accettano altre funzioni come argomenti
+o le restituiscono come risultati.
+È una funzionalità potente per implementare funzioni di ordine superiore e callback.
+
+   type MathFunc func(int, int) int
+
+   func operate(x, y int, op MathFunc) int {
+       return op(x, y)
+   }
+
+Puoi quindi passare le funzioni come argomenti a `operate`.
+
+** Defer e Panic
+
+Go fornisce due speciali funzioni integrate chiamate `defer` e `panic` per la gestione
+di situazioni eccezionali e la gestione delle risorse. `defer` viene utilizzato
+per pianificare l'esecuzione di una chiamata di funzione appena prima che la funzione ritorni,
+mentre  `panic` viene utilizzato per attivare un errore di runtime e srotolare lo stack.
+
+** Note
+
+- Le funzioni possono restituire più valori e la maggior parte restituisce un valore di errore.
+- Il valore dell'errore dovrebbe essere sempre controllato come parte della logica di programmazione.
+- L'identificatore vuoto può essere utilizzato per ignorare i valori restituiti.
+- Sintassi: func, receiver, identifier, [parameter(s)], [return(s)], blocco di codice.
+- Parametri variadici, argomenti variadici e dispiegamento di uno slice.
+- Le funzioni sono un tipo: puoi utilizzare le funzioni come parametri, argomenti e return.
+- Il defer viene utilizzato per pianificare una chiamata di funzione in un'altra funzione.
+- Il panic attiva un errore di runtime e srotola lo stack.
+- I named return sono meno leggibili e non sono idiomatici
+
+** Letture extra
+
+- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+*Parte* *A:* Dichiara un tipo di struct per mantenere le informazioni su uno user. Dichiara una
+funzione che crea il valore e restituisce puntatori di questo tipo e un errore.
+Chiama questa funzione dal main e visualizza il valore.
+
+*Parte* *B:* Effettua una seconda chiamata alla tua funzione ma questa volta ignora il valore
+e prova semplicemente il valore dell'errore.
+
+.play functions/exercise1.go		
+.play functions/answer1.go

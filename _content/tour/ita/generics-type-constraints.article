@@ -1,0 +1,120 @@
+Type come vincolo
+Questo è un nuovo concetto in Go in cui un vincolo può essere basato su un insieme di tipi concreti.
+
+* Generics - Type come vincoloAs Constraint
+
+Questo è un nuovo concetto in Go in cui un vincolo può essere basato su un insieme di tipi concreti.
+Questo funziona solo per i generici.
+
+** Video
+
+Guarda il discorso che ho tenuto sui generics che ti guida attraverso tutti i passaggi
+negli esempi in questa sezione del Tour.
+
+.html generics-video.html
+
+** Code Review
+
+- *Example* *1*: Type based constraint
+- *Example* *2*: Predeclared type constraint "comparable"
+- *Example* *3*: Mix type and behavior constraints
+
+.play generics/type-constraints/example1.go
+.play generics/type-constraints/example2.go
+.play generics/type-constraints/example3.go
+
+** Spiegazione
+
+Le funzioni generiche creano un nuovo tipo di vincolo che
+non può essere risolto dichiarando un insieme di metodi di comportamento.
+
+    func Add[T ???](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Ecco una funzione generica che vuole accettare due valori di qualche tipo T, sommarli insieme,
+restituire la somma al chiamante. Questo è un problema interessante
+perché il compilatore deve vincolare la chiamata alla funzione solo per i valori che
+possono essere utilizzati in un'operazione di addizione.
+Attualmente non esiste un meccanismo per dichiarare questo tipo di vincolo.
+
+La decisione è stata quella di continuare a utilizzare l'interfaccia per dichiarare il vincolo e aggiungere
+qualcosa di nuovo.
+
+    type addOnly interface {
+        string | int | int8 | int16 | int32 | int64 | float64
+    }
+
+Puoi dichiarare un'interfaccia che definisce un insieme di tipi che formano il vincolo. Poi
+applicare questa interfaccia alla funzione generica.
+
+    func Add[T addOnly](v1 T, v2 T) T {
+        return v1 + v2
+    }
+
+Ora il compilatore può verificare che l'insieme di tipi sia conforme alle operazioni
+che la funzione deve eseguire rispetto ai valori di tali tipi.
+Quando l'interfaccia utilizza i tipi incorporati, le interfacce sono riutilizzabili tra i package.
+Quando l'elenco dei tipi rappresenta i tipi definiti dall'utente dal pacchetto,
+è necessario ricordare che queste funzioni generiche sono legate ai tipi del package e a nient'altro.
+
+Le interfacce dichiarate con un insieme di tipi non possono essere utilizzate in una funzione polimorfica tradizionale.
+Ciò non avrebbe comunque senso, ma è qualcosa che non sembra Go, nel senso che
+questa modifica all'interfaccia non è ortogonale.
+
+Un'idea è quella di avere identificatori pre-dichiarati per i vincoli operativi comuni.
+
+    func index[T comparable](list []T, find T) int {
+        for i, v := range list {
+            if v == find {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Il vincolo comparabile è dichiarato dal linguaggio e applica un vincolo secondo cui i tipi devono p
+oter essere utilizzati in un'istruzione di confronto.
+In questo esempio, sia v che find sono variabili di tipo T e vengono confrontate.
+C'è l'idea che un package nella libreria standard possa fornire anche un insieme comune di vincoli.
+
+Non esiste alcuna restrizione sulla dichiarazione di un'interfaccia sia con un insieme di tipi
+che con un insieme di comportamenti di metodi.
+
+    type matcher[T any] interface {
+        type person, food
+        match(v T) bool
+    }
+        
+    func match[T matcher[T]](list []T, find T) int {
+        for i, v := range list {
+            if v.match(find) {
+                return i
+            }
+        }
+        
+        return -1
+    }
+
+Viene dichiarata un'interfaccia generica dove T è il tipo di valore da passare in un metodo denominato match.
+L'interfaccia inoltre ne limita l'utilizzo ai soli valori di tipo person e food definiti dall'utente.
+
+Quando si osserva la funzione di corrispondenza, non è evidente la necessità di limitare la funzione solo
+ai tipi person e food. Se questo è il caso, la funzione di corrispondenza dovrebbe essere
+una funzione polimorfica tradizionale, non una funzione generica.
+Se ci fosse una buona ragione, è possibile utilizzare una funzione generica per applicare questo tipo di vincolo.
+
+Come nota a margine, non sono sicuro che questa funzionalità sia necessaria o abbia senso.
+Questo è qualcosa che la comunità dovrà capire nel tempo.
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Viene fornita una possibile soluzione.
+
+** Esercizio 1
+
+Implementare una funzione generica denominata copyfy che è vincolata a creare solo copie di slice di tipo string o int.
+
+.play generics/type-constraints/exercise1.go 
+.play generics/type-constraints/answer1.go

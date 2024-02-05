@@ -1,0 +1,434 @@
+Metodi
+Una funzione è chiamata metodo quando per tale funzione è dichiarato un ricevente.
+
+* Metodi
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Una funzione è chiamata metodo quando per tale funzione è dichiarato un ricevente.
+Il ricevente è il parametro dichiarato tra la parola chiave func e il nome della funzione.
+
+
+** Code Review
+
+- *Example* *1:* Declare and receiver behavior
+- *Example* *2:* Named typed methods
+- *Example* *3:* Function/Method variables
+- *Example* *4:* Function Types
+- *Example* *5:* Value and Pointer semantics
+
+.play methods/example1.go
+.play methods/example2.go
+.play methods/example3.go
+.play methods/example4.go
+.play methods/example5.go
+
+** Dichiarazioni di metodo
+
+Esistono due tipi di riceventi, riceventi di valore per implementare la semantica del valore
+e riceventi di puntatori per implementare la semantica dei puntatori.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func (u *user) changeEmail(email string) {
+        u.email = email
+        fmt.Printf("Changed User Email To %s\n", email)
+    }
+
+La funzione di notifica è implementata con un ricevente di valore. Questo significa che il metodo
+opera secondo la semantica del valore e opererà sulla propria copia del valore utilizzato
+per effettuare la chiamata.
+
+La funzione changeEmail è implementata con un ricevente puntatore. Ciò significa che
+Il metodo opera con la semantica del puntatore e opererà sull'accesso condiviso al
+valore utilizzato per effettuare la chiamata.
+
+A parte alcune eccezioni, un metodo impostato per un tipo non dovrebbe contenere una mix di
+riceventi di valori e puntatori. La coerenza semantica dei dati è di fondamentale importanza
+e questo include la dichiarazione dei metodi.
+
+** Chiamate ai metodi
+
+Quando si effettua una chiamata al metodo, al compilatore non interessa s
+e il valore utilizzato per effettuare la chiamata corrisponde esattamente alla semantica dei dati del destinatario.
+Il compilatore vuole solo un valore o un puntatore dello stesso tipo.
+
+    bill := user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+Puoi vedere che un valore di tipo utente viene costruito e assegnato alla variabile bill.
+Nel caso della chiamata di notifica, la variabile bill corrisponde al tipo receiver
+che utilizza un valore receiver. Nel caso della chiamata changeEmail,
+la variabile bill non corrisponde al tipo di receiver che utilizza un receiver puntatore.
+Tuttavia, il compilatore accetta la chiamata al metodo e condivide la variabile bill
+con il metodo. Go si adatterà per effettuare la chiamata.
+
+Funziona allo stesso modo quando la variabile utilizzata per effettuare la chiamata è una variabile puntatore.
+
+    bill := &user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+In questo caso, la variabile bill è una variabile puntatore a un valore di tipo user.
+Ancora una volta, Go si adatta per effettuare la chiamata al metodo quando si chiama il metodo notify.
+
+Se Go non si adattasse, questo è ciò che dovresti fare per effettuare le stesse chiamate al metodo.
+
+    bill := user{"Bill", "bill@email.com"}
+    (&bill).changeEmail("bill@hotmail.com")
+
+    bill := &user{"Bill", "bill@email.com"}
+    (*bill).notify()
+
+Sono felice che tu non debba farlo per effettuare chiamate di metodo in Go.
+
+** Linee guida sulla semantica dei dati per tipi interni
+
+Come linea guida, se i dati con cui sto lavorando sono di tipo interno (slice, mappa, canale, funzione, interfaccia),
+utilizzo la semantica del valore per spostare i dati nel programma.
+Ciò include la dichiarazione dei campi su un tipo.
+Tuttavia, quando leggo e scrivo devi ricordare che sto usando la semantica del puntatore.
+
+    type IP []byte
+    type IPMask []byte
+
+Questi tipi sono dichiarati nel package net che fa parte della libreria standard.
+Sono dichiarati con un tipo sottostante che è uno slice di byte.
+Per questo motivo, questi tipi seguono le linee guida per i tipi interni.
+
+    func (ip IP) Mask(mask IPMask) IP {
+        if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
+            mask = mask[12:]
+        }
+        if len(mask) == IPv4len && len(ip) == IPv6len &&
+            bytesEqual(ip[:12], v4InV6Prefix) {
+            ip = ip[12:]
+        }
+        n := len(ip)
+        if n != len(mask) {
+            return nil
+        }
+        out := make(IP, n)
+        for i := 0; i < n; i++ {
+            out[i] = ip[i] & mask[i]
+        }
+        return out
+    }
+
+Con il metodo Mask, la semantica del valore è in gioco sia per il ricevente, il parametro, che per l'argomento restituito.
+Questo metodo accetta la propria copia del valore Mask, muta quel valore e quindi restituisce una copia della mutazione.
+Questo metodo utilizza la mutazione semantica del valore. Questo non è un incidente o una casualità.
+
+Una funzione può decidere di quali dati input e output ha bisogno. Ciò che non può decidere
+è la semantica dei dati riguardo al modo in cui i dati fluiscono dentro o fuori.
+I dati guidano tale decisione e la funzione deve conformarsi.
+Questo è il motivo per cui Mask implementa un'API di mutazione semantica del valore.
+Deve rispettare il modo in cui lo slice è progettato per essere spostata nel programma.
+
+    func ipEmptyString(ip IP) string {
+        if len(ip) == 0 {
+            return ""
+        }
+        return ip.String()
+    }
+
+Anche la funzione "ipEmptyString" utilizza la semantica del valore per l'input e l'output.
+Questa funzione accetta la propria copia di un valore IP e restituisce un valore stringa.
+Nessun utilizzo della semantica del puntatore perché i dati determinano la semantica dei dati e non la funzione.
+
+Un'eccezione all'utilizzo della semantica dei valori è quando è necessario condividere uno slice o una mappa
+con una funzione che esegue l'unmarshalling o la decodifica.
+
+** Linee guida sulla semantica dei dati per i tipi Struct
+
+Come linea guida, se i dati con cui sto lavorando sono di tipo struct, allora
+devo pensare a cosa rappresentano i dati per prendere una decisione.
+Una buona regola generale è chiedere se la struttura rappresenta dati o un'API.
+Se la struttura rappresenta dati, usare la semantica del valore.
+Se la struttura rappresenta un'API, usare la semantica del puntatore.
+
+    type Time struct {
+        sec  int64
+        nsec int32
+        loc  *Location
+    }
+
+Ecco la struttura Time dal package time. Se si considera che Time rappresenta i dati,
+la semantica del valore deve essere usata per questa struct.
+
+Quando guardi una base di codice esistente e vuoi sapere quale era la semantica dei dati
+scelto, cerca una funzione factory. Il tipo restituito di una funzione factory dovrebbe
+dettare la semantica dei dati scelta dallo sviluppatore.
+
+    func Now() Time {
+        sec, nsec := now()
+        return Time{sec + unixToInternal, nsec, Local}
+    }
+
+Now è la funzione factory per costruire valori Time. Guarda il return,
+sta usando la semantica del valore. Questo ti dice che dovresti usare la semantica dei valori
+per i valori Time, che significa che ogni funzione ottiene la propria copia di un valore Time
+e i campi in una struct dovrebbero essere dichiarati come valori di tipo Time.
+
+    func (t Time) Add(d Duration) Time {
+        t.sec += int64(d / 1e9)
+        nsec := int32(t.nsec) + int32(d%1e9)
+        if nsec >= 1e9 {
+            t.sec++
+            nsec -= 1e9
+        } else if nsec < 0 {
+            t.sec--
+            nsec += 1e9
+        }
+        t.nsec = nsec
+        return t
+    }
+
+Add è un metodo che deve eseguire un'operazione di mutazione. Se la guardi da vicino,
+vedrai che la funzione utilizza la mutazione semantica del valore. Il metodo Add ottiene la sua
+copia del valore Time utilizzato per effettuare la chiamata, muta la propria copia, quindi
+restituisce una copia al chiamante. Ancora una volta, questo è il modo più sicuro per eseguire a
+operazione di mutazione.
+
+    func div(t Time, d Duration) (qmod2 int, r Duration) {}
+
+Ecco un altro esempio in cui la funzione div accetta un valore di tipo Time e
+Duration (int64), quindi restituisce valori di tipo int e Duration.
+Semantica del valore per il tipo Time e per tutti i tipi integrati nel linguaggio.
+La durata ha un tipo sottostante di int64.
+
+    func (t *Time) UnmarshalBinary(data []byte) error {}
+    func (t *Time) GobDecode(data []byte) error {}
+    func (t *Time) UnmarshalJSON(data []byte) error {}
+    func (t *Time) UnmarshalText(data []byte) error {}
+
+Questi quattro metodi del package Time sembrano infrangere le regole per la consistenza semantica dei dati.
+Stanno usando la semantica del puntatore, perché?
+Perché stanno implementando un'interfaccia in cui è bloccata la firma del metodo.
+L'implementazione richiede una mutazione, la semantica del puntatore è l'unica scelta.
+
+Ecco una linea guida: se è in gioco la semantica del valore, puoi passare alla semantica del puntatore
+per alcune funzioni purché non si lascino i dati nella catena di chiamate ritornare alla semantica del valore.
+Una volta passato alla semantica del puntatore, tutte le chiamate future da quel momento in poi
+dovranno attenersi alla semantica del puntatore.
+Non puoi mai, mai, mai, passare dal puntatore al valore. Non è mai sicuro fare una copia di un valore
+a cui punta un puntatore.
+
+    func Open(name string) (file *File, err error) {
+        return OpenFile(name, O_RDONLY, 0)
+    }
+
+La funzione Open del package os mostra che quando si utilizza un valore di tipo File,
+entra in gioco la semantica del puntatore. I valori dei file devono essere condivisi
+e non devono mai essere copiati.
+
+    func (f *File) Chdir() error {
+        if f == nil {
+            return ErrInvalid
+        }
+        if e := syscall.Fchdir(f.fd); e != nil {
+            return &PathError{"chdir", f.name, e}
+        }
+        return nil
+    }
+
+Il metodo Chdir utilizza un ricevente puntatore anche se questo metodo non
+modifica il valore del file.
+Questo perché i valori dei file devono essere condivisi e non possono essere copiato.
+
+    func epipecheck(file *File, e error) {
+        if e == syscall.EPIPE {
+            if atomic.AddInt32(&file.nepipe, 1) >= 10 {
+                sigpipe()
+            }
+        } else {
+            atomic.StoreInt32(&file.nepipe, 0)
+        }
+    }
+
+Anche la funzione epipecheck accetta valori di file utilizzando la semantica del puntatore.
+
+** I metodi sono solo funzioni
+
+I metodi sono in realtà solo funzioni che forniscono zucchero sintattico per fornire
+la capacità ai dati di mostrare comportamenti.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Vengono dichiarati un tipo e due metodi. Il metodo displayName utilizza
+la semantica di valore e setAge utilizza la semantica del puntatore.
+
+Nota: non implementare setter e getter in Go. Queste non sono API con uno scopo
+e in questi casi è meglio far sì che quei campi vengano esportati.
+    
+    d := data{
+        name: "Bill",
+    }
+
+    d.displayName()
+    d.setAge(21)
+
+Un valore di tipo data è costruito e vengono effettuate le chiamate al metodo.
+
+    data.displayName(d)
+    (*data).setAge(&d, 21)
+
+Poiché i metodi sono in realtà solo funzioni con zucchero sintattico, i metodi possono esserlo
+eseguite come funzioni. Puoi vedere il ricevente come un parametro, lo è
+il primo parametro. Quando chiami un metodo, il compilatore lo converte in una
+chiamata alla funzione sottostante.
+
+Nota: Non eseguire metodi come questo, ma potresti vedere questa sintassi nei messaggi degli strumenti.
+
+** Conoscere il comportamento del codice
+
+Se conosci la semantica dei dati in gioco, allora conosci il comportamento del codice.
+Se conosci il comportamento del codice, allora conosci il costo del codice.
+Una volta che conosci il costo, Io sono un ingegnere.
+
+Dato questo tipo e metodo settato.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Tu puoi scrivere il codice seguente.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f1 := d.displayName
+        f1()
+        d.name = "Joan"
+        f1()
+    }
+
+Output:
+
+    My Name Is Bill
+    My Name Is Bill
+
+Inizi costruendo un valore di tipo Data assegnandolo alla variabile d.
+Quindi prendi il metodo displayName, associato a d, e lo assegni a una variabile denominata f1.
+Questa non è una chiamata di metodo ma un'assegnazione che crea un livello di indiretto.
+Le funzioni sono valori in Go e appartengono all'insieme dei tipi interni.
+
+Dopo l'assegnazione è possibile richiamare indirettamente il metodo tramite l'utilizzo
+della variabile f1. Questo visualizza il nome Bill. Quindi cambi i dati in modo che il nome
+ora è Joan e richiama nuovamente il metodo tramite la variabile f1.
+Tu no vedi il cambiamento. Bill è ancora una volta l'output. Perché?
+
+.image /tour/eng/static/img/m1.png
+
+Ha a che fare con la semantica dei dati in gioco. Il metodo displayName utilizza
+un ricevente di valore, quindi è in gioco la semantica del valore.
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+Ciò significa che la variabile f1 mantiene e opera contro la propria copia di d.
+Quindi, chiamando il metodo tramite la variabile f1, utilizzerà sempre la copia e quella
+copia è protetta da modifiche. Questo è ciò che desideri con la semantica del valore.
+
+Ora farai la stessa cosa ma con il metodo setAge.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f2 := d.setAge
+        f2(45)
+        d.name = "Sammy"
+        f2(45)
+    }
+
+Output:
+
+    Bill Is Age 45
+    Sammy Is Age 45
+
+Questa volta il metodo setAge è assegnato alla variabile f2. Ancora una volta, il
+metodo viene eseguito indirettamente attraverso la variabile f2 che passa 45 per l'età di Bill.
+Quindi il nome di Bill viene cambiato in Sammy e la variabile f2 viene utilizzata nuovamente per creare
+la chiamata. Questa volta vedi che il nome è cambiato.
+
+.image /tour/eng/static/img/m2.png
+
+La funzione setAge utilizza un ricevente puntatore quindi setAge non opera sulla propria
+copia della variabile d, ma opera direttamente sulla variabile d.
+Pertanto, f2 funziona con accesso condiviso e si vede il cambiamento.
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Senza conoscere la semantica dei dati in gioco, non conoscerai il comportamento del codice.
+La semantica dei dati è reale e influenza il comportamento.
+
+** Note
+
+- I metodi sono funzioni che dichiarano una variabile ricevente.
+- I riceventi associano un metodo a un tipo e possono utilizzare la semantica del valore o del puntatore.
+- La semantica del valore significa che una copia del valore viene passata attraverso i confini del programma.
+- La semantica del puntatore significa che una copia dell'indirizzo del valore viene passata attraverso i confini del programma.
+- Attenersi a un'unica semantica per un dato tipo ed essere coerenti.
+
+** Citazioni
+
+""I metodi sono validi quando è pratico o ragionevole che un dato esponga una capacità." - William Kennedy
+
+** Letture extra
+
+- [[https://golang.org/doc/effective_go.html#methods][Methods]]    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
+		 
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+Dichiara una struct che rappresenta un giocatore di baseball. Includi nome, atBats e hits.
+Dichiara un metodo che calcoli la media di battuta dei giocatori. La formula è Hits/AtBatts.
+Dichiara un slice di questo tipo e inizializza la porzione con diversi giocatori.
+Iterare lo slice che mostra il nome dei giocatori e la media di battuta.
+
+.play methods/exercise1.go
+.play methods/answer1.go

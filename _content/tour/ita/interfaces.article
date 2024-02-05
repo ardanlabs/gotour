@@ -1,0 +1,412 @@
+Interfacce
+Le interfacce danno struttura ai programmi e incoraggiano la progettazione per composizione.
+
+* Interfacce
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Guarda il video]]
+- Se necessiti di assistenza finanziaria, utilizza il nostro [[https://www.ardanlabs.com/scholarship/][form per richiedere una borsa di studio]]
+
+Le interfacce danno struttura ai programmi e incoraggiano la progettazione per composizione.
+Esse consentono e rafforzano una divisione netta tra i componenti.
+La standardizzazione delle interfacce può creare aspettative chiare e coerenti.
+Disaccoppiamento significa ridurre le dipendenze tra i componenti e i tipi che le utilizzano.
+Ciò porta a correttezza, qualità e manutenibilità.
+
+** Code Review 
+
+- *Esempio* *1:* Repetitive Code That Needs Polymorphism
+- *Esempio* *2:* Polymorphism
+- *Esempio* *3:* Method Sets
+- *Esempio* *4:* Address Of Value
+- *Esempio* *5:* Storage By Value
+- *Esempio* *6:* Type Assertions
+- *Esempio* *7:* Conditional Type Assertions
+- *Esempio* *8:* The Empty Interface and Type Switches
+- *Esempio* *9:* Storing Values
+
+.play interfaces/example1.go
+.play interfaces/example2.go
+.play interfaces/example3.go
+.play interfaces/example4.go
+.play interfaces/example5.go
+.play interfaces/example6.go
+.play interfaces/example7.go
+.play interfaces/example8.go
+.play interfaces/example9.go
+
+** Semantiche dell' interfaccia
+
+Le interfacce consentono di raggruppare dati concreti in base a ciò che i dati possono fare.
+Si tratta di concentrarsi su ciò che i dati possono fare e non su cosa siano i dati.
+Le interfacce aiutano anche il codice a disaccoppiarsi dal cambiamento chiedendo
+dati concreti in base a ciò che si può fare. Non è limitato a un tipo di dati.
+
+Devi fare del tuo meglio per capire quali modifiche ai dati stanno arrivando e utilizzare
+le interfacce per disaccoppiare il programma da tale modifica.
+Le interfacce dovrebbero descrivere il comportamento e non lo stato. Dovrebbero essere verbi e non sostantivi.
+
+Le interfacce generalizzate incentrate sul comportamento sono le migliori.
+Le interfacce con più di un metodo hanno più di un motivo per cambiare.
+Interfacce basate su nomi tendono ad essere meno riutilizzabili, sono più suscettibili al cambiamento
+e vanificano lo scopo dell'interfaccia.
+L’incertezza sul cambiamento non è una licenza dper indovinare ma una direttiva
+per FERMARSI e saperne di più. È necessario distinguere tra codice che difende dalle frodi
+e codice che protegge dagli incidenti.
+
+Usa una interfaccia quando:
+
+- Gli utenti dell'API devono fornire dettagli di implementazione.
+- Le API hanno più implementazioni che devono mantenere internamente.
+- Le parti dell'API che possono cambiare sono state identificate e richiedono il disaccoppiamento.
+
+Non usare una interfaccia quando:
+
+- Per lo scopo di utilizzare un'interfaccia.
+- Generalizzare un algoritmo.
+- Quando gli utenti possono dichiarare le proprie interfacce.
+- Se non è chiaro come l'interfaccia migliori il codice.
+
+**  Le interfacce non hanno valore
+
+La prima cosa importante da capire è che un tipo di interfaccia dichiara un tipo senza valore.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+Type reader non è un tipo struct, ma un tipo di interfaccia. La sua dichiarazione non
+si basa sullo stato, ma sul comportamento. I tipi di interfaccia dichiarano un insieme
+di metodi di comportamento che i dati concreti devono esibire per soddisfare l'interfaccia.
+Non c'è nulla di concreto sui tipi di interfaccia, quindi non hanno valore.
+
+    var r reader
+
+Poiché non hanno valore, la costruzione di una variabile (come r) è strana perché
+nel nostro modello di programmazione r non esiste, è priva di valore. Non c'è nulla
+in sé che tu possa manipolare o trasformare. Questo è un concetto fondamentale da comprendere.
+Non lavoro mai con valori di interfaccia, solo con valori concreti. Un'interfaccia ha
+una rappresentazione del compilatore (tipo interno), ma dal nostro modello di programmazione
+le interfacce non hanno valore.
+
+** Implementare Interfacce
+
+Go è un linguaggio che riguarda la convenzione piuttosto che la configurazione (convention over configuration).
+Non c'è eccezione quando si tratta di un tipo concreto che implementa un'interfaccia.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type file struct {
+        name string
+    }
+
+    func (file) read(b []byte) (int, error) {
+        s := "<rss><channel><title>Going Go</title></channel></rss>"
+        copy(b, s)
+        return len(s), nil
+    }
+
+Il codice dichiara un tipo denominato file e poi dichiara un metodo denominato read.
+A causa di queste due dichiarazioni, puoi dire quanto segue:
+
+"Il tipo concreto file ora implementa l'interfaccia del lettore utilizzando la semantica del valore"
+
+Ogni parola detta è importante. In Go, tutto ciò che devi fare è dichiarare l'intero insieme
+di metodi di comportamento definito da un'interfaccia per implementare quell'interfaccia.
+In questo caso, questo è ciò che ho fatto poiché l’interfaccia del lettore dichiara
+solo un singolo atto di comportamento denominato read.
+
+    type reader interface {
+        read(b []byte) (int, error)
+    }
+
+    type pipe struct {
+        name string
+    }
+
+    func (pipe) read(b []byte) (int, error) {
+        s := `{name: "Bill", title: "developer"}`
+        copy(b, s)
+        return len(s), nil
+    }
+
+Questo codice dichiara un tipo denominato pipe e poi dichiara un nome di metodo read. Perché
+di queste due dichiarazioni, si può dire quanto segue:
+
+"La tipo concreto pipe ora implementa l'interfaccia del lettore utilizzando la semantica del valore"
+
+Ora hai due tipi concreti che implementano l'interfaccia del lettore.
+Due tipi concreti, ciascuno con la propria implementazione unica.
+Un tipo sta leggendo il file system e l'altro le reti.
+
+** Polimorfismo
+
+Polimorfismo significa che una parte del codice cambia il suo comportamento a seconda
+dei dati concreti su cui opera. Questo è stato detto da Tom Kurtz, l'inventore del BASIC.
+Questa è la definizione che useremo successivamente.
+
+    // retrieve can read any device and process the data.
+    func retrieve(r reader) error {
+        data := make([]byte, 100)
+
+        len, err := r.read(data)
+        if err != nil {
+            return err
+        }
+
+        fmt.Println(string(data[:len]))
+        return nil
+    }
+
+
+Dai un'occhiata al tipo di dati che questa funzione accetta. Vuole un valore di tipo reader.
+Ciò è impossibile poiché il lettore è un'interfaccia e le interfacce sono tipi senza valore.
+Non può chiedere un valore per il lettore, non esiste.
+
+Se la funzione non richiede un valore di lettura, cosa richiede la funzione?
+Chiede l’unica cosa che può chiedere, dati concreti.
+
+La funzione retrieve è una funzione polimorfica perché richiede dati concreti
+non in base a cosa sono i dati (tipo concreto), ma in base a ciò che i dati
+possono fare (tipo di interfaccia).
+
+    f := file{"data.json"}
+    p := pipe{"cfg_service"}
+
+    retrieve(f)
+    retrieve(p)
+
+È possibile costruire due valori concreti, uno di tipo file e uno di tipo pipe.
+Quindi puoi passare una copia di ciascun valore alla funzione polimorfica.
+Questo perché ciascuno di questi valori implementa l'insieme completo di comportamenti
+definiti dall'interfaccia del lettore.
+
+Quando il valore del file concreto viene passato a retrieve, il valore viene archiviato
+in un tipo interno di due parole che rappresenta il valore dell'interfaccia.
+
+.image /tour/eng/static/img/i1.png
+
+La seconda parola del valore dell'interfaccia punta al valore da memorizzare.
+In questo caso, è una copia del valore del file poiché è in gioco la semantica del valore.
+La prima parola indica una struttura dati speciale chiamata iTable.
+
+iTable serve a 2 scopi:
+
+- Descrive il tipo di valore memorizzato. Nel nostro caso, è un valore di file.
+- Fornisce puntatori a funzioni per le implementazioni concrete del metodo impostato per il tipo di valore da memorizzare.
+
+Quando viene effettuata la chiamata di lettura rispetto al valore dell'interfaccia, viene eseguita una ricerca su iTable
+per trovare l'implementazione concreta del metodo read associato al tipo.
+Quindi viene effettuata la chiamata al metodo rispetto al valore memorizzato nella seconda parola.
+
+Si può dire che retrieve è una funzione polimorfica perché la pipe del valore concreto
+può essere passata a retrieve e ora la chiamata per leggere rispetto al valore dell'interfaccia
+cambia il suo comportamento.
+Questa volta la chiamata a read sta leggendo una rete invece di leggere un file.
+
+** Metodo imposta regole
+
+L'implementazione di un'interfaccia utilizzando la semantica del puntatore applica
+alcuni vincoli sulla conformità dell'interfaccia.
+
+    type notifier interface {
+        notify()
+    }
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(u)
+    }
+
+L'interfaccia notifier è implementata dal tipo user utilizzando la semantica del puntatore.
+Quando viene utilizzata la semantica del valore per effettuare la chiamata polimorfica, viene prodotto il seguente messaggio del compilatore.
+
+    "cannot use u (type user) as type notifier in argument to sendNotification:
+    user does not implement notifier (notify method has pointer receiver)"
+
+Questo è perché è presente un insieme speciale di regole nella specifica sui settaggi del metodo.
+Queste regole definiscono quali metodi sono collegati ai valori e ai puntatori di un tipo.
+Sono presenti per mantenere il massimo livello di integrità nel programma.
+
+Queste sono le regole definite nella specifica:
+
+- Per qualsiasi valore di tipo T, solo i metodi implementati con un ricevente di valore per quel tipo appartengono al set di metodi di quel valore.
+- Per qualsiasi indirizzo di tipo T, tutti i metodi implementati per quel tipo appartengono al set di metodi di quel valore.
+
+In altre parole, quando si lavora con un indirizzo (puntatore), tutti i metodi implementati
+sono collegati e disponibili per essere richiamati.
+Quando si lavora con un valore, solo i metodi implementati con ricevitori di valore
+sono allegati e disponibili per essere chiamati.
+
+Nella lezione precedente sui metodi, potevi chiamare un metodo rispetto a un dato
+concreto indipendentemente dalla semantica dei dati dichiarata dal ricevente.
+Questo perché il compilatore può adattarsi per effettuare la chiamata.
+In questo caso, un valore viene memorizzato all'interno di un'interfaccia e i metodi devono esistere.
+Non è possibile apportare modifiche.
+
+La domanda ora diventa: perché i metodi implementati con i ricevitori di puntatori non possono essere
+attaccati a valori di tipo T? Qual è il problema dell’integrità qui?
+
+Uno dei motivi è perché non è possibile garantire che ogni valore di tipo T sia indirizzabile.
+Se un valore non ha un indirizzo, non può essere condiviso.
+
+    type duration int
+
+    func (d *duration) notify() {
+            fmt.Println("Sending Notification in", *d)
+    }
+
+    func main() {
+        duration(42).notify()
+    }
+
+Compiler Error:
+
+    cannot call pointer method on duration(42)
+    cannot take the address of duration(42)
+
+In questo esempio, il valore 42 è una costante di tipo int. Anche se il valore
+viene convertito in un valore di tipo durata, non viene archiviato all'interno di una variabile.
+Questo significa che il valore non è mai nello stack o nell'heap.
+Non c'è un indirizzo. Le costanti vivono solo in fase di compilazione.
+
+La seconda ragione è la ragione più grande. Il compilatore ti sta dicendo che non
+ti è consentito utilizzare la semantica del valore se avevi scelto di utilizzare la semantica del puntatore.
+In altre parole, sei costretto a condividere il valore con l'interfaccia
+poiché non è sicuro creare una copia di un valore a cui punta un puntatore.
+Se scegli di implementare il metodo con la semantica del puntatore,
+stai affermando che un valore di questo tipo non è sicuro da copiare.
+
+    func main() {
+        u := user{"Bill", "bill@email.com"}
+        sendNotification(&u)
+    }
+
+Per correggere il messaggio del compilatore, è necessario utilizzare
+la semantica del puntatore nella chiamata alla funzione polimorfica e condividere u.
+La risposta non è cambiare il metodo per utilizzare la semantica del valore.
+
+** Slice di interfaccia
+
+Quando dichiari uno slice di un tipo di interfaccia, sono in grado di raggruppare
+insieme diversi valori concreti in base a ciò che possono fare.
+Questo è il motivo per cui Go non ha bisogno del concetto di sottotipizzazione.
+Non si tratta di un DNA comune, si tratta di un comportamento comune.
+
+    type printer interface {
+        print()
+    }
+
+    type canon struct {
+        name string
+    }
+
+    func (c canon) print() {
+        fmt.Printf("Printer Name: %s\n", c.name)
+    }
+
+    type epson struct {
+        name string
+    }
+
+    func (e *epson) print() {
+        fmt.Printf("Printer Name: %s\n", e.name)
+    }
+
+    func main() {
+        c := canon{"PIXMA TR4520"}
+        e := epson{"WorkForce Pro WF-3720"}
+
+        printers := []printer{
+            c,
+            &e,
+        }
+        c.name = "PROGRAF PRO-1000"
+        e.name = "Home XP-4100"
+
+        for _, p := range printers {
+            p.print()
+        }
+    }
+
+Output:
+
+    Printer Name: PIXMA TR4520
+    Printer Name: Home XP-4100
+
+
+Il codice mostra come un slice della interfaccia di tipo printer mi consente
+di creare una raccolta di diversi tipi di printer concreti. Iterando sulla raccolta
+e sfruttando il polimorfismo poiché la chiamata a p.print cambia il suo comportamento
+a seconda del valore concreto contro cui il codice sta operando.
+
+L'esempio mostra anche come la scelta della semantica dei dati cambia il comportamento
+del programma. Quando si memorizzano i dati utilizzando la semantica del valore, la modifica
+al valore originale non viene vista. Questo perché una copia viene archiviata all'interno dell'interfaccia.
+Quando viene utilizzata la semantica del puntatore, tutte le modifiche al valore originale sono visibili.
+
+** Note
+
+- Il metodo impostato per un valore include solo i metodi implementati con un valore receiver.
+- Il metodo impostato per un puntatore include metodi implementati sia con puntatore che con ricevitori di valore.
+- I metodi dichiarati con un ricevente puntatore implementano solo l'interfaccia con valori puntatore.
+- I metodi dichiarati con un ricevente di valore, implementano l'interfaccia sia con un ricevitore di valore che con un puntatore.
+- Le regole dei settaggi di metodo si applicano ai tipi di interfaccia.
+- Le interfacce sono tipi di riferimento, non condividono con un puntatore.
+- Questo è come creiamo un comportamento polimorfico in go.
+
+** Citazioni
+
+"Polimorfismo significa che scrivi un determinato programma e questo si comporta in modo diverso a seconda dei dati su cui opera." - Tom Kurtz (inventore del BASIC)
+
+"L'interfaccia vuota non dice nulla." - Rob Pike
+
+"Il design è l'arte di organizzare il codice affinché funzioni oggi e sia sempre modificabile." - Sandi Metz
+
+"Ua corretta astrazione disaccoppia il codice in modo che ogni modifica non si ripercuota nell'intera base del codice." - Ronna Steinburg
+
+** Letture extra
+
+- [[https://golang.org/doc/effective_go.html#interfaces][Interfaces]]    
+- [[https://blog.golang.org/laws-of-reflection][The Laws of Reflection]] - Rob Pike    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/interface-pollution/][Interface Pollution]] - JBD    
+- [[https://bravenewgeek.com/abstraction-considered-harmful/][Abstraction Considered Harmful]] - Tyler Treat    
+- [[https://www.ardanlabs.com/blog/2018/03/interface-values-are-valueless.html][Interface Values Are Valueless]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/07/interface-semantics.html][Interface Semantics]] - William Kennedy    
+- [[https://www.hyrumslaw.com/][Hyrum's Law]] - Hyrum  
+- [[https://www.youtube.com/watch?v=Pjz9WrXeOW0][Engineering Innovation - Why Constraints Are Critical]] - André Eriksson (MUST WATCH)
+
+* Esercizi
+
+Utilizza il modello come punto di partenza per completare gli esercizi. Un possibile viene fornita la soluzione.
+
+** Esercizio 1
+
+*Parte* *A:* Dichiara un'interfaccia denominata speaker con un metodo chiamato speak. Dichiarare a
+struct chiamata english che rappresenta una persona che parla inglese e dichiara una struct
+chiamato chinese per qualcuno che parla cinese. Implementa l'interfaccia speaker per ciascuno
+struct utilizzando un ricevente di valore e queste stringhe letterali "Hello World" e "你好世界".
+Dichiara una variabile di tipo speaker e assegna l'indirizzo ad un valore di tipo english
+e chiamare il metodo. Fallo di nuovo per un valore di tipo chinese.
+
+*Parte* *B:* Aggiungi una nuova funzione chiamata sayHello che accetta un valore di tipo speaker.
+Implementa quella funzione per chiamare il metodo speak sul valore dell'interfaccia.
+Quindi crea nuovi valori di ciascun tipo e utilizza la funzione.
+
+.play interfaces/exercise1.go
+.play interfaces/answer1.go

@@ -1,0 +1,341 @@
+Hash Tabloları
+Hash tabloları, jeneriklerin gerçek avantaj sağlayabileceği klasik bir örnektir.
+
+* Generics - Hash Tabloları
+
+Hash tabloları, jeneriklerin gerçek avantaj sağlayabileceği klasik bir örnektir. 
+Bu uygulama, Matt Layher (@mdlayer) tarafından yazılan bir blog yazısında kodlanmıştır. 
+Bu, jenerikler için yeni sözdiziminin uygulandığı durumun harika bir örneğidir.
+
+** Video
+
+Bu bölümdeki örnekleri sizinle paylaştığım jenerikler hakkındaki 
+konuşmamı izleyin.
+
+.html generics-video.html
+
+** Kod İnceleme
+
+- *Örnek* *1*: Hash Tablosu
+
+.play generics/hash-table/example1.go
+
+** Açıklama
+
+Bu kod, şimdiye kadar gördüklerinizden biraz daha karmaşıktır. Bu, gerçek dünya 
+uygulamalarından beklenebilecek bir şeydir. Bu bölüm boyunca, kodun iki görünümünü 
+göreceksiniz. Birincisi, jenerikler için yeni sözdizimi uygulanmadan önceki halini, 
+diğeri ise sonraki halini gösterir.
+
+    type hashFunc func(key K, buckets int) int
+
+Bu tip, hash tablosunun veri depolama ve alımı için bir kova konumu hesaplamak için 
+kullanılan bir hash fonksiyonu imzasını bildirir. Bir hash tablosu oluşturulurken 
+kullanıcı bu fonksiyonu uygulamalı ve sağlamalıdır. Fonksiyon, bir anahtar ve seçilebilecek 
+kova sayısını kabul eder. Anahtar ve değer türlerini kullanım açısından genel yapmak 
+istediğinizden, K isimli tek büyük harfli bir türde bir parametre bildiriyorsunuz.
+
+Daha sonra, K'yi gerçek bir genel tür yapmak için jenerik sözdizimini uygulayabilirsiniz.
+
+    type hashFunc[K comparable] func(key K, buckets int) int <-- DEĞİŞTİ
+
+Tip adından sonra, jenerik tür K ve bir karşılaştırılabilir (comparable) kısıtıyla 
+köşeli parantezleri ekleyin. Anahtar türünün değerlendirilmesinde kullanılacaksa, 
+bu bilgileri belirtmek, hash fonksiyonunun uygulanmasında gerekli olmasa da şimdi 
+belgelemek mantıklıdır. Okunabilirlik, anlaşılabilirlik ve zamanla sürdürülebilirlik 
+açısından tutarlılık her şeydir.
+
+Bu tip, hash tablosunda depolanacak verinin anahtar/değer çiftini temsil eder.
+
+    type keyValuePair struct {
+        Key K
+        Value V
+    }
+
+Bu tipin görevi, gerçek veriyi karşılık gelen anahtarla tutmaktır. Kod, K türünde 
+bir anahtar alanı ve V türünde bir değer alanı bildirir.
+
+Şimdi K ve V'yi gerçek jenerik türler yapmak için jenerik sözdizimini uygulayabilirsiniz.
+
+    type keyValuePair[K comparable, V any] struct { <-- DEĞİŞTİ
+        Key K
+        Value V
+    }
+
+Tip adından sonra, jenerik türler K ve V'yi içeren köşeli parantezleri ekleyin. 
+Bu bildirimde K hala anahtarı, V ise herhangi bir şeyi temsil eder.
+
+Bu tip, bir hash tablosunu yöneten bir hash fonksiyonu ve anahtar/değer verisi 
+depolama için bir dizi kova içeren bir kesimi temsil eder.
+
+    type Table struct {
+        hashFunc hashFunc
+        buckets int
+        data [][]keyValuePair
+    }
+
+Table tipinin üç alanı vardır: bir hash fonksiyonu, kova sayısı ve veri, bir anahtar/değer 
+çiftinin bir kesitini temsil eden bir kesit. Dış kesit kovaları, iç kesit anahtar/değer 
+çiftlerini temsil eder.
+
+Şimdi jenerik sözdizimini uygulayarak anahtar ve değer jenerik türlerini beyan 
+edin ve bunları alan bildirimlerine uygulayın.
+
+    type Table[K comparable, V any] struct { <-- DEĞİŞTİ
+        hashFunc hashFunc[K] <-- DEĞİŞTİ
+        buckets int
+        data [][]keyValuePair[K, V] <-- DEĞİŞTİ
+    }
+
+Tip adından sonra, jenerik türler K ve V'yi içeren köşeli parantezleri ekleyin. 
+hashFunc tür bildirimi, anahtar için kullanılacak somut tür hakkında bilgi gerektirir. 
+keyValuePair tür bildirimi, anahtar ve değer için somut tür bilgisi gerektirir.
+
+Bu, kullanım için bir Table oluşturabilen bir fabrika fonksiyonudur.
+
+    func New(
+        buckets int,
+        hf hashFunc
+    ) *Table {
+        
+        return &Table{
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair, buckets),
+        }
+    }
+
+Fabrika fonksiyonu, yönetilecek kova sayısını ve veri depolama ve arama için bir kova 
+seçme hash fonksiyonunu kabul eder. Bir Table değeri oluşturulduğunda, kovaların sayısı 
+kullanılarak dilim oluşturulur ve dış dilimin uzunluğu kullanılacak kovaların sayısına ayarlanır.
+
+Anahtar ve değer jenerik tiplerini bildirmek ve oluşturulması gereken tiplere uygulamak için jenerik 
+sözdizimini uygulayın, 
+
+    func New[K comparable, V any]( <-- DEĞİŞTİ
+        buckets int,
+        hf hashFunc[K],            <-- DEĞİŞTİ
+    ) *Table[K, V] {               <-- DEĞİŞTİ
+        
+        return &Table[K, V]{       <-- DEĞİŞTİ
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair[K, V], buckets), <-- DEĞİŞTİ
+        }
+    }
+
+Tür adından sonra, köşeli parantezleri ve jenerik türleri K ve V ekleyin. Sonra
+K, hf giriş parametresine uygulanır ve hashFunc tür bildirimi tamamlanır.
+K ve V türleri, oluşturulan ve döndürülen Table türüne uygulanır.
+Son olarak, data alanının başlatılması için K ve V'nin keyValuePair türüne
+uygulanması gerekmektedir.
+
+Bu, belirli bir anahtara dayalı olarak hash tablosuna değer ekleyebilen bir yöntemdir.
+
+    type Table[K comparable, V any] struct {
+        hashFunc hashFunc[K]
+        buckets int
+        table [][]keyValuePair[K, V]
+    }
+
+    func (t *Table) Insert(key K, value V) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+
+        kvp := keyValuePair{
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+Insert metodu, Table türü ile bildirilen aynı jenerik türlerin anahtar ve değerini
+kabul etmek üzere bildirilmiştir. Ekleme işleminin ilk adımı, depolama için
+kullanılacak kovayı belirlemektir. Bu, belirtilen anahtarla hash fonksiyonunu çağırarak
+gerçekleştirilir. Hash fonksiyonu, kullanılacak kovayı temsil eden bir tamsayı değeri
+döndürür.
+
+Ardından, fonksiyon, belirtilen anahtarın seçilen kovada zaten bir değeri depolayıp
+depolamadığını kontrol eder. Bu, kovadaki mevcut anahtar/değer çiftleri üzerinde
+gezerek gerçekleştirilir. Anahtar zaten varsa, bu anahtar için değer güncellenir.
+Anahtar bulunamazsa, yeni bir anahtar/değer çifti değeri oluşturulur,
+başlatılır ve seçilen kovadaki dilimine eklenir.
+
+Şimdi, anahtar ve değer jenerik tiplerini bildirmek için jenerik sözdizimini uygulayın 
+ve oluşturulması gereken tiplere uygulayın.
+
+    func (t *Table[K, V]) Insert(key K, value V) { <-- DEĞİŞTİ
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+    
+        kvp := keyValuePair[K, V]{                 <-- DEĞİŞTİ
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+Alıcıdaki tür adından sonra, köşeli parantezleri ve jenerik
+türleri K ve V ekleyin. Tek değişiklik, K ve V'nin keyValuePair türünün
+inşa sözdizimine uygulanmasıdır.
+
+Bu, belirli bir anahtara dayalı olarak hash tablosundan değer alabilen bir metottur.
+
+    func (t *Table) Retrieve(key K) (V, bool) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Retrieve metodu, bir anahtarı kabul eder ve o anahtar için depolanan değerin bir
+kopyasını döndürür. Alınan değerin ilk adımı, depolama için kullanılan kovayı
+belirlemektir. Bu, belirtilen anahtarla hash fonksiyonunu çağırarak
+gerçekleştirilir. Hash fonksiyonu, bakılacak kovayı temsil eden bir tamsayı değeri
+döndürür.
+
+Daha sonra fonksiyon, kovadaki içinde depolanan anahtar/değer çiftlerinin
+koleksiyonu üzerinde tek tek belirtilen anahtarı arar. Anahtar bulunursa, değerin
+bir kopyası döndürülür ve true çağrıya sağlanır. Anahtar bulunamazsa, sıfır
+değeri döndürülür ve false çağrıya sağlanır.
+
+Şimdi, anahtar ve değer jenerik tiplerini bildirmek için jenerik sözdizimini uygulayın 
+ve oluşturulması gereken tiplere uygulayın.
+
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- DEĞİŞTİ
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Alıcıdaki tür adından sonra, köşeli parantezleri ve jenerik
+türleri K ve V ekleyin. Başka bir kod değişikliği gerekmez.
+
+Bu, hash tablosu uygulamasını test etmek için küçük bir programdır.
+
+    func main() {
+        const buckets = 8
+        . . .
+    }
+
+Hash tablosunda kullanılacak kova sayısını belirleyen bir sabitle başlayın.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        hashFunc1 := func(key string, buckets int) int {
+            h := fnv.New32()
+            h.Write([]byte(key))
+            return int(h.Sum32()) % buckets
+        }
+
+        . . .
+    }
+
+Ardından, anahtar için bir dizi bildiren bir hash fonksiyonu bildirin. Uygulama,
+Glenn Fowler, Landon Curt Noll ve Phong Vo tarafından oluşturulan FNV-1 ve FNV-1a,
+kriptografik olmayan hash fonksiyonlarını uygulayan standart kütüphanedeki fnv
+paketini kullanır. FNV, Fowler-Noll-Vo hash fonksiyonunun kısaltmasıdır.
+
+Kova değeri ile gerçekleştirilen modulus işlemi, son değerin kova sayısı için belirlenen 
+aralık içinde olmasını sağlar.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+        
+        . . .
+    }
+
+Sonra bir hash tablosu oluşturun, açıkça belirtilmiş anahtar türünün bir dizi ve
+değer türünün bir tamsayı olacağını belirtin. Bu bilgiyi çıkarabilecek hiçbir
+giriş parametresi yoktur.
+
+Hash tablosunun jenerik doğasını göstermek için ikinci bir hash
+fonksiyonu ve tablo tanımlayın.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        hashFunc2 := func(key int, buckets int) int {
+            return key % buckets
+        }
+
+        table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+    
+        . . .
+    }
+
+Bu karma fonksiyonu, anahtar için bir tamsayı bildirir ve anahtara karşı kova değeriyle 
+basit bir modulus işlemi gerçekleştirir. Ardından, anahtarın bir tamsayı ve değerin bir 
+dizi olarak belirtildiği yeni bir tablo oluşturulur. İlk tablonun tersi gibi.
+
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        words := []string{"foo", "bar", "baz"}
+        for i, word := range words {
+            table1.Insert(word, i)
+            table2.Insert(i, word)
+        }
+    
+        for i, s := range append(words, "nope!") {
+            v1, ok1 := table1.Retrieve(s)
+            fmt.Printf("t1.Rtr(%v) = (%v, %v)\n", s, v1, ok1)
+            
+            v2, ok2 := table2.Retrieve(i)
+            fmt.Printf("t2.Rtr(%v) = (%v, %v)\n", i, v2, ok2)
+        }
+    }
+
+Çıktı:
+
+    t1.Rtr(foo) = (0, true)
+    t2.Rtr(0) = (foo, true)
+    t1.Rtr(bar) = (1, true)
+    t2.Rtr(1) = (bar, true)
+    t1.Rtr(baz) = (2, true)
+    t2.Rtr(2) = (baz, true)
+    t1.Rtr(nope!) = (0, false)
+    t2.Rtr(3) = (, false)
+
+Son olarak, iki ilgili tablodan değerleri depolamak ve almak için kod yazın.

@@ -1,0 +1,561 @@
+Veri Yarışları (Data Race)
+Bir veri yarışı, iki veya daha fazla gorutinin aynı kaynağa aynı anda okuma ve yazma girişiminde bulunduğunda meydana gelir.
+
+* Veri Yarışları (Data Race)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bir veri yarışı, en az bir Gorutinin yazma işlemi gerçekleştirdiği bir bellek konumuna 
+aynı anda erişmeye çalıştığında ortaya çıkar. Bu durumda sonucu tahmin etmek imkansızdır. 
+Bu tür hatalar, her zaman rasgele görünen sorunlara neden olduklarından dolayı bulması 
+zordur.
+
+Scott Meyers'ın buradaki ~8 dakikalık açıklamalarını dinlemek harika:
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care 30:09-38:30]]
+
+** Kod İnceleme
+
+- *Örnek* *1:* Veri Yarışı
+- *Örnek* *2:* Atomik Artışlar
+- *Örnek* *3:* Mutex
+- *Örnek* *4:* Okuma/Yazma Mutex
+- *Örnek* *5:* Harita Veri Yarışı
+- *Örnek* *1:* Arayüz Tabanlı Veri Yarışı
+
+.play data_race/example1.go
+.play data_race/example2.go     
+.play data_race/example3.go
+.play data_race/example4.go
+.play data_race/example5.go
+.play data_race/example6.go
+
+** Veri Yarışı Örneği
+
+Bu, bir veri yarışının harika bir örneği ve nasıl yıllarca gizlenebileceği ve 
+sonunda garip zamanlarda ortaya çıkarak veri bozulmasına neden olabileceği konusunda 
+harika bir örnektir.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    value := counter
+                    value++
+                    counter = value
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Bu program, her biri aynı tamsayı değişkenine erişen ve değişkeni iki kez artıran 
+iki Gorutin oluşturur. Gorutin, paylaşılan duruma karşı manuel olarak bir okuma, 
+değiştirme ve yazma işlemi gerçekleştirir.
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Paylaşılan duruma erişimi for döngüsü içinde görebilirsiniz. Bu programı oluşturup 
+çalıştırdığınızda her seferinde doğru cevap olan 4'ü elde edersiniz.
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+    $ ./example1
+    Final Counter: 4
+
+Bu nasıl çalışıyor?
+    G1                            Shared State: 0                            G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Write:  1                         Shared State: 1
+    Context Switch 
+                                                                      Read: 1
+                                                                    Modify: 2
+                                    Shared State: 2                  Write: 2
+                                                               Context Switch 
+    Read:   2
+    Modify: 3
+    Write:  3                         Shared State: 3
+    Terminate
+                                                                      Read: 3
+                                                                    Modify: 4
+                                    Shared State: 4                  Write: 4
+                                                                    Terminate
+    ----------------------------------------------------------------------------
+
+Okuma, değiştirme ve yazma işlemleri kesintisiz olarak gerçekleşiyor. Doğru cevabı 
+alıyor olmanız, bir sorun olmadığı anlamına gelmez. Okuma, değiştirme ve yazma işlemi 
+arasına bir log ifadesi eklerseniz ne olur?
+
+    var counter int
+
+    func main() {
+        . . .
+
+        go func() {
+            for i := 0; i < 2; i++ {
+                value := counter
+                value++
+                log.Println("logging")     <-- Add Logging Here
+                counter = value
+            }
+            wg.Done()
+        }()
+
+        . . .
+    }
+
+Bu programı çalıştırdığınızda artık her seferinde aynı sonucu elde etmezsiniz, şimdi cevabı 2 
+olarak alırsınız.
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+    $ ./example1
+    Final Counter: 2
+
+
+Ne oluyor? Artık, önce var olan ancak meydana gelmeyen bir veri yarışı hatasına 
+rastlıyorsunuz. Log çağrısı, iki Gorutin arasında kötü bir zamanda bir bağlam değişikliği 
+yapmaya zorluyor.
+
+    G1                                Shared State: 0                         G2
+    ----------------------------------------------------------------------------
+    Read:   0
+    Modify: 1
+    Context Switch
+                                                                        Read:   0
+                                                                        Modify: 1
+                                                                   Context Switch 
+    Write:  1                         Shared State: 1
+    Read:   1
+    Modify: 2
+    Context Switch
+                                    Shared State: 1                     Write:  1
+                                                                        Read:   1
+                                                                        Modify: 2
+                                                                    Context Switch 
+    Write:  2                         Shared State: 2
+    Terminate
+                                    Shared State: 2                     Write:  2
+                                                                        Terminate
+    ----------------------------------------------------------------------------
+
+Değiştirme işleminden sonra bir bağlam değişikliği gerçekleşiyor. Üç işlem kesintisiz olmaktan 
+çıkıyor ve Gorutin 2, yazma işlemi tamamlandığında yerel değerinin yanlış olmasına neden oluyor. 
+Her seferinde bunun oluyor olması şanslısınız ve bunu görebiliyorsunuz demektir. Ancak normalde bu tür 
+bir veri yarışı "rasgele" olarak meydana gelir ve çok geç olana kadar fark edilmez. Neyse ki, 
+Go'nun bir veri yarışı algılayıcısı vardır ve veri yarışlarını bulmada yardımcı olur.
+
+** Yarış Algılama
+
+Yarış algılayıcıyı etkinleştirmenin birkaç yolu vardır. Onu çalıştırma, derleme ve test 
+komutlarıyla kullanabilirsiniz. Derleme komutu ile kullanıyorsanız, programı çalıştırmayı 
+unutmamanız gerekir. Enstrümantasyon eklenmiş bir ikili programın programınızı ~20% kadar 
+yavaşlatabileceğini söylerler.
+
+    $ go build -race
+    $ ./example1
+
+-race bayrağı, derlemeyi yarış algılayıcı ile enstrümantal hale getirmenin yoludur. 
+Muhtemelen bunu daha çok "go test" ile kullanırsınız, ancak bu örnekte ikili programı 
+enstrümantal hale getirip ardından çalıştırıyorsunuz.
+
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    2021/02/01 17:30:52 logging
+    ==================
+    WARNING: DATA RACE
+    Write at 0x000001278d88 by goroutine 8:
+    main.main.func1()
+        /data_race/example1/example1.go:41 +0xa6
+
+    Previous read at 0x000001278d88 by goroutine 7:
+    main.main.func1()
+        /data_race/example1/example1.go:38 +0x4a
+
+    Goroutine 8 (running) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+
+    Goroutine 7 (finished) created at:
+    main.main()
+        /data_race/example1/example1.go:36 +0xaf
+    ==================
+    2021/02/01 17:30:52 logging
+    Final Counter: 2
+    Found 1 data race(s)
+
+Programı çalıştırırken bir yarış algılandığını görebilirsiniz. Bu, log ifadesi eklenmiş 
+olsa da olmasa da gerçekleşirdi. Bir yarış algılandığında, program panik yapar ve bu 
+izlemeyi sağlar. İzleme, aynı paylaşılan duruma senkronize olmamış erişimin nerede 
+gerçekleştiğini ve en az bir erişimin yazma olduğunu gösterir.
+
+Bu izlemede, bir Gorutin 41. satırdaki adres 0x000001278d88'de yazma işlemi gerçekleştirdi 
+ve başka bir Gorutin 38. satırdaki aynı adreste senkronize olmamış bir okuma gerçekleştirdi. 
+Her iki Gorutin de 36. satırda oluşturuldu.
+
+    36 go func() {
+    37     for i := 0; i < 2; i++ {
+    38         value := counter
+    39         value++
+    40         log.Println("logging")
+    41         counter = value
+    42     }
+    43     wg.Done()
+    44 }()
+
+Senkronize olmamış okuma ve yazmayı net bir şekilde görebilirsiniz. Bir yan not olarak, 
+39. satırdaki artı artı işlemi de kodun sayaç değişkenine erişiyorsa bir veri yarışı 
+olurdu. Artı artı işlemi, aslında bir okuma, değiştirme ve yazma işlemidir ve işletim 
+sistemi bu işlemin ortasında kolayca bağlam değiştirebilir.
+
+Peki, kodu düzeltmek için ne yapabilirsiniz? Veri yarışını kaldırmak için kullanabileceğiniz 
+iki araç var: atomik işlemler ve mutex'ler.
+
+** Atomikler
+
+Atomikler, donanım düzeyinde senkronizasyon sağlar. Bu nedenle, veri kelimeleri veya 
+yarım kelimelerle sınırlıdır. Bu nedenle, sayaçlar veya hızlı anahtarlama mekanizmaları 
+için uygundur. WaitGroup API'leri atomikleri kullanır.
+
+Kodu atomiklere nasıl uygulayabilirsiniz?
+
+    var counter int32                             <-- DEĞİŞTİRİLDİ
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    atomic.AddInt32(&counter, 1)  <-- DEĞİŞTİRİLDİ
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Sadece birkaç şey yapmanız gerekiyor. İlk olarak, counter değişkenini hassasiyet tabanlı 
+bir tamsayı yapın. Bunun kod listesinin üst kısmında görebilirsiniz. Atomik fonksiyonlar 
+yalnızca hassasiyet tabanlı tamsayılarla çalışır. İkinci olarak, manuel olarak okuma, 
+değiştirme ve yazma kodunu bir çağrı için atomic.AddInt32'ye kaldırın. Bu çağrı 
+hepsini ele alır.
+
+Atomik paketi ile ilişkilendirilen tüm fonksiyonlar, senkronize edilecek paylaşılan 
+durumun adresini alır. Senkronizasyon sadece adres düzeyinde gerçekleşir. Bu nedenle, 
+aynı fonksiyonu çağıran ancak farklı bir adreste olan farklı Gorutinler senkronize olmaz.
+
+Atomiklerin API'si şöyle görünür:
+
+    func AddInt32(addr *int32, delta int32) (new int32)
+    func AddInt64(addr *int64, delta int64) (new int64)
+    func AddUint32(addr *uint32, delta uint32) (new uint32)
+    func AddUint64(addr *uint64, delta uint64) (new uint64)
+    func AddUintptr(addr *uintptr, delta uintptr) (new uintptr)
+
+    func CompareAndSwapInt32(addr *int32, old, new int32) (swapped bool)
+    func CompareAndSwapInt64(addr *int64, old, new int64) (swapped bool)
+    func CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapped bool)
+    func CompareAndSwapUint32(addr *uint32, old, new uint32) (swapped bool)
+    func CompareAndSwapUint64(addr *uint64, old, new uint64) (swapped bool)
+    func CompareAndSwapUintptr(addr *uintptr, old, new uintptr) (swapped bool)
+
+    func LoadInt32(addr *int32) (val int32)
+    func LoadInt64(addr *int64) (val int64)
+    func LoadPointer(addr *unsafe.Pointer) (val unsafe.Pointer)
+    func LoadUint32(addr *uint32) (val uint32)
+    func LoadUint64(addr *uint64) (val uint64)
+    func LoadUintptr(addr *uintptr) (val uintptr)
+
+    func StoreInt32(addr *int32, val int32)
+    func StoreInt64(addr *int64, val int64)
+    func StorePointer(addr *unsafe.Pointer, val unsafe.Pointer)
+    func StoreUint32(addr *uint32, val uint32)
+    func StoreUint64(addr *uint64, val uint64)
+    func StoreUintptr(addr *uintptr, val uintptr)
+
+    func SwapInt32(addr *int32, new int32) (old int32)
+    func SwapInt64(addr *int64, new int64) (old int64)
+    func SwapPointer(addr *unsafe.Pointer, new unsafe.Pointer) (old unsafe.Pointer)
+    func SwapUint32(addr *uint32, new uint32) (old uint32)
+    func SwapUint64(addr *uint64, new uint64) (old uint64)
+    func SwapUintptr(addr *uintptr, new uintptr) (old uintptr)
+
+    type Value
+        func (v *Value) Load() (x interface{})
+        func (v *Value) Store(x interface{})
+
+İlk parametrenin her zaman hassasiyet tabanlı bir tamsayı veya işaretçi adresi 
+olduğunu görebilirsiniz. Ayrıca, küçük bir API'ye sahip senkron bir değer sağlayan 
+Value adında bir tür de vardır.
+
+** Mutex'ler
+
+Eğer üç satır kodu korumak istiyorsanız, atomikler işe yaramaz. O zaman ihtiyacınız olan 
+şey bir mutex'tir. Bir mutex, bir grup kodu kutular, böylece yalnızca bir Gorutin bu kodu 
+aynı anda yürütebilir.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex                    <-- DEĞİŞTİRİLDİ
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    mu.Lock()                <-- DEĞİŞTİRİLDİ
+                    {
+                        value := counter
+                        value++
+                        counter = value
+                    }
+                    mu.Unlock()              <-- DEĞİŞTİRİLDİ
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Bu kodun orijinalinden bu kodun birkaç değişikliği vardır. Mu değişkeninin yapısını sıfır 
+değerine ayarlanmış bir mutex olarak eklediniz. Ardından for döngüsü içinde, Lock ve Unlock 
+çağrıları eklediniz ve yapay bir kod bloğuyla birlikte eklediniz. Kod bloğunun içinde senkronize 
+edilmesi gereken kod vardır. Kod bloğu, okunabilirlik için kullanılır.
+
+Bu kod yerindeyken, zamanlayıcı yalnızca bir Gorutin'in kod bloğuna girmesine izin 
+verecektir. Önemli olan, bir mutex'in bir sıra oluşturmadığıdır. Lock'u çağıran ilk 
+Gorutin, Lock'u alan ilk Gorutin değildir. Bir adil tabanlı bir algoritma olsa da, 
+bunun kasıtlı olarak mutex'leri sıra olarak kullanmamak için yapıldığını unutmamak 
+önemlidir.
+
+Lock'un geri baskı oluşturduğunu hatırlamak önemlidir, bu nedenle Lock'tan Unlock'a geçmek 
+ne kadar uzun sürerse, bekleyen Gorutinler için o kadar şans vardır. Unlock'u çağırmayı 
+unutursanız, tüm bekleyen Gorutinler felç olur. Bu nedenle Lock ve Unlock'un aynı işlevde 
+çağrılması kritiktir. Kod bloğunda ihtiyacınız olan minimum senkronizasyonu yaptığınızdan 
+emin olun, ancak en azından minimumu yapın.
+
+Bu, birileri kilidin içinden bu kadar hızlı bir şekilde girmeye ve çıkmaya çalıştığı çok 
+kötü bir koddur ki, senkronizasyonu kaybederler ve yarış algılayıcı bile sorunu keşfedemez.
+
+    var counter int
+
+    func main() {
+        const grs = 2
+
+        var wg sync.WaitGroup
+        wg.Add(grs)
+
+        var mu sync.Mutex
+
+        for g := 0; g < grs; g++ {
+            go func() {
+                for i := 0; i < 2; i++ {
+                    var value int
+                    mu.Lock()              <-- Yanlış Mutex kullanımı
+                    {
+                        value = counter
+                    }
+                    mu.Unlock()
+
+                    value++
+
+                    mu.Lock()              <-- Yanlış Mutex kullanımı
+                    {
+                        counter = value
+                    }
+                    mu.Unlock()
+                }
+                wg.Done()
+            }()
+        }
+
+        wg.Wait()
+        fmt.Println("Counter:", counter)
+    }
+
+Genel bir kılavuz olarak, aynı fonksiyonda aynı mutex'ten Lock çağrısını iki kez görüyorsanız, 
+kod incelemeyi durdurun. Muhtemelen bir hata veya karmaşıklık var. Bu durumda okuma ve yazma 
+işlemleri senkronize ediliyor olabilir, ancak iki Gorutin aynı değere ulaşabilir. Veri yarışı 
+hala var ve yarış algılayıcı bunu bulmada acizdir.
+
+** Okuma/Yazma Mutex'leri
+
+Okuma/yazma mutex adı verilen ikinci bir mutex türü vardır. Bu, okuma ve yazma etrafındaki 
+kilitleri ayırabilmeme izin verir. Bu, bir Gorutin aynı anda yazmaya çalışmıyorsa, veri 
+okumak tehdit oluşturmaz demektir. Bu tür bir mutex, aynı anda birden çok Gorutinin aynı 
+belleği okumasına izin verir. Bir yazma kilidi talep edildiğinde, okumalar artık verilmez, 
+yazma gerçekleşir ve okumalar tekrar başlar.
+
+    package main
+
+    import (
+        "fmt"
+        "math/rand"
+        "sync"
+        "time"
+    )
+
+    var data []string
+    var rwMutex sync.RWMutex
+
+    func main() {
+        var wg sync.WaitGroup
+        wg.Add(1)
+
+        go func() {
+            for i := 0; i < 10; i++ {
+                writer(i)
+            }
+            wg.Done()
+        }()
+
+        for i := 0; i < 8; i++ {
+            go func(id int) {
+                for {
+                    reader(id)
+                }
+            }(i)
+        }
+
+        wg.Wait()
+        fmt.Println("Program Complete")
+    }
+
+    func writer(i int) {
+        rwMutex.Lock()
+        {
+            time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+            fmt.Println("****> : Performing Write")
+            data = append(data, fmt.Sprintf("String: %d", i))
+        }
+        rwMutex.Unlock()
+    }
+
+    func reader(id int) {
+        rwMutex.RLock()
+        {
+            time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
+            fmt.Printf("%d : Performing Read : Length[%d]\n", id, len(data))
+        }
+        rwMutex.RUnlock()
+    }
+
+Bu örnekte, birbirinden 10 milisaniye uzakta bir dilim uzunluğunu okuyan 8 Gorutin ve 
+100 milisaniye içinde bir değer (yazma) eklemek için uyanan 1 Gorutin içeren bir kod 
+görüyorsunuz.
+
+Yazar ve okuyucu işlevlerinin uygulanışını görebilirsiniz. Yazıcı için Lock ve okuyucu 
+için RLock kullanma şeklini fark edin. Bu iletişimi yanlışlıkla karıştırmak, yanlış 
+sürümle Unlock çağrıları yapmak en büyük hatalardan biridir.
+
+    7 : Performing Read : Length[0]
+    5 : Performing Read : Length[0]
+    0 : Performing Read : Length[0]
+    3 : Performing Read : Length[0]
+    7 : Performing Read : Length[0]
+    2 : Performing Read : Length[0]
+    1 : Performing Read : Length[0]
+    ****> : Performing Write
+    0 : Performing Read : Length[1]
+    5 : Performing Read : Length[1]
+    3 : Performing Read : Length[1]
+    6 : Performing Read : Length[1]
+    7 : Performing Read : Length[1]
+    4 : Performing Read : Length[1]
+    1 : Performing Read : Length[1]
+    2 : Performing Read : Length[1]
+    ****> : Performing Write
+    7 : Performing Read : Length[2]
+    1 : Performing Read : Length[2]
+    3 : Performing Read : Length[2]
+
+Çıktı, birden çok Gorutin'in aynı anda okuduğunu, ancak yazma gerçekleştiğinde 
+tüm okumaların durduğunu gösterir.
+
+** Notlar
+
+- Gorutin'lerin koordine ve senkronize olmaya ihtiyacı var.
+- İki veya daha fazla gorutin aynı kaynağa erişmeye çalıştığında bir veri yarışımız var.
+- Atomik fonksiyonlar ve mutex'ler ihtiyacımız olan desteği sağlayabilir.
+
+** Önbellek Uyumluluğu ve Yanlış Paylaşım
+
+Bu içerik, Scott Meyers'ın 2014 yılındaki Dive konuşmasından alınmıştır:
+
+[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care (30:09-38:30)]]  
+[[https://github.com/ardanlabs/gotraining/blob/master/topics/go/testing/benchmarks/falseshare/README.md][Code Example]]
+
+.image /tour/eng/static/img/figure1_data_race.png
+
+** Önbellek Uyumluluğu ve Yanlış Paylaşım Notları
+
+- Thread bellek erişimi önemlidir.
+- Algoritmanız ölçeklenmiyorsa, yanlış paylaşım sorunlarını arayın.
+
+** Ek Okuma
+
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter    
+- [[https://golang.org/ref/mem][The Go Memory Model]]    
+- [[http://blog.golang.org/race-detector][Introducing the Go Race Detector]] - Dmitry Vyukov and Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - William Kennedy    
+- [[https://golang.org/doc/articles/race_detector.html][Data Race Detector]]    
+
+* Egzersizler
+
+Egzersizleri tamamlamak için şablonu bir başlangıç noktası olarak kullanın. Bir olası çözüm 
+sağlanmıştır.
+
+** Egzersiz 1
+
+Aşağıdaki programda verilen veri yarışını bulmak ve düzeltmek için yarış algılayıcıyı kullanın.
+
+.play data_race/exercise1.go
+.play data_race/answer1.go

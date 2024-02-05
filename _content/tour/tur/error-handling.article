@@ -1,0 +1,438 @@
+Hata İşleme
+Hata işleme, programlarınızı güvenilir ve programlarınıza bağımlı olanlara saygılı hale getirmek için kritiktir.
+
+* Hata İşleme Tasarımı
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Bütünlük önemlidir ve mühendislik sürecinin büyük bir parçasını oluşturur. Bütünlüğün 
+merkezinde hata işleme bulunmaktadır. Go dilinde hata işleme, sonradan veya başka bir 
+yerde işlenmesi gereken bir istisna değildir. Bu, ana yolda bir parça olarak kabul edilir 
+ve ana odak noktası olmalıdır.
+
+Geliştiriciler, bir kullanıcının nasıl devam edeceğine dair bilinçli bir karar 
+verebilmesi için herhangi bir hatayla ilgili yeterli bağlamı döndürme sorumluluğuna 
+sahiptir. Bir hatayla başa çıkmak, hatayı günlüğe kaydetmek, hatayı daha da ileriye 
+taşımamak ve Goroutine/programın sonlandırılıp sonlandırılmamasını belirlemekle 
+ilgilidir.
+
+Go'da hatalar yalnızca değerler olduğundan istediğiniz her şey olabilirler. 
+Herhangi bir durumu veya davranışı sürdürebilirler.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Varsayılan Hata Değerleri
+- *Örnek* *2:* Hata Değişkenleri
+- *Örnek* *3:* Tür Olarak Bağlam
+- *Örnek* *4:* Davranış Olarak Bağlam
+- *Örnek* *5:* Hatayı Bul
+- *Örnek* *6:* stdlib ile Hataları Sarma
+
+.play error-handling/example1.go
+.play error-handling/example2.go
+.play error-handling/example3.go
+.play error-handling/example4.go
+.play error-handling/example5.go
+.play error-handling/example6.go
+
+** Hata İşleme Temelleri
+
+Hata arabirimi dilin içine yerleştirilmiştir.
+
+    // http://golang.org/pkg/builtin/#error
+    type error interface {
+        Error() string
+    }
+
+İşte bu, bir dışa aktarılmamış tanımlayıcı gibi görünüyor. Bu arayüzü uygulayan 
+herhangi bir somut değer, bir hata değeri olarak kullanılabilir.
+
+Go'nun önemli bir yönü, hata işleminin bu arayüz aracılığıyla bağımsız bir durumda yapılmasıdır. 
+Bunun ana nedenlerinden biri, hata işleminin, uygulamanızın değişikliklere ve iyileştirmelere 
+daha açık bir yönü olmasıdır. Bu arayüz, Go uygulamalarının hata işlemesi için dönüş türü 
+olarak kullanması gereken türdür.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    type errorString struct {
+        s string
+    }
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func (e *errorString) Error() string {
+        return e.s
+    }
+
+Bu, Go programlarında en yaygın kullanılan hata değeridir. Standart kütüphaneden errors 
+paketinde bildirilmiştir. Türün dışa aktarılmadığına ve bir dizi olan bir dışa aktarılmamış 
+alanı olduğuna dikkat edin. Ayrıca, hata arayüzünü uygulamak için işaretçi semantiğinin nasıl 
+kullanıldığını görebilirsiniz. Bu, yalnızca bu tür değerlerin adreslerinin paylaşılabilir ve 
+arayüz içinde depolanabilir olduğu anlamına gelir. Metod sadece hata dizisini döndürdü.
+
+Hatırlanması önemlidir ki, Error metodunun uygulanması, arayüzü uygulamanın yanı sıra 
+günlüğe kaydetme amacına da hizmet eder. Eğer herhangi bir kullanıcının bu metottan dönen 
+diziyi çözümlemesi gerekiyorsa, kullanıcıya bilinçli bir karar vermek için yeterli bağlamı 
+sağlamada başarısız olmuşsunuz demektir.
+
+    // http://golang.org/src/pkg/errors/errors.go
+    func New(text string) error {
+        return &errorString{text}
+    }
+
+New fonksiyonu, errorString gerçek türü kullanarak bir hata oluşturur. Fonksiyonun 
+error arabirimi kullanarak hatayı döndürdüğünü ve işaretçi semantiği kullandığını 
+fark edersiniz.
+
+    func main() {
+        if err := webCall(); err != nil {
+            fmt.Println(err)
+            return
+        }
+        fmt.Println("Life is good")
+    }
+
+    func webCall() error {
+        return New("bad request")
+    }
+
+Hatalarla ilgili bağlam her şeydir. Her hata, çağrının gorutinin/uygulamanın durumu 
+hakkında bilinçli bir karar vermesine izin verecek kadar yeterli bağlamı sağlamalıdır. 
+Bu örnekte, webCall fonksiyonu, Bad Request mesajıyla bir hata döndürüyor. Ana fonksiyonda 
+webCall'a bir çağrı yapılır ve ardından çağrı ile ilgili bir hata olup olmadığını kontrol 
+etmek için bir kontrol yapılır.
+
+    if err := webCall(); err != nil {
+        fmt.Println(err)
+        return
+    }
+
+Kontrolün anahtarı err != nil deyimidir. Bu koşul, err arayüz değeri içinde bir somut 
+değer olup olmadığını soruyor. Arayüz değeri bir somut değer içeriyorsa, bir hata var 
+demektir. Bu durumda, bağlam kelimenin tam anlamıyla bir somut değerin varlığıdır, 
+somut değerin ne olduğu önemli değildir.
+
+Eğer err arayüz değişkeni içinde hangi hata değerinin bulunduğunu bilmek önemliyse, 
+o zaman hata değişkenleri iyi bir seçenektir.
+
+    var (
+        ErrBadRequest = errors.New("Bad Request")
+        ErrPageMoved = errors.New("Page Moved")
+    )
+
+Hata değişkenleri, hangi özel hatanın döndürüldüğünü belirlemek için bir mekanizma sağlar. 
+Err öneki ile başlama idiyomuna sahiptir ve errors paketinden errorString türüne dayanır.
+
+    func webCall(b bool) error {
+        if b {
+            return ErrBadRequest
+        }
+        return ErrPageMoved
+    }
+
+Bu webCall'ın yeni sürümünde, fonksiyon bir hata değişkeninden birini veya diğerini döndürür. 
+Bu, çağırıcının hangi hatanın meydana geldiğini belirlemesine olanak tanır.
+
+    func main() {
+        if err := webCall(true); err != nil {
+            switch err {
+            case ErrBadRequest:
+                fmt.Println("Bad Request Occurred")
+                return
+
+            case ErrPageMoved:
+                fmt.Println("The Page moved")
+                return
+
+            default:
+                fmt.Println(err)
+                return
+            }
+        }
+
+        fmt.Println("Life is good")
+    }
+
+Uygulamada webCall'a yapılan çağrıdan sonra, err arayüz değişkeni içinde bir somut değer olup 
+olmadığını kontrol etmek için bir kontrol yapılabilir. Eğer varsa, err'i farklı hata değişkenlerine 
+karşı karşılaştırarak hangi hatanın olduğunu belirlemek için bir switch ifadesi kullanılır.
+
+Bu durumda, hata bağlamı, hangi hata değişkeninin döndüğüne dayanmaktadır. Ancak bir hata değişkeni 
+yeterli bağlamı sağlamıyorsa ne olur? Örneğin, ağ hataları gibi özel durumlar kontrol edilmelidir. 
+Bu durumlarda, özel bir somut hata türü kullanmak çözüm olabilir.
+
+    type UnmarshalTypeError struct {
+        Value string
+        Type  reflect.Type
+    }
+
+    func (e *UnmarshalTypeError) Error() string {
+        return "json: cannot unmarshal " + e.Value +
+            " into Go value of type " + e.Type.String()
+    }
+
+Bu, json paketinde uygulanan özel bir somut hata türüdür. Türün adında bir Ek olarak 
+Error kullanıldığına dikkat edin. Ayrıca, error arayüzünün uygulanması için işaretçi 
+semantiğinin kullanımını fark edin. Yine, uygulama, tüm alanların bilgilerini görüntülemek 
+için bu metodun uygulanması amacıyla kullanılır.
+
+    type InvalidUnmarshalError struct {
+        Type reflect.Type
+    }
+
+    func (e *InvalidUnmarshalError) Error() string {
+        if e.Type == nil {
+            return "json: Unmarshal(nil)"
+        }
+        if e.Type.Kind() != reflect.Ptr {
+            return "json: Unmarshal(non-pointer " + e.Type.String() + ")"
+        }
+        return "json: Unmarshal(nil " + e.Type.String() + ")"
+    }
+
+Bu, json paketinde bulunan ikinci özel somut hata türüdür. Error yönteminin uygulanması
+biraz daha karmaşıktır, ancak yine de sadece kayıt için ve işaretçi semantiği kullanılarak 
+yapılmıştır.
+
+    func Unmarshal(data []byte, v interface{}) error {
+        rv := reflect.ValueOf(v)
+        if rv.Kind() != reflect.Ptr || rv.IsNil() {
+            return &InvalidUnmarshalError{reflect.TypeOf(v)}
+        }
+        return &UnmarshalTypeError{"string", reflect.TypeOf(v)}
+    }
+
+Unmarshal fonksiyonunun bir bölümü burada. Dikkat edin nasıl somut hata değerlerini döndürmek 
+için return içinde oluşturuyor, bunları error arayüzü üzerinden çağıran tarafa iletiyor. 
+Error yönteminin bildirilmesinde işaretçi semantiği kullanıldığı için işaretçi semantiği yapısı 
+kullanılıyor.
+
+Buradaki hata bağlamı daha çok error arayüzü içinde depolanan hata türüyle ilgilidir. Bunun 
+belirlenmesi için bir yol olmalı.
+
+    func main() {
+        var u user
+        err := Unmarshal([]byte(`{"name":"bill"}`), u)
+        if err != nil {
+            switch e := err.(type) {
+            case *UnmarshalTypeError:
+                fmt.Printf("UnmarshalTypeError: Value[%s] Type[%v]\n",
+                    e.Value, e.Type)
+            case *InvalidUnmarshalError:
+                fmt.Printf("InvalidUnmarshalError: Type[%v]\n", e.Type)
+            default:
+                fmt.Println(err)
+            }
+            return
+        }
+        fmt.Println("Name:", u.Name)
+    }
+
+A switch ifadesi kapsamında yapılan genel bir tip iddiası, err arayüz değeri içinde 
+depolanan değerin türünü test etmek için kod yazmanın bir yoludur. Burada bağlam türdür 
+ve şimdi hatanın tüm durumlarına erişim sağlayarak test yapabilir ve aksiyon alabilirsiniz.
+
+Ancak, bu bir sorun doğurur. Artık somut hata değerinden kopmuş değilim. Bu, somut hata değeri 
+değişirse kodunuzun bozulabileceği anlamına gelir. Hata işlemi için bir arayüz kullanmanın güzel 
+yanı, bozucu değişikliklerden kopuk olmaktır.
+
+Eğer somut hata değeri bir metod setine sahipse, o zaman tür kontrolü için bir arayüzü 
+kullanabilirsiniz. Örneğin, net paketi birçok farklı metodu uygulayan çeşitli somut hata 
+türlerine sahiptir. Bu hatalardan biri Common metoduna sahiptir. Bu metod, kullanıcının ağ 
+hatasının kritik olup olmadığını veya kendi başına kurtarılabilir bir şey olup olmadığını 
+test etmesine olanak tanır.
+
+    type temporary interface {
+        Temporary() bool
+    }
+
+    func (c *client) BehaviorAsContext() {
+        for {
+            line, err := c.reader.ReadString('\n')
+            if err != nil {
+                switch e := err.(type) {
+                case temporary:
+                    if !e.Temporary() {
+                        log.Println("Temporary: Client leaving chat")
+                        return
+                    }
+                default:
+                    if err == io.EOF {
+                        log.Println("EOF: Client leaving chat")
+                        return
+                    }
+                    log.Println("read-routine", err)
+                }
+            }
+            fmt.Println(line)
+        }
+    }
+
+Bu kodda, ReadString'e yapılan çağrı net paketinden bir hata ile başarısız olabilir. Bu durumda, 
+belirli bir somut hata değeri tarafından uygulanabilecek ortak davranışı temsil eden bir arayüz 
+bildirilir. Ardından genel bir tip iddiası ile bu davranışın varlığını test eder ve ona çağrı 
+yapabilirsiniz. En güzel yanı, hata işleme ile bağlantısız bir durumda kalırsınız.
+
+** Her Zaman Error Arabirimini Kullanın
+
+Go geliştiricilerinin yapabileceği bir hata, hataları işleme için geri dönüş türü 
+olarak somut hata türünü ve error arabirimini kullanmamaktır. Bunu yaparsanız, 
+kötü şeyler olabilir.
+
+    type customError struct{}
+
+    func (c *customError) Error() string {
+        return "Find the bug."
+    }
+
+    func fail() ([]byte, *customError) {
+        return nil, nil
+    }
+
+    func main() {
+        var err error
+        if _, err = fail(); err != nil {
+            log.Fatal("Bu neden başarısız oldu?")
+        }
+        log.Println("No Error")
+    }
+
+Çıktı:
+    
+    Bu neden başarısız oldu?
+
+Bu kod neden fail fonksiyonu hatası için nil döndüğünde bu kodun bir hata olduğunu düşünüyor? 
+Çünkü fail fonksiyonu somut hata türü yerine error arabirimini kullanıyor. Bu durumda, err 
+değişkeni içinde customError türünde bir nil işaretçi bulunmaktadır. Bu, error türünde 
+bir nil arabirim değeri ile aynı değildir.
+
+** Hataları İşleme
+
+Hataları işleme daha çok makro düzeyde bir mühendislik konuşması gibidir. Benim dünyamda, 
+hata işleme, hatanın işlenen fonksiyonla birlikte durduğu, hata tam bağlamıyla kaydedildiği ve 
+hatanın ciddiyetine göre kontrol edildiği bir şeydir. Ciddiyet ve kurtarma yeteneğine bağlı olarak, 
+kurtarma, devam etme veya kapatma gibi bir karar verilir.
+
+Bir sorun şu ki, tüm fonksiyonlar bir hatayı işleyemez. Bir neden, tüm fonksiyonların kayıt yapmaya 
+izin verilmemesi olabilir. Bir hata, onu alacak olan fonksiyon tarafından uygun bir şekilde işlenebilsin 
+diye, çağrı yığınına geriye doğru iletiliyorsa ne olur? Bir hata, sonunda işleyecek olan fonksiyonun bu 
+işlemi uygun şekilde yapabilmesi için bağlam içine alınmalıdır.
+
+    package main
+
+    import (
+        "errors"
+        "fmt"
+    )
+
+    type AppError struct {
+        State int
+    }
+
+    func (ae *AppError) Error() string {
+        return fmt.Sprintf("App Error, State: %d", ae.State)
+    }
+
+    func IsAppError(err error) bool {
+        var ae *AppError
+        return errors.As(err, &ae)
+    }
+
+    func GetAppError(err error) *AppError {
+        var ae *AppError
+        if !errors.As(err, &ae) {
+            return nil
+        }
+        return ae
+    }
+
+    func main() {
+        if err := firstCall(10); err != nil {
+
+            // Check if the error is an AppError.
+            if IsAppError(err) {
+                ae := GetAppError(err)
+                fmt.Printf("Is AppError, State: %d\n", ae.State)
+            }
+
+            fmt.Print("\n********************************\n\n")
+
+            // Display the error using the implementation of
+            // the error interface.
+            fmt.Printf("%v\n", err)
+        }
+    }
+
+    func firstCall(i int) error {
+        if err := secondCall(i); err != nil {
+            return fmt.Errorf("secondCall(%d) : %w", i, err)
+        }
+        return nil
+    }
+
+    func secondCall(i int) error {
+        return &AppError{99}
+    }
+
+Çıktı:
+
+    Is AppError, State: 99
+
+    ********************************
+
+    secondCall(10) : App Error, State: 99
+
+** Notlar
+
+- Statik ve basit biçimlendirilmiş mesajlar için varsayılan hata değerini kullanın.
+- Çağrıcıya belirli hataları tanımlamasına yardımcı olmak için hata değişkenleri oluşturun ve döndürün.
+- Hata bağlamı daha karmaşık ise, özel bir hata türü oluşturun ve döndürün.
+- Go'daki Hata Değerleri özel değildir, diğer herhangi bir değer gibi sadece değerlerdir ve bu nedenle tüm dil özelliklerini kullanabilirsiniz.
+
+** Alıntılar
+
+"Sistemler, milyonlarca kod satırı yazabilen insanların hata yapmadan geliştirebileceğini 
+varsayarak geliştirilemez, ve sadece hata ayıklama, güvenilir sistemlerin geliştirilmesi 
+için etkili bir yol değildir." - Al Aho (AWK'nın mucidi)
+
+**  Ek Okuma
+
+- [[https://go.dev/blog/error-handling-and-go][Error handling and Go]]
+- [[https://go.dev/blog/go1.13-errors][Working with Errors in Go 1.13]]
+- [[https://www.ardanlabs.com/blog/2014/10/error-handling-in-go-part-i.html][Error Handling In Go, Part I]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/11/error-handling-in-go-part-ii.html][Error Handling In Go, Part II]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2017/05/design-philosophy-on-logging.html][Design Philosophy On Logging]] - William Kennedy    
+- [[https://clipperhouse.com/bugs-are-a-failure-of-prediction/][Bugs are a failure of prediction]] - Matt Sherman    
+- [[https://dave.cheney.net/2014/12/24/inspecting-errors][Inspecting errors]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully][Don’t just check errors, handle them gracefully]] - Dave Cheney    
+- [[https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package][Stack traces and the errors package]] - Dave Cheney    
+- [[https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html][Error handling in Upspin]] - Rob Pike    
+- [[https://rauljordan.com/why-go-error-handling-is-awesome/][Why Go's Error Handling is Awesome]] - Raul Jordan
+   
+* Egzersizler
+
+Egzersizleri tamamlamak için şablona başlangıç noktası olarak kullanın. Olası bir çözüm sağlanmıştır.
+
+** Egzersiz 1
+
+İki hata değişkeni oluşturun, biri ErrInvalidValue diğeri ErrAmountTooLarge adını taşımalıdır. 
+Her değişken için sabit bir mesaj sağlayın. Ardından checkAmount adlı bir fonksiyon yazın, 
+float64 türünde bir değer almalı ve bir hata değeri döndürmelidir. Değeri sıfır kontrol 
+edin ve sıfırsa ErrInvalidValue'yi döndürün. Değeri $1,000'den büyükse ErrAmountTooLarge'yi 
+döndürün. Bir main fonksiyonu yazın, checkAmount fonksiyonunu çağırın ve dönen hata değerini kontrol 
+edin. Ekrana uygun bir mesaj görüntüleyin.
+
+.play error-handling/exercise1.go
+.play error-handling/answer1.go
+
+** Egzersiz 2
+
+appError adında özel bir hata türü oluşturun, err error, message string ve code int 
+adında üç alan içermelidir. Bu üç alanı kullanarak kendi mesajınızı içeren error arabirimini 
+uygulayın. temporary adında ikinci bir yöntem uygulayın ve code alanının değeri 9 ise 
+false döndürsün. checkFlag adında bir fonksiyon yazın, bool türünde bir değer almalıdır. 
+Değer false ise, kendi belirlediğiniz şekilde başlatılmış özel hata türünde bir işaretçi 
+döndürün. Değer true ise varsayılan bir hatayı döndürün. Bir main fonksiyon yazın, checkFlag 
+fonksiyonunu çağırın ve hatayı temporary arabirimini kullanarak kontrol edin.
+
+.play error-handling/exercise2.go
+.play error-handling/answer2.go

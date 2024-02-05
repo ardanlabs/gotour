@@ -1,0 +1,427 @@
+Diziler (Arrays)
+Diziler, Go'da ardışık bloklarda sabit boyutta bellek tahsis etmemize olanak tanıyan özel bir veri yapısıdır.
+
+* Diziler (Arrays)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Videoyu İzle]]
+- Maddi Yardıma İhtiyacınız mı Var? [[https://www.ardanlabs.com/scholarship/][Burs Formumuzu Kullanın]]
+
+Diziler, Go'da ardışık bloklarda sabit boyutta bellek tahsis etmemize olanak tanıyan 
+özel bir veri yapısıdır. Dizilerin, nasıl bildirildikleri ve tür olarak nasıl görüldükleriyle 
+ilgili Go'da bazı özel özellikleri vardır.
+
+** Kod İncelemesi
+
+- *Örnek* *1:* Bildirme, başlatma ve döngü
+- *Örnek* *2:* Farklı tür diziler
+- *Örnek* *3:* Ardışık bellek tahsisleri
+- *Örnek* *4:* Aralık mekanikleri
+
+.play arrays/example1.go
+.play arrays/example2.go
+.play arrays/example3.go
+.play arrays/example4.go
+
+** Değerleri Bildirme ve Başlatma
+
+Değerleri sıfır değer durumuna başlatılmış beş string içeren bir dizi bildirin.
+
+    var strings [5]string
+
+Bir dizi, birinci öğenin nil'e ve ikinci öğenin 0'a ayarlandığı bir bellek dizisinin 
+bir işaretçisini ve toplam byte sayısını temsil eden değişmeyen, iki kelime veri yapısıdır. 
+Bu dizi sıfır değer durumuna ayarlandığından, her öğe kendi sıfır değer durumuna ayarlanır. 
+Bu, her bir dizinin birinci kelimesinin nil'e ve ikinci kelimesinin 0'a ayarlandığı anlamına gelir.
+
+.image /tour/eng/static/img/a1.png
+
+** Dizi Atamaları
+
+Bir dizi başka bir diziye atanınca ne olur?
+
+    strings[0] = "Apple"
+
+Bir dizi başka bir diziye atanırken, iki kelime değeri kopyalanır ve aynı bellek 
+dizisini paylaşan iki farklı dizi değeri elde edilir.
+
+.image /tour/eng/static/img/a2.png
+
+Bir dizinin kopyalanma maliyeti, dizinin boyutundan bağımsız olarak aynıdır, iki 
+kelime kopya.
+
+** Koleksiyonlar Üzerinde Dolaşma
+
+Go, koleksiyonlar üzerinde dolaşmak için iki farklı semantik sağlar. Değer semantiği 
+veya işaretçi semantiği kullanabilirsiniz.
+
+    // Değer Semantiği İle Dolaşma
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+
+    // İşaretçi Semantiği İle Dolaşma
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Değer semantiği dolaşma kullanırken iki şey olur. İlk olarak, üzerinde dolaştığınız 
+koleksiyon kopyalanır ve bu kopya üzerinde dolaşılır. Bir dizi durumunda kopya maliyetli 
+olabilir çünkü tüm dizi kopyalanır. Bir dilim durumunda gerçek bir maliyet yoktur çünkü 
+yalnızca iç dilim değeri kopyalanır ve destekleyen dizi değil. İkinci olarak, üzerinde 
+dolaşılan her öğenin bir kopyasını alırsınız.
+
+İşaretçi semantiği dolaşma kullanırken, orijinal koleksiyon üzerinde dolaşılır ve her 
+öğeye doğrudan erişim sağlanır.
+
+** Değer Semantiği İle Dolaşma
+
+Aşağıdaki kod ve çıktı verildiğinde.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+Çıktı:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+strings değişkeni, 5 string içeren bir dizidir. Döngü, koleksiyondaki her string 
+üzerinde döner ve dizinin konumunu ve string değerini görüntüler. Bu değer semantiği 
+dolaşma olduğundan, for range kendi sığ kopyası üzerinde döner ve her döngüde fruit 
+değişkeni her stringin bir kopyasıdır (iki kelimelik veri yapısı).
+
+Fruit değişkeninin değer semantiği kullanılarak print fonksiyonuna iletilme şekline 
+dikkat edin. Print fonksiyonu, string değerinin kendi kopyasını alır. String print 
+fonksiyonuna geçirildiğinde, string değerinin 4 kopyası vardır (dizi, sığ kopya, fruit 
+değişkeni ve print fonksiyonunun kopyası). Bu 4 kopya aynı byte'lık destekleyen diziyi 
+paylaşıyor.
+
+.image /tour/eng/static/img/a3.png
+
+String değerinin kopyalanması, string değerinin heap'e kaçmasını önlediği 
+için önemlidir. Bu, heap'te üretken olmayan tahsisleri ortadan kaldırır.
+
+** İşaretçi Semantiği İle Dolaşma
+
+Aşağıdaki kod ve çıktı verildiğinde.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Çıktı:
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Aynı şekilde, strings değişkeni 5 string içeren bir dizidir. Döngü, koleksiyondaki her bir 
+string üzerinde dolaşır ve indeks konumunu ve string değerini görüntüler. Bu, işaretçi tabanlı 
+bir dolaşma olduğundan, for range doğrudan strings dizisi üzerinde dolaşır ve her döngüde 
+her indeks konumu için string değeri, print çağrısı için doğrudan erişiliyor.
+
+** Farklı Tür Diziler
+
+Aynı türde farklı uzunluktaki dizileri atarken derleyicinin ne tür bir hata 
+verdiğini görmek ilginçtir.
+
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
+
+    five = four
+
+Derleyici Hatası:
+
+    cannot use four (type [4]int) as type [5]int in assignment
+
+Burada 4 ve 5 tam sayı içeren bir dizi sıfır değer durumunda başlatılır. Ardından 
+birbirine atamaya çalışırsınız ve derleyici "cannot use four (type [4]int) as type 
+[5]int in assignment" der. Derleyicinin ne dediği konusunda açık olmak önemlidir. 
+Bir dizi 4 tam sayı içeren ve bir dizi 5 tam sayı içeren farklı türlerde veriyi temsil 
+eder. Bir dizinin boyutu, onun tür bilgilerinin bir parçasıdır. Go'da bir dizinin boyutu 
+derleme zamanında bilinmelidir.
+
+Bu konuda net olmak önemlidir. Derleyici, 4 tamsayıdan oluşan bir dizi ile 5 tamsayıdan 
+oluşan bir dizinin farklı türlerde veriyi temsil ettiğini söylüyor. Bir dizinin boyutu, 
+tür bilgisinin bir parçasıdır. Go'da, bir dizinin boyutu derleme zamanında bilinmelidir.
+
+** Ardışık Bellek İnşası
+
+Bir dizinin bellekte ardışık bir düzen sağladığını kanıtlamak istiyorsunuz.
+
+    five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
+
+    for i, v := range five {
+        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+            v, &v, &five[i])
+    }
+
+Çıktı:
+
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+
+Burada, değerlerle başlatılmış beş string içeren bir dizi bildiriyorsunuz. Daha 
+sonra her string hakkında bilgi görüntülemek için değer semantik dolaşımı kullanın. 
+Çıktı, her biri string değerini, v değişkeninin adresini ve dizideki her öğenin 
+adresini gösterir.
+
+Dizinin nasıl ardışık bir bellek bloğu olduğunu ve bir stringin 64 bit mimaride iki 
+kelime veya 16 byte'lık bir veri yapısı olduğunu görebilirsiniz. Her öğe için adres, 
+16 byte'lık bir adım üzerindedir.
+
+v değişkeninin her tekrarda aynı adrese sahip olması, v'nin döngü sırasında her string 
+değerinin bir kopyasını içeren string türünde bir yerel değişken olduğunu anlama 
+gücünü artırır.
+
+** CPU Önbellekleri
+
+İşlemciler arasında tasarım ve mekanik farklar bulunmaktadır. Bu bölümde, işlemciler ve 
+bunlar arasındaki nispeten benzer anlam üzerine yüzeysel olarak konuşacağız. Bu semantik 
+anlayış, işlemcinin nasıl çalıştığına dair iyi bir zihinsel model ve sağlayabileceğiniz 
+empati için bir temel sunacaktır.
+
+İşlemci içindeki her çekirdek, belleğin (L1 ve L2) kendi yerel önbelleğine ve veri 
+ve talimatları depolamak/acces etmek için kullanılan ortak bir belleğe (L3) sahiptir. 
+Her çekirdekteki donanım iplikleri, kendi yerel L1 ve L2 önbelleklerine erişebilir. 
+L3 veya ana bellekten gelen verilerin, erişim için L1 veya L2 önbelleğine kopyalanması 
+gerekmektedir.
+
+.image /tour/eng/static/img/a4.png
+
+Farklı önbelleklerde bulunan verilere erişmenin gecikme maliyeti, en azdan en çoğa 
+değişir: L1 -> L2 -> L3 -> ana bellek. Scott Meyers'ın dediği gibi, 
+"Performans önemliyse, sahip olduğunuz toplam bellek miktarı önbelleğin toplam 
+miktarıdır. Pratikte ana belleğe erişmek çok yavaştır, neredeyse orada olmasa da olur."
+
+Günümüzde performans, verilerin donanım üzerinden nasıl etkili bir şekilde akıp 
+gittiğiyle ilgilidir. Donanımın ihtiyaç duyduğu (herhangi bir anda) her veri, sadece 
+ana bellekte varsa, programlar, verilerin zaten L1 veya L2 önbellekte bulunmasına 
+kıyasla daha yavaş çalışacaktır.
+
+    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+
+    1 ns ............. 1 ns .............. 12 instructions  (one) 
+    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+
+    Industry Defined Latencies
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins
+
+Bir komutu yürütmek için gereken verilerin her zaman L1 veya L2 önbellekte bulunduğunu 
+garanti eden bir kod nasıl yazılır? İşlemcinin önceden yükleyiciyle mekanik olarak uyumlu 
+bir kod yazmanız gerekiyor. Önceden yükleyici, talimatlar veriyi talep etmeden önce hangi 
+verinin gerekeceğini tahmin etmeye çalışır, böylece veri zaten L1 veya L2 önbellekte bulunur.
+
+Erişimin nerede gerçekleştiğine bağlı olarak farklı bellek erişim ölçekleri vardır. 
+Kodunuz, belleğin en küçük bellek erişim birimi olarak bir byte'ı okuma/yazma yapabilir. 
+Ancak, önbellek sistemleri açısından bakıldığında, granül 64 byte'tır. Bu 64 byte'lık 
+bellek bloğuna önbellek satırı denir.
+
+Önceden yükleyici, yürütülen talimatların belleğe yönelik öngörülebilir erişim desenleri 
+oluşturduğunda en iyi şekilde çalışır. Belleğe yönelik öngörülebilir bir erişim deseni 
+oluşturmanın bir yolu, ardışık bir bellek bloğu oluşturmak ve ardından bu belleği lineer 
+bir geçiş yaparak üzerinde dolaşmaktır.
+
+Diziler, tahmin edilebilir erişim desenlerini destekledikleri için donanım için en 
+önemli veri yapılarından biridir. Ancak, Go'daki en önemli veri yapısı dilimdir. Go 
+dilimleri aslında bir dizi kullanırlar.
+
+Bir dizi oluşturduktan sonra, her öğe bir sonraki veya önceki öğeden eşit uzaklıkta 
+olacaktır. Bir dizi üzerinde gezinirken, öngörülebilir bir adımda önbellek hattından 
+geçer gibi bağlı önbellek hatlarıyla önbellek hattında yürümeye başlarsınız. Önbellek, 
+bu öngörülebilir veri erişim desenini algılar ve veriyi işlemciye etkili bir şekilde 
+çeker, bu da veri erişim gecikme maliyetini azaltır.
+
+Büyük bir kare matris belleği ve bu matrisin öğe sayısına eşleşen bir bağlı düğme 
+listesi olduğunu hayal edin. Bağlı liste boyunca bir geçiş yaparsanız ve ardından 
+matrisi her iki yönde (sütun ve satır) geçerseniz, farklı geçişlerin performansı 
+nasıl karşılaştırılır?
+
+    func RowTraverse() int {
+        var ctr int
+        for row := 0; row < rows; row++ {
+            for col := 0; col < cols; col++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+RowTraverse, tahmin edilebilir bir erişim deseni oluşturduğu için en iyi performansa 
+sahip olacaktır. Cache hatları, veriye ihtiyaç duyulmadan önce bu hattı önbelleğe 
+alabilir ve L1 veya L2 önbelleğine kopyalayabilir.
+
+    func ColumnTraverse() int {
+        var ctr int
+        for col := 0; col < cols; col++ {
+            for row := 0; row < rows; row++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+ColumnTraverse, her bellek erişiminde OS sayfa sınırlarını aşan bu erişim deseni 
+nedeniyle bir büyüklük düşük performans sergileyecektir. Bu, önbellek hattı 
+önbelleklemesi için tahmin yapmamak ve temelde rasgele erişim belleği haline 
+gelmek anlamına gelir.
+
+    func LinkedListTraverse() int {
+        var ctr int
+        d := list
+        for d != nil {
+            if d.v == 0xFF {
+                ctr++
+            }
+            d = d.p
+        }
+        return ctr
+    }
+
+Bağlı Liste Gezisi, önbellek hattı eksiklikleri olsa da, daha az TLB (Translation Lookaside Buffer 
+= Çeviri Bakış Penceresi) eksikliği nedeniyle satır gezisinden iki kat daha yavaş olacaktır. 
+Bağlı listede bağlı olan düğmelerin çoğu aynı OS sayfalarının içinde bulunmaktadır.
+
+    BenchmarkLinkListTraverse-16    128      28738407 ns/op
+    BenchmarkColumnTraverse-16       30     126878630 ns/op
+    BenchmarkRowTraverse-16         310      11060883 ns/op
+
+** Çeviri Bakış Penceresi (Translation Lookaside Buffer (TLB)) Nedir?
+
+Her çalışan program, OS tarafından sanal belleğin tam bir bellek haritasını alır ve bu 
+çalışan program, tüm fiziksel belleğe sahipmiş gibi düşünür. Ancak fiziksel bellek, 
+tüm çalışan programlarla paylaşılması gereken OS sayfalarına bölünmüş ve herhangi bir 
+çalışan program için sanal bellekte sayfaları eşleme işlemi yapılır. Her OS'nin bir 
+sayfa boyutunu belirleme yeteneğine sahip olmasına rağmen, 4k, 8k, 16k gibi makul 
+ve yaygın boyutlar vardır.
+
+TLB, işlemci içindeki küçük bir önbellektir ve bir sanal adresi bir OS sayfası 
+içindeki fiziksel bir adrese çevirmenin gecikmesini azaltmaya yardımcı olur. TLB 
+önbelleğine karşı bir eksiklik, büyük gecikmelere neden olabilir çünkü donanım 
+şimdi OS'nin sayfa tablosunu tarayarak sorunlu sanal adres için doğru sayfayı 
+bulmak zorundadır. Program bir sanal makinede çalışıyorsa (örneğin, bulutta), 
+sanal makine sayfa tablosunun taranması gereklidir.
+
+TLB eksikliği hakkında hatırlanması gerekenler:
+
+Bağlı liste, genellikle özellikle önbellek hattı eksiklikleri olsa da, TLB eksiklikleri 
+daha az olduğu için satır geziniminden iki kat daha yavaştır. Bağlı listede bağlı olan 
+düğümlerin büyük bir kısmı aynı işletim sistemi sayfaları içinde bulunmaktadır.
+
+Bağlı liste, TLB erişimi nedeniyle sütun geziniminden milyonlarca kez daha hızlıdır. 
+Bağlı liste geziniminde önbellek hattı eksiklikleri olmasına rağmen, düğüm grubu için 
+belleğin çoğunluğu aynı sayfaya düşeceğinden, TLB gecikmeleri performansı etkilemez. 
+Bu nedenle, DNA tabanlı uygulamalar gibi büyük miktarda bellek kullanan programlar için, 
+bir veya iki megabyte bellek düzenine sahip bir Linux dağıtımını kullanmak isteyebilirsiniz.
+
+Tüm bunlar söylendikten sonra, veri odaklı tasarım önemlidir. Verimli bir algoritma 
+yazmak, verinin nasıl erişildiğini hesaba katmalıdır. Unutmayın, bugünün performansı, 
+veriyi işlemciye ne kadar verimli bir şekilde alabileceğinizle ilgilidir.
+
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
+
+** CPU Önbellek Notları
+
+.html arrays/array_list.html
+
+** Ekstra Diyagramlar
+
+*Endüstri* *Tanımlı* *Gecikmeler*
+
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    Branch mispredict ............................ 5 ns ................... 60 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Mutex lock/unlock ........................... 25 ns .................. 300 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins           
+    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
+    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
+    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
+    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
+    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
+    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
+    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
+    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
+    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+
+*Önbellek* *Gecikmeleri* *Resim*
+
+.image /tour/eng/static/img/cache_latencies_graph.png
+
+** Ekstra Okuma
+
+*CPU* *Önbellekleri* */* *Bellek*
+
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
+- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
+
+*Data-Oriented* *Design*
+*Veri-Odaklı* *Tasarım*
+
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
+- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+
+** Notlar
+
+- Eğer veriyi anlamıyorsan, problemi anlamazsın.
+- Problemi çözmenin maliyetini anlamazsan, problemler hakkında mantıklı düşünemezsin.
+- Donanımı anlamazsan, problemleri çözmenin maliyeti hakkında mantıklı düşünemezsin.
+- Diziler değişmeyen uzunluktaki veri yapılarıdır.
+- Farklı boyuttaki diziler farklı tipler olarak kabul edilir.
+- Bellek, ardışık bir blok olarak ayrılır.
+- Go, mekansal yerel kontrolü size verir.
+
+* Egzersizler
+
+Şablonu bir başlangıç noktası olarak kullanarak egzersizleri tamamlayın. Bir olası çözüm
+sağlanmıştır.
+
+** Egzersiz 1
+
+Her biri sıfır değeriyle başlatılmış 5 string içeren bir dizi bildirin. İkinci bir dizi 
+bildirin ve bu diziyi metinsel string değerleri ile başlatın. İkinci diziyi birinci diziye 
+atayın ve ilk dizinin sonuçlarını gösterin. Her bir öğenin metin değerini ve adresini gösterin.
+
+.play arrays/exercise1.go
+.play arrays/answer1.go
