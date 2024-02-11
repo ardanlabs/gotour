@@ -1,0 +1,336 @@
+Zeiger
+Zeiger dienen dem Zweck der gemeinsamen Nutzung von Werten über Programmgrenzen hinweg.
+
+* Zeiger
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Zeiger dienen dem Zweck, Werte über Programmgrenzen hinweg auszutauschen. Es gibt
+verschiedene Arten von Programmgrenzen. Die häufigste ist die zwischen Funktionsaufrufen.
+Es gibt auch eine Grenze zwischen Goroutinen, für die ihr später Notizen habt.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Pass by Value
+- *Beispiel* *2:* Gemeinsame Nutzung von Daten I
+- *Beispiel* *3:* Gemeinsame Nutzung von Daten II
+- *Beispiel* *4:* Escape-Analyse
+- *Beispiel* *5:* Stack Grow
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+Wenn ein Go-Programm gestartet wird, erstellt die Go-Laufzeitumgebung eine Goroutine. Goroutinen sind
+leichtgewichtige Threads auf Anwendungsebene mit vielen der gleichen Semantiken wie
+System-Threads. Ihre Aufgabe ist es, die physische Ausführung eines bestimmten Satzes von
+Anweisungen zu verwalten. Jedes Go-Programm hat mindestens eine Goroutine, die wir die Main-Goroutine nennen.
+
+Jede Goroutine erhält einen eigenen Speicherblock, den so genannten Stack. Jeder Stack beginnt
+mit einer Zuweisung von 2048 Byte (2k). Er ist sehr klein, aber Stacks können im Laufe der Zeit größer werden.
+
+.image /tour/eng/static/img/p1.png
+
+Jedes Mal, wenn eine Funktion aufgerufen wird, wird ein Stapelblock belegt, um der Goroutine
+bei der Ausführung der mit dieser Funktion verbundenen Anweisungen zu helfen. Jeder einzelne Speicherblock
+wird als Frame bezeichnet.
+
+Die Größe eines Frames für eine bestimmte Funktion wird zur Kompilierzeit berechnet. Kein Wert
+kann auf dem Stack abgelegt werden, es sei denn, der Compiler kennt die Größe dieses Wertes zur
+Kompilierzeit. Wenn der Compiler die Größe eines Wertes zur Compilierzeit nicht kennt, muss der
+Wert auf dem Heap konstruiert werden.
+ 
+Stacks sind selbstreinigend und der Wert Null hilft bei der Initialisierung des Stacks.
+Jedes Mal, wenn wir eine Funktion aufrufen und ein Frame des Speichers gesperrt wird, wird der Speicher
+für diesen Frame initialisiert, wodurch der Stack selbstreinigend ist. Bei einer Funktionsrückkehr
+wird der Speicher für den Frame unangetastet gelassen, da nicht bekannt ist, ob dieser Speicher
+wieder benötigt wird. Es wäre ineffizient, den Speicher bei dessen Rückkehr zu initialisieren.
+
+*Pass* *By* *Value*
+
+Alle Daten werden wertmäßig durch das Programm bewegt. Das bedeutet, dass bei der Weitergabe von Daten
+über Programmgrenzen hinweg, jede Funktion oder Goroutine ihre eigene Kopie der
+Daten erhält. Es gibt zwei Arten von Daten, mit denen wir arbeiten werden: den Wert selbst (int,
+string, user) oder die Adresse des Wertes. Adressen sind Daten, die über Programmgrenzen hinweg kopiert
+und über Programmgrenzen hinweg gespeichert werden.
+
+Der folgende Code versucht, dies näher zu erläutern.
+
+    func main() {
+
+        // Declare variable of type int with a value of 10.
+        count := 10
+
+        // To get the address of a value, use the & operator.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "value of" count (what’s in the box)
+        // to the increment1 function.
+        increment1(count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count will not change after the function call.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Pass a copy of the "address of" count (where is the box)
+        // to the increment2 function. This is still considered a pass by
+        // value and not a pass by reference because addresses are values.
+        increment2(&count)
+
+        // Print out the "value of" and "address of" count.
+        // The value of count has changed after the function call.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1 declares the function to accept its own copy of
+    // and integer value.
+    func increment1(inc int) {
+
+        // Increment the local copy of the caller’s int value.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2 declares the function to accept its own copy of
+    // an address that points to an integer value.
+    // Pointer variables are literal types and are declared using *.
+    func increment2(inc *int) {
+
+        // Increment the caller’s int value through the pointer.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+Ausgabe:
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** Anmerkungen
+
+- Verwendet Zeiger, um Daten gemeinsam zu nutzen.
+- Werte in Go werden immer als Wert übergeben.
+- "Value of", was in der Box ist. "Address of" ( & ), wo sich die Box befindet.
+- Der Operator ( * ) deklariert eine Zeigervariable und den "Wert, auf den der Zeiger zeigt".
+
+** Fluchtanalyse
+
+Der Algorithmus, mit dem der Compiler feststellt, ob ein Wert auf dem Stack oder Heap konstruiert werden soll, wird "Escape-Analyse" genannt. Der Name des Algorithmus
+klingt, als würden die Werte zuerst auf dem Stack konstruiert und dann bei Bedarf
+auf den Heap. Dies ist jedoch NICHT der Fall. Die Konstruktion eines Wertes erfolgt nur
+einmal, und der Algorithmus für die Escape-Analyse entscheidet, wo der Wert abgelegt wird (Stack
+oder Heap). Nur die Konstruktion auf dem Heap wird in Go als Zuweisung bezeichnet.
+
+Beim Verständnis der Fluchtanalyse geht es um das Verständnis von Werteigentum. Die Idee dahinter ist,
+wenn ein Wert innerhalb des Geltungsbereichs einer Funktion konstruiert wird, dann besitzt diese Funktion den Wert. Daraus ergibt sich die Frage, ob der Wert, der konstruiert wird, noch
+existiert wenn die Funktion returned. Wenn die Antwort nein lautet, kann der Wert
+auf dem Stack konstruiert werden. Lautet die Antwort ja, muss der Wert auf
+dem Heap konstruiert werden.
+
+Hinweis: Die Eigentümerregel ist eine gute Basisregel, um Code zu identifizieren, der
+Zuweisungen verursacht. Ihr müsst euch jedoch darüber im Klaren sein, dass die Escape-Analyse Schwächen hat, die
+zu nicht offensichtlichen Zuweisungen führen kann. Außerdem nutzt der Algorithmus Möglichkeiten, um
+Compiler-Optimierungen zu nutzen, um Allokationen zu sparen.
+
+    // user represents a user in the system.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+Die Funktion stayOnStack verwendet die Wertesemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
+Mit anderen Worten, der Aufrufer erhält seine eigene Kopie des Benutzerwerts, der
+konstruiert wird.
+
+Wenn die Funktion stayOnStack aufgerufen wird und returned, muss der von ihr konstruierte Benutzerwert
+nicht mehr existieren, da der Aufrufer seine eigene Kopie erhält. Daher
+kann die Konstruktion des Benutzerwerts innerhalb von stayOnStack auf dem Stack erfolgen.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+
+Die Funktion escapeToHeap verwendet die Zeigersemantik, um einen Benutzerwert an den Aufrufer zurückzugeben.
+Mit anderen Worten, der Aufrufer erhält gemeinsamen Zugriff (eine Adresse) auf den
+Benutzerwert, der konstruiert wird.
+
+Wenn die Funktion escapeToHeap aufgerufen wird und returned, muss der von ihr konstruierte Benutzerwert
+immer noch existieren, da der Aufrufer gemeinsamen Zugriff auf den Wert erhält.
+Daher kann die Konstruktion des Benutzerwerts innerhalb von escapeToHeap 
+nicht auf dem Stack, sondern auf dem Heap erfolgen. 
+
+Denkt darüber nach, was passieren würde, wenn der Benutzerwert im letzten Beispiel
+auf dem Stack konstruiert würde, während beim Zeigersemantik beim Return verwendet wird.
+
+.image /tour/eng/static/img/p2.png
+
+Der Aufrufer würde eine Kopie einer Stack-Adresse aus dem darunter liegenden Frame erhalten und die Integrität
+würde verloren gehen. Sobald die Kontrolle an die aufrufende Funktion zurückgeht, ist der Speicher auf dem
+Stack, in dem sich der Benutzerwert befindet, wiederverwendbar. In dem Moment, in dem die aufrufende Funktion
+einen weiteren Funktionsaufruf tätigt, wird ein neuer Frame gesliced und der Speicher überschrieben,
+wodurch der gemeinsam genutzte Wert vernichtet wird.
+
+Aus diesem Grund kann man davon ausgehen, dass sich der Stack selbst bereinigt. Nullwert-Initialisierung
+hilft dabei, dass jeder Stack-Frame, der benötigt wird, ohne den Einsatz von GC bereinigt werden kann. Der Stack
+ist selbstreinigend, da für die Ausführung jedes Funktionsaufrufs ein Frame gebraucht und initialisiert wird.
+Der Stack wird bei Funktionsaufrufen bereinigt und nicht bei returns, weil
+der Compiler nicht weiß, ob der Speicher auf dem Stack jemals wieder benötigt wird.
+
+Die Escape-Analyse entscheidet, ob ein Wert auf dem Stack (Standard) oder auf dem
+Heap erstellt wird. Mit der Funktion stayOnStack übergebe ich eine Kopie des Wertes
+an den Aufrufer zurück, so dass es sicher ist, den Wert auf dem Stack zu behalten. Mit der Funktion escapeToHeap
+übergebe ich eine Kopie der Adresse des Wertes zurück an den Aufrufer (auf dem
+den Stack), so dass es nicht sicher ist, den Wert auf dem Stack zu behalten.
+
+Es gibt viele kleine Details im Zusammenhang mit der Fluchtanalyse.
+Lest dazu den Beitrag in Kapitel 14 mit dem Titel "Mechanik der Fluchtanalyse".
+
+Hinweis: Ab Version 1.17 hat Go die ABI (Application Binary Interface) geändert, um
+eine neue Art zur Übergabe von Funktionseingabe- und - ausgabeargumenten zu implementieren, indem Register
+anstelle von Speicher auf dem Stack verwendet werden. Dies ist für Linux, MacOS und Windows auf
+den 64-Bit-x86-Architekturen aktiviert. Dies bedeutet, dass einige Funktionsargumente nicht
+auf den Stack kopiert werden. Aber einige können, abhängig von der Machbarkeit der Verwendung von Registern kopiert werden.
+Dies ändert nichts an der in diesem Kapitel beschriebenen Semantik.
+
+** Anmerkungen
+
+- Wenn ein Wert referenziert werden kann nachdem eine Funktion ihn konstruiert hat, wird der Wert zurückgegeben.
+- Wenn der Compiler feststellt, dass ein Wert zu groß ist, um auf den Stack zu passen.
+- Wenn der Compiler die Größe eines Wertes zur Kompilierungszeit nicht kennt.
+- Wenn ein Wert durch die Verwendung von Funktions- oder Interface-Werten entkoppelt ist.
+
+** Semantik der Garbage Collection
+
+Sobald ein Wert auf dem Heap aufgebaut ist, muss sich der Garbage Collector (GC)
+darum kümmern. Der wichtigste Teil des GC ist der Pacing-Algorithmus. Er bestimmt
+die Häufigkeit/Rate, mit der der GC laufen muss, um einen möglichst kleinen Heap
+in Verbindung mit dem besten Anwendungsdurchsatz zu erhalten.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** Stack vs. Heap
+
+"Der Stack ist für Daten gedacht, die nur für die Dauer der Funktion, die sie erstellt, bestehen bleiben müssen
+und die ohne Kosten zurückgewonnen werden können, wenn die Funktion beendet wird. Der
+Heap ist für Daten, die auch nach Beendigung der Funktion, die sie erstellt, bestehen bleiben müssen,
+und wird durch eine manchmal kostspielige Garbage Collection zurückgewonnen." - Ayan George
+
+** Stapelwachstum
+
+Die Größe der einzelnen Frames für jede Funktion wird zur Kompilierzeit berechnet. Das bedeutet,
+wenn der Compiler die Größe eines Wertes zur Kompilierzeit nicht kennt, muss der Wert
+auf dem Heap konstruiert werden. Ein Beispiel hierfür ist die Verwendung der eingebauten Funktion make, um
+ein Slice zu konstruieren, dessen Größe auf einer Variablen basiert.
+
+    b := make([]byte, size) // Backing-Array wird auf dem Heap alloziert.
+
+Go verwendet eine zusammenhängende Stack-Implementierung, um zu bestimmen, wie Stacks wachsen und schrumpfen.
+Eine Alternative, die Go hätte verwenden können, ist eine segmentierte Stack-Implementierung, 
+die von einigen Betriebssystemen verwendet wird.
+
+Jeder Funktionsaufruf kommt mit einer kleinen Präambel, die fragt: "Gibt es genug Stack
+Platz für diesen neuen Frame?". Wenn ja, dann ist das kein Problem und der Rahmen wird übernommen und
+initialisiert. Wenn nicht, muss ein neuer, größerer Stack angelegt werden und der Speicher auf dem
+bestehenden Stack muss auf den neuen kopiert werden. Dies erfordert Änderungen an
+Zeigern, die auf Speicher auf dem Stack verweisen. Die Vorteile von zusammenhängendem Speicher und
+linearen Traversalen mit moderner Hardware ist der Ausgleich für die Kosten des Kopierens.
+
+Aufgrund der Verwendung von zusammenhängenden Stapeln kann keine Goroutine einen Zeiger auf 
+den Stack einer anderen Goroutine haben. Es wäre ein zu großer Aufwand für die Laufzeitumgebung, 
+jeden Zeiger auf jeden Stack zu verfolgen und diese Zeiger an den neuen Ort anzupassen.
+
+** Zusatzlektüre
+
+**Zeiger* *Mechanik*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Zeiger vs. Werte]]
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Sprachmechanik bei Stapeln und Zeigern]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Verwendung von Zeigern in Go]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Zeiger und Speicherzuweisung verstehen]] - William Kennedy
+
+*Stack*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Vorschlag für einen zusammenhängenden Stack]]
+
+*Escape* *Analyse* *und* *Inlining*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape-Analyse-Fehler]]
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler-Optimierungen]]
+
+*Müll* *Sammlung*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]]
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Die Lösung des Latenzproblems]]
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent Garbage Collection]]
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminieren von Stack Re-Scanning]]
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor
+- [[https://blog.golang.org/ismmkeynote][Der Weg zu Go: Die Reise von Go's Garbage Collector]] - Rick Hudson
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection in Go: Teil I - Semantik]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection in Go : Teil II - GC Traces]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection in Go : Teil III - GC Pacing]] - William Kennedy
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go-Speicherballast: Wie ich lernte, mir keine Sorgen mehr zu machen und den Heap zu lieben]] - Ross Engers
+
+*Statisch* *Einzelne* *Zuweisung* *Optimierungen*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Statische Codeanalyse mit SSA]]
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Paket SSA]]
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Compiler-Optimierung verstehen]]
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+*Teil* *A:* Deklariert und initialisiert eine Variable vom Typ int mit dem Wert 20.
+Zeigt die "Adresse von" und den "Wert" der Variablen an.
+
+*Teil* *B:* Deklariert und initialisiert eine Zeigervariable vom Typ int, die auf
+die letzte Variable zeigt, die ihr gerade erstellt haben. Gebt die "Adresse von" , "Wert von" und den
+"Wert, auf den der Zeiger zeigt".
+
+** Übung 2
+
+Deklariert einen struct-Typ und Erstellt einen Wert dieses Typs. Deklariert eine Funktion, die
+den Wert eines Feldes in diesem Strukturtyp ändern kann. Zeigt den Wert vor
+und nach dem Aufruf Ihrer Funktion.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go

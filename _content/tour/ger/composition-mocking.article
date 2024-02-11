@@ -1,0 +1,94 @@
+Mocking
+
+Da der Compiler statische Codeanalysen zum Feststellen ob ein konkreter Wert ein Interface implementiert durchführen kann,
+muss der Entwickler der den konkreten Typ deklariert, keine Interfaces bereitstellen.
+
+* Mocking
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Der beste Weg, das Einbetten zu nutzen, ist durch die Verwendugn des Kompositionsmuster im Design. Die Idee ist, größere Typen aus 
+kleineren Typen zu komponieren und sich auf die Komposition des Verhaltens zu konzentrieren.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Mocking
+
+.play composition/mocking/example1.go
+
+** Interface Eigentum
+
+Ein Unterschied von Go zu anderen Sprachen ist die Idee der Konvention über Konfiguration. Dies zeigt sich vor allem darin, 
+wie Go die Einhaltung von Interfaces handhabt. Da der Compiler statische Codeanalysen zum Feststellen ob ein konkreter Wert ein Interface implementiert durchführen kann,
+muss der Entwickler der den konkreten Typ deklariert, keine Interfaces bereitstellen.
+
+    package pubsub
+    
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+Ihr habt gerade eine neue API implementiert, die eine konkrete Implementierung für Publish und Subscribe bereitstellt. 
+Es werden keine Interfaces bereitgestellt, da diese API keine benötigt. Dies ist eine einzelne konkrete Implementierung.
+
+Was ist wenn der Anwendungsentwickler, der diese neue API nutzen möchte ein Interface benötigt, weil er diese 
+Implementierung während der Tests mocken muss? In Go kann dieser Entwickler das Interface deklarieren und der Compiler 
+kann die Einhaltung identifizieren.
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // ADD MY MOCK FOR THE PUBLISH CALL.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        return nil
+    }
+
+Dieser Code im Hauptpaket deklariert ein Interface. Dieses Interface repräsentiert die API, die die Anwendung aus 
+dem PubSub-Paket verwendet. Der Entwickler hat seine eigene PubSub-Implementierung für Tests implementiert. 
+Der Schlüssel hierbei ist, dass dieser Anwendungsentwickler keine konkrete Implementierung direkt verwendet, 
+sondern sich durch sein eigenes Interface entkoppelt.
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+Um ein Beispiel zu geben, konstruiert die Hauptfunktion einer Sammlung, die mit der PubSub-Implementierung 
+und der Mock-Implementierung initialisiert wird. Das Publisher-Interface ermöglicht dies. 
+Dann wird eine for range-Schleife implementiert um zu zeigen, wie der Anwendungscode von jeder 
+konkreten Implementierung abstrahiert ist.
