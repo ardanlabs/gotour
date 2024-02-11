@@ -808,7 +808,7 @@ func IsPunct(c byte) bool {
 
 // IsPunctRune returns true if the given rune is a punctuation, otherwise false.
 func IsPunctRune(r rune) bool {
-	return int32(r) <= 256 && IsPunct(byte(r)) || unicode.IsPunct(r)
+	return unicode.IsSymbol(r) || unicode.IsPunct(r)
 }
 
 // IsSpace returns true if the given character is a space, otherwise false.
@@ -834,22 +834,6 @@ func IsHexDecimal(c byte) bool {
 // IsAlphaNumeric returns true if the given character is a alphabet or a numeric, otherwise false.
 func IsAlphaNumeric(c byte) bool {
 	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
-}
-
-// IsEastAsianWideRune returns trhe if the given rune is an east asian wide character, otherwise false.
-func IsEastAsianWideRune(r rune) bool {
-	// https://en.wikipedia.org/wiki/CJK_Symbols_and_Punctuation
-	var CJKSymbolsAndPunctuation = &unicode.RangeTable{
-		R16: []unicode.Range16{
-			{0x3000, 0x303F, 1},
-		},
-	}
-	return unicode.Is(unicode.Hiragana, r) ||
-		unicode.Is(unicode.Katakana, r) ||
-		unicode.Is(unicode.Han, r) ||
-		unicode.Is(unicode.Lm, r) ||
-		unicode.Is(unicode.Hangul, r) ||
-		unicode.Is(CJKSymbolsAndPunctuation, r)
 }
 
 // A BufWriter is a subset of the bufio.Writer .
