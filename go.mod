@@ -6,7 +6,7 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.10
 	golang.org/x/net v0.21.0
 	golang.org/x/sys v0.17.0
-	golang.org/x/tools v0.17.0
+	golang.org/x/tools v0.18.0
 )
 
 require (
