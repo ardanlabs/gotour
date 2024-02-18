@@ -1,0 +1,180 @@
+Maps
+Eine Map ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten auf der Grundlage eines Schlüssels ermöglicht.
+
+* Maps 
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Das Video ansehen]]
+- Benötigt ihr finanzielle Unterstützung? Nutzt [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Eine Map ist eine Datenstruktur, die die Speicherung und den Zugriff auf Daten
+basierend auf einem Schlüssel erlaubt. Sie verwendet ein Hash-Map- und Bucket-System, das einen 
+zusammenhängenden Block des Speichers unterhält.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Deklarieren, schreiben, lesen und löschen
+- *Beispiel* *2:* Abwesende Schlüssel
+- *Beispiel* *3:* Einschränkungen für Map-Schlüssel
+- *Beispiel* *4:* Map-Literale und Bereich
+- *Beispiel* *5:* Sortieren von Maps nach Schlüssel
+- *Beispiel* *6:* Einnahme der Adresse eines Elements
+- *Beispiel* *7:* Maps sind Referenztypen
+
+.play maps/example1.go
+.play maps/example2.go
+.play maps/example3.go
+.play maps/example4.go
+.play maps/example5.go
+.play maps/example6.go
+.play maps/example7.go
+
+** Deklarieren und Konstruieren von Maps 
+
+Das Deklarieren und Konstruieren einer Map kann auf verschiedene Weise erfolgen.
+
+    type user struct {
+        name     string
+        username string
+    }
+
+    // Construct a map set to its zero value,
+    // that can store user values based on a key of type string.
+    // Trying to use this map will result in a runtime error (panic).
+    var users map[string]user
+
+    // Construct a map initialized using make,
+    // that can store user values based on a key of type string.
+    users := make(map[string]user)
+
+    // Construct a map initialized using empty literal construction,
+    // that can store user values based on a key of type string.
+    users := map[string]user{}
+
+Eine Map, die auf den Wert Null gesetzt ist, ist nicht verwendbar und führt dazu, dass Ihr Programm mit panic beendet wird.
+Die Verwendung der eingebauten Funktion make und der Konstruktion von Literalen konstruiert eine Map,
+die gebrauchsfertig ist.
+
+    func main() {
+        users := make(map[string]user)
+
+        users["Roy"] = user{"Rob", "Roy"}
+        users["Ford"] = user{"Henry", "Ford"}
+        users["Mouse"] = user{"Mickey", "Mouse"}
+        users["Jackson"] = user{"Michael", "Jackson"}
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Ausgabe:
+
+    Roy {Rob Roy}
+    Ford {Henry Ford}
+    Mouse {Mickey Mouse}
+    Jackson {Michael Jackson}
+
+Wenn die eingebaute Funktion make zum Aufbau einer Map verwendet wird, kann der Zuweisungsoperator
+zum Hinzufügen und Aktualisieren von Werten in der Map verwendet werden. Die Reihenfolge, in der die Schlüssel/Werte
+zurückgegeben werden, wenn eine Map durchlaufen wird, ist in der Spezifikation nicht definiert und muss vom Compiler
+implementiert werden.
+
+    func main() {
+        users := map[string]user{
+            "Roy":     {"Rob", "Roy"},
+            "Ford":    {"Henry", "Ford"},
+            "Mouse":   {"Mickey", "Mouse"},
+            "Jackson": {"Michael", "Jackson"},
+        }
+
+        for key, value := range users {
+            fmt.Println(key, value)
+        }
+    }
+
+Ausgabe:
+
+    Ford {Henry Ford}
+    Jackson {Michael Jackson}
+    Roy {Rob Roy}
+    Mouse {Mickey Mouse}
+
+In diesem Fall wurden die Ausgaben in einer anderen Reihenfolge zurückgegeben, als sie
+in der Konstruktion aufgelistet sind. Der aktuelle Algorithmus für 1.16 gibt die Ergebnisse
+in einer zufälligen Reihenfolge zurück, sobald die Anzahl der Werte eine bestimmte Grenze erreicht. Noch einmal:
+Dies ist eine Compiler-Implementierung, die sich ändern kann. Ihr könnt euch nicht auf die Reihenfolge verlassen.
+
+** Nachschlagen und Löschen von Map Keys
+
+Sobald die Daten in einer Map gespeichert sind, ist zum Extrahieren der Daten eine Schlüsselabfrage erforderlich.
+
+    user1, exists1 := users["Bill"]
+    user2, exists2 := users["Ford"]
+
+    fmt.Println("Bill:", exists1, user1)
+    fmt.Println("Ford:", exists2, user2)
+
+Ausgabe:
+
+    Bill: false { }
+    Ford: true {Henry Ford}
+
+Um eine Schlüsselsuche durchzuführen, werden eckige Klammern mit der Map-Variablen verwendet. Zwei
+Werte werden zurückgegeben: der Wert und ein boolescher Wert, der angibt
+ob der Wert gefunden wurde oder nicht. Wenn ihr dies nicht wissen müsst, könnt ihr die Variable
+Variable "exists" weglassen.
+
+Wenn ein Schlüssel nicht in der Map gefunden wird, gibt die Operation einen Wert vom Typ Map
+zurück, der auf den Wert Null gesetzt ist. Ihr könnt dies an der Schlüsselabfrage "Bill" sehen. Verwendet nicht
+Nullwert um festzustellen, ob ein Schlüssel in der Map existiert oder nicht, da der Nullwert 
+gültig sein kann.
+
+    delete(users, "Roy")
+
+Es gibt eine eingebaute Funktion namens delete, die das Löschen von Daten
+aus der Map auf der Grundlage eines Schlüssels ermöglicht.
+
+** Schlüssel Map-Einschränkungen
+
+Nicht alle Typen können als Schlüssel verwendet werden.
+
+    type slice []user
+    Users := make(map[slice]user)
+
+
+Compiler-Fehler:
+
+    invalid map key type users
+
+Ein Slice ist ein gutes Beispiel für einen Typ, der nicht als Schlüssel verwendet werden kann. Nur Werte, die
+die Hash-Funktion durchlaufen können, sind geeignet. Eine gute Möglichkeit, Typen zu erkennen
+die als Schlüssel verwendet werden können ist, dass der Typ in einer Vergleichsoperation verwendet werden kann. Ihr könnt nicht
+zwei Slice-Werte vergleichen.
+
+** Anmerkungen
+
+- Maps bieten eine Möglichkeit zum Speichern und Abrufen von Schlüssel/Wert-Paaren.
+- Das Lesen eines fehlenden Schlüssels gibt den Nullwert für den Wertetyp der Map zurück.
+- Das Iterieren über eine Map ist immer zufällig.
+- Der Map-Schlüssel muss ein Wert sein, der vergleichbar ist.
+- Elemente in einer Map sind nicht adressierbar.
+- Maps sind ein Referenztyp.
+
+** Links
+
+- [[https://blog.golang.org/go-maps-in-action][Go-Maps in Aktion]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2013/12/macro-view-of-map-internals-in-go.html][Makroansicht der Map-interna in Go]] - William Kennedy
+- [[https://www.youtube.com/watch?v=Tl7mi9QmLns][Einblick in die Map-Implementierung]] - Keith Randall
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][Wie die Go-Laufzeitumgebung Maps effizient implementiert (ohne Generika)]] - Dave Cheney
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+Deklariert und erstellt eine Map von Ganzzahlwerten mit einer Zeichenkette als Schlüssel. Füllt die
+Map mit fünf Werten und führt eine Iteration über die Map durch, um die Schlüssel/Wertpaare anzuzeigen.
+
+.play maps/exercise1.go
+.play maps/answer1.go

@@ -1,0 +1,161 @@
+Zugrundeliegende Typen
+Ihr könnt einen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren.
+
+* Generics - Zugrundeliegende Typen
+
+Ihr könnt einen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren.
+
+** Video
+
+Schaut euch den Vortrag über Generics an, der euch durch alle
+Beispiele in diesem Abschnitt der Tour führt.
+
+.html generics-video.html
+
+** Code-Überprüfung
+
+- *Beispiel* *1*: Konkreter Vektortyp
+- *Beispiel* *2*: Interface-Vektortyp
+- *Beispiel* *3*: Generischer Vektortyp
+
+.play generics/underlying-types/example1.go
+.play generics/underlying-types/example2.go
+.play generics/underlying-types/example3.go
+
+** Erläutert
+
+Was wäre, wenn ich meinen eigenen generischen Typ unter Verwendung eines zugrundeliegenden Typs deklarieren möchte?
+
+    type vector[T any] []T
+
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Dieses Beispiel zeigt einen generischen Vektortyp, der die Konstruktion eines Vektors
+auf einen einzigen Datentyp beschränkt. Die Verwendung von eckigen Klammern erklärt, dass der Typ T ein generischer Typ ist,
+der zu Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt
+dass es keine Einschränkungen gibt, welche für einen Typ T gilt.
+
+Die letzte Methode wird mit einem Werteempfänger vom Typ vector[T] deklariert, um einen
+Wert vom Typ vector mit einem zugrundeliegenden Slice vom Typ T darzustellen. Die Methode gibt einen
+Wert desselben Typs T zurück.
+
+    func main() {
+        fmt.Print("vector[int] : ")
+
+        vGenInt := vector[int]{10, -1}
+
+        i, err := vGenInt.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if i < 0 {
+            fmt.Print("negative integer: ")
+        }
+
+        fmt.Printf("value: %d\n", i)
+
+        // -------------------------------------------------------------------------
+
+        fmt.Print("vector[string] : ")
+
+        vGenStr := vector[string]{"A", "B", string([]byte{0xff})}
+
+        s, err := vGenStr.last()
+        if err != nil {
+            fmt.Print("ERROR:", err)
+            return
+        }
+
+        if !utf8.ValidString(s) {
+            fmt.Print("non-valid string: ")
+        }
+
+        fmt.Printf("value: %q\n", s)
+    }
+
+Ausgabe:
+
+    vector[int] : negative integer: value: -1
+    vector[string] : non-valid string: value: "\xff"
+
+So konstruiere ich einen Wert vom Typ vector mit einem zugrunde liegenden Typ int, wenn ich
+bei der Konstruktion Werte im Vektor setze. Ein wichtiger Aspekt dieses Codes sind die
+Konstruktionsaufrufe.
+
+    // Zero Value Construction
+    var vGenInt vector[int]
+    var vGenStr vector[string]
+    
+    // Non-Zero Value Construction
+    vGenInt := vector{10, -1}
+    vGenStr := vector{"A", "B", string([]byte{0xff})}
+
+Wenn es darum geht, diese generischen Typen auf ihren Nullwert zu konstruieren, 
+ist es für den Compiler nicht möglich, den Typen zu ermitteln. In den Fällen jedoch, in denen es eine
+Initialisierung während der Konstruktion gibt, kann der Compiler den Typ ableiten.
+
+Es gibt einen Aspekt der Spezifikation, der sich auf die Konstruktion eines generischen Typs in
+seinem Nullwert-Zustand konzentriert.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        var zero T
+        
+        if len(v) == 0 {
+            return zero, errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Ihr müsst euch auf die Methodendeklaration für die letzte Methode konzentrieren. Auch darauf, wie die Methode
+einen Wert des generischen Typs T zurückgibt. Bei der ersten Rückgabe ist eine Situation gegeben, in der ihr
+den Nullwert für den Typ T zurückgebt. Die aktuelle Implementierung bietet zwei Lösungen für das Schreiben von diesem Code.
+Eine Variable mit dem Namen Null wird in ihrem Nullwertzustand des Typs T konstruiert und dann wird diese Variable für die Rückgabe verwendet.
+
+Die andere Möglichkeit besteht darin die built-in Funktion new zu verwenden und die Dereferenzierung des zurückgegebenen
+Zeigers innerhalb der Return-Anweisung zu dereferenzieren.
+
+    type vector[T any] []T
+    
+    func (v vector[T]) last() (T, error) {
+        if len(v) == 0 {
+            return *new(T), errors.New("empty")
+        }
+        
+        return v[len(v)-1], nil
+    }
+
+Diese Version der letzten Methode verwendet die eingebaute Funktion new für die Nullwert,
+Konstruktion und Dereferenzierung des zurückgegebenen Zeigers, um den Rückgabetyp T zu erfüllen.
+
+Hinweis: Man könnte meinen, warum nicht T{} verwenden, um eine Nullwertkonstruktion durchzuführen? Das
+Problem ist, dass diese Syntax nicht mit allen Typen funktioniert, wie z.B. den skalaren Typen (int,
+string, bool). Sie ist also keine Option.
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+Deklariert einen generischen Typ namens keymap, der einen zugrundeliegenden Typ von map 
+mit einem Schlüssel vom Typ string und einem Wert vom Typ T verwendet. Deklariert eine Methode
+namens set, die einen Schlüssel vom Typ string und einen Wert vom Typ T akzeptiert. Deklariert
+eine Methode namens get, die einen Schlüssel vom Typ string akzeptiert und einen Wert vom
+Typ T und true oder false zurückgibt, wenn der Schlüssel gefunden wird. Schreibt dann eine Hauptfunktion
+die die Methoden verwendet.
+
+.play generics/underlying-types/exercise1.go 
+.play generics/underlying-types/answer1.go

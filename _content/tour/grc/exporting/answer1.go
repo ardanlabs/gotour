@@ -93,4 +93,4 @@ func (t *Toy) UpdateSold(count int) int {
   
 module "play.ground"
 
-go 1.21.0
+go 1.22.0

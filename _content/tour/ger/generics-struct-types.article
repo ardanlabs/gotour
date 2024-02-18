@@ -1,0 +1,144 @@
+Struct-Typen
+Ihr könnt einen generischen Typ mit einem struct-Typ deklarieren.
+
+* Generische Typen - Strukturtypen
+
+Ihr könnt einen generischen Typ mit einem struct-Typ deklarieren.
+
+** Video
+
+Seht euch den Vortrag an, den ich über Generics gehalten habe, welcher euch durch alle
+Beispiele in diesem Abschnitt der Tour führt.
+
+.html generics-video.html
+
+** Code-Überprüfung
+
+- *Beispiel* *1*: Verknüpfte Liste
+
+.play generics/struct-types/example1.go
+
+** Erklärt 
+
+Was wäre, wenn ihr den eigenen generischen Typ unter Verwendung eines struct-Typs deklarieren wollt?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Dieser Strukturtyp wird deklariert, um einen Knoten für die verknüpfte Liste darzustellen. Jeder Knoten
+enthält ein einzelnes Datenelement, das in der Liste gespeichert und verwaltet wird. Die Verwendung
+eckiger Klammern erklärt, dass der Typ T ein generischer Typ ist, der zur
+Kompilierzeit bestimmt wird. Die Verwendung der Einschränkung "any" beschreibt, dass es keine Einschränkung dafür gibt
+was für ein Typ T werden kann.
+
+Mit der Deklaration des Typs T kann das Feld Data nun als Feld eines später zu bestimmenden Typs T definiert werden.
+Die Felder next und prev müssen auf einen Knoten desselben
+Typs T zeigen. Dies sind die Zeiger auf den nächsten und vorherigen Knoten in der verketteten Liste. 
+Um diese Verbindung herzustellen, werden die Felder als Zeiger auf einen Knoten deklariert, 
+der durch die Verwendung eckiger Klammern an den Typ T gebunden ist.
+
+    type list[T any] struct {
+        next *node[T]
+        prev *node[T]
+    }
+
+Der zweite Strukturtyp heißt list und stellt eine Sammlung von nodes dar, indem er
+auf den ersten und letzten node einer Liste verweist. Diese Felder müssen auf einen node vom
+Typs T zeigen, genau wie die Felder next und prev vom Typ node.
+
+Auch hier ist der Bezeichner T als generischer Typ definiert (der später festgelegt wird)
+der durch einen "beliebigen" konkreten Typ ersetzt werden kann. Dann werden das erste und das letzte Feld
+als Zeiger auf einen Knoten des Typs T unter Verwendung der Syntax der eckigen Klammern deklariert.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+    
+Dies ist eine Implementierung einer Methode namens add für den Typ Liste. Es ist keine formale
+Listendeklaration erforderlich (wie bei Funktionen), da die Methode über den Empfänger an die Liste gebunden ist.
+Der Empfänger der add-Methode wird als Zeiger auf eine Liste vom Typ T deklariert und
+der Rückgabewert wird als Zeiger auf einen node desselben Typs T deklariert.
+
+Der Code nach der Konstruktion eines nodes ist immer derselbe, unabhängig davon
+welche Art von Daten in der Liste gespeichert werden, da es sich nur um eine Zeigermanipulation handelt.
+Nur die Konstruktion eines neuen nodes wird durch die Art der zu verwaltenden Daten beeinflusst.
+Dank der Generics kann die Konstruktion eines nodes an den Typ T
+gebunden werden, der später zur Kompilierzeit ersetzt wird.
+
+Ohne Generics müsste diese gesamte Methode dupliziert werden, da die
+Konstruktion eines nodes vor der Kompilierung fest mit einem bekannten, deklarierten Typ kodiert
+werden müsste. Da die Menge des Codes (für die gesamte Listenimplementierung), die sich für verschiedene Datentypen
+ändern muss, sehr gering ist, ermöglicht die Deklarierung eines Knotens und einer Liste zur Verwaltung von 
+Daten eines Typs T, die Kosten für Code-Duplizierung und -Wartung zu reduzieren.
+
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Store values of type user into the list.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Store pointers of type user into the list.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+
+Ausgabe:
+
+    &{bill} {ale}
+    &{bill} &{ale}
+
+Hier ist eine kleine Anwendung. Ein Typ namens user wird deklariert und dann wird eine Liste
+mit dem Wert Null erstellt, um die Werte des Typs user zu verwalten. Eine zweite Liste wird
+konstruiert und diese Liste verwaltet Zeiger auf Werte des Typs user.
+Der einzige Unterschied zwischen diesen beiden Listen besteht darin, dass die eine die Werte vom
+Typ user verwaltet und die andere Zeiger des Typs user.
+
+Da der Typ user bei der Konstruktion des Listentyps explizit angegeben wird, akzeptiert die Methode add
+ihrerseits Werte vom Typ user. Da ein Zeiger vom Typ user bei der Konstruktion des Listentyps explizit
+bei der Konstruktion des Listentyps angegeben wird, akzeptiert die add-Methode Zeiger vom
+Typ user.
+
+In der Ausgabe des Programms könnt ihr sehen, dass die Datenfelder für die Knoten in den jeweiligen 
+Listen mit der in der Konstruktion verwendeten Datensemantik übereinstimmen.
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+Deklariert einen generischen Typ namens stack, der eine Struktur mit einem einzigen
+Feld namens data verwendet, das als Slice eines Typs T deklariert ist. Deklariert eine Methode
+namens push, die einen Wert des Typs T akzeptiert und den Wert an
+Slice anhängt. Deklariert eine Methode namens pop, die den letzten Wert von
+Typs T, der an das Slice angehängt wurde, und einen Fehler zurückgibt. Schreibt dann eine main
+Funktion, die die Methoden verwendet.
+
+.play generics/struct-types/exercise1.go
+.play generics/struct-types/answer1.go
