@@ -17,6 +17,8 @@
 
 package index
 
+import "context"
+
 // VectorOptimizable represents an optional interface that implementable by
 // optimizable resources (e.g., VectorReaders, Searchers).  These
 // optimizable resources are provided the same OptimizableContext
@@ -25,7 +27,7 @@ package index
 // To avoid KNNSearchers' OptimizableContext being casted to ones used for
 // TFRs, term searchers, etc.
 type VectorOptimizable interface {
-	VectorOptimize(octx VectorOptimizableContext) (VectorOptimizableContext, error)
+	VectorOptimize(ctx context.Context, octx VectorOptimizableContext) (VectorOptimizableContext, error)
 }
 
 type VectorOptimizableContext interface {

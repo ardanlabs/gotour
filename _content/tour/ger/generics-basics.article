@@ -1,0 +1,111 @@
+Grundlagen
+Lernt wie man eine grundlegende generische Print-Funktion schreibt.
+
+* Generics- Grundlagen
+
+Lernt wie man eine einfache generische Print-Funktion schreibt.
+
+** Video
+
+Schaut Euch den Vortrag über Generics an, welcher Euch durch alle Beispiele in diesem Abschnitt der Tour führt.
+
+.html generics-video.html
+
+** Code-Überprüfung
+
+- *Beispiel* *1*: Konkrete Umsetzung von print
+- *Beispiel* *2*: Type Assertion-Implementierung von print
+- *Beispiel* *3*: Reflection-Implementierung von print
+- *Beispiel* *4*: Generische Implementierung von print
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Erläutert
+
+Wenn ihr eine einzelne Print-Funktion schreiben wollen, die ein Slice eines beliebigen Typs ausgeben kann
+ohne dabei Reflexion zu verwenden, könnt ihr die neue generische Syntax verwenden.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Dies ist eine Implementierung einer einzelnen Print-Funktion, die ein Slice eines beliebigen Typs ausgeben kann.
+Das Schöne an dieser Syntax ist, dass der Code innerhalb der Funktion die Syntax und die eingebauten Funktionen verwenden kann.
+Dies ist nicht der Fall, wenn ihr ein emtpty interface verwendet, um generischen Code schreiben.
+
+Es muss eine Möglichkeit geben, dem Compiler mitzuteilen, dass ihr den Typ T nicht explizit deklarieren werdet, sondern dass er
+vom Compiler zur Kompilierzeit bestimmt werden soll. Die neue Syntax verwendet dazu eckige
+Klammern für diesen Zweck. Die Klammern definieren eine Liste von generischen Typbezeichnern die 
+Typen darstellen, welche für die Funktion spezifisch sind und zur Kompilierzeit bestimmt werden müssen. Auf diese Weise teilt ihr
+dem Compiler mit, dass Typen mit diesen Namen nicht deklariert werden, bevor das Programm
+kompiliert wird. Diese Typen müssen zur Kompilierzeit ermittelt werden.
+
+Hinweis: Innerhalb der eckigen Klammern können mehrere Typenbezeichner definiert werden, obwohl
+dieses Beispiel nur einen verwendet. Bsp. [T, S, R any]
+
+Ihr könnt diese Typenbezeichner beliebig benennen, um die Lesbarkeit des Codes zu verbessern.
+In diesem Fall verwendet der Code den Großbuchstaben T um zu beschreiben, dass ein Slice des Typs
+T (zur Kompilierzeit zu bestimmen) übergeben wird. Es ist ein Idiom, einen einzelnen
+Großbuchstaben zu verwenden wenn es um Sammlungen geht. Diese Konvention ist
+auf ältere Programmiersprachen wie C++ und Java zurückzuführen.
+
+Auch innerhalb der Klammern wird das Wort any verwendet. Dies stellt eine
+Einschränkung dar welcher Typ T sein kann. Der Compiler verlangt, dass alle generischen Typen 
+eine gut definierte Einschränkung haben. Die any-Beschränkung wird vom Compiler vordeklariert und
+besagt, dass es keine Beschränkungen dafür gibt was der Typ T sein kann.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+So könnt ihr die generische Print-Funktion aufrufen, wenn die Typinformationen
+für T explizit an der Aufrufstelle bereitgestellt werden. Die Syntax emuliert die Idee, dass die
+Funktionsdeklaration func name[T any](slice []T) zwei Sätze von Parametern definiert.
+Der erste Satz ist der Typ, der auf die entsprechenden Typbezeichner abgebildet wird und der
+zweite sind die Daten, die auf die entsprechenden Eingabevariablen abgebildet werden.
+
+Glücklicherweise kann der Compiler den Typ ableiten und macht die explizite Übergabe von
+Typinformationen an der Aufrufstelle.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Dieser Code zeigt, wie ihr die generischen Print-Funktionen aufrufen könnt, ohne dass ihr 
+die Typinformationen explizit übergeht. An der Stelle des Funktionsaufrufs ist der Compiler in der Lage
+den für T zu verwendenden Typ zu erkennen und eine konkrete Version der Funktion zu konstruieren, die
+Slices diesen Typs unterstützt. Der Compiler ist in der Lage, den Typ anhand der
+Informationen die ihm an der Aufrufstelle vorliegen aus den übergebenen Daten abzuleiten.
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+Implementiert eine generische Funktion namens marshal, die einen beliebigen Wert annimmt und
+diesen Wert in JSON umwandelt, dann das JSON sowie einen Fehler zurückgibt. Deklariert
+einen struct-Typ namens User mit zwei Feldern, Name und Age. Konstruiert dann einen
+Wert des Typs User und übergebt den Wert an die generische Funktion marshal.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

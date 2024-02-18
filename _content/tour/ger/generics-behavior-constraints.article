@@ -1,0 +1,103 @@
+Verhalten als Einschränkung (Constraint)
+Für jeden generischen Typ muss eine Einschränkung deklariert werden, damit der Compiler weiß, welche konkreten Typsubstitutionen er zur Kompilierungszeit akzeptieren oder ablehnen kann.
+
+* Generics - Verhalten als Einschränkung
+
+Für jeden generischen Typ muss eine Einschränkung deklariert werden, damit der Compiler weiß, welche
+konkrete Typsubstitutionen er zur Kompilierzeit akzeptieren oder ablehnen kann. Dies ist erforderlich
+auch wenn es keine wirkliche Einschränkung gibt, was der generische Typ sein kann. Daher der
+vordeklarierte Einschränkungsbezeichner any.
+
+** Video
+
+Seht euch den Vortrag an, den ich über Generics (Generika) gehalten habe, der euch durch alle Beispiele in diesem Abschnitt der Tour führt.
+
+.html generics-video.html
+
+** Code-Überprüfung
+
+- *Beispiel* *1*: Konkrete stringify-Funktion
+- *Beispiel* *2*: Typbehauptung stringify-Funktion
+- *Beispiel* *3*: Interface stringify Funktion
+- *Beispiel* *4*: Allgemeine stringify-Funktion
+
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Erläutert
+
+Interessanterweise existiert das Konzept der Einschränkung bereits in der Sprache.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+Der Code definiert einen konkreten Typ namens User und implementiert eine Methode namens
+String, die den Namen des Benutzers zurückgibt. Dann wird ein interface Typ namens
+Stringer deklariert, der einen Akt des Verhaltens String deklariert, der eine Zeichenkette zurückgibt. Dank
+der Methode, die für User deklariert wurde, kann man sagen, dass der konkrete Typ User
+das Interface Stringer unter Verwendung der Wertesemantik implementiert.
+
+Die Funktion "Konkret" ist genau das: eine Funktion die konkrete Daten akzeptiert. Die polymorphe Funktion ist ebenfalls genau das: eine Funktion die konkrete Daten annimmt
+basierend auf dem was sie tun kann. Dies ist der Hauptunterschied zwischen einer konkreten und einer
+polymorphen Funktion. Die Eine ist auf eine bestimmte Art von Daten beschränkt, die Andere nicht. Allerdings
+gibt es eine Einschränkung welche konkreten Daten an die polymorphe Funktion übergeben werden können.
+
+Das Stringer-Interface definiert diese Einschränkung durch die Deklaration eines Methodensatzes von Verhaltensweisen
+die konkrete Daten aufweisen müssen. Wenn sie als Eingabetyp verwendet wird, kann der
+Compiler garantieren, dass die Verhaltensbeschränkung jedes Mal erfüllt wird wenn die Funktion
+aufgerufen wird.
+
+Es gibt generische Funktionen die dieselbe Art von Verhaltensbeschränkung erfordern.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Hier ist die generische Funktion stringify. Sie akzeptiert ein Slice vom Typ T und gibt ein
+Slice von String-Werten zurück, die eine stringifizierte Version jedes Wertes aus der Eingabe
+Sammlung enthält. Der Schlüssel zum Funktionieren dieser Funktion ist der Methodenaufruf von String an jeden Wert vom Typ T.
+
+Das Problem ist dass der Compiler wissen und überprüfen muss, dass Werte vom Typ T
+eine Methode namens String hat. Wenn der generische Typ T deklariert wird, wird das Interface fmt.Stringer
+als Einschränkung bereitgestellt. Der Compiler weiß nun, dass er jeden Typ-Ersatz und Daten die an die Funktion übergeben werden, auf das Verhalten dieser Methode überprüfen muss.
+
+Das ist hervorragend, weil das interface wiederverwendet wird und 
+die Sprache kein neues Schlüsselwort dafür braucht.
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+Implementiert eine generische Funktion namens marshal, die JSON marshalen kann, dabei aber nur
+Werte annimmt welche das Interface json.Marshaler implementieren.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go

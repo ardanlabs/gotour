@@ -1,0 +1,144 @@
+Exportieren
+Exportieren bietet die Möglichkeit zu deklarieren, ob ein Bezeichner für Code außerhalb des Pakets, in dem er deklariert ist, zugänglich ist.
+
+* Exportieren
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Exportieren bietet die Möglichkeit zu bestimmen, ob ein Bezeichner auch  
+außerhalb des Pakets in dem er deklariert wurde zugänglich ist.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Deklaration und Zugriff auf exportierte Bezeichner
+- *Beispiel* *2:* Nicht exportierte Bezeichner und Einschränkungen deklarieren
+- *Beispiel* *3:* Zugriff auf Werte von nicht exportierten Bezeichnern
+- *Beispiel* *4:* Nicht exportierte Felder vom Typ struct
+- *Beispiel* *5:* Nicht exportierte eingebettete Typen
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Mechanik exportieren
+
+Ein Paket ist die Grundeinheit des kompilierten Codes in Go. Es repräsentiert eine physische kompilierte
+Einheit von Code, normalerweise als kompilierte Bibliothek auf dem Host-Betriebssystem. Der Export 
+bestimmt den Zugriff auf Bezeichner über Paketgrenzen hinaus.
+
+    package counters
+
+    type AlertCounter int
+
+Da in diesem Fall ein Großbuchstaben verwendet wurde, um den Typ AlterCounter zu benennen,
+ist der Typ exportiert und kann direkt von Code außerhalb des Zähler-Paket referenziert werden.
+
+    package counters
+
+    type alertCounter int
+
+Da ihr nun den Namen des Typs so geändert habt, dass er mit einem Kleinbuchstaben beginnt, ist der Typ
+nicht exportiert. Das bedeutet, dass nur Code innerhalb des Pakets auf diesen
+Typ direkt referenzieren kann.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Obwohl der obige Code eine legale Syntax aufweist und kompiliert werden kann, hat er keinen Wert.
+Die Rückgabe eines Wertes von einem nicht exportierten Typ ist verwirrend, da der Aufrufer (der
+wahrscheinlich in einem anderen Paket existiert) den Typnamen nicht direkt referenzieren kann.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+In diesem Fall ruft die Hauptfunktion im Paket main die Funktion counters.New
+erfolgreich auf und der Compiler kann eine Variable des nicht exportierten
+Typs deklarieren und konstruieren. Das bedeutet weder, dass ihr dies tun solltet, noch dass es einen echten
+Schutzmechanismus für dieses Vorgehen gibt. Dies sollte vermieden werden, und wenn New einen Wert zurückgibt, 
+sollte er von einem exportierten Typ sein.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+Wenn es um Felder in einem struct geht, gibt der erste Buchstabe an ob das Feld
+für Code außerhalb des Pakets in dem es deklariert wurde zugänglich ist. In diesem Fall sind Name
+und ID zugänglich aber password nicht. Es ist common Practice exportierte
+und nicht exportierte Felder auf diese Weise zu trennen, wenn dies sinnvoll oder praktisch ist.
+Normalerweise würden alle Felder entweder das Eine oder das Andere sein.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+In diesem Szenario hat der user Typ, obwohl er nicht exportiert wird, zwei exportierte
+Felder. Das bedeutet, dass die user Felder beim Einbetten des user Typs in den exportierten Managertyp
+eingebettet sind. Nun werden die user Felder befördert und sind zugänglich. Es ist üblich Nicht-exportierte 
+Typen mit exportierten Feldern zu haben, da das reflection package nur mit exportierten Feldern arbeiten kann. 
+Sonst würden Marshallers nicht funktionieren.
+
+Das Beispiel schafft eine schlechte Situation, in der Code außerhalb von Paketbenutzern einen Manager konstruieren kann.
+Da aber der eingebettete Typ user nicht exportiert wird, können die Felder für diesen Typ
+initialisiert werden. Dies führt zu partiellen Konstruktionsproblemen die zu Fehlern führen.
+Sie müssen beim Exportieren und Nichtexportieren konsistent sein.
+
+** Anmerkungen
+
+- Der Code in go wird in Pakete kompiliert und dann miteinander verknüpft.
+- Bezeichner werden auf der Grundlage der Groß- und Kleinschreibung exportiert (oder bleiben unexportiert).
+- Wir importieren Pakete, um auf exportierte Bezeichner zuzugreifen.
+- Jedes Paket kann einen Wert eines nicht exportierten Typs verwenden, aber das ist lästig.
+
+** Extra Lesen
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exportierte/nicht exportierte Bezeichner in Go]] - William Kennedy
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Aufgaben zu lösen. Eine mögliche Lösung ist angegeben.
+
+** Übung 1
+
+*Teil* *A:* Erstellt ein Paket namens toy mit einem einzigen exportierten struct-Typ namens Toy.
+Fügt die exportierten Felder Name und Weight hinzu. Dann fügt zwei nicht exportierte Felder namens onHand
+und sold. Deklariert eine Factory-Funktion namens New, um Werte vom Typ toy zu erzeugen und
+Parameter für die exportierten Felder akzeptiert. Deklariert dann Methoden, die Werte für die nicht exportierten Felder 
+zurückgeben und aktualisieren.
+
+*Teil* *B:* Erstellt ein Programm, das das toy package importiert. Verwendet die Funktion New, um
+einen Wert vom Typ toy zu erzeugen. Verwendet dann die Methoden, um die Zählerstände zu setzen und die
+Feldwerte dieses toy-Wertes anzuzeigen.
+
+.play exporting/exercise1.go
+.play exporting/answer1.go

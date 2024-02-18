@@ -23,6 +23,8 @@ type VectorField interface {
 	Dims() int
 	// Similarity metric to be used for scoring the vectors
 	Similarity() string
+	// nlist/nprobe config (recall/latency) the index is optimized for
+	IndexOptimizedFor() string
 }
 
 // -----------------------------------------------------------------------------
@@ -44,4 +46,24 @@ const DefaultSimilarityMetric = EuclideanDistance
 var SupportedSimilarityMetrics = map[string]struct{}{
 	EuclideanDistance: {},
 	CosineSimilarity:  {},
+}
+
+// -----------------------------------------------------------------------------
+
+const (
+	IndexOptimizedForRecall  = "recall"
+	IndexOptimizedForLatency = "latency"
+)
+
+const DefaultIndexOptimization = IndexOptimizedForRecall
+
+var SupportedVectorIndexOptimizations = map[string]int{
+	IndexOptimizedForRecall:  0,
+	IndexOptimizedForLatency: 1,
+}
+
+// Reverse maps vector index optimizations': int -> string
+var VectorIndexOptimizationsReverseLookup = map[int]string{
+	0: IndexOptimizedForRecall,
+	1: IndexOptimizedForLatency,
 }
