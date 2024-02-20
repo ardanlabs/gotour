@@ -13,6 +13,13 @@ import (
 type root struct {
 	engContent []byte
 	freContent []byte
+	gerContent []byte
+	grcContent []byte
+	itaContent []byte
+	perContent []byte
+	porContent []byte
+	polContent []byte
+	turContent []byte
 }
 
 // rootHandler returns a handler for all the requests except the ones for lessons.
@@ -32,13 +39,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/" {
 		if langPref != "" {
-			log.Println("redirect to language preference")
 			http.Redirect(w, r, "/tour/"+langPref+"/", http.StatusFound)
 			return
 		}
 
 		// Defaults to English version.
-		log.Println("redirect to english")
 		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 		return
 	}
@@ -54,6 +59,43 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.freContent); err != nil {
 			log.Println(err)
 		}
+	case "/tour/ger/":
+		log.Println("render german tour")
+		if err := renderUI(w, rot.gerContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/grc/":
+		log.Println("render greek tour")
+		if err := renderUI(w, rot.grcContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/ita/":
+		log.Println("render italian tour")
+		if err := renderUI(w, rot.itaContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/per/":
+		log.Println("render persian tour")
+		if err := renderUI(w, rot.perContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/por/":
+		log.Println("render portuguese tour")
+		if err := renderUI(w, rot.porContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/pol/":
+		log.Println("render polish tour")
+		if err := renderUI(w, rot.polContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/tur/":
+		log.Println("render turkish tour")
+		if err := renderUI(w, rot.turContent); err != nil {
+			log.Println(err)
+		}
+	default:
+		http.Redirect(w, r, "/tour/eng/", http.StatusFound)
 	}
 }
 
