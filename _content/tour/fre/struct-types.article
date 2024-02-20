@@ -1,35 +1,31 @@
-Struct Types
-Struct types are a way of creating complex types that group fields of data together.
+Types Struct
+Les types Struct permettent de créer des types complexes qui regroupent différents champs de données.
 
-* Struct Types
+* Types Struct
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'Études]]
 
-Struct types are a way of creating complex types that group fields of data together.
-They are a great way of organizing and sharing the different aspects of the data
-your program consumes.
+Les types struct permettent de créer des types complexes qui regroupent différents champs de données. 
+Ils constituent un excellent moyen d'organiser et de partager les différents types des données utilisés par votre programme.
 
-A computer architecture’s potential performance is determined predominantly by its
-word length (the number of bits that can be processed per access) and, more importantly,
-memory size, or the number of words that it can access.
+Les performances potentielles d'une architecture d'ordinateur sont principalement déterminées par la longueur de ses mots (le nombre de bits pouvant être traités par accès), et plus important encore, par la taille de sa mémoire, c'est-à-dire le nombre de mots auxquels elle peut accéder.
 
-** Code Review
+** Examen du Code
 
-- *Example* *1:* Declare, create and initialize struct types.
-- *Example* *2:* Anonymous struct types.
-- *Example* *3:* Named vs Unnamed types. 
-- *Example* *4:* Struct type alignments
+- *Example* *1:* Déclarer, créer et initialiser des types struct.
+- *Example* *2:* Types struct Anonyme.
+- *Example* *3:* Types Nommés vs types Anonymes. 
+- *Example* *4:* Alignement des types struct.
 
 .play struct-types/example1.go
 .play struct-types/example2.go
 .play struct-types/example3.go
 .play struct-types/example4.go
 
-** Struct and Construction Mechanics
+** Struct et Mécaniques de Construction
 
-This declaration represents a concrete user-defined type as a composite of
-different fields and types.
+Cette déclaration représente un type concret de définition d'utilisateur sous la forme d'un composite de différents champs et types.
 
     type example struct {
         flag    bool
@@ -37,18 +33,17 @@ different fields and types.
         pi      float32
     }
 
-Declare a variable of type example and initialize it to its zero value state.
+Déclarer une variable de type example et l'initialiser à sa valeur zéro.
 
     var e1 example
 
     fmt.Printf("%+v\n", e1)
 
-Output:
+Sortie :
     
     {flag:false counter:0 pi:0}
 
-Declare a variable of type example not set to its zero value state by using literal
-construction syntax.
+Déclarer une variable de type example sans l'initialiser à sa valeur zéro, en utilisant la syntaxe de construction littérale.
 
     e2 := example{
         flag:    true,
@@ -60,14 +55,13 @@ construction syntax.
     fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+Sortie :
 
     Flag true
     Counter 10
     Pi 3.141592
 
-Declare a variable of an unnamed literal type set to its non-zero value state
-using literal construction syntax.
+Déclarer une variable d'un type littéral anonyme non initialisée à sa valeur zéro, en utilisant la syntaxe de construction littérale.
 
     e3 := struct {
         flag    bool
@@ -83,21 +77,20 @@ using literal construction syntax.
     fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+Sortie :
 
     Flag true
     Counter 10
     Pi 3.141592
 
-The idea of literal construction is just that, to construct something literally
-without a name.
+L'idée derrière la construction littérale est justement de construire quelque chose littéralement sans nom.
 
-You should use var for zero value and the short variable declaration operator with
-the { } syntax for non-zero value construction.
+Vous devriez utiliser var pour la valeur zéro et l'opérateur de déclaration de variable court 
+avec la syntaxe { } pour la construction de valeurs définies.
 
-** Padding and Alignment
+** Espacement (Padding) et Alignement
 
-How much memory is allocated for a value of type example?
+Quelle est la quantité de mémoire allouée pour une valeur de type example ?
 
     type example struct {
         flag    bool
@@ -105,17 +98,17 @@ How much memory is allocated for a value of type example?
         pi      float32
     }
 
-A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
-and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
-is a padding byte sitting between the flag and counter fields for the reason of alignment.
+Un bool représente 1 octet, un int16 2 octets et un float32 4 octets. En additionnant tout cela, on obtient 7 octets. 
+Cependant, la réponse réelle est 8 octets. 
+C'est parce qu'il y a un octet de remplissage entre le champ flag et counter pour des raisons d'alignement.
 
 .image /tour/eng/static/img/f1.png
 
-The idea of alignment is to allow the hardware to read memory more efficiently
-by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+L'idée derrière l'alignement est de permettre au matériel de lire la mémoire plus efficacement 
+en plaçant la mémoire sur des limites d'alignement spécifiques. 
+Le compilateur s'occupe de la mécanique des limites d'alignement pour que vous n'ayez pas à le faire.
 
-Depending on the size of a particular field and its placement in the struct, Go
-determines the padding you need.
+Selon la taille d'un champ particulier et de son emplacement dans la struct, Go détermine l'espacement (padding) dont vous avez besoin.
 
     type example2 struct {
         flag    bool
@@ -124,8 +117,8 @@ determines the padding you need.
         pi      float32
     }
 
-In this example, I’ve added a new field called `flag2` between the counter and pi
-fields. This causes more padding inside the struct.
+Dans cet exemple, j'ai ajouté un nouveau champ appelé flag2 entre les champs counter et pi. 
+Cela entraîne un remplissage supplémentaire à l'intérieur de la struct.
 
     type example2 struct {
         flag    bool     // 0xc000100020 <- Starting Address
@@ -138,29 +131,18 @@ fields. This causes more padding inside the struct.
         pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
-This is how the alignment and padding play out if a value of type example2 starts
-at address 0xc000100020. The flag field represents the starting address and is
-only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
-must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
-address that is a multiple of 2. This requires the counter field to start at address
-0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+Voici comment se déroulent l'alignement et le remplissage si une valeur de type exemple2 commence à l'adresse 0xc000100020. 
+Le champ flag représente l'adresse de départ et ne fait qu'un octet. Étant donné que le champ counter nécessite une allocation de 2 octets,
+il doit être placé en mémoire sur un alignement de 2 octets, ce qui signifie qu'il doit débuter sur une adresse qui est un multiple de 2. 
+Le champ counter doit donc commencer à l'adresse 0xc000100022. Cela crée un espace de 1 octet entre les champs flag et counter.
 
 .image /tour/eng/static/img/f2.png
 
-The `flag2` field is a bool and can fall at the next address 0xc000100024. The
-final field is pi and requires 4 bytes of allocation so it needs to fall on a
-4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
-means 3 more padding bytes are needed to maintain a proper alignment. This results
-in a value of type example2 requiring 12 bytes of total memory allocation.
+Le champ flag2 est un bool et peut tomber à l'adresse suivante 0xc000100024. Le dernier champ est pi et nécessite une allocation de 4 octets, il doit donc être aligné sur 4 octets. La prochaine adresse pour une valeur de 4 octets est 0xc000100028. Cela signifie que 3 octets de remplissage supplémentaires sont nécessaires pour maintenir un alignement correct. Il en résulte qu'une valeur de type exemple2 nécessite une allocation totale de mémoire de 12 octets.
 
-The largest field in a struct represents the alignment boundary for the entire
-struct. In this case, the largest field is 4 bytes so the starting address for this
-struct value must be a multiple of 4. You can see the address 0xc000100020 is a
-multiple of 4.
+Le plus grand champ d'une struct représente la limite d'alignement de la totalité de la struct. Dans ce cas, le champ le plus grand est de 4 octets, donc l'adresse de départ de cette valeur de la struct, doit être un multiple de 4. Vous pouvez voir que l'adresse 0xc000100020 est un multiple de 4.
 
-If you need to minimize the amount of padding bytes, you must lay out the fields from
-highest allocation to lowest allocation. This will push any necessary padding bytes
-down to the bottom of the struct and reduce the total number of padding bytes necessary.
+Si minimiser le nombre d'octets de remplissage est requis, vous devez répartir les champs de la plus grande à la plus petite allocation. Cela repoussera tous les octets de remplissage nécessaires vers le bas de la struct et réduira le nombre total d'octets de remplissage requis.
 
     type example struct {
         pi      float32  // 0xc000100020 <- Starting Address
@@ -169,35 +151,33 @@ down to the bottom of the struct and reduce the total number of padding bytes ne
         flag2   bool     // 0xc000100027 <- 1 byte alignment
     }
 
-After the reordering of the fields, the struct value only requires 8 bytes of
-allocation and not 12 bytes. Since all the fields allow the struct value to fall
-on a 4-byte alignment, no extra padding bytes are necessary.
+Après la réorganisation des champs, la valeur de la struct ne nécessite plus que 8 octets d'allocation et non plus 12 octets. 
+Comme tous les champs permettent à la valeur de la struct de tomber sur un alignement de 4 octets, 
+aucun octet de remplissage supplémentaire n'est nécessaire.
 
 .image /tour/eng/static/img/f3.png
 
-** Assigning Values
+** Attribution de Valeurs
 
-If you have two different named types that are identical in structure, you can't assign
-a value of one to the other.
+Si vous avez deux types nommés différents dont la structure est identique, vous ne pouvez pas attribuer la valeur de l'un à l'autre.
 
-For example, if the types example1 and example2 are declared using the same exact
-declaration and we initialize two variables.
+Par exemple, si les types exemple1 et exemple2 sont déclarés de façon identique et que nous initialisons deux variables.
 
     var ex1 example1
     var ex2 example2
 
-You can’t assign these two variables to each other since they are of different named
-types. The fact that they are identical in structure is irrelevant. 
+Vous ne pourrez pas affecter ces variables l'une à l'autre puisqu'elles sont de deux types différents. 
+Le fait qu'elles soient identiques dans leur structure n'entre pas en ligne de compte.
 
-    ex1 = ex2  // Not allowed, compiler error
+    ex1 = ex2  // Non permis, erreur de compilation
 
-To perform this assignment, you would have to use conversion syntax and since they
-are identical in structure, the compiler will allow this.
+Pour réaliser cette affectation, vous devrez utiliser la syntaxe de conversion et, 
+étant donné que leur structure est identique, le compilateur l'autorisera.
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2)  // Permis, PAS d'erreur de compilation
 
-However, if ex2 was changed to be declared as an unnamed type using the same exact
-declaration as ex1, no conversion syntax would be required.
+Toutefois, si ex2 était déclarée comme un type anonyme en utilisant la même déclaration que ex1, 
+aucune syntaxe de conversion ne serait requise.
 
     var ex2 struct {
         flag    bool
@@ -205,22 +185,24 @@ declaration as ex1, no conversion syntax would be required.
         pi      float32
     }
 
-    ex1 = ex2  // Allowed, NO need for conversion syntax
+    ex1 = ex2  // Permis, PAS besoin d'une stntaxe de conversion
 
-The compiler will allow this assignment without the need for conversion.
+Le compilateur autorisera cette affectation sans besoin de conversion.
 
 ** Notes
 
-- We can use the struct literal form to initialize a value from a struct type.
-- The dot (.) operator allows us to access individual field values.
-- We can create anonymous structs.
+- On peut utiliser la forme littérale de la struct pour initialiser une valeur à partir d'un type de struct.
+- L'opérateur point (.) nous permet d'accéder aux valeurs individuelles des champs.
+- On peut créer des struct anonymes.
 
-** Quotes
+** Citations
 
 "Implicit conversion of types is the Halloween special of coding. Whoever thought
 of them deserves their own special hell." - Martin Thompson
+("La conversion implicite des types est le tour de magie terrifiant d'Halloween en
+matière de codage. Quiconque y a pensé mérite son propre enfer". - Martin Thompson)
 
-** Extra Reading
+** Lectures Supplémentaires
 
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
@@ -230,16 +212,14 @@ of them deserves their own special hell." - Martin Thompson
 
 * Exercises
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
 
 ** Exercise 1
 
-*Part* *A:* Declare a struct type to maintain information about a user (name,
-email and age). Create a value of this type, initialize with values and display
-each field.
+*Partie* *A:* Déclarez un type struct pour conserver les informations relatives à un utilisateur (name, email, et age). 
+Créez une valeur de ce type, initialisez-la avec des valeurs et affichez chaque champ.
 
-*Part* *B:* Declare and initialize an anonymous struct type with the same three
-fields. Display the value.
+*Partie* *B:* Déclarez et initialisez un type struct anonyme avec les trois mêmes champs. Affichez sa valeur.
 
 .play struct-types/exercise1.go
 .play struct-types/answer1.go
