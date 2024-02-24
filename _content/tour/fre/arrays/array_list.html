@@ -1,38 +1,41 @@
+
 <ul>
-<li>CPU caches works by caching main memory on cache lines.</li>
-<li>Cache lines today are either 32 or 64 bytes wide depending on the hardware.</li>
-<li>Cores do not access main memory directly. They tend to only have access their local caches.</li>
-<li>Both data and instructions are stored in the caches.</li>
-<li>Cache lines are shuffled down L1-&gt;L2-&gt;L3 as new cache lines need to be stored in the caches.</li>
-<li>Hardware likes to traverse data and instructions linearly along cache lines.</li>
-<li><p>Main memory is built on relatively fast cheap memory. Caches are built on very fast expensive memory.</p>
-</li>
-<li><p>Access to main memory is incredibly slow, we need the cache.</p>
-<ul>
-<li>Accessing one byte from main memory will cause an
-entire cache line to be read and cached.</li>
-<li>Writes to one byte in a cache line requires the 
-entire cache line to be written.</li>
-</ul>
-</li>
-<li><p>Small = Fast</p>
-<ul>
-<li>Compact, well localized code that fits in cache is fastest.</li>
-<li>Compact data structures that fit in cache are fastest.</li>
-<li>Traversals touching only cached data is the fastest.</li>
-</ul>
-</li>
-<li><p>Predictable access patterns matter.</p>
-<ul>
-<li>Whenever it is practical, you want to employ a linear array traversal.</li>
-<li>Provide regular patterns of memory access.</li>
-<li>Hardware can make better predictions about required memory.</li>
-</ul>
-</li>
-<li><p>Cache misses can result in TLB cache misses as well.</p>
-<ul>
-<li>Cache of translations of a virtual address to a physical address.</li>
-<li>Waiting on the OS to tell us where the memory is.</li>
-</ul>
-</li>
+    <li>Les caches CPU fonctionnent en mettant en cache la mémoire principale dans des lignes de cache.</li>
+    <li>Les lignes de cache actuelles ont, selon le matériel, une grandeur de 32 ou 64 octets.</li>
+    <li>Les cores n'accèdent pas directement à la mémoire principale. Ils ont généralement accès uniquement,
+        à leurs caches locaux.</li>
+    <li>Les caches stockent à la fois des données et des instructions.</li>
+    <li>Lorsque de nouvelles lignes de caches doivent être stockées dans le cache,
+        les lignes de caches existantes sont déplacées vers le bas selon l'ordre L1-&gt;L2-&gt;L3.</li>
+    <li>Le matériel privilégie un parcours des données linéaire, le long des lignes de cache.</li>
+    <li><p>La mémoire principale est construite avec une mémoire relativement rapide et bon marché.
+        Les caches sont construits avec une mémoire très rapide et onéreuse.</p>
+    </li>
+    <li><p>L'accès à la mémoire principale bien qu'incroyablement lent, reste nécessaire.</p>
+        <ul>
+            <li>L'accès à un seul octet de la mémoire principale entraîne la lecture et la mise en cache
+                de toute une ligne de cache.</li>
+            <li>L'écriture d'un seul octet dans une ligne de cache nécessite l'écriture de toute la ligne de cache.</li>
+        </ul>
+    </li>
+    <li><p>Petit = Rapide</p>
+        <ul>
+            <li>Un code compact, bien localisé et qui tient dans le cache est le plus rapide.</li>
+            <li>Les structures de données qui tiennent dans le cache sont plus rapides.</li>
+            <li>Les parcours de données et d'instructions n'ayant lieu que dans le cache sont les plus rapides.</li>
+        </ul>
+    </li>
+    <li><p>Les modèles d'accès prévisibles sont importants.</p>
+        <ul>
+            <li>Chaque fois que cela est possible, il est préférable d'utiliser un parcours linéaire pour un tableau.</li>
+            <li>Fournir des modèles d'accès mémoire réguliers.</li>
+            <li>Le matériel peut faire de meilleures prédictions sur la mémoire nécessaire.</li>
+        </ul>
+    </li>
+    <li><p>Les ratés de cache peuvent également entraîner des ratés de cache TLB.</p>
+        <ul>
+            <li>Cache des traductions d'adresses virtuelles en adresses physiques.</li>
+            <li>Attendre que le système d'exploitation nous indique où se trouve la mémoire.</li>
+        </ul>
+    </li>
 </ul>
