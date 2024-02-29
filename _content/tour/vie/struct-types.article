@@ -1,35 +1,35 @@
-Struct Types
-Struct types are a way of creating complex types that group fields of data together.
+Kiểu Cấu trúc (Struct Types)
+Struct types là một cách tạo ra những kiểu phức tạp để nhóm các trường dữ liệu lại với nhau.
 
 * Struct Types
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-Struct types are a way of creating complex types that group fields of data together.
-They are a great way of organizing and sharing the different aspects of the data
-your program consumes.
+Struct types là một cách tạo ra những kiểu phức tạp để nhóm các trường dữ liệu lại với nhau.
+Đó là một cách rất tốt để tổ chức và chia sẻ các khía cạnh khác nhau của dữ liệu mà
+chương trình của bạn sử dụng.
 
-A computer architecture’s potential performance is determined predominantly by its
-word length (the number of bits that can be processed per access) and, more importantly,
-memory size, or the number of words that it can access.
+Hiệu suất tiềm năng của kiến trúc máy tính được xác định chủ yếu bởi word length
+(số bit có thể được xử lý trên mỗi lần truy cập) và quan trọng hơn là kích thước bộ nhớ
+hoặc số lượng word mà nó có thể truy cập.
 
 ** Code Review
 
-- *Example* *1:* Declare, create and initialize struct types.
-- *Example* *2:* Anonymous struct types.
-- *Example* *3:* Named vs Unnamed types. 
-- *Example* *4:* Struct type alignments
+- *Example* *1:* Khai báo và khởi tạo kiểu struct.
+- *Example* *2:* Kiểu struct ẩn danh.
+- *Example* *3:* Kiểu Named vs Unnamed. 
+- *Example* *4:* Điểu chỉnh kiểu struct.
 
 .play struct-types/example1.go
 .play struct-types/example2.go
 .play struct-types/example3.go
 .play struct-types/example4.go
 
-** Struct and Construction Mechanics
+** Struct và Construction Mechanics
 
-This declaration represents a concrete user-defined type as a composite of
-different fields and types.
+Khai báo này thể hiện một kiểu cụ thể do người dùng định nghĩa dưới dạng tổng hợp của
+các trường và loại dữ liệu khác nhau.
 
     type example struct {
         flag    bool
@@ -37,18 +37,17 @@ different fields and types.
         pi      float32
     }
 
-Declare a variable of type example and initialize it to its zero value state.
+Khai báo một biến kiểu example và khởi tạo nó về trạng thái zero value.
 
     var e1 example
 
     fmt.Printf("%+v\n", e1)
 
-Output:
+Đầu ra:
     
     {flag:false counter:0 pi:0}
 
-Declare a variable of type example not set to its zero value state by using literal
-construction syntax.
+Khai báo một biến kiểu example và set giá trị tường minh.
 
     e2 := example{
         flag:    true,
@@ -60,14 +59,14 @@ construction syntax.
     fmt.Println("Counter", e2.counter)
     fmt.Println("Pi", e2.pi)
 
-Output:
+Đầu ra:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-Declare a variable of an unnamed literal type set to its non-zero value state
-using literal construction syntax.
+Khai báo một biến kiểu tường minh unnamed và set giá trị khác zero value cho nó bằng
+cú pháp xây dựng tường minh.
 
     e3 := struct {
         flag    bool
@@ -83,21 +82,20 @@ using literal construction syntax.
     fmt.Println("Counter", e3.counter)
     fmt.Println("Pi", e3.pi)
 
-Output:
+Đầu ra:
 
     Flag true
     Counter 10
     Pi 3.141592
 
-The idea of literal construction is just that, to construct something literally
-without a name.
+Ý tưởng xây dựng tường minh chỉ là xây dựng một cái gì đó unnamed theo nghĩa đen.
 
-You should use var for zero value and the short variable declaration operator with
-the { } syntax for non-zero value construction.
+Bạn nên sử dụng var cho zero value và toán tử khai báo biến ngắn với
+cú pháp { } để xây dựng non-zero value.
 
-** Padding and Alignment
+** Padding và Alignment
 
-How much memory is allocated for a value of type example?
+Bao nhiêu bộ nhớ được phân bổ cho một giá trị kiểu example?
 
     type example struct {
         flag    bool
@@ -105,17 +103,18 @@ How much memory is allocated for a value of type example?
         pi      float32
     }
 
-A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
-and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
-is a padding byte sitting between the flag and counter fields for the reason of alignment.
+Kiểu bool là 1 byte, int16 là 2 bytes, và float32 là 4 bytes. Cộng tất cả với nhau
+và bạn nhận 7 bytes. Tuy nhiên, câu trả lời thực tế là 8 byte. Tại sao, bởi vì có
+một byte đệm nằm giữa trường flag và bộ đếm vì lý do căn chỉnh (alignment).
 
 .image /tour/eng/static/img/f1.png
 
-The idea of alignment is to allow the hardware to read memory more efficiently
-by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+Ý tưởng của alignment là cho phép phần cứng đọc bộ nhớ hiệu quả hơn
+bằng cách đặt bộ nhớ trên các ranh giới alignment cụ thể. Trình biên dịch sẽ xử lý
+cơ chế ranh giới alignment nên bạn không cần phải làm nữa.
 
-Depending on the size of a particular field and its placement in the struct, Go
-determines the padding you need.
+Tùy thuộc vào kích thước của một trường cụ thể và vị trí của nó trong struct, Go
+xác định phần đệm (padding) mà bạn cần.
 
     type example2 struct {
         flag    bool
@@ -124,8 +123,8 @@ determines the padding you need.
         pi      float32
     }
 
-In this example, I’ve added a new field called `flag2` between the counter and pi
-fields. This causes more padding inside the struct.
+Trong ví dụ này, tôi đã thêm một trường mới gọi là `flag2` nằm giữa trường counter và pi.
+Điều này tạo ra nhiều padding hơn bên trong struct.
 
     type example2 struct {
         flag    bool     // 0xc000100020 <- Starting Address
@@ -138,29 +137,29 @@ fields. This causes more padding inside the struct.
         pi      float32  // 0xc000100028 <- 4 byte alignment
     }
 
-This is how the alignment and padding play out if a value of type example2 starts
-at address 0xc000100020. The flag field represents the starting address and is
-only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
-must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
-address that is a multiple of 2. This requires the counter field to start at address
-0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+Đây là cách mà alignment và padding diễn ra nếu giá trị kiểu example2 bắt đầu
+tại địa chỉ 0xc000100020. Trường flag đại diện cho địa chỉ bắt đầu và chỉ được
+có kích thước 1 byte. Vì trường counter yêu cầu phân bổ 2 byte nên nó
+phải được đặt trong bộ nhớ theo alignment 2 byte, nghĩa là nó cần nằm trên một
+địa chỉ là bội số của 2. Điều này yêu cầu trường counter bắt đầu tại địa chỉ
+0xc000100022 và tạo ra khoảng cách 1 byte giữa trường flag và trường counter.
 
 .image /tour/eng/static/img/f2.png
 
-The `flag2` field is a bool and can fall at the next address 0xc000100024. The
-final field is pi and requires 4 bytes of allocation so it needs to fall on a
-4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
-means 3 more padding bytes are needed to maintain a proper alignment. This results
-in a value of type example2 requiring 12 bytes of total memory allocation.
+Trường `flag2` là kiểu bool và có thể rơi vào địa chỉ tiếp theo 0xc000100024.
+Trường cuối cùng là pi và cần phân bổ 4 byte nên nó cần một alignment 4 byte.
+Địa chỉ tiếp theo cho một giá trị 4 byte là 0xc000100028. Điều đó có nghĩa là
+cần thêm 3 byte padding để duy trì sự liên kết phù hợp. Kết quả này trong
+giá trị kiểu example2 yêu cầu tổng phân bổ bộ nhớ là 12 byte.
 
-The largest field in a struct represents the alignment boundary for the entire
-struct. In this case, the largest field is 4 bytes so the starting address for this
-struct value must be a multiple of 4. You can see the address 0xc000100020 is a
-multiple of 4.
+Trường lớn nhất trong struct biểu diễn ranh giới alignment cho toàn bộ struct.
+Trong trường hợp này, trường lớn nhất là 4 byte nên địa chỉ bắt đầu cho giá trị
+struct này phải là bội số của 4. Bạn có thể thấy địa chỉ 0xc000100020 là một
+bội số của 4.
 
-If you need to minimize the amount of padding bytes, you must lay out the fields from
-highest allocation to lowest allocation. This will push any necessary padding bytes
-down to the bottom of the struct and reduce the total number of padding bytes necessary.
+Nếu bạn cần giảm thiểu số lượng byte padding, bạn phải bố trí các trường từ
+phân bổ cao nhất đến thấp nhất. Điều này sẽ đẩy byte padding cần thiết bất kỳ
+xuống cuối struct và giảm tổng số byte padding cần thiết xuống.
 
     type example struct {
         pi      float32  // 0xc000100020 <- Starting Address
@@ -169,35 +168,35 @@ down to the bottom of the struct and reduce the total number of padding bytes ne
         flag2   bool     // 0xc000100027 <- 1 byte alignment
     }
 
-After the reordering of the fields, the struct value only requires 8 bytes of
-allocation and not 12 bytes. Since all the fields allow the struct value to fall
-on a 4-byte alignment, no extra padding bytes are necessary.
+Sau khi sắp xếp lại các trường, giá trị struct chỉ yêu cầu phân bổ 8 byte
+chứ không phải 12 byte. Vì tất cả các trường đều cho phép giá trị struct giảm
+trên alignment 4 byte, không cần thêm byte padding.
 
 .image /tour/eng/static/img/f3.png
 
-** Assigning Values
+** Gán giá trị
 
-If you have two different named types that are identical in structure, you can't assign
-a value of one to the other.
+Nếu bạn có hai kiểu được đặt tên khác nhau nhưng có struct giống hệt nhau, bạn không thể gán
+giá trị của cái này với cái kia.
 
-For example, if the types example1 and example2 are declared using the same exact
-declaration and we initialize two variables.
+Ví dụ: nếu example1 và example2 được khai báo bằng cách sử dụng cùng một kiểu
+và chúng ta khởi tạo hai biến.
 
     var ex1 example1
     var ex2 example2
 
-You can’t assign these two variables to each other since they are of different named
-types. The fact that they are identical in structure is irrelevant. 
+Bạn không thể gán hai biến này cho nhau vì chúng có kiểu khác nhau.
+Việc chúng giống hệt nhau về cấu trúc là không liên quan.
 
-    ex1 = ex2  // Not allowed, compiler error
+    ex1 = ex2  // Không được phép, lỗi trình biên dịch
 
-To perform this assignment, you would have to use conversion syntax and since they
-are identical in structure, the compiler will allow this.
+Để thực hiện việc gán này, bạn sẽ phải sử dụng cú pháp chuyển đổi và vì chúng
+có cấu trúc giống hệt nhau, trình biên dịch sẽ cho phép điều này.
 
-    ex1 = example1(ex2)  // Allowed, NO compiler error
+    ex1 = example1(ex2)  // Được phép, không có lỗi trình biên dịch
 
-However, if ex2 was changed to be declared as an unnamed type using the same exact
-declaration as ex1, no conversion syntax would be required.
+Tuy nhiên, nếu ex2 được thay đổi thành khai báo dưới dạng unnamed bằng cách
+sử dụng cùng một kiểu khai báo là ex1, thì không cần cú pháp chuyển đổi.
 
     var ex2 struct {
         flag    bool
@@ -205,22 +204,22 @@ declaration as ex1, no conversion syntax would be required.
         pi      float32
     }
 
-    ex1 = ex2  // Allowed, NO need for conversion syntax
+    ex1 = ex2  // Được phép, không cần cú pháp chuyển đổi
 
-The compiler will allow this assignment without the need for conversion.
+Trình biên dịch sẽ cho phép việc gán này mà không cần chuyển đổi.
 
-** Notes
+** Chú ý
 
-- We can use the struct literal form to initialize a value from a struct type.
-- The dot (.) operator allows us to access individual field values.
-- We can create anonymous structs.
+- Chúng ta có thể sử dụng mẫu struct tường minh để khởi tạo một giá trị từ kiểu struct.
+- Toán tử dấu chấm (.) cho phép chúng ta truy cập vào từng trường giá trị riêng lẻ.
+- Chúng ta có thể tạo ra những struct ẩn danh.
 
-** Quotes
+** Trích dẫn
 
 "Implicit conversion of types is the Halloween special of coding. Whoever thought
 of them deserves their own special hell." - Martin Thompson
 
-** Extra Reading
+** Đọc thêm
 
 - [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
 - [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
@@ -228,18 +227,18 @@ of them deserves their own special hell." - Martin Thompson
 - [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
 - [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
 
-* Exercises
+* Bài tập
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Sử dụng bài mẫu làm điểm khởi đầu để hoàn thành các bài tập. Một câu trả lời khả thi đã được cung cấp.
 
-** Exercise 1
+** Bài tập 1
 
-*Part* *A:* Declare a struct type to maintain information about a user (name,
-email and age). Create a value of this type, initialize with values and display
-each field.
+*Phần* *A:* Khai báo một kiểu struct để duy trì thông tin về người dùng (tên,
+email và tuổi). Tạo một giá trị thuộc loại này, khởi tạo bằng các giá trị và
+hiển thị từng trường.
 
-*Part* *B:* Declare and initialize an anonymous struct type with the same three
-fields. Display the value.
+*Phần* *B:* Khai báo và khởi tạo một kiểu struct ẩn danh với ba trường giống nhau.
+Hiển thị giá trị.
 
-.play struct-types/exercise1.go
-.play struct-types/answer1.go
+.chạy struct-types/exercise1.go
+.chạy struct-types/answer1.go
