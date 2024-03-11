@@ -1,0 +1,150 @@
+Variables
+Les variables sont au cœur du langage et donnent la possibilité de lire depuis la mémoire et d'y écrire.
+
+* Variables
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Les variables sont au cœur du langage et donnent la possibilité de lire depuis la mémoire et d'y écrire. En Go, l'accès à la mémoire est sécurisé par le type. Cela signifie que le compilateur prend les types au sérieux et ne nous permet pas d'utiliser des variables en dehors de la portée de leur déclaration.
+
+** Analyse de Code
+
+- *Exemple* *1*: Exemple de programme montrant comment déclarer des variables.
+
+.play variables/example1.go
+
+** Types Intégrés
+Les types assurent l'intégrité et la lisibilité en posant deux questions :
+
+Quelle est la quantité de mémoire à allouer (par exemple 1, 2, 4, 8 octets) ?
+Que représente cette mémoire ? (par exemple : int, uint, bool...)
+
+Les types peuvent spécifier une précision telle que `int32` ou `int64` :
+
+- uint8 représente un entier non signé avec une allocation mémoire de 1 octet.
+- int32 représente un entier signé avec une allocation mémoire de 4 octets. Lorsque vous déclarez un type en utilisant un type dont la précision n'est pas spécifiée (unit, int), la taille de la valeur est basée sur l'architecture utilisée pour construire le programme :
+
+- 32 bit arch : int représente un int signé avec 4 octets d'allocation mémoire
+- 64 bits : int représente un int signé à 8 octets d'allocation de mémoire
+
+** Taille du mot
+La taille du mot représente la quantité de mémoire nécessaire pour stocker les entiers et les pointeurs pour une architecture donnée. Par exemple :
+
+- 32 bits arch : la taille du mot correspond à une allocation de mémoire de 4 octets
+- 64 bits arch : la taille du mot correspond à une allocation de mémoire de 8 octets.
+  Ceci est important, car Go possède des structures de données internes (maps, channels, slices, interfaces et functions) qui stockent des entiers et des pointeurs. La taille de ces structures de données dépend de l'architecture utilisée pour construire le programme.
+
+En Go, pour une architecture identique, la quantité de mémoire allouée pour une valeur de type int, un pointeur ou un mot sera toujours la même.
+
+** Concept de Valeur Zéro
+Chaque valeur que vous construisez en Go est initialisée au moins à son état de valeur zéro
+à moins que vous ne lui spécifiiez une valeur d'initialisation lors de sa construction. La valeur zéro correspond
+à la mise à zéro de chaque bit de chaque octet.
+
+Cela permet d'assurer l'intégrité des données, mais n'est pas gratuit. Il faut du temps pour pousser les électrons à travers la machine afin de remettre ces bits à zéro, mais vous devriez toujours opter pour l'intégrité versus la performance.
+
+    Type               Zero Value
+    Boolean            false
+    Integer            0
+    Float              0
+    Complex            0i
+    String             "" (empty)
+    Pointer            nil
+
+** Declarer et Initialiser
+Le mot-clé var peut être utilisé pour construire des valeurs à l'état zéro pour tous les types.
+
+    var a int
+    var b string
+    var c float64
+    var d bool
+
+    fmt.Printf("var a int \t %T [%v]\n", a, a)
+    fmt.Printf("var b string \t %T [%v]\n", b, b)
+    fmt.Printf("var c float64 \t %T [%v]\n", c, c)
+    fmt.Printf("var d bool \t %T [%v]\n\n", d, d)
+
+Sortie :
+
+    var a int    	int [0]
+    var b string 	string []
+    var c float64	float64 [0]
+    var d bool   	bool [false]
+
+Les chaînes de caractères utilisent le jeu de caractères UTF8, mais ne sont en réalité qu'une collection d'octets.
+
+En Go, une chaîne est une structure de données interne à deux mots :
+
+- Le premier mot représente un pointeur vers un tableau d'octets de référence.
+- Le deuxième mot représente la longueur ou le nombre d'octets du tableau de référence.
+- Si la chaîne est mise à valeur zéro, le premier mot est nil et le second mot est 0.
+
+En utilisant l'opérateur court de déclaration de variables, vous pouvez dans le même temps, déclarer, construire et initialiser une valeur.
+
+    aa := 10       // int [10]
+    bb := "hello"  // string [hello]
+    cc := 3.14159  // float64 [3.14159]
+    dd := true     // bool [true]
+
+    fmt.Printf("aa := 10 \t %T [%v]\n", aa, aa)
+    fmt.Printf("bb := \"hello\" \t %T [%v]\n", bb, bb)
+    fmt.Printf("cc := 3.14159 \t %T [%v]\n", cc, cc)
+    fmt.Printf("dd := true \t %T [%v]\n\n", dd, dd)
+
+Sortie :
+
+    aa := 10         int [10]
+    bb := "hello"    string [hello]
+    cc := 3.14159    float64 [3.14159]
+    dd := true       bool [true]
+
+** Conversion vs Casting
+
+Go ne propose pas de fonctionnalité de casting, mais de conversion. Au lieu de dire au compilateur de mapper un 
+ensemble d'octets vers une représentation différente, les octets doivent être copiés dans un nouvel emplacement 
+mémoire pour obtenir leur nouvelle représentation.
+
+    aaa := int32(10)
+    fmt.Printf("aaa := int32(10) %T [%v]\n", aaa, aaa)
+
+    Sortie :
+    aaa := int32(10) int32 [10]
+
+Go dispose d'un package dans la bibliothèque standard appelé `unsafe` au cas où vous auriez besoin d'effectuer une 
+opération de casting. Cependant, vous devriez vraiment éviter d'y avoir recours et vous questionner sur les raisons 
+qui vous poussent à l'envisager. L'exécution d'une conversion offre le plus haut niveau d'intégrité pour ce type
+d'opérations.
+
+** Notes
+
+- L'objectif de tous les programmes et de leurs composants est de transformer des données d'une forme à une autre.
+- Le code consiste principalement à allouer, lire et écrire en mémoire.
+- La compréhension des types est essentielle pour comprendre et écrire du code de qualité.
+- Si vous ne comprenez pas les données, vous ne comprenez pas le problème.
+- En comprenant les données, vous comprenez mieux le problème.
+- Pour déclarer les variables à leur valeur zéro, utilisez le mot-clé var.
+- Utilisez l'opérateur de déclaration de variable court pour déclarer et initialiser des variables simultanément.
+
+** Lectures Supplémentaires
+
+- [[http://golang.org/ref/spec#Boolean_types][Built-In Types]]
+- [[https://golang.org/doc/effective_go.html#variables][Variables]]
+- [[https://www.ardanlabs.com/blog/2013/08/gustavos-ieee-754-brain-teaser.html][Gustavo's IEEE-754 Brain Teaser]] - William Kennedy
+- [[https://www.youtube.com/watch?v=sFUSP8Au_PE][What's in a name]]
+- [[http://arcanesentiment.blogspot.com/2015/01/a-brief-history-of-type.html][A brief history of “type”]] - Arcane Sentiment
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+*Partie* *A* : Déclarez trois variables initialisées à leur valeur zéro et trois variables déclarées avec une valeur littérale. Déclarez des variables de type string, int et bool.
+Affichez les valeurs de ces variables.
+
+*Partie* *B* : Déclarez une nouvelle variable de type float32 et initialisez-la en convertissant la valeur littérale 
+de Pi (3.14).
+
+.play variables/exercise1.go
+.play variables/answer1.go

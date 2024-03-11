@@ -1,0 +1,82 @@
+Pollution par Interface
+La pollution d'interface provient du fait que les gens conçoivent des logiciels avec des interfaces au lieu de les découvrir.
+
+* Pollution par Interface
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+La pollution d'interface provient du fait que les gens conçoivent des logiciels avec des interfaces 
+au lieu de les découvrir.
+
+** Analyse de Code
+
+- *Exemple* *1:* Création d'une Pollution par Interfaces
+- *Exemple* *2:* Supprimer une Pollution par Interfaces
+
+.play composition/pollution/example1.go
+.play composition/pollution/example2.go
+
+** Pollution par Interface
+
+La pollution d'interface provient du fait que les gens conçoivent des logiciels avec des interfaces 
+au lieu de les découvrir. Vous devriez concevoir une solution concrète en premier lieu. Ensuite, 
+vous pouvez découvrir où le programme doit être polymorphique, si cela est nécessaire.
+
+Voici des choses que j'ai entendues d'autres développeurs.
+
+"J'utilise des interfaces parce que nous devons utiliser des interfaces."
+
+Non, il n'est pas obligatoire d'utiliser des interfaces. On les utilise uniquement si cela pratique et raisonnable. 
+L'utilisation d'interfaces a un coût : une couche d'abstraction et une allocation de mémoire supplémentaire lorsque 
+l'on y stocke des valeurs concrètes. À moins que le gain en découplage ne justifie le coût de l'allocation, 
+vous devriez éviter d'utiliser des interfaces.
+
+"J'ai besoin de pouvoir tester mon code, donc je dois utiliser des interfaces."
+
+Non, vous devez en premier lieu concevoir votre API pour l'utilisateur, et pour vos tests. Si l'API n'est pas testable, 
+demandez-vous si elle est utilisable. Il existe également différents niveaux d'API. Les API non exportées de bas niveau 
+peuvent et doivent se concentrer sur la testabilité. Les API exportées de haut niveau doivent quant à elles se 
+concentrer sur leur utilisabilité.
+
+Les fonctions qui acceptent des données brutes en entrée et renvoient des données brutes en sortie sont les plus faciles 
+à tester. Séparez la transformation des données de leur source et de leur destination. Il s'agit d'un exercice de 
+re-factorisation que vous devez effectuer pendant le cycle d'ingénierie.
+
+L'exemple suivant illustre une pollution par interface en utilisant une interface de manière inappropriée alors qu'elle 
+n'est pas nécessaire.
+
+    type Server interface {
+        Start() error
+        Stop() error
+        Wait() error
+    }
+
+L'interface `Serveur` définit un contrat pour les serveurs TCP. Le problème est que vous n'avez pas besoin d'un contrat,
+vous avez besoin d'une implémentation. De plus, il n'y aura qu'une seule implémentation, surtout si c'est vous qui la 
+réalisez. Vous n'avez pas besoin que quelqu'un d'autre l'implémente pour vous.
+
+De plus, cette interface est basée sur un nom et non sur un verbe. Les types concrets sont des noms car ils représentent 
+le problème concret. Les interfaces décrivent le comportement, et `Serveur` n'est pas un comportement.
+
+Voici quelques moyens d'identifier la pollution par interface :
+
+- Un package définit une interface qui correspond intégralement à l'API de son propre type concret.
+- Les interfaces sont exportées, mais les types concrets implémentant l'interface ne le sont pas.
+- La fonction factory pour le type concret renvoie la valeur de l'interface avec la valeur du type concret non exporté à l'intérieur.
+- L'interface peut être supprimée sans que rien ne change pour l'utilisateur de l'API.
+- L'interface ne découple pas l'API des changements.
+
+Principes directeurs pour éviter la pollution par interface :
+
+Utilisez une interface :
+
+- Lorsque les utilisateurs de l'API doivent fournir un détail d'implémentation.
+- Lorsque les API ont plusieurs implémentations devant être maintenues.
+- Lorsque des parties de l'API ont été identifiées et nécessitent un découplage.
+
+Interrogez-vous sur la nécessité d'une interface :
+
+- Lorsqu'elle sert uniquement à écrire des API testables (écrivez d'abord des API utilisables).
+- Lorsqu'elle n'apporte pas un gain de découplage pour l=des modifications de l'API.
+- Lorsque l'amélioration qu'elle apporte au code n'est pas claire.

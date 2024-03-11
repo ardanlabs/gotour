@@ -1,0 +1,129 @@
+Problème Amusants
+Cette section contient un ensemble de problèmes amusants qui mettent en avant certaines des fonctionnalités apportées par Go.
+
+* Problème du Barbier Endormi
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Ce programme implémente le problème du barbier endormi.
+
+- en apprendre plus sur [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+
+Le salon de coiffure dispose d'un seul barbier, d'un fauteuil de barbier et de `n` chaises pour les clients en attente. 
+S'il n'y a pas de client, le barbier s'assoit dans le fauteuil et s'endort. Un client arrivant doit réveiller le barbier. 
+Les clients qui arrivent ensuite prennent une chaise d'attente si une place est libre, ou partent si toutes les chaises 
+sont occupées.
+
+*Sortie :*
+
+    Opening the shop
+    Barber ready to work
+    Customer "cust-1" entered shop
+    Customer "cust-1" takes a seat and waits
+    Barber servicing customer "cust-1"
+    Barber finished customer "cust-1"
+    Barber taking a nap
+    Customer "cust-2" entered shop
+    Customer "cust-2" takes a seat and waits
+    Barber servicing customer "cust-2"
+    Customer "cust-3" entered shop
+    Customer "cust-3" takes a seat and waits
+    Barber finished customer "cust-2"
+    Barber servicing customer "cust-3"
+    Customer "cust-4" entered shop
+    Customer "cust-4" takes a seat and waits
+    Closing the shop
+    Barber finished customer "cust-3"
+    Barber servicing customer "cust-4"
+    Barber finished customer "cust-4"
+    Shop closed
+
+.play algorithms/fun/barber.go
+
+* Fréquence
+
+Ce programme vous montre comment implémenter une fonction permettant de trouver la fréquence d'une `rune` donnée 
+utilisée dans une phrase spécifique.
+
+
+- Séquentiel : Un algorithme linéaire pour compter les runes.
+- Concurrent : Un algorithme concurrent pour compter les runes.
+
+.play algorithms/fun/freq_sequential.go
+.play algorithms/fun/freq_concurrent.go
+
+*  Encodage/décodage de Quantité à longueur Variable.
+
+Ce programme illustre comment Go peut être utilisé pour implémenter l'encodage et le décodage de quantités 
+à longueur variable."
+
+- En apprendre plus sur [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+
+Pour faire court, le but de cet encodage est d'économiser de l'espace en représentant des entiers d'une manière compacte. 
+Seuls les 7 premiers bits de chaque octet sont utilisés (justifiés à droite, un peu comme un octet ASCII). 
+Donc, pour encoder une valeur de 32 bits, il faut la décomposer en une série d'octets de 7 bits. 
+Bien sûr, Le nombre d'octets variera en fonction de l'entier. Pour indiquer le dernier octet de la série, 
+le bit #7 est laissé à zéro. Dans tous les octets précédents, le bit #7 est positionné à un.
+
+Ainsi, si un entier est compris entre 0 et 127, il peut être représenté par un seul octet. Le plus grand entier 
+possible est 0FFFFFFF, ce qui se traduit par une longueur variable de 4 octets. Voici des exemples de delta-times 
+en tant que valeurs 32 bits, ainsi que les quantités à longueur variable correspondantes :
+
+    NUMBER        VARIABLE QUANTITY
+    00000000              00
+    00000040              40
+    0000007F              7F
+    00000080             81 00
+    00002000             C0 00
+    00003FFF             FF 7F
+    00004000           81 80 00
+    00100000           C0 80 00
+    001FFFFF           FF FF 7F
+    00200000          81 80 80 00
+    08000000          C0 80 80 00
+    0FFFFFFF          FF FF FF 7F
+
+Une quantité à longueur variable (VLQ) est un code universel qui utilise un nombre arbitraire d'octets binaires 
+(octets de huit bits) pour représenter un entier arbitrairement grand. Il a été défini pour être utilisé dans 
+le format de fichier MIDI standard [1] afin d'économiser de l'espace supplémentaire sur les systèmes limités 
+en ressources, et il est également utilisé dans le format de musique extensible (XMF) plus récent. 
+Un VLQ est essentiellement une représentation en base 128 d'un entier non signé avec l'ajout du huitième bit 
+pour marquer la continuation des octets. Voir l'exemple ci-dessous.
+
+	Int:    16384
+	IntHex: 0x00004000
+	IntBin: 00000000 00000000 01000000 00000000
+	VLQHex: 0x81 0x80 0x00
+	VLQBin: 00000000 10000001 10000000 00000000
+
+Disons que nous voulons représenter le nombre 3435 en VLQ. Sa représentation binaire 
+est 110101101011. On ne peut pas l'intégrer dans un seul octet. Nous allons donc 
+le découper en blocs de 7 bits en partant de la fin.
+
+    Septet	7	6	5	4	3	2	1
+    #1		1	1	0	1	0	1	1
+    #2		0	0	1	1	0	1	0
+
+Maintenant, on ajoute un bit à 1 devant tous les octets sauf le dernier pour indiquer qu'un autre octet suit, 
+et on ajoute un bit à 0 devant le dernier octet pour signaler qu'il s'agit du dernier.
+
+
+    Octet   8	7	6	5	4	3	2	1
+    #1      0	1	1	0	1	0	1	1
+    #2      1	0	0	1	1	0	1	0
+
+Finalement, on les concatène, l'octet le plus significatif en premier, pour obtenir
+
+Encodé: 10011010 01101011  ToHex: 0x9A 0x6B
+
+*Ressources* *Supplémentaires :*
+
+- [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
+- [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
+
+*Pour* *une* *excellente* *implementation* *de* *cet* *algorithme,* *regardez* *ici :*
+
+- [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
+
+.play algorithms/fun/vlq.go

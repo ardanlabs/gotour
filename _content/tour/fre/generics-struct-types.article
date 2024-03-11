@@ -1,0 +1,134 @@
+Types Struct
+Vous pouvez déclarer un type générique en utilisant un type struct.
+
+* Generics - Types Struct
+
+Vous pouvez déclarer un type générique en utilisant un type struct.
+
+** Video
+
+Regardez la conférence que j'ai donnée sur les génériques, qui vous présente tous les exemples de cette section du Tour.
+
+.html generics-video.html
+
+** Analyse de Code
+
+- *Exemple* *1*: Liste Chaînée
+
+.play generics/struct-types/example1.go
+
+** Explications
+
+Et si vous vouliez définir votre propre type générique en utilisant un type struct ?
+
+    type node[T any] struct {
+        Data T
+        next *node[T]
+        prev *node[T]
+    }
+
+Ce type de struct est déclaré pour représenter un nœud (node) dans une liste chaînée. Chaque nœud contient une donnée 
+individuelle qui est stockée et gérée par la liste. L'utilisation de crochets indique que le type T est un type 
+générique qui sera déterminé à la compilation. La contrainte "any" signifie qu'il n'y a aucune restriction sur le type 
+que T pourra devenir.
+
+Une fois le type T déclaré, le champ `Data` peut être défini comme un champ de type T (à déterminer plus tard). 
+Les champs `next` et `prev` doivent pointer vers un nœud du même type T. Il s'agit respectivement des pointeurs 
+vers le nœud suivant et le nœud précédent dans la liste chaînée. Pour établir cette connexion, les champs sont déclarés 
+comme des pointeurs vers un nœud lié au type T grâce aux crochets.
+
+    type list[T any] struct {
+        first *node[T]
+        last *node[T]
+    }
+
+Le deuxième type de struct se nomme `list` et représente une collection de nœuds en pointant vers le premier (`first`) 
+et le dernier (`last`) nœud de la liste. Ces champs doivent pointer vers un nœud d'un type quelconque T, tout comme 
+les champs `next` et `prev` du type de nœud.
+
+Encore une fois, l'identifiant T est défini comme un type générique (à déterminer ultérieurement) pouvant être remplacé 
+par n'importe quel ("any") type concret. Ensuite, les champs `first` et `last` sont déclarés comme des pointeurs vers 
+un nœud de type T, en utilisant la syntaxe des crochets.
+
+    func (l *list[T]) add(data T) *node[T] {
+        n := node[T]{
+            Data: data,
+            prev: l.last,
+        }
+        
+        if l.first == nil {
+            l.first = &n
+            l.last = &n
+            return &n
+        }
+
+        l.last.next = &n
+        l.last = &n
+        
+        return &n
+    }
+
+Ceci est l'implémentation d'une méthode nommée `add` pour le type de données `list`. Aucune déclaration formelle de 
+type générique `list` n'est requise (comme pour les fonctions) car la méthode est liée `liste` via le receveur. 
+Le receveur de la méthode `add` est déclaré comme un pointeur vers une `list` d'un certain type T et le retour est 
+déclaré comme un pointeur vers un nœud du même type T.
+
+Le code une fois le nœud construit, sera toujours identique, quel que soit le type de données stockées dans la liste, 
+étant donné qu'il ne s'agit que de manipulation de pointeurs. Seul la construction d'un nouveau nœud est affectée par 
+le type de données qui sera géré. Grâce aux génériques, la construction du nœud peut être liée au type T qui est 
+ensuite substitué à la compilation."
+
+Sans les génériques, cette méthode entière devrait être dupliquée, car la construction d'un nœud devrait être codée 
+en dur pour un type connu et déclaré avant la compilation. Étant donné que la quantité de code (pour toute 
+l'implémentation de `list`) qui doit changer pour différents types de données est très faible, la possibilité de 
+déclarer un nœud et une liste pour gérer des données d'un quelconque type T réduit le coût de duplication et de 
+maintenance du code.
+
+    type user struct {
+        name string
+    }
+    
+    func main() {
+        // Store values of type user into the list.
+        var lv list[user]
+        n1 := lv.add(user{"bill"})
+        n2 := lv.add(user{"ale"})
+        fmt.Println(n1.Data, n2.Data)
+        
+        // Store pointers of type user into the list.
+        var lp list[*user]
+        n3 := lp.add(&user{"bill"})
+        n4 := lp.add(&user{"ale"})
+        fmt.Println(n3.Data, n4.Data)
+    }
+
+Sortie :
+
+    {bill} {ale}
+    &{bill} &{ale}
+
+Voici une petite application. On déclare d'abord un type nommé `user`. Ensuite, on construit une `list` vide à sa 
+valeur zéro pour stocker des valeurs de type `user`. Une deuxième `list` vide est créée pour stocker des pointeurs 
+vers des valeurs de type `user`. La seule différence entre ces deux listes est que l'une gère des valeurs et l'autre 
+des pointeurs, tous deux de type `user`.
+
+Étant donné que le type `user` est explicitement spécifié lors de la construction du type `list`, la méthode `add` 
+accepte à son tour des valeurs de type `user`. De même, si un pointeur de type `user` est explicitement spécifié lors 
+de la construction du type `list`, la méthode `add` accepte des pointeurs de type `user`.
+
+Vous pouvez voir dans la sortie du programme que le champ `Data` des nœuds dans les listes respectives correspond à 
+la sémantique de données utilisée lors de la construction.
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Déclarez un type générique nommé `stack` qui utilise une struct avec un seul champ nommé `data` déclaré comme une slice 
+d'un type quelconque T. Déclarez une méthode nommée `push` qui accepte une valeur de type T et l'ajoute à la slice. 
+Déclarez une méthode nommée `pop` qui renvoie la dernière valeur de type T ajoutée à la slice et une erreur. 
+Ensuite, écrivez une fonction `main` qui utilise ces méthodes.
+
+.play generics/struct-types/exercise1.go 
+.play generics/struct-types/answer1.go

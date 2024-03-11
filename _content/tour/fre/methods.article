@@ -1,0 +1,426 @@
+Méthodes
+Une fonction est appelée méthode lorsqu'elle possède un receveur déclaré.
+
+* Methods
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Une fonction est appelée méthode lorsqu'elle possède un receveur déclaré. Le receveur est le paramètre déclaré 
+entre le mot-clé `func` et le nom de la fonction.
+
+** Analyse de Code
+
+- *Exemple* *1:* Déclaration et comportement d'un receveur
+- *Exemple* *2:* Méthodes nommées et typées
+- *Exemple* *3:* Variables de Fonctions/Méthodes
+- *Exemple* *4:* Types Fonctions
+- *Exemple* *5:* Sémantiques par Valeur et par Pointeur
+
+.play methods/example1.go
+.play methods/example2.go
+.play methods/example3.go
+.play methods/example4.go
+.play methods/example5.go
+
+** Déclarations de Méthodes
+
+Il existe deux types de receveurs : les receveurs de valeur pour implémenter la sémantique par valeur et 
+les receveurs de pointeur pour implémenter la sémantique par pointeur.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u user) notify() {
+        fmt.Printf("Sending User Email To %s<%s>\n", u.name, u.email)
+    }
+
+    func (u *user) changeEmail(email string) {
+        u.email = email
+        fmt.Printf("Changed User Email To %s\n", email)
+    }
+
+La fonction `notify` est implémentée avec un receveur de valeur. Cela signifie que la méthode fonctionne avec 
+la sémantique par valeur et opère sur une copie de la valeur utilisée lors de l'appel.
+
+La fonction `changeEmail` est implémentée avec un receveur de pointeur. Cela signifie que la méthode fonctionne 
+avec la sémantique par pointeur et opère sur un accès partagé à la valeur utilisée lors de l'appel.
+
+Hormis quelques exceptions, l'ensemble des méthodes d'un type ne doit pas contenir un mélange de receveurs de valeur
+et de receveurs de pointeur. La cohérence sémantique des données est d'une importance cruciale, et cela inclut 
+la déclaration des méthodes.
+
+** Appels de Méthodes
+
+Lors d'un appel de méthode, le compilateur ne se soucie pas de savoir si la valeur utilisée pour l'appel 
+correspond exactement à la sémantique des données du receveur. Le compilateur veut simplement une valeur 
+ou un pointeur du même type.
+
+    bill := user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+On peut voir qu'une valeur de type `user` est construite et assignée à la variable `bill`. Dans le cas de 
+l'appel `notify`, la variable `bill` correspond au type du receveur, qui utilise un receveur de valeur. 
+Dans le cas de l'appel `changeEmail`, la variable `bill` ne correspond pas au type du receveur, qui utilise 
+un receveur de pointeur. Cependant, le compilateur accepte l'appel de méthode et partage la variable `bill` 
+avec la méthode. Go s'ajuste pour effectuer l'appel.
+
+Cela fonctionne de la même manière lorsque la variable utilisée pour l'appel est une variable pointeur.
+
+    bill := &user{"Bill", "bill@email.com"}
+    bill.notify()
+    bill.changeEmail("bill@hotmail.com")
+
+Dans ce cas, la variable `bill` est un pointeur vers une valeur de type `user`. Encore une fois, 
+Go s'ajuste pour effectuer l'appel de méthode lors de l'appel de `notify`.
+
+Si Go ne s'ajustait pas, voici ce que vous devriez faire pour effectuer les mêmes appels de méthode.
+
+    bill := user{"Bill", "bill@email.com"}
+    (&bill).changeEmail("bill@hotmail.com")
+
+    bill := &user{"Bill", "bill@email.com"}
+    (*bill).notify()
+
+Heureusement que Go s'en occupe automatiquement, cela rend les appels de méthode beaucoup plus simples.
+
+** Directives Sémantiques pour les Types de Données Internes
+
+En règle générale, si les données que vous manipulez sont des types internes (slice, map, canal, fonction, interface), 
+utilisez la sémantique par valeur pour les déplacer dans le programme. Cela inclut, la déclaration des champs 
+d'un type. Cependant, n'oubliez pas que la lecture et l'écriture se font en utilisant la sémantique par pointeur.
+
+    type IP []byte
+    type IPMask []byte
+
+Ces types sont déclarés dans le `package net` qui fait partie de la bibliothèque standard. Ils sont déclarés 
+avec un type sous-jacent qui est une slice d'octets. En raison de cela, ces types suivent les directives pour 
+les types de données internes.
+
+    func (ip IP) Mask(mask IPMask) IP {
+        if len(mask) == IPv6len && len(ip) == IPv4len && allFF(mask[:12]) {
+            mask = mask[12:]
+        }
+        if len(mask) == IPv4len && len(ip) == IPv6len &&
+            bytesEqual(ip[:12], v4InV6Prefix) {
+            ip = ip[12:]
+        }
+        n := len(ip)
+        if n != len(mask) {
+            return nil
+        }
+        out := make(IP, n)
+        for i := 0; i < n; i++ {
+            out[i] = ip[i] & mask[i]
+        }
+        return out
+    }
+
+Avec la méthode `Mask`, la sémantique par valeur est utilisée pour le receveur, le paramètre et l'argument de retour. 
+Cette méthode accepte sa propre copie d'une valeur `Mask`, la modifie puis renvoie une copie de la modification. 
+Si cette méthode utilise la mutation par sémantique par valeur, ce n'est ni par accident, ni par hasard.
+
+Une fonction peut décider des données d'entrée et de sortie dont elle a besoin. Ce qu'elle ne peut pas décider, 
+c'est la sémantique des données concernant la façon dont les données entrent ou sortent. Les données dictent 
+cette décision, et la fonction doit s'y conformer. C'est pourquoi `Mask` implémente une API de mutation par 
+sémantique par valeur. Elle doit respecter la façon dont une slice est conçue pour être déplacée dans le programme.
+
+    func ipEmptyString(ip IP) string {
+        if len(ip) == 0 {
+            return ""
+        }
+        return ip.String()
+    }
+
+
+La fonction `ipEmptyString` utilise également la sémantique par valeur pour l'entrée et la sortie. 
+Cette fonction accepte sa propre copie d'une valeur `IP` et renvoie une valeur `string`. Aucun usage 
+de la sémantique par pointeur n'est nécessaire, car ce sont les données qui dictent la sémantique des données, 
+et non la fonction.
+
+Une exception à l'utilisation de la sémantique par valeur se produit lorsque vous devez partager une slice 
+ou une map avec une fonction qui effectue une dé-sérialisation (unmarshalling) ou un décodage.
+
+** Directives de Sémantique des Types de Données Struct
+
+En règle générale, lorsque vous travaillez avec un type struct, vous devez réfléchir à ce que représente 
+le type de données pour prendre une décision. Une bonne règle à suivre est de se demander si la struct 
+représente des données ou une API. Si la struct représente des données, utilisez la sémantique par valeur.
+Si le struct représente une API, utilisez la sémantique par pointeur.
+
+    type Time struct {
+        sec  int64
+        nsec int32
+        loc  *Location
+    }
+
+Voici la struct `Time` du package time. Si l'on considère que `Time` représente des données, la sémantique 
+par valeur devrait être utilisée pour cette struct.
+
+Lorsque vous examinez une base de code existante et que vous voulez savoir quelle sémantique de données a été choisie, 
+recherchez une fonction "factory". Le type de retour d'une fonction "factory" devrait indiquer la sémantique de données 
+choisie par le développeur.
+
+    func Now() Time {
+        sec, nsec := now()
+        return Time{sec + unixToInternal, nsec, Local}
+    }
+
+Voici la fonction `factory` pour construire des valeurs `Time`. Regardez le type de retour, elle utilise la sémantique 
+par valeur. Cela signifie que vous devriez utiliser la sémantique par valeur pour les valeurs `Time`, ce qui implique 
+que chaque fonction reçoit sa propre copie d'une valeur `Time` et que les champs d'une struct doivent être déclarés 
+comme des valeurs de type `Time`.
+
+    func (t Time) Add(d Duration) Time {
+        t.sec += int64(d / 1e9)
+        nsec := int32(t.nsec) + int32(d%1e9)
+        if nsec >= 1e9 {
+            t.sec++
+            nsec -= 1e9
+        } else if nsec < 0 {
+            t.sec--
+            nsec += 1e9
+        }
+        t.nsec = nsec
+        return t
+    }
+
+La méthode `Add` doit effectuer une opération de mutation. En regardant de plus près, vous verrez que la fonction 
+utilise la mutation par sémantique par valeur. La méthode `Add` obtient sa propre copie de la valeur `Time` utilisée 
+pour l'appel, mute sa propre copie, puis renvoie une copie à l'appelant. Encore une fois, c'est le moyen le plus sûr 
+d'effectuer une opération de mutation.
+
+    func div(t Time, d Duration) (qmod2 int, r Duration) {}
+
+Voici un autre exemple où la fonction `div` accepte une valeur de type `Time` et une `Duration` (int64), puis renvoie 
+des valeurs de type `int` et `Duration`. La sémantique par valeur est utilisée pour le type `Time` et pour tous 
+les types intégrés. Le type `Duration` a un type sous-jacent int64.
+
+    func (t *Time) UnmarshalBinary(data []byte) error {}
+    func (t *Time) GobDecode(data []byte) error {}
+    func (t *Time) UnmarshalJSON(data []byte) error {}
+    func (t *Time) UnmarshalText(data []byte) error {}
+
+Ces quatre méthodes du package time semblent enfreindre les directives de sémantique des données. Elles utilisent 
+la sémantique par pointeur. Pourquoi ? Parce qu'elles implémentent une interface dont la signature de méthode 
+est verrouillée. Comme l'implémentation nécessite une mutation, la sémantique par pointeur est le seul choix possible.
+
+Ligne de conduite : si la sémantique par valeur est utilisée, vous pouvez passer à la sémantique par pointeur pour 
+certaines fonctions, à condition de ne pas laisser repaser les données dans la chaîne d'appels restante à 
+la sémantique par valeur. Une fois que vous basculez vers la sémantique par pointeur, tous les appels suivants 
+à partir de ce point doivent rester en sémantique par pointeur. Il est impossible de passer de la sémantique 
+par pointeur à la sémantique par valeur. Il n'est jamais sûr de faire une copie d'une valeur vers laquelle 
+pointe un pointeur.
+
+    func Open(name string) (file *File, err error) {
+        return OpenFile(name, O_RDONLY, 0)
+    }
+
+La fonction `Open` du `package os` montre que lorsque l'on utilise une valeur de type `File`, la sémantique par pointeur est utilisée. 
+Les valeurs de type `File` doivent être partagées et ne devraient jamais être copiées.
+
+
+    func (f *File) Chdir() error {
+        if f == nil {
+            return ErrInvalid
+        }
+        if e := syscall.Fchdir(f.fd); e != nil {
+            return &PathError{"chdir", f.name, e}
+        }
+        return nil
+    }
+
+La méthode `Chdir` utilise un receveur par pointeur même si cette méthode ne mute pas la valeur de type File.
+Cela est dû au fait que les valeurs de type File doivent être partagées et ne peuvent pas être copiées.
+
+    func epipecheck(file *File, e error) {
+        if e == syscall.EPIPE {
+            if atomic.AddInt32(&file.nepipe, 1) >= 10 {
+                sigpipe()
+            }
+        } else {
+            atomic.StoreInt32(&file.nepipe, 0)
+        }
+    }
+
+La fonction `epipecheck` accepte également des valeurs de type `File` en utilisant la sémantique par pointeur.
+
+** Les Méthodes sont juste des Fonctions
+
+Les méthodes sont simplement des fonctions qui simplifient la syntaxe en permettant aux données 
+d'avoir un comportement.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Un type et deux méthodes sont déclarés. La méthode `displayName` utilise la sémantique par valeur, 
+tandis que la méthode setAge utilise la sémantique par pointeur.
+
+Remarque : Il est déconseillé d'implémenter des accesseurs (getters) et des mutateurs (setters) en Go. 
+Ces méthodes ne constituent pas des API avec un objectif précis, et dans ces cas, il est préférable 
+d'exporter directement les champs.
+    
+    d := data{
+        name: "Bill",
+    }
+
+    d.displayName()
+    d.setAge(21)
+
+Une valeur de type data est construite et des appels de méthodes sont effectués.
+
+    data.displayName(d)
+    (*data).setAge(&d, 21)
+
+Parce que, les méthodes ne sont que des fonctions avec une syntaxe simplifiée, on peut les appeler comme 
+des fonctions. On peut voir que le receveur est réellement un paramètre, le premier paramètre de la fonction. 
+Lorsque vous appelez une méthode, le compilateur en interne la convertit en un appel de fonction.
+
+Remarque : N'exécutez pas les méthodes de cette façon, m^rmr vous pouvez voir cette syntaxe dans les messages d'outils.
+
+** Connaître le Comportement du Code
+
+Si vous connaissez la sémantique des données en jeu, alors vous connaissez le comportement du code. 
+Si vous connaissez le comportement du code, alors vous savez quel est son coût. 
+Une fois que vous connaissez le coût, vous faites de l'ingénierie.
+
+Étant donné ce type et cet ensemble de méthodes.
+
+    type data struct {
+        name string
+        age  int
+    }
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Vous pouvez écrire le code suivant.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f1 := d.displayName
+        f1()
+        d.name = "Joan"
+        f1()
+    }
+
+Sortie :
+
+    My Name Is Bill
+    My Name Is Bill
+
+Dans un premier temps, vous construisez une valeur de type `Data` et l'assignez à la variable `d`. 
+Ensuite, vous prenez la méthode `displayName`, liée à `d`, et vous l'assignez à une variable nommée `f1`. 
+Il ne s'agit pas d'un appel de méthode, mais d'une affectation qui crée un niveau d'indirection. 
+Les fonctions sont des valeurs en Go et font partie des types internes.
+
+Après l'affectation, vous pouvez appeler la méthode indirectement via la variable `f1`. Cela affiche le nom 
+"Bill". Puis, vous modifiez la donnée `d` pour que le nom devienne "Joan", mais lorsque vous appelez à nouveau 
+la méthode via la variable `f1`, vous ne constatez pas le changement. "Bill" est toujours affiché. 
+Pourquoi cela ?
+
+.image /tour/eng/static/img/m1.png
+
+Cela a à voir avec la sémantique des données en jeu. La méthode `displayName` utilise un receveur par valeur, 
+donc la sémantique par valeur est utilisée.
+
+    func (d data) displayName() {
+        fmt.Println("My Name Is", d.name)
+    }
+
+Cela signifie que la variable `f1` conserve et utilise sa propre copie de `d`. Ainsi, appeler la méthode via 
+la variable `f1` utilisera toujours la copie, et cette copie est protégée contre les modifications. 
+C'est le comportement souhaité avec la sémantique par valeur.
+
+Maintenant, faisons la même chose avec la méthode `setAge`.
+
+    func main() {
+        d := data{
+            name: "Bill",
+        }
+
+        f2 := d.setAge
+        f2(45)
+        d.name = "Sammy"
+        f2(45)
+    }
+
+Sortie :
+
+    Bill Is Age 45
+    Sammy Is Age 45
+
+Cette fois, la méthode `setAge` est assignée à la variable `f2`. Encore une fois, la méthode est exécutée 
+indirectement via la variable `f2`, en passant 45 comme âge pour Bill. Ensuite, le nom de Bill est changé 
+en Sammy, et la variable `f2` est utilisée à nouveau pour l'appel. Cette fois, vous constatez que le nom a changé.
+
+.image /tour/eng/static/img/m2.png
+
+La fonction `setAge` utilise un receveur par pointeur. Cela signifie qu'elle ne fonctionne pas sur sa propre 
+copie de la variable d, mais directement sur la variable d elle-même. Par conséquent, f2 agit sur un accès 
+partagé et vous voyez le changement.
+
+    func (d *data) setAge(age int) {
+        d.age = age
+        fmt.Println(d.name, "Is Age", d.age)
+    }
+
+Sans connaître la sémantique des données en jeu, vous ne pourrez pas comprendre le comportement du code. 
+Cette sémantique est bien réelle et a un impact direct sur le comportement du code.
+
+** Notes
+
+- Les méthodes sont des fonctions qui déclarent un paramètre receveur.
+- Les receveurs lient une méthode à un type et peuvent utiliser la sémantique par valeur ou par pointeur.
+- La sémantique par valeur signifie qu'une copie de la valeur est transmise aux limites du programme.
+- La sémantique par pointeur signifie qu'une copie de l'adresse de la valeur est transmise 
+aux limites du programme.
+- Adhérez à une sémantique unique pour un type donné et soyez constant.
+
+** Citations
+
+"Les méthodes sont valides lorsqu'il est pratique ou raisonnable qu'un élément de données expose une capacité." - William Kennedy
+
+** Lectures supplémentaires
+
+- [[https://golang.org/doc/effective_go.html#methods][Methods]]    
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2018/01/escape-analysis-flaws.html][Escape-Analysis Flaws]] - William Kennedy  
+		 
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Déclarez une struct qui représente un joueur de baseball. Incluez le nom (name), le nombre de passages à 
+la batte (atBats) et le nombre de coups sûrs (hits).
+Déclarez une méthode qui calcule la moyenne à la batte d'un joueur. La formule est hits / atBats.
+Déclarez une slice de ce type et initialisez-la avec plusieurs joueurs. Parcourez la slice 
+en affichant les noms et la moyenne à la batte des joueurs.
+
+.play methods/exercise1.go
+.play methods/answer1.go

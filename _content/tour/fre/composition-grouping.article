@@ -1,0 +1,227 @@
+Regroupement par Types
+
+En Go, il est important de se rappeler que les concepts de sous-typage et de sous-classement n'existent pas vraiment. 
+Par conséquent, les schémas de conception qui s'appuient sur ces notions devraient être évités.
+
+* Regroupement par Types
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+En Go, il est important de se rappeler que les concepts de sous-typage et de sous-classement n'existent pas vraiment.
+Par conséquent, les schémas de conception qui s'appuient sur ces notions devraient être évités.
+
+** Analyse de Code
+
+- *Exemple* *1:* Regroupement par État
+- *Exemple* *2:* Regroupement par Comportement
+
+.play composition/grouping/example1.go
+.play composition/grouping/example2.go
+
+** Regroupement de Différents Types de Données
+
+Il est important de se rappeler que les concepts de sous-typage et de sous-classement n'existent pas vraiment.
+Par conséquent, les schémas de conception qui s'appuient sur ces notions devraient être évités.
+
+Ce qui suit représente un anti-pattern que vous devriez éviter de suivre ou d'implémenter.
+
+    type Animal struct {
+        Name string
+        IsMammal bool
+    }
+
+Le type `Animal` est déclaré comme un type de base qui tente de définir des données communes à tous les animaux. 
+Vous essayez également de fournir un comportement commun à un animal.
+
+    func (a *Animal) Speak() {
+        fmt.Println("UGH!",
+        "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
+    }
+
+La plupart des animaux ont la capacité de communiquer d'une manière ou d'une autre. Cependant, tenter d'appliquer ce 
+comportement commun uniquement à un animal n'a aucun sens. À ce stade, vous n'avez aucune idée du son que cet animal 
+émet, vous écrivez donc "UGH" par défaut.
+
+    type Chien struct {
+        Animal
+        PackFactor int
+    }
+
+Maintenant, les vrais problèmes commencent. J'essaie d'utiliser l'imbrication pour faire d'un `Chien` tout ce qu'est 
+un `Animal`, et plus encore. À première vue, cela semble fonctionner, mais il y aura des problèmes. 
+Cela dit, un chien a une façon bien spécifique de parler.
+
+    func (d *Chien) Speak() {
+        fmt.Println("Wouaf!",
+            "My name is", d.Name,
+            ", it is", d.IsMammal,
+            "I am a mammal with a pack factor of", d.PackFactor)
+    }
+
+Dans l'implémentation de la méthode `Speak`, vous pouvez remplacer "UGH" par "Wouaf". Ceci est spécifique à la façon 
+dont un chien "parle".
+
+
+    type Chat struct {
+        Animal
+        ClimbFactor int
+    }
+
+Si un chien doit représenter un `Animal`, alors il faut aussi avoir un `Chat`. En utilisant l'imbrication, 
+un `Chat` hérite de toutes les caractéristiques d'un `Animal` et plus encore.
+
+    func (c *Chat) Speak() {
+        fmt.Println("Meow!",
+            "My name is", c.Name,
+            ", it is", c.IsMammal,
+            "I am a mammal with a climb factor of", c.ClimbFactor)
+    }
+
+Dans l'implémentation de la méthode `Speak`, vous pouvez remplacer "UGH" par "Miaou". Ceci est spécifique 
+au langage du chat.
+
+Tout semble aller pour le mieux, et l'imbrication semble fournir la même fonctionnalité que l'héritage dans 
+d'autres langages. Ensuite, vous essayez de regrouper les chiens et les chats en raison de leur "ADN commun" d'animaux.
+
+    animals := []Animal{
+        Chien{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+    
+        Chat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, animal := range animals {
+        animal.Speak()
+    }
+
+Lorsque vous tentez de regrouper des chiens et des chats en utilisant l'imbrication en raison de leur "ADN commun" 
+d'animaux, le compilateur se plaint, car un `Chien` et un `Chat` ne sont pas des animaux au sens strict.
+
+Lorsque vous tenter de faire cela, le compilateur se plaint car, au sens strict un `Chien` et un `Chat` ne sont pas 
+un `Animal`.L'imbrication n'est pas la même chose que l'héritage qui est le pattern que l'on doit précisément éviter.
+Un `Chien` est un `Chien`, un `Chat`un `Chat` et un `Animal`un `Animal`. On ne peut pas passer un `Chien` et un `Chat` en tant 
+qu'`Animal` parce qu'ils ne le sont pas. 
+
+Ce type de mécanisme n'est pas non plus très flexible. Il nécessite une configuration par le développeur et, 
+à moins d'avoir accès au code, vous ne pouvez pas apporter de modifications de configuration au fil du temps.
+
+Si ce n'est pas ainsi que nous pouvons construire une collection de `Chien` et de `Chat`, comment pouvons-nous y 
+parvenir en Go ? L'objectif n'est pas de regrouper par "ADN commun", mais par comportement commun. 
+Le comportement est la clé.
+
+    type Speaker interface {
+        Speak()
+    }
+
+Si vous utilisez une interface, vous pouvez définir l'ensemble commun de méthodes (de comportements) que vous 
+souhaitez utiliser pour regrouper différents types de données.
+
+    speakers := []Speaker{
+        &Chien{
+            Animal: Animal{
+                Name: "Fido",
+                IsMammal: true,
+            },
+            PackFactor: 5,
+        },
+        &Chat{
+            Animal: Animal{
+                Name: "Milo",
+                IsMammal: true,
+            },
+            ClimbFactor: 4,
+        },
+    }
+
+    for _, speaker := range speakers {
+        speaker.Speak()
+    }
+
+Dans le nouveau code, vous pouvez désormais regrouper les chiens et les chats en fonction de leur comportement commun, 
+qui est le fait de pouvoir "parler".
+
+Dans les faits, le type `Animal` est un type polluant car, déclarer un type uniquement pour partager un ensemble 
+d'états communs est considéré comme une mauvaise pratique et devrait être évité.
+
+    type Chien struct {
+        Name string
+        IsMammal bool
+        PackFactor int
+    }
+    
+    type Chat struct {
+        Name string
+        IsMammal bool
+        ClimbFactor int
+    }
+
+Dans ce cas précis, il est préférable de supprimer le type `Animal` et de copier-coller les champs dans les types `Chien` 
+et `Chat`. Plus tard, vous trouverez des notes sur des patterns plus appropriés afin d'éviter ce genre de scénarii.
+
+Voici les pollutions présentent dans le code original : 
+
+- Le type `Animal` fournit une couche d'abstraction d'état réutilisable.
+- Le programme n'a jamais besoin de créer ou même utiliser une valeur de type `Animal`.
+- L'implémentation de la méthode `Speak` est trop générale.
+- La méthode `Speak` pour le type `Animal` n'est jamais appelée.
+
+Lignes directrices concernant la déclaration de types :
+
+- Déclarer des types qui représentent quelque chose de nouveau ou d'unique.
+- Valider le fait qu'une valeur de chaque type est créée ou utilisée pour ce qu'elle est.
+- Imbriquer les types non pas pour un état, mais pour un comportement.
+- Si vous ne pensez pas au comportement, vous vous enfermez dans une conception qui ne pourra pas évoluer 
+sans changements de code en cascade.
+- Remettez en question les types qui sont des alias ou des abstractions d'un type existant.
+- Remettez en question les types dont le seul but est de partager un ensemble d'états communs.
+
+** Ne Concevez Pas Avec des Interfaces
+
+Malheureusement, trop de développeurs essaient d'abord de résoudre les problèmes dans l'abstrait. 
+Ils se concentrent immédiatement sur les interfaces, ce qui conduit à une pollution par interfaces. 
+En tant que développeur, vous existez dans l'un des deux modes : un programmeur puis un ingénieur.
+
+Lorsque vous programmez, vous vous concentrez sur le fait de faire fonctionner un bout de code en essayant de 
+résoudre le problème et de franchir les obstacles. Prouver que vos idées initiales fonctionnent est tout ce 
+qui vous préoccupe. Cette programmation fonctionnelle n'est jamais prête pour la production.
+
+Une fois que vous avez un prototype de code qui résout le problème, vous devez passer en mode ingénierie. 
+Vous devez vous concentrer sur la façon d'écrire le code à un niveau micro au regard de la sémantique et 
+de la lisibilité, puis à un niveau macro pour les modèles mentaux et la maintenabilité. 
+Vous devez également vous concentrer sur les erreurs et les états d'échec.
+
+Ce travail est effectué dans un cycle de re-factorisation. Une re-factorisation pour la lisibilité, l'efficacité, 
+l'abstraction et la testabilité. L'abstraction n'est seulement que l'une des re-factorisations qui doivent être effectuées. 
+Cela fonctionne mieux lorsque vous commencez avec un morceau de code concret et que vous DÉCOUVREZ ensuite 
+les interfaces nécessaires. N'appliquez pas d'abstractions à moins qu'elles ne soient absolument nécessaires.
+
+Chaque problème que vous résolvez avec du code est un problème de données qui demande d'écrire des transformations 
+de données. Si vous ne comprenez pas les données, vous ne comprenez pas le problème. Si vous ne comprenez pas 
+le problème, vous ne pouvez pas écrire de code. Commencer avec une solution concrète basée sur des structures 
+de données concrètes est primordial. Comme le dit Rob Pike, 
+
+"Les données dominent. Si vous avez choisi les bonnes structures de données et organisez les choses correctement, 
+les algorithmes seront par eux-mêmes, presque toujours évidents." - Rob Pike
+
+Quand l'abstraction est-elle nécessaire ? Lorsque vous voyez un endroit dans le code où les données pourraient changer 
+et que vous voulez minimiser les effets en cascade sur le code qui en résulteraient. 
+Vous pourriez utiliser l'abstraction pour aider à rendre le code testable, mais vous devriez essayer de l'éviter 
+si possible. Les meilleures fonctions testables sont celles qui prennent des données brutes en entrée et renvoient 
+des données brutes en sortie. La provenance et la destination des données ne devraient pas avoir d'importance.
+
+Au final, commencez par une solution concrète pour chaque problème, même si l'essentiel de ce travail consiste 
+simplement à programmer. Ensuite, découvrez les interfaces qui sont aujourd'hui, absolument nécessaires pour le code.
+
+"Ne concevez pas avec des interfaces, découvrez-les." - Rob Pike

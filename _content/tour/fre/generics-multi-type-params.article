@@ -1,0 +1,35 @@
+Paramètres Multi-Types
+Vous n'êtes pas limité à l'utilisation d'un seul type générique à la fois.
+
+* Generics - Paramètres Multi-Types
+
+Vous n'êtes pas limité à l'utilisation d'un seul type générique à la fois.
+
+** Video
+
+Regardez la conférence que j'ai donnée sur les génériques, qui vous présente tous les exemples de cette section du Tour.
+
+.html generics-video.html
+
+** Analyse de Code
+
+- *Exemple* *1*: Print function
+
+.play generics/multi-type-params/example1.go
+
+** Explications
+
+    func Print[L any, V fmt.Stringer](labels []L, vals []V) {
+        for i, v := range vals {
+            fmt.Println(labels[i], v.String())
+        }
+    }
+
+La fonction Print accepte une collection de type L et une collection de type V. Le type L peut contenir des éléments 
+de n'importe quel type, mais V est limité aux valeurs ayant le comportement défini par l'interface `fmt.Stringer`.
+La collection d'éléments de type V est parcourue et on affiche chaque élément avec son étiquette correspondante 
+provenant de la collection de type L.
+
+Le nom du type générique peut être n'importe quel nom. Les conventions de nommage pour les types génériques nécessitent 
+une meilleure définition pour établir de bonnes pratiques. Pour l'instant, privilégiez l'utilisation de lettres 
+majuscules uniques lorsque cela améliore la lisibilité du code.

@@ -1,0 +1,391 @@
+Découplage
+La composition va au-delà de la mécanique d'imbrication de types et est plus qu'un simple paradigme.
+
+* Découplage
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Le meilleur moyen de tirer parti de l'imbrication de types est d'utiliser le modèle de conception compositionnel. 
+C'est la clé pour maintenir la stabilité de votre logiciel en étant capable de s'adapter aux changements de données 
+et de transformation à venir.
+
+** Analyse de code
+
+- *Exemple* *1:* Composition de Struct
+- *Exemple* *2:* Découplage via les Interfaces
+- *Exemple* *3:* Composition d'Interface
+- *Exemple* *4:* Découpage via la Composition d'Interfaces
+- *Exemple* *5:* Supprimer la Pollution par Interface
+- *Exemple* *6:* API plus Précise
+
+.play composition/decoupling/example1.go
+.play composition/decoupling/example2.go
+.play composition/decoupling/example3.go
+.play composition/decoupling/example4.go
+.play composition/decoupling/example5.go
+.play composition/decoupling/example6.go
+
+** Mécanique de Découplage
+
+L'idée est de composer des types plus grands à partir des types plus petits et de se concentrer sur la composition du
+comportement.
+
+    type Xenia struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Xenia) Pull(d *Data) error {
+        switch rand.Intn(10) {
+        case 1, 9:
+            return io.EOF
+        case 5:
+            return errors.New("Error reading data from Xenia")
+        default:
+            d.Line = "Data"
+            fmt.Println("In:", d.Line)
+            return nil
+        }
+    }
+
+Le type `Xenia` représente un système à partir duquel vous devez extraire des données. L'implémentation n'est pas 
+importante. Ce qui est important, c'est que la méthode `Pull` puisse réussir, échouer ou ne pas avoir de données à 
+extraire.
+
+    type Pillar struct {
+        Host    string
+        Timeout time.Duration
+    }
+
+    func (*Pillar) Store(d *Data) error {
+        fmt.Println("Out:", d.Line)
+        return nil
+    }
+
+Le type `Pillar` représente un système dans lequel vous devez stocker des données. Encore une fois, ce qui est important, 
+c'est que la méthode `Store` puisse réussir ou échouer.
+
+Ces deux types représentent une couche primitive de code qui fournit le comportement de base nécessaire pour résoudre 
+le problème métier d'extraction de données depuis `Xenia` et de stockage de ces données dans `Pillar`.
+
+    func Pull(x *Xenia, data []Data) (int, error) {
+        for i := range data {
+            if err := x.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(p *Pillar, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+La couche de code suivante est représentée par ces deux fonctions, `Pull` et `Store`. Elles s'appuient sur 
+la couche primitive de code en acceptant une collection de valeurs de données à extraire ou à stocker dans les systèmes 
+respectifs. Ces fonctions se concentrent sur les types concrets de `Xenia` et de `Pillar` car ce sont les systèmes 
+nécessaires au fonctionnement du programme à ce moment-là.
+
+    func Copy(sys *System, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(&sys.Xenia, data)
+            if i > 0 {
+                if _, err := Store(&sys.Pillar, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+La fonction `Copy` s'appuie sur les fonctions `Pull` et `Store` pour déplacer toutes les données en attente pour chaque 
+exécution. Si vous observez le premier paramètre de `Copy`, il s'agit d'un type appelé `System`.
+
+    type System struct {
+        Xenia
+        Pillar
+    }
+
+L'idée initiale du type `System` est de composer un système sait comment effectuer les opérations de `Pull` et 
+de `Store`. Dans ce cas, il s'agit de combiner les capacités de `Pull` et de `Store` définies par `Xenia` et `Pillar`.
+
+    func main() {
+        sys := System{
+            Xenia: Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Pillar: Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Finalement, la fonction `main` peut être écrite pour construire une instance de `Xenia` et de `Pillar` au sein de la 
+composition d'un `System`. Ensuite, le `System` peut être transmis à la fonction `Copy` et le flux de données entre les 
+deux systèmes peut commencer.
+
+Avec tout ce code, vous avez maintenant ma première ébauche d'une solution concrète à un problème concret.
+
+** Découplage par Interfaces
+
+L'étape suivante consiste à comprendre ce qui pourrait changer dans le programme. Dans ce cas, ce sont les systèmes 
+eux-mêmes qui peuvent changer. Aujourd'hui, il s'agit de Xenia et de Pillar, mais demain, il pourrait s'agir d'Alice 
+et de Bob. En sachant cela, vous voulez découpler la solution concrète existante de ce changement futur. Pour ce faire, 
+vous voulez transformer les fonctions concrètes en fonctions polymorphiques."
+
+    func Pull(p Puller, data []Data) (int, error) {
+        for i := range data {
+            if err := p.Pull(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+    func Store(s Storer, data []Data) (int, error) {
+        for i := range data {
+            if err := s.Store(&data[i]); err != nil {
+                return i, err
+            }
+        }
+
+        return len(data), nil
+    }
+
+Actuellement, les fonctions `Pull` et `Store` attendent respectivement, des arguments de types `Xenia` et `Pillar`. 
+En réalité, ce ne sont pas `Xenia` et `Pillar`qui importent, le plus important est la valeur concrete sachant effectuer 
+des opérations de `Pull` et de `Store`. On peut rendre ces fonctions polymorphiques, en demandant des données basées sur 
+leurs capacités plutôt que sur leur nature.
+
+    type Puller interface {
+        Pull(d *Data) error
+    }
+
+    type Storer interface {
+        Store(d *Data) error
+    }
+
+Ces deux interfaces décrivent les comportements requis des données concrètes. Ce sont ces types qui sont 
+remplacés dans la déclaration des fonctions `Pull` et `Store`. Maintenant, ces fonctions deviennent polymorphiques. 
+Lorsque Alice et Bob sont déclarés et implémentés en tant que `Puller`et `Storer`, ils peuvent être passées à ces 
+fonctions.
+
+Mais ce n'est pas fini, la fonction `Copy` doit également être polymorphique.
+
+    func Copy(ps PullStorer, batch int) error {
+        data := make([]Data, batch)
+
+        for {
+            i, err := Pull(ps, data)
+            if i > 0 {
+                if _, err := Store(ps, data[:i]); err != nil {
+                    return err
+                }
+            }
+
+            if err != nil {
+                return err
+            }
+        }
+    }
+
+La fonction `Copy` ne demandent plus désormais une valeur de type `System`, mais une valeur concrête qui sait exécuter 
+`Pull`et `Store`
+
+    type PullStorer interface {
+        Puller
+        Storer
+    }
+
+L'interface `PullStorer` est déclarer via l'utilisation de la composition. Elle est composée des interfaces `Puller` et 
+`Storer`. Travaillez à la composition d'interfaces plus grandes à partir d'interfaces plus petites.
+
+Notez comment la variable `PullStorer` est maintenant passé dans les fonctions `Pull` et `Store`.
+Comment cela est-il possible alors que les informations de types sont différentes ?
+
+    // func Pull(p Puller, data []Data) (int, error) {
+    i, err := Pull(ps, data)
+
+    // func Store(s Storer, data []Data) (int, error) {
+    if _, err := Store(ps, data[:i]); err != nil {
+
+Vous devez toujours garder à l'esprit que vous ne transmettez jamais une valeur d'interface dans votre programme car, 
+elles n'existent pas et n'ont pas de valeur. Vous ne pouvez transmettre que des données concrètes. Donc, les données 
+concrètes stockées dans la variable d'interface `ps` sont ce qui est transmis à `Pull` et `Store`. N'est-il pas vrai que 
+la valeur concrète stockée dans `ps` doit savoir effectuer des opérations `Pull` et `Store` ?
+
+.image /tour/eng/static/img/comp1.png
+
+Étant donné qu'un `System` est composé d'un `Xenia` et d'un `Pillar`, `System` implémente l'interface `PullStorer`. 
+Grâce à ces modifications, vous pouvez désormais créer de nouveaux types concrets qui implémentent 
+l'interface `PullStorer`.
+
+    type System1 struct {
+        Xenia
+        Pillar
+    }
+
+    type System2 struct {
+        Alice
+        Bob
+    }
+
+    type System3 struct {
+        Xenia
+        Bob
+    }
+
+    type System4 struct {
+        Alice
+        Pillar
+    }
+
+En y réfléchissant bien, déclarer des types `System` distincts pour toutes les combinaisons possibles n'est pas réaliste. 
+Cela fonctionnerait, mais le cauchemar qu'engendrerait la maintenance exige une meilleure solution.
+
+** Composition d'Interface
+
+Et si vous décidiez de composer un type de système concret à partir de deux types d'interface ?
+
+    type System struct {
+        Puller
+        Storer
+    }
+
+C'est une solution intéressante. Cela permettrait à l'application d'injecter le Puller ou le Storer concret dans le 
+système au démarrage de l'application.
+
+    func main() {
+        sys := System{
+            Puller: &Xenia{
+                Host:    "localhost:8000",
+                Timeout: time.Second,
+            },
+            Storer: &Pillar{
+                Host:    "localhost:9000",
+                Timeout: time.Second,
+            },
+        }
+
+        if err := Copy(&sys, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+Ce système unique implémente l'interface `PullStorer` pour toutes les combinaisons possibles de types concrets.
+
+.image /tour/eng/static/img/comp2.png
+
+Grâce à ce changement, l'application est totalement découplée des modifications apportées à un nouveau système qui 
+pourrait être mis en ligne ultérieurement.
+
+** Precision Review
+
+La prochaine question à se poser est, les fonctions polymorphiques sont-elles aussi précises qu'elles pourraient l'être ? 
+C'est une étape essentielle du processus d'ingénierie qui ne peut être ignorée. 
+La réponse est non, deux modifications peuvent être apportées.
+
+    func Copy(sys *System, batch int) error {
+
+La fonction `Copy` n'a plus besoin d'être polymorphique puisqu'il n'y aura qu'un type `System` unique. L'interface 
+`PullStorer` peut donc être supprimée du programme. Rappelez-vous que vous avez déplacé le polymorphisme à l'intérieur 
+du type en utilisant la composition avec les types d'interface.
+
+    func Copy(p Puller, s Storer, batch int) error {
+
+"Une autre modification peut être apportée à la fonction `Copy`. Ce changement la rend à nouveau plus précise et 
+polymorphique. Maintenant, la fonction demande désormais exactement ce dont elle a besoin en fonction des capacités 
+des données concrètes."
+
+.image /tour/eng/static/img/comp3.png
+
+Avec ce changement, le type `struct System` peut également être supprimé du programme.
+
+
+    func main() {
+        x := Xenia{
+            Host:    "localhost:8000",
+            Timeout: time.Second,
+        }
+
+        p := Pillar{
+            Host:    "localhost:9000",
+            Timeout: time.Second,
+        }
+
+        if err := Copy(&x, &p, 3); err != io.EOF {
+            fmt.Println(err)
+        }
+    }
+
+En supprimant les types `PullStorer` et `System`, le programme devient plus simple. La fonction `main` peut désormais 
+se concentrer sur la construction des valeurs concrètes `Puller` et `Storer` nécessaires au déplacement des données. 
+Le type `System` et les API sont plus précis. 
+L'idée de la précision vient de Edsger W. Dijkstra.
+
+"Le but de l'abstraction n'est pas d'être vague, mais de créer un nouveau niveau sémantique dans lequel on peut être 
+absolument précis.". - Edsger W. Dijkstra
+
+** Notes
+
+- Ceci va bien au-delà de la mécanique d'imbrication de types.
+- Concevez vos types et implémentez vos workflows en gardant à l'esprit la composition.
+- Commencez par bien comprendre le problème que vous essayez de résoudre, cela signifie comprendre les données.
+- L'objectif est de réduire et de minimiser les modifications en cascade dans votre logiciel.
+- Les interfaces offrent la forme de composition la plus élevée.
+- Ne regroupez pas les types en fonction d'un ADN commun, mais en fonction d'un comportement commun.
+- Tout le monde peut collaborer efficacement lorsque nous nous concentrons sur ce que nous faisons et non pas sur ce que nous sommes.
+
+** Citations
+
+"Une bonne API est non seulement facile à utiliser, mais aussi difficile à mal utiliser." - JBD
+
+"On peut toujours imbriquer des types dans une interface, mais vous ne pouvez pas décomposer de grandes interfaces une fois qu'elles sont utilisées. Gardez les interfaces petites." - JBD
+
+"Ne concevez pas avec des interfaces, découvrez-les." - Rob Pike
+
+"La duplication est bien moins couteuse qu'une mauvaise abstraction. - Sandi Metz
+
+** Principes de Conception
+
+En apprendre plus sur la conception d'interface via la composition [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#interface-and-composition-design][design guidelines]].
+
+** LEctures Supplémentaires
+
+- [[https://programmingisterrible.com/post/176657481103/repeat-yourself-do-more-than-one-thing-and][Repeat yourself, do more than one thing, and rewrite everything]] - tef  
+- [[https://golang.org/doc/effective_go.html#embedding][Embedding]]   
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedding]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2015/09/composition-with-go.html][Composition In Go]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/reducing-type-hierarchies.html][Reducing Type Hierarchies]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2016/10/avoid-interface-pollution.html][Avoid Interface Pollution]] - William Kennedy 
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+En utilisant le modèle, déclarez un ensemble de types concrets qui implémentent l'ensemble de types d'interface prédéfinis. Ensuite, créez des valeurs de ces types et utilisez-les pour accomplir un ensemble de tâches prédéfinies.
+
+.play composition/decoupling/exercise1.go
+.play composition/decoupling/answer1.go

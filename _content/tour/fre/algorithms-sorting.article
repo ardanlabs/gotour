@@ -1,0 +1,183 @@
+Opérations de Tri
+Cette section fournie des exemples sur les opérations de tri.
+
+* Tri à Bulles
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Cette exemple implémente une fonction qui exécute un tri à bulles sur un ensemble d'entiers.
+
+- En apprendre plus sur [[https://en.wikipedia.org/wiki/Bubble_sort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagramme*
+
+    Le tri à bulles est un algorithme de tri simple qui parcours une liste 
+    élément par élément, comparant l'élément courant avec le suivant en inversant
+    leurs valeurs si besoin.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Tableau de départ
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── Après la Première Itération
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Après la Seconde Itération / Trié
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Tri par Insertion
+
+Ce programme implémente une fonction qui exécute un tri par assertion sur un ensemble d'entiers.
+
+- En apprendre plus sur [[https://en.wikipedia.org/wiki/Insertion_sort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagramme*
+
+    Le tri par insertion itère un nombre fois égal à la longueur 
+    du tableau moins un. Pour un tableau de 5 nombres, le tri itèrera
+    4 fois. Commençant à l'index 1, le tri déplace ce nombre sur la
+    gauche en le plaçant à une position triée.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tableau de Départ
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Déplace [1]=30 sur la gauche
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Après la Première Itération
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Déplace [2]=05 sur la gauche
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Après la Seconde Itération
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁── Déplace [3]=25 sur la gauche
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Après la Troisième Itération
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁── Déplace [4]=15 sur la gauche
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Après la Quatrième Itération
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Trié
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Tri par Tas
+
+Ce programme implémente une fonction qui exécute un tri par tas sur un ensemble d'entiers.
+
+- En apprendre plus [[https://en.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagramme*
+
+Le tri par tas divise son entrée en deux tableaux l'un trié et l'autre non. 
+L'algorithme réduit de façon itérative la région non triée en extrayant le 
+plus grand élément de celle-ci et en l'insérant dans le tableau trié. 
+L'algorithme se déroule en deux phases.
+
+    Phase I  
+    Divise la liste en deux et travaille sur la première moitié de la liste,
+    en déplaçant la plus grande valeur au début puis le second à la suite...
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Tableau de Départ
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁── Vérifie [1]=16 < [4]=73 : Permutation
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Après la Première Itération
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁── Check [0]=63 < [3]=71 : Permutation
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Après la Seconde Itération
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁── Phase I Complete
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Phase II  
+    Prend la liste et commence à extraire les nombres dans une nouvelle liste
+    triée. Retire le nombre à la première position et le place dans la nouvelle
+    liste qui contiendra le tri final. Ensuite déplace à nouveau le plus grand
+    nombre suivant trouvé et le place au début de la liste.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Tableau de Départ
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── Après la Première Itération
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁── Extrait 73 et déplace 71 au début
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁── Après la Seconde Itération
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁── Extrait 71 et déplace 63 au début
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Après la Troisième Itération
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁── Extrait 63 et déplace 40 au début
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── Après la Quatrième Itération
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁── Extrait 40 et déplace 16 au début
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Après la Cinquième Itération
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁── Extrait 16 / Trié
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Tri Rapide
+
+Ce programme implémente une fonction qui exécute un tri rapide sur un ensemble d'entiers.
+
+- En apprendre plus sur [[https://en.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagramme*
+
+    Le tri rapide (Quicksort) est un algorithme de tri par division et conquête.
+    Il fonctionne en sélectionnant un élément 'pivot' dans le tableau et 
+    en partitionnant les autres éléments en deux sous-tableaux selon qu'ils
+    soient inférieurs ou supérieurs au pivot. 
+
+    -------------------------------------------------------------------
+    Exemple 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tableaux de Départ
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁── Valeur Pivot 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Tri des Éléments 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── Premier Tri Effectué
+    └────┘└────┘└────┘└────┘└────┘
+
+    Les deux derniers éléments sont trriés, focus sur les trois premiers.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Valeur Pivot 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Trié
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Exemple 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Tableau de Départ
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁── Valeur Pivot 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Tri des Éléments 0 - 4
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── Premier Tri Effectué
+    └────┘└────┘└────┘└────┘└────┘
+
+    Le premier élément est trié, focus sur les quatre derniers.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Valeur Pivot 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Deuxième Tri Effectué
+    └────┘└────┘└────┘└────┘└────┘
+
+     Les deux premiers éléments sont triés, docus sur les trois derniers.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Valeur Pivot 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Troisième Tri Effectué
+    └────┘└────┘└────┘└────┘└────┘
+
+    Les trois premiers éléments sont triés, focus sur les deux derniers.
+
+    ┌────┐┌────┐ ◁── Valeur Pivot 59
+    │ 73 ││ 59 │
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │  ◁── Quatrième Tri Effectué / Trié
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

@@ -1,0 +1,101 @@
+Comportement Comme Contrainte
+Tout type générique nécessite la déclaration d'une contrainte afin que le compilateur puisse identifier les substitutions de types concrets qu'il peut accepter ou rejeter au moment de la compilation.
+
+* Generics - Comportement Comme Contrainte
+
+Tout type générique nécessite la déclaration d'une contrainte afin que le compilateur puisse identifier les 
+substitutions de types concrets qu'il peut accepter ou rejeter au moment de la compilation.
+Cela est nécessaire même s'il n'y a pas de contrainte réelle sur le type générique pouvant être utilisé, d'où 
+l'identifiant de contrainte prédéfini "any".
+
+** Video
+
+Regardez la conférence que j'ai donnée sur les génériques, qui vous présente tous les exemples de cette section du Tour.
+
+.html generics-video.html
+
+** Analyse de Code
+
+- *Exemple* *1*: Fonction stringify concrète
+- *Exemple* *2*: fonction stringify à assertion de type
+- *Exemple* *3*: Fonction d'interface stringify
+- *Exemple* *4*: Fonction générique stringify
+
+.play generics/behavior-constraints/example1.go
+.play generics/behavior-constraints/example2.go
+.play generics/behavior-constraints/example3.go
+.play generics/behavior-constraints/example4.go
+
+** Explications
+
+En fait, la notion de contrainte est déjà présente dans le langage.
+
+    type User struct {
+        name string
+    }
+    
+    func (u User) String() string {
+        return u.name
+    }
+    
+    type Stringer interface {
+        String() string
+    }
+    
+    func Concrete(u User) {
+        u.String()
+    }
+
+    func Polymorphic(s Stringer) {
+        s.String()
+    }
+
+Le code définit un type concret nommé `User` et implémente une méthode nommée `String` qui renvoie le 
+nom (`name`) de l'utilisateur. Ensuite, un type d'interface nommé `Stringer` est déclaré. Cette interface déclare un 
+comportement nommé `String` qui renvoie une `string`. Grâce à la méthode déclarée pour `User`, on peut dire que le type 
+concret `User` implémente l'interface `Stringer` en utilisant la sémantique par valeur.
+
+La fonction `Concrete ` est, comme son nom l'indique, une fonction qui accepte des données concrètes en fonction de ce 
+qu'elles sont. `Polymorphic`, elle aussi, accepte des données concrètes, mais en fonction de ce qu'elles peuvent faire. 
+C'est la principale différence entre une fonction concrète et une fonction polymorphe. La première est limitée à un 
+seul type de données, tandis que la seconde ne l'est pas. Cependant, il existe une contrainte sur les données concrètes 
+qui peuvent être transmises à la fonction polymorphe.
+
+L'interface `Stringer` définit cette contrainte en déclarant un ensemble de méthodes comportementales que les données 
+concrètes doivent pouvoir réaliser. Lorsqu'elle est utilisée comme type d'entrée d'une fonction, le compilateur peut 
+garantir que la contrainte comportementale est respectée à chaque appel de la fonction.
+
+Il existe des fonctions génériques qui nécessitent le même type de contrainte comportementale.
+
+    func stringify[T fmt.Stringer](slice []T) []string {
+        ret := make([]string, 0, len(slice))
+        
+        for _, value := range slice {
+            ret = append(ret, value.String())
+        }
+        
+        return ret
+    }
+
+Voici la fonction générique `stringify`. Elle prend en entrée une slice d'éléments de type T et renvoie une slice de 
+chaînes de caractères contenant la version `string` de chacune des valeurs de la collection d'entrée. L'élément clé 
+du fonctionnement de cette fonction est l'appel de la méthode `String()` sur chaque valeur de type T.
+
+Le problème est que le compilateur a besoin de savoir et de vérifier que les valeurs de type T possèdent bien une 
+méthode nommée `String`. Lorsque le type générique T est déclaré, l'interface `fmt.Stringer` lui est fournie comme 
+contrainte. Le compilateur peut désormais vérifier tout type utilisé en remplacement de T et s'assurer 
+que les données passées à la fonction possèdent bien l'ensemble du comportement défini.
+
+C'est excellent car l'interface est réutilisée pour le même objectif et le langage n'a pas besoin d'un nouveau mot-clé.
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Implémentez une fonction générique nommée `marshal` capable de transformer des données en JSON. Cependant, cette 
+fonction ne peut accepter que des valeurs implémentant l'interface `json.Marshaler`.
+
+.play generics/behavior-constraints/exercise1.go 
+.play generics/behavior-constraints/answer1.go
