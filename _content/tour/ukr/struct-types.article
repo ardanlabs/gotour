@@ -1,0 +1,245 @@
+Struct Types
+Struct types are a way of creating complex types that group fields of data together.
+
+* Struct Types
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
+- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+
+Struct types are a way of creating complex types that group fields of data together.
+They are a great way of organizing and sharing the different aspects of the data
+your program consumes.
+
+A computer architecture’s potential performance is determined predominantly by its
+word length (the number of bits that can be processed per access) and, more importantly,
+memory size, or the number of words that it can access.
+
+** Code Review
+
+- *Example* *1:* Declare, create and initialize struct types.
+- *Example* *2:* Anonymous struct types.
+- *Example* *3:* Named vs Unnamed types. 
+- *Example* *4:* Struct type alignments
+
+.play struct-types/example1.go
+.play struct-types/example2.go
+.play struct-types/example3.go
+.play struct-types/example4.go
+
+** Struct and Construction Mechanics
+
+This declaration represents a concrete user-defined type as a composite of
+different fields and types.
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+Declare a variable of type example and initialize it to its zero value state.
+
+    var e1 example
+
+    fmt.Printf("%+v\n", e1)
+
+Output:
+    
+    {flag:false counter:0 pi:0}
+
+Declare a variable of type example not set to its zero value state by using literal
+construction syntax.
+
+    e2 := example{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e2.flag)
+    fmt.Println("Counter", e2.counter)
+    fmt.Println("Pi", e2.pi)
+
+Output:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+Declare a variable of an unnamed literal type set to its non-zero value state
+using literal construction syntax.
+
+    e3 := struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }{
+        flag:    true,
+        counter: 10,
+        pi:      3.141592,
+    }
+
+    fmt.Println("Flag", e3.flag)
+    fmt.Println("Counter", e3.counter)
+    fmt.Println("Pi", e3.pi)
+
+Output:
+
+    Flag true
+    Counter 10
+    Pi 3.141592
+
+The idea of literal construction is just that, to construct something literally
+without a name.
+
+You should use var for zero value and the short variable declaration operator with
+the { } syntax for non-zero value construction.
+
+** Padding and Alignment
+
+How much memory is allocated for a value of type example?
+
+    type example struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+A bool is 1 byte, int16 is 2 bytes, and float32 is 4 bytes. Add that all together
+and you get 7 bytes. However, the actual answer is 8 bytes. Why, because there
+is a padding byte sitting between the flag and counter fields for the reason of alignment.
+
+.image /tour/eng/static/img/f1.png
+
+The idea of alignment is to allow the hardware to read memory more efficiently
+by placing memory on specific alignment boundaries. The compiler takes care of the alignment boundary mechanics so you don’t have to.
+
+Depending on the size of a particular field and its placement in the struct, Go
+determines the padding you need.
+
+    type example2 struct {
+        flag    bool
+        counter int16
+        flag2   bool
+        pi      float32
+    }
+
+In this example, I’ve added a new field called `flag2` between the counter and pi
+fields. This causes more padding inside the struct.
+
+    type example2 struct {
+        flag    bool     // 0xc000100020 <- Starting Address
+                byte     // 0xc000100021 <- 1 byte padding
+        counter int16    // 0xc000100022 <- 2 byte alignment
+        flag2   bool     // 0xc000100024 <- 1 byte alignment
+                byte     // 0xc000100025 <- 1 byte padding
+                byte     // 0xc000100026 <- 1 byte padding
+                byte     // 0xc000100027 <- 1 byte padding
+        pi      float32  // 0xc000100028 <- 4 byte alignment
+    }
+
+This is how the alignment and padding play out if a value of type example2 starts
+at address 0xc000100020. The flag field represents the starting address and is
+only 1 byte in size. Since the counter field requires 2 bytes of allocation, it
+must be placed in memory on a 2-byte alignment, meaning it needs to fall on an
+address that is a multiple of 2. This requires the counter field to start at address
+0xc000100022. This creates a 1-byte gap between the flag and counter fields.
+
+.image /tour/eng/static/img/f2.png
+
+The `flag2` field is a bool and can fall at the next address 0xc000100024. The
+final field is pi and requires 4 bytes of allocation so it needs to fall on a
+4-byte alignment. The next address for a 4 byte value is at 0xc000100028. That
+means 3 more padding bytes are needed to maintain a proper alignment. This results
+in a value of type example2 requiring 12 bytes of total memory allocation.
+
+The largest field in a struct represents the alignment boundary for the entire
+struct. In this case, the largest field is 4 bytes so the starting address for this
+struct value must be a multiple of 4. You can see the address 0xc000100020 is a
+multiple of 4.
+
+If you need to minimize the amount of padding bytes, you must lay out the fields from
+highest allocation to lowest allocation. This will push any necessary padding bytes
+down to the bottom of the struct and reduce the total number of padding bytes necessary.
+
+    type example struct {
+        pi      float32  // 0xc000100020 <- Starting Address
+        counter int16    // 0xc000100024 <- 2 byte alignment
+        flag    bool     // 0xc000100026 <- 1 byte alignment
+        flag2   bool     // 0xc000100027 <- 1 byte alignment
+    }
+
+After the reordering of the fields, the struct value only requires 8 bytes of
+allocation and not 12 bytes. Since all the fields allow the struct value to fall
+on a 4-byte alignment, no extra padding bytes are necessary.
+
+.image /tour/eng/static/img/f3.png
+
+** Assigning Values
+
+If you have two different named types that are identical in structure, you can't assign
+a value of one to the other.
+
+For example, if the types example1 and example2 are declared using the same exact
+declaration and we initialize two variables.
+
+    var ex1 example1
+    var ex2 example2
+
+You can’t assign these two variables to each other since they are of different named
+types. The fact that they are identical in structure is irrelevant. 
+
+    ex1 = ex2  // Not allowed, compiler error
+
+To perform this assignment, you would have to use conversion syntax and since they
+are identical in structure, the compiler will allow this.
+
+    ex1 = example1(ex2)  // Allowed, NO compiler error
+
+However, if ex2 was changed to be declared as an unnamed type using the same exact
+declaration as ex1, no conversion syntax would be required.
+
+    var ex2 struct {
+        flag    bool
+        counter int16
+        pi      float32
+    }
+
+    ex1 = ex2  // Allowed, NO need for conversion syntax
+
+The compiler will allow this assignment without the need for conversion.
+
+** Notes
+
+- We can use the struct literal form to initialize a value from a struct type.
+- The dot (.) operator allows us to access individual field values.
+- We can create anonymous structs.
+
+** Quotes
+
+"Implicit conversion of types is the Halloween special of coding. Whoever thought
+of them deserves their own special hell." - Martin Thompson
+
+** Extra Reading
+
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-type-in-go.html][Understanding Type in Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/object-oriented-programming-in-go.html][Object Oriented Programming in Go]] - William Kennedy    
+- [[https://dave.cheney.net/2015/10/09/padding-is-hard][Padding is hard]] - Dave Cheney    
+- [[https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/][Structure Member Alignment, Padding and Data Packing]]    
+- [[http://www.catb.org/esr/structure-packing][The Lost Art of Structure Packing]] - Eric S. Raymond    
+
+* Exercises
+
+Use the template as a starting point to complete the exercises. A possible solution is provided.
+
+** Exercise 1
+
+*Part* *A:* Declare a struct type to maintain information about a user (name,
+email and age). Create a value of this type, initialize with values and display
+each field.
+
+*Part* *B:* Declare and initialize an anonymous struct type with the same three
+fields. Display the value.
+
+.play struct-types/exercise1.go
+.play struct-types/answer1.go
