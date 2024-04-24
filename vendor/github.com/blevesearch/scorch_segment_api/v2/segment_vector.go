@@ -55,14 +55,14 @@ type VecPostingsIterator interface {
 }
 
 type VectorIndex interface {
-	Search(qVector []float32, k int64, except *roaring.Bitmap) (VecPostingsList, error)
+	Search(qVector []float32, k int64) (VecPostingsList, error)
 	Close()
 	Size() uint64
 }
 
 type VectorSegment interface {
 	Segment
-	InterpretVectorIndex(field string) (VectorIndex, error)
+	InterpretVectorIndex(field string, except *roaring.Bitmap) (VectorIndex, error)
 }
 
 type VecPosting interface {
