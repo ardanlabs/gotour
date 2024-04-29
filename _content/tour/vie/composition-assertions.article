@@ -1,32 +1,32 @@
-Type Conversions And Assertions
-Learn how type conversations and assertions work.
+Chuyển đổi Kiểu và Xác nhận (Type Conversions And Assertions)
+Cùng tìm hiểu cách làm việc của Chuyển đổi Kiểu và Xác nhận nhé.
 
-* Type Conversions And Assertions
+* Chuyển đổi Kiểu và Xác nhận
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-A type conversion allows the data of one type to convert to another type. A type
-assertion allows you to ask the question if there a value of the given type stored
-inside an interface.
+Type Conversion cho phép dữ liệu của một kiểu chuyển sang loại khác. Một loại
+khai báo cho phép bạn đặt câu hỏi nếu có một giá trị thuộc kiểu đã cho được lưu trữ
+bên trong một interface.
 
 ** Code Review
 
-- *Example* *1:* Interface Conversions
-- *Example* *2:* Runtime Type Assertions
-- *Example* *3:* Behavior Changes
+- *Ví dụ* *1:* Interface Conversions
+- *Ví dụ* *2:* Runtime Type Assertions
+- *Ví dụ* *3:* Behavior Changes
 
-.play composition/assertions/example1.go
-.play composition/assertions/example2.go
-.play composition/assertions/example3.go
+.chạy composition/assertions/example1.go
+.chạy composition/assertions/example2.go
+.chạy composition/assertions/example3.go
 
-** Implicit Interface Conversions
+** Chuyển đổi Interface Ngầm
 
-As you saw in the last example, An interface value of one type can be passed for a
-different interface type if the concrete value stored inside the interface implements
-both behaviors. This could be considered an implicit interface conversion, but it’s
-better to think about how concrete data is being moved through interfaces in a
-decoupled state.
+Như bạn đã thấy trong ví dụ trước, một giá trị interface thuộc một kiểu có thể
+được truyền cho một kiểu interface khác nếu giá trị cụ thể được lưu trữ bên trong
+interface thực hiện cả hai hành vi. Đây có thể được coi là một sự chuyển đổi
+interface ngầm, nhưng tốt hơn nên nghĩ về cách dữ liệu cụ thể được di chuyển qua
+các interface trong một trạng thái tách rời.
 
     type Mover interface {
         Move()
@@ -42,7 +42,7 @@ decoupled state.
         Locker
     }
 
-Given these three interfaces, where MoveLocker is the composition of Mover and Locker.
+Với ba interface này thì MoveLocker là sự kết hợp của Mover và Locker.
 
     type bike struct{}
 
@@ -58,61 +58,61 @@ Given these three interfaces, where MoveLocker is the composition of Mover and L
         fmt.Println("Unlocking the bike")
     }
 
-And given this concrete type bike that implements all three interfaces. What can you do?
+Và với kiểu bike cụ thể này implement cả ba interface. Bạn có thể làm gì?
 
     var ml MoveLocker
     var m Mover
 
-You can construct a value of type MoveLocker and Mover to its zero value state.
-These are interface values that are truly valueless. 
+Bạn có thể xây dựng một giá trị thuộc kiểu MoveLocker và Mover về trạng thái zero value.
+Đây là những giá trị interface thực sự vô giá trị.
 
     ml = bike{}
 
-Then you can construct a value of type bike to its zero value state and assign a
-copy to the MoveLocker variable ml. This is possible because a bike implements
-all three behaviors, and the compiler can see that the implementation exists.
+Sau đó, bạn có thể xây dựng một giá trị của kiểu bike về trạng thái zero value và gán một
+bản sao vào biến MoveLocker ml. Điều này có thể thực hiện được vì bike implement
+cả ba hành vi và trình biên dịch có thể thấy rằng việc triển khai có tồn tại.
 
     m = ml
 
-You can then assign the MoveLocker variable ml to the Mover variable m. This is possible
-because I’m not assigning the interface value ml but the concrete value stored inside
-of ml which is a bike value. The compiler knows that any concrete value stored inside
-of ml must also implement the Mover interface.
+Sau đó, bạn có thể gán biến MoveLocker ml cho biến Mover m. Điều này khả thi bởi vì
+tôi không gán giá trị interface ml mà là giá trị cụ thể được lưu trữ bên trong
+ml (là giá trị bike). Trình biên dịch biết bất kỳ giá trị cụ thể nào được lưu trữ bên trong
+ml cũng phải triển khai interface Mover.
 
-This assignment however is not valid. 
+Tuy nhiên, việc sau đây không hợp lệ. 
 
     ml = m
 
-Output:
+Đầu ra:
 
     cannot use m (type Mover) as type MoveLocker in assignment:
         Mover does not implement MoveLocker (missing Lock method)
 
-You can’t assign the Mover variable m back to the MoverLocker variable ml because the
-compiler can only guarantee that the concrete value stored inside of m knows how to Move.
-It doesn’t know at compile time if the concrete value also knows how to Lock and Unlock. 
+Bạn không thể gán lại biến Mover m cho biến MoverLocker ml vì trình biên dịch chỉ có thể
+đảm bảo rằng giá trị cụ thể được lưu trữ bên trong m biết cách Move. Tại thời điểm biên dịch,
+nó không biết liệu giá trị cụ thể có biết cách Lock và Unlock hay không.
 
-** Type Assertion Mechanics
+** Cơ chế xác nhận kiểu (Type Assertion Mechanics)
 
-A type assertion allows you at runtime to ask a question, is there a value of the
-given type stored inside an interface. You see that with the m.(bike) syntax. 
+Type assertion cho phép bạn đặt câu hỏi lúc runtime, liệu có giá trị nào của
+kiểu đã cho được lưu trữ bên trong một interface. Bạn thấy điều đó với cú pháp m.(bike).
 
     b := m.(bike)
     ml = b
 
-In this case, you am asking if there is a bike value stored inside of m at the moment
-the code is executed. If there is, then the variable b is given a copy of the bike
-value stored. Then the copy can be copied inside of the ml interface variable.
+Trong trường hợp này, bạn đang hỏi liệu có giá trị bike nào được lưu trữ bên trong m tại
+thời điểm mã được thực thi không. Nếu có thì biến b sẽ được cấp một bản sao của giá trị
+được lưu trữ bike. Sau đó, bản sao có thể được sao chép bên trong biến interface ml.
 
-If there isn’t a bike value stored inside of the interface value, then the program panics.
-you want this if there absolutely should have been a bike value stored. What if there is a
-chance there isn’t and that is valid? Then you need the second form of the type assertion.
+Nếu không có giá trị bike được lưu trữ bên trong giá trị interface thì chương trình sẽ panic.
+Bạn muốn lẽ ra phải có một giá trị bike được lưu trữ. Điều gì sẽ xảy ra nếu có một giá trị bike
+và đó có hợp lệ không? Do đó, bạn cần dạng thứ hai của type assertion.
 
     b, ok := m.(bike)
 
-In this form, if ok is true, there is a bike value stored inside of the interface. If
-ok is false, then there isn’t and the program does not panic. The variable b however
-is still of type bike, but it is set to its zero value state.
+Trong dạng này, nếu ok là true thì sẽ có giá trị bike được lưu trữ bên trong interface.
+Nếu ok là false thì không có bike nào được lưu trữ và chương trình không panic.
+Tuy nhiên, biến b vẫn thuộc kiểu bike nhưng nó được đặt ở trạng thái zero value.
 
     func main() {
         mvs := []fmt.Stringer{
@@ -132,9 +132,9 @@ is still of type bike, but it is set to its zero value state.
         }
     }
 
-Assuming the program does declare two types named Car and Cloud that each implement
-the fmt.Stringer interface, you can construct a collection that allows you to store a
-value of both Car and Cloud. Then 10 times, you randomly choose a number from 0 to 1,
-and perform a type assertion to see if the value at that random index contains a
-Cloud value. Since it’s possible it’s not of type Cloud, the second form of the type
-assertion is critical here.
+Giả sử chương trình khai báo hai kiểu có tên là Car và Cloud mà mỗi kiểu implement
+interface fmt.Stringer, bạn có thể xây dựng một collection cho phép bạn lưu trữ một
+giá trị của cả Car và Cloud. Sau đó 10 lần, bạn chọn ngẫu nhiên một số từ 0 đến 1,
+và thực hiện type assertion để xem liệu giá trị tại chỉ mục ngẫu nhiên đó có chứa một
+giá trị Cloud không. Vì có thể nó không thuộc kiểu Cloud nên dạng thứ hai của
+type assertion là cực kỳ quan trọng ở đây.
