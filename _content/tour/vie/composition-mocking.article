@@ -1,28 +1,29 @@
-Mocking
-Since the compiler can perform static code analysis to determine if a concrete value implements an interface, the developer declaring the concrete type doesn’t need to provide interfaces as well.
+Giả lập hành vi (Mocking)
+Vì trình biên dịch có thể thực hiện việc phân tích mã tĩnh để xác định xem một giá trị cụ thể
+có triển khai interface hay không nên developer khai báo loại cụ thể cũng không cần cung cấp interface.
 
 * Mocking
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-The best way to take advantage of embedding is through the compositional design
-pattern. The idea is to compose larger types from smaller types and focus on the
-composition of behavior.
+Cách tốt nhất để tận dụng lợi thế của việc nhúng là thông qua mẫu thiết kế tổng hợp.
+Ý tưởng là kết hợp các kiểu lớn hơn từ các kiểu nhỏ hơn và tập trung vào thành phần
+của hành vi.
 
 ** Code Review
 
-- *Example* *1:* Mocking
+- *Ví dụ* *1:* Mocking
 
-.play composition/mocking/example1.go
+.chạy composition/mocking/example1.go
 
-** Interface Ownership
+** Sự sở hữu Interface
 
-One thing that is different about Go from other languages is the idea of convention
-over configuration. This really shows itself with how Go handles interface compliance.
-Because the compiler can perform static code analysis to determine if a concrete value
-implements an interface, the developer declaring the concrete type doesn’t need to
-provide interfaces as well.
+Một điểm khác biệt của Go so với các ngôn ngữ khác là ý tưởng về quy ước cao hơn
+cấu hình. Điều này thực sự thể hiện qua cách Go xử lý việc tuân thủ interface.
+Vì trình biên dịch có thể thực hiện phân tích mã tĩnh để xác định xem một giá trị cụ thể
+có triển khai một interface hay không, nên developer khai báo loại cụ thể mà không cần
+cung cấp interface.
 
     package pubsub
 
@@ -46,13 +47,13 @@ provide interfaces as well.
         return nil
     }
 
-You've just implemented a new API that provides a concrete implementation for publish
-and subscribe. There are no interfaces being provided because this API does not
-need one. This is a single concrete implementation.
+Bạn vừa viết một API mới cung cấp cách triển khai cụ thể cho việc Publish và
+Subscribe. Không có interface nào được cung cấp vì API này không cần.
+Đây là một việc implement cụ thể duy nhất.
 
-What if the application developer wanting to use this new API needs an interface
-because they have the need to mock this implementation during tests? In Go, that
-developer can declare the interface and the compiler can identify the compliance.
+Điều gì sẽ xảy ra nếu một developer sử dụng API mới này cần một interface bởi vì
+họ có nhu cầu mock implement này trong quá trình test? Trong Go, developer đó
+có thể khai báo interface và trình biên dịch có thể xác định sự đúng đắn.
 
     package main
 
@@ -73,11 +74,10 @@ developer can declare the interface and the compiler can identify the compliance
         return nil
     }
 
-This code in the main package is declaring an interface. This interface represents
-the API that the application is using from the pubsub package. The developer has
-implemented their own pubsub implementation for testing. The key here is that this
-application developer doesn’t use any concrete implementation directly, but decouples
-themselves through their own interface.
+Code này trong package main đang khai báo một interface. Interface này đại diện cho
+API mà ứng dụng đang sử dụng từ package pubsub. Developer đã triển khai pubsub
+của riêng mình để test. Mấu chốt ở đây là developer không trực tiếp sử dụng bất kỳ
+implement cụ thể nào mà decouples thông qua interface của riêng mình.
 
     func main() {
         pubs := []publisher{
@@ -91,7 +91,6 @@ themselves through their own interface.
         }
     }
 
-To provide an example, the main function constructs a collection that is initialized
-with the pubsub implementation and the mock implementation. The publisher interface
-allows this. Then a for range loop is implemented to show how the application code
-is abstracted from any concrete implementation.
+Ví dụ, function main xây dựng một bộ sưu tập được khởi tạo với việc implement pubsub và mock.
+Interface publisher cho phép điều này. Sau đó, một vòng lặp for range được implement để
+hiển thị cách code của ứng dụng được abstract từ bất kỳ implement cụ thể nào.
