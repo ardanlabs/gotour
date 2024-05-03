@@ -1,28 +1,27 @@
-Data Races
-A data race is when two or more goroutines attempt to read and write to the same resource at the same time.
+Гонки данных
+Гонка данных - это состояние, когда две или более горутины пытаются одновременно читать и записывать данные в один и тот же ресурс.
 
-* Data Races
+* Гонки данных
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Посмотреть видео]]
+- Если нужна финансовая поддержка, используйте нашу [[https://www.ardanlabs.com/scholarship/][форму заявки на стипендию]].
 
-A data race is when two or more Goroutines are trying to access the same memory
-location at the same time where at least one Goroutine is performing a write. When
-this happens it is impossible to predict the result. These types of bugs are difficult
-to find because they cause issues that always appear random.
+Гонка данных - это состояние, когда две или более горутины пытаются получить доступ к одному и тому же месту памяти
+в то же время, когда хотя бы одна горутина выполняет запись. Когда это происходит, невозможно предсказать результат. Такие ошибки трудно найти, потому что они вызывают проблемы, которые всегда выглядят случайными.
 
-These ~8 minutes from Scott Meyers is great to listen to here:
+ 
+Эти ~8 минут от Скотта Мейерса стоит послушать: 
 
-[[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care 30:09-38:30]]
+[[https://youtu.be/WDIkqP4JbkE?t=1809][Кэш-память CPU и почему вам это важно 30:09-38:30]]
 
-** Code Review
+** Обзор кода
 
-- *Example* *1:* Data Race
-- *Example* *2:* Atomic Increments
-- *Example* *3:* Mutex
-- *Example* *4:* Read/Write Mutex
-- *Example* *5:* Map Data Race
-- *Example* *1:* Interface Based Race Condition
+- *Пример* *1:* Гонка данных
+- *Пример* *2:* Атомарные инкременты
+- *Пример* *3:* Мьютекс
+- *Пример* *4:* Мьютекс чтения/записи
+- *Пример* *5:* Состояния гонки данных с картой
+- *Пример* *6:* Состояние гонки при работе с интерфейсом
 
 .play data_race/example1.go
 .play data_race/example2.go     
@@ -31,12 +30,12 @@ These ~8 minutes from Scott Meyers is great to listen to here:
 .play data_race/example5.go
 .play data_race/example6.go
 
-** Data Race Example
+** Пример гонки данных
 
-This is a great example of a data race and how they can be hidden for years and
-eventually show up at odd times and cause data corruption.
+Данный код является отличным примером гонки данных и того, как это может быть скрыто в течение многих лет
+и в конце концов проявиться в неподходящее время и привести к повреждению данных.
 
-var counter int
+    var counter int
 
     func main() {
         const grs = 2
@@ -59,9 +58,8 @@ var counter int
         fmt.Println("Counter:", counter)
     }
 
-This program creates two Goroutines that each access the same integer variable,
-incrementing the variable twice. The Goroutine performs a read, modify, and write
-operation against the shared state manually.
+Эта программа создает две горутины, каждая из которых обращается к одной и той же переменной целого типа,
+инкрементируя ее дважды. Горутины выполняют операции чтения, изменения и записи по отношению к общему состоянию вручную.
 
     var counter int
 
@@ -80,8 +78,8 @@ operation against the shared state manually.
         . . .
     }
 
-You can see the access to the shared state inside the for loop. When you build and run
-this program you get the right answer of 4 each and every time.
+Вы можете наблюдать доступ к общему состоянию внутри цикла `for`. Когда вы собираете и запускаете
+эту программу, вы каждый раз получаете правильный ответ 4.
 
     $ ./example1
     Final Counter: 4
@@ -92,7 +90,7 @@ this program you get the right answer of 4 each and every time.
     $ ./example1
     Final Counter: 4
 
-How is this working?
+Как это работает?
 
     G1                            Shared State: 0                            G2
     ----------------------------------------------------------------------------
@@ -114,9 +112,9 @@ How is this working?
                                                                     Terminate
     ----------------------------------------------------------------------------
 
-The read, modify and write operations are happening uninterrupted. Just because I
-am getting the right answer doesn’t mean there isn’t a problem. What happens if
-you add a log statement in the middle of the read, modify, and write operation?
+Операции чтения, изменения и записи происходят непрерывно. 
+Даже получая правильный ответ, мы не можем быть уверены, что проблема отсутствует. Что произойдет, если
+вы добавите логи в середине операций чтения, изменения и записи?
 
     var counter int
 
@@ -136,7 +134,7 @@ you add a log statement in the middle of the read, modify, and write operation?
         . . .
     }
 
-If you run this program you no longer get the same result of 4, now you get the answer of 2.
+При выполнении этой программы вы больше не получите тот же результат 4, теперь вы получите ответ 2.
 
     $ ./example1
     Final Counter: 2
@@ -148,9 +146,9 @@ If you run this program you no longer get the same result of 4, now you get the 
     Final Counter: 2
 
 
-What is happening? You are running into a data race bug that did exist before, but
-wasn’t happening. The call to log is now causing the scheduler to make a context
-switch between the two Goroutines at a bad time.
+Что происходит? Вы столкнулись с ошибкой гонки данных, которая существовала раньше, но не была выявлена.
+Вызов log теперь заставляет планировщик выполнять переключение контекста
+между двумя горутинами и делать это в неподходящее время.
 
     G1                                Shared State: 0                         G2
     ----------------------------------------------------------------------------
@@ -174,25 +172,25 @@ switch between the two Goroutines at a bad time.
                                                                         Terminate
     ----------------------------------------------------------------------------
 
-After the modify operation a context switch is taking place. The three operations
-are no longer uninterrupted and Goroutine 2 ends up with its local value being wrong
-by the time it completes the write operation. You are very lucky this is happening every
-time and you can see it. But normally a data race like this happens "randomly" and is
-impossible to know about until it’s too late. Luckily Go has a race detector to help
-find data races.
+После операции `modify` происходит переключение контекста. Три операции
+больше не являются непрерывными, и горутина 2 завершается тем, что ее локальное значение оказывается неверным
+к моменту завершения операции записи. Вам очень повезло, что это происходит каждый раз
+и вы это видите. Но обычно подобная гонка данных происходит "случайно",
+и узнать о ней невозможно, пока не станет слишком поздно. К счастью, в Go есть детектор гонок, который помогает
+обнаружить гонки данных.
 
-** Race Detection
+** Обнаружение гонок
 
-There are several ways to engage the race detector. You can use it with the run, build
-and test command. If you use it with the build command, you have to remember to run the
-program. They say an instrumented binary can slow my program down by ~20%.
+Есть несколько способов задействовать детектор гонок. Вы можете использовать его с помощью команд `run`, `build`
+и `test`. Если вы используете его с командой build, вам нужно не забыть запустить
+программу. Говорят, что инструментированный бинарник может замедлить работу программы на ~20 %.
 
     $ go build -race
     $ ./example1
 
-The -race flag is how to instrument the build with the race detector. You will
-probably use it more with "go test", but for this example you are instrumenting the
-binary and then running it.
+Флаг `-race` - это то, как инструментировать сборку с помощью детектора гонок. Вы
+вероятно, будете чаще использовать его в команде "go test", но в этом примере вы инструментируете
+бинарный файл, а затем запускаете его.
 
     2021/02/01 17:30:52 logging
     2021/02/01 17:30:52 logging
@@ -219,14 +217,14 @@ binary and then running it.
     Final Counter: 2
     Found 1 data race(s)
 
-You can see a race was detected when running the program. This would happen with or
-without the log statement inserted. When a race is detected, the program panics and
-provides this trace. The trace shows where there was unsynchronized access to the
-same shared state where at least one access was a write.
+Вы можете видеть, что при запуске программы была обнаружена гонка. Это могло прозойти как с
+вставкой выражения для логирования, так и без нее. При обнаружении гонки программа паникует и
+предоставляет эту трассировку. Трассировка показывает, где был несинхронизированный доступ к
+одному и тому же общему состоянию, где хотя бы один доступ был записью.
 
-In this trace, a Goroutine performed a write at address 0x000001278d88 on line 41,
-and there was an unsynchronized read at the same address by another Goroutine on
-line 38. Both Goroutines were created on line 36.
+В этой трассировке горутина выполнила запись по адресу `0x000001278d88` в строке 41,
+и по этому же адресу другой горутиной было выполнено несинхронизированное чтение на
+строке 38. Обе горутины были созданы в строке 36.
 
     36 go func() {
     37     for i := 0; i < 2; i++ {
@@ -238,21 +236,19 @@ line 38. Both Goroutines were created on line 36.
     43     wg.Done()
     44 }()
 
-You can clearly see the unsynchronized read and write. As a side note, the plus plus
-operation on line 39 would also be a data race if the code was accessing the counter
-variable. The plus plus operation is a read, modify, and write operation underneath
-and the operating system could easily context switch in the middle of that.
+Вы можете ясно видеть несинхронизированное чтение и запись. В качестве примечания, операция плюс плюс
+в строке 39 также была бы гонкой данных, если бы код обращался к счетчику
+переменной. Операция плюс плюс - это операция чтения, модификации и записи, при которой операционная система может легко переключить контекст.
 
-So how can you fix the code to make sure that you remove the data race? There are two
-tools you can use, atomic instructions and mutexes.
+Как же исправить код, чтобы устранить гонку данных? Есть два
+инструмента, которые можно использовать: атомарные инструкции и мьютексы.
 
-** Atomics
+** Атомарные инструкции
 
-Atomics provide synchronization at the hardware level. Because of this, it’s limited
-to words and half-words of data. So they’re great for counters or fast switching
-mechanics. The WaitGroup API’s use atomics.
+Атомики обеспечивают синхронизацию на аппаратном уровне. Из-за этого она ограничена
+словами и полусловами данных. Поэтому они отлично подходят для счетчиков или механики быстрого переключения. API WaitGroup использует атомики.
 
-What changes do you need to make to apply atomics to the code?
+Какие изменения нужно сделать, чтобы применить атомик в коде?
 
     var counter int32                             <-- CHANGED
 
@@ -275,18 +271,18 @@ What changes do you need to make to apply atomics to the code?
         fmt.Println("Counter:", counter)
     }
 
-You only need to do a couple things. First, change the counter variable to be a
-precision based integer. You can see that at the top of the code listing. The atomic
-functions only work with precision based integers. Second, remove the manually
-read, modify, and write code for one call to atomic.AddInt32. That one call handles
-it all.
+Вам нужно сделать всего пару вещей. Во-первых, измените переменную счетчика на
+целое число с высокой точностью. Вы можете увидеть это в верхней части листинга кода. Атомарные
+функции работают только с целыми числами, основанными на точности. Во-вторых, удалите вручную
+чтение, изменение и запись кода для одного вызова atomic.AddInt32. Этот один вызов обрабатывает
+все.
 
-All of the functions associated with the atomic package take the address to the
-shared state to be synchronized. Synchronization only happens at the address level.
-So different Goroutines calling the same function, but at a different address, won’t
-be synchronized.
+Все функции, связанные с пакетом atomic, получают адрес
+общего состояния, которое должно быть синхронизировано. Синхронизация происходит только на уровне адресов.
+Поэтому разные горутины, вызывающие одну и ту же функцию, но по разным адресам, не будут
+не будут синхронизированы.
 
-The API for atomics looks like this:
+API для атомиков выглядит следующим образом:
 
     func AddInt32(addr *int32, delta int32) (new int32)
     func AddInt64(addr *int64, delta int64) (new int64)
@@ -326,15 +322,13 @@ The API for atomics looks like this:
         func (v *Value) Load() (x interface{})
         func (v *Value) Store(x interface{})
 
-You can see that the first parameter is always the address to a precision based
-integer or pointer. There is also a type named Value that provides a synchronous
-value with a small API.
+Вы можете видеть, что первый параметр всегда является адресом к точному целому числу или указателем. Существует также тип Value, который предоставляет синхронное
+значение с небольшим API.
 
-** Mutexes
+** Мьютексы
 
-What if you wanted to keep the three lines of code you had. Then atomics aren’t going to
-work. What you need then is a mutex. A mutex lets me box a group of code so only one
-Goroutine at a time can execute that code.
+Что если вы хотите сохранить три строки кода, которые у вас были. Тогда атомики не будут работать. Тогда вам нужен мьютекс. Мьютекс позволяет мне заблокировать группу кода так, чтобы только одна
+горутина в одно время могла выполнять этот код.
 
     var counter int
 
@@ -365,27 +359,23 @@ Goroutine at a time can execute that code.
         fmt.Println("Counter:", counter)
     }
 
-There are several changes to this code from the original. You added the construction
-of the mu variable to be a mutex set to its zero value. Then inside the for loop,
-you added calls to Lock and Unlock with an artificial code block. Inside the code block
-you have the code that needs to be synchronized. The code block is used for readability.
+В этом коде есть несколько изменений по сравнению с оригиналом. Вы добавили конструкцию
+переменной `mu` в качестве мьютекса, установленного на нулевое значение. Затем внутри цикла `for`,
+вы добавили вызовы `Lock` и `Unlock` с искусственным блоком кода. Внутри этого блока находится код, который необходимо синхронизировать. Блок используется для удобства чтения.
 
-With this code in place, the scheduler will only allow one Goroutine to enter the
-code block at a time. It’s important to understand that a mutex is not a queue.
-The first Goroutine that calls Lock isn’t necessarily the first Goroutine who gets
-the Lock. There is a fairness based algorithm but this is done on purpose so people
-don’t use mutexes as queues.
+С таким кодом планировщик позволит только одной горутине войти в
+в кодовый блок за один раз. Важно понимать, что мьютекс - это не очередь.
+Первая горутина, вызвавшая `Lock``, не обязательно будет первой горутиной, получившей
+блокировку. Существует алгоритм, основанный на справедливости, но это сделано специально, чтобы люди
+не использовали мьютексы как очереди.
 
-It’s important to remember the Lock creates back pressure, so the longer it takes to
-get from the Lock to the Unlock, the more chance of Goroutines waiting for their turn.
-If you forget to call Unlock, then all Goroutines waiting will deadlock. This is why it’s
-critical that the call to Lock and Unlock happen in the same function. Make sure I’m
-doing the bare minimum synchronization you need in the code block, but at least the
-minimum.
+Важно помнить, что блокировка создает обратное давление, поэтому чем больше времени пройдет
+от блокировки до разблокировки, тем больше шансов, что горутины дождутся своей очереди.
+Если вы забудете вызвать Unlock, то все ожидающие горутины окажутся заблокированы (deadlock). Вот почему
+важно, чтобы вызов `Lock` и `Unlock` происходил в одной и той же функции. Убедитесь, что вы  делаете минимальную синхронизацию.
 
-This is very bad code where someone is trying to get in and out of the Lock so quickly
-they actually lose the synchronization and the race detector can’t even discover the
-problem.
+Это очень плохой код, в котором кто-то пытается войти и выйти из `Lock` так быстро,
+что фактически теряет синхронизацию, а детектор гонок даже не может обнаружить проблему.
 
     var counter int
 
@@ -423,20 +413,20 @@ problem.
         fmt.Println("Counter:", counter)
     }
 
-As a general guideline, if you see a call to Lock from the same mutex twice in the same
-function, stop the code review. There is probably a mistake or over complication. In
-this case the calls to read and write are being synchronized, however, two Goroutines
-can end up at the value++ line of code with the same value. The data race still exists
-and the race detector is helpless in finding it.
+В качестве общего правила, если вы видите вызов `Lock` из одного и того же мьютекса дважды в одной и той же
+функции, остановите просмотр кода. Вероятно, это ошибка или чрезмерное усложнение. В
+данном случае вызовы чтения и записи синхронизируются, однако две горутины
+могут оказаться в строке кода `value++` с одним и тем же значением. Состояния гонки данных по-прежнему существуют
+и детектор гонок бессилен ее обнаружить.
 
-** Read/Write Mutexes
+** Мьютексы чтения/записи
 
-There is a second type of mutex called a read/write mutex. It allows me to separate
-the locks around reads and writes. This is important since reading data doesn’t pose
-a threat unless a Goroutine is attempting to write at the same time. So this type of
-mutex allows multiple Goroutines to read the same memory at the same time. As soon
-as a write lock is requested, the reads are no longer issued, the write takes place,
-the reads can start again.
+Существует второй тип мьютексов, называемый мьютексом чтения/записи. Он позволяет разделить
+блокировки на чтение и запись. Это важно, поскольку чтение данных не представляет
+угрозы, если только горутина не пытается писать в то же самое время. Таким образом, этот тип
+мьютекса позволяет нескольким горутинам читать одну и ту же память одновременно. Как только
+запрашивается блокировка записи, чтение больше не производится, происходит запись,
+и чтение может начаться снова.
 
     package main
 
@@ -492,14 +482,14 @@ the reads can start again.
         rwMutex.RUnlock()
     }
 
-You can see the use of a read/write mutex where there are 8 Goroutines reading the
-length of a slice within a 10 millisecond delay of each other, and 1 Goroutine waking
-up within 100 milliseconds to append a value (write) to the slice.
+Вы можете увидеть использование мьютекса для чтения/записи, когда 8 горутин читают длину
+фрагмента с задержкой в 10 миллисекунд друг от друга, и 1 горутина просыпается
+в течение 100 миллисекунд, чтобы добавить значение (запись) к слайсу.
 
-The key is the implementation of the writer and reader functions. Notice how you use
-Lock for the writer and RLock for the reader. One of the biggest mistakes you can
-make with this is mixing up the Unlock calls with the wrong version. Having a Lock
-with a RUnlock will never end well.
+Ключевым моментом является реализация функций записи и чтения. Обратите внимание, как вы используете
+`Lock` для писателя и `RLock` для читателя. Одна из самых больших ошибок, которую вы можете
+это перепутать вызовы `Unlock` с неправильной версией. Наличие `Lock`
+с `RUnlock` ничем хорошим не закончится.
 
     7 : Performing Read : Length[0]
     5 : Performing Read : Length[0]
@@ -522,44 +512,44 @@ with a RUnlock will never end well.
     1 : Performing Read : Length[2]
     3 : Performing Read : Length[2]
 
-The output shows how multiple Goroutines are reading at the same time, but all
-the reading stops when the write takes place.
+Ниже показано, как несколько горутин читают одновременно, но все
+чтение останавливается, когда происходит запись.
 
-** Notes
+** Примечания
 
-- Goroutines need to be coordinated and synchronized.
-- When two or more goroutines attempt to access the same resource, we have a data race.
-- Atomic functions and mutexes can provide the support we need.
+- Горутины должны быть скоординированы и синхронизированы.
+- Когда две или более горутины пытаются получить доступ к одному и тому же ресурсу, мы имеем дело с гонкой данных.
+- Атомарные функции и мьютексы могут обеспечить необходимую поддержку.
 
-** Cache Coherency and False Sharing
+** Когерентность кэша и ложное совместное использование
 
-This content is provided by Scott Meyers from his talk in 2014 at Dive:
+Этот контент предоставлен Скоттом Мейерсом из его выступления на Dive в 2014 году:
 
 [[https://youtu.be/WDIkqP4JbkE?t=1809][CPU Caches and Why You Care (30:09-38:30)]]  
 [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/testing/benchmarks/falseshare/README.md][Code Example]]
 
 .image /tour/eng/static/img/figure1_data_race.png
 
-** Cache Coherency and False Sharing Notes
+** Заметки о когерентности кэш-памяти и ложном совместном использовании
 
-- Thread memory access matters.
-- If your algorithm is not scaling look for false sharing problems.
+- Доступ к потоковой памяти имеет значение.
+- Если ваш алгоритм не масштабируется, ищите проблемы с ложным разделением.
 
-** Extra Reading
+** Дополнительное чтение
 
-- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter    
-- [[https://golang.org/ref/mem][The Go Memory Model]]    
-- [[http://blog.golang.org/race-detector][Introducing the Go Race Detector]] - Dmitry Vyukov and Andrew Gerrand    
-- [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - William Kennedy    
-- [[https://golang.org/doc/articles/race_detector.html][Data Race Detector]]    
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Херб Саттер    
+- [[https://golang.org/ref/mem][Модель памяти Go]]    
+- [[http://blog.golang.org/race-detector][Introducing the Go Race Detector]] - Дмитрий Вьюков и Эндрю Герранд    
+- [[https://www.ardanlabs.com/blog/2013/09/detecting-race-conditions-with-go.html][Detecting Race Conditions With Go]] - Уильям Кеннеди    
+- [[https://golang.org/doc/articles/race_detector.html][Детектор состояний гонки данных]]    
 
-* Exercises
+* Упражнения
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Используйте шаблон в качестве отправной точки для выполнения упражнений. Приведены возможные решения.
 
-** Exercise 1
+** Упражнение 1
 
-Given the following program, use the race detector to find and correct the data race.
+В данной программе с помощью детектора гонок найдите и исправьте гонку данных.
 
 .play data_race/exercise1.go
 .play data_race/answer1.go
