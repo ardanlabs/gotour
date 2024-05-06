@@ -1,74 +1,71 @@
-Hash Tables
-A hash table is a classic example of a container type that can take real advantage of generics.
+Хеш-таблицы
+Хеш-таблица - это классический пример контейнерного типа, который может использовать реальные преимущества дженериков.
 
-* Generics - Hash Tables
+* Дженерики - Хеш-таблицы
 
-A hash table is a classic example of a container type that can take real advantage of
-generics. This implementation was coded by Matt Layher (@mdlayer) in a blog post
-he wrote. It's a great example of what is possible with generics.
+Хеш-таблица - это классический пример контейнерного типа, который может использовать реальные преимущества
+дженериков. Эта реализация была написана Мэттом Лэйхером (@mdlayer) в его блоге.
+Это отличный пример того, что возможно с дженериками.
 
-** Video
+** Видео
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Посмотрите доклад о дженериках, в котором я рассказываю обо всех
+примерах, приведенных в этом разделе.
 
 .html generics-video.html
 
 ** Code Review
 
-- *Example* *1*: Hash Table
+- *Пример* *1*: Хеш-таблица
 
 .play generics/hash-table/example1.go
 
-** Explained
+** Объяснение
 
-This code is a bit more complex than what you have so far. It’s what you can
-expect to see from real world implementations. Throughout this section, you will
-see two views of the code. One before and after applying the new syntax for
-generics.
+Этот код немного сложнее того, что у вас было до сих пор. Это то, что вы можете
+ожидать от реальных реализаций. На протяжении всего этого раздела вы 
+увидите два вида кода. До и после применения нового синтаксис дженериков.
 
     type hashFunc func(key K, buckets int) int
 
-This type declares a hash function signature that is used by the hash table to
-calculate a bucket position for data storage and retrieval. The user must implement
-and provide this function when constructing a hash table. The function accepts a
-key and the number of buckets it can choose from. Since you want this system to be
-generic in terms of the types used for the key and value, you declare a parameter
-named key with a type of the single capital letter K.
+Этот тип объявляет сигнатуру хеш-функции, которая используется хеш-таблицей для
+вычисления позиции корзины для хранения и извлечения данных. Пользователь должен реализовать
+и предоставлять эту функцию при построении хеш-таблицы.  Функция принимает
+ключ и количество корзин, из которых она может выбирать. Поскольку вы хотите, чтобы эта система была
+общей с точки зрения типов, используемых для ключа и значения, вы объявляете параметр
+с именем `key` и типом в виде одной заглавной буквы `K`.
 
-Next, you can apply the generics syntax to make K an actual generic type.
+Далее, мы применим новый синтаксис чтобы сделать `K` дженериком
 
     type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
 
-After the type name, add the square brackets with the generic type K and a
-constraint of comparable. Since values of the key type need to be used in a
-compare operation, Documenting this now makes sense, even if the
-implementation of the hash function doesn’t require it. Consistency is everything in
-terms of readability, comprehension, and maintainability over time.
+После имени типа добавьте квадратные скобки с общим типом `K` и ограничением `comparable`. 
+Поскольку значения key типа должны использоваться в операции сравнения, имеет смысл это задокументировать, даже если в реализации хеш-функции этого не требуется. Последовательность - это все
+с точки зрения читабельности, понимания и возможности сопровождения с в дальнейшем.
 
-This type represents a key/value pair of data that will be stored by the hash table.
+Этот тип представляет собой пару `key/value` данных, которые будут храниться в хеш-таблице.
 
     type keyValuePair struct {
         Key K
         Value V
     }
 
-The job of this type is to hold the actual data with the corresponding key. Next the
-code declares a key field of type K, and a value field of type V.
+Задача этого типа - хранить фактические данные с соответствующим ключом. Далее
+код объявляет ключевое поле типа `K` и поле значений типа `V`.
 
-Now you can apply the generics syntax to make K and V an actual generic type.
+Теперь вы можете применить синтаксис дженериков к `K` и `V` 
 
     type keyValuePair[K comparable, V any] struct { <-- CHANGED
         Key K
         Value V
     }
 
-After the type name, add the square brackets with the generic types K and V. In
-this declaration, K represents the key as before and V represents a value, which can
-be anything.
+После имени типа добавьте квадратные скобки с дженерик типами `K` и `V`. В
+этом объявлении `K` представляет ключ, как и раньше, а `V` - значение, которое может быть
+быть чем угодно.
 
-This type represents a hash table that manages a hash function and a set of
-buckets for key/value data storage.
+Этот тип представляет собой хеш-таблицу, которая управляет хеш-функцией и набором
+корзин для хранения данных `key/value`.
 
     type Table struct {
         hashFunc hashFunc
@@ -76,13 +73,13 @@ buckets for key/value data storage.
         data [][]keyValuePair
     }
 
-The Table type has three fields, a hash function, the number of buckets, and the
-data which is represented as a slice of a slice of key/value pairs. The outer slice
-represents buckets and the inner slice represents key/value pairs that are stored
-inside a bucket.
+Тип `Table` содержит три поля: хеш-функцию, количество корзин и
+данные, которые представляются в виде среза пар `key/value`. Внешний срез
+представляет корзины, а внутренний срез - пары `key/value`, которые хранятся
+внутри корзины.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the field declarations.
+Теперь примените синтаксис дженериков объявляя тип ключа и значения, а затем
+примените их к полям.
 
     type Table[K comparable, V any] struct { <-- CHANGED
         hashFunc hashFunc[K] <-- CHANGED
@@ -90,12 +87,12 @@ apply them to the field declarations.
         data [][]keyValuePair[K, V] <-- CHANGED
     }
 
-After the type name, add the square brackets with the generic types K and V. The
-hashFunc type declaration requires information about the concrete type to use for
-the key. The keyValuePair type declaration requires information about the concrete
-type for the key and value.
+После имени типа добавьте квадратные скобки с дженерик типами `K` и `V`.
+Объявление типа `hashFunc` требует информации о конкретном типе, который будет использоваться для
+ключа. Объявление типа `keyValuePair` требует информации о конкретном
+типе для ключа и значения.
 
-This is a factory function that can construct a Table for use.
+Это фабричная функция, конструирующая `Table`
 
     func New(
         buckets int,
@@ -109,13 +106,13 @@ This is a factory function that can construct a Table for use.
         }
     }
 
-The factory function accepts the number of buckets to manage and a hash function
-for selecting a bucket for data storage and lookup. When a Table value is
-constructed, the number of buckets is used to construct the slice, setting the length
-of the outer slice to the number of buckets that will be used.
+Фабричная функция принимает количество корзин для управления и хеш-функцию
+для выбора корзины для хранения и поиска данных. При создании таблицы
+количество корзин используется для построения среза, задавая длину
+внешнего среза как количество используемых корзин.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Теперь примените синтаксис дженериков, чтобы объявить общие типы ключа и значения и
+примените их к типам, которые необходимо построить.
 
     func New[K comparable, V any]( <-- CHANGED
         buckets int,
@@ -129,13 +126,13 @@ apply them to the types that need to be constructed.
         }
     }
 
-After the type name, add the square brackets and the generic types K and V. Then
-K is applied to the hf input parameter to complete the hashFunc type declaration.
-The K and V types are applied to the Table type being constructed and returned.
-Finally, the initialization of the data field requires K and V to be applied to the
-construction syntax for the keyValuePair type.
+После имени типа добавьте квадратные скобки и общие типы `K` и `V`. Затем
+`K` применяется к входному параметру `hf` для завершения объявления типа `hashFunc`.
+Типы `K` и `V` применяются к создаваемому и возвращаемому типу `Table`.
+Наконец, инициализация поля данных требует применения `K` и `V` к
+синтаксису построения типа `KeyValuePair`.
 
-This is a method that can insert values into the hash table based on a specified key.
+Это метод, который может вставлять значения в хеш-таблицу на основе заданного ключа.
 
     type Table[K comparable, V any] struct {
         hashFunc hashFunc[K]
@@ -159,20 +156,20 @@ This is a method that can insert values into the hash table based on a specified
         t.table[bucket] = append(t.table[bucket], kvp)
     }
 
-The Insert method is declared to accept a key and value of the same generic types
-that are declared with the Table type. The first step of inserting is to identify the
-bucket to use for storage. That is performed by calling the hash function with the
-specified key. The hash function returns an integer value that represents the bucket
-to use.
+Метод `Insert` объявлен для приема ключа и значения тех же дженерик типов
+которые объявлены для типа `Table`. Первым шагом при вставке является определение
+корзины для хранения. Это делается путем вызова хеш-функции с
+указанным ключом. Хеш-функция возвращает значение типа int, которое представляет корзину
+для использования.
 
-Then the function checks to see if the specified key has already been used to store
-a value in the selected bucket. This is performed by ranging over the existing set of
-key/value pairs in the bucket. If the key already exists, the value for that key is
-updated. If the key is not found, then a new key/value pair value is constructed,
-initialized, and appended to the slice for the selected bucket.
+Затем функция проверяет, не был ли указанный ключ уже использован для хранения
+значение в выбранной корзине. Это выполняется путем перебора существующего набора
+пар `key/value` в корзине. Если ключ уже существует, значение для этого ключа
+обновляется. Если ключ не найден, то создается новое значение пары `key/value`,
+инициализируется и добавляется к фрагменту для выбранной корзины.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Теперь примените  синтаксис дженериков, чтобы объявить дженерик типы ключа и значения и
+примените их к типам, которые необходимо сконструировать.
 
     func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
         bucket := t.hashFunc(key, t.buckets)
@@ -190,12 +187,12 @@ apply them to the types that need to be constructed.
         t.table[bucket] = append(t.table[bucket], kvp)
     }
 
-After the type name in the receiver, add the square brackets and the generic
-types K and V. The only other change is to apply K and V to the construction syntax
-of the keyValuePair type.
+После имени типа в получателе добавьте квадратные скобки и общие
+типы `K` и `V`. Единственное другое изменение - это применение `K` и `V` к синтаксису построения
+типа `KeyValuePair`.
 
-This is a method that can retrieve values from the hash table based on a specified
-key.
+Этот метод может извлекать значения из хеш-таблицы на основе указанного
+ключа.
 
     func (t *Table) Retrieve(key K) (V, bool) {
         bucket := t.hashFunc(key, t.buckets)
@@ -209,19 +206,18 @@ key.
         return zero, false
     }
 
-The Retrieve method is declared to accept a key and return a copy of the value
-stored for that key. The first step of retrieving is to identify the bucket that was
-used for storage. That is performed by calling the hash function with the specified
-key. The hash function returns an integer value that represents the bucket to look
-at.
+Метод `Retrieve` объявлен для приема ключа и возврата копии значения
+хранящегося для этого ключа. Первым шагом извлечения является определение корзины, которая была
+использовался для хранения. Это делается путем вызова хеш-функции с указанным
+ключом. Хеш-функция возвращает значение типа int, представляющее корзину для поиска
+в котором нужно искать.
 
-Then the function iterates over the collection of key/value pairs stored inside the
-bucket, looking for the specified key one by one. If the key is found, a copy of the
-value is returned and true is provided to the caller. If the key is not found, zero
-value is returned and false is provided to the caller.
+Затем функция выполняет итерации по коллекции пар `key/value`, хранящихся внутри
+корзины, поочередно извлекая указанный ключ. Если ключ найден, возвращается копия значение, а вызывающей стороне передается `true`. Если ключ не найден, возвращается нулевое
+значение, а вызывающей стороне выдается `false`.
 
-Now apply the generics syntax to declare the key and value generic types and
-apply them to the types that need to be constructed.
+Теперь примените синтаксис дженериков, чтобы объявить общие типы ключа и значения 
+применяя их к типам, которые необходимо сконструировать.
 
     func (t *Table[K, V]) Get(key K) (V, bool) { <-- CHANGED
         bucket := t.hashFunc(key, t.buckets)
@@ -235,17 +231,17 @@ apply them to the types that need to be constructed.
         return zero, false
     }
 
-After the type name in the receiver, add the square brackets and the generic
-types K and V. No other code changes are required.
+После названия типа в получателе добавьте квадратные скобки и дженерик
+типы `K` и `V`. Никаких других изменений в коде не требуется.
 
-This is a small program to test the hash table implementation.
+Это небольшая программа для проверки реализации хеш-таблицы.
 
     func main() {
         const buckets = 8
         . . .
     }
 
-Start with a constant that defines the number of buckets to use in the hash table.
+Начните с константы, определяющей количество корзин в хеш-таблице.
 
     import (
         "hash/fnv"
@@ -263,13 +259,13 @@ Start with a constant that defines the number of buckets to use in the hash tabl
         . . .
     }
 
-Next, declare a hash function that declares a string for the key. The
-implementation uses the fnv package from the standard library which implements
-the FNV-1 and FNV-1a, non-cryptographic hash functions created by Glenn Fowler,
-Landon Curt Noll, and Phong Vo. FNV stands for the Fowler-Noll-Vo hash function.
+Далее объявите хеш-функцию, в которой в качестве ключа указывается строка. Сайт
+реализация использует пакет `fnv` из стандартной библиотеки, который реализует
+`FNV-1` и `FNV-1a`, некриптографические хеш-функции, созданные Гленом Фаулером,
+Лэндоном Кертом Ноллом и Фонгом Во. `FNV` означает хеш-функцию Фаулера-Нолла-Во.
 
-The modulus operation with the buckets value forces the final value to fall within
-the range for the number of buckets.
+Операция модуляции со значением корзины заставляет конечное значение попадать в
+диапазон количества корзин.
 
     import (
         "hash/fnv"
@@ -283,12 +279,11 @@ the range for the number of buckets.
         . . .
     }
 
-Next, construct a hash table, explicitly stating that the key will be of type string
-and the value of type int. There is nothing in the input parameters that can help the
-compiler infer this information.
+Далее создайте хеш-таблицу, явно указав, что ключ будет иметь тип `string`
+а значение - типа `int`. Во входных параметрах нет ничего, что могло бы помочь компилятору вывести эту информацию.
 
-To show the nature of the hash table being generic, defined a second hash
-function and table.
+Чтобы показать, что хеш-таблица является дженериком, 
+определим вторую хеш-функцию и таблицу.
 
     import (
         "hash/fnv"
@@ -306,11 +301,10 @@ function and table.
         . . .
     }
 
-This hash function declares an integer for the key and performs a simple modulus
-operation with the bucket value against the key. Then a new table is constructed
-where the key is specified to be an integer and the value a string. The reverse of
-the first table.
-
+Эта хеш-функция объявляет integer в качестве ключа и выполняет простую операцию по модулю
+со значением корзины по отношению к ключу. Затем создается новая таблица
+где ключом является целое число, а значением - строка. В обратную сторону от
+первой таблицы.
 
     import (
         "hash/fnv"
@@ -345,5 +339,5 @@ Output:
     t1.Rtr(nope!) = (0, false)
     t2.Rtr(3) = (, false)
 
-Finally write some code to store and retrieve values from the two respective
-tables.
+В заключение напишите код для хранения и извлечения значений из двух соответствующих
+таблиц.
