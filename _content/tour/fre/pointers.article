@@ -1,0 +1,337 @@
+Pointeurs
+Les pointeurs permettent à partager des valeurs au-delà des limites du programme.
+
+* Pointeurs
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Les pointeurs permettent de partager des valeurs entre les limites d'un programme. 
+Il existe plusieurs types de limites de programme. La plus courante se situe entre les appels de fonction. 
+Il existe également une frontière entre les goroutines, que nous vous présenterons plus loin.
+
+** Examen du Code
+
+- *Exemple* *1:* Passage par Valeur
+- *Exemple* *2:* Partager des Données I
+- *Exemple* *3:* Partager des Données II
+- *Exemple* *4:* Analyse d'Échappement
+- *Exemple* *5:* Accroissement de la Stack
+
+.play pointers/example1.go
+.play pointers/example2.go
+.play pointers/example3.go
+.play pointers/example4.go
+.play pointers/example5.go
+
+Lorsqu'un programme Go démarre, le runtime Go crée une Goroutine. Les goroutines 
+sont des threads légers au niveau de l'application, dotés de la même sémantique 
+que les threads du système d'exploitation. Leur tâche consiste à gérer l'exécution physique 
+d'un ensemble distinct d'instructions. 
+Chaque programme Go possède au moins une Goroutine, appelez la Goroutine principale.
+
+Chaque goroutine se voit attribuer son propre bloc de mémoire, appelé stack. 
+Chaque stack commence par une allocation de 2048 octets (2k). C'est très petit, 
+mais la taille des stacks peut augmenter dans le temps.
+
+.image /tour/eng/static/img/p1.png
+
+Chaque fois qu'une fonction est appelée, un bloc de la stack est utilisé pour aider la goroutine 
+à exécuter les instructions associées à cette fonction. Chaque bloc de mémoire individuel 
+est appelé trame (frame).
+
+La taille d'une trame pour une fonction donnée est calculée au moment de la compilation. 
+Aucune valeur ne peut être construite sur la stack si le compilateur ne connaît pas la taille de cette valeur
+au moment de la compilation. Si le compilateur ne connaît pas la taille d'une valeur au moment de la compilation,
+la valeur doit être construite dans le heap.
+
+
+Les stacks sont auto-nettoyantes et la valeur zéro contribue à l'initialisation de la stack. 
+Chaque fois que vous faites un appel de fonction et qu'une trame de mémoire est bloqué, 
+la mémoire de cette trame est initialisée, ce qui permet à la stack de s'auto-nettoyer. 
+Lors du retour d'une fonction, la mémoire de la trame est laissée en l'état, 
+car on ne sait pas si cette mémoire sera à nouveau nécessaire. 
+Il serait inefficace d'initialiser la mémoire lors des retours.
+
+*Passer* *Par* *Valeur*
+
+Toutes les données sont déplacées dans le programme par valeur. Cela signifie que 
+lorsque les données sont transmises à travers les limites du programme, chaque fonction ou Goroutine 
+reçoit sa propre copie des données. Il existe deux types de données avec lesquelles vous travaillerez,
+la valeur elle-même (int, string, user) ou l'adresse de la valeur. Les adresses sont des données 
+qui doivent être copiées et stockées au-delà des limites du programme.
+
+Le code suivant tente de l'expliquer davantage.
+
+    func main() {
+
+        // Déclarez une variable de type int avec une valeur de 10.
+        count := 10
+
+        // Pour obtenir l'adresse d'une valeur, utilisez l'opérateur &.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Transmettre une copie de "la valeur" de count (ce qu'il y a dans la boîte)
+        // à la fonction increment1.
+        increment1(count)
+
+        // Afficher la "valeur de" et "l'adresse de" count.
+        // La valeur de count ne changera pas après l'appel de la fonction.
+        println("count:\tValue Of[", count, "]\tAddr Of[", &count, "]")
+
+        // Transmettre une copie de "l'adresse de" count (ce qu'il y a dans la boite)
+        // à la fonction increment2. Cela est encore considéré comme un passage par
+        // valeur et non par référence car les adresses sont des valeurs.
+        increment2(&count)
+
+        // Afficher la "valeur de" et "l'adresse de" count.
+        // La valeur de count a changé après l'appel de la fonction.
+        println(
+            "count:\tValue Of[", 
+            count, "]\tAddr Of[", &count, "]")
+    }
+
+    // increment1 declare une fonction qui accepte sa propre copie
+    // d'une valeur int.
+    func increment1(inc int) {
+
+        // Incremente la copie locale de la valeur int appelante.
+        inc++
+        println("inc1:\tValue Of[", inc, "]\tAddr Of[", &inc, "]")
+    }
+
+    // increment2 declare une fonction qui accepte sa propre copie
+    // d'une adresse qui pointe vers une valeur int.
+    // Les variables pointeurs sont des types littéraux et sont déclarés à l'aide de *.
+    func increment2(inc *int) {
+
+        // Incremente la valeur int appelante via le pointeur.
+        *inc++
+        println(
+            "inc2:\tValue Of[", 
+            inc, "]\tAddr Of[", &inc, 
+            "]\tPoints To[", *inc, "]")
+    }
+
+Sortie :
+
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc1:   Value Of[ 11 ]  Addr Of[ 0xc000050730 ]
+    count:  Value Of[ 10 ]  Addr Of[ 0xc000050738 ]
+    inc2:   Value Of[ 0xc000050738 ] Addr Of[ 0xc000050748 ] Points To[ 11 ]
+    count:  Value Of[ 11 ]  Addr Of[ 0xc000050738 ]
+
+** Notes
+
+- Utilisez les pointeurs pour partager des données.
+- Les valeurs en Go sont toujours passées par valeur.
+- "Valeur de", ce qui se trouve dans la boite. "Adresse de" ( & ), où se trouve la boite.
+- L'opérateur ( * ) declare une variable pointeur et la "Valeur vers laquelle pointe le pointeur".
+
+** Analyse d'Échappement
+
+L'algorithme utilisé par le compilateur pour déterminer si une valeur doit être construite 
+dans la stack ou dans le heap est appelé "analyse d'échappement". Le nom de l'algorithme donne l'impression
+que les valeurs sont d'abord construites sur la stack, puisqu'elles s'échappent (ou se déplacent) 
+vers le heap lorsque c'est nécessaire. Ce n'est PAS le cas. La construction d'une valeur n'a lieu qu'une seule fois, 
+et l'algorithme d'analyse d'échappement décide de son emplacement (stack ou heap). 
+Seule la construction dans le heap est appelée allocation en Go.
+
+Comprendre l'analyse d'échappement, c'est comprendre la propriété de la valeur. L'idée est que 
+lorsqu'une valeur est construite dans le cadre d'une fonction, alors cette fonction est propriétaire de la valeur.
+À partir de là, il faut se poser la question suivante : la valeur construite doit-elle encore exister 
+lorsque la fonction propriétaire s'achève ? Si la réponse est non, alors la valeur peut être construite sur la stack.
+Si la réponse est oui, la valeur doit être construite dans le heap.
+
+
+Notes : la règle de propriété est une bonne règle de base pour identifier le code qui provoque des allocations.
+Cependant, vous devez comprendre que l'analyse d'échappement comporte des failles qui peuvent entraîner 
+des allocations non évidentes. En outre, l'algorithme profite des possibilités d'optimisation du compilateur
+pour économiser des allocations.
+
+    // user represente un utilsateur dans le système.
+    type user struct {
+        name  string
+        email string
+    }
+
+    func stayOnStack() user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return u
+    }
+
+La fonction `stayOnStack` utilise la sémantique par valeur pour renvoyer une valeur `user` à l'appelant. 
+En d'autres termes, l'appelant reçoit sa propre copie de la valeur `user` qui a été construite.
+
+Lorsque la fonction `stayOnStack` est appelée et s'achève, la valeur de `user` qu'elle a construite
+n'a plus besoin d'exister, dans la mesure où l'appelant en possède sa propre copie.
+Ainsi, la construction de la valeur de `user` à l'intérieur de `stayOnStack` peut se produire
+dans la stack.
+Pas d'allocation.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func escapeToHeap() *user {
+        u := user{
+            name:  "Bill",
+            email: "bill@email.com",
+        }
+
+        return &u
+    }
+
+La fonction `escapeToHeap` utilise la sémantique par pointeur pour renvoyer une valeur 
+`user` à l'appelant. En d'autres termes, l'appelant obtient un accès partagé (une adresse)
+à la valeur construite.
+
+Lorsque la fonction `escapeToHeap` est appelée et s'achève, la valeur `user` construite doit toujours
+exister, car l'appelant a obtenu un accès partagé à son adresse. C'est pourquoi, la construction
+de la valeur `user` au sein de la fonction `escapeToHeap` ne peut se faire dans la stack, 
+mais doit s'effectuer dans le heap.
+Ici une allocation a bien lieu.
+
+Pensez à ce qui pourrait se passer si la valeur `user` dans le dernier exemple avait été construite
+dans la stack et retournée en utilisant la sémantique par pointeur.
+
+.image /tour/eng/static/img/p2.png
+
+L'appelant obtiendrait une copie de l'adresse de la stack à partir de la trame inférieure, ce qui entrainerait
+une perte d'intégrité. Une fois le contrôle revenu à la fonction appelante, la mémoire de la stack où réside
+la valeur `user` redevient utilisable. Dès que la fonction appelante effectue un autre appel, une nouvelle trame
+est découpée et la mémoire est écrasée, détruisant la valeur partagée.
+
+C'est pour cela que l'on considère la stack comme auto-nettoyante. L'initialisation à la valeur zéro 
+aide chaque trame de stack à être nettoyée sans avoir recours au ramasse-miettes (Garbage Collector). La stack est 
+auto-nettoyante car une nouvelle trame est créée et initialisée pour l'exécution de chaque appel de fonction.
+Le nettoyage de la stack se produit lors des appels de fonctions et non des retours, car le compilateur 
+ne sait pas si cette mémoire sur la stack sera à nouveau nécessaire.
+
+L'analyse d'échappement décide si une valeur sera construite sur la stack (par défaut) ou dans le heap 
+(l'échappement). Avec la fonction `stayOnStack`, je renvoie une copie de la valeur à l'appelant, conserver 
+une copie dans la stack est donc sans danger. Avec la fonction `escapeToHeap`, Je renvoie une copie de
+l'adresse de la valeur à l'appelant (partageant ainsi la stack), il n'est ainsi pas sûr de conserver
+la valeur dans la stack.
+
+Il y a tout un tas de petits détails concernant l'analyse d'échappement, aussi, pour en savoir plus,
+reportez-vous à l'article du chapitre 14 intitulé "Mécanismes de l'analyse d'échappement".
+
+Notes : à partir de la version 1.17, Go a modifié l'ABI (interface binaire d'application) 
+pour mettre en œuvre une nouvelle façon de passer les arguments d'entrée et de sortie des fonctions
+en utilisant des registres au lieu de la mémoire dans la stack. Cette fonctionnalité est disponible pour 
+Linux, MacOS et Windows sur les architectures x86 64 bits. Cela signifie que certains arguments de fonctions
+ne seront pas copiés dans la stack, mais que d'autres pourront l'être en fonction de la viabilité d'utilisation
+des registres. 
+Cela ne change rien à la sémantique décrite dans ce chapitre.
+
+** Notes
+
+- Lorsqu'une valeur peut être référencée après le retour de la fonction qui l'a construite.
+- Lorsque le compilateur détermine qu'une valeur est trop grande pour tenir dans la stack.
+- Lorsque le compilateur ne connaît pas la taille d'une valeur au moment de la compilation.
+- Lorsqu'une valeur est découplée par l'utilisation de valeurs de fonction ou d'interface.
+
+** Sémantique du Ramasse-Miettes
+
+Une fois qu'une valeur est construite dans le heap, le ramasse-miettes (Garbage Collector - GC) doit être impliqué.
+La partie la plus importante du ramasse-miette (GC) est l'algorithme de passage (Passing Algorithm).
+Il détermine la fréquence/le rythme auquel le ramasse-miettes doit s'exécuter afin de maintenir le heap le plus petit 
+possible tout en assurant la meilleure capacité de traitement possible pour l'application.
+
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection Semantics Part I]] - William Kennedy
+
+** Stack vs Heap
+
+"La stack est destinée aux données qui ne doivent persister que pendant la durée de vie de la fonction
+qui les a construites, et est récupérée sans frais lorsque la fonction s'arrête. Le heap est destiné aux 
+données qui doivent persister après la sortie de la fonction qui les a construites, et est récupéré par 
+un ramasse-miettes parfois coûteux." - Ayan George
+
+** Accroissement de la stack
+
+La taille de chaque trame pour chaque fonction est calculée au moment de la compilation. Cela signifie, 
+que si le compilateur ne connaît pas la taille d'une valeur au moment de la compilation, la valeur doit 
+être construite dans le heap. Un exemple de ceci est l'utilisation de la fonction intégrée `make` pour 
+construire une "slice" dont la taille est basée sur une variable.
+
+    b := make([]byte, size) // Tableau de référence alloué dans le heap.
+
+Go utilise une implémentation de stack contiguë pour déterminer comment les stacks augmentent et diminuent.
+Une alternative aurait été que Go utilise une stack segmentée, comme c'est le cas pour certains systèmes d'exploitation.
+
+Chaque appel de fonction est accompagné d'un petit préambule qui demande : "Y a-t-il assez de place dans la stack
+pour cette nouvelle trame ? Si c'est le cas, il n'y a pas de problème et la trame est prise et initialisée. 
+Dans le cas contraire, une nouvelle stack plus grande doit être construite et la mémoire de la stack existante 
+doit y être copiée. Cela nécessite de modifier les pointeurs qui font référence à la mémoire de la stack. 
+Les avantages de la mémoire contiguë et des parcours linéaires avec le matériel moderne compensent le coût de la copie.
+
+En raison de l'utilisation de stacks contiguës, aucune Goroutine ne peut avoir un pointeur vers la stack d'une autre 
+Goroutine. 
+Cela génèrerait une charge de travail trop importante pour que le runtime garde la trace de chaque pointeur 
+sur chaque stack et réajuste ces pointeurs vers leurs nouveaux emplacements.
+
+** Lectures Supplémentaires
+
+**Mécanique* *des* *Pointeurs*
+
+- [[https://golang.org/doc/effective_go.html#pointers_vs_values][Pointers vs. Values]]    
+- [[https://www.ardanlabs.com/blog/2017/05/language-mechanics-on-stacks-and-pointers.html][Language Mechanics On Stacks And Pointers]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2014/12/using-pointers-in-go.html][Using Pointers In Go]] - William Kennedy    
+- [[https://www.ardanlabs.com/blog/2013/07/understanding-pointers-and-memory.html][Understanding Pointers and Memory Allocation]] - William Kennedy    
+
+*Stacks*
+
+- [[https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub][Contiguous Stack Proposal]]  
+
+*Analyse* *d'Échappement* *et* *Allocation Mémoire*
+
+- [[https://docs.google.com/document/d/1CxgUBPlx9iJzkz9JWkb6tIpTe5q32QDmz8l0BouG0Cw][Go Escape Analysis Flaws]]  
+- [[https://github.com/golang/go/wiki/CompilerOptimizations][Compiler Optimizations]]
+
+*Ramasse* *Miettes*
+
+- [[http://gchandbook.org/][The Garbage Collection Handbook]]  
+- [[https://github.com/golang/proposal/blob/master/design/44167-gc-pacer-redesign.md][GC Pacer Redesign - 2021]] - Michael Knyszek  
+- [[https://en.wikipedia.org/wiki/Tracing_garbage_collection][Tracing Garbage Collection]]  
+- [[https://blog.golang.org/go15gc][Go Blog - 1.5 GC]] 
+- [[https://www.youtube.com/watch?v=aiv1JOfMjm0&index=16&list=PL2ntRZ1ySWBf-_z-gHCOR2N156Nw930Hm][Go GC: Solving the Latency Problem]]  
+- [[http://rubinius.com/2013/06/22/concurrent-garbage-collection][Concurrent garbage collection]]  
+- [[https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit][Go 1.5 concurrent garbage collector pacing]]  
+- [[https://github.com/golang/proposal/blob/master/design/17503-eliminate-rescan.md][Eliminating Stack Re-Scanning]]  
+- [[https://groups.google.com/forum/m/#!topic/golang-nuts/KJiyv2mV2pU][Why golang garbage-collector not implement Generational and Compact gc?]] - Ian Lance Taylor  
+- [[https://blog.golang.org/ismmkeynote][Getting to Go: The Journey of Go's Garbage Collector]] - Rick Hudson  
+- [[https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html][Garbage Collection In Go : Part I - Semantics]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/05/garbage-collection-in-go-part2-gctraces.html][Garbage Collection In Go : Part II - GC Traces]] - William Kennedy  
+- [[https://www.ardanlabs.com/blog/2019/07/garbage-collection-in-go-part3-gcpacing.html][Garbage Collection In Go : Part III - GC Pacing]] - William Kennedy  
+- [[https://blog.twitch.tv/en/2019/04/10/go-memory-ballast-how-i-learnt-to-stop-worrying-and-love-the-heap-26c2462549a2/][Go memory ballast: How I learnt to stop worrying and love the heap]] - Ross Engers  
+
+*Optimisations* *par* *Affectation* *Unique* *Statique*
+
+- [[https://www.youtube.com/watch?v=D2-gaMvWfQY][GopherCon 2015: Ben Johnson - Static Code Analysis Using SSA]]  
+- [[https://godoc.org/golang.org/x/tools/go/ssa][Package SSA]]    
+- [[https://www.youtube.com/watch?v=FnGCDLhaxKU][Understanding Compiler Optimization]]
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+*Partie* *A:* Déclarez et initialisez une variable de type int avec la valeur 20. Affichez "l'adresse de" et la "valeur de" la variable.
+
+*Partie* *B:* Déclarez et initialisez une variable pointeur de type int pointant vers la variable que vous venez de créer. Affichez "l'adresse de", la "valeur de" et la "valeur vers laquelle pointe le pointeur".
+
+** Exercise 2
+
+Déclarez un type de struct et créer une valeur de ce type. Déclarez une fonction qui peut modifier la valeur d'un champ de ce type struct. Affichez la valeur avant et après l'appel à votre fonction.
+
+.play pointers/exercise1.go
+.play pointers/answer1.go
+.play pointers/exercise2.go
+.play pointers/answer2.go

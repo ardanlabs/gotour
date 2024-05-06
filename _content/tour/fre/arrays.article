@@ -1,0 +1,426 @@
+Tableaux
+Les tableaux sont une structure de données en Go permettant d'allouer des blocs de mémoire contigus à taille fixe.
+
+* Tableaux
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Les tableaux sont une structure de données en Go permettant d'allouer des blocs 
+de mémoire contigus à tailles fixes. En Go, Les tableaux possèdent caractéristiques
+spéciales, relatives à la façon dont ils sont déclarés et sont considérés comme des types.
+
+** Analyse de Code
+
+- *Exemple* *1:* Déclarer, Initialiser et Itérer
+- *Exemple* *2:* Tableaux de différents types
+- *Exemple* *3:* Allocations de mémoire contiguë
+- *Exemple* *4:* Mécaniques de Parcours
+
+.play arrays/example1.go
+.play arrays/example2.go
+.play arrays/example3.go
+.play arrays/example4.go
+
+** Déclarer et Initialiser des Valeurs
+
+Déclarez un tableau de cinq chaînes de caractères initialisé à sa valeur zéro.
+
+    var strings [5]string
+
+Une chaîne de caractères en Go est une structure de données immuable composée de deux mots. 
+Elle représente un pointeur vers un tableau d'octets sous-jacent et le nombre total d'octets dans ce tableau. 
+Étant donné que ce tableau est initialisé à son état de valeur zéro, tous ses éléments 
+sont également à leur état de valeur zéro. Cela signifie que chaque chaîne de caractères 
+a le premier mot défini à nil et le deuxième mot défini à une chaine vide ("").
+
+.image /tour/eng/static/img/a1.png
+
+** Affectations de Chaines de Caractères
+
+Que se passe-t-il lorsqu'une chaîne de caractères est assignée à une autre chaîne de caractères ?
+
+    strings[0] = "Apple"
+
+Lorsqu'une chaîne de caractères est assignée à une autre chaîne de caractères, 
+la structure à deux mots est copiée, cela crée deux valeurs de chaîne distinctes 
+partageant le même tableau sous-jacent.
+
+.image /tour/eng/static/img/a2.png
+
+Le coût de copie d'une chaîne de caractères est le même quelle que soit la taille de la chaîne, 
+car il s'agit d'une copie de deux mots.
+
+** Itérer sur des Collections
+
+"Go propose deux sémantiques différentes pour parcourir une collection. On peut itérer en 
+utilisant la sémantique par valeur ou la sémantique par pointeur.
+
+    // Itération à sémantique par valeur
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+
+    // Itération à sémantique par pointeur
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Lorsque vous utilisez l'itération sémantique par valeur, deux choses se produisent. 
+Premièrement, la collection sur laquelle vous itérez est copiée et vous itérez sur la copie. 
+Dans le cas d'un tableau, la copie peut être coûteuse, car l'ensemble du tableau est copié. 
+Dans le cas d'une slice, il n'y a pas vraiment de coût, car seule la valeur interne de la slice 
+est copiée, et non le tableau sous-jacent. Deuxièmement, vous obtenez une copie de chaque 
+élément sur lequel vous itérez.
+
+Lorsque vous utilisez l'itération sémantique par pointeur, vous parcourez directement la 
+collection d'origine et accédez directement à chaque élément associé à la collection.
+
+** Itération Sémantique par Valeur
+
+Étant donné le code et le résultat suivants.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i, fruit := range strings {
+        println(i, fruit)
+    }
+
+Sortie :
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+La variable `strings` est un tableau de cinq chaînes de caractères. La boucle parcourt chaque 
+chaîne de la collection et affiche la position de l'index et la valeur de la chaîne. 
+Puisque l'itération se fait par sémantique par valeur, la boucle `for range` parcourt 
+sa propre copie du tableau et à chaque itération, la variable `fruit` est une copie de chaque 
+chaîne de caractères (la structure de données à deux mots).
+
+Remarquez comment la variable `fruit` est passée à la fonction `print` en utilisant la sémantique par valeur. 
+La fonction `print` obtient également sa propre copie de la valeur de la chaîne. 
+Au moment où la chaîne est passée à la fonction `print`, il existe quatre copies de la valeur de la chaîne 
+(le tableau original, une copie superficielle, la variable `fruit` et la copie de la fonction `print`). 
+Ces quatre copies partagent toutes le même tableau d'octets sous-jacent.
+
+.image /tour/eng/static/img/a3.png
+
+Faire des copies de la valeur d'une chaîne est important, car cela empêche la valeur de la chaîne 
+de s'échapper vers le heap. Cela évite des allocations non-productives dans le heap.
+
+** Itération Sémantique par Pointeur
+
+Étant donné le code et le résultat suivants.
+
+    strings := [5]string{"Apple", "Orange", "Banana", "Grape", "Plum"}
+    for i := range strings {
+        println(i, strings[i])
+    }
+
+Sortie :
+
+    0 Apple
+    1 Orange
+    2 Banana
+    3 Grape
+    4 Plum
+
+Encore une fois, la variable `strings` est un tableau de cinq chaînes de caractères. La boucle parcourt 
+chaque chaîne de la collection et affiche la position de l'index et la valeur de la chaîne. 
+Puisque l'itération se fait par sémantique par pointeur, la boucle `for range` parcourt directement 
+le tableau `strings` et à chaque itération, la valeur de la chaîne pour chaque position d'index est directement 
+accessible pour l'appel à la fonction `print`.
+
+** Tableaux de Différents Types 
+
+Il est intéressant de voir quelle erreur le compilateur produit lorsqu'on tente d'assigner des tableaux du même type, 
+mais de longueurs différentes.
+
+    var five [5]int
+    four := [4]int{10, 20, 30, 40}
+
+    five = four
+
+Erreur de Compilateur :
+
+    cannot use four (type [4]int) as type [5]int in assignment
+
+Ici, vous déclarez un tableau de quatre entiers et un autre de cinq, tous deux initialisés à leur état de valeur zéro. 
+Ensuite, vous essayez de les assigner l'un à l'autre et le compilateur vous dit : 
+"impossible d'utiliser `four` (type [4]int) comme type [5]int dans l'assignation".
+
+Il est important de bien comprendre ce que le compilateur nous dit. Il nous indique qu'un tableau de quatre entiers 
+et un tableau de cinq entiers représentent des données de types différents. La taille d'un tableau fait partie 
+de son information de type. En Go, la taille d'un tableau doit être connue au moment de la compilation.
+
+** Construction de Mémoire Contiguë.
+
+Vous voulez prouver qu'un tableau fournit une disposition contiguë de la mémoire.
+
+    five := [5]string{"Annie", "Betty", "Charley", "Doug", "Bill"}
+
+    for i, v := range five {
+        fmt.Printf("Value[%s]\tAddress[%p]  IndexAddr[%p]\n",
+            v, &v, &five[i])
+    }
+
+Sortie :
+
+    Value[Annie]     Address[0xc000010250]    IndexAddr[0xc000052180]
+    Value[Betty]     Address[0xc000010250]    IndexAddr[0xc000052190]
+    Value[Charley]   Address[0xc000010250]    IndexAddr[0xc0000521a0]
+    Value[Doug]      Address[0xc000010250]    IndexAddr[0xc0000521b0]
+    Value[Bill]      Address[0xc000010250]    IndexAddr[0xc0000521c0]
+
+Ici, vous déclarez un tableau de cinq chaînes de caractères initialisé avec des valeurs. 
+Ensuite, vous utilisez l'itération sémantique par valeur pour afficher des informations sur chaque chaîne. 
+La sortie montre la valeur de chaque chaîne individuelle, l'adresse de la variable `v` et l'adresse de 
+chaque élément du tableau.
+
+Vous pouvez voir comment le tableau est un bloc de mémoire contigu et comment une chaîne est une structure de données 
+à deux mots ou 16 octets sur une architecture 64 bits. L'adresse de chaque élément est espacée d'un pas de 16 octets.
+
+Le fait que la variable `v` ait la même adresse à chaque itération renforce la compréhension que `v` 
+est une variable locale de type chaîne de caractères qui contient une copie de chaque valeur de 
+chaîne de caractères pendant l'itération.
+
+** Caches CPU
+
+Il existe de nombreuses différences mécaniques entre les processeurs et leur conception. 
+Dans cette section, nous aborderons les processeurs de manière générale et nous nous intéresserons 
+aux sémantiques qui restent relativement similaires d'un processeur à l'autre. Cette compréhension 
+des sémantiques vous donnera une bonne représentation du fonctionnement des processeurs et vous permettra 
+de mieux les appréhender.
+
+Chaque cœur de processeur possède son propre cache local de mémoire (L1 et L2) et un cache commun (L3) 
+utilisé pour stocker et accéder aux données et aux instructions. Les threads matériels de chaque cœur 
+peuvent accéder à leurs caches L1 et L2 locaux. Les données de la L3 ou de la mémoire principale doivent 
+être copiées dans la cache L1 ou L2 pour être accessibles.
+
+.image /tour/eng/static/img/a4.png
+
+Le coût de latence pour accéder aux données dans les différents caches varie du plus court au plus long : 
+L1 -> L2 -> L3 -> mémoire principale. Comme l'a dit Scott Meyers, "Si les performances sont importantes, 
+la quantité totale de mémoire que vous possédez est la quantité totale de cache. 
+La mémoire principale est si lente d'accès que, d'un point de vue pratique, elle pourrait même ne pas exister".
+
+Aujourd'hui, les performances dépendent de l'efficacité du flux de données à travers le matériel. 
+Si chaque élément de données dont le matériel a besoin (à un instant t) ne se trouve que dans la mémoire principale,
+les programmes s'exécuteront plus lentement par rapport aux données déjà présentes dans les caches L1 ou L2.
+
+    3GHz(3 clock cycles/ns) * 4 instructions per cycle = 12 instructions per ns!
+
+    1 ns ............. 1 ns .............. 12 instructions  (one) 
+    1 µs ......... 1,000 ns .......... 12,000 instructions  (thousand)
+    1 ms ..... 1,000,000 ns ...... 12,000,000 instructions  (million)
+    1 s .. 1,000,000,000 ns .. 12,000,000,000 instructions  (billion)
+
+    Industry Defined Latencies
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins
+
+
+Comment écrire du code garantissant que les données nécessaires à l'exécution d'une instruction 
+soient toujours présentes dans les caches L1 ou L2 ? Vous devez écrire du code qui est "mécaniquement sympathique" 
+avec le prédicteur du processeur. Le prédicteur tente de prédire quelles données seront nécessaires 
+avant que les instructions ne les demandent, afin qu'elles soient déjà présentes dans le cache L1 ou L2.
+
+Il existe différentes granularités d'accès à la mémoire en fonction de l'endroit où l'accès se produit. 
+Mon code peut lire/écrire un octet de mémoire, soit la plus petite unité d'accès à la mémoire. 
+Cependant, du point de vue du système de cache, la granularité est de 64 octets. 
+Ce bloc de mémoire de 64 octets est appelé une ligne de cache
+
+Le prédicteur fonctionne mieux lorsque les instructions exécutées créent des modèles prévisibles d'accès 
+à la mémoire. Une façon de créer un tel modèle est de construire un bloc de mémoire contigu et 
+de l'explorer en itérant de manière linéaire avec un pas prévisible.
+
+Le tableau est la structure de données la plus importante pour le matériel, car il permet des modèles 
+d'accès prévisibles. Cependant, la slice est la structure de données la plus importante en Go. 
+Les slices en Go utilisent un/des tableaux sous-jacents.
+
+Une fois que vous construisez un tableau, chaque élément est à la même distance de l'élément suivant ou précédent. 
+Lorsque vous parcourez un tableau, vous commencez à parcourir des lignes de cache connectées les unes aux autres 
+avec un pas prévisible. Le prédicteur détectera ce modèle prévisible d'accès aux données et 
+commencera à charger efficacement les données dans le processeur, réduisant ainsi les coûts 
+de latence d'accès aux données.
+
+Imaginez que vous avez une grande matrice carrée de mémoire et une liste chaînée de nœuds correspondant 
+au nombre d'éléments dans la matrice. Si vous effectuez une traversée de la liste chaînée, puis de la matrice 
+dans les deux directions (Colonnes et Lignes), comment comparer les performances des différentes traversées ?
+
+    func RowTraverse() int {
+        var ctr int
+        for row := 0; row < rows; row++ {
+            for col := 0; col < cols; col++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+La traversée par ligne aura les meilleures performances car elle parcourt la mémoire, ligne de cache 
+par ligne de cache connectée, ce qui crée un modèle d'accès prévisible. Les lignes de cache peuvent être 
+préchargées et copiées dans le cache L1 ou L2 avant que les données ne soient nécessaires.
+
+    func ColumnTraverse() int {
+        var ctr int
+        for col := 0; col < cols; col++ {
+            for row := 0; row < rows; row++ {
+                if matrix[row][col] == 0xFF {
+                    ctr++
+                }
+            }
+        }
+        return ctr
+    }
+
+La traversée par colonne est la pire option, avec une différence significative, car ce modèle d'accès 
+franchit les limites de pagination de l'OS à chaque accès mémoire. Cela rend la prévision du 
+préchargement des lignes de cache impossible et transforme l'accès en mémoire, essentiellement aléatoire.
+
+    func LinkedListTraverse() int {
+        var ctr int
+        d := list
+        for d != nil {
+            if d.v == 0xFF {
+                ctr++
+            }
+            d = d.p
+        }
+        return ctr
+    }
+
+La traversée de la liste chaînée est deux fois plus lente que la traversée par ligne principalement 
+en raison des ratés de lignes de cache, mais d'un nombre plus faible de ratés de TLB (Translation Lookaside Buffer). 
+Une grande partie des nœuds connectés dans la liste se trouvent dans les mêmes pages de l'OS.
+
+    BenchmarkLinkListTraverse-16    128      28738407 ns/op
+    BenchmarkColumnTraverse-16       30     126878630 ns/op
+    BenchmarkRowTraverse-16         310      11060883 ns/op
+
+** Buffer de Traduction d'Adresses (TLB)
+
+Le système d'exploitation attribue à chaque programme en cours d'exécution une carte mémoire complète 
+de la mémoire virtuelle. Ce programme pense alors qu'il dispose de toute la mémoire physique de la machine. 
+Cependant, la mémoire physique doit être partagée entre tous les programmes en cours d'exécution. 
+Le système d'exploitation gère ce partage en divisant la mémoire physique en pages et en associant ces pages 
+à la mémoire virtuelle de chaque programme. Chaque système d'exploitation peut définir sa taille de pagination, 
+mais les tailles courantes et raisonnables sont 4 ko, 8 ko et 16 ko.
+
+Le TLB (Translation Lookaside Buffer) est un petit cache intégré au processeur qui aide à réduire la latence 
+de traduction d'une adresse virtuelle en une adresse physique au sein d'un espace d'une page de L'OS.
+Un raté de cache du TLB peut entraîner des latences importantes, car le matériel doit alors attendre 
+que l'OS parcoure sa table de pagination pour trouver la page correspondant à l'adresse virtuelle en question.
+Si le programme s'exécute sur une machine virtuelle (comme dans le cloud), la table de pagination de la 
+machine virtuelle doit d'abord être consultée.
+
+Rappelez-vous de ce qui a été dit :
+
+La traversée de la liste chaînée est deux fois plus lente que la traversée par ligne principalement 
+en raison du nombre plus important de ratés de lignes de cache. Cependant, elle connaît moins de 
+ratés de TLB (expliqué ci-dessous). La majorité des nœuds connectés dans la liste se trouvent dans 
+les mêmes pages de l'OS.
+
+La liste chaînée est significativement plus rapide que la traversée par colonne en raison de l'accès 
+au TLB (Translation Lookaside Buffer). Même s'il y a des ratés de cache de lignes avec la traversée de 
+la liste chaînée, comme la majorité de la mémoire pour un groupe de nœuds se trouve dans la même page, 
+les latences du TLB n'affectent pas les performances. C'est pourquoi, pour les programmes qui utilisent 
+une grande quantité de mémoire, comme les applications basées sur l'ADN, vous pouvez envisager d'utiliser 
+une distribution Linux configurée avec des tailles de page de l'ordre d'un mégaoctet ou deux.
+
+Malgré tout, la conception orientée données est importante. L'écriture d'un algorithme efficace doit tenir 
+compte de la façon dont on accède aux données. N'oubliez pas qu'aujourd'hui, la performance dépend de 
+l'efficacité avec laquelle vous pouvez introduire des données dans le processeur.
+
+- [[https://youtu.be/WDIkqP4JbkE?t=1129][CPU Caches and Why You Care (18:50-20:30)]] - Scott Meyers  
+- [[https://youtu.be/WDIkqP4JbkE?t=2676][CPU Caches and Why You Care (44:36-45:40)]] - Scott Meyers   
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski  
+
+** Notes sur le Cache CPU
+
+.html arrays/array_list.html
+
+** Diagrammes Supplémentaires
+
+*Latences* *Définies* *par *L'Industrie*
+
+    L1 cache reference ......................... 0.5 ns ...................  6 ins
+    Branch mispredict ............................ 5 ns ................... 60 ins
+    L2 cache reference ........................... 7 ns ................... 84 ins
+    Mutex lock/unlock ........................... 25 ns .................. 300 ins
+    Main memory reference ...................... 100 ns ................. 1200 ins           
+    Compress 1K bytes with Zippy ............. 3,000 ns (3 µs) ........... 36k ins
+    Send 2K bytes over 1 Gbps network ....... 20,000 ns (20 µs) ........  240k ins
+    SSD random read ........................ 150,000 ns (150 µs) ........ 1.8M ins
+    Read 1 MB sequentially from memory ..... 250,000 ns (250 µs) .......... 3M ins
+    Round trip within same datacenter ...... 500,000 ns (0.5 ms) .......... 6M ins
+    Read 1 MB sequentially from SSD- ..... 1,000,000 ns (1 ms) ........... 12M ins
+    Disk seek ........................... 10,000,000 ns (10 ms) ......... 120M ins
+    Read 1 MB sequentially from disk .... 20,000,000 ns (20 ms) ......... 240M ins
+    Send packet CA->Netherlands->CA .... 150,000,000 ns (150 ms) ........ 1.8B ins
+
+*Cache* *Latences* *Image*
+
+.image /tour/eng/static/img/cache_latencies_graph.png
+
+** Lectures Supplémentaires
+
+*CPU* *Caches* */* *Mémoire*
+
+- [[https://www.youtube.com/watch?v=WDIkqP4JbkE][CPU Caches and Why You Care - Video]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=OFgxAFdxYAQ][A Crash Course in Modern Hardware - Video]] - Cliff Click  
+- [[http://frankdenneman.nl/2016/07/06/introduction-2016-numa-deep-dive-series/][NUMA Deep Dive Series]] - Frank Denneman    
+- [[http://www.aristeia.com/TalkNotes/codedive-CPUCachesHandouts.pdf][CPU Caches and Why You Care - Deck]] - Scott Meyers  
+- [[https://www.youtube.com/watch?v=MC1EKLQ2Wmg][Mythbusting Modern Hardware to Gain 'Mechanical Sympathy']] - Martin Thompson  
+- [[http://www.akkadia.org/drepper/cpumemory.pdf][What Every Programmer Should Know About Memory]] - Ulrich Drepper  
+- [[http://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How CPU Caches Work and Why]] - Joel Hruska  
+- [[http://www.lighterra.com/papers/modernmicroprocessors][Modern Microprocessors A 90 Minute Guide]] - Jason Robert Carey Patterson  
+- [[http://lwn.net/Articles/252125][Memory part 2: CPU caches]] - Ulrich Drepper  
+- [[http://www.gotw.ca/publications/concurrency-ddj.htm][The Free Lunch Is Over]] - Herb Sutter  
+- [[https://m.youtube.com/watch?feature=youtu.be&v=QBu2Ae8-8LM][Data Center Computers: Modern Challenges in CPU Design]] - Dick Sites  
+- [[https://en.wikipedia.org/wiki/Wirth%27s_law][Wirth's Law]] - Wikipedia  
+- [[http://www.drdobbs.com/parallel/eliminate-false-sharing/217500206][Eliminate False Sharing]] - Herb Sutter  
+- [[http://www.ilikebigbits.com/2014_04_21_myth_of_ram_1.html][The Myth Of Ram]] - Emil Ernerfeldt  
+- [[https://www.infoq.com/presentations/hardware-transactional-memory][Understanding Transaction Hardware Memory]] - Gil Gene  
+- [[https://youtu.be/jEG4Qyo_4Bc?t=266][Performance Through Cache-Friendliness (4:25-5:48)]] - Damian Gryski   
+- [[https://www.youtube.com/watch?v=2EWejmkKlxs][Going Nowhere Faster]] - Chandler Carruth  
+
+*Design* *Orienté Données*
+
+- [[https://www.youtube.com/watch?v=rX0ItVEVjHc][Data-Oriented Design and C++]] - Mike Acton  
+- [[https://www.youtube.com/watch?v=fHNmRkzxHWs][Efficiency with Algorithms, Performance with Data Structures]] - Chandler Carruth  
+- [[https://www.youtube.com/watch?v=LrVi9LHP8Bk][Taming the performance Beast]] - Klaus Iglberger  
+- [[http://harmful.cat-v.org/software/OO_programming/_pdf/Pitfalls_of_Object_Oriented_Programming_GCAP_09.pdf][Pitfalls of OOP]] - Tony Albrecht  
+- [[https://www.youtube.com/watch?v=YQs6IC-vgmo][Why you should avoid Linked Lists]] - Bjarne Stroustrup  
+- [[http://gamesfromwithin.com/data-oriented-design][Data-Oriented Design (Or Why You Might Be Shooting Yourself in The Foot With OOP)]] - Noel    
+- [[https://www.quora.com/Was-object-oriented-programming-a-failure][Was object-oriented programming a failure?]] - Quora  
+
+** Notes
+
+- Si vous ne comprenez pas la donnée, vous ne comprenez pas le problème.
+- Si vous ne comprenez pas le coût de la résolution du problème, vous ne pouvez pas raisonner sur le problème.
+- Si vous ne comprenez pas le matériel, vous ne pouvez pas raisonner sur le coût de la résolution du problème.
+- Les tableaux sont des structures de données de longueurs fixes qui ne peuvent pas être modifiées.
+- Les tableaux de tailles différentes sont considérés comme étant de types différents.
+- La mémoire est allouée sous la forme d'un bloc contigu.
+- Go vous permet de contrôler la localité spatiale.
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Déclarez un tableau de cinq chaînes de caractères en initialisant chaque élément à sa valeur zéro. 
+Déclarez un deuxième tableau de cinq chaînes de caractères et initialisez-le avec des valeurs littérales. 
+Assignez le deuxième tableau au premier et affichez le contenu du premier tableau. 
+Affichez la valeur de chaque chaîne et son adresse mémoire.
+
+.play arrays/exercise1.go
+.play arrays/answer1.go

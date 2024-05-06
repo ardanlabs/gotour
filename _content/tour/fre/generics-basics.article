@@ -1,0 +1,109 @@
+Basics
+Apprenez à écrire une fonction print générique de base.
+
+* Generics - Basics
+
+Apprenez à écrire une fonction print générique de base.
+
+** Video
+
+Regardez la conférence que j'ai donnée sur les génériques, qui vous présente tous les exemples de cette section du Tour.
+
+.html generics-video.html
+
+** Analyse de Code
+
+- *Exemple* *1*: Implémentation Concrète de print
+- *Exemple* *2*: Implémentation d'une fonction print avec assertion de type
+- *Exemple* *3*: Implémentation du mécanisme de réflexion de print
+- *Exemple* *4*: Implémentation Générique de print
+
+.play generics/basics/example1.go
+.play generics/basics/example2.go
+.play generics/basics/example3.go
+.play generics/basics/example4.go
+
+** Explications
+
+Si vous voulez écrire une fonction `print` unique capable de sortir une slice de n'importe quel type de donnée, sans 
+utiliser la réflexion, vous pouvez utiliser la nouvelle syntaxe des génériques.
+
+    func print[T any](slice []T) {
+        fmt.Print("Generic: ")
+        
+        for _, v := range slice {
+            fmt.Print(v, " ")
+        }
+
+        fmt.Print("\n")
+    }
+
+Ceci est l'implémentation d'une fonction `print` unique qui peut générer une slice de n'importe quel type donnée en 
+utilisant la nouvelle syntaxe des génériques. Ce qui est intéressant avec cette syntaxe, c'est que le code à l'intérieur 
+de la fonction peut utiliser la syntaxe et les fonctions intégrées qui fonctionneraient avec un type concret. 
+Ce n'est pas le cas lorsque vous utilisez l'interface vide pour écrire du code générique."
+
+Il faut un moyen d'indiquer au compilateur que vous ne déclarerez pas explicitement le type T, mais que celui-ci doit 
+être déterminé par le compilateur au moment de la compilation. Pour cela, la nouvelle syntaxe utilise des crochets. 
+Les crochets définissent une liste d'identifiants de type générique qui représentent les types spécifiques à la fonction 
+et qui doivent être déterminés au moment de la compilation. C'est ainsi que vous indiquez au compilateur que les types 
+portant ces noms ne seront pas déclarés avant la compilation du programme. Ces types doivent être déterminés au moment 
+de la compilation.
+
+Note: Vous pouvez définir plusieurs identificateurs de type à l'intérieur des crochets, bien que l'exemple actuel n'en 
+utilise qu'un seul. Ex. [T, S, R any]
+
+Vous pouvez nommer ces identificateurs de type comme vous le souhaitez afin d'améliorer la lisibilité du code. Dans ce 
+cas, le code utilise la lettre majuscule T pour décrire qu'une slice d'un certain type T (à déterminer à la compilation) 
+sera passée en paramètre. C'est une habitude d'utiliser des lettres majuscules simples lorsqu'il s'agit de collections, 
+et c'est aussi une convention qui remonte à des langages de programmation plus anciens comme le C++ et le Java.
+
+
+Le texte utilise le mot "any" entre crochets. Cela représente une contrainte sur le type que peut être T. Le compilateur 
+exige que tous les types génériques aient une contrainte bien définie. La contrainte "any" est prédéclarée par le 
+compilateur et signifie que T n'a aucune restriction sur ce que son type peut être.
+
+    numbers := []int{1, 2, 3}
+    print[int](numbers)
+
+    strings := []string{"A", "B", "C"}
+    print[string](strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print[float64](floats)
+
+C'est ainsi que l'on effectue des appels à la fonction générique `print` lorsque le type d'information pour T est 
+explicitement fourni au moment de l'appel. La syntaxe imite l'idée que la déclaration de fonction 
+`func name [T any](slice []T)` définit deux ensembles de paramètres. Le premier ensemble est le type correspondant 
+aux identificateurs de type, et le deuxième est la donnée qui correspond aux variables d'entrée.
+
+Fort heureusement, le compilateur peut déduire le type et supprimer la nécessité de transmettre explicitement les 
+informations de type au moment de l'appel.
+
+    numbers := []int{1, 2, 3}
+    print(numbers)
+    
+    strings := []string{"A", "B", "C"}
+    print(strings)
+    
+    floats := []float64{1.7, 2.2, 3.14}
+    print(floats)
+
+Ce code montre comment appeler les fonctions génériques `print` sans avoir besoin de passer explicitement les 
+informations de type. Au moment de l'appel à la fonction, le compilateur est capable d'identifier le type à utiliser 
+pour T et de construire une version concrète de la fonction pour prendre en charge les slices de ce type. Le compilateur 
+a la capacité de déduire le type grâce aux informations dont il dispose au moment de l'appel, à partir des données 
+transmises.
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Implémentez une fonction générique nommée `marshal` qui peut accepter n'importe quelle valeur et la convertir en JSON et 
+qui renvoie le JSON et une erreur. Déclarez un type de struct nommé `User` avec deux champs, `Name` et `Age`. Ensuite, 
+construisez une valeur du type `User` et passez-la à la fonction générique `marshal`.
+
+.play generics/basics/exercise1.go 
+.play generics/basics/answer1.go

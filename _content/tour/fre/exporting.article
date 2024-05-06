@@ -1,0 +1,139 @@
+Export
+L'export permet de spécifier si un identifiant est accessible au code en dehors du package dans lequel il est déclaré.
+
+* Export
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+L'export permet de spécifier si un identifiant est accessible au code en dehors du package dans lequel il est déclaré. 
+
+** Analyse de Code
+
+- *Exemple* *1:* Déclarer et accéder aux identifiants exportés
+- *Exemple* *2:* Déclarer des identifiants non exportés et leurs restrictions
+- *Exemple* *3:* Accéder aux valeurs des identifiants non exportés
+- *Exemple* *4:* Champs de type struct non exportés
+- *Exemple* *5:* Types imbriqués non exportés
+
+.play exporting/example1.go
+.play exporting/example2.go
+.play exporting/example3.go
+.play exporting/example4.go
+.play exporting/example5.go
+
+** Mécaniques d'Export
+
+En Go, un package est l'unité de base du code compilé. Il représente une unité physique de code compilé, 
+généralement sous la forme d'une bibliothèque compilée sur le système d'exploitation hôte. L'exportation détermine 
+l'accès aux identifiants entre les différents packages.
+
+    package counters
+
+    type AlertCounter int
+
+Dans ce cas, comme le type `AlterCounter` est nommé avec une majuscule, il est exporté et peut être directement 
+référencé par du code en dehors du package `counters`.
+
+    package counters
+
+    type alertCounter int
+
+En renommant le type avec une minuscule, il n'est désormais plus exporté. Cela signifie que seul le code à l'intérieur 
+du package `counters` peut le référencer directement.
+
+    package counters
+
+    type alertCounter int
+
+    func New(value int) alertCounter {
+        return alertCounter(value)
+    }
+
+Même si le code ci-dessus est syntaxiquement correct et compilable, il n'a aucune utilité. 
+Renvoyer une valeur d'un type non exporté est source de confusion, car l'appelant (qui se trouvera probablement 
+dans un autre package) ne peut pas référencer directement le nom du type.
+
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/ardanlabs/.../exporting/example3/counters"
+    )
+
+    func main() {
+        counter := counters.New(10)
+        fmt.Printf("Counter: %d\n", counter)
+    }
+
+Dans ce cas, la fonction `main` dans le `package main` appelle la fonction `counters.New` avec succès et le compilateur
+peut déclarer et construire une variable du type non exporté. Cela ne signifie pas qu'il faut le faire, 
+et cela ne signifie pas non plus que vous bénéficierez d'une protection réelle. Cette pratique doit être évitée, 
+et si `New` doit retourner une valeur, celle-ci doit être d'un type exporté.
+
+    package users
+
+    type User struct {
+        Name string
+        ID   int
+
+        password string
+    }
+
+En ce qui concerne les champs d'une struct, la première lettre détermine si le champ est accessible au code en 
+dehors du package dans lequel il est déclaré. Dans ce cas, `Name` et `ID` sont accessibles, contrairement à `password`. 
+C'est une convention courante de séparer les champs exportés et non exportés de cette manière, lorsque cela 
+est raisonnable et pratique. 
+En général, tous les champs appartiennent à l'une ou l'autre catégorie.
+
+    package users
+
+    type user struct {
+        Name string
+        ID   int
+    }
+
+    type Manager struct {
+        Title string
+        user
+    }
+
+Dans ce scénario, même si le type `user` n'est pas exporté, il possède deux champs exportés. Cela signifie que 
+lorsque le type `user` est imbriqué dans le type exporté `Manager`, les champs `user` sont promus et deviennent 
+accessibles. Il est courant d'avoir des types non exportés avec des champs exportés, car le `package reflect` 
+ne peut fonctionner qu'avec des champs exportés. Dans le cas contraire, les sérialiseurs (marshallers) 
+ne fonctionneront pas.
+
+L'exemple illustre une mauvaise situation où du code en dehors du package `user` peut construire un `Manager`, 
+même si le type imbriqué `user` n'est pas exporté, les champs de ce type peuvent être initialisés. Cela crée des
+problèmes de construction partielle qui mèneront à des bugs. Il est important d'être cohérent en termes d'exportation 
+et de non-exportation.
+
+** Notes
+
+- Le code Go est compilé en packages qui sont ensuite liés ensemble.
+- Les identifiants sont exportés (ou restent non exportés) en fonction de la casse de leurs premières lettres.
+- Nous importons des packages pour accéder aux identifiants exportés.
+- Tout package peut utiliser une valeur d'un type non exporté, mais cela est déconseillé et peu pratique.
+
+** Lectures Supplémentaires
+
+[[https://www.ardanlabs.com/blog/2014/03/exportedunexported-identifiers-in-go.html][Exported/Unexported Identifiers In Go]] - William Kennedy    
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+*Partie* *A:* Créez un package nommé `toy` avec une seule struct exportée nommée `Toy`.
+Ajoutez les champs exportés `Name` et `Weight`. Ensuite, ajoutez deux champs non exportés nommés `onHand` et `sold`.
+Déclarez une fonction "factory" (usine) appelée `New` pour créer des valeurs de type `Toy` acceptant des paramètres pour 
+les champs exportés. Enfin, déclarez des méthodes qui retournent et mettent à jour les valeurs des champs non exportés.
+
+*Partie* *B:* Créez un programme qui importe le package `toy`. Utilisez la fonction `New` pour créer une valeur 
+de type `toy`. Ensuite, utilisez les méthodes pour définir et afficher la valeur de `toy` 
+
+.play exporting/exercise1.go
+.play exporting/answer1.go

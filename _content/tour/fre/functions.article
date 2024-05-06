@@ -1,0 +1,181 @@
+Fonctions
+Les fonctions sont au cœur du langage, elles fournissent un mécanisme pour regrouper et organiser notre code afin de séparer des éléments fonctionnalités distinctes.
+
+* Fonctions
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Les fonctions sont au cœur du langage, elles fournissent un mécanisme pour regrouper et organiser notre code
+afin de séparer des éléments fonctionnalités distinctes. Elles peuvent être utilisées pour fournir
+une API aux packages que nous écrivons et sont un élément essentiel de la concurrence.
+
+Les fonctions en Go jouent un rôle central dans la structuration du code et encouragent l'écriture de logiciels
+propres, maintenables et efficaces. Comprendre comment déclarer, définir et utiliser les fonctions est essentiel
+pour écrire des programmes Go efficaces.
+
+** Analyse de Code
+
+- *Exemple* *1:* Retourner plusieurs valeurs
+- *Example* *2:* Identifiant blanc/vide
+- *Example* *3:* Re-déclarations
+- *Example* *4:* Fonctions Anonymes/Closures
+- *Example* *5:* Récupérer des Panics.
+
+.play functions/example1.go
+.play functions/example2.go
+.play functions/example3.go
+.play functions/example4.go
+.play functions/example5.go
+
+Les fonctions sont un élément fondamental des programmes et sont utilisées pour encapsuler 
+et organiser le code afin d'en améliorer la modularité et la réutilisation. Les fonctions sont des 
+blocs de code qui exécutent une tâche spécifique ou un ensemble de tâches connexes. 
+Voici un aperçu des fonctions en Go :
+
+** Déclaration de Fonction
+
+Pour déclarer une fonction en Go, vous utilisez le mot-clé `func` suivi du nom de la fonction, 
+d'une liste de paramètres entre parenthèses et d'un type de retour optionnel. 
+La syntaxe générale est la suivante :
+
+   func functionName(parameter1 type, parameter2 type, ...) return_type {
+       // Corps de la fonction
+   }
+
+Par exemple :
+
+   func add(x int, y int) int {
+       return x + y
+   }
+
+** Paramètres et Valeurs de Retour
+
+Les fonctions peuvent prendre zéro ou plusieurs paramètres, ce sont les valeurs transmises à la fonction
+lorsqu'elle est appelée. Chaque paramètre se compose d'un nom et d'un type. 
+Dans l'exemple ci-dessus, `add` prend deux paramètres entiers, `x` et `y`.
+
+Les fonctions peuvent renvoyer zéro ou une valeur (ou aucune, auquel cas, vous pouvez omettre le type de retour).
+L'instruction `return` est utilisée pour spécifier la valeur à renvoyer. 
+Dans l'exemple ci-dessus, `add` renvoie un entier.
+
+Go permet aux fonctions de renvoyer plusieurs valeurs. Ceci est utile si vous souhaitez 
+renvoyer plus d'un résultat depuis fonction. Par exemple :
+
+   func divide(x, y float64) (float64, error) {
+       if y == 0 {
+           return 0, errors.New("division by zero")
+       }
+       return x / y, nil
+   }
+
+Dans cet exemple, la fonction `divide` renvoie à la fois un résultat en virgule flottante et 
+une erreur (en cas de division par zéro).
+
+Go vous permet de spécifier des noms pour les valeurs de retour dans la signature d'une fonction. 
+Les valeurs de retour nommées sont automatiquement initialisées et peuvent être utilisées comme 
+des variables ordinaires au sein de la fonction. Elles sont particulièrement utiles lorsqu'il s'agit 
+de traiter des fonctions complexes ou de la gestion des erreurs. 
+Par exemple :
+
+   func divide(x, y float64) (result float64, err error) {
+       if y == 0 {
+           err = errors.New("division by zero")
+           return
+       }
+       result = x / y
+       return
+   }
+
+** Appels de Fonctions
+
+Pour appeler une fonction en Go, vous utilisez le nom de la fonction suivi d'une liste d'arguments entre parenthèses. 
+Si la fonction a plusieurs valeurs de retour, vous pouvez les capturer dans des variables. 
+Par exemple :
+
+   sum := add(3, 5)            // Appel de la fonction 'add' et attribution de son retour à 'sum'
+   result, err := divide(8, 2) // Appel de la fonction 'divide' et capture de ses 2 retours 'result' and 'error'
+
+** Fonctions à Paramètres Variadiques
+
+Go supporte les fonctions variadiques, elles acceptent un nombre variable d'arguments. 
+Pour définir un paramètre variadique, vous utilisez une ellipse (...) suivie du type de paramètre. 
+Par exemple :
+
+   func calculateSum(nums ...int) int {
+       sum := 0
+       for _, num := range nums {
+           sum += num
+       }
+       return sum
+   }
+
+Vous pouvez appeler cette fonction avec n'importe quel nombre d'entiers.
+
+** Fonctions Anonymes
+
+Go prend en charge les fonctions anonymes, également appelées closures. Il s'agit de fonctions sans nom, 
+qui peuvent être assignées à des variables et utilisées comme arguments par d'autres fonctions. 
+Les closures sont souvent utilisées en Go pour des tâches telles que la définition de fonctions en ligne 
+ou la programmation concurrente à l'aide de goroutines.
+
+   add := func(x, y int) int {
+       return x + y
+   }
+
+   result := add(3, 5)
+
+** Fonction en tant que Type
+
+En Go, les fonctions peuvent également être utilisées comme des types. Cela permet de définir des fonctions 
+qui prennent d'autres fonctions en arguments ou qui en retournent. C'est une fonctionnalité 
+puissante pour mettre en œuvre des fonctions à arguments fonctionnels et des callbacks.
+
+   type MathFunc func(int, int) int
+
+   func operate(x, y int, op MathFunc) int {
+       return op(x, y)
+   }
+
+Vous pouvez ensuite passer des fonctions comme argument à `operate`
+
+** Defer et Panic
+
+Go fournit deux fonctions spéciales intégrées appelées `defer` et `panic` pour réagir aux situations exceptionnelles et 
+gérer des ressources. `defer` est utilisée pour planifier l'exécution d'un appel de fonction 
+juste avant le retour de cette fonction, tandis que `panic` est utilisée pour déclencher une erreur d'exécution 
+et dérouler le stack.
+
+** Notes
+
+- Les fonctions peuvent renvoyer plusieurs valeurs et la plupart renvoient une valeur d'erreur.
+- La valeur d'erreur devrait toujours être vérifiée dans le cadre de la logique de programmation.
+- L'identifiant blanc/vide (`_`) peut être utilisé pour ignorer les valeurs de retour.
+- Syntaxe : func, receiver, identifier, [paramètre(s)], [retour(s)], bloc de code.
+- Paramètres variadiques, arguments variadiques et destructuration d'une slice.
+- Les fonctions sont un type : vous pouvez utiliser des fonctions comme paramètres, arguments et retours.
+- Defer est utilisé pour planifier un appel de fonction dans une autre fonction.
+- Panic déclenche une erreur d'exécution et déroule le stack.
+- Les retours nommés sont moins lisibles et ne sont pas idiomatiques.
+
+** Lectures Supplémentaires
+
+- [[https://golang.org/doc/effective_go.html#functions][Effective Go]] 
+- [[https://www.ardanlabs.com/blog/2013/10/functions-and-naked-returns-in-go.html][Functions and Naked returns in Go]]  
+- [[https://www.ardanlabs.com/blog/2013/06/understanding-defer-panic-and-recover.html][Understanding defer panics and recover]]
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+*Partie* *A:* Déclarez un type de struct pour gérer des informations relatives à un utilisateur. 
+Déclarez une fonction qui en crée une valeur et renvoie un pointeur de ce type et erreur. 
+Appelez cette fonction à partir de main et affichez la valeur.
+
+*Partie* *B:* Faites un deuxième appel à votre fonction, mais cette fois-ci, ignorez la valeur 
+et testez uniquement l'erreur.
+
+.play functions/exercise1.go		
+.play functions/answer1.go
