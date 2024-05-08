@@ -1,52 +1,51 @@
-Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+Sự Ô nhiễm Interface (Interface Pollution)
+Interface pollution xuất phát từ thực tế là mọi người đang thiết kế phần mềm với interface thay vì khám phá chúng.
 
 * Interface Pollution
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Xem Video]]
+- Cần hỗ trợ Học phí, hãy sử dụng [[https://www.ardanlabs.com/scholarship/] [Đơn xin Học bổng]] của chúng tôi
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+Interface pollution xuất phát từ thực tế là mọi người đang thiết kế phần mềm với
+interface thay vì khám phá chúng.
 
 ** Code Review
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *Ví dụ* *1:* Gây ra Interface Pollution
+- *Ví dụ* *2:* Loại bỏ Interface Pollution
 
-.play composition/pollution/example1.go
-.play composition/pollution/example2.go
+.chạy composition/pollution/example1.go
+.chạy composition/pollution/example2.go
 
 ** Interface Pollution
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+Interface pollution xuất phát từ thực tế là mọi người đang thiết kế phần mềm với
+interface thay vì khám phá chúng. Bạn nên thiết kế một giải pháp cụ thể cho
+vấn đề trước. Sau đó, bạn có thể tìm hiểu xem chương trình cần đa hình ở đâu nếu
+cần thiết.
 
-These are things I’ve heard from other developers.
+Đây là những điều tôi nghe được từ developer.
 
-"I’m using interfaces because we have to use interfaces".
+"Tôi đang dùng interface bởi vì tôi phải làm thế".
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+Không. Chúng ta không buộc phải sử dụng interface. Chúng ta sử dụng interface khi nó
+tiện lợi và hợp lý. Có một cái giá phải trả khi sử dụng interface: mức độ gián tiếp
+và phân bổ khi chúng ta lưu trữ các giá trị cụ thể bên trong chúng. Trừ khi cái giá của
+sự phân bổ xứng đáng với những gì ta đạt được bằng cách decouple, bạn không nên sử dụng interface.
 
-"I need to be able to test my code so I need to use interfaces".
+"Tôi cần test code của tôi nên tôi cần sử dụng interface.".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+Không. Trước tiên, bạn phải thiết kế API cho người dùng chứ không phải cho việc test.
+Nếu API không thể test được, bạn nên đặt câu hỏi rằng nó có dùng được không.
+Ngoài ra còn có nhiều lớp API khác nhau. Các API chưa export cấp thấp hơn có thể và
+nên tập trung vào khả năng test. Các API cấp cao hơn đã export cần tập trung vào khả năng sử dụng.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+Các function chấp nhận nhập dữ liệu thô và trả lại dữ liệu thô là dễ test nhất.
+Tách biệt quá trình chuyển đổi dữ liệu khỏi nơi nó đến và nơi nó đang đi đến.
+Đây là bài tập tái cấu trúc bạn cần thực hiện trong việc thực hiện chu kỳ code.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+Bên dưới là một ví dụ gây nên interface pollution bằng cách sử dụng interface
+không cần thiết.
 
     type Server interface {
         Start() error
@@ -54,33 +53,31 @@ interface when one is not needed.
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+Interface Server định nghĩa một hợp đồng cho các máy chủ TCP. Vấn đề ở đây là tôi
+không cần một hợp đồng, mà bạn cần một implement. Sẽ chỉ có một cách implement,
+đặc biệt khi bạn là người implement nó. Bạn không cần người khác để implement điều này cho bạn.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+Ngoài ra, interface này dựa trên danh từ chứ không phải động từ. Các kiểu cụ thể là danh từ
+vì chúng đại diện cho vấn đề cụ thể. Interface mô tả hành vi và Server không phải là hành vi.
 
-Here are some ways to identify interface pollution:
+Sau đây là một vài cách để xác định interface pollution:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- Một package khai báo một interface khớp với toàn bộ API của kiểu cụ thể của chính nó.
+- Các interface được export nhưng các kiểu cụ thể implement interface không được export.
+- Factory function cho kiểu cụ thể trả về giá trị interface với giá trị kiểu cụ thể chưa được export bên trong.
+- Interface có thể bị xóa và không có gì thay đổi đối với người dùng API.
+- Interface không decouple API khỏi thay đổi.
 
-Guidelines around interface pollution:
+Hướng dẫn về interface pollution:
 
-Use an interface:
+Sử dụng một interface:
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+- Khi người dùng API cần cung cấp chi tiết về việc implement.
+- Khi API có nhiều cách implement cần được bảo dưỡng.
+- Khi các phần của API có thể thay đổi đã được xác định và yêu cầu decouple.
 
-Question an interface:
+Cân nhắc một interface:
 
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- Khi mục đích duy nhất của nó là viết các API có thể test được (hãy viết các API có thể dùng được trước).
+- Khi nó không cung cấp việc hỗ trợ để API decouple sự thay đổi.
+- Khi chưa rõ interface làm thế nào để code tốt hơn.
