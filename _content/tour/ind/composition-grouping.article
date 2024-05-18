@@ -1,55 +1,56 @@
-Grouping With Types
-It’s important to remember that in Go the concepts of sub-typing or sub-classing really don't exist and these design patterns should be avoided.
+Pengelompokan dengan Tipe Data
+Penting untuk diingat bahwa dalam Go, konsep sub-typing atau sub-classing sebenarnya tidak ada,
+dan pola desain ini seharusnya dihindari.
 
-* Grouping With Types
+* Pengelompokan dengan Tipe Data
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Penting untuk diingat bahwa dalam Go, konsep sub-typing atau sub-classing sebenarnya tidak ada,
+dan pola desain ini seharusnya dihindari.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Grouping By State
-- *Example* *2:* Grouping By Behavior
+- *Contoh 1:* Pengelompokan Berdasarkan Status
+- *Contoh 2:* Pengelompokan Berdasarkan Perilaku
 
 .play composition/grouping/example1.go
 .play composition/grouping/example2.go
 
-** Grouping Different Types of Data
+** Mengelompokkan Berbagai Jenis Data
 
-It’s important to remember that in Go the concepts of sub-typing or sub-classing
-really don't exist and these design patterns should be avoided.
+Penting untuk diingat bahwa dalam Go, konsep sub-typing atau sub-classing sebenarnya tidak ada,
+dan pola desain ini seharusnya dihindari.
 
-The following is an anti-pattern you shouldn’t follow or implement.
+Berikut adalah anti-pola yang seharusnya tidak diikuti atau diimplementasikan.
 
     type Animal struct {
         Name string
         IsMammal bool
     }
 
-The Animal type is being declared as a base type that tries to define data that is
-common to all animals. You also attempt to provide some common behavior to an
-animal as well.
+Tipe Animal dideklarasikan sebagai tipe dasar yang mencoba mendefinisikan data yang umum untuk semua hewan.
+Anda juga mencoba memberikan beberapa perilaku umum untuk hewan.
 
     func (a *Animal) Speak() {
         fmt.Println("UGH!",
         "My name is", a.Name, ", it is", a.IsMammal, "I am a mammal")
     }
 
-Most animals have the ability to speak in one way or the other. However, trying to
-apply this common behavior to just an animal doesn’t make any sense. At this
-point, You have no idea what sound this animal makes, so you write UGH.
+Sebagian besar hewan memiliki kemampuan berbicara dengan cara atau cara lain.
+Namun, mencoba menerapkan perilaku umum ini hanya pada hewan tidak masuk akal.
+Pada titik ini, Anda tidak tahu suara apa yang dihasilkan oleh hewan ini, sehingga Anda menuliskan UGH.
 
     type Dog struct {
         Animal
         PackFactor int
     }
 
-Now the real problems begin. I’m attempting to use embedding to make a Dog
-everything an Animal is plus more. On the surface this will seem to work, but there
-will be problems. With that being said, a Dog does have a specific way they speak.
+Sekarang masalah yang sebenarnya dimulai. Saya mencoba menggunakan penyematan (embedding)
+untuk membuat Dog memiliki semua yang dimiliki Animal dan lebih banyak lagi.
+Pada awalnya, ini mungkin tampak berhasil, tetapi akan ada masalah.
+Meskipun demikian, seekor anjing memiliki cara khusus dalam berbicara.
 
     func (d *Dog) Speak() {
         fmt.Println("Woof!",
@@ -58,16 +59,16 @@ will be problems. With that being said, a Dog does have a specific way they spea
             "I am a mammal with a pack factor of", d.PackFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Woof. This is
-specific to how a dog speaks.
+Dalam implementasi metode Speak, Anda dapat mengganti UGH dengan Woof.
+Ini spesifik untuk cara berbicara anjing.
 
     type Cat struct {
         Animal
         ClimbFactor int
     }
 
-If I’m going to have a Dog that represents an Animal, then you have to have a Cat.
-Using embedding, a Cat is everything an Animal is plus more.
+Jika saya akan memiliki Dog yang mewakili Animal, maka Anda harus memiliki Cat.
+Dengan menggunakan penyematan, Cat adalah segalanya yang dimiliki Animal dan lebih banyak lagi.
 
     func (c *Cat) Speak() {
         fmt.Println("Meow!",
@@ -76,12 +77,12 @@ Using embedding, a Cat is everything an Animal is plus more.
             "I am a mammal with a climb factor of", c.ClimbFactor)
     }
 
-In the implementation of the Speak method, you can change out UGH for Meow. This
-is specific to how a cat speaks.
+Dalam implementasi metode Speak, Anda dapat mengganti UGH dengan Meow.
+Ini spesifik untuk cara berbicara kucing.
 
-Everything seems fine and it looks like embedding is providing the same
-functionality as inheritance does in other languages. Then you try to go ahead and
-group dogs and cats by the fact they have a common DNA of being an Animal.
+Semuanya tampak baik dan terlihat seperti penyematan (embedding)
+seperti inheritance pada bahasa pemrograman lain. Kemudian Anda mencoba untuk
+mengelompokkan anjing dan kucing berdasarkan fakta bahwa mereka memiliki DNA bersama sebagai Animal.
 
     animals := []Animal{
         Dog{
@@ -91,7 +92,7 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
             },
             PackFactor: 5,
         },
-    
+
         Cat{
             Animal: Animal{
                 Name: "Milo",
@@ -105,25 +106,24 @@ group dogs and cats by the fact they have a common DNA of being an Animal.
         animal.Speak()
     }
 
-When you try to do this, the compiler complains that a Dog and Cat are not an Animal
-and this is true. Embedding isn’t the same as inheritance and this is the pattern I
-need to stay away from. A Dog is a Dog, a Cat a Cat, and an Animal an Animal. I
-can’t pass Dog’s and Cat’s around as if they are Animals because they are not.
+Ketika Anda mencoba melakukan ini, kompilator mengeluh bahwa Dog dan Cat bukan Animal dan ini benar.
+Embedding tidak sama dengan inheritance dan pola ini seharusnya dihindari. Sebuah Dog adalah Dog,
+sebuah Cat adalah Cat, dan sebuah Animal adalah Animal. Anda tidak dapat meneruskan Dog dan Cat
+seolah-olah mereka adalah Animal karena mereka bukanlah itu.
 
-This kind of mechanic is also not very flexible. It requires configuration by the
-developer and unless you have access to the code, you can’t make configuration changes
-over time.
+Mekanisme semacam ini juga tidak sangat fleksibel. Ini memerlukan konfigurasi oleh pengembang
+dan kecuali Anda memiliki akses ke kode, Anda tidak dapat melakukan perubahan konfigurasi dari waktu ke waktu.
 
-If this is not how we can construct a collection of Dog’s and Cat’s, how can we do
-this in Go? It’s not about grouping through common DNA, it’s about grouping
-through common behavior. Behavior is the key.
+Jika ini bukan cara kita dapat membuat kumpulan Dog dan Cat, bagaimana kita bisa melakukannya di Go?
+Ini bukan tentang pengelompokan melalui DNA yang umum, tetapi tentang pengelompokan melalui perilaku yang umum.
+Perilaku adalah kunci.
 
     type Speaker interface {
         Speak()
     }
 
-If you use an interface, then you can define the common method set of behavior that I
-want to group different types of data against.
+Jika Anda menggunakan interface, maka Anda dapat menentukan kumpulan metode perilaku umum
+yang ingin Anda kelompokkan ke berbagai jenis data.
 
     speakers := []Speaker{
         &Dog{
@@ -146,83 +146,84 @@ want to group different types of data against.
         speaker.Speak()
     }
 
-In the new code, you can now group Dogs and Cats together based on their common
-set of behavior, which is the fact that Dogs and Cats can speak.
+Dalam kode yang baru, Anda sekarang dapat mengelompokkan Dogs dan Cats bersama
+berdasarkan kumpulan perilaku umum mereka, yaitu kenyataan bahwa Dogs dan Cats dapat berbicara.
 
-In fact, the Animal type is really type pollution because declaring a type just to
-share a set of common states is a smell and should be avoided.
+Sebenarnya, tipe Animal adalah polusi tipe karena mendeklarasikan tipe
+hanya untuk berbagi kumpulan keadaan umum adalah hal yang tidak baik dan seharusnya dihindari.
 
     type Dog struct {
         Name string
         IsMammal bool
         PackFactor int
     }
-    
+
     type Cat struct {
         Name string
         IsMammal bool
         ClimbFactor int
     }
 
-In this particular case, you would rather see the Animal type removed and the fields
-copied and pasted into the Dog and Cat types. Later you will have notes about better
-patterns that eliminate these scenarios from happening.
+Dalam kasus ini, Anda lebih suka melihat tipe Animal dihapus dan attributnya disalin
+dan ditempelkan ke dalam tipe Dog dan Cat. Nanti, Anda akan memiliki catatan tentang
+pola yang lebih baik yang menghilangkan skenario semacam ini.
 
-Here are the code smells from the original code:
+Berikut adalah beberapa masalah dalam kode sebelumnya:
 
-- The Animal type provides an abstraction layer of reusable state.
-- The program never needs to create or solely use a value of Animal type.
-- The implementation of the Speak method for the Animal type is generalized.
-- The Speak method for the Animal type is never going to be called.
+- Tipe Animal menyediakan lapisan abstraksi dari keadaan yang dapat digunakan kembali.
+- Program tidak pernah perlu membuat atau hanya menggunakan nilai tipe Animal.
+- Implementasi metode Speak untuk tipe Animal bersifat umum.
+- Metode Speak untuk tipe Animal tidak akan pernah dipanggil.
 
-Guidelines around declaring types:
+Pedoman seputar mendeklarasikan tipe:
 
-- Declare types that represent something new or unique.
-- Don't create aliases just for readability.
-- Validate that a value of any type is created or used on its own.
-- Embed types not because you need the state, but because we need the behavior.
-- If you are not thinking about behavior, You're locking yourself into the design that you can’t grow in the future without cascading code changes.
-- Question types that are aliases or abstractions for an existing type.
-- Question types whose sole purpose is to share a common set of states.
+- Deklarasikan tipe yang mewakili sesuatu yang baru atau unik.
+- Jangan membuat alias hanya untuk kemudahan keterbacaan.
+- Validasi bahwa sebuah nilai dari setiap tipe dibuat atau digunakan secara mandiri.
+- Sematkan tipe bukan karena Anda memerlukan statusnya, tetapi karena Anda memerlukan perilaku.
+- Jika Anda tidak memikirkan tentang perilaku, Anda mengunci diri dalam desain yang tidak dapat berkembang di masa depan tanpa perubahan kode yang bertahap.
+- Pertanyakan tipe-tipe yang merupakan alias atau abstraksi dari tipe yang sudah ada.
+- Pertanyakan tipe-tipe yang tujuannya hanya untuk berbagi kumpulan keadaan yang sama.
 
-** Don’t Design With Interfaces
+** Jangan Merancang Dengan Interfaces
 
-Unfortunately, too many developers attempt to solve problems in the abstract first.
-They focus on interfaces right away and this leads to interface pollution. As a
-developer, you exist in one of two modes: a programmer and then an engineer.
+Sayangnya, terlalu banyak pengembang mencoba memecahkan masalah secara abstrak terlebih dahulu.
+Mereka langsung fokus pada interface dan hal ini mengakibatkan polusi interface. Sebagai seorang
+pengembang, Anda berada dalam satu dari dua mode: seorang pembuat program dan kemudian seorang insinyur.
 
-When you are programming, you are focused on getting a piece of code to work. Trying
-to solve the problem and break down walls. Prove that my initial ideas work. That is
-all you care about. This programming should be done in the concrete and is never
-production ready.
+Ketika Anda sedang membuat program, Anda berfokus pada membuat potongan kode berfungsi. Mencoba
+untuk memecahkan masalah dan meruntuhkan batasan. Membuktikan bahwa ide awal saya berfungsi. Itu
+satu-satunya yang Anda pedulikan. Pemrograman ini seharusnya dilakukan secara konkret dan tidak pernah
+siap produksi.
 
-Once you have a prototype of code that solves the problem, you need to switch to
-engineering mode. You need to focus on how to write the code at a micro-level for
-data semantics and readability, then at a macro-level for mental models and
-maintainability. You also need to focus on errors and failure states.
+Setelah Anda memiliki prototipe kode yang dapat menjawab masalah, Anda perlu beralih ke
+mode rekayasa. Anda perlu fokus pada cara menulis kode pada tingkat mikro untuk
+semantik data dan keterbacaan, kemudian pada tingkat makro untuk model mental dan
+kemudahan perawatan. Anda juga perlu fokus pada kesalahan dan keadaan kegagalan.
 
-This work is done in a cycle of refactoring. Refactoring for readability, efficiency,
-abstraction, and for testability. Abstracting is only one of a few refactors that need
-to be performed. This works best when you start with a piece of concrete code and
-then DISCOVER the interfaces that are needed. Don’t apply abstractions unless they
-are absolutely necessary.
+Pekerjaan ini dilakukan dalam siklus refaktor. Refaktor untuk keterbacaan, efisiensi,
+abstraksi, dan untuk pengujian. Abstraksi hanya satu dari beberapa refaktor yang perlu
+dilakukan. Ini berfungsi dengan baik saat Anda memulai dengan potongan kode konkret
+dan kemudian MENEMUKAN interface yang diperlukan. Jangan menerapkan abstraksi kecuali
+jika benar-benar diperlukan.
 
-Every problem you solve with code is a data problem requiring me to write data
-transformations. If you don’t understand the data, you don’t understand the problem. If you
-don’t understand the problem, you can’t write any code. Starting with a concrete
-solution that is based on the concrete data structures is critical. As Rob Pike said,
+Setiap masalah yang Anda selesaikan dengan kode adalah masalah data yang memerlukan
+saya untuk menulis transformasi data. Jika Anda tidak memahami data, Anda tidak memahami masalah.
+Jika Anda tidak memahami masalah, Anda tidak dapat menulis kode. Memulai dengan solusi konkret
+yang didasarkan pada struktur data konkret adalah kritis. Seperti yang dikatakan oleh Rob Pike,
 
 "Data dominates. If you've chosen the right data structures and organized things
 well, the algorithms will almost always be self-evident". - Rob Pike
 
-When is abstraction necessary? When you see a place in the code where the data
-could change and you want to minimize the cascading code effects that would result. I
-might use abstraction to help make code testable, but you should try to avoid this if
-possible. The best testable functions are functions that take raw data in and send
-raw data out. It shouldn’t matter where the data is coming from or going.
+Kapan abstraksi diperlukan? Ketika Anda melihat suatu tempat dalam kode di mana data
+dapat berubah dan Anda ingin meminimalkan efek perubahan kode yang akan terjadi. Saya
+mungkin menggunakan abstraksi untuk membantu membuat kode dapat diuji, tetapi Anda
+seharusnya mencoba menghindari hal ini jika memungkinkan. Fungsi yang paling baik untuk diuji
+adalah fungsi yang mengambil data mentah dan mengirimkan data mentah keluar.
+Seharusnya tidak masalah dari mana data berasal atau kemana data tersebut pergi.
 
-In the end, start with a concrete solution to every problem. Even if the bulk of that
-is just programming. Then discover the interfaces that are absolutely required for
-the code today.
+Pada akhirnya, mulailah dengan solusi konkret untuk setiap masalah. Bahkan jika sebagian besar
+hanyalah pemrograman. Kemudian temukan interface yang benar-benar diperlukan
+untuk kode saat ini.
 
 "Don’t design with interfaces, discover them". - Rob Pike
