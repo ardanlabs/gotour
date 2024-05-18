@@ -1,52 +1,51 @@
-Interface Pollution
-Interface pollution comes from the fact that people are designing software with interfaces instead of discovering them.
+Polusi Interface
+Polusi Interface berasal dari kenyataan bahwa orang merancang perangkat lunak dengan interface alih-alih menemukannya.
 
-* Interface Pollution
+* Polusi Interface
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them.
+Polusi interface berasal dari kenyataan bahwa orang merancang perangkat lunak
+dengan membuat interface alih-alih menemukannya.
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Create Interface Pollution
-- *Example* *2:* Remove Interface Pollution
+- *Contoh* *1:* Membuat Polusi Interface
+- *Contoh* *2:* Menghapus Polusi Interface
 
 .play composition/pollution/example1.go
 .play composition/pollution/example2.go
 
-** Interface Pollution
+** Polusi Interface
 
-Interface pollution comes from the fact that people are designing software with
-interfaces instead of discovering them. You should design a concrete solution to the
-problem first. Then you can discover where the program needs to be polymorphic, if
-at all.
+Polusi interface berasal dari kenyataan bahwa orang merancang perangkat lunak
+dengan interface alih-alih menemukannya. Anda sebaiknya merancang solusi konkret
+untuk masalah tersebut terlebih dahulu. Kemudian, Anda dapat menemukan di mana
+program perlu bersifat polimorfik, jika memang diperlukan.
 
-These are things I’ve heard from other developers.
+Ini adalah hal-hal yang saya dengar dari pengembang lain.
 
-"I’m using interfaces because we have to use interfaces".
+"Saya menggunakan interface karena kita harus menggunakan interface."
 
-No. We don't have to use interfaces. We use interfaces when it’s practical and
-reasonable to do so. There is a cost of using interfaces: a level of indirection
-and allocation when we store concrete values inside of them. Unless the cost of
-the allocation is worth what I’m gaining by decoupling, you shouldn't be using interfaces.
+Tidak. Kita tidak harus menggunakan interface. Kita menggunakan interface ketika
+itu praktis dan masuk akal untuk dilakukan. Ada biaya penggunaan interface: tingkat penyamaran
+dan alokasi saat kita menyimpan nilai konkret di dalamnya. Kecuali jika biaya alokasi tersebut s
+ebanding dengan apa yang saya dapatkan dengan memisahkannya, sebaiknya Anda tidak menggunakan interface.
 
-"I need to be able to test my code so I need to use interfaces".
+"Saya harus bisa menguji kode saya jadi saya perlu menggunakan interface".
 
-No. you must design my API for the user first, not my test. If the API is not testable,
-You should question if it’s usable. There are different layers of API’s as well. The
-lower level unexported API’s can and should focus on testability. The higher level
-exported API’s need to focus on usability.
+Tidak. Anda harus merancang API untuk pengguna terlebih dahulu, bukan untuk pengujian.
+Jika API tidak dapat diuji, Anda sebaiknya mempertanyakan apakah itu dapat digunakan.
+Ada lapisan-lapisan yang berbeda dari API juga. API tingkat rendah yang tidak diekspor dapat
+dan seharusnya fokus pada kemampuan pengujian. API tingkat tinggi yang diekspor perlu fokus pada kegunaan.
 
-Functions that accept raw data in and return raw data out are the most testable.
-Separate the data transformation from where the data comes from and where it is
-going. This is a refactoring exercise you need to perform during the engineering
-coding cycle.
+Fungsi yang menerima data mentah masuk dan mengembalikan data mentah keluar adalah yang paling dapat diuji.
+Pisahkan transformasi data dari tempat asal data dan tujuan data.
+Ini adalah latihan refactoring yang perlu Anda lakukan selama siklus pengkodean.
 
-Below is an example that creates interface pollution by improperly using an
-interface when one is not needed.
+Berikut adalah contoh pembuatan polusi interface dengan cara yang tidak benar
+menggunakan interface ketika tidak diperlukan.
 
     type Server interface {
         Start() error
@@ -54,33 +53,32 @@ interface when one is not needed.
         Wait() error
     }
 
-The Server interface defines a contract for TCP servers. The problem here is I
-don’t need a contract, you need an implementation. There will only be one implementation
-as well, especially since you are the one implementing it. You do not need someone else
-to implement this for you.
+Antarmuka `Server` mendefinisikan kontrak untuk server TCP. Masalahnya di sini adalah
+saya tidak membutuhkan kontrak, Anda memerlukan implementasi. Hanya akan ada satu implementasi juga,
+terutama karena Anda yang melakukannya. Anda tidak memerlukan orang lain untuk mengimplementasikannya untuk Anda.
 
-Plus, this interface is based on a noun and not a verb. Concrete types are nouns
-since they represent the concrete problem. Interfaces describe the behavior and
-Server is not behavior.
+Selain itu, interface ini didasarkan pada kata benda dan bukan kata kerja.
+Tipe konkret adalah kata benda karena mereka mewakili masalah konkret.
+Antarmuka menggambarkan perilaku dan `Server` bukanlah perilaku.
 
-Here are some ways to identify interface pollution:
+Berikut adalah beberapa cara untuk mengidentifikasi polusi interface:
 
-- A package declares an interface that matches the entire API of its own concrete type.
-- The interfaces are exported but the concrete types implementing the interface are unexported.
-- The factory function for the concrete type returns the interface value with the unexported concrete type value inside.
-- The interface can be removed and nothing changes for the user of the API.
-- The interface is not decoupling the API from change.
+- Sebuah paket mendeklarasikan sebuah interface yang mencocokkan seluruh API dari tipe konkretnya sendiri.
+- Antarmuka diekspor tetapi tipe konkret yang mengimplementasikan interface tidak diekspor.
+- Fungsi factory untuk tipe konkret mengembalikan nilai interface dengan nilai tipe konkret yang tidak diekspor di dalamnya.
+- Antarmuka dapat dihapus dan tidak ada perubahan untuk pengguna API.
+- Antarmuka tidak memisahkan API dari perubahan.
 
-Guidelines around interface pollution:
+Pedoman seputar polusi interface:
 
-Use an interface:
+Gunakan sebuah interface ketika:
 
-- When users of the API need to provide an implementation detail.
-- When APIs have multiple implementations that need to be maintained.
-- When parts of the APIs that can change have been identified and require decoupling.
+- Ketika pengguna API perlu menyediakan detail implementasi.
+- Ketika API memiliki beberapa implementasi yang perlu dipelihara.
+- Ketika bagian-bagian dari API yang dapat berubah telah diidentifikasi dan memerlukan pemisahan.
 
-Question an interface:
+Pertanyakan sebuah interface ketika:
 
-- When its only purpose is for writing testable API’s (write usable APIs first).
-- When it’s not providing support for the API to decouple from change.
-- When it's not clear how the interface makes the code better.
+- Ketika tujuannya hanya untuk menulis API yang dapat diuji (tulis API yang dapat digunakan terlebih dahulu).
+- Ketika tidak memberikan dukungan untuk API untuk memisahkan dari perubahan.
+- Ketika tidak jelas bagaimana interface membuat kode menjadi lebih baik.
