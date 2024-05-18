@@ -1,22 +1,22 @@
-Fun Problems
-This section contains a set fun code challenges that showcase some of the capabilities offered by Go.
+Masalah-masalah Menarik
+Bagian ini berisi beberapa tantangan yang menarik yang menampilkan beberapa kemampuan yang ditawarkan oleh Go.
 
-* Sleeping Barber Problem
+* Masalah Tukang Cukur Tidur (Sleeping Barber)
 
-- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
-- Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Tonton Video]]
+- Perlu bantuan finansial, Isi [[https://www.ardanlabs.com/scholarship/][Formulir Beasiswa]]
 
-This sample program implements the sleeping barber problem.
+Contoh program ini menunjukkan implementasi dari masalah tukang cukur yang tertidur
 
-- See more at [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
+- Kunjungi lebih lanjut di [[https://en.wikipedia.org/wiki/Sleeping_barber_problem][https://en.wikipedia.org/wiki/Sleeping_barber_problem]]
 
-There is one barber in the barber shop, one barber chair and `n` chairs for
-waiting customers. If there are no customers, the barber sits down in the
-barber chair and takes a nap. An arriving customer must wake the barber.
-Subsequent arriving customers take a waiting chair if any are empty or
-leave if all chairs are full.
+Ada satu tukang cukur di tempat pangkas rambut, satu kursi tukang cukur, dan `n` kursi untuk
+pelanggan yang menunggu. Jika tidak ada pelanggan, tukang cukur akan duduk di kursi tukang cukur
+dan tidur siang. Pelanggan yang datang harus membangunkan tukang cukur.
+Pelanggan yang datang selanjutnya mengambil kursi tunggu jika ada yang kosong atau
+pergi jika semua kursi sudah penuh.
 
-*Output:*
+*Keluaran:*
 
     Opening the shop
     Barber ready to work
@@ -42,35 +42,35 @@ leave if all chairs are full.
 
 .play algorithms/fun/barber.go
 
-* Frequency
+* Masalah Frekuensi
 
-This sample programs shows you how to implement a function that can find
-the frequency of a given rune that is used in a specified sentence.
+Contoh program ini menunjukkan kepada Anda bagaimana mengimplementasikan fungsi
+yang dapat menemukan frekuensi karakter(rune) tertentu yang digunakan dalam kalimat tertentu.
 
-- Sequential: A linear algorithm to perform a rune count.
 - Concurrent: A concurrent algorithm to perform a rune count.
+- Bersamaan(Concurrent): Algoritma bersamaan untuk melakukan penghitungan karakter(rune).
 
 .play algorithms/fun/freq_sequential.go
 .play algorithms/fun/freq_concurrent.go
 
-*  Variable Length Quantity encoding/decoding.
+*  Pengkodean/penguraian kuantitas panjang variabel (Variable Length Quantity encoding/decoding)
 
-This sample program showcases how Go can be leveraged to implement variable length quantity encoding/decoding.
+Contoh program ini menunjukkan bagaimana Go dapat dimanfaatkan untuk mengimplementasikan pengkodean/penguraian kuantitas panjang variabel (VLQ).
 
-- See more at [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
+- Kunjungi lebih lanjut di [[https://en.wikipedia.org/wiki/Variable-length_code][https://en.wikipedia.org/wiki/Variable-length_code]]
 
-In short, the goal of this encoding is to save encode integer values in
-a way that would save bytes. Only the first 7 bits of each byte is significant
-(right-justified; sort of like an ASCII byte). So, if you have a 32-bit value,
-you have to unpack it into a series of 7-bit bytes. Of course, you will have
-a variable number of bytes depending upon your integer. To indicate which
-is the last byte of the series, you leave bit #7 clear. In all of the
-preceding bytes, you set bit #7.
+Singkatnya, tujuan dari pengkodean ini adalah untuk menyimpan nilai-nilai integer
+dengan cara yang dapat menghemat ruang byte. Hanya 7 bit pertama dari setiap byte yang signifikan
+(7 bit pertama dari kanan (right-justified); seperti byte ASCII). Jadi, jika Anda memiliki nilai 32-bit,
+Anda harus membongkarnya menjadi serangkaian byte 7-bit. Tentu saja, Anda akan mendapatkan
+sejumlah variabel byte tergantung pada bilangan bulat Anda. Untuk menunjukkan yang mana
+adalah byte terakhir dari rangkaian, biarkan bit ke-7 kosong. Di semua
+byte sebelumnya, Anda menyetel bit #7.
 
-So, if an integer is between 0-127, it can be represented as one byte. The
-largest integer allowed is 0FFFFFFF, which translates to 4 bytes variable
-length. Here are examples of delta-times as 32-bit values, and the variable
-length quantities that they translate to:
+Jadi, jika bilangan bulat antara 0-127, maka dapat direpresentasikan sebagai satu byte.
+Bilangan bulat terbesar yang diperbolehkan adalah 0FFFFFFF, yang diterjemahkan menjadi variabel panjang 4 byte.
+Berikut adalah contoh waktu delta sebagai nilai 32-bit, dan variabelnya
+besaran panjang yang diterjemahkan menjadi:
 
     NUMBER        VARIABLE QUANTITY
     00000000              00
@@ -86,13 +86,14 @@ length quantities that they translate to:
     08000000          C0 80 80 00
     0FFFFFFF          FF FF FF 7F
 
-A variable-length quantity (VLQ) is a universal code that uses an arbitrary
-number of binary octets (eight-bit bytes) to represent an arbitrarily large
-integer. It was defined for use in the standard MIDI file format[1] to save
-additional space for a resource constrained system, and is also used in the
-later Extensible Music Format (XMF). A VLQ is essentially a base-128
-representation of an unsigned integer with the addition of the eighth bit
-to mark continuation of bytes. See the example below.
+Kuantitas panjang variabel (VLQ) adalah kode universal yang menggunakan sejumlah
+jumlah oktet biner (byte 8bit) untuk mewakilkan bilangan bulat yang besar.
+Ini didefinisikan untuk digunakan dalam format file MIDI standar[1]
+guna menghemat ruang tambahan pada sistem yang terbatas sumber daya,
+dan juga digunakan dalam format Extensible Music Format (XMF) yang lebih baru.
+VLQ pada dasarnya adalah basis-128 representasi bilangan bulat tak bertanda dengan penambahan bit kedelapan
+untuk menandai kelanjutan byte. Lihat contoh di bawah ini.
+
 
 	Int:    16384
 	IntHex: 0x00004000
@@ -100,31 +101,32 @@ to mark continuation of bytes. See the example below.
 	VLQHex: 0x81 0x80 0x00
 	VLQBin: 00000000 10000001 10000000 00000000
 
-Lets say I want to represent the number 3435 in VLQ. 3435 in
-binary is 110101101011. We can not fit this in a byte. So we will
-chop it up from the end in 7-bit blocks.
+Katakanlah saya ingin merepresentasikan angka 3435 di VLQ.
+3435 dalam biner adalah 110101101011.
+Kita tidak dapat memuatnya dalam satu byte.
+Jadi, kita akan memotongnya dari ujung dalam blok 7 bit.
 
     Septet	7	6	5	4	3	2	1
     #1		1	1	0	1	0	1	1
     #2		0	0	1	1	0	1	0
 
-Now we prepend all but the last with a 1-bit to indicate that an octet
-follows and prepend a 0-bit to the last, signalling the final octet.
+Sekarang kita menambahkan semua kecuali yang terakhir dengan 1-bit untuk menunjukkan bahwa itu adalah oktet
+mengikuti dan menambahkan 0-bit ke bit terakhir, menandakan oktet terakhir.
 
     Octet   8	7	6	5	4	3	2	1
     #1      0	1	1	0	1	0	1	1
     #2      1	0	0	1	1	0	1	0
 
-Finally we concatenate them, most significant octet first, into
+Akhirnya kami menggabungkannya, oktet paling signifikan terlebih dahulu, menjadi
 
-Encoded: 10011010 01101011  ToHex: 0x9A 0x6B
+Terkode: 10011010 01101011. Dalam bentuk heksadesimal: 0x9A 0x6B.
 
-*Extra* *Resources:*
+*Bacaan* *Tambahan:*
 
 - [[https://en.wikipedia.org/wiki/Variable-length_quantity][https://en.wikipedia.org/wiki/Variable-length_quantity]]
 - [[https://blogs.infosupport.com/a-primer-on-vlq/][https://blogs.infosupport.com/a-primer-on-vlq/]]
 
-*For* *an* *excellent* *implementation* *of* *this* *algorithm* *look* *here:*
+*Contoh* *sebuah* *implementasi* *yang* *bagus* *dari* *algoritma* *ini*, *lihat* *disini*:
 
 - [[https://github.com/go-audio/midi/blob/master/varint.go][https://github.com/go-audio/midi/blob/master/varint.go]]
 
