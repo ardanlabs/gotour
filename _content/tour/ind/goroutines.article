@@ -1,116 +1,114 @@
 Goroutines
-Goroutines are functions that are created and scheduled to be run independently by the Go scheduler.
+Goroutines adalah fungsi-fungsi yang dibuat dan dijadwalkan untuk dijalankan secara independen oleh suatu sistem penjadwalan di Go.
 
 * Goroutines
 
 - [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Watch The Video]]
 - Need Financial Assistance, Use Our [[https://www.ardanlabs.com/scholarship/][Scholarship Form]]
 
-Goroutines are functions that are created and scheduled to be run independently
-by the Go scheduler. The Go scheduler is responsible for the management and
-execution of goroutines.
+Goroutines adalah fungsi-fungsi yang dibuat dan dijadwalkan untuk dijalankan secara independen oleh sistem penjadwalan di Go.
+Penjadwal Go bertanggung jawab atas pengelolaan dan eksekusi goroutines
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1:* Goroutines and Concurrency
-- *Example* *2:* Goroutine context switching
-- *Example* *3:* Goroutines and Parallelism
+- *Contoh* *1:* Goroutine dan Konkurensi
+- *Contoh* *2:* Peralihan konteks goroutine
+- *Contoh* *3:* Goroutine dan Paralelisme
 
 .play goroutines/example1.go
 .play goroutines/example2.go
 .play goroutines/example3.go
 
-** Scheduler Semantics
+** Semantik Sistem Penjadwalan
 
-When a Go program starts up, the Go runtime asks the machine (virtual or physical)
-how many operating system threads can run in parallel. This is based on the number
-of cores that are available to the program. For each thread that can be run in parallel,
-the runtime creates an operating system thread (M) and attaches that to a data structure
-that represents a logical processor (P) inside the program. This P and M represent the
-compute power or execution context for running the Go program.
+Ketika program Go dimulai, runtime Go menanyakan kepada mesin (virtual atau fisik)
+berapa banyak thread sistem operasi yang dapat berjalan secara paralel.
+Hal ini didasarkan pada jumlah inti (core) yang tersedia untuk program.
+Untuk setiap thread yang dapat berjalan secara paralel, runtime membuat sebuah thread sistem operasi (M)
+dan mengaitkannya ke struktur data yang mewakili prosesor logis (P) di dalam program.
+P dan M ini mewakili daya komputasi atau konteks eksekusi untuk menjalankan program Go.
 
-Also, an initial Goroutine (G) is created to manage the execution of instructions
-on a selected M/P. Just like an M manages the execution of instructions on the hardware,
-a G manages the execution of instructions on the M. This creates a new layer of
-abstraction above the operating system, but it moves execution control to the
-application level.
+Selain itu, sebuah Goroutine awal (G) dibuat untuk mengelola eksekusi instruksi pada M atau P yang dipilih.
+Sama seperti M yang mengelola eksekusi instruksi pada perangkat keras, G mengelola eksekusi instruksi pada M.
+Hal ini menciptakan lapisan abstraksi baru di atas sistem operasi, tetapi memindahkan kendali eksekusi
+ke tingkat aplikasi.
 
-.image /tour/eng/static/img/gor1.png
+.image /tour/ind/static/img/gor1.png
 
-Since the Go scheduler sits on top of the operating system scheduler, it’s important
-to have some semantic understanding of the operating system scheduler and the constraints
-it applies to the Go scheduler and applications.
+Karena sistem penjadwalan Go berada di atas sistem penjadwalan sistem operasi,
+penting untuk memiliki pemahaman semantik tentang penjadwal sistem operasi dan
+batasan-batasan yang diterapkannya pada penjadwal Go dan aplikasi.
 
-The operating system scheduler has the job of creating the illusions that multiple
-pieces of work are being executed at the same time. Even when this is physically
-impossible. This requires some tradeoffs in the design of the scheduler. Before I
-go any further, it’s important to define some words.
+Sistem penjadwalan pada sistem operasi memiliki tugas menciptakan ilusi bahwa
+beberapa bagian pekerjaan sedang dieksekusi secara bersamaan. Walaupun secara fisik tidak mungkin.
+Ini memerlukan beberapa kompromi dalam desain sistem penjadwalan. Sebelum saya melangkah lebih jauh,
+penting untuk mendefinisikan beberapa kata.
 
-*Work:* A set of instructions to be executed for a running application. This is
-accomplished by threads and an application can have 1 to many threads.
+*Work*: Seperangkat instruksi yang akan dieksekusi untuk aplikasi yang sedang berjalan.
+Ini dilakukan melalui thread, dan sebuah aplikasi dapat memiliki 1 hingga banyak thread.
 
-*Thread:* A path of execution that is scheduled and performed. Threads are responsible
-for the execution of instructions on the hardware.
+*Thread*: Sebuah jalur eksekusi yang dijadwalkan dan dijalanjan.
+Thread bertanggung jawab atas eksekusi instruksi pada perangkat keras.
 
-*Thread* *States:* A thread can be in one of three states: Running, Runnable, or
-Waiting. Running means the thread is executing its assigned instructions on the
-hardware by having a G placed on the M. Runnable means the thread wants time on
-the hardware to execute its assigned instructions and is sitting in a run queue.
-Waiting means the thread is waiting for something before it can resume its work.
-Waiting threads are not a concern of the scheduler.
+*Thread* *States*: Sebuah thread dapat berada dalam satu dari tiga status:
+Running, Runnable, atau Waiting. Running berarti thread sedang mengeksekusi instruksi
+yang telah ditugaskan pada perangkat keras dengan memiliki G yang ditempatkan pada M.
+Runnable berarti thread ingin waktu pada perangkat keras untuk mengeksekusi instruksi
+yang telah ditugaskan dan sedang menunggu di antrian pelaksanaan. Waiting berarti thread
+sedang menunggu sesuatu sebelum dapat melanjutkan pekerjaannya. Thread yang sedang menunggu
+bukan menjadi perhatian dari penjadwal.
 
-*Concurrency:* This means undefined out of order execution. In other words, given
-a set of instructions that would be executed in the order provided, they are executed
-in a different undefined order, but all executed. The key is, the result of executing
-the full set of instructions in any undefined order produces the same result. You will
-say work can be done concurrently when the order the work is executed in doesn’t matter,
-as long as all the work is completed.
+*Konkurensi (Concurrency)*: Ini berarti eksekusi yang tidak terdefinisi dan tidak berurutan. Dengan kata lain,
+diberikan seperangkat instruksi yang akan dieksekusi sesuai urutan yang diberikan,
+instruksi tersebut dieksekusi dalam urutan yang berbeda dan tidak terdefinisi, tetapi semuanya dieksekusi.
+Kuncinya adalah, hasil dari mengeksekusi seluruh set instruksi dalam urutan yang tidak terdefinisi
+menghasilkan hasil yang sama. Anda akan mengatakan pekerjaan dapat dilakukan secara bersamaan ketika
+urutan eksekusi pekerjaan tidak penting, selama semua pekerjaan diselesaikan.
 
-*Parallelism:* This means doing a lot of things at once. For this to be an option,
-you need the ability to physically execute two or more operating system threads at
-the same time on the hardware.
+*Parallelism:*: Ini berarti melakukan banyak hal sekaligus. Agar ini menjadi pilihan,
+Anda perlu kemampuan untuk secara fisik menjalankan dua atau lebih thread sistem operasi
+pada saat yang bersamaan pada perangkat keras.
 
-*CPU* *Bound* *Work:* This is work that does not cause the thread to naturally move
-into a waiting state. Calculating fibonacci numbers would be considered CPU-Bound work. 
+*CPU* *Bound* *Work:* Ini adalah pekerjaan yang tidak menyebabkan thread secara alami beralih ke status menunggu.
+Menghitung angka Fibonacci akan dianggap sebagai CPU-Bound Work.
 
-*I/O* *Bound* *Work:* This is work that does cause the thread to naturally move into
-a waiting state. Fetching data from different URLs would be considered I/O-Bound work.
+*I/O* *Bound* *Work:* Ini adalah pekerjaan yang menyebabkan thread secara alami beralih ke status menunggu.
+Mengambil data dari berbagai URL akan dianggap sebagai pekerjaan I/O-Bound.
 
-*Synchronization:* When two or more Goroutines will need to access the same memory
-location potentially at the same time, they need to be synchronized and take turns.
-If this synchronization doesn’t take place, and at least one Goroutine is performing
-a write, you can end up with a data race. Data races are a cause of data corruption
-bugs that can be difficult to find.
+*Synchronization:* Ketika dua atau lebih Goroutine perlu mengakses lokasi memori yang sama
+pada saat yang mungkin bersamaan, mereka perlu disinkronkan dan bergantian.
+Jika sinkronisasi ini tidak terjadi, dan setidaknya satu Goroutine melakukan penulisan,
+dan Anda akan menghadapi kondisi data race. Data race adalah penyebab bug korupsi data yang sulit ditemukan.
 
-*Orchestration:* When two or more Goroutines need to signal each other, with or
-without data, orchestration is the mechanic required. If orchestration does not
-take place, guarantees about concurrent work being performed and completed will
-be missed. This can cause all sorts of data corruption bugs.
+*Orkestrasi (Orchestration):* Ketika dua atau lebih Goroutine perlu memberi sinyal satu sama lain,
+dengan atau tanpa data, orkestrasi adalah mekanisme yang diperlukan. Jika orkestrasi tidak terjadi,
+jaminan pekerjaan konkuren yang dilakukan dan diselesaikan akan terlewat. Ini dapat menyebabkan
+berbagai jenis bug korupsi data.
 
-There are lots of little details related to the scheduling semantics, so to learn
-more read the three posts in chapter 14 titled, Scheduling In Go.
+Ada banyak detail kecil terkait semantik penjadwalan, jadi untuk mempelajari lebih lanjut,
+baca tiga tulisan dalam bab 14 yang berjudul, Penjadwalan dalam Go (Scheduling In Go).
 
-** Concurrency Basics
+** Dasar-dasar Konkurensi (Concurrency)
 
-Starting with a basic concurrency problem that requires orchestration.
+Mulai dengan masalah dasar konkurensi yang membutuhkan orkestrasi.
 
     func init() {
         runtime.GOMAXPROCS(1)
     }
 
-The call to GOMAXPROCS is being used to run the Go program as a single threaded
-Go program. This program will be single threaded and have a single P/M to execute
-all Goroutines. The function is capitalized because it’ s also an environment variable.
-Though this function call will overwrite the variable.
+Pemanggilan GOMAXPROCS digunakan untuk menjalankan program Go sebagai program Go dengan thread tunggal.
+Program ini akan berjalan dalam satu thread dan memiliki satu P/M untuk mengeksekusi semua Goroutine.
+Fungsi ini ditulis dalam kapital karena juga merupakan variable environment.
+Meskipun panggilan fungsi ini akan menimpa nilai variabel tersebut.
 
     g := runtime.GOMAXPROCS(0)
 
-This function is an important function when you set CPU quotas to a container
-configuration. When passing 0, the number of threads the Go program will be using
-is reported. You must make sure that number matches the number of operating system
-threads you have available in my containerized environment. If the numbers are not
-the same, the Go program won’t run as well as it otherwise could. You might want
-to use the environment variable or this call to match things up.
+Fungsi ini adalah fungsi penting saat Anda menetapkan kuota CPU untuk konfigurasi kontainer.
+Ketika melewatkan nilai 0, jumlah thread yang akan digunakan oleh program Go dilaporkan.
+Anda harus memastikan bahwa jumlah tersebut sesuai dengan jumlah thread sistem operasi
+yang tersedia di lingkungan kontainer saya. Jika angkanya tidak sama, program Go mungkin
+tidak berjalan sebaik yang seharusnya. Anda mungkin ingin menggunakan variabel lingkungan
+atau panggilan ini untuk menyamakan hal-hal tersebut.
 
     func main() {
         var wg sync.WaitGroup
@@ -132,26 +130,24 @@ to use the environment variable or this call to match things up.
         fmt.Println("\nTerminating Program")
     }
 
-This program has to solve an orchestration problem. The main Goroutine can’t allow
-the main function to return until there is a guarantee the two Goroutines being
-created finish their work first. A WaitGroup is a perfect tool for orchestration
-problems that don’t require data to be passed between Goroutines. The signaling
-here is performed through an API that allows a Goroutine to wait for other Goroutines
-to signal they’re done.
+Program ini harus menyelesaikan masalah orkestrasi. Goroutine utama tidak boleh membiarkan
+fungsi utama selesai hingga ada jaminan bahwa kedua Goroutine yang dibuat menyelesaikan
+pekerjaan mereka terlebih dahulu. `WaitGroup` adalah alat yang sempurna untuk masalah orkestrasi
+yang tidak memerlukan pengiriman data antara Goroutine. Sinyal di sini dilakukan melalui API
+yang memungkinkan sebuah Goroutine menunggu Goroutine lain memberi sinyal bahwa mereka telah selesai.
 
-In this code, a WaitGroup is constructed to its zero value state and then immediately
-the Add method is called to set the WaitGroup to 2, which will match the number of
-Goroutines to be created. When you know how many Goroutines upfront that will be
-created, you should call Add once with that number. When you don’t know (like in
-a streaming service) then calling Add(1) is acceptable.
+Dalam kode ini, sebuah WaitGroup dibuat dalam keadaan nilai nol dan kemudian metode `Add`
+egera dipanggil untuk mengatur WaitGroup menjadi 2, yang akan sesuai dengan
+jumlah Goroutine yang akan dibuat. Ketika Anda tahu berapa banyak Goroutine yang akan dibuat sebelumnya,
+Anda harus memanggil Add sekali sesuai jumlah tersebut. Ketika Anda tidak tahu (seperti dalam layanan streaming),
+maka memanggil Add(1) dapat diterima.
 
-At the end of main is the call to Wait. Wait holds the main Goroutine from causing
-the function to return. When the main function returns, the Go program is shut
-down with extreme prejudice. This is why managing the orchestration with the proper
-guarantees is important. The Wait call will block until the WaitGroup is set back
-to 0.
+Pada akhir fungsi `main` terdapat panggilan ke `Wait`. `Wait` menahan Goroutine utama agar
+tidak menyebabkan fungsi ini selesai. Ketika fungsi utama selesai, program Go akan ditutup dengan sangat tegas.
+Inilah mengapa mengelola orkestrasi dengan jaminan yang tepat sangat penting.
+Panggilan `Wait` akan diblokir sampai `WaitGroup` diatur kembali menjadi 0.
 
-In the middle of the program, you have the creation of the two Goroutines.
+Di tengah program, Anda membuat dua Goroutine.
 
     func main() {
         . . .
@@ -169,13 +165,12 @@ In the middle of the program, you have the creation of the two Goroutines.
         . . .
     }
 
-Literal functions are declared and executed with the use of the keyword go. At
-this point, you are telling the Go scheduler to execute these functions concurrently.
-To execute them in an undefined order. Inside the implementation of each Goroutine
-is the call to Done. That call is what decrements the WaitGroup by 1. Once both
-calls to Done are made, the WaitGroup will change from 2 to 0, and then the main
-Goroutine will be allowed to be unblocked from the call to Wait, terminating the
-program.
+Fungsi literal dideklarasikan dan dieksekusi dengan menggunakan kata kunci `go`.
+Pada titik ini, Anda memberi tahu penjadwal Go untuk mengeksekusi fungsi-fungsi ini secara konkuren.
+Mengeksekusinya dalam urutan yang tidak terdefinisi. Di dalam implementasi setiap Goroutine,
+terdapat panggilan ke `Done`. Panggilan tersebut yang mengurangkan nilai WaitGroup sebanyak 1.
+Begitu kedua panggilan ke `Done` dilakukan, `WaitGroup` akan berubah dari 2 menjadi 0,
+dan kemudian Goroutine utama akan diizinkan untuk dibebaskan dari panggilan ke `Wait`, mengakhiri program.
 
     func main() {
         var wg sync.WaitGroup
@@ -189,27 +184,27 @@ program.
         . . .
     }
 
-An important part of this orchestration pattern is keeping the Add and Done calls
-in the same line of sight. Try not to pass the WaitGroup as a function parameter
-where the calls get lost. This will help to reduce bugs.
+Bagian penting dari pola orkestrasi ini adalah menjaga panggilan`Add` dan `Done`
+berada dalam garis pandang yang sama. Cobalah untuk tidak meneruskan `WaitGroup`
+sebagai parameter fungsi di mana panggilannya hilang. Ini akan membantu mengurangi bug.
 
-    Output:
+    Keluaran:
 
     Start Goroutines
     Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
-When you build and run this program, you see how this program runs concurrently.
-The second Goroutine created was scheduled first. It got to finish its work and
-then the other Goroutine ran. Both ran to completion before the program terminated.
-The next time you run this program, there is no guarantee you see the same output.
-The only guarantee in this program is that the program won’t terminate until the
-two Goroutines are done.
+Ketika Anda membuat dan menjalankan program ini, Anda akan melihat bagaimana
+program ini berjalan secara konkuren. Goroutine kedua yang dibuat dijadwalkan terlebih dahulu.
+Ia berhasil menyelesaikan pekerjaannya dan kemudian Goroutine lainnya berjalan.
+Keduanya berjalan hingga selesai sebelum program berakhir. Saat Anda menjalankan program ini lagi,
+tidak ada jaminan bahwa Anda akan melihat output yang sama.
+Satu-satunya jaminan dalam program ini adalah bahwa program tidak akan berakhir sampai kedua Goroutine selesai.
 
-Even if you run this program 100 times and see the same output, there is no guarantee
-it will happen again. It may be highly probable, but not guaranteed. Especially not
-guaranteed across different versions, operating systems and architectures.
+Meskipun Anda menjalankan program ini 100 kali dan melihat output yang sama,
+tidak ada jaminan bahwa itu akan terjadi lagi. Mungkin sangat mungkin, tetapi tidak dijamin.
+Terutama tidak dijamin di seluruh versi program, sistem operasi, dan arsitektur yang berbeda.
 
     func main() {
         . . .
@@ -220,13 +215,13 @@ guaranteed across different versions, operating systems and architectures.
         fmt.Println("\nTerminating Program")
     }
 
-If you comment the call to Wait what will happen when you run this program? Once
-again, there is no guarantee at all anymore with what will happen, but there are
-different possibilities.
+Jika Anda mengomentari pemanggilan `Wait`, apa yang akan terjadi ketika
+Anda menjalankan program ini? Sekali lagi, tidak ada jaminan sama sekali
+dengan apa yang akan terjadi, tetapi ada berbagai kemungkinan.
 
-The program could behave as before since calls to Println are system calls that
-do allow the scheduler to make a context switch. The program could execute just
-one of the two Goroutines or possibly terminate immediately.
+Program bisa berperilaku seperti sebelumnya karena pemanggilan `Println`
+adalah panggilan sistem yang memungkinkan penjadwal untuk membuat peralihan konteks.
+Program bisa mengeksekusi salah satu dari dua Goroutine atau mungkin langsung berakhir.
 
     func main() {
         var wg sync.WaitGroup
@@ -240,11 +235,11 @@ one of the two Goroutines or possibly terminate immediately.
         . . .
     }
 
-What happens if you forget to call Done in one of the Goroutines? In this case,
-the program would deadlock since the WaitGroup can’t get back down to 0. The Wait
-call will block forever.
+Apa yang terjadi jika Anda lupa memanggil `Done` di salah satu Goroutine?
+Dalam kasus ini, program akan mengalami deadlock karena `WaitGroup` tidak dapat kembali ke 0.
+Panggilan `Wait` akan diblokir selamanya.
 
-    Output:
+    Keluaran:
 
     Start Goroutines
     Waiting To Finish
@@ -260,10 +255,10 @@ call will block forever.
         concurrency/goroutines/example1/example1.go:42 +0x145
     exit status 2
 
-You can see how the Go Runtime identifies the program is deadlocked on line 42 where
-the call to Wait is happening. You shouldn’t get too excited about deadlock detection
-since every single Goroutine needs to be blocked with no way out. This shows why keeping
-the Add and Done call together is so important.
+Anda dapat melihat bagaimana Go Runtime mengidentifikasi bahwa program terjebak deadlock pada baris 42
+di mana panggilan Wait terjadi. Anda sebaiknya tidak terlalu bersemangat tentang deteksi deadlock
+karena setiap Goroutine harus terblokir tanpa jalan keluar. Ini menunjukkan mengapa
+menjaga panggilan `Add` dan `Done` bersama-sama begitu penting.
 
     func main() {
         var wg sync.WaitGroup
@@ -282,16 +277,16 @@ the Add and Done call together is so important.
         . . .
     }
 
-What happens if you don’t give the WaitGroup the correct number of Goroutines to
-wait on? If the number is too large, you will have another deadlock. If the number
-is too small, there are no guarantees that the work is done before the program moves
-on. The output of the program is undefined.
+Apa yang terjadi jika Anda tidak memberikan jumlah Goroutine yang benar kepada WaitGroup untuk menunggu?
+Jika jumlahnya terlalu besar, Anda akan mengalami deadlock lain. Jika jumlahnya terlalu kecil,
+tidak ada jaminan bahwa pekerjaan selesai sebelum program melanjutkan. Output program menjadi tidak terdefinisi.
 
-** Preemptive Scheduler
+** Pencegahan pada Sistem Penjadwalan
 
-Even though the scheduler runs within the scope of the application, it’s important
-to see how the schedule is preemptive. This means you can’t predict when a context
-switch will take place and this will change every time you run the program.
+Meskipun sistem penjadwalan berjalan dalam lingkup aplikasi,
+penting untuk melihat bagaimana penjadwalannya bersifat berhati-hati.
+Ini berarti Anda tidak dapat memprediksi kapan peralihan konteks akan terjadi
+dan hal ini akan berubah setiap kali Anda menjalankan program.
 
     func main() {
         var wg sync.WaitGroup
@@ -313,9 +308,9 @@ switch will take place and this will change every time you run the program.
         fmt.Println("\nTerminating Program")
     }
 
-Using the same orchestration pattern as before, this program has each Goroutine doing
-a lot more work. Work that the scheduler won’t give a Goroutine enough time to finish
-completely in one time slice.
+Dengan menggunakan pola orkestrasi yang sama seperti sebelumnya, program ini membuat
+setiap Goroutine melakukan pekerjaan yang lebih banyak. Pekerjaan yang tidak akan
+diberikan penjadwal kepada Goroutine cukup waktu untuk menyelesaikannya sepenuhnya dalam suatu waktu.
 
     func printHashes(prefix string) {
         for i := 1; i <= 50000; i++ {
@@ -326,8 +321,8 @@ completely in one time slice.
         fmt.Println("Completed", prefix)
     }
 
-This function is performing a lot of I/O bound work that has the potential of
-being context switched.
+Fungsi ini sedang melakukan banyak pekerjaan yang terikat pada I/O (IO-bound)
+yang memiliki potensi untuk mengalami peralihan konteks.
 
     $ ./example2 | cut -c1 | grep '[AB]' | uniq
     B
@@ -347,73 +342,73 @@ being context switched.
     B
     A  3 Context Switches
 
-As you can see, every time you run the program, there are a different number of
-context switches. This is a great thing because a scheduler shouldn’t be predictable.
-Concurrency needs to remain undefined and you must remember that when you use concurrency
-to solve my performance problems.
+Seperti yang dapat Anda lihat, setiap kali Anda menjalankan program, ada jumlah peralihan konteks yang berbeda.
+Ini adalah hal yang baik karena penjadwal tidak seharusnya dapat diprediksi.
+Konkurensi perlu tetap tidak terdefinisi, dan Anda harus ingat hal itu ketika
+menggunakan konkurensi untuk memecahkan masalah kinerja.
 
     func init() {
         runtime.GOMAXPROCS(2)
     }
 
-What happens if you go back to the original program but change GOMAXPROCS so the program runs as a two threaded Go program?
+Apa yang terjadi jika Anda kembali ke program asli tetapi mengubah GOMAXPROCS sehingga program berjalan sebagai program Go dengan dua thread?
 
-    Output:
+    Keluaran:
 
     Start Goroutines
     Waiting To Finish
     A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F G H I J K L M N a b c d e f g h i j k l m n o O P Q R S T U V W X Y Z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z
     Terminating Program
 
-What you see is that the concurrency of the program is now more fine grained. The output
-to the letter is undefined and out of order.
+Apa yang Anda lihat adalah konkurensi program kini lebih terperinci.
+Keluaran menjadi tidak terdefinisi dan tidak berurutan.
 
-** Notes
+** Catatan
 
-- Goroutines are functions that are scheduled to run independently.
-- We must always maintain an account of running goroutines and shutdown cleanly.
-- Concurrency is not parallelism.
+- Goroutine adalah fungsi yang dijadwalkan untuk dijalankan secara independen.
+- Kita harus selalu menjaga jalannya goroutine dan mematikannya dengan baik.
+- Konkurensi bukanlah paralelisme.
 
-- Concurrency is about dealing with lots of things at once.
-- Parallelism is about doing lots of things at once.
+- Konkurensi berkaitan dengan menangani banyak hal sekaligus.
+- Paralelisme berkaitan dengan melakukan banyak hal sekaligus.
 
 "Parallelism is about physically doing two or more things at the same time. Concurrency is about undefined, out of order, execution." - William Kennedy
 
 "By default, goroutines shouldn't outlive the function they were created from. this forces you into a extremely good design posture." - Peter Bourgon
 
-** Design Guidelines
+** Pedoman Desain
 
-- Learn about the [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design][design guidelines]] for concurrency.
+- Belajar mengenai [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#concurrent-software-design][pedoman desain]] untuk konkurensi.
 
-** Extra Reading
+** Bacaan Tambahan
 
-- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html][Scheduling In Go - Part I]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html][Scheduling In Go - Part II]] - William Kennedy    
-- [[https://www.ardanlabs.com/blog/2015/02/scheduler-tracing-in-go.html][Scheduler Tracing In Go]] - William Kennedy   
-- [[https://blog.golang.org/advanced-go-concurrency-patterns][Advanced Go Concurrency Patterns]] - Sameer Ajmani    
-- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani    
-- [[https://blog.golang.org/concurrency-is-not-parallelism][Concurrency is not parallelism]] - Rob Pike    
-- [[https://talks.golang.org/2013/distsys.slide][Go, for Distributed Systems]] - Russ Cox    
-- [[https://docs.google.com/document/d/1At2Ls5_fhJQ59kDK2DFVhFu3g5mATSXqqV5QrxinasI/edit][Go 1.5 GOMAXPROCS Default]]    
-- [[https://www.ardanlabs.com/blog/2014/01/concurrency-goroutines-and-gomaxprocs.html][Concurrency, Goroutines and GOMAXPROCS]] - William Kennedy    
-- [[http://www.ece.ubc.ca/~sasha/papers/eurosys16-final29.pdf][The Linux Scheduler: a Decade of Wasted Cores]]    
-- [[https://news.ycombinator.com/item?id=12460807][Explanation of the Scheduler]]    
-- [[http://joeduffyblog.com/2016/11/30/15-years-of-concurrency/][15 Years of Concurrency]] - Joe Duffy    
-- [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor    
-- [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi    
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part1.html][Scheduling In Go - Part I]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2018/08/scheduling-in-go-part2.html][Scheduling In Go - Part II]] - William Kennedy
+- [[https://www.ardanlabs.com/blog/2015/02/scheduler-tracing-in-go.html][Scheduler Tracing In Go]] - William Kennedy
+- [[https://blog.golang.org/advanced-go-concurrency-patterns][Advanced Go Concurrency Patterns]] - Sameer Ajmani
+- [[https://blog.golang.org/context][Go Concurrency Patterns: Context]] - Sameer Ajmani
+- [[https://blog.golang.org/concurrency-is-not-parallelism][Concurrency is not parallelism]] - Rob Pike
+- [[https://talks.golang.org/2013/distsys.slide][Go, for Distributed Systems]] - Russ Cox
+- [[https://docs.google.com/document/d/1At2Ls5_fhJQ59kDK2DFVhFu3g5mATSXqqV5QrxinasI/edit][Go 1.5 GOMAXPROCS Default]]
+- [[https://www.ardanlabs.com/blog/2014/01/concurrency-goroutines-and-gomaxprocs.html][Concurrency, Goroutines and GOMAXPROCS]] - William Kennedy
+- [[http://www.ece.ubc.ca/~sasha/papers/eurosys16-final29.pdf][The Linux Scheduler: a Decade of Wasted Cores]]
+- [[https://news.ycombinator.com/item?id=12460807][Explanation of the Scheduler]]
+- [[http://joeduffyblog.com/2016/11/30/15-years-of-concurrency/][15 Years of Concurrency]] - Joe Duffy
+- [[https://www.quora.com/How-does-the-golang-scheduler-work/answer/Ian-Lance-Taylor][How does the golang scheduler work?]] - Ian Lance Taylor
+- [[https://www.youtube.com/watch?v=YHRO5WQGh0k][The Scheduler Saga]] - Kavya Joshi
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-*Part* *A* Create a program that declares two anonymous functions. One that counts
-down from 100 to 0 and one that counts up from 0 to 100. Display each number with
-an unique identifier for each goroutine. Then create goroutines from these functions
-and don't let main return until the goroutines complete.
+*Bagian* *A* Buatlah sebuah program yang mendeklarasikan dua fungsi anonim.
+Satu fungsi menghitung mundur dari 100 hingga 0 dan satu fungsi menghitung naik dari 0 hingga 100.
+Tampilkan setiap angka dengan pengidentifikasi unik untuk setiap goroutine.
+Kemudian buat goroutine dari kedua fungsi ini dan jangan biarkan fungsi utama selesai hingga semua goroutine selesai.
 
-*Part* *B* Run the program in parallel.
+*Bagian* *B* Jalankan program secara paralel.
 
 .play goroutines/exercise1.go
 .play goroutines/answer1.go
