@@ -1,26 +1,26 @@
-Struct Types
-You can declare a generic type using a struct type.
+Tipe Struct
+Anda dapat mendeklarasikan tipe generic menggunakan tipe struct.
 
-* Generics - Struct Types
+* Generics - Tipe Struct
 
-You can declare a generic type using a struct type.
+Anda dapat mendeklarasikan tipe generic dalam sebuah struct.
 
 ** Video
 
-Watch the talk I gave about Generics which walks you through all the
-examples in this section of the Tour.
+Tontonlah presentasi yang saya berikan tentang Generik yang
+akan membimbing Anda melalui semua contoh dalam bagian ini dari Tur.
 
 .html generics-video.html
 
-** Code Review
+** Ulasan Kode
 
-- *Example* *1*: Linked List
+- *Contoh* *1*: Linked List
 
 .play generics/struct-types/example1.go
 
-** Explained
+** Penjelasan
 
-What if you wanted to declare your own generic type using a struct type?
+Bagaimana jika Anda ingin mendeklarasikan tipe generik sendiri menggunakan tipe struct?
 
     type node[T any] struct {
         Data T
@@ -28,37 +28,36 @@ What if you wanted to declare your own generic type using a struct type?
         prev *node[T]
     }
 
-This struct type is declared to represent a node for the linked list. Each node
-contains an individual piece of data that is stored and managed by the list. The use
-of square brackets declares that type T is a generic type to be determined at
-compile time. The use of the constraint "any" describes there is no constraint on
-what type T can become.
+Tipe struct ini dideklarasikan untuk mewakili node dalam linked list.
+Setiap node berisi data individual yang disimpan dan dikelola oleh linked list tersebut.
+Penggunaan kurung siku mendeklarasikan bahwa tipe T adalah tipe generic yang akan ditentukan pada waktu kompilasi.
+Penggunaan batasan "any" menjelaskan bahwa tidak ada batasan pada jenis apa yang dapat diambil oleh tipe T.
 
-With type T declared, the Data field can now be defined as a field of some type T to
-be determined later. The next and prev fields need to point to a node of that same
-type T. These are the pointers to the next and previous node in the linked list,
-respectively. To make this connection, the fields are declared as pointers to a node
-that is bound to type T through the use of the square brackets.
+Dengan mendeklarasikan tipe T, atribut Data sekarang dapat didefinisikan sebagai atribut bertipe T
+yang akan ditentukan nanti. Atribut next dan prev perlu menunjuk ke suatu node dari tipe T yang sama.
+Ini adalah pointer ke node berikutnya dan sebelumnya dalam linked list. Untuk membuat koneksi ini,
+atribut-atribut tersebut dideklarasikan sebagai pointer ke suatu node yang terikat pada tipe T
+melalui penggunaan kurung siku.
 
     type list[T any] struct {
         first *node[T]
         last *node[T]
     }
 
-The second struct type is named list and represents a collection of nodes by
-pointing to the first and last node in a list. These fields need to point to a node of
-some type T, just like the next and prev fields from the node type.
+Tipe struct kedua bernama list dan mewakili kumpulan node dengan menunjuk ke node pertama dan terakhir
+dalam suatu linkedlist. Atribut-atribut ini perlu menunjuk ke suatu node dari tipe T,
+sama seperti atribut next dan prev dari tipe node.
 
-Once again, the identifier T is defined as a generic type (to be determined later)
-that can be substituted for "any" concrete type. Then the first and last fields are
-declared as pointers to a node of some type T using the square bracket syntax.
+Sekali lagi, identifikasi T didefinisikan sebagai tipe generic (akan ditentukan nanti)
+yang dapat digantikan oleh tipe konkret apa pun. Kemudian, atribut first dan last dideklarasikan
+sebagai pointer ke node dari suatu tipe T menggunakan sintaks kurung siku.
 
     func (l *list[T]) add(data T) *node[T] {
         n := node[T]{
             Data: data,
             prev: l.last,
         }
-        
+
         if l.first == nil {
             l.first = &n
             l.last = &n
@@ -67,39 +66,35 @@ declared as pointers to a node of some type T using the square bracket syntax.
 
         l.last.next = &n
         l.last = &n
-        
+
         return &n
     }
 
-This is an implementation of a method named add for the list type. No formal generic type
-list declaration is required (as with functions) since the method is bound to the list through
-the receiver. The add method’s receiver is declared as a pointer to a list of some type T and
-the return is declared as a pointer to a node of the same type T.
+Ini adalah implementasi dari metode bernama add untuk tipe list. Tidak diperlukan
+deklarasi formal tipe generik list (seperti pada fungsi) karena metode terikat pada list melalui receiver.
+Pnerima dari metode add dideklarasikan sebagai pointer ke suatu list dari tipe T,
+dan nilai kembalian dideklarasikan sebagai pointer ke node dari tipe T yang sama.
 
-The code after the construction of a node will always be the same, regardless of
-what type of data is being stored in the list since that is just pointer manipulation.
-It’s only the construction of a new node that is affected by the type of data that will
-be managed. Thanks to generics, the construction of a node can be bound to type T
-which gets substituted later at compile time.
+Kode setelah pembuatan suatu node akan selalu sama, terlepas dari jenis data yang disimpan dalam daftar
+karena itu hanya manipulasi pointer. Hanya pembangunan node baru yang dipengaruhi oleh tipe data yang akan dikelola.
+Berkat generic, pembangunan node dapat terikat pada tipe T yang akan digantikan nanti pada waktu kompilasi.
 
-Without generics, this entire method would need to be duplicated since the
-construction of a node would need to be hard coded to a known, declared type prior
-to compilation. Since the amount of code (for the entire list implementation) that
-needs to change for different data types is very small, being able to declare a node
-and list to manage data of some type T reduces the cost of code duplication and
-maintenance.
+Tanpa generic, seluruh metode ini perlu diduplikasi karena pembangunan node harus dihardcode
+ke tipe yang diketahui dan dideklarasikan sebelum kompilasi. Karena jumlah kode (untuk implementasi seluruh daftar)
+yang perlu diubah untuk berbagai tipe data sangat kecil, kemampuan untuk mendeklarasikan node dan daftar untuk
+mengelola data dari suatu tipe T mengurangi biaya duplikasi dan pemeliharaan kode.
 
     type user struct {
         name string
     }
-    
+
     func main() {
         // Store values of type user into the list.
         var lv list[user]
         n1 := lv.add(user{"bill"})
         n2 := lv.add(user{"ale"})
         fmt.Println(n1.Data, n2.Data)
-        
+
         // Store pointers of type user into the list.
         var lp list[*user]
         n3 := lp.add(&user{"bill"})
@@ -107,37 +102,36 @@ maintenance.
         fmt.Println(n3.Data, n4.Data)
     }
 
-Output:
+Keluaran:
 
     {bill} {ale}
     &{bill} &{ale}
 
-Here is a small application. A type named user is declared and then a list is
-constructed to its zero value state to manage values of type user. A second list is
-then constructed to its zero value state and this list manages pointers to values of
-type user. The only difference between these two lists is one manages values of
-type user and the other pointers of type user.
+Berikut ini adalah aplikasi kecil. Sebuah tipe yang diberi nama user dideklarasikan,
+dan kemudian suatu list dibuat ke keadaan nilai nol untuk mengelola nilai-nilai tipe user.
+Kemudian, suatu list kedua dibuat ke keadaan nilai nol, dan list ini mengelola pointer ke nilai-nilai tipe user.
+Satu-satunya perbedaan antara kedua list ini adalah satu mengelola nilai-nilai tipe user,
+dan yang lainnya mengelola pointer dari tipe user.
 
-Since type user is explicitly specified during the construction of the list type, the add
-method in turn accepts values of type user. Since a pointer of type user is explicitly
-specified during the construction of the list type, the add method accepts pointers of
-type user.
+Karena tipe user secara eksplisit ditentukan selama pembuatan tipe list,
+metode add pada gilirannya menerima nilai dari tipe user. Karena pointer dari tipe user secara eksplisit
+ditentukan selama pembuatan tipe list, metode add menerima penunjuk dari tipe user.
 
-You can see in the output of the program, the Data field for the nodes in the respective
-lists match the data semantic used in the construction.
+Anda dapat melihat dalam output program bahwa atribut Data untuk node dalam list tersebut sesuai
+dengan semantik data yang digunakan pada saat pembuatan.
 
-* Exercises
+* Latihan
 
-Use the template as a starting point to complete the exercises. A possible solution is provided.
+Gunakan templat ini sebagai titik awal untuk menyelesaikan latihan. Sebuah solusi disediakan.
 
-** Exercise 1
+** Latihan 1
 
-Declare a generic type named stack that uses a struct with a single
-field named data declared as a slice of some type T. Declare a method
-named push that accepts a value of some type T and appends the value to
-the slice. Declare a method named pop that returns the latest value of
-some type T that was appended to the slice and an error. Then write a main
-function that uses the methods.
+Deklarasikan tipe generik yang diberi nama stack yang menggunakan sebuah struct
+dengan satu atribut bernama data yang dideklarasikan sebagai slice dari suatu tipe T.
+Deklarasikan metode bernama push yang menerima nilai dari suatu tipe T
+dan menambahkan nilai tersebut ke dalam slice tadi. Deklarasikan metode bernama pop
+yang mengembalikan nilai terbaru dari suatu tipe T yang ditambahkan ke dalam slice dan suatu error.
+Kemudian tulis sebuah fungsi main yang menggunakan metode-metode tersebut.
 
-.play generics/struct-types/exercise1.go 
+.play generics/struct-types/exercise1.go
 .play generics/struct-types/answer1.go
