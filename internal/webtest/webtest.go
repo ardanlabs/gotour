@@ -441,7 +441,7 @@ func parseScript(file, text string) (*script, error) {
 	for text != "" {
 		lineno++
 		prevLine := line
-		line, text, _ = cut(text, "\n")
+		line, text, _ = strings.Cut(text, "\n")
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
@@ -560,7 +560,7 @@ func parseScript(file, text string) (*script, error) {
 				if kv == "" {
 					continue
 				}
-				k, v, ok := cut(kv, "=")
+				k, v, ok := strings.Cut(kv, "=")
 				if !ok {
 					lineno = cas.line // close enough
 					line = kv
@@ -597,14 +597,6 @@ func parseScript(file, text string) (*script, error) {
 		}
 	}
 	return script, nil
-}
-
-// cut returns the result of cutting s around the first instance of sep.
-func cut(s, sep string) (before, after string, ok bool) {
-	if i := strings.Index(s, sep); i >= 0 {
-		return s[:i], s[i+len(sep):], true
-	}
-	return s, "", false
 }
 
 // splitOneField splits text at the first space or tab
