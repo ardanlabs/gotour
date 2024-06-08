@@ -36,7 +36,7 @@ There is a book for all of the material in the class.
 
 We have taught Go to thousands of developers all around the world since 2014. There is no other company that has been doing it longer and our material has proven to help jump-start developers 6 to 12 months ahead of their knowledge of Go. We know what knowledge developers need in order to be productive and efficient when writing software in Go.
 
-Our classes are perfect for intermediate-level developers who have at least a few months to years of experience writing code in Go. Our classes provide a very deep knowledge of the programming langauge with a big push on language mechanics, design philosophies and guidelines. We focus on teaching how to write code with a priority on consistency, integrity, readability and simplicity. We cover a lot about “if performance matters” with a focus on mechanical sympathy, data oriented design, decoupling and writing/debugging production software.
+Our classes are perfect for intermediate-level developers who have at least a few months to years of experience writing code in Go. Our classes provide a very deep knowledge of the programming language with a big push on language mechanics, design philosophies and guidelines. We focus on teaching how to write code with a priority on consistency, integrity, readability and simplicity. We cover a lot about “if performance matters” with a focus on mechanical sympathy, data oriented design, decoupling and writing/debugging production software.
 
 ## Our Teachers
 
@@ -138,10 +138,10 @@ Please check out this page of [important reading](https://github.com/ardanlabs/g
 
 ## Joining the Go Slack Community
 
-We use a slack channel to share links, code, and examples during the training.  This is free.  This is also the same slack community you will use after training to ask for help and interact with may Go experts around the world in the community.
+We use a Slack channel to share links, code, and examples during the training.  This is free.  This is also the same Slack community you will use after training to ask for help and interact with may Go experts around the world in the community.
 
 * Using the following link, fill out your name and email address: https://invite.slack.gobridge.org/
-* Check your email, and follow the link to the slack application.
+* Check your email, and follow the link to the Slack application.
 
 ___
 All material is licensed under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0).

@@ -25,7 +25,7 @@ func insertionSort(numbers []int) {
 	// Walk through the numbers from left to right. Through
 	// each outer loop iteration we move values from right
 	// to left inside the array when they are larger than
-	// the value that preceed it.
+	// the value that precedes it.
 
 	for i := 1; i < n; i++ {
 		j := i
