@@ -3,7 +3,7 @@
 // Όλα τα υλικά είναι αδειοδοτημένα υπό την Άδεια Apache Έκδοση 2.0, Ιανουάριος 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// http://golang.org/src/pkg/encoding/json/decode.go
+// https://golang.org/src/pkg/encoding/json/decode.go
 // Δείγμα προγράμματος, προκειμένου να παρουσιαστεί πως υλοποιείται ένας
 // εξειδικευμένος τύπος σφάλματος, με βάση το πακέτο json της βασικής
 // βιβλιοθήκης,

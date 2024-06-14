@@ -32,7 +32,7 @@ Em Go, os erros são apenas valores, então eles podem ser qualquer coisa que vo
 
 A interface de erro está incorporada na linguagem.
 
-    // http://golang.org/pkg/builtin/#error
+    // https://golang.org/pkg/builtin/#error
     type error interface {
         Error() string
     }
@@ -41,12 +41,12 @@ Por isso, parece ser um identificador não exportado. Qualquer valor concreto qu
 
 Um aspecto importante do Go é que o tratamento de erros é feito em um estado desacoplado por meio desta interface. Uma razão importante para isso é porque o tratamento de erros é um aspecto da minha aplicação que está mais suscetível a mudanças e melhorias. Esta interface é o tipo que as aplicações em Go devem usar como tipo de retorno para o tratamento de erros.
 
-    // http://golang.org/src/pkg/errors/errors.go
+    // https://golang.org/src/pkg/errors/errors.go
     type errorString struct {
         s string
     }
 
-    // http://golang.org/src/pkg/errors/errors.go
+    // https://golang.org/src/pkg/errors/errors.go
     func (e *errorString) Error() string {
         return e.s
     }
@@ -55,7 +55,7 @@ Este é o valor de erro mais comumente usado em programas Go. Ele é declarado n
 
 É importante lembrar que a implementação do método Error serve ao propósito de implementar a interface e para o registro de logs. Se algum usuário precisar analisar a string retornada por este método, você falhou em fornecer ao usuário a quantidade certa de contexto para tomar uma decisão informada.
 
-    // http://golang.org/src/pkg/errors/errors.go
+    // https://golang.org/src/pkg/errors/errors.go
     func New(text string) error {
         return &errorString{text}
     }
