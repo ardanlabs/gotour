@@ -3,7 +3,7 @@
 // All material is licensed under the Apache License Version 2.0, January 2004
 // http://www.apache.org/licenses/LICENSE-2.0
 
-// http://golang.org/src/pkg/encoding/json/decode.go
+// https://golang.org/src/pkg/encoding/json/decode.go
 // Sample program to show how to implement a custom error type
 // based on the json package in the standard library.
 package main
