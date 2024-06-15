@@ -19,7 +19,7 @@ import (
 // and execute (without checking for output correctness).
 // Files that contain the build constraint "nobuild" are not built.
 // Files that contain the build constraint "norun" are not executed.
-func TestContent(t *testing.T) {
+func TestContentTour(t *testing.T) {
 	if _, err := exec.LookPath("go"); err != nil {
 		t.Skipf("skipping because 'go' executable not available: %v", err)
 	}
