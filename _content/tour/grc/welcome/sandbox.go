@@ -1,3 +1,5 @@
+//go:build OMIT
+
 package main
 
 import (
