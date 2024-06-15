@@ -18,5 +18,5 @@ func main() {
 
 	fmt.Printf("name value: 		`%s`\n", u.name)
 	fmt.Printf("contactInfo value:	%v\n", u.contactInfo)
-	fmt.Printf("is contactInfo nill:	%v\n", u.contactInfo == nil)
+	fmt.Printf("is contactInfo nil:	%v\n", u.contactInfo == nil)
 }
