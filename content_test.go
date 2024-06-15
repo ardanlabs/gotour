@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package content
+package website
 
 import (
 	"bytes"
@@ -14,9 +14,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	// Keep github.com/ardanlabs/gotour/external/tour/wc in our go.mod require list for use during test.
-	_ "github.com/ardanlabs/gotour/external/tour/wc"
 )
 
 // Test that all the .go files inside the content file build
@@ -34,7 +31,7 @@ func TestContent(t *testing.T) {
 	}
 	defer os.RemoveAll(scratch)
 
-	err = filepath.Walk(".", func(path string, fi os.FileInfo, err error) error {
+	err = filepath.Walk(filepath.Join("_content", "tour"), func(path string, fi os.FileInfo, err error) error {
 		if filepath.Ext(path) != ".go" {
 			return nil
 		}
