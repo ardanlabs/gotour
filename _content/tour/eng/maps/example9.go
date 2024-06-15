@@ -14,7 +14,7 @@ type user struct {
 }
 
 func main() {
-	u := user{}
+	var u user
 
 	fmt.Printf("name value: 		`%s`\n", u.name)
 	fmt.Printf("contactInfo value:	%v\n", u.contactInfo)
