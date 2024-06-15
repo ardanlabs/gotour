@@ -1,0 +1,93 @@
+Mocking
+Comme le compilateur peut effectuer une analyse statique du code pour déterminer si une valeur concrète implémente une interface, le développeur qui déclare le type concret n'a pas besoin de fournir également des interfaces.
+
+* Mocking
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Le meilleur moyen de tirer parti de l'imbrication se fait par le biais du modèle de conception compositionnel. 
+L'idée est de composer des types plus grands à partir de types plus petits et de se concentrer sur la composition 
+du comportement.
+
+** Analyse de Code
+
+- *Exemple* *1:* Mocking
+
+.play composition/mocking/example1.go
+
+** Interface Ownership
+
+En Go, contrairement à d'autres langages, on privilégie l'idée de convention plutôt que de configuration. Cela se 
+manifeste clairement dans la façon dont Go gère la conformité aux interfaces. Étant donné que le compilateur peut 
+effectuer une analyse statique du code pour déterminer si une valeur concrète implémente une interface, le développeur 
+qui déclare un type concret n'a pas besoin de spécifier les interfaces explicitement."
+
+    package pubsub
+
+    type PubSub struct {
+        host string
+    }
+
+    func New(host string) *PubSub {
+        return &PubSub{
+            host: host,
+        }
+    }
+
+    func (ps *PubSub) Publish(key string, v interface{}) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+    func (ps *PubSub) Subscribe(key string) error {
+        // PRETEND THERE IS A SPECIFIC IMPLEMENTATION.
+        return nil
+    }
+
+Vous venez d'implémenter une nouvelle API qui fournit une implémentation concrète pour la publier et souscrire (`PubSub`).
+Aucune interface n'est fournie car cette API n'en a pas besoin. Il s'agit d'une implémentation concrète unique.
+
+Et si les développeurs d'applications qui souhaite utiliser cette nouvelle API a besoin d'une interface car 
+ils ont besoin de simuler cette implémentation pendant les tests ? En Go, un développeur peut déclarer l'interface 
+et le compilateur peut identifier la conformité.
+
+    package main
+
+    type publisher interface {
+        Publish(key string, v interface{}) error
+        Subscribe(key string) error
+    }
+
+    type mock struct{}
+
+    func (m *mock) Publish(key string, v interface{}) error {
+        // ADD MY MOCK FOR THE PUBLISH CALL.
+        return nil
+    }
+
+    func (m *mock) Subscribe(key string) error {
+        // ADD MY MOCK FOR THE SUBSCRIBE CALL.
+        return nil
+    }
+
+Ce code dans le `package main` déclare une interface. Cette interface représente l'API que l'application utilise 
+à partir du `package pubsub`. Le développeur a implémenté sa propre implémentation `pubsub` à des fins de test. 
+Le point clé ici est que ce développeur d'application n'utilise aucune implémentation concrète directement, mais 
+procède lui-même au découplage en utilisant sa propre interface.
+
+    func main() {
+        pubs := []publisher{
+            pubsub.New("localhost"),
+            &mock{},
+        }
+
+        for _, p := range pubs {
+            p.Publish("key", "value")
+            p.Subscribe("key")
+        }
+    }
+
+Pour illustrer ce concept, la fonction `main` crée une collection initialisée avec l'implémentation `pubsub` et 
+l'implémentation simulée. L'interface `publisher` rend cela possible. Ensuite, une boucle for est implémentée 
+pour montrer comment le code de l'application est abstrait de toute implémentation concrète."

@@ -1,0 +1,201 @@
+Channels
+Channels ermöglichen es Goroutinen, miteinander zu kommunizieren, indem sie Signalsemantik verwenden.
+
+* Channels
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung, nutzt unser [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Es ist wichtig einen Channel nicht als Datenstruktur zu betrachten, sondern als Mechanik für die 
+Signalisierung. Dies stimmt überein mit der Idee, dass man von einem Channel sendet und empfängt, 
+nicht liest und schreibt. Wenn das Problem nicht mit Signalisierung gelöst werden kann oder 
+wenn das Wort Signalisierung nicht aus Eurem Mund kommt, muss die Verwendung von channels 
+hinterfragt werden.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Warten auf das Ergebnis
+- *Beispiel* *2:* Fan-Out
+- *Beispiel* *3:* Warten auf Aufgabe
+- *Beispiel* *4:* Pooling
+- *Beispiel* *5:* Fan-Out-Semaphore
+- *Beispiel* *6:* Begrenztes Arbeits-Pooling
+- *Beispiel* *7:* Drop
+- *Beispiel* *8:* Abbruch
+- *Beispiel* *9:* Wiederholungs-Timeout
+- *Beispiel* *10:* Channel-Abbruch
+
+.play channels/example1.go
+.play channels/example2.go
+.play channels/example3.go
+.play channels/example4.go
+.play channels/example5.go
+.play channels/example6.go
+.play channels/example7.go
+.play channels/example8.go
+.play channels/example9.go
+.play channels/example10.go
+
+** Channel-Mechanik
+
+Der Preis für die Garantie auf Signalebene sind unbekannte Latenzzeiten. Der
+Sender weiß nicht, wie lange er warten muss bis der Empfänger das Signal akzeptiert.
+Das Warten auf den Empfänger erzeugt blockierende Latenz. In diesem Fall unbekannte Mengen 
+an blockierender Latenz. Der Sender muss für eine unbekannte Zeit warten warten um das Signal zu empfange, nämlich bis der Empfänger 
+verfügbar wird.
+
+Das Warten auf den Empfänger bedeutet mechanisch, dass der Empfangsvorgang vor dem Senden erfolgt.
+Bei Channels erfolgt der Empfang Nanosekunden vorher, aber er geschieht vorher.
+Das bedeutet, der Empfänger nimmt das Signal und geht dann weg, was dem Sender erlaubt, 
+mit einer Garantie weiterzumachen.
+
+Was ist wenn der Prozess nicht für eine unbekannte Zeitspanne warten kann? Was ist wenn diese Art von
+Latenzzeit nicht funktionieren wird? Dann kann die Garantie nicht auf der Signalsebene liegen, sie muss
+muss außerhalb davon sein. Die Mechanik dahinter ist, dass das Senden jetzt vor dem
+Empfangen passiert. Der Sender kann das Signal ausführen, ohne dass der Empfänger
+verfügbar sein muss. Der Sender muss also nicht mehr warten sondern kann gehen. Irgendwann so hofft man,
+taucht der Empfänger auf und nimmt das Signal entgegen.
+
+Dadurch werden zwar die Latenzkosten beim Senden reduziert, aber es entsteht Unsicherheit über die Signale
+die empfangen werden und damit auch, ob es Probleme mit den Empfängern im Vorfeld gibt.
+Dies kann dazu führen, dass Arbeit angenommen wird, die nie begonnen oder beendet wird. Es
+könnte schließlich zu einem massiven Rückstau und einem Systemabsturz führen.
+
+Der zweite Punkt auf den man sich konzentrieren sollte, ist ob man Daten mit dem Signal senden muss.
+Wenn das Signal die Übertragung von Daten erfordert, dann ist die Signalisierung eine 1-zu-1-Beziehung 
+zwischen Goroutinen. Wenn eine neue Goroutine das Signal ebenfalls empfangen muss, muss ein zweites Signal 
+gesendet werden.
+
+Wenn keine Daten mit dem Signal übertragen werden müssen, dann kann das Signal eine 1-zu-1- 
+oder 1-zu-viele-Beziehung zwischen Goroutines sein. Signalisierung ohne Daten wird hauptsächlich 
+für Abbrüche oder Abschaltungen verwendet. Es geschieht durch das Schließen des Channels.
+
+Der dritte Punkt auf den man sich konzentrieren sollte ist der channelstatus. 
+Ein Channel kann sich in einem von 3 Zuständen befinden.
+
+Ein Channel kann sich in einem Null-Zustand befinden, indem der Channel auf seinen Null-Wert-Zustand konstruiert wird.
+Das Senden und Empfangen von Channels in diesem Zustand wird blockiert. Das ist gut für Situationen
+in denen man kurzfristige Arbeitsunterbrechungen implementieren möchte.
+
+Ein Channel kann sich in einem offenen Zustand befinden, indem die eingebaute Funktion make verwendet wird. 
+Senden und Empfangen mit Channels in diesem Zustand funktionieren unter folgenden Bedingungen:
+
+*Ungepufferte* *Channels:*
+
+- Garantien auf Signalebene, wobei der Empfang vor dem Senden erfolgt. Sendende und empfangende Goroutines 
+müssen in denselben Raum und zur selben Zeit kommen, damit ein Signal verarbeitet wird.
+
+*Gepufferte* *Channels:*
+
+- Garantien außerhalb der Signalebene, wobei das Senden vor dem
+Empfang erfolgt. Wenn der Buffer nicht voll ist, können Sendevorgänge abgeschlossen werden ansonsten blockieren sie. 
+Wenn der Buffer nicht leer ist, können Empfangsvorgänge abgeschlossen werden ansonsten blockieren sie.
+
+Ein Channel kann mit der eingebauten Funktion close geschlossen werden. Es ist nicht notwendig einen Channel zu 
+schließen um Speicher freizugeben, sondern nur um den Zustand zu ändern. Das Senden auf einem geschlossenen Channel 
+verursacht eine Panik, der Empfang auf einem geschlossenen Channel returned sofort.
+
+Mit all diesen Informationen kann man sich auf channelmuster konzentrieren. Der Fokus auf die Signalisierung ist wichtig. 
+Derö Gedanke ist ob aufgrund von Latenzproblemen eine Garantie auf Signalebene benötigt wird oder nicht. 
+Ob Du Daten mit dem Signal übertragen musst oder nicht basierend darauf, ob Abbrüche gehandhabt werden oder nicht. 
+Du möchtest die Syntax in diese Semantik umwandeln.
+
+** Designrichtlinien
+
+- Erfahre mehr über die [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design]]-Designrichtlinien]] für Channels.
+
+** Diagramme
+
+*Garantie* *der* *Zustellung*
+
+Die Garantie der Zustellung basiert auf einer Frage: „Brauche ich die Garantie, 
+dass das von einer bestimmten Goroutine gesendete Signal empfangen wurde?“
+
+.image /tour/eng/static/img/guarantee_of_delivery.png
+
+*Signalisierung* *Mit* *Oder* *Ohne* *Daten*
+
+Wenn man mit Daten signalisieren möchte, gibt es drei Channel-Konfigurationsoptionen, 
+die man je nach Art der benötigten Garantie wählen kann.
+
+.image /tour/eng/static/img/signaling_with_data.png
+
+Signalisierung ohne Daten dient hauptsächlich dem Zweck der Abbruchsteuerung. 
+Die ermöglicht es einer Goroutine, einer anderen Goroutine zu signalisieren
+was sie tut: Abbrechen oder Weitermachen. Der Abbruch kann sowohl mit ungepufferten 
+als auch mit gepufferten Channels implementiert werden.
+
+.image /tour/eng/static/img/signaling_without_data.png
+
+*Zustand*
+
+Das Verhalten eines Channels wird direkt durch seinen aktuellen Zustand beeinflusst. 
+Der Zustand eines Channels kann null (nil), offen oder geschlossen sein.
+
+.image /tour/eng/static/img/state.png
+
+** Zusätzliche Lektüre
+
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][Das Verhalten von Channels]] - William Kennedy
+- [[https://golang.org/ref/mem#tmp_7][Channel-Kommunikation]]
+- [[http://blog.golang.org/share-memory-by-communicating][Gemeinsame Erinnerung durch Kommunikation]] - Andrew Gerrand
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][Die Natur von Channels in Go]] - William Kennedy
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][Eine Retrospektive zu SEDA]] - Matt Welsh
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Das Verständnis von Channels]] - Kavya Joshi
+
+** Bufferüberladung - 2011
+
+Sei vorsichtig bei der Verwendung von grossen Buffern und der Vorstellung Latenz zu reduzieren.
+
+- Große Buffer verhindern eine rechtzeitige Benachrichtigung über Gegendruck.
+- Sie vereiteln Deine Fähigkeit, Gegendruck rechtzeitig zu reduzieren.
+- Sie können die Latenz erhöhen, anstatt sie zu verringern.
+- Verwende gepufferte Channels als Möglichkeit zur Aufrechterhaltung der Kontinuität.
+- Benutze sie nicht nur zur Leistungssteigerung.
+- Verwende sie um gut definierte Datenstöße zu bewältigen.
+- Benutze sie um mit Lichtgeschwindigkeitsproblemen zwischen Übergaben zu umgehen.
+
+*Videos*
+
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
+
+* Übungen
+
+Verwende die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. Eine mögliche Lösung wird bereitgestellt.
+
+** Übung 1
+
+Schreibe ein Programm in dem zwei Goroutinen zehnmal abwechselnd eine ganze Zahl hin und her senden. 
+Zeige an wann jede Goroutine die ganze Zahl erhält. Erhöhe die ganze Zahl bei jedem Durchgang. 
+Sobald die ganze Zahl zehn erreicht, beende das Programm sauber.
+
+.play channels/exercise1.go
+.play channels/answer1.go
+
+** Übung 2
+
+Schreibe ein Programm, das ein Fan-Out-Muster verwendet um gleichzeitig 100 Zufallszahlen zu generieren. 
+Lass jede Goroutine eine einzelne Zufallszahl generieren und diese Zahl über einen gepufferten Channel an die 
+Hauptgoroutine zurücksenden. Setze die Größe des Buffer-Channels so, dass kein Sendevorgang jemals blockiert. 
+Weise nicht mehr Buffer zu als Du benötigst. Lass die Hauptgoroutine jede empfangene Zufallszahl 
+anzeigen und dann das Programm beenden.
+
+.play channels/exercise2.go
+.play channels/answer2.go
+
+** Übung 3
+
+Schreibe ein Programm das gleichzeitig bis zu 100 Zufallszahlen generiert. Sende nicht alle 100 Werte, 
+sodass die Anzahl der Sendungen/Empfänge unbekannt ist.
+
+.play channels/exercise3.go
+.play channels/answer3.go
+ 
+** Übung 4
+
+Schreibe ein Programm, das gleichzeitig bis zu 100 Zufallszahlen mit Hilfe eines Worker-Pools generiert. 
+Lehne gerade Zahlen ab. Weise die Worker an sich abzuschalten, wenn 100 ungerade Zahlen gesammelt wurden.
+
+.play channels/exercise4.go
+.play channels/answer4.go

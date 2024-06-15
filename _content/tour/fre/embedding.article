@@ -1,0 +1,204 @@
+Imbrication
+L'imbrication de types (Embedding) est le mécanisme final permettant le partage et la réutilisation de l'état et du comportement entre les types.
+
+* Imbrication
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+L'imbrication de types (Embedding) est le mécanisme final permettant le partage et la réutilisation de l'état et du 
+comportement entre les types. Grâce à la promotion des types internes, les champs et méthodes d'un type interne peuvent 
+être directement accessibles par des références au type externe.
+
+** Analyse de Code
+
+- *Exemple* *1:* Déclaration de champs		   
+- *Exemple* *2:* Imbrication de types
+- *Exemple* *3:* Types imbriqués et interfaces
+- *Exemple* *4:* Implémentations d'interfaces pour les types externes et internes
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+** Mécaniques d'Imbrication
+
+Ce premier exemple ne montre pas d'imbrication, mais uniquement la déclaration de deux types de structures 
+fonctionnant ensemble comme un champ d'un type à l'autre.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        person user        // PAS d'imbrication
+        level  string
+    }
+
+Ceci est de l'imbrication.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        user               // Imbrication par Sémantique par Valeur
+        level  string
+    }
+
+Le champ `person` est supprimé et seul le nom du type est conservé. Il est également possible d'imbriquer 
+un type en utilisant la sémantique par pointeurs.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    type admin struct {
+        *user              // Imbrication par Sémantique par Pointeur
+        level  string
+    }
+
+Dans ce cas, un pointeur de type `user` est imbriqué. Dans les deux cas, l'accès à la valeur imbriquée se fait 
+en utilisant le nom du type.
+
+
+La meilleure façon de comprendre l'imbrication est de considérer le type `user` comme un type interne 
+et le type `admin` comme un type externe. C'est cette relation de type interne/externe qui est "magique" 
+car avec l'imbrication, tout ce qui est lié au type interne (champs et méthodes) peut être promu vers 
+le type externe.
+
+    type user struct {
+        name  string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    type admin struct {
+        *user              // Imbrication par Sémantique par Pointeur
+        level  string
+    }
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Outer type promotion
+    }
+
+Sortie :
+
+    Sending user email To john smith<john@yahoo.com>
+    Sending user email To john smith<john@yahoo.com>
+
+Après l'ajout d'une méthode nommée `notify` au type `user` et une petite fonction `main`, vous pouvez constater 
+que la sortie est identique, que vous appeliez la méthode `notify` via la valeur interne du pointeur ou via la valeur 
+du type externe. La méthode `notify` déclarée pour le type `user` est accessible directement par la valeur 
+du type `admin`.
+
+Bien que cela ressemble à de l'héritage, il faut être prudent. Il ne s'agit pas ici de réutiliser l'état, 
+mais bien de promouvoir le comportement.
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+Maintenant, ajoutons une interface et une fonction polymorphique qui accepte toute valeur concrète implémentant 
+l'ensemble complet des méthodes définies par l'interface `notifier`. Cette interface ne contient qu'une seule 
+méthode nommée `notify`.
+
+En raison de l'imbrication et de la promotion, les valeurs de type `admin` implémentent désormais 
+l'interface `notifier`.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Sortie :
+
+    Sending user email To john smith<john@yahoo.com>
+
+Vous pouvez transmettre l'adresse de la valeur `admin` à la fonction polymorphique, car l'imbrication promeut 
+le comportement `notify` vers le type `admin`.
+
+    type admin struct {
+        *user  // Imbrication par Sémantique par Valeur
+        level  string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+Lorsque le type externe implémente déjà une méthode implémentée par le type interne, la promotion n'a pas lieu. 
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Sortie :
+    
+    Sending admin email To john smith<john@yahoo.com>
+
+Vous pouvez voir que la méthode du type externe est maintenant exécutée.
+
+** Notes
+
+- L'imbrication de types permet de partager des états ou des comportements entre les types.
+- Le type interne conserve toujours son identité.
+- Ce n'est pas de l'héritage.
+- Grâce à la promotion, les champs et méthodes du type interne sont accessibles via le type externe.
+- Le type externe peut surcharger le comportement du type interne.
+
+** Lectures Supplémentaires
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methods, Interfaces and Embedded Types in Go]] - William Kennedy    
+- [[https://rakyll.org/typesystem/][Embedding is not inheritance]] - JBD  
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Éditez le code depuis le template. Ajoutez un nouveau type `CachingFeed` qui imbrique `Feed`et surcharge 
+la méthode `Fetch`.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go

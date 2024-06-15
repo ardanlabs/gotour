@@ -1,0 +1,206 @@
+Einbettung
+Einbettungstypen bieten das letzte Stück zum Teilen und Wiederverwenden von Zustand und Verhalten zwischen Typen.
+
+* Einbettung
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Einbettungstypen bieten das letzte Stück zum Teilen und Wiederverwenden von Zustand und Verhalten 
+zwischen Typen. Durch die Verwendung der Förderung (promotion) von inneren Typen können Felder und 
+Methoden eines inneren Typs direkt durch Referenzen des äußeren Typs zugegriffen werden.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Deklarieren von Feldern
+- *Beispiel* *2:* Einbetten von Typen
+- *Beispiel* *3:* Eingebettete Typen und Interfaces
+- *Beispiel* *4:* Äußere und innere TypInterfaceimplementierungen
+	
+.play embedding/example1.go
+.play embedding/example2.go
+.play embedding/example3.go		   
+.play embedding/example4.go
+
+
+** Mechanik der Einbettung
+
+Das erste Beispiel zeigt keine Einbettung, sondern nur die Deklaration von zwei Strukturtypen, 
+die als Feld von einem Typ zum anderen zusammenarbeiten.
+
+    Typ user struct {
+        name string
+        email string
+    }
+
+    Typ admin struct {
+        person user // KEINE Einbettung
+        level string
+    }
+
+Dies ist die Einbettung.
+
+    Typ user struct {
+        name string
+        email string
+    }
+
+    Typ admin struct {
+        user // Einbettung mit Wertsemantik
+        level string
+    }
+
+Das person-Feld wird entfernt, und nur der Typname bleibt übrig. Ihr könnt auch einen Typ mit 
+Zeigersemantik einbetten.
+
+    Typ user struct {
+        name string
+        email string
+    }
+
+    Typ admin struct {
+        *user // Einbettung mit Zeigersemantik
+        level string
+    }
+
+In diesem Fall wird ein Zeiger des Typs eingebettet. In beiden Fällen erfolgt der Zugriff auf den 
+eingebetteten Wert durch Verwendung des Typnamens.
+
+Die beste Art über Einbettung nachzudenken, ist den user-Typ als inneren Typ und admin als 
+äußeren Typ zu betrachten. Es ist diese innere/äußere Typbeziehung die magisch ist, denn mit 
+Einbettung kann alles was mit dem inneren Typ zusammenhängt (sowohl Felder als auch Methoden), 
+zum äußeren Typ hochgefördert werden.
+
+    Typ user struct {
+        name string
+        email string
+    }
+
+    func (u *user) notify() {
+        fmt.Printf("Sending user email To %s<%s>\n",
+            u.name,
+            u.email)
+    }
+
+    Typ admin struct {
+        *user // Einbettung mit Zeigersemantik
+        level string
+    }
+
+    func main() {
+        ad := admin{
+            Benutzer: &Benutzer{
+                name: "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        ad.user.notify()
+        ad.notify() // Förderung des äußeren Typs
+    }
+
+Ausgabe:
+
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
+
+Sobald Ihr eine Methode namens notify für den user-Typ hinzufügt und dann eine kleine main function erstellt,
+könnt Ihr sehen dass die Ausgabe gleich ist egal ob Ihr die notify-Methode 
+direkt über den inneren Zeigerwert oder über den äußeren Typwert aufruft. Die für den user-Typ 
+deklarierte notify-Methode ist direkt durch den admin-Typwert zugänglich.
+
+Obwohl dies wie Vererbung aussieht, müsst Ihr vorsichtig sein. Es geht hier nicht um die 
+Wiederverwendung von Zustand, sondern um die Förderung von Verhalten.
+
+    type notifier interface {
+        notify()
+    }
+
+    func sendNotification(n notifier) {
+        n.notify()
+    }
+
+Nun fügt Ihr ein Interface und eine polymorphe Funktion hinzu die jeden konkreten Wert 
+akzeptiert, der das vollständige Methodenset des Verhaltens das durch die notifier-Interface
+definiert ist implementiert. Dies ist nur eine Methode namens notify.
+
+Durch die Einbettung und Förderung implementieren Werte des Typs admin jetzt das
+notifier-Interface.
+
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Ausgabe:
+
+    Senden einer Benutzer-E-Mail an john smith<john@yahoo.com>
+
+Ihr könnt die Adresse des admin-Werts in die polymorphe Funktion senden, da die Einbettung 
+das notify-Verhalten bis zum admin-Typ fördert.
+
+    Typ admin struct {
+        *user // Einbettung mit Zeigersemantik
+        level string
+    }
+
+    func (a *admin) notify() {
+        fmt.Printf("Sending admin Email To %s<%s>\n",
+            a.name,
+            a.email)
+    }
+
+Wenn der äußere Typ eine Methode implementiert, die bereits durch den inneren Typ implementiert wurde,
+findet die Beförderung nicht statt.
+
+    func main() {
+        ad := admin{
+            user: &user{
+                name:  "john smith",
+                email: "john@yahoo.com",
+            },
+            level: "super",
+        }
+
+        sendNotification(&ad)
+    }
+
+Ausgabe:
+    
+    Senden einer Admin-E-Mail an john smith<john@yahoo.com>
+
+Ihr könnt sehen, dass jetzt die Methode des äußeren Typs ausgeführt wird.
+
+** Anmerkungen
+
+- Einbettungstypen ermöglichen es uns, Zustand oder Verhalten zwischen Typen zu teilen.
+- Der innere Typ verliert niemals seine Identität.
+- Dies ist keine Vererbung.
+- Durch Förderung können Felder und Methoden des inneren Typs durch den äußeren Typ zugegriffen werden.
+- Der äußere Typ kann das Verhalten des inneren Typs außer Kraft setzen.
+
+** Zusätzliche Lektüre
+
+- [[https://www.ardanlabs.com/blog/2014/05/methods-interfaces-and-embedded-types.html][Methoden, Interfaces und eingebettete Typen in Go]] - William Kennedy
+- [[https://rakyll.org/typesystem/][Einbettung ist keine Vererbung]] - JBD
+
+* Übungen
+
+Verwendet die Vorlage als Ausgangspunkt, um die Übungen zu vervollständigen. Eine mögliche Lösung wird bereitgestellt.
+
+** Übung 1
+
+Bearbeitet den Code aus der Vorlage. Fügt einen neuen Typ CachingFeed hinzu, der Feed einbettet 
+und die Fetch-Methode überschreibt.
+
+.play embedding/exercise1.go
+.play embedding/answer1.go

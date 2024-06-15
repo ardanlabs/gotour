@@ -1,0 +1,198 @@
+Channels
+Les Channels permettent aux goroutines de communiquer entre elles grâce à des sémantiques par signalisation.
+
+* Channels
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Regarder la Video]]
+- Besoin d'une aide financière, Utilisez notre [[https://www.ardanlabs.com/scholarship/][Formulaire de Bourse d'études]]
+
+Il est important de ne pas penser à une Channel (canal) comme une structure de données, mais plutôt comme un mécanisme de 
+signalisation. Cela rejoint l'idée que l'on envoie et reçoit un signal vers et depuis une channel, et non pas que 
+l'on lit et écrit. Si le problème que vous rencontrez ne peut être résolu par de la signalisation, si le mot 
+"signalisation" ne vous vient pas à l'esprit, vous devez alors remettre en question l'utilisation des channels.
+
+** Analyse de Code
+
+- *Exemple* *1:* Attendre le résultat
+- *Exemple* *2:* Fan out
+- *Exemple* *3:* Attendre une tâche
+- *Exemple* *4:* Pooling
+- *Exemple* *5:* Fan out semaphore
+- *Exemple* *6:* Bounded work pooling
+- *Exemple* *7:* Drop
+- *Exemple* *8:* Annulation
+- *Exemple* *9:* Retry timeout
+- *Exemple* *10:* Annulation de channel
+
+.play channels/example1.go
+.play channels/example2.go
+.play channels/example3.go
+.play channels/example4.go
+.play channels/example5.go
+.play channels/example6.go
+.play channels/example7.go
+.play channels/example8.go
+.play channels/example9.go
+.play channels/example10.go
+
+** Mécaniques des Channels
+
+Le coût d'une garantie au niveau de la signalisation est une latence inconnue. L'expéditeur ne sait pas combien de 
+temps il devra attendre que le récepteur accepte le signal. Le fait de devoir attendre le récepteur crée une latence 
+de blocage. Dans ce cas, il s'agit d'une latence de blocage d'une inconnue. L'expéditeur doit attendre, 
+pendant une durée inconnue, que le récepteur soit disponible pour recevoir le signal.
+
+Attendre le récepteur signifie, d'un point de vue mécanique, que l'opération de réception se produit avant l'envoi. 
+Avec les Channels, la réception se produit des nanosecondes avant, mais elle se produit tout de même avant. 
+Cela signifie que le récepteur prend le signal puis s'en va, permettant désormais à l'émetteur de continuer 
+avec une garantie.
+
+Et si le processus ne pouvait pas attendre une durée inconnue ? Et si ce genre de latence ne fonctionnait pas ? 
+Alors la garantie ne peut pas être au niveau de la signalisation, elle doit être en dehors. Le mécanisme qui permet 
+cela est que l'envoi se fait avant la réception. L'expéditeur peut émettre le signal sans avoir besoin que le 
+destinataire soit disponible. Ainsi, l'expéditeur peut partir sans attendre. Finalement, on espère que le destinataire 
+se manifestera et prendra le signal.
+
+Cela réduit le coût de latence à l'envoi, mais crée une incertitude quant à la réception des signaux et donc 
+la possibilité de savoir s'il y a des problèmes en amont avec les récepteurs. Cela peut créer un processus d'acceptation 
+de travaux qui ne sont jamais lancés ou terminés, et pourrait éventuellement provoquer une pression excessive et 
+faire planter les systèmes.
+
+Le second point important est de savoir si vous avez besoin d'envoyer des données avec le signal. Si le signal 
+nécessite la transmission de données, la signalisation se fait en 1-vers-1 entre les goroutines. Si une nouvelle goroutine 
+doit également recevoir le signal, alors un deuxième signal doit être envoyé.
+
+Si les données n'ont pas besoin d'être transmises avec le signal, le signal peut être de type 1-vers-1 ou 
+1-vers-plusieurs entre les goroutines. La signalisation sans données est principalement utilisée pour l'annulation 
+ou l'arrêt des programmes. Cela se fait en fermant la Channel.
+
+Le troisième élément sur lequel il faut se concentrer est l'état de la Channel. 
+Une Channel peut être dans l'un des 3 états suivants.
+
+Une Channel peut être à l'état nil lorsqu'elle est initialisée à sa valeur zéro.
+Effectuer des envois et des réceptions sur des Channels dans cet état bloquera le programme. Cela est utile dans 
+les situations où vous souhaitez implémenter des arrêts du travail, à court terme.
+
+Une Channel peut être mis dans un état ouvert en utilisant la fonction intégrée make. L'envoi et la réception de 
+données sur des canaux dans cet état fonctionneront selon les conditions suivantes :
+
+Une channel peut être mise dans un état ouvert en utilisant la fonction intégrée `make`. L'envoi et la réception de 
+données sur des Channels dans cet état fonctionneront selon les conditions suivantes :
+
+*Unbuffered* *Channels:*
+
+- Garantie au niveau de la signalisation une réception se produisant avant l'envoi. Les Goroutines d'envoi et de réception doivent se réunir dans le même espace et au même moment pour qu'un signal soit traité.
+
+*Buffered* *Channels:*
+
+- Garanties en dehors du niveau de signalisation un envoi se produisant avant la réception. Si le buffer (tampon) n'est pas plein, les envois se terminent, sinon ils se bloquent. Si le buffer n'est pas vide, les réceptions se terminent, sinon elles se bloquent.
+
+Une Channel peut être fermée à l'aide de la fonction intégrée `close`. Il n'est pas nécessaire de fermer une Channel 
+pour libérer de la mémoire, cette action sert uniquement à modifier son état. Envoyer des données sur une Channel 
+fermée provoquera une panique, tandis que recevoir des données sur une Channel fermée nil pour les pointeurs ou la 
+valeur zéro pour des valeurs.
+
+Avec toutes ces informations, vous pouvez vous concentrer sur les modèles de conception des Channels. L'accent mis 
+sur la signalisation est important. L'idée est de savoir si vous avez besoin d'une garantie au niveau de la 
+signalisation ou non, en fonction des problèmes de latence. Si vous devez transmettre des données avec le signal 
+ou non, gérer des annulations ou non. Vous voulez convertir la syntaxe en fonction de cette sémantique.
+
+** Règles de Conception
+
+- en savoir plus sur les [[https://github.com/ardanlabs/gotraining/blob/master/topics/go/#channel-design][règles de conception]] pour les Channels.
+
+** Diagrammes
+
+*Garantie* *De* *Livraison*
+
+La `Garantie De Livraison` repose sur une question fondamentale : "Ai-je besoin d'une garantie que le signal envoyé 
+par une goroutine spécifique a été reçu ?"
+
+.image /tour/eng/static/img/guarantee_of_delivery.png
+
+*Signalement* *Avec* *Ou* *Sans* *Données*
+
+Lorsque vous signalez `avec` des données, trois options de configuration de Channel s'offrent à vous en fonction du 
+type de `garantie` dont vous avez besoin.
+
+.image /tour/eng/static/img/signaling_with_data.png
+
+La signalisation sans données sert principalement à l'annulation. Elle permet à une goroutine de signaler à une 
+autre goroutine d'arrêter ce qu'elle fait et de passer à autre chose. L'annulation peut être implémentée en 
+utilisant des Channels unbuffered (sans tampons) et des Channels buffered (avec tampons).
+
+.image /tour/eng/static/img/signaling_without_data.png
+
+*État*
+
+Le comportement d'une Channel est directement influencé par son État courant. 
+L'état d'une Channel peut être `nil`, `ouvert` ou `fermé`.
+
+.image /tour/eng/static/img/state.png
+
+** Lectures Supplémentaires
+
+- [[https://www.ardanlabs.com/blog/2017/10/the-behavior-of-channels.html][The Behavior Of Channels]] - William Kennedy  
+- [[https://golang.org/ref/mem#tmp_7][Channel Communication]]    
+- [[http://blog.golang.org/share-memory-by-communicating][Share Memory By Communicating]] - Andrew Gerrand    
+- [[https://www.ardanlabs.com/blog/2014/02/the-nature-of-channels-in-go.html][The Nature Of Channels In Go]] - William Kennedy    
+- [[http://matt-welsh.blogspot.com/2010/07/retrospective-on-seda.html][A Retrospective on SEDA]] - Matt Welsh    
+- [[https://www.youtube.com/watch?v=KBZlN0izeiY][Understanding Channels]] - Kavya Joshi    
+
+** Buffer Bloat - 2011
+
+Faites attention à l'utilisation de tampons volumineux dans le but de réduire la latence.
+
+- L'utilisation de buffers volumineux empêche la notification rapide d'une pression excessive.
+- Ils limitent votre capacité à réduire cette pression en temps opportun.
+- Ils peuvent augmenter la latence au lieu de la réduire.
+- Utilisez des Channels avec buffer permet d'assurer la continuité.
+- Ne les utilisez pas uniquement dans le but d'améliorer les performances.
+- Utilisez-les plutôt pour gérer des pics de données bien définis.
+- Utilisez-les pour gérer des problèmes de latence légers lors des transferts.
+
+*Videos*
+
+- [[https://www.youtube.com/watch?v=qbIozKVz73g][Bufferbloat: Dark Buffers in the Internet]]  
+- [[http://www.bufferbloat.net/projects/cerowrt/wiki/Bloat-videos][Buffer Bloat Videos]]  
+
+* Exercises
+
+Utilisez le modèle comme point de départ pour réaliser les exercices. Une solution possible est fournie.
+
+** Exercise 1
+
+Écrivez un programme où deux goroutines se passent un entier d'avant en arrière dix fois. Affichez un message 
+indiquant quand chaque goroutine reçoit l'entier. Incrémentez l'entier à chaque passage. Une fois que l'entier atteint 
+dix, terminez le programme proprement.
+
+.play channels/exercise1.go 
+.play channels/answer1.go
+
+** Exercise 2
+
+Écrivez un programme qui utilise le pattern fan-out pour générer concurremment 100 nombres aléatoires. Chaque goroutine 
+doit générer un seul nombre aléatoire et le renvoyer à la goroutine principale via une Channel avec buffer. La taille 
+du buffer doit être suffisante pour éviter tout blocage lors de l'envoi. N'allouez pas plus de mémoire pour le buffer 
+que nécessaire. La goroutine principale doit afficher chaque nombre aléatoire qu'elle reçoit et ensuite terminer 
+le programme.
+
+.play channels/exercise2.go 
+.play channels/answer2.go
+
+** Exercise 3
+
+Écrivez un programme qui génère concurremment jusqu'à 100 nombres aléatoires. N'envoyez pas les 100 valeurs en une 
+seule fois, le nombre d'envois/réceptions doit donc être inconnu.
+
+.play channels/exercise3.go 
+.play channels/answer3.go
+ 
+** Exercise 4
+
+Écrivez un programme qui génère concurremment jusqu'à 100 nombres aléatoires en utilisant un pool de workers. 
+Rejetez les valeurs paires. Informez les workers qu'ils doivent s'arrêter une fois que 100 nombres 
+impairs ont été collectés.
+
+.play channels/exercise4.go 
+.play channels/answer4.go

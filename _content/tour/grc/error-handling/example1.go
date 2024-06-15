@@ -9,22 +9,22 @@ package main
 
 import "fmt"
 
-// http://golang.org/pkg/builtin/#error
+// https://golang.org/pkg/builtin/#error
 type error interface {
 	Error() string
 }
 
-// http://golang.org/src/pkg/errors/errors.go
+// https://golang.org/src/pkg/errors/errors.go
 type errorString struct {
 	s string
 }
 
-// http://golang.org/src/pkg/errors/errors.go
+// https://golang.org/src/pkg/errors/errors.go
 func (e *errorString) Error() string {
 	return e.s
 }
 
-// http://golang.org/src/pkg/errors/errors.go
+// https://golang.org/src/pkg/errors/errors.go
 // Η New επιστρέφει έναν error, που μορφοποιείται ως το δοσμένο κείμενο.
 func New(text string) error {
 	return &errorString{text}

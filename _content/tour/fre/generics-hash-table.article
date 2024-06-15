@@ -1,0 +1,329 @@
+Tables de Hachages
+Une table de hachage (hash table) est un exemple classique de type conteneur pouvant véritablement tirer parti des génériques.
+
+* Generics - Hash Tables
+
+Une table de hachage (hash table) est un exemple classique de type conteneur pouvant véritablement tirer parti des 
+génériques. Cette implémentation a été codée par Matt Layher (@mdlayer) dans un article de blog qu'il a écrit.
+C'est un excellent exemple de ce qu'il est possible de réaliser avec les génériques.
+
+** Video
+
+Regardez la conférence que j'ai donnée sur les génériques, qui vous présente tous les exemples de cette section du Tour.
+
+.html generics-video.html
+
+** Analyse de Code
+
+- *Exemple* *1*: Hash Table
+
+.play generics/hash-table/example1.go
+
+** Explications
+
+Ce code est un peu plus complexe que ce que vous avez vu jusqu'à présent. Il illustre ce que vous pouvez retrouver 
+dans des implémentations de la vraie vie. Tout au long de cette section, vous verrez deux versions du code, une avant 
+et une après l'application de la nouvelle syntaxe des génériques.
+
+    type hashFunc func(key K, buckets int) int
+
+Ce type déclare la signature d'une fonction de hachage utilisée par la table de hachage pour calculer la position 
+d'un bucket (compartiment) pour le stockage et la récupération des données. L'utilisateur doit implémenter et fournir 
+cette fonction lors de la construction d'une table de hachage. La fonction accepte une clé et le nombre de buckets 
+disponibles. Afin de garantir le caractère générique du système vis-à-vis des types de clés et de valeurs utilisés, 
+vous déclarez un paramètre nommé `key` avec un type K représenté par une seule lettre majuscule.
+
+Ensuite, vous pouvez appliquer la syntaxe des génériques pour faire de K un véritable type générique.
+
+    type hashFunc[K comparable] func(key K, buckets int) int <-- CHANGED
+
+Après le nom du type, ajoutez les crochets avec le type générique K et une contrainte `comparable`. Étant donné que les 
+valeurs du type `key` doivent être utilisées dans une opération de comparaison, il est logique de documenter cela dès 
+maintenant, même si l'implémentation de la fonction de hachage ne l'exige pas. La cohérence est primordiale pour la 
+lisibilité, la compréhension et la maintenabilité à long terme.
+
+Ce type représente une paire de données clé/valeur qui sera stockée dans la table de hachage.
+
+    type keyValuePair struct {
+        Key K
+        Value V
+    }
+
+Le travail de ce type de données est de stocker des données réelles associées à une clé correspondante. Ensuite, 
+le code déclare un champ de `Key` de type K et un champ `Value` de type V.
+
+Maintenant, vous pouvez appliquer la syntaxe des génériques pour faire de K et V de véritables types génériques.
+
+    type keyValuePair[K comparable, V any] struct { <-- CHANGED
+        Key K
+        Value V
+    }
+
+Après le nom du type, ajoutez les crochets avec les types génériques K et V. Dans cette déclaration, K représente la 
+clé comme précédemment et V représente une valeur, qui peut être de n'importe quel type.
+
+Ce type de données représente une table de hachage qui gère une fonction de hachage et un ensemble de buckets pour le 
+stockage de données clé/valeur.
+
+    type Table struct {
+        hashFunc hashFunc
+        buckets int
+        data [][]keyValuePair
+    }
+
+Le type Table possède trois champs, une fonction de hachage, le nombre de buckets et les données représentées sous 
+forme d'une slice de slice de paires clé/valeur. La slice externe représente les buckets et la slice interne 
+représente les paires clé/valeur stockées dans chaque buckets.
+
+Maintenant, appliquons la syntaxe des génériques pour déclarer les types génériques de clé et de valeur, puis 
+utilisons-les pour les déclarations des champs.
+
+    type Table[K comparable, V any] struct { <-- CHANGED
+        hashFunc hashFunc[K] <-- CHANGED
+        buckets int
+        data [][]keyValuePair[K, V] <-- CHANGED
+    }
+
+Après le nom du type, ajoutez les crochets avec les types génériques K et V. La déclaration du type `hashFunc` 
+nécessite des informations sur le type concret à utiliser pour la clé. La déclaration du type `keyValuePair` nécessite 
+des informations sur le type concret pour la clé et la valeur.
+
+Ceci est une fonction de fabrique (factory) qui permet de construire une `Table`.
+
+    func New(
+        buckets int,
+        hf hashFunc
+    ) *Table {
+        
+        return &Table{
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair, buckets),
+        }
+    }
+
+la fonction de fabrique accepte le nombre de buckets à gérer et une fonction de hachage pour sélectionner un bucket 
+pour le stockage et la recherche de données. Lorsqu'une valeur `Table` est construite, le nombre de bucket est utilisé 
+pour construire la slice, définissant la longueur de la slice externe sur le nombre de buckets qui seront utilisés.
+
+Maintenant, appliquez la syntaxe des génériques pour déclarer les types génériques de clé et de valeur, et appliquez-les 
+aux types qui doivent être construits.
+
+    func New[K comparable, V any]( <-- CHANGED
+        buckets int,
+        hf hashFunc[K],            <-- CHANGED
+    ) *Table[K, V] {               <-- CHANGED
+        
+        return &Table[K, V]{       <-- CHANGED
+            hashFunc: hf,
+            buckets: buckets,
+            data: make([][]keyValuePair[K, V], buckets), <-- CHANGED
+        }
+    }
+
+Après le nom du type, ajoutez les crochets et les types génériques K et V. Ensuite, K est appliqué au paramètre d'entrée 
+`hf` pour compléter la déclaration du type `hashFunc`. Les types K et V sont appliqués au type `Tabl`e en cours de 
+construction et renvoyé. Enfin, l'initialisation du champ `data` nécessite que K et V soient appliqués à la syntaxe de 
+construction du type `keyValuePair`.
+
+Cette méthode permet d'insérer des valeurs dans la table de hachage en fonction d'une clé spécifiée.
+
+    type Table[K comparable, V any] struct {
+        hashFunc hashFunc[K]
+        buckets int
+        table [][]keyValuePair[K, V]
+    }
+
+    func (t *Table) Insert(key K, value V) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+
+        kvp := keyValuePair{
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+La méthode `Insert` est conçue pour accepter une clé et une valeur du même type générique que ceux déclarés avec le type 
+`Table`. La première étape de l'insertion consiste à identifier le bucket à utiliser pour le stockage. Cela se fait en 
+appelant la fonction de hash avec la clé spécifiée. La fonction de hash renvoie une valeur entière qui représente le 
+bucket à utiliser.
+
+La fonction vérifie ensuite si la clé spécifiée a déjà été utilisée pour stocker une valeur dans le bucket sélectionné. 
+Cela se fait en parcourant l'ensemble existant de paires clé/valeur dans le bucket. Si la clé existe déjà, la valeur 
+associée à cette clé est mise à jour. Si la clé n'est pas trouvée, une nouvelle paire clé/valeur est créée, initialisée 
+et ajoutée à la slice du bucket sélectionné.
+
+Maintenant, appliquez la syntaxe des génériques pour déclarer les types génériques de clé et de valeur, et appliquez-les 
+aux types qui doivent être construits.
+
+    func (t *Table[K, V]) Insert(key K, value V) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.table[bucket] {
+            if key == kvp.Key {
+                t.table[bucket][idx].Value = value
+                return
+            }
+        }
+    
+        kvp := keyValuePair[K, V]{                 <-- CHANGED
+            Key: key,
+            Value: value,
+        }
+        t.table[bucket] = append(t.table[bucket], kvp)
+    }
+
+Après le nom du type dans le receveur, ajoutez les crochets et les types génériques K et V. Le seul autre changement 
+consiste à appliquer K et V à la syntaxe de construction du type `keyValuePair`.
+
+Cette méthode permet de récupérer des valeurs dans la table de hachage en fonction d'une clé spécifiée.
+
+    func (t *Table) Retrieve(key K) (V, bool) {
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+La méthode `Retrieve` est conçue pour accepter une clé et renvoyer une copie de la valeur stockée pour cette clé. 
+La première étape de la récupération consiste à identifier le bucket qui a été utilisé pour le stockage. Cela se fait 
+en appelant la fonction de hachage avec la clé spécifiée. La fonction de hachage renvoie une valeur de type entier qui 
+représente le bucket à examiner.
+
+Ensuite, la fonction parcourt la collection de paires clé-valeur stockées dans le bucket, à la recherche de la clé 
+spécifiée une par une. Si la clé est trouvée, une copie de la valeur et `true` sont retournés à l'appelant. 
+Si la clé n'est pas trouvée, la valeur zéro et `false` sont retournés à l'appelant.
+
+Appliquez maintenant la syntaxe des génériques pour déclarer les types génériques de clé et de valeur, puis appliquez-les 
+aux types qui doivent être construits.
+
+    func (t *Table[K, V]) Get(key K) (V, bool) { <-- CHANGED
+        bucket := t.hashFunc(key, t.buckets)
+        for idx, kvp := range t.data[bucket] {
+            if key == kvp.Key {
+                return t.data[bucket][idx].Value, true
+            }
+        }
+    
+        var zero V
+        return zero, false
+    }
+
+Après le nom de type dans le receveur, ajoutez les crochets et les types génériques K et V. Aucune autre modification 
+de code n'est requise.
+
+Ceci est un petit programme pour tester l'implémentation de la table de hachage.
+
+    func main() {
+        const buckets = 8
+        . . .
+    }
+
+Commencez avec une constante définissant le nombre de buckets à utiliser dans la table de hachage.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        hashFunc1 := func(key string, buckets int) int {
+            h := fnv.New32()
+            h.Write([]byte(key))
+            return int(h.Sum32()) % buckets
+        }
+
+        . . .
+    }
+
+Ensuite, déclarez une fonction de hachage qui attend une chaîne de caractères pour la clé. L'implémentation utilise le 
+`package fnv` de la bibliothèque standard qui propose les fonctions de hachage non-cryptographiques `FNV-1` et `FNV-1a`, 
+créées par Glenn Fowler, Landon Curt Noll et Phong Vo. FNV signifie Fowler-Noll-Vo hash function.
+
+L'opération modulo avec les buckets contraint la valeur finale à se situer dans l'intervalle défini par le nombre 
+de buckets.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+        
+        table1 := New[/*key*/ string, /*value*/ int](buckets, hashFunc1)
+        
+        . . .
+    }
+
+Ensuite, construisez une table de hachage, en indiquant explicitement que la clé sera de type `string` et la valeur 
+de type `int`. Les paramètres d'entrée ne fournissent aucune information permettant au compilateur de déduire ces types.
+
+Pour illustrer la nature générique de la table de hachage, on définit une deuxième fonction de hachage et 
+une deuxième table.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        hashFunc2 := func(key int, buckets int) int {
+            return key % buckets
+        }
+
+        table2 := New[/*key*/ int, /*value*/ string](buckets, hashFunc2)
+    
+        . . .
+    }
+
+Cette fonction de hachage déclare un entier pour la clé et effectue une opération modulo simple avec la valeur du bucket 
+par rapport à la clé. Ensuite, une nouvelle table est construite où la clé est spécifiée comme étant un entier et 
+la valeur une chaîne de caractères. C'est l'inverse de la première table.
+
+    import (
+        "hash/fnv"
+    )
+    
+    func main() {
+        . . .
+    
+        words := []string{"foo", "bar", "baz"}
+        for i, word := range words {
+            table1.Insert(word, i)
+            table2.Insert(i, word)
+        }
+    
+        for i, s := range append(words, "nope!") {
+            v1, ok1 := table1.Retrieve(s)
+            fmt.Printf("t1.Rtr(%v) = (%v, %v)\n", s, v1, ok1)
+            
+            v2, ok2 := table2.Retrieve(i)
+            fmt.Printf("t2.Rtr(%v) = (%v, %v)\n", i, v2, ok2)
+        }
+    }
+
+Sortie :
+
+    t1.Rtr(foo) = (0, true)
+    t2.Rtr(0) = (foo, true)
+    t1.Rtr(bar) = (1, true)
+    t2.Rtr(1) = (bar, true)
+    t1.Rtr(baz) = (2, true)
+    t2.Rtr(2) = (baz, true)
+    t1.Rtr(nope!) = (0, false)
+    t2.Rtr(3) = (, false)
+
+Enfin, Implémentez le code nécessaire pour stocker et récupérer des valeurs dans les deux tables respectives.

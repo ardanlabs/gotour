@@ -1,0 +1,191 @@
+Sortiervorgänge
+Dieser Abschnitt enthält Beispiele für Sortiervorgänge.
+
+* Austauschsortieren (Bubblesort)
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Das Beispielprogramm implementiert eine Funktion, die eine Sortierung durch Aufsteigen (Bubblesort)
+gegen eine Menge von Ganzzahlen (Integer) durchführt.
+
+- Mehr unter [[https://de.wikipedia.org/wiki/Bubblesort][https://en.wikipedia.org/wiki/Bubble_sort]]
+
+*Diagramm*
+
+    Bubble Sort ist ein einfacher Sortieralgorithmus, der wiederholt durch die
+    Eingabeliste Element für Element geht, indem er das aktuelle Element mit
+    dem nächsten vergleicht und falls nötig ihre Werte austauscht. 
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁── Startarray
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 10 ││ 05 ││ 25 ││ 15 ││ 30 │ ◁── Nach der ersten Iteration
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁── Nach der zweiten Iteration / Sortiert
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/bubble.go
+
+* Einfügen Sortieren
+
+Das Beispielprogramm implementiert eine Funktion, die eine Einfügesortierung
+(Insertion Sort) gegen eine Menge von Ganzzahlen durchführt.
+
+- Mehr unter [[https://de.wikipedia.org/wiki/Insertionsort][https://en.wikipedia.org/wiki/Insertion_sort]]
+
+*Diagramm*
+
+    Insertion Sort iteriert genau so oft, wie die Länge des Arrays minus eins beträgt. 
+    Für ein Array mit 5 Zahlen wird der Sortiervorgang also 4 Mal durchgeführt. 
+    Beginnend beim Index 1, bewegt der Sortieralgorithmus diese Zahl nach links und
+    platziert sie an einer sortierten Position.
+
+    Bei jedem Durchlauf wird das aktuelle Element mit den bereits sortierten
+    Elementen im linken Teil des Arrays verglichen und an der richtigen Stelle
+    eingefügt. So entsteht schrittweise eine sortierte Sequenz am Anfang des Arrays.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Startarray
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁─── Verschiebung [1]=30 nach links
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Nach der ersten Iteration
+    │ 10 ││ 30 ││ 05 ││ 25 ││ 15 │ ◁─── Verschiebung [2]=05 nach links
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Nach der zweiten Iteration
+    │ 05 ││ 10 ││ 30 ││ 25 ││ 15 │ ◁─── Verschiebung [3]=25 nach links
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Nach der dritten Iteration
+    │ 05 ││ 10 ││ 25 ││ 30 ││ 15 │ ◁─── Verschiebung [4]=15 nach links
+    └────┘└────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Nach der fünften Iteration
+    │ 05 ││ 10 ││ 15 ││ 25 ││ 30 │ ◁─── Sortiert
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/insertion.go
+
+* Haldensortierung (Heap Sort)
+
+Das Beispielprogramm implementiert eine Funktion, die eine Heap-Sortierung
+gegen eine Menge von Ganzzahlen durchführt.
+
+- Mehr unter [[https://de.wikipedia.org/wiki/Heapsort][https://en.wikipedia.org/wiki/Heapsort]]
+
+*Diagramm*
+
+Heap Sort teilt seine Eingabe in einen sortierten und einen unsortierten Teil. 
+Der Algorithmus verkleinert iterativ den unsortierten Bereich, 
+indem er das größte Element daraus extrahiert und in den sortierten Teil einfügt. Der Algorithmus läuft in zwei Phasen:
+
+    Phase I
+    Teilt die Liste in der Mitte und bearbeitet die vordere Hälfte der Liste, 
+    indem ihr den größten Wert den wir finden an den Anfang der Liste verschiebt 
+    und dann den zweitgrößten.
+
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Startarray
+    │ 63 ││ 16 │ | │ 40 ││ 71 ││ 73 │ ◁─── Überprüft, ob [1]=16 < [4]=73 ist: Tauscht sie. 
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁──Nach der ersten Iteration 
+    │ 63 ││ 73 │ | │ 40 ││ 71 ││ 16 │ ◁─── Überprüft, ob [0]=63 < [3]=71 ist: Tauscht sie.
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Nach zweiter Iteration 
+    │ 73 ││ 71 │ | │ 40 ││ 63 ││ 16 │ ◁─── Phase I abgeschlossen
+    └────┘└────┘ | └────┘└────┘└────┘
+
+    Phase II
+    Nehmt die Liste und beginnt, Zahlen herauszunehmen und in eine neue sortierte
+    Liste zu verschieben. Nehmt die Zahl in der ersten Position und verschiebt sie
+    in die neue Liste, die die endgültige Sortierung enthalten wird. Dann verschiebt
+    wieder die größte Zahl, die ihr findet, an den Anfang der Liste.
+
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ |  ◁── Startarray
+    │ 73 ││ 71 ││ 40 ││ 63 ││ 16 │ |
+    └────┘└────┘└────┘└────┘└────┘ |
+    ┌────┐┌────┐┌────┐┌────┐ | ┌────┐ ◁── Nach der ersten Iteration
+    │ 71 ││ 63 ││ 40 ││ 16 │ | │ 73 │ ◁─── 73 nach außen und 71 nach vorne verschieben
+    └────┘└────┘└────┘└────┘ | └────┘
+    ┌────┐┌────┐┌────┐ | ┌────┐┌────┐ ◁──Nach zweiter Iteration │
+    │ 63 ││ 16 ││ 40 │ | │ 71 ││ 73 │ ◁─── 71 nach außen und 63 nach vorne verschieben
+    └────┘└────┘└────┘ | └────┘└────┘
+    ┌────┐┌────┐ | ┌────┐┌────┐┌────┐ ◁── Nach der dritten Iteration
+    │ 40 ││ 16 │ | │ 63 ││ 71 ││ 73 │ ◁─── 63 nach außen und 40 nach vorne verschieben
+    └────┘└────┘ | └────┘└────┘└────┘
+    ┌────┐ | ┌────┐┌────┐┌────┐┌────┐ ◁── Nach der vierten Iteration
+    │ 16 │ | │ 40 ││ 63 ││ 71 ││ 73 │ ◁──── 40 nach außen und 16 nach vorne verschieben
+    └────┘ | └────┘└────┘└────┘└────┘
+     | ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Nach der fünften Iteration
+     | │ 16 ││ 40 ││ 63 ││ 71 ││ 73 │ ◁─── 16 nach außen verschieben / Sortiert
+     | └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/heap.go
+
+* Quicksort
+
+Das Beispielprogramm implementiert eine Funktion, die einen Quick-Sort gegen eine 
+Menge von Ganzzahlen durchführt.
+
+- Mehr unter [[https://de.wikipedia.org/wiki/Quicksort][https://en.wikipedia.org/wiki/Quicksort]]
+
+*Diagramm*
+
+    Quicksort ist ein Divide-and-Conquer-Algorithmus. Er funktioniert, indem ein
+    'Pivot'-Element aus dem Array ausgewählt und die anderen Elemente in zwei
+    Unter-Arrays aufgeteilt werden, je nachdem ob sie kleiner oder größer als das
+    Pivot sind.
+
+    -------------------------------------------------------------------
+    Beispiel 1
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Startarray
+    │ 45 ││ 39 ││ 37 ││ 15 ││ 41 │ ◁─── Pivot-Wert 41
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sortierelemente 0 - 4 
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 ││ 41 ││ 45 │ ◁── Erste Sortierung abgeschlossen
+    └────┘└────┘└────┘└────┘└────┘
+
+     Die letzten zwei Elemente sind sortiert, konzentriert euch auf die ersten drei.
+
+    ┌────┐┌────┐┌────┐
+    │ 39 ││ 37 ││ 15 │ ◁── Pivot-Wert 15
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 15 ││ 37 ││ 39 ││ 41 ││ 45 │ ◁── Sortiert
+    └────┘└────┘└────┘└────┘└────┘
+
+    -------------------------------------------------------------------
+    Beispiel 2
+    ┌────┐┌────┐┌────┐┌────┐┌────┐ ◁── Startarray
+    │ 34 ││ 55 ││ 59 ││ 73 ││ 09 │ ◁─── Pivot-Wert 09
+    └────┘└────┘└────┘└────┘└────┘ ◁── Sortierelemente 0 - 4 
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 55 ││ 59 ││ 73 ││ 34 │ ◁── Erste Sortierung abgeschlossen
+    └────┘└────┘└────┘└────┘└────┘
+
+    Das erste Element ist sortiert, konzentriert euch auf die letzten vier.
+
+    ┌────┐┌────┐┌────┐┌────┐
+    │ 55 ││ 59 ││ 73 ││ 34 │ ◁── Pivot-Wert 34
+    └────┘└────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 59 ││ 73 ││ 55 │ ◁── Zweite Sortierung abgeschlossen
+    └────┘└────┘└────┘└────┘└────┘
+
+     Die ersten zwei Elemente sind sortiert, konzentriert euch auf die letzten drei.
+
+    ┌────┐┌────┐┌────┐
+    │ 59 ││ 73 ││ 55 │ ◁── Pivot-Wert 55
+    └────┘└────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 73 ││ 59 │ ◁── Dritte Sortierung abgeschlossen
+    └────┘└────┘└────┘└────┘└────┘
+
+    Die ersten drei Elemente sind sortiert, konzentriert euch auf die letzten zwei.
+
+    ┌────┐┌────┐ ◁── Pivot-Wert 59
+    │ 73 ││ 59 │ ◁─── Dritte Sortierung abgeschlossen
+    └────┘└────┘
+    ┌────┐┌────┐┌────┐┌────┐┌────┐
+    │ 09 ││ 34 ││ 55 ││ 59 ││ 73 │ ◁── Sortiert
+    └────┘└────┘└────┘└────┘└────┘
+
+.play algorithms/sorting/quick.go

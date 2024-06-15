@@ -12,17 +12,19 @@ import (
 
 type root struct {
 	engContent []byte
+	freContent []byte
+	gerContent []byte
 	grcContent []byte
 	itaContent []byte
 	perContent []byte
 	porContent []byte
 	polContent []byte
+	rusContent []byte
 	turContent []byte
 }
 
 // rootHandler returns a handler for all the requests except the ones for lessons.
 func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
-
 	// Get the cookies from the request.
 	cookies := r.Cookies()
 	var langPref string
@@ -52,6 +54,16 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 		if err := renderUI(w, rot.engContent); err != nil {
 			log.Println(err)
 		}
+	case "/tour/fre/":
+		log.Println("render french tour")
+		if err := renderUI(w, rot.freContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/ger/":
+		log.Println("render german tour")
+		if err := renderUI(w, rot.gerContent); err != nil {
+			log.Println(err)
+		}
 	case "/tour/grc/":
 		log.Println("render greek tour")
 		if err := renderUI(w, rot.grcContent); err != nil {
@@ -75,6 +87,11 @@ func (rot *root) rootHandler(w http.ResponseWriter, r *http.Request) {
 	case "/tour/pol/":
 		log.Println("render polish tour")
 		if err := renderUI(w, rot.polContent); err != nil {
+			log.Println(err)
+		}
+	case "/tour/rus/":
+		log.Println("render russian tour")
+		if err := renderUI(w, rot.rusContent); err != nil {
 			log.Println(err)
 		}
 	case "/tour/tur/":

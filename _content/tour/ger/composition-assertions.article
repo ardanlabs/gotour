@@ -1,0 +1,238 @@
+Typumwandlungen und Assertionen
+Lernt wie Typumwandlungen und Assertionen funktionieren.
+
+* Typumwandlungen und Assertionen
+
+- [[https://www.ardanlabs.com/training/individual-on-demand/ultimate-go-bundle/][Schaut euch das Video an]]
+- Braucht ihr finanzielle Unterstützung? Nutzt unser  [[https://www.ardanlabs.com/scholarship/][Stipendienformular]]
+
+Eine Typumwandlung ermöglicht es, Daten eines Typs in einen anderen Typ umzuwandeln. 
+Eine Typ-Assertion erlaubt euch zu fragen, ob ein Wert des gegebenen Typs in einem
+Interface gespeichert ist.
+
+** Code-Überprüfung
+
+- *Beispiel* *1:* Interface-Umwandlungen
+- *Beispiel* *2:* Laufzeit-Typ-Assertionen
+- *Beispiel* *3:* Verhaltensänderungen
+
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+** Implizite Interface-Umwandlungen
+
+Wie ihr im letzten Beispiel gesehen habt, kann ein Interface-Wert 
+eines Typs für einen anderen Interfacetyp verwendet werden, 
+wenn der konkret gespeicherte Wert beide Verhaltensweisen implementiert. 
+Dies könnte als implizite Interface-Umwandlung betrachtet werden, 
+aber es ist besser darüber nachzudenken, wie konkrete Daten durch 
+Interfaces in einem entkoppelten Zustand bewegt werden.
+
+    type Mover interface {
+    Move()
+}
+
+type Locker interface {
+    Lock()
+    Unlock()
+}
+
+type MoveLocker interface {
+    Mover
+    Locker
+}
+
+Bei diesen drei Interfaces ist MoveLocker die Zusammensetzung von Mover und Locker.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+Und dann gibt es diesen konkreten Typ bike, der alle drei Interfaces implementiert. 
+Was könnt ihr tun?
+
+    var ml MoveLocker
+    var m Mover
+
+Ihr könnt einen Wert des Typs MoveLocker und Mover in ihren Nullwert-Zuständen konstruieren.
+Das sind Interface-Werte die wirklich wertlos sind.
+
+    ml = bike{}
+
+Dann könnt ihr einen Wert des Typs bike in seinem Nullwert-Zustand konstruieren und eine
+Kopie der Variablen MoveLocker ml zuweisen. Das ist möglich weil ein bike alle drei
+Verhaltensweisen implementiert und der Compiler erkennen kann, dass die Implementierung existiert.
+
+    m = ml
+
+Ihr könnt dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Das ist möglich
+weil ihr nicht den Interfacewert ml, sondern den konkret gespeicherten Wert in ml zuweist,
+der ein bike-Wert ist. Der Compiler weiß, dass jeder konkrete Wert, der in ml gespeichert ist,
+auch die Mover-Interface implementieren muss.
+
+Diese Zuweisung ist jedoch nicht gültig.
+
+    ml = m
+
+Ausgabe:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+Ihr könnt die Mover-Variable m nicht der MoveLocker-Variablen ml zuweisen, weil der Compiler
+nur garantieren kann, dass der konkrete Wert, der in m gespeichert ist weiß wie man sich bewegt.
+Es ist zum Kompilierungszeitpunkt nicht bekannt ob der konkrete Wert auch weiß, 
+wie man abschließt und aufschließt.
+
+** Mechanik der Typ-Assertion
+
+Eine Typ-Assertion ermöglicht es euch zur Laufzeit zu fragen, ob ein Wert des
+gegebenen Typs in eine Interface gespeichert ist. Ihr seht das an der Syntax m.(bike).
+
+    b := m.(bike)
+    ml = b
+
+Typumwandlungen und Assertionen
+Lernt wie Typumwandlungen und Assertionen funktionieren.
+
+Typumwandlungen und Assertionen
+Eine Typumwandlung ermöglicht es, Daten eines Typs in einen anderen Typ umzuwandeln. Eine Typ-Assertion erlaubt euch zu fragen, ob ein Wert des gegebenen Typs in einem Interface (Interface) gespeichert ist.
+** Code-Überprüfung
+
+Beispiel 1: Interface-Umwandlungen
+Beispiel 2: Laufzeit-Typ-Assertionen
+Beispiel 3: Verhaltensänderungen
+.play composition/assertions/example1.go
+.play composition/assertions/example2.go
+.play composition/assertions/example3.go
+
+** Implizite Interface-Umwandlungen
+
+Wie ihr im letzten Beispiel gesehen habt, kann ein Interface-Wert eines Typs für einen anderen Interfacetyp verwendet werden,
+wenn der konkret gespeicherte Wert beide Verhaltensweisen implementiert.
+Dies könnte als implizite Interface-Umwandlung betrachtet werden, aber es ist besser darüber nachzudenken,
+wie konkrete Daten durch Interfaces in einem entkoppelten Zustand bewegt werden.
+
+    type Mover interface {
+        Move()
+    }
+
+    type Locker interface {
+        Lock()
+        Unlock()
+    }
+
+    type MoveLocker interface {
+        Mover
+        Locker
+    }
+
+Seht diese drei Interfaces. Dabei ist MoveLocker eine Zusammensetzung von Mover und Locker.
+
+    type bike struct{}
+
+    func (bike) Move() {
+        fmt.Println("Moving the bike")
+    }
+
+    func (bike) Lock() {
+        fmt.Println("Locking the bike")
+    }
+
+    func (bike) Unlock() {
+        fmt.Println("Unlocking the bike")
+    }
+
+Und hier der konkrete Typ bike, der alle drei Interfaces implementiert. Was könnt ihr tun?
+
+    var ml MoveLocker
+    var m Mover
+
+Ihr könnt einen Wert des Typs MoveLocker und Mover in ihren Nullwert-Zuständen konstruieren.
+Das sind Interface-Werte die wirklich wertlos sind.
+
+    ml = bike{}
+
+Dann könnt ihr einen Wert des Typs bike in seinem Nullwert-Zustand konstruieren und eine
+Kopie der Variablen MoveLocker ml zuweisen. Das ist möglich, weil ein bike alle drei
+Verhaltensweisen implementiert und der Compiler erkennen kann, dass die Implementierung existiert.
+
+    m = ml
+
+Ihr könnt dann die MoveLocker-Variable ml der Mover-Variable m zuweisen. Das ist möglich,
+weil ihr nicht den Interface-Wert ml, sondern den konkret gespeicherten Wert in ml zuweist,
+der ein bike-Wert ist. Der Compiler weiß, dass jeder konkrete Wert, der in ml gespeichert ist,
+auch das Mover-Interface implementieren muss.
+
+Diese Zuweisung ist jedoch nicht gültig.
+
+    ml = m
+
+Ausgabe:
+
+    cannot use m (type Mover) as type MoveLocker in assignment:
+        Mover does not implement MoveLocker (missing Lock method)
+
+Ihr könnt die Mover-Variable m nicht der MoveLocker-Variablen ml zuweisen, weil der Compiler
+nur garantieren kann, dass der konkrete Wert, der in m gespeichert ist, weiß, wie man sich bewegt.
+Es ist zum Kompilierungszeitpunkt nicht bekannt, ob der konkrete Wert auch weiß, wie man abschließt und aufschließt.
+
+** Mechanik der Typ-Assertion
+
+Eine Typ-Assertion ermöglicht es euch zur Laufzeit zu fragen, ob ein Wert des
+gegebenen Typs in einem Interface gespeichert ist. Ihr seht das an der Syntax m.(bike).
+
+    b := m.(bike)
+    ml = b
+
+In diesem Fall fragt ihr, ob im Moment der Codeausführung ein bike-Wert in m gespeichert ist.
+Wenn ja dann wird der Variablen b eine Kopie des in m gespeicherten bike-Wert zugewiesen.
+Dann kann die Kopie in die Interface-Variabel ml kopiert werden.
+
+Wenn kein bike-Wert in der Interface-Variable gespeichert ist, gerät das Programm in Panik. 
+Das ist gewünscht, wenn definitiv ein bike-Wert gespeichert sein sollte. 
+Aber was, wenn es möglich ist, dass kein bike-Wert gespeichert ist und das gültig ist? 
+Dann benötigt ihr die zweite Form der Typ-Assertion.
+
+    b, ok := m.(bike)
+
+In dieser Form wenn ok true ist, ist ein bike-Wert in dem Interface gespeichert. 
+Wenn ok falsch ist, dann ist kein bike-Wert gespeichert, und das Programm gerät nicht in Panik. 
+Die Variable b ist jedoch immer noch vom Typ bike, aber sie wird auf ihren Nullwert-Zustand gesetzt.
+
+    func main() {
+    mvs := []fmt.Stringer{
+        Car{},
+        Cloud{},
+    }
+
+    for i := 0; i < 10; i++ {
+        rn := rand.Intn(2)
+
+        if v, is := mvs[rn].(Cloud); is {
+            fmt.Println("Glück gehabt:", v)
+            continue
+        }
+
+        fmt.Println("Pech gehabt")
+    }
+}
+
+Das Programm deklariert zwei Typen namens Car und Cloud, 
+die beide das fmt.Stringer-Interface implementieren. Könnt ihr eine Sammlung konstruieren, 
+die es euch erlaubt, sowohl einen Wert von Car als auch von Cloud zu speichern. 
+Dann wählt ihr 10 Mal zufällig eine Zahl von 0 bis 1 aus und führt eine 
+Typ-Assertion durch um zu sehen, ob der Wert am zufälligen Index einen Cloud-Wert enthält. 
+Da es möglich ist, dass es nicht vom Typ Cloud ist, ist die zweite Form der 
+Typ-Assertion hier entscheidend.
