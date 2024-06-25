@@ -19,16 +19,16 @@ import (
 // and execute (without checking for output correctness).
 // Files that contain the build constraint "nobuild" are not built.
 // Files that contain the build constraint "norun" are not executed.
-func TestContentTour(t *testing.T) {
+func TestContentEngTour(t *testing.T) {
 	if _, err := exec.LookPath("go"); err != nil {
 		t.Skipf("skipping because 'go' executable not available: %v", err)
 	}
 
-	err := filepath.Walk(filepath.Join("_content", "tour"), func(path string, fi os.FileInfo, err error) error {
-		if filepath.Ext(path) != ".go" {
-			return nil
+	err := filepath.Walk(filepath.Join("_content", "tour", "eng"), func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-		if filepath.Base(path) == "content_test.go" {
+		if filepath.Ext(path) != ".go" {
 			return nil
 		}
 		t.Run(path, func(t *testing.T) {
