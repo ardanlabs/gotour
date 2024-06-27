@@ -28,15 +28,18 @@ func TestContentEngTour(t *testing.T) {
 		if err != nil {
 			return err
 		}
+
 		if filepath.Ext(path) != ".go" {
 			return nil
 		}
+
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 			if err := testSnippet(filepath.ToSlash(path), t.TempDir()); err != nil {
 				t.Errorf("%v: %v", path, err)
 			}
 		})
+
 		return nil
 	})
 	if err != nil {
@@ -54,6 +57,7 @@ func testSnippet(path, scratch string) error {
 	if !strings.HasPrefix(build, "//go:build ") {
 		return errors.New("first line is not a go:build comment")
 	}
+
 	if !strings.Contains(build, "OMIT") {
 		return errors.New(`go:build comment does not contain "OMIT"`)
 	}
@@ -61,7 +65,9 @@ func testSnippet(path, scratch string) error {
 	if strings.Contains(build, "nobuild") {
 		return nil
 	}
+
 	bin := filepath.Join(scratch, filepath.Base(path)+".exe")
+
 	out, err := exec.Command("go", "build", "-o", bin, path).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("build error: %v\noutput:\n%s", err, out)
@@ -71,9 +77,11 @@ func testSnippet(path, scratch string) error {
 	if strings.Contains(build, "norun") {
 		return nil
 	}
+
 	out, err = exec.Command(bin).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%v\nOutput:\n%s", err, out)
 	}
+
 	return nil
 }
