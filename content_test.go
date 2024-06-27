@@ -2,48 +2,38 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package content
+package website
 
 import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	// Keep github.com/ardanlabs/gotour/external/tour/wc in our go.mod require list for use during test.
-	_ "github.com/ardanlabs/gotour/external/tour/wc"
 )
 
 // Test that all the .go files inside the content file build
 // and execute (without checking for output correctness).
-// Files that contain the string "// +build no-build" are not built.
-// Files that contain the string "// +build no-run" are not executed.
-func TestContent(t *testing.T) {
+// Files that contain the build constraint "nobuild" are not built.
+// Files that contain the build constraint "norun" are not executed.
+func TestContentEngTour(t *testing.T) {
 	if _, err := exec.LookPath("go"); err != nil {
 		t.Skipf("skipping because 'go' executable not available: %v", err)
 	}
 
-	scratch, err := ioutil.TempDir("", "tour-content-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(scratch)
-
-	err = filepath.Walk(".", func(path string, fi os.FileInfo, err error) error {
-		if filepath.Ext(path) != ".go" {
-			return nil
+	err := filepath.Walk(filepath.Join("_content", "tour", "eng"), func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-		if filepath.Base(path) == "content_test.go" {
+		if filepath.Ext(path) != ".go" {
 			return nil
 		}
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
-			if err := testSnippet(t, filepath.ToSlash(path), scratch); err != nil {
+			if err := testSnippet(filepath.ToSlash(path), t.TempDir()); err != nil {
 				t.Errorf("%v: %v", path, err)
 			}
 		})
@@ -54,21 +44,21 @@ func TestContent(t *testing.T) {
 	}
 }
 
-func testSnippet(t *testing.T, path, scratch string) error {
-	b, err := ioutil.ReadFile(path)
+func testSnippet(path, scratch string) error {
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 
 	build := string(bytes.SplitN(b, []byte{'\n'}, 2)[0])
-	if !strings.HasPrefix(build, "// +build ") {
-		return errors.New("first line is not a +build comment")
+	if !strings.HasPrefix(build, "//go:build ") {
+		return errors.New("first line is not a go:build comment")
 	}
 	if !strings.Contains(build, "OMIT") {
-		return errors.New(`+build comment does not contain "OMIT"`)
+		return errors.New(`go:build comment does not contain "OMIT"`)
 	}
 
-	if strings.Contains(build, "no-build") {
+	if strings.Contains(build, "nobuild") {
 		return nil
 	}
 	bin := filepath.Join(scratch, filepath.Base(path)+".exe")
@@ -78,7 +68,7 @@ func testSnippet(t *testing.T, path, scratch string) error {
 	}
 	defer os.Remove(bin)
 
-	if strings.Contains(build, "no-run") {
+	if strings.Contains(build, "norun") {
 		return nil
 	}
 	out, err = exec.Command(bin).CombinedOutput()
