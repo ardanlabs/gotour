@@ -45,7 +45,7 @@ _William Kennedy is a managing partner at Ardan Labs in Miami, Florida. Ardan La
 
 _**Video Training**_  
 [Ultimate Go Video](https://education.ardanlabs.com)  
-[Ardan Labs YouTube Channel](http://youtube.ardanlabs.com/)
+[Ardan Labs YouTube Channel](https://youtube.ardanlabs.com/)
 
 _**Blog**_  
 [Going Go](https://www.ardanlabs.com/blog/)    
