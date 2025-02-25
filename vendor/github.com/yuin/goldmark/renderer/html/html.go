@@ -1,12 +1,9 @@
-// Package html implements renderer that outputs HTMLs.
 package html
 
 import (
 	"bytes"
 	"fmt"
 	"strconv"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/renderer"
@@ -15,21 +12,19 @@ import (
 
 // A Config struct has configurations for the HTML based renderers.
 type Config struct {
-	Writer              Writer
-	HardWraps           bool
-	EastAsianLineBreaks EastAsianLineBreaks
-	XHTML               bool
-	Unsafe              bool
+	Writer    Writer
+	HardWraps bool
+	XHTML     bool
+	Unsafe    bool
 }
 
 // NewConfig returns a new Config with defaults.
 func NewConfig() Config {
 	return Config{
-		Writer:              DefaultWriter,
-		HardWraps:           false,
-		EastAsianLineBreaks: EastAsianLineBreaksNone,
-		XHTML:               false,
-		Unsafe:              false,
+		Writer:    DefaultWriter,
+		HardWraps: false,
+		XHTML:     false,
+		Unsafe:    false,
 	}
 }
 
@@ -38,8 +33,6 @@ func (c *Config) SetOption(name renderer.OptionName, value interface{}) {
 	switch name {
 	case optHardWraps:
 		c.HardWraps = value.(bool)
-	case optEastAsianLineBreaks:
-		c.EastAsianLineBreaks = value.(EastAsianLineBreaks)
 	case optXHTML:
 		c.XHTML = value.(bool)
 	case optUnsafe:
@@ -99,99 +92,6 @@ func WithHardWraps() interface {
 	Option
 } {
 	return &withHardWraps{}
-}
-
-// EastAsianLineBreaks is an option name used in WithEastAsianLineBreaks.
-const optEastAsianLineBreaks renderer.OptionName = "EastAsianLineBreaks"
-
-// A EastAsianLineBreaks is a style of east asian line breaks.
-type EastAsianLineBreaks int
-
-const (
-	//EastAsianLineBreaksNone renders line breaks as it is.
-	EastAsianLineBreaksNone EastAsianLineBreaks = iota
-	// EastAsianLineBreaksSimple follows east_asian_line_breaks in Pandoc.
-	EastAsianLineBreaksSimple
-	// EastAsianLineBreaksCSS3Draft follows CSS text level3 "Segment Break Transformation Rules" with some enhancements.
-	EastAsianLineBreaksCSS3Draft
-)
-
-func (b EastAsianLineBreaks) softLineBreak(thisLastRune rune, siblingFirstRune rune) bool {
-	switch b {
-	case EastAsianLineBreaksNone:
-		return false
-	case EastAsianLineBreaksSimple:
-		return !(util.IsEastAsianWideRune(thisLastRune) && util.IsEastAsianWideRune(siblingFirstRune))
-	case EastAsianLineBreaksCSS3Draft:
-		return eastAsianLineBreaksCSS3DraftSoftLineBreak(thisLastRune, siblingFirstRune)
-	}
-	return false
-}
-
-func eastAsianLineBreaksCSS3DraftSoftLineBreak(thisLastRune rune, siblingFirstRune rune) bool {
-	// Implements CSS text level3 Segment Break Transformation Rules with some enhancements.
-	// References:
-	//   - https://www.w3.org/TR/2020/WD-css-text-3-20200429/#line-break-transform
-	//   - https://github.com/w3c/csswg-drafts/issues/5086
-
-	// Rule1:
-	//   If the character immediately before or immediately after the segment break is
-	//   the zero-width space character (U+200B), then the break is removed, leaving behind the zero-width space.
-	if thisLastRune == '\u200B' || siblingFirstRune == '\u200B' {
-		return false
-	}
-
-	// Rule2:
-	//   Otherwise, if the East Asian Width property of both the character before and after the segment break is
-	//   F, W, or H (not A), and neither side is Hangul, then the segment break is removed.
-	thisLastRuneEastAsianWidth := util.EastAsianWidth(thisLastRune)
-	siblingFirstRuneEastAsianWidth := util.EastAsianWidth(siblingFirstRune)
-	if (thisLastRuneEastAsianWidth == "F" ||
-		thisLastRuneEastAsianWidth == "W" ||
-		thisLastRuneEastAsianWidth == "H") &&
-		(siblingFirstRuneEastAsianWidth == "F" ||
-			siblingFirstRuneEastAsianWidth == "W" ||
-			siblingFirstRuneEastAsianWidth == "H") {
-		return unicode.Is(unicode.Hangul, thisLastRune) || unicode.Is(unicode.Hangul, siblingFirstRune)
-	}
-
-	// Rule3:
-	//   Otherwise, if either the character before or after the segment break belongs to
-	//   the space-discarding character set and it is a Unicode Punctuation (P*) or U+3000,
-	//   then the segment break is removed.
-	if util.IsSpaceDiscardingUnicodeRune(thisLastRune) ||
-		unicode.IsPunct(thisLastRune) ||
-		thisLastRune == '\u3000' ||
-		util.IsSpaceDiscardingUnicodeRune(siblingFirstRune) ||
-		unicode.IsPunct(siblingFirstRune) ||
-		siblingFirstRune == '\u3000' {
-		return false
-	}
-
-	// Rule4:
-	//   Otherwise, the segment break is converted to a space (U+0020).
-	return true
-}
-
-type withEastAsianLineBreaks struct {
-	eastAsianLineBreaksStyle EastAsianLineBreaks
-}
-
-func (o *withEastAsianLineBreaks) SetConfig(c *renderer.Config) {
-	c.Options[optEastAsianLineBreaks] = o.eastAsianLineBreaksStyle
-}
-
-func (o *withEastAsianLineBreaks) SetHTMLOption(c *Config) {
-	c.EastAsianLineBreaks = o.eastAsianLineBreaksStyle
-}
-
-// WithEastAsianLineBreaks is a functional option that indicates whether softline breaks
-// between east asian wide characters should be ignored.
-func WithEastAsianLineBreaks(e EastAsianLineBreaks) interface {
-	renderer.Option
-	Option
-} {
-	return &withEastAsianLineBreaks{e}
 }
 
 // XHTML is an option name used in WithXHTML.
@@ -316,7 +216,6 @@ var GlobalAttributeFilter = util.NewBytesFilter(
 	[]byte("itemtype"),
 	[]byte("lang"),
 	[]byte("part"),
-	[]byte("role"),
 	[]byte("slot"),
 	[]byte("spellcheck"),
 	[]byte("style"),
@@ -325,17 +224,15 @@ var GlobalAttributeFilter = util.NewBytesFilter(
 	[]byte("translate"),
 )
 
-func (r *Renderer) renderDocument(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderDocument(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	// nothing to do
 	return ast.WalkContinue, nil
 }
 
-// HeadingAttributeFilter defines attribute names which heading elements can have.
+// HeadingAttributeFilter defines attribute names which heading elements can have
 var HeadingAttributeFilter = GlobalAttributeFilter
 
-func (r *Renderer) renderHeading(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
 	if entering {
 		_, _ = w.WriteString("<h")
@@ -352,13 +249,12 @@ func (r *Renderer) renderHeading(
 	return ast.WalkContinue, nil
 }
 
-// BlockquoteAttributeFilter defines attribute names which blockquote elements can have.
+// BlockquoteAttributeFilter defines attribute names which blockquote elements can have
 var BlockquoteAttributeFilter = GlobalAttributeFilter.Extend(
 	[]byte("cite"),
 )
 
-func (r *Renderer) renderBlockquote(
-	w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderBlockquote(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		if n.Attributes() != nil {
 			_, _ = w.WriteString("<blockquote")
@@ -383,8 +279,7 @@ func (r *Renderer) renderCodeBlock(w util.BufWriter, source []byte, n ast.Node, 
 	return ast.WalkContinue, nil
 }
 
-func (r *Renderer) renderFencedCodeBlock(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderFencedCodeBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.FencedCodeBlock)
 	if entering {
 		_, _ = w.WriteString("<pre><code")
@@ -402,8 +297,7 @@ func (r *Renderer) renderFencedCodeBlock(
 	return ast.WalkContinue, nil
 }
 
-func (r *Renderer) renderHTMLBlock(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderHTMLBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.HTMLBlock)
 	if entering {
 		if r.Unsafe {
@@ -445,7 +339,7 @@ func (r *Renderer) renderList(w util.BufWriter, source []byte, node ast.Node, en
 		_ = w.WriteByte('<')
 		_, _ = w.WriteString(tag)
 		if n.IsOrdered() && n.Start != 1 {
-			_, _ = fmt.Fprintf(w, " start=\"%d\"", n.Start)
+			fmt.Fprintf(w, " start=\"%d\"", n.Start)
 		}
 		if n.Attributes() != nil {
 			RenderAttributes(w, n, ListAttributeFilter)
@@ -505,7 +399,7 @@ func (r *Renderer) renderParagraph(w util.BufWriter, source []byte, n ast.Node, 
 
 func (r *Renderer) renderTextBlock(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
-		if n.NextSibling() != nil && n.FirstChild() != nil {
+		if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
 			_ = w.WriteByte('\n')
 		}
 	}
@@ -521,8 +415,7 @@ var ThematicAttributeFilter = GlobalAttributeFilter.Extend(
 	[]byte("width"),   // [Deprecated]
 )
 
-func (r *Renderer) renderThematicBreak(
-	w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderThematicBreak(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -551,8 +444,7 @@ var LinkAttributeFilter = GlobalAttributeFilter.Extend(
 	[]byte("target"),
 )
 
-func (r *Renderer) renderAutoLink(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderAutoLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.AutoLink)
 	if !entering {
 		return ast.WalkContinue, nil
@@ -607,8 +499,7 @@ func (r *Renderer) renderCodeSpan(w util.BufWriter, source []byte, n ast.Node, e
 // EmphasisAttributeFilter defines attribute names which emphasis elements can have.
 var EmphasisAttributeFilter = GlobalAttributeFilter
 
-func (r *Renderer) renderEmphasis(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderEmphasis(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Emphasis)
 	tag := "em"
 	if n.Level == 2 {
@@ -680,7 +571,7 @@ func (r *Renderer) renderImage(w util.BufWriter, source []byte, node ast.Node, e
 		_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
 	}
 	_, _ = w.WriteString(`" alt="`)
-	r.renderAttribute(w, source, n)
+	_, _ = w.Write(util.EscapeHTML(n.Text(source)))
 	_ = w.WriteByte('"')
 	if n.Title != nil {
 		_, _ = w.WriteString(` title="`)
@@ -698,8 +589,7 @@ func (r *Renderer) renderImage(w util.BufWriter, source []byte, node ast.Node, e
 	return ast.WalkSkipChildren, nil
 }
 
-func (r *Renderer) renderRawHTML(
-	w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderRawHTML(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkSkipChildren, nil
 	}
@@ -725,8 +615,7 @@ func (r *Renderer) renderText(w util.BufWriter, source []byte, node ast.Node, en
 	if n.IsRaw() {
 		r.Writer.RawWrite(w, segment.Value(source))
 	} else {
-		value := segment.Value(source)
-		r.Writer.Write(w, value)
+		r.Writer.Write(w, segment.Value(source))
 		if n.HardLineBreak() || (n.SoftLineBreak() && r.HardWraps) {
 			if r.XHTML {
 				_, _ = w.WriteString("<br />\n")
@@ -734,20 +623,7 @@ func (r *Renderer) renderText(w util.BufWriter, source []byte, node ast.Node, en
 				_, _ = w.WriteString("<br>\n")
 			}
 		} else if n.SoftLineBreak() {
-			if r.EastAsianLineBreaks != EastAsianLineBreaksNone && len(value) != 0 {
-				sibling := node.NextSibling()
-				if sibling != nil && sibling.Kind() == ast.KindText {
-					if siblingText := sibling.(*ast.Text).Text(source); len(siblingText) != 0 {
-						thisLastRune := util.ToRune(value, len(value)-1)
-						siblingFirstRune, _ := utf8.DecodeRune(siblingText)
-						if r.EastAsianLineBreaks.softLineBreak(thisLastRune, siblingFirstRune) {
-							_ = w.WriteByte('\n')
-						}
-					}
-				}
-			} else {
-				_ = w.WriteByte('\n')
-			}
+			_ = w.WriteByte('\n')
 		}
 	}
 	return ast.WalkContinue, nil
@@ -770,23 +646,6 @@ func (r *Renderer) renderString(w util.BufWriter, source []byte, node ast.Node, 
 	return ast.WalkContinue, nil
 }
 
-func (r *Renderer) renderAttribute(w util.BufWriter, source []byte, n ast.Node) {
-	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
-		if s, ok := c.(*ast.String); ok {
-			_, _ = r.renderString(w, source, s, true)
-		} else if t, ok := c.(*ast.String); ok {
-			_, _ = r.renderText(w, source, t, true)
-		} else if !c.HasChildren() {
-			r.Writer.Write(w, c.Text(source))
-			if t, ok := c.(*ast.Text); ok && t.SoftLineBreak() {
-				_ = w.WriteByte('\n')
-			}
-		} else {
-			r.renderAttribute(w, source, c)
-		}
-	}
-}
-
 var dataPrefix = []byte("data-")
 
 // RenderAttributes renders given node's attributes.
@@ -803,14 +662,7 @@ func RenderAttributes(w util.BufWriter, node ast.Node, filter util.BytesFilter) 
 		_, _ = w.Write(attr.Name)
 		_, _ = w.WriteString(`="`)
 		// TODO: convert numeric values to strings
-		var value []byte
-		switch typed := attr.Value.(type) {
-		case []byte:
-			value = typed
-		case string:
-			value = util.StringToReadOnlyBytes(typed)
-		}
-		_, _ = w.Write(util.EscapeHTML(value))
+		_, _ = w.Write(util.EscapeHTML(attr.Value.([]byte)))
 		_ = w.WriteByte('"')
 	}
 }
@@ -831,33 +683,7 @@ type Writer interface {
 
 var replacementCharacter = []byte("\ufffd")
 
-// A WriterConfig struct has configurations for the HTML based writers.
-type WriterConfig struct {
-	// EscapedSpace is an option that indicates that a '\' escaped half-space(0x20) should not be rendered.
-	EscapedSpace bool
-}
-
-// A WriterOption interface sets options for HTML based writers.
-type WriterOption func(*WriterConfig)
-
-// WithEscapedSpace is a WriterOption indicates that a '\' escaped half-space(0x20) should not be rendered.
-func WithEscapedSpace() WriterOption {
-	return func(c *WriterConfig) {
-		c.EscapedSpace = true
-	}
-}
-
 type defaultWriter struct {
-	WriterConfig
-}
-
-// NewWriter returns a new Writer.
-func NewWriter(opts ...WriterOption) Writer {
-	w := &defaultWriter{}
-	for _, opt := range opts {
-		opt(&w.WriterConfig)
-	}
-	return w
 }
 
 func escapeRune(writer util.BufWriter, r rune) {
@@ -917,12 +743,6 @@ func (d *defaultWriter) Write(writer util.BufWriter, source []byte) {
 			if util.IsPunct(c) {
 				d.RawWrite(writer, source[n:i-1])
 				n = i
-				escaped = false
-				continue
-			}
-			if d.EscapedSpace && c == ' ' {
-				d.RawWrite(writer, source[n:i-1])
-				n = i + 1
 				escaped = false
 				continue
 			}
@@ -991,36 +811,32 @@ func (d *defaultWriter) Write(writer util.BufWriter, source []byte) {
 	d.RawWrite(writer, source[n:])
 }
 
-// DefaultWriter is a default instance of the Writer.
-var DefaultWriter = NewWriter()
+// DefaultWriter is a default implementation of the Writer.
+var DefaultWriter = &defaultWriter{}
 
 var bDataImage = []byte("data:image/")
 var bPng = []byte("png;")
 var bGif = []byte("gif;")
 var bJpeg = []byte("jpeg;")
 var bWebp = []byte("webp;")
-var bSvg = []byte("svg+xml;")
+var bSvg = []byte("svg;")
 var bJs = []byte("javascript:")
 var bVb = []byte("vbscript:")
 var bFile = []byte("file:")
 var bData = []byte("data:")
 
-func hasPrefix(s, prefix []byte) bool {
-	return len(s) >= len(prefix) && bytes.Equal(bytes.ToLower(s[0:len(prefix)]), bytes.ToLower(prefix))
-}
-
 // IsDangerousURL returns true if the given url seems a potentially dangerous url,
 // otherwise false.
 func IsDangerousURL(url []byte) bool {
-	if hasPrefix(url, bDataImage) && len(url) >= 11 {
+	if bytes.HasPrefix(url, bDataImage) && len(url) >= 11 {
 		v := url[11:]
-		if hasPrefix(v, bPng) || hasPrefix(v, bGif) ||
-			hasPrefix(v, bJpeg) || hasPrefix(v, bWebp) ||
-			hasPrefix(v, bSvg) {
+		if bytes.HasPrefix(v, bPng) || bytes.HasPrefix(v, bGif) ||
+			bytes.HasPrefix(v, bJpeg) || bytes.HasPrefix(v, bWebp) ||
+			bytes.HasPrefix(v, bSvg) {
 			return false
 		}
 		return true
 	}
-	return hasPrefix(url, bJs) || hasPrefix(url, bVb) ||
-		hasPrefix(url, bFile) || hasPrefix(url, bData)
+	return bytes.HasPrefix(url, bJs) || bytes.HasPrefix(url, bVb) ||
+		bytes.HasPrefix(url, bFile) || bytes.HasPrefix(url, bData)
 }

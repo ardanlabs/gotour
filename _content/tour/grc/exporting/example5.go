@@ -52,4 +52,4 @@ type Manager struct {
   
 module "play.ground"
 
-go 1.22.0
+go 1.24.0

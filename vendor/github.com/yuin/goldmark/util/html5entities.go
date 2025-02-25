@@ -1,4 +1,3 @@
-//nolint:golint,lll,misspell
 package util
 
 // An HTML5Entity struct represents HTML5 entitites.
@@ -9,7 +8,7 @@ type HTML5Entity struct {
 }
 
 // LookUpHTML5EntityByName returns (an HTML5Entity, true) if an entity named
-// given name is found, otherwise (nil, false).
+// given name is found, otherwise (nil, false)
 func LookUpHTML5EntityByName(name string) (*HTML5Entity, bool) {
 	v, ok := html5entities[name]
 	return v, ok

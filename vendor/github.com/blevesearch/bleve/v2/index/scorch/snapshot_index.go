@@ -52,15 +52,6 @@ type asynchSegmentResult struct {
 
 var reflectStaticSizeIndexSnapshot int
 
-// DefaultFieldTFRCacheThreshold limits the number of TermFieldReaders(TFR) for
-// a field in an index snapshot. Without this limit, when recycling TFRs, it is
-// possible that a very large number of TFRs may be added to the recycle
-// cache, which could eventually lead to significant memory consumption.
-// This threshold can be overwritten by users at the library level by changing the
-// exported variable, or at the index level by setting the FieldTFRCacheThreshold
-// in the kvConfig.
-var DefaultFieldTFRCacheThreshold uint64 = 10
-
 func init() {
 	var is interface{} = IndexSnapshot{}
 	reflectStaticSizeIndexSnapshot = int(reflect.TypeOf(is).Size())
@@ -471,14 +462,42 @@ func (is *IndexSnapshot) Document(id string) (rv index.Document, err error) {
 	return rvd, nil
 }
 
+// In a multi-segment index, each document has:
+// 1. a local docnum - local to the segment
+// 2. a global docnum - unique identifier across the index
+// This function returns the segment index(the segment in which the docnum is present)
+// and local docnum of a document.
 func (is *IndexSnapshot) segmentIndexAndLocalDocNumFromGlobal(docNum uint64) (int, uint64) {
 	segmentIndex := sort.Search(len(is.offsets),
 		func(x int) bool {
 			return is.offsets[x] > docNum
 		}) - 1
 
-	localDocNum := docNum - is.offsets[segmentIndex]
+	localDocNum := is.localDocNumFromGlobal(segmentIndex, docNum)
 	return int(segmentIndex), localDocNum
+}
+
+// This function returns the local docnum, given the segment index and global docnum
+func (is *IndexSnapshot) localDocNumFromGlobal(segmentIndex int, docNum uint64) uint64 {
+	return docNum - is.offsets[segmentIndex]
+}
+
+// Function to return a mapping of the segment index to the live global	doc nums
+// in the segment of the specified index snapshot.
+func (is *IndexSnapshot) globalDocNums() map[int]*roaring.Bitmap {
+	if len(is.segment) == 0 {
+		return nil
+	}
+
+	segmentIndexGlobalDocNums := make(map[int]*roaring.Bitmap)
+
+	for i := range is.segment {
+		segmentIndexGlobalDocNums[i] = roaring.NewBitmap()
+		for _, localDocNum := range is.segment[i].DocNumbersLive().ToArray() {
+			segmentIndexGlobalDocNums[i].Add(localDocNum + uint32(is.offsets[i]))
+		}
+	}
+	return segmentIndexGlobalDocNums
 }
 
 func (is *IndexSnapshot) ExternalID(id index.IndexInternalID) (string, error) {
@@ -612,10 +631,26 @@ func (is *IndexSnapshot) allocTermFieldReaderDicts(field string) (tfr *IndexSnap
 	}
 }
 
-func (is *IndexSnapshot) getFieldTFRCacheThreshold() uint64 {
+// DefaultFieldTFRCacheThreshold limits the number of TermFieldReaders(TFR) for
+// a field in an index snapshot. Without this limit, when recycling TFRs, it is
+// possible that a very large number of TFRs may be added to the recycle
+// cache, which could eventually lead to significant memory consumption.
+// This threshold can be overwritten by users at the library level by changing the
+// exported variable, or at the index level by setting the "fieldTFRCacheThreshold"
+// in the kvConfig.
+var DefaultFieldTFRCacheThreshold int = 0 // disabled because it causes MB-64604
+
+func (is *IndexSnapshot) getFieldTFRCacheThreshold() int {
 	if is.parent.config != nil {
-		if _, ok := is.parent.config["FieldTFRCacheThreshold"]; ok {
-			return is.parent.config["FieldTFRCacheThreshold"].(uint64)
+		if val, exists := is.parent.config["fieldTFRCacheThreshold"]; exists {
+			if x, ok := val.(float64); ok {
+				// JSON unmarshal-ed into a map[string]interface{} will default
+				// to float64 for numbers, so we need to check for float64 first.
+				return int(x)
+			} else if x, ok := val.(int); ok {
+				// If library users provided an int in the config, we'll honor it.
+				return x
+			}
 		}
 	}
 	return DefaultFieldTFRCacheThreshold
@@ -642,7 +677,7 @@ func (is *IndexSnapshot) recycleTermFieldReader(tfr *IndexSnapshotTermFieldReade
 	if is.fieldTFRs == nil {
 		is.fieldTFRs = map[string][]*IndexSnapshotTermFieldReader{}
 	}
-	if uint64(len(is.fieldTFRs[tfr.field])) < is.getFieldTFRCacheThreshold() {
+	if len(is.fieldTFRs[tfr.field]) < is.getFieldTFRCacheThreshold() {
 		tfr.bytesRead = 0
 		is.fieldTFRs[tfr.field] = append(is.fieldTFRs[tfr.field], tfr)
 	}

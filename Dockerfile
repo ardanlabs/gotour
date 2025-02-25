@@ -1,4 +1,4 @@
-FROM golang:1.22.0-alpine 
+FROM golang:1.24.0-alpine 
 
 RUN apk update && apk upgrade && \
 	apk add bash ca-certificates
