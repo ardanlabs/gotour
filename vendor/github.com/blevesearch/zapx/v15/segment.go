@@ -24,7 +24,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	mmap "github.com/blevesearch/mmap-go"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 	"github.com/blevesearch/vellum"

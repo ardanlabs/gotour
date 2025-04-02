@@ -12,7 +12,7 @@ import (
 var attrNameID = []byte("id")
 var attrNameClass = []byte("class")
 
-// An Attribute is an attribute of the markdown elements.
+// An Attribute is an attribute of the markdown elements
 type Attribute struct {
 	Name  []byte
 	Value interface{}
@@ -93,8 +93,7 @@ func parseAttribute(reader text.Reader) (Attribute, bool) {
 		// CommonMark is basically defined for XHTML(even though it is legacy).
 		// So we restrict id characters.
 		for ; i < len(line) && !util.IsSpace(line[i]) &&
-			(!util.IsPunct(line[i]) || line[i] == '_' ||
-				line[i] == '-' || line[i] == ':' || line[i] == '.'); i++ {
+			(!util.IsPunct(line[i]) || line[i] == '_' || line[i] == '-' || line[i] == ':' || line[i] == '.'); i++ {
 		}
 		name := attrNameClass
 		if c == '#' {
@@ -146,7 +145,7 @@ func parseAttributeValue(reader text.Reader) (interface{}, bool) {
 	reader.SkipSpaces()
 	c := reader.Peek()
 	var value interface{}
-	var ok bool
+	ok := false
 	switch c {
 	case text.EOF:
 		return Attribute{}, false
@@ -245,7 +244,7 @@ func scanAttributeDecimal(reader text.Reader, w io.ByteWriter) {
 	for {
 		c := reader.Peek()
 		if util.IsNumeric(c) {
-			_ = w.WriteByte(c)
+			w.WriteByte(c)
 		} else {
 			return
 		}
@@ -287,7 +286,7 @@ func parseAttributeNumber(reader text.Reader) (float64, bool) {
 		}
 		scanAttributeDecimal(reader, &buf)
 	}
-	f, err := strconv.ParseFloat(buf.String(), 64)
+	f, err := strconv.ParseFloat(buf.String(), 10)
 	if err != nil {
 		return 0, false
 	}

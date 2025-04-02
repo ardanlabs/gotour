@@ -17,7 +17,7 @@ package zap
 import (
 	"sync"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -58,7 +58,6 @@ type resetable interface {
 const (
 	SectionInvertedTextIndex = iota
 	SectionFaissVectorIndex
-	SectionSynonymIndex
 )
 
 // -----------------------------------------------------------------------------

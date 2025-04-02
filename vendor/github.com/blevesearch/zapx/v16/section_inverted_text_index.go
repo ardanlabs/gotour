@@ -21,7 +21,7 @@ import (
 	"sort"
 	"sync/atomic"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
 	seg "github.com/blevesearch/scorch_segment_api/v2"
 	"github.com/blevesearch/vellum"
@@ -34,35 +34,16 @@ func init() {
 type invertedTextIndexSection struct {
 }
 
-// This function checks whether the inverted text index section should avoid processing
-// a particular field, preventing unnecessary work if another section will handle it.
-//
-// NOTE: The exclusion check is applicable only to the InvertedTextIndexSection
-// because it serves as a catch-all section. This section processes every field
-// unless explicitly excluded, similar to a "default" case in a switch statement.
-// Other sections, such as VectorSection and SynonymSection, rely on inclusion
-// checks to process only specific field types (e.g., index.VectorField or
-// index.SynonymField). Any new section added in the future must define its
-// special field type and inclusion logic explicitly.
-var isFieldExcludedFromInvertedTextIndexSection = func(field index.Field) bool {
-	for _, excludeField := range invertedTextIndexSectionExclusionChecks {
-		if excludeField(field) {
-			// atleast one section has agreed to exclude this field
-			// from inverted text index section processing and has
-			// agreed to process it independently
-			return true
-		}
-	}
-	// no section has excluded this field from inverted index processing
-	// so it should be processed by the inverted index section
-	return false
-}
-
-// List of checks to determine if a field is excluded from the inverted text index section
-var invertedTextIndexSectionExclusionChecks = make([]func(field index.Field) bool, 0)
+// this function is something that tells the inverted index section whether to
+// process a particular field or not - since it might be processed by another
+// section this function helps in avoiding unnecessary work.
+// (only used by faiss vector section currently, will need a separate API for every
+// section we introduce in the future or a better way forward - TODO)
+var isFieldNotApplicableToInvertedTextSection func(field index.Field) bool
 
 func (i *invertedTextIndexSection) Process(opaque map[int]resetable, docNum uint32, field index.Field, fieldID uint16) {
-	if !isFieldExcludedFromInvertedTextIndexSection(field) {
+	if isFieldNotApplicableToInvertedTextSection == nil ||
+		!isFieldNotApplicableToInvertedTextSection(field) {
 		invIndexOpaque := i.getInvertedIndexOpaque(opaque)
 		invIndexOpaque.process(field, fieldID, docNum)
 	}
@@ -611,11 +592,6 @@ func (io *invertedIndexOpaque) writeDicts(w *CountHashWriter) (dictOffsets []uin
 		fdvEncoder := newChunkedContentCoder(chunkSize, uint64(len(io.results)-1), w, false)
 		if io.IncludeDocValues[fieldID] {
 			for docNum, docTerms := range docTermMap {
-				if fieldTermMap, ok := io.extraDocValues[docNum]; ok {
-					if sTerm, ok := fieldTermMap[uint16(fieldID)]; ok {
-						docTerms = append(append(docTerms, sTerm...), termSeparator)
-					}
-				}
 				if len(docTerms) > 0 {
 					err = fdvEncoder.Add(uint64(docNum), docTerms)
 					if err != nil {
@@ -760,7 +736,7 @@ func (i *invertedIndexOpaque) realloc() {
 		i.FieldsMap[fieldName] = uint16(fieldID + 1)
 	}
 
-	visitField := func(field index.Field, docNum int) {
+	visitField := func(field index.Field) {
 		fieldID := uint16(i.getOrDefineField(field.Name()))
 
 		dict := i.Dicts[fieldID]
@@ -794,13 +770,6 @@ func (i *invertedIndexOpaque) realloc() {
 		if field.Options().IncludeDocValues() {
 			i.IncludeDocValues[fieldID] = true
 		}
-
-		if f, ok := field.(index.GeoShapeField); ok {
-			if _, exists := i.extraDocValues[docNum]; !exists {
-				i.extraDocValues[docNum] = make(map[uint16][]byte)
-			}
-			i.extraDocValues[docNum][fieldID] = f.EncodedShape()
-		}
 	}
 
 	if cap(i.IncludeDocValues) >= len(i.FieldsInv) {
@@ -809,20 +778,14 @@ func (i *invertedIndexOpaque) realloc() {
 		i.IncludeDocValues = make([]bool, len(i.FieldsInv))
 	}
 
-	if i.extraDocValues == nil {
-		i.extraDocValues = map[int]map[uint16][]byte{}
-	}
-
-	for docNum, result := range i.results {
+	for _, result := range i.results {
 		// walk each composite field
 		result.VisitComposite(func(field index.CompositeField) {
-			visitField(field, docNum)
+			visitField(field)
 		})
 
 		// walk each field
-		result.VisitFields(func(field index.Field) {
-			visitField(field, docNum)
-		})
+		result.VisitFields(visitField)
 	}
 
 	numPostingsLists := pidNext
@@ -933,8 +896,6 @@ func (i *invertedTextIndexSection) InitOpaque(args map[string]interface{}) reset
 }
 
 type invertedIndexOpaque struct {
-	bytesWritten uint64 // atomic access to this variable, moved to top to correct alignment issues on ARM, 386 and 32-bit MIPS.
-
 	results []index.Document
 
 	chunkMode uint32
@@ -976,11 +937,6 @@ type invertedIndexOpaque struct {
 	numTermsPerPostingsList []int // key is postings list id
 	numLocsPerPostingsList  []int // key is postings list id
 
-	// store terms that are unnecessary for the term dictionaries but needed in doc values
-	// eg - encoded geoshapes
-	// docNum -> fieldID -> term
-	extraDocValues map[int]map[uint16][]byte
-
 	builder    *vellum.Builder
 	builderBuf bytes.Buffer
 
@@ -992,8 +948,9 @@ type invertedIndexOpaque struct {
 
 	fieldAddrs map[int]int
 
-	fieldsSame bool
-	numDocs    uint64
+	bytesWritten uint64
+	fieldsSame   bool
+	numDocs      uint64
 }
 
 func (io *invertedIndexOpaque) Reset() (err error) {
@@ -1040,7 +997,6 @@ func (io *invertedIndexOpaque) Reset() (err error) {
 	io.reusableFieldTFs = io.reusableFieldTFs[:0]
 
 	io.tmp0 = io.tmp0[:0]
-	io.extraDocValues = nil
 	atomic.StoreUint64(&io.bytesWritten, 0)
 	io.fieldsSame = false
 	io.numDocs = 0

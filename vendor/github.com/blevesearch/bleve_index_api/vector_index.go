@@ -47,21 +47,12 @@ type VectorReader interface {
 	Size() int
 }
 
-// VectorIndexReader is an index reader that can retrieve similar vectors from a vector-based index.
 type VectorIndexReader interface {
-	// NewEligibleDocumentSelector returns an instance of an eligible document selector.
-	// This selector filters documents for KNN search based on a pre-filter query.
-	NewEligibleDocumentSelector() EligibleDocumentSelector
-
-	// VectorReader creates a new vector reader for performing KNN search.
-	// - vector: the query vector
-	// - field: the field to search in
-	// - k: the number of similar vectors to return
-	// - searchParams: additional search parameters
-	// - selector: an eligible document selector to filter documents before KNN search
 	VectorReader(ctx context.Context, vector []float32, field string, k int64,
-		searchParams json.RawMessage, selector EligibleDocumentSelector) (
-		VectorReader, error)
+		searchParams json.RawMessage) (VectorReader, error)
+
+	VectorReaderWithFilter(ctx context.Context, vector []float32, field string, k int64,
+		searchParams json.RawMessage, filterIDs []IndexInternalID) (VectorReader, error)
 }
 
 type VectorDoc struct {

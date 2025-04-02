@@ -23,7 +23,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	seg "github.com/blevesearch/scorch_segment_api/v2"
 	"github.com/golang/snappy"
 )

@@ -1,7 +1,6 @@
 package text
 
 import (
-	"bytes"
 	"io"
 	"regexp"
 	"unicode/utf8"
@@ -76,7 +75,7 @@ type Reader interface {
 	FindClosure(opener, closer byte, options FindClosureOptions) (*Segments, bool)
 }
 
-// FindClosureOptions is options for Reader.FindClosure.
+// FindClosureOptions is options for Reader.FindClosure
 type FindClosureOptions struct {
 	// CodeSpan is a flag for the FindClosure. If this is set to true,
 	// FindClosure ignores closers in codespans.
@@ -154,7 +153,7 @@ func (r *reader) PeekLine() ([]byte, Segment) {
 	return nil, r.pos
 }
 
-// io.RuneReader interface.
+// io.RuneReader interface
 func (r *reader) ReadRune() (rune, int, error) {
 	return readRuneReader(r)
 }
@@ -354,7 +353,7 @@ func (r *blockReader) Value(seg Segment) []byte {
 	return ret
 }
 
-// io.RuneReader interface.
+// io.RuneReader interface
 func (r *blockReader) ReadRune() (rune, int, error) {
 	return readRuneReader(r)
 }
@@ -538,30 +537,24 @@ func matchReader(r Reader, reg *regexp.Regexp) bool {
 }
 
 func findSubMatchReader(r Reader, reg *regexp.Regexp) [][]byte {
-	oldLine, oldSeg := r.Position()
+	oldline, oldseg := r.Position()
 	match := reg.FindReaderSubmatchIndex(r)
-	r.SetPosition(oldLine, oldSeg)
+	r.SetPosition(oldline, oldseg)
 	if match == nil {
 		return nil
 	}
-	var bb bytes.Buffer
-	bb.Grow(match[1] - match[0])
+	runes := make([]rune, 0, match[1]-match[0])
 	for i := 0; i < match[1]; {
 		r, size, _ := readRuneReader(r)
 		i += size
-		bb.WriteRune(r)
+		runes = append(runes, r)
 	}
-	bs := bb.Bytes()
-	var result [][]byte
+	result := [][]byte{}
 	for i := 0; i < len(match); i += 2 {
-		if match[i] < 0 {
-			result = append(result, []byte{})
-			continue
-		}
-		result = append(result, bs[match[i]:match[i+1]])
+		result = append(result, []byte(string(runes[match[i]:match[i+1]])))
 	}
 
-	r.SetPosition(oldLine, oldSeg)
+	r.SetPosition(oldline, oldseg)
 	r.Advance(match[1] - match[0])
 	return result
 }

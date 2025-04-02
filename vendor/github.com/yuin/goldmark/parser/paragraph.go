@@ -3,7 +3,6 @@ package parser
 import (
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
 )
 
 type paragraphParser struct {
@@ -34,8 +33,9 @@ func (b *paragraphParser) Open(parent ast.Node, reader text.Reader, pc Context) 
 }
 
 func (b *paragraphParser) Continue(node ast.Node, reader text.Reader, pc Context) State {
-	line, segment := reader.PeekLine()
-	if util.IsBlank(line) {
+	_, segment := reader.PeekLine()
+	segment = segment.TrimLeftSpace(reader.Source())
+	if segment.IsEmpty() {
 		return Close
 	}
 	node.Lines().Append(segment)
@@ -44,14 +44,13 @@ func (b *paragraphParser) Continue(node ast.Node, reader text.Reader, pc Context
 }
 
 func (b *paragraphParser) Close(node ast.Node, reader text.Reader, pc Context) {
+	parent := node.Parent()
+	if parent == nil {
+		// paragraph has been transformed
+		return
+	}
 	lines := node.Lines()
 	if lines.Len() != 0 {
-		// trim leading spaces
-		for i := 0; i < lines.Len(); i++ {
-			l := lines.At(i)
-			lines.Set(i, l.TrimLeftSpace(reader.Source()))
-		}
-
 		// trim trailing spaces
 		length := lines.Len()
 		lastLine := node.Lines().At(length - 1)

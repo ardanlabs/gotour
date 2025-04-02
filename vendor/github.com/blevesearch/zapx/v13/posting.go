@@ -20,7 +20,7 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
 

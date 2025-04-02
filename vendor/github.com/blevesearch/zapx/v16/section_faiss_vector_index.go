@@ -25,7 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
 	faiss "github.com/blevesearch/go-faiss"
 	seg "github.com/blevesearch/scorch_segment_api/v2"
@@ -36,10 +36,10 @@ const defaultFaissOMPThreads = 1
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	registerSegmentSection(SectionFaissVectorIndex, &faissVectorIndexSection{})
-	invertedTextIndexSectionExclusionChecks = append(invertedTextIndexSectionExclusionChecks, func(field index.Field) bool {
+	isFieldNotApplicableToInvertedTextSection = func(field index.Field) bool {
 		_, ok := field.(index.VectorField)
 		return ok
-	})
+	}
 	faiss.SetOMPThreads(defaultFaissOMPThreads)
 }
 
@@ -146,13 +146,17 @@ func (v *faissVectorIndexSection) Merge(opaque map[int]resetable, segments []*Se
 				// remap the docID from the old segment to the new document nos.
 				// provided. furthermore, also drop the now-invalid doc nums
 				// of that segment
+				var vecIDNotDeleted bool // indicates if the vector ID was not deleted.
+				var newDocID uint64      // new docID in the new segment
 				if newDocNumsIn[segI][uint32(docID)] != docDropped {
-					newDocID := newDocNumsIn[segI][uint32(docID)]
-
-					// if the remapped doc ID is valid, track it
-					// as part of vecs to be reconstructed (for larger indexes).
-					// this would account only the valid vector IDs, so the deleted
-					// ones won't be reconstructed in the final index.
+					newDocID = newDocNumsIn[segI][uint32(docID)]
+					vecIDNotDeleted = true
+				}
+				// if the remapped doc ID is valid, track it
+				// as part of vecs to be reconstructed (for larger indexes).
+				// this would account only the valid vector IDs, so the deleted
+				// ones won't be reconstructed in the final index.
+				if vecIDNotDeleted {
 					vecToDocID[vecID] = newDocID
 					indexes[curIdx].vecIds = append(indexes[curIdx].vecIds, vecID)
 				}
@@ -246,7 +250,11 @@ func (v *vectorIndexOpaque) flushVectorIndex(indexBytes []byte, w *CountHashWrit
 
 	// write the vector index data
 	_, err = w.Write(indexBytes)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Divide the estimated nprobe with this value to optimize
@@ -371,6 +379,7 @@ func (v *vectorIndexOpaque) mergeAndWriteVectorIndexes(sbs []*SegmentBase,
 	// the reconstructed ones anymore and doing so will hold up memory which can
 	// be detrimental while creating indexes during introduction.
 	freeReconstructedIndexes(vecIndexes)
+	vecIndexes = nil
 
 	faissIndex, err := faiss.IndexFactory(dims, indexDescription, metric)
 	if err != nil {
@@ -405,12 +414,20 @@ func (v *vectorIndexOpaque) mergeAndWriteVectorIndexes(sbs []*SegmentBase,
 		return err
 	}
 
-	mergedIndexBytes, err := faiss.WriteIndexIntoBuffer(faissIndex)
+	indexData = nil
+	finalVecIDs = nil
+	var mergedIndexBytes []byte
+	mergedIndexBytes, err = faiss.WriteIndexIntoBuffer(faissIndex)
 	if err != nil {
 		return err
 	}
 
-	return v.flushVectorIndex(mergedIndexBytes, w)
+	err = v.flushVectorIndex(mergedIndexBytes, w)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // todo: can be parallelized.

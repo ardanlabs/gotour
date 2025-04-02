@@ -20,7 +20,7 @@ package segment
 import (
 	"encoding/json"
 
-	"github.com/RoaringBitmap/roaring/v2"
+	"github.com/RoaringBitmap/roaring"
 )
 
 type VecPostingsList interface {
