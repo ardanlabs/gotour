@@ -13,12 +13,12 @@ type BaseInline struct {
 	BaseNode
 }
 
-// Type implements Node.Type
+// Type implements Node.Type.
 func (b *BaseInline) Type() NodeType {
 	return TypeInline
 }
 
-// IsRaw implements Node.IsRaw
+// IsRaw implements Node.IsRaw.
 func (b *BaseInline) IsRaw() bool {
 	return false
 }
@@ -33,12 +33,12 @@ func (b *BaseInline) SetBlankPreviousLines(v bool) {
 	panic("can not call with inline nodes.")
 }
 
-// Lines implements Node.Lines
+// Lines implements Node.Lines.
 func (b *BaseInline) Lines() *textm.Segments {
 	panic("can not call with inline nodes.")
 }
 
-// SetLines implements Node.SetLines
+// SetLines implements Node.SetLines.
 func (b *BaseInline) SetLines(v *textm.Segments) {
 	panic("can not call with inline nodes.")
 }
@@ -91,7 +91,7 @@ func (n *Text) SetSoftLineBreak(v bool) {
 	if v {
 		n.flags |= textSoftLineBreak
 	} else {
-		n.flags = n.flags &^ textHardLineBreak
+		n.flags = n.flags &^ textSoftLineBreak
 	}
 }
 
@@ -132,7 +132,8 @@ func (n *Text) Merge(node Node, source []byte) bool {
 	if !ok {
 		return false
 	}
-	if n.Segment.Stop != t.Segment.Start || t.Segment.Padding != 0 || source[n.Segment.Stop-1] == '\n' || t.IsRaw() != n.IsRaw() {
+	if n.Segment.Stop != t.Segment.Start || t.Segment.Padding != 0 ||
+		source[n.Segment.Stop-1] == '\n' || t.IsRaw() != n.IsRaw() {
 		return false
 	}
 	n.Segment.Stop = t.Segment.Stop
@@ -142,7 +143,15 @@ func (n *Text) Merge(node Node, source []byte) bool {
 }
 
 // Text implements Node.Text.
+//
+// Deprecated: Use other properties of the node to get the text value(i.e. Text.Value).
 func (n *Text) Text(source []byte) []byte {
+	return n.Segment.Value(source)
+}
+
+// Value returns a value of this node.
+// SoftLineBreaks are not included in the returned value.
+func (n *Text) Value(source []byte) []byte {
 	return n.Segment.Value(source)
 }
 
@@ -152,7 +161,7 @@ func (n *Text) Dump(source []byte, level int) {
 	if len(fs) != 0 {
 		fs = "(" + fs + ")"
 	}
-	fmt.Printf("%sText%s: \"%s\"\n", strings.Repeat("    ", level), fs, strings.TrimRight(string(n.Text(source)), "\n"))
+	fmt.Printf("%sText%s: \"%s\"\n", strings.Repeat("    ", level), fs, strings.TrimRight(string(n.Value(source)), "\n"))
 }
 
 // KindText is a NodeKind of the Text node.
@@ -214,7 +223,7 @@ func MergeOrReplaceTextSegment(parent Node, n Node, s textm.Segment) {
 	}
 }
 
-// A String struct is a textual content that has a concrete value
+// A String struct is a textual content that has a concrete value.
 type String struct {
 	BaseInline
 
@@ -257,6 +266,8 @@ func (n *String) SetCode(v bool) {
 }
 
 // Text implements Node.Text.
+//
+// Deprecated: Use other properties of the node to get the text value(i.e. String.Value).
 func (n *String) Text(source []byte) []byte {
 	return n.Value
 }
@@ -305,7 +316,7 @@ func (n *CodeSpan) IsBlank(source []byte) bool {
 	return true
 }
 
-// Dump implements Node.Dump
+// Dump implements Node.Dump.
 func (n *CodeSpan) Dump(source []byte, level int) {
 	DumpHelper(n, source, level, nil, nil)
 }
@@ -467,7 +478,7 @@ type AutoLink struct {
 // Inline implements Inline.Inline.
 func (n *AutoLink) Inline() {}
 
-// Dump implements Node.Dump
+// Dump implements Node.Dump.
 func (n *AutoLink) Dump(source []byte, level int) {
 	segment := n.value.Segment
 	m := map[string]string{
@@ -491,15 +502,22 @@ func (n *AutoLink) URL(source []byte) []byte {
 		ret := make([]byte, 0, len(n.Protocol)+s.Len()+3)
 		ret = append(ret, n.Protocol...)
 		ret = append(ret, ':', '/', '/')
-		ret = append(ret, n.value.Text(source)...)
+		ret = append(ret, n.value.Value(source)...)
 		return ret
 	}
-	return n.value.Text(source)
+	return n.value.Value(source)
 }
 
 // Label returns a label of this node.
 func (n *AutoLink) Label(source []byte) []byte {
-	return n.value.Text(source)
+	return n.value.Value(source)
+}
+
+// Text implements Node.Text.
+//
+// Deprecated: Use other properties of the node to get the text value(i.e. AutoLink.Label).
+func (n *AutoLink) Text(source []byte) []byte {
+	return n.value.Value(source)
 }
 
 // NewAutoLink returns a new AutoLink node.
@@ -538,6 +556,13 @@ var KindRawHTML = NewNodeKind("RawHTML")
 // Kind implements Node.Kind.
 func (n *RawHTML) Kind() NodeKind {
 	return KindRawHTML
+}
+
+// Text implements Node.Text.
+//
+// Deprecated: Use other properties of the node to get the text value(i.e. RawHTML.Segments).
+func (n *RawHTML) Text(source []byte) []byte {
+	return n.Segments.Value(source)
 }
 
 // NewRawHTML returns a new RawHTML node.

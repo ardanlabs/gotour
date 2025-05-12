@@ -66,12 +66,12 @@ func (d *Delimiter) Dump(source []byte, level int) {
 
 var kindDelimiter = ast.NewNodeKind("Delimiter")
 
-// Kind implements Node.Kind
+// Kind implements Node.Kind.
 func (d *Delimiter) Kind() ast.NodeKind {
 	return kindDelimiter
 }
 
-// Text implements Node.Text
+// Text implements Node.Text.
 func (d *Delimiter) Text(source []byte) []byte {
 	return d.Segment.Value(source)
 }
@@ -111,7 +111,7 @@ func NewDelimiter(canOpen, canClose bool, length int, char byte, processor Delim
 }
 
 // ScanDelimiter scans a delimiter by given DelimiterProcessor.
-func ScanDelimiter(line []byte, before rune, min int, processor DelimiterProcessor) *Delimiter {
+func ScanDelimiter(line []byte, before rune, minimum int, processor DelimiterProcessor) *Delimiter {
 	i := 0
 	c := line[i]
 	j := i
@@ -120,13 +120,13 @@ func ScanDelimiter(line []byte, before rune, min int, processor DelimiterProcess
 	}
 	for ; j < len(line) && c == line[j]; j++ {
 	}
-	if (j - i) >= min {
+	if (j - i) >= minimum {
 		after := rune(' ')
 		if j != len(line) {
 			after = util.ToRune(line, j)
 		}
 
-		canOpen, canClose := false, false
+		var canOpen, canClose bool
 		beforeIsPunctuation := util.IsPunctRune(before)
 		beforeIsWhitespace := util.IsSpaceRune(before)
 		afterIsPunctuation := util.IsPunctRune(after)

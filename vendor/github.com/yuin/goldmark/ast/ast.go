@@ -39,7 +39,7 @@ func NewNodeKind(name string) NodeKind {
 	return kindMax
 }
 
-// An Attribute is an attribute of the Node
+// An Attribute is an attribute of the Node.
 type Attribute struct {
 	Name  []byte
 	Value interface{}
@@ -123,6 +123,12 @@ type Node interface {
 	Dump(source []byte, level int)
 
 	// Text returns text values of this node.
+	// This method is valid only for some inline nodes.
+	// If this node is a block node, Text returns a text value as reasonable as possible.
+	// Notice that there are no 'correct' text values for the block nodes.
+	// Result for the block nodes may be different from your expectation.
+	//
+	// Deprecated: Use other properties of the node to get the text value(i.e. Pragraph.Lines, Text.Value).
 	Text(source []byte) []byte
 
 	// HasBlankPreviousLines returns true if the row before this node is blank,
@@ -248,7 +254,7 @@ func (n *BaseNode) RemoveChildren(self Node) {
 	n.childCount = 0
 }
 
-// SortChildren implements Node.SortChildren
+// SortChildren implements Node.SortChildren.
 func (n *BaseNode) SortChildren(comparator func(n1, n2 Node) int) {
 	var sorted Node
 	current := n.firstChild
@@ -358,7 +364,7 @@ func (n *BaseNode) InsertBefore(self, v1, insertee Node) {
 	}
 }
 
-// OwnerDocument implements Node.OwnerDocument
+// OwnerDocument implements Node.OwnerDocument.
 func (n *BaseNode) OwnerDocument() *Document {
 	d := n.Parent()
 	for {
@@ -374,11 +380,18 @@ func (n *BaseNode) OwnerDocument() *Document {
 	return nil
 }
 
-// Text implements Node.Text  .
+// Text implements Node.Text .
+//
+// Deprecated: Use other properties of the node to get the text value(i.e. Pragraph.Lines, Text.Value).
 func (n *BaseNode) Text(source []byte) []byte {
 	var buf bytes.Buffer
 	for c := n.firstChild; c != nil; c = c.NextSibling() {
 		buf.Write(c.Text(source))
+		if sb, ok := c.(interface {
+			SoftLineBreak() bool
+		}); ok && sb.SoftLineBreak() {
+			buf.WriteByte('\n')
+		}
 	}
 	return buf.Bytes()
 }
@@ -399,7 +412,7 @@ func (n *BaseNode) SetAttribute(name []byte, value interface{}) {
 	n.attributes = append(n.attributes, Attribute{name, value})
 }
 
-// SetAttributeString implements Node.SetAttributeString
+// SetAttributeString implements Node.SetAttributeString.
 func (n *BaseNode) SetAttributeString(name string, value interface{}) {
 	n.SetAttribute(util.StringToReadOnlyBytes(name), value)
 }
@@ -422,12 +435,12 @@ func (n *BaseNode) AttributeString(s string) (interface{}, bool) {
 	return n.Attribute(util.StringToReadOnlyBytes(s))
 }
 
-// Attributes implements Node.Attributes
+// Attributes implements Node.Attributes.
 func (n *BaseNode) Attributes() []Attribute {
 	return n.attributes
 }
 
-// RemoveAttributes implements Node.RemoveAttributes
+// RemoveAttributes implements Node.RemoveAttributes.
 func (n *BaseNode) RemoveAttributes() {
 	n.attributes = nil
 }
