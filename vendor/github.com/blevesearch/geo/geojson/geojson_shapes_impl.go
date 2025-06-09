@@ -735,6 +735,22 @@ func (gc *GeometryCollection) UnmarshalJSON(data []byte) error {
 			}
 			pgn.init()
 			gc.Shapes = append(gc.Shapes, &pgn)
+		case CircleType:
+			var cir Circle
+			err := jsoniter.Unmarshal(shape, &cir)
+			if err != nil {
+				return err
+			}
+			cir.init()
+			gc.Shapes = append(gc.Shapes, &cir)
+		case EnvelopeType:
+			var env Envelope
+			err := jsoniter.Unmarshal(shape, &env)
+			if err != nil {
+				return err
+			}
+			env.init()
+			gc.Shapes = append(gc.Shapes, &env)
 		}
 	}
 
