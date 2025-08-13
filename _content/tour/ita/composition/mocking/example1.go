@@ -102,4 +102,4 @@ func (ps *PubSub) Subscribe(key string) error {
   
 module "play.ground"
 
-go 1.24.0
+go 1.25.0

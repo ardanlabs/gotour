@@ -5,17 +5,17 @@ go 1.23.0
 toolchain go1.24.1
 
 require (
-	github.com/blevesearch/bleve/v2 v2.5.2
-	golang.org/x/net v0.42.0
-	golang.org/x/sys v0.34.0
-	golang.org/x/tools v0.35.0
+	github.com/blevesearch/bleve/v2 v2.5.3
+	golang.org/x/net v0.43.0
+	golang.org/x/sys v0.35.0
+	golang.org/x/tools v0.36.0
 )
 
 require (
-	github.com/RoaringBitmap/roaring/v2 v2.8.0 // indirect
-	github.com/bits-and-blooms/bitset v1.22.0 // indirect
-	github.com/blevesearch/bleve_index_api v1.2.8 // indirect
-	github.com/blevesearch/geo v0.2.3 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.9.0 // indirect
+	github.com/bits-and-blooms/bitset v1.24.0 // indirect
+	github.com/blevesearch/bleve_index_api v1.2.9 // indirect
+	github.com/blevesearch/geo v0.2.4 // indirect
 	github.com/blevesearch/go-faiss v1.0.25 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.3 // indirect
 	github.com/blevesearch/gtreap v0.1.1 // indirect
@@ -39,7 +39,7 @@ require (
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/yuin/goldmark v1.7.13 // indirect
 	go.etcd.io/bbolt v1.4.2 // indirect
-	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
+	google.golang.org/protobuf v1.36.7 // indirect
 )
