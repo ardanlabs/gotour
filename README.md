@@ -1,6 +1,6 @@
 ## Go Tour
 
-Copyright 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Ardan Labs  
+Copyright 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Ardan Labs  
 hello@ardanlabs.com
 
 ## Learn More
@@ -11,26 +11,26 @@ Ardan Labs (www.ardanlabs.com)
 hello@ardanlabs.com
 
 To attend any of our high-performance tranings check out this link:  
-https://www.ardanlabs.com/training  
+https://www.ardanlabs.com/training
 
 ## Index
 
-* [Purchase Video](https://github.com/ardanlabs/gotraining#purchase-video--book)
-* [Experience](https://github.com/ardanlabs/gotraining#our-experience)
-* [Teachers](https://github.com/ardanlabs/gotraining#our-teachers)
-* [More About Go](https://github.com/ardanlabs/gotraining#more-about-go)
-* [Important Reading](https://github.com/ardanlabs/gotraining#important-reading)
-* [Joining Slack](https://github.com/ardanlabs/gotraining#joining-the-go-slack-community)
+- [Purchase Video](https://github.com/ardanlabs/gotraining#purchase-video--book)
+- [Experience](https://github.com/ardanlabs/gotraining#our-experience)
+- [Teachers](https://github.com/ardanlabs/gotraining#our-teachers)
+- [More About Go](https://github.com/ardanlabs/gotraining#more-about-go)
+- [Important Reading](https://github.com/ardanlabs/gotraining#important-reading)
+- [Joining Slack](https://github.com/ardanlabs/gotraining#joining-the-go-slack-community)
 
 ## Purchase Video / Book
 
 The entire training class has been recorded to be made available to those who can't have the class taught at their company or who can't attend a conference. This is the entire class material.
 
-[education.ardanlabs.com](https://education.ardanlabs.com)  
+[education.ardanlabs.com](https://education.ardanlabs.com)
 
 There is a book for all of the material in the class.
 
-[Ultimate Go Notebook](https://education.ardanlabs.com/courses/ultimate-go-notebook)  
+[Ultimate Go Notebook](https://education.ardanlabs.com/courses/ultimate-go-notebook)
 
 ## Our Experience
 
@@ -40,7 +40,8 @@ Our classes are perfect for intermediate-level developers who have at least a fe
 
 ## Our Teachers
 
-### William Kennedy ([@goinggodotnet](https://twitter.com/goinggodotnet))  
+### William Kennedy ([@goinggodotnet](https://twitter.com/goinggodotnet))
+
 _William Kennedy is a managing partner at Ardan Labs in Miami, Florida. Ardan Labs is a high-performance development and training firm working with startups and fortune 500 companies. He is also a co-author of the book Go in Action, the author of the blog GoingGo.Net, and a founding member of GoBridge which is working to increase Go adoption through diversity._
 
 _**Video Training**_  
@@ -48,11 +49,11 @@ _**Video Training**_
 [Ardan Labs YouTube Channel](https://youtube.ardanlabs.com/)
 
 _**Blog**_  
-[Going Go](https://www.ardanlabs.com/blog/)    
+[Going Go](https://www.ardanlabs.com/blog/)
 
 _**Writing**_  
-[Running MongoDB Queries Concurrently With Go](http://blog.mongodb.org/post/80579086742/running-mongodb-queries-concurrently-with-go)    
-[Go In Action](https://www.manning.com/books/go-in-action)  
+[Running MongoDB Queries Concurrently With Go](http://blog.mongodb.org/post/80579086742/running-mongodb-queries-concurrently-with-go)  
+[Go In Action](https://www.manning.com/books/go-in-action)
 
 _**Articles**_  
 [IT World Canada](http://www.itworldcanada.com/article/nascent-google-development-language-shows-promise-for-more-productive-coding/387449)
@@ -79,7 +80,7 @@ _**Video**_
 [GopherCon India (2015) - Go In Action](https://www.youtube.com/watch?v=QkPw8-Pf0SM)  
 [GolangUK (2016) - Dependency Management](https://youtu.be/CdhucJShJU8)  
 [GothamGo (2015) - Error Handling in Go](https://vimeo.com/115782573)  
-[GopherCon (2014) - Building an analytics engine](https://www.youtube.com/watch?v=EfJRQ1lGkUk)  
+[GopherCon (2014) - Building an analytics engine](https://www.youtube.com/watch?v=EfJRQ1lGkUk)
 
 [Prague Meetup (2021) - Go Module Engineering Decisions](https://youtu.be/m8lgcXv2lhI)  
 [Practical Understanding Of Scheduler Semantics (2021)](https://www.youtube.com/watch?v=p2Cjq3Dq2Q0)  
@@ -89,9 +90,9 @@ _**Video**_
 [Vancouver Meetup (2016) - Go Talk & Ask Me Anything With William Kennedy](https://www.youtube.com/watch?v=7YcLIbG1ekM&t=91s)  
 [Vancouver Meetup (2015) - Compiler Optimizations in Go](https://www.youtube.com/watch?v=AQipeq39Aek)  
 [Bangalore Meetup (2015) - OOP in Go](https://youtu.be/gRpUfjTwSOo)  
-[GoSF Meetup - The Nature of Constants in Go](https://www.youtube.com/watch?v=ZUCHMAoOgUQ)    
-[London Meetup - Mechanical Sympathy](https://skillsmatter.com/skillscasts/8353-london-go-usergroup)    
-[Vancouver Meetup - Decoupling From Change](https://www.youtube.com/watch?v=7YcLIbG1ekM&feature=youtu.be)  
+[GoSF Meetup - The Nature of Constants in Go](https://www.youtube.com/watch?v=ZUCHMAoOgUQ)  
+[London Meetup - Mechanical Sympathy](https://skillsmatter.com/skillscasts/8353-london-go-usergroup)  
+[Vancouver Meetup - Decoupling From Change](https://www.youtube.com/watch?v=7YcLIbG1ekM&feature=youtu.be)
 
 _**Podcasts**_  
 [Ardan Labs Podcast: On Going Series](https://ardanlabs.buzzsprout.com/)  
@@ -102,8 +103,8 @@ _**Podcasts**_
 [GoTime: Learning and Teaching Go](https://changelog.com/gotime/72)  
 [GoTime: Bill Kennedy on Mechanical Sympathy](https://changelog.com/gotime/6)  
 [GoTime: Discussing Imposter Syndrome](https://changelog.com/gotime/30)  
-[HelloTechPros: Your Tech Interviews are Scaring Away Brilliant People](http://hellotechpros.com/william-kennedy-people)    
-[HelloTechPros: The 4 Cornerstones of Writing Software](http://hellotechpros.com/bill-kennedy-productivity)  
+[HelloTechPros: Your Tech Interviews are Scaring Away Brilliant People](http://hellotechpros.com/william-kennedy-people)  
+[HelloTechPros: The 4 Cornerstones of Writing Software](http://hellotechpros.com/bill-kennedy-productivity)
 
 ## More About Go
 
@@ -117,20 +118,20 @@ Go is the fusion of performance and productivity wrapped in a language that soft
 [The eigenvector of "Why we moved from language X to language Y"](https://erikbern.com/2017/03/15/the-eigenvector-of-why-we-moved-from-language-x-to-language-y.html) - Erik Bernhardsson  
 [Learn More](https://talks.golang.org/2012/splash.article) - Go Team  
 [Simplicity is Complicated](https://www.youtube.com/watch?v=rFejpH_tAHM) - Rob Pike  
-[Getting Started In Go](http://aarti.github.io/2016/08/13/getting-started-in-go) - Aarti Parikh  
+[Getting Started In Go](http://aarti.github.io/2016/08/13/getting-started-in-go) - Aarti Parikh
 
 ## Minimal Qualified Student
 
 The material has been designed to be taught in a classroom environment. The code is well commented but missing some of the contextual concepts and ideas that will be covered in class. Students with the following minimal background will get the most out of the class.
 
-* Studied CS in school or has a minimum of two years of experience programming full time professionally.
-* Familiar with structural and object oriented programming styles.
-* Has worked with arrays, lists, queues and stacks.
-* Understands processes, threads and synchronization at a high level.
-* Operating Systems
-	* Has worked with a command shell.
-	* Knows how to maneuver around the file system.
-	* Understands what environment variables are.
+- Studied CS in school or has a minimum of two years of experience programming full time professionally.
+- Familiar with structural and object oriented programming styles.
+- Has worked with arrays, lists, queues and stacks.
+- Understands processes, threads and synchronization at a high level.
+- Operating Systems
+  - Has worked with a command shell.
+  - Knows how to maneuver around the file system.
+  - Understands what environment variables are.
 
 ## Important Reading
 
@@ -138,10 +139,11 @@ Please check out this page of [important reading](https://github.com/ardanlabs/g
 
 ## Joining the Go Slack Community
 
-We use a Slack channel to share links, code, and examples during the training.  This is free.  This is also the same Slack community you will use after training to ask for help and interact with may Go experts around the world in the community.
+We use a Slack channel to share links, code, and examples during the training. This is free. This is also the same Slack community you will use after training to ask for help and interact with may Go experts around the world in the community.
 
-* Using the following link, fill out your name and email address: https://invite.slack.gobridge.org/
-* Check your email, and follow the link to the Slack application.
+- Using the following link, fill out your name and email address: https://invite.slack.gobridge.org/
+- Check your email, and follow the link to the Slack application.
 
-___
+---
+
 All material is licensed under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0).
