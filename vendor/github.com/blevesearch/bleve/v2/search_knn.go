@@ -67,6 +67,8 @@ type SearchRequest struct {
 
 	PreSearchData map[string]interface{} `json:"pre_search_data,omitempty"`
 
+	Params *RequestParams `json:"params,omitempty"`
+
 	sortFunc func(sort.Interface)
 }
 
@@ -148,6 +150,7 @@ func (r *SearchRequest) UnmarshalJSON(input []byte) error {
 		KNN              []*tempKNNReq     `json:"knn"`
 		KNNOperator      knnOperator       `json:"knn_operator"`
 		PreSearchData    json.RawMessage   `json:"pre_search_data"`
+		Params           json.RawMessage   `json:"params"`
 	}
 
 	err := json.Unmarshal(input, &temp)
@@ -187,6 +190,22 @@ func (r *SearchRequest) UnmarshalJSON(input []byte) error {
 	}
 	if r.From < 0 {
 		r.From = 0
+	}
+
+	if IsScoreFusionRequested(r) {
+		if temp.Params == nil {
+			// If params is not present and it is requires rescoring, assign
+			// default values
+			r.Params = NewDefaultParams(r.From, r.Size)
+		} else {
+			// if it is a request that requires rescoring, parse the rescoring
+			// parameters.
+			params, err := ParseParams(r, temp.Params)
+			if err != nil {
+				return err
+			}
+			r.Params = params
+		}
 	}
 
 	r.KNN = make([]*KNNRequest, len(temp.KNN))
@@ -243,6 +262,7 @@ func copySearchRequest(req *SearchRequest, preSearchData map[string]interface{})
 		KNN:              req.KNN,
 		KNNOperator:      req.KNNOperator,
 		PreSearchData:    preSearchData,
+		Params:           req.Params,
 	}
 	return &rv
 
@@ -327,6 +347,7 @@ func validateKNN(req *SearchRequest) error {
 	default:
 		return fmt.Errorf("knn_operator must be either 'and' / 'or'")
 	}
+
 	return nil
 }
 
@@ -360,7 +381,7 @@ func addSortAndFieldsToKNNHits(req *SearchRequest, knnHits []*search.DocumentMat
 	return nil
 }
 
-func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, reader index.IndexReader, preSearch bool) ([]*search.DocumentMatch, error) {
+func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, reader index.IndexReader, preSearch bool) (knnHits []*search.DocumentMatch, err error) {
 	// Maps the index of a KNN query in the request to its pre-filter result:
 	// - If the KNN query is **not filtered**, the value will be `nil`.
 	// - If the KNN query **is filtered**, the value will be an eligible document selector
@@ -380,21 +401,33 @@ func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, rea
 			continue
 		}
 		// Applies to all supported types of queries.
-		filterSearcher, _ := filterQ.Searcher(ctx, reader, i.m, search.SearcherOptions{
+		filterSearcher, err := filterQ.Searcher(ctx, reader, i.m, search.SearcherOptions{
 			Score: "none", // just want eligible hits --> don't compute scores if not needed
 		})
+		if err != nil {
+			return nil, err
+		}
 		// Using the index doc count to determine collector size since we do not
 		// have an estimate of the number of eligible docs in the index yet.
 		indexDocCount, err := i.DocCount()
 		if err != nil {
+			// close the searcher before returning
+			filterSearcher.Close()
 			return nil, err
 		}
 		filterColl := collector.NewEligibleCollector(int(indexDocCount))
 		err = filterColl.Collect(ctx, filterSearcher, reader)
 		if err != nil {
+			// close the searcher before returning
+			filterSearcher.Close()
 			return nil, err
 		}
 		knnFilterResults[idx] = filterColl.EligibleSelector()
+		// Close the filter searcher, as we are done with it.
+		err = filterSearcher.Close()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Add the filter hits when creating the kNN query
@@ -408,12 +441,17 @@ func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, rea
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		if serr := knnSearcher.Close(); err == nil && serr != nil {
+			err = serr
+		}
+	}()
 	knnCollector := collector.NewKNNCollector(kArray, sumOfK)
 	err = knnCollector.Collect(ctx, knnSearcher, reader)
 	if err != nil {
 		return nil, err
 	}
-	knnHits := knnCollector.Results()
+	knnHits = knnCollector.Results()
 	if !preSearch {
 		knnHits = finalizeKNNResults(req, knnHits)
 	}
@@ -457,6 +495,12 @@ func finalizeKNNResults(req *SearchRequest, knnHits []*search.DocumentMatch) []*
 			}
 		}
 		knnHits = knnHits[:idx]
+	}
+
+	// if score fusion required, return early because
+	// score breakdown is retained
+	if IsScoreFusionRequested(req) {
+		return knnHits
 	}
 	// fix the score using score breakdown now
 	// if the score is none, then we need to set the score to 0.0
@@ -537,6 +581,10 @@ func requestHasKNN(req *SearchRequest) bool {
 	return len(req.KNN) > 0
 }
 
+func numKNNQueries(req *SearchRequest) int {
+	return len(req.KNN)
+}
+
 // returns true if the search request contains a KNN request that can be
 // satisfied by just performing a preSearch, completely bypassing the
 // actual search.
@@ -606,5 +654,27 @@ func newKnnPreSearchResultProcessor(req *SearchRequest) *knnPreSearchResultProce
 			// the merged knn hits are finalized and set in the search result.
 			sr.Hits, _ = knnStore.Final(nil)
 		},
+	}
+}
+
+// Replace knn boost values for fusion rescoring queries
+func (r *rescorer) prepareKnnRequest() {
+	for i := range r.req.KNN {
+		b := r.req.KNN[i].Boost
+		if b != nil {
+			r.origBoosts[i+1] = b.Value()
+			newB := query.Boost(1.0)
+			r.req.KNN[i].Boost = &newB
+		} else {
+			r.origBoosts[i+1] = 1.0
+		}
+	}
+}
+
+// Restore knn boost values for fusion rescoring queries
+func (r *rescorer) restoreKnnRequest() {
+	for i := range r.req.KNN {
+		b := query.Boost(r.origBoosts[i+1])
+		r.req.KNN[i].Boost = &b
 	}
 }

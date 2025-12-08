@@ -742,6 +742,182 @@ func (ii *manyIntIterator) Initialize(a *Bitmap) {
 	ii.init()
 }
 
+type unsetIterator struct {
+	containerIndex   int
+	nextKey          int
+	hs               uint32
+	iter             shortPeekable
+	highlowcontainer *roaringArray
+
+	arrayUnsetIter    arrayContainerUnsetIterator
+	runUnsetIter      runUnsetIterator16
+	bitmapUnsetIter   bitmapContainerUnsetIterator
+	emptyContainerVal uint16
+
+	start, end uint64
+}
+
+// HasNext returns true if there are more integers to iterate over
+func (iui *unsetIterator) HasNext() bool {
+	// Skip containers that have no unset bits in our range
+	for iui.nextKey < 65536 && uint64(iui.nextKey)<<16 < iui.end {
+		if iui.iter == nil {
+			// We're in an empty container gap, which has unset bits
+			if uint64(iui.nextKey)<<16|uint64(iui.emptyContainerVal) < iui.end {
+				return true
+			}
+			// Move to next container
+			iui.nextKey++
+			iui.containerIndex++
+			iui.init()
+			continue
+		}
+		if iui.iter.hasNext() {
+			// Check if next value is within range
+			nextVal := (uint64(iui.nextKey) << 16) | uint64(iui.iter.peekNext())
+			if nextVal < iui.end {
+				return true
+			}
+		}
+		// Current container has no more unset bits in range, move to next
+		iui.nextKey++
+		iui.containerIndex++
+		iui.init()
+	}
+	return false
+}
+
+func (iui *unsetIterator) init() {
+	// Check if we've gone past the end range
+	if uint64(iui.nextKey)<<16 >= iui.end {
+		iui.iter = nil
+		return
+	}
+
+	// Check if we're in an empty container gap
+	if iui.containerIndex >= iui.highlowcontainer.size() ||
+		iui.highlowcontainer.getKeyAtIndex(iui.containerIndex) > uint16(iui.nextKey) {
+		// We're in a gap - iterate through empty container
+		iui.emptyContainerVal = 0
+		// If this container overlaps with start, advance to start
+		if uint64(iui.nextKey)<<16 < iui.start && iui.start < uint64(iui.nextKey+1)<<16 {
+			iui.emptyContainerVal = uint16(iui.start)
+		}
+		iui.iter = nil
+		return
+	}
+
+	// We're in an actual container
+	iui.hs = uint32(iui.nextKey) << 16
+	c := iui.highlowcontainer.getContainerAtIndex(iui.containerIndex)
+	switch t := c.(type) {
+	case *arrayContainer:
+		iui.arrayUnsetIter = *newArrayContainerUnsetIterator(t.content)
+		iui.iter = &iui.arrayUnsetIter
+	case *runContainer16:
+		iui.runUnsetIter = *t.newRunUnsetIterator16()
+		iui.iter = &iui.runUnsetIter
+	case *bitmapContainer:
+		iui.bitmapUnsetIter = *newBitmapContainerUnsetIterator(t)
+		iui.iter = &iui.bitmapUnsetIter
+	}
+
+	// If this container overlaps with start, advance to the low bits of start
+	if uint64(iui.nextKey)<<16 < iui.start && iui.start < uint64(iui.nextKey+1)<<16 {
+		iui.iter.advanceIfNeeded(uint16(iui.start))
+	}
+}
+
+// Next returns the next integer
+func (iui *unsetIterator) Next() uint32 {
+	if iui.iter == nil {
+		// We're in an empty container gap
+		x := (uint32(iui.nextKey) << 16) | uint32(iui.emptyContainerVal)
+		iui.emptyContainerVal++
+		if iui.emptyContainerVal == 0 || uint64(iui.nextKey)<<16|uint64(iui.emptyContainerVal) >= iui.end {
+			// Wrapped around or reached end, move to next container
+			iui.nextKey++
+			iui.init()
+		}
+		return x
+	}
+
+	x := uint32(iui.iter.next()) | iui.hs
+	if !iui.iter.hasNext() || uint64(iui.nextKey)<<16|uint64(iui.iter.peekNext()) >= iui.end {
+		iui.nextKey++
+		iui.containerIndex++
+		iui.init()
+	}
+	return x
+}
+
+// PeekNext peeks the next value without advancing the iterator
+func (iui *unsetIterator) PeekNext() uint32 {
+	if !iui.HasNext() {
+		panic("PeekNext() called when HasNext() returns false")
+	}
+	if iui.iter == nil {
+		return (uint32(iui.nextKey) << 16) | uint32(iui.emptyContainerVal)
+	}
+	return uint32(iui.iter.peekNext()&maxLowBit) | iui.hs
+}
+
+// AdvanceIfNeeded advances as long as the next value is smaller than minval
+func (iui *unsetIterator) AdvanceIfNeeded(minval uint32) {
+	targetKey := int(minval >> 16)
+
+	for iui.HasNext() && iui.nextKey < targetKey {
+		iui.nextKey++
+		// Find the next container that matches or exceeds nextKey
+		for iui.containerIndex < iui.highlowcontainer.size() &&
+			int(iui.highlowcontainer.getKeyAtIndex(iui.containerIndex)) < iui.nextKey {
+			iui.containerIndex++
+		}
+		iui.init()
+	}
+
+	if iui.HasNext() && iui.nextKey == targetKey {
+		if iui.iter != nil {
+			iui.iter.advanceIfNeeded(lowbits(minval))
+			if !iui.iter.hasNext() || uint64(iui.nextKey)<<16|uint64(iui.iter.peekNext()) >= iui.end {
+				iui.nextKey++
+				iui.containerIndex++
+				iui.init()
+			}
+		} else {
+			lowVal := lowbits(minval)
+			if iui.emptyContainerVal < lowVal {
+				iui.emptyContainerVal = lowVal
+			}
+			if uint64(iui.nextKey)<<16|uint64(iui.emptyContainerVal) >= iui.end {
+				iui.nextKey++
+				iui.containerIndex++
+				iui.init()
+			}
+		}
+	}
+}
+
+// Initialize configures the unset iterator to iterate over values in [start, end) that are not in the bitmap
+func (iui *unsetIterator) Initialize(a *Bitmap, start, end uint64) {
+	if end > 0x100000000 {
+		panic("end > 0x100000000")
+	}
+	iui.start = start
+	iui.end = end
+	iui.containerIndex = 0
+	iui.nextKey = int(start >> 16)
+	iui.highlowcontainer = &a.highlowcontainer
+
+	// Find the first container that matches or exceeds the start key
+	for iui.containerIndex < iui.highlowcontainer.size() &&
+		int(iui.highlowcontainer.getKeyAtIndex(iui.containerIndex)) < iui.nextKey {
+		iui.containerIndex++
+	}
+
+	iui.init()
+}
+
 // String creates a string representation of the Bitmap
 func (rb *Bitmap) String() string {
 	// inspired by https://github.com/fzandona/goroar/
@@ -821,6 +997,14 @@ func (rb *Bitmap) ReverseIterator() IntIterable {
 func (rb *Bitmap) ManyIterator() ManyIntIterable {
 	p := new(manyIntIterator)
 	p.Initialize(rb)
+	return p
+}
+
+// UnsetIterator creates a new IntPeekable to iterate over values in the range [start, end) that are NOT contained in the bitmap.
+// The iterator becomes invalid if the bitmap is modified (e.g., with Add or Remove).
+func (rb *Bitmap) UnsetIterator(start, end uint64) IntPeekable {
+	p := new(unsetIterator)
+	p.Initialize(rb, start, end)
 	return p
 }
 
@@ -1302,6 +1486,10 @@ main:
 
 // Xor computes the symmetric difference between two bitmaps and stores the result in the current bitmap
 func (rb *Bitmap) Xor(x2 *Bitmap) {
+	if rb == x2 {
+		rb.Clear()
+		return
+	}
 	pos1 := 0
 	pos2 := 0
 	length1 := rb.highlowcontainer.size()
@@ -1316,8 +1504,7 @@ func (rb *Bitmap) Xor(x2 *Bitmap) {
 					break
 				}
 			} else if s1 > s2 {
-				c := x2.highlowcontainer.getWritableContainerAtIndex(pos2)
-				rb.highlowcontainer.insertNewKeyValueAt(pos1, x2.highlowcontainer.getKeyAtIndex(pos2), c)
+				rb.highlowcontainer.insertNewKeyValueAt(pos1, x2.highlowcontainer.getKeyAtIndex(pos2), x2.highlowcontainer.getContainerAtIndex(pos2).clone())
 				length1++
 				pos1++
 				pos2++
@@ -1370,7 +1557,8 @@ main:
 				}
 				s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
 			} else {
-				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, rb.highlowcontainer.getUnionedWritableContainer(pos1, x2.highlowcontainer.getContainerAtIndex(pos2)), false)
+				newcont := rb.highlowcontainer.getUnionedWritableContainer(pos1, x2.highlowcontainer.getContainerAtIndex(pos2))
+				rb.highlowcontainer.replaceKeyAndContainerAtIndex(pos1, s1, newcont, false)
 				pos1++
 				pos2++
 				if (pos1 == length1) || (pos2 == length2) {
@@ -1388,6 +1576,10 @@ main:
 
 // AndNot computes the difference between two bitmaps and stores the result in the current bitmap
 func (rb *Bitmap) AndNot(x2 *Bitmap) {
+	if rb == x2 {
+		rb.Clear()
+		return
+	}
 	pos1 := 0
 	pos2 := 0
 	intersectionsize := 0
@@ -1477,7 +1669,6 @@ main:
 				}
 				s2 = x2.highlowcontainer.getKeyAtIndex(pos2)
 			} else {
-
 				answer.highlowcontainer.appendContainer(s1, x1.highlowcontainer.getContainerAtIndex(pos1).or(x2.highlowcontainer.getContainerAtIndex(pos2)), false)
 				pos1++
 				pos2++
@@ -1516,6 +1707,7 @@ main:
 				if !C.isEmpty() {
 					answer.highlowcontainer.appendContainer(s1, C, false)
 				}
+
 				pos1++
 				pos2++
 				if (pos1 == length1) || (pos2 == length2) {
@@ -1543,6 +1735,9 @@ main:
 
 // Xor computes the symmetric difference between two bitmaps and returns the result
 func Xor(x1, x2 *Bitmap) *Bitmap {
+	if x1 == x2 {
+		return NewBitmap()
+	}
 	answer := NewBitmap()
 	pos1 := 0
 	pos2 := 0
@@ -1580,6 +1775,9 @@ func Xor(x1, x2 *Bitmap) *Bitmap {
 
 // AndNot computes the difference between two bitmaps and returns the result
 func AndNot(x1, x2 *Bitmap) *Bitmap {
+	if x1 == x2 {
+		return NewBitmap()
+	}
 	answer := NewBitmap()
 	pos1 := 0
 	pos2 := 0
@@ -2143,6 +2341,34 @@ func (rb *Bitmap) Stats() Statistics {
 		}
 	}
 	return stats
+}
+
+// Describe prints a description of the bitmap's containers to stdout
+func (rb *Bitmap) Describe() {
+	fmt.Printf("Bitmap with %d containers:\n", len(rb.highlowcontainer.containers))
+	for i, c := range rb.highlowcontainer.containers {
+		key := rb.highlowcontainer.keys[i]
+		shared := ""
+		if rb.highlowcontainer.needCopyOnWrite[i] {
+			shared = " (shared)"
+		}
+		switch c.(type) {
+		case *arrayContainer:
+			fmt.Printf("  Container %d (key %d): array, cardinality %d%s\n", i, key, c.getCardinality(), shared)
+		case *bitmapContainer:
+			fmt.Printf("  Container %d (key %d): bitmap, cardinality %d%s\n", i, key, c.getCardinality(), shared)
+		case *runContainer16:
+			fmt.Printf("  Container %d (key %d): run, cardinality %d%s\n", i, key, c.getCardinality(), shared)
+		default:
+			fmt.Printf("  Container %d (key %d): unknown type, cardinality %d%s\n", i, key, c.getCardinality(), shared)
+		}
+	}
+	valid := rb.Validate()
+	if valid != nil {
+		fmt.Printf("  Bitmap is INVALID: %v\n", valid)
+	} else {
+		fmt.Printf("  Bitmap is valid\n")
+	}
 }
 
 // Validate checks if the bitmap is internally consistent.

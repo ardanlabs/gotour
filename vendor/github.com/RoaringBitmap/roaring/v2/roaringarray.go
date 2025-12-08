@@ -40,6 +40,7 @@ type container interface {
 	inot(firstOfRange, endx int) container // i stands for inplace, range is [firstOfRange,endx)
 	xor(r container) container
 	getShortIterator() shortPeekable
+	getUnsetIterator() shortPeekable
 	iterate(cb func(x uint16) bool) bool
 	getReverseIterator() shortIterable
 	getManyIterator() manyIterable
@@ -108,7 +109,7 @@ func rangeOfOnes(start, last int) container {
 	if last < 0 {
 		panic("rangeOfOnes called with last < 0")
 	}
-	return newRunContainer16Range(uint16(start), uint16(last))
+	return newRunContainer16Range(uint16(start), uint16(last)).toEfficientContainer()
 }
 
 type roaringArray struct {
