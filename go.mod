@@ -3,10 +3,10 @@ module github.com/ardanlabs/gotour
 go 1.25.0
 
 require (
-	github.com/blevesearch/bleve/v2 v2.5.6
+	github.com/blevesearch/bleve/v2 v2.5.7
 	golang.org/x/net v0.48.0
 	golang.org/x/sys v0.39.0
-	golang.org/x/tools v0.39.0
+	golang.org/x/tools v0.40.0
 )
 
 require (
@@ -28,15 +28,15 @@ require (
 	github.com/blevesearch/zapx/v13 v13.4.2 // indirect
 	github.com/blevesearch/zapx/v14 v14.4.2 // indirect
 	github.com/blevesearch/zapx/v15 v15.4.2 // indirect
-	github.com/blevesearch/zapx/v16 v16.2.7 // indirect
+	github.com/blevesearch/zapx/v16 v16.2.8 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
-	github.com/yuin/goldmark v1.7.13 // indirect
+	github.com/yuin/goldmark v1.7.16 // indirect
 	go.etcd.io/bbolt v1.4.3 // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 )
