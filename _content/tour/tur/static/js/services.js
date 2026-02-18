@@ -60,7 +60,7 @@ angular
                 // build list.
                 const hasGoMod = code.indexOf('\n-- go.mod --\n') !== -1 || code.startsWith('-- go.mod --\n');
                 if (!hasGoMod) {
-                    code += '\n' + '-- go.mod --\n' + 'module example\n\n' + 'go 1.25.0\n' + '-- go.sum --\n';
+                    code += '\n' + '-- go.mod --\n' + 'module example\n\n' + 'go 1.26.0\n' + '-- go.sum --\n';
                 }
 
                 // PlaygroundOutput is defined in playground.js which is prepended

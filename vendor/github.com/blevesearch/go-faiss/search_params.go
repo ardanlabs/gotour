@@ -54,21 +54,26 @@ func getNProbeFromSearchParams(params *SearchParams) int32 {
 	return int32(C.faiss_SearchParametersIVF_nprobe(params.sp))
 }
 
-// Returns a valid SearchParams object,
-// thus caller must clean up the object
-// by invoking Delete() method.
-func NewSearchParams(idx Index, params json.RawMessage, sel *C.FaissIDSelector,
+// Returns a valid SearchParams object, configured according to the provided
+// parameters and selector. The returned SearchParams object is allocated,
+// thus caller must clean up the object by invoking Delete() method.
+func NewSearchParams(idx Index, params json.RawMessage, selector Selector,
 	defaultParams *defaultSearchParamsIVF) (*SearchParams, error) {
-	rv := &SearchParams{}
-	if c := C.faiss_SearchParameters_new(&rv.sp, sel); c != 0 {
-		return nil, fmt.Errorf("failed to create faiss search params")
+	// Get the selector C pointer, if any.
+	// A nil selector indicates no ID filtering, and it is valid
+	// to send a nil pointer to Faiss.
+	var sel *C.FaissIDSelector
+	if selector != nil {
+		sel = selector.Get()
 	}
+	rv := &SearchParams{}
 	// check if the index is IVF and set the search params
-	if ivfIdx := C.faiss_IndexIVF_cast(idx.cPtr()); ivfIdx != nil {
-		rv.sp = C.faiss_SearchParametersIVF_cast(rv.sp)
-		if len(params) == 0 && sel == nil {
-			return rv, nil
+	if ivfIdx := C.faiss_IndexIVF_cast(idx.cPtr()); ivfIdx == nil {
+		// Create standard SearchParameters for non-IVF index
+		if c := C.faiss_SearchParameters_new(&rv.sp, sel); c != 0 {
+			return nil, fmt.Errorf("failed to create faiss search params")
 		}
+	} else {
 		var nlist, nprobe, nvecs, maxCodes int
 		nlist = int(C.faiss_IndexIVF_nlist(ivfIdx))
 		nprobe = int(C.faiss_IndexIVF_nprobe(ivfIdx))
@@ -84,12 +89,10 @@ func NewSearchParams(idx Index, params json.RawMessage, sel *C.FaissIDSelector,
 		var ivfParams searchParamsIVF
 		if len(params) > 0 {
 			if err := json.Unmarshal(params, &ivfParams); err != nil {
-				rv.Delete()
 				return nil, fmt.Errorf("failed to unmarshal IVF search params, "+
 					"err:%v", err)
 			}
 			if err := ivfParams.Validate(); err != nil {
-				rv.Delete()
 				return nil, err
 			}
 		}
@@ -105,9 +108,23 @@ func NewSearchParams(idx Index, params json.RawMessage, sel *C.FaissIDSelector,
 			C.size_t(nprobe),
 			C.size_t(maxCodes),
 		); c != 0 {
-			rv.Delete()
 			return nil, fmt.Errorf("failed to create faiss IVF search params")
 		}
+	}
+	return rv, nil
+}
+
+// Returns a standard SearchParams object without any special settings with
+// the provided selector. The returned SearchParams object is allocated,
+// thus caller must clean up the object by invoking Delete() method.
+func NewStandardSearchParams(selector Selector) (*SearchParams, error) {
+	var sel *C.FaissIDSelector
+	if selector != nil {
+		sel = selector.Get()
+	}
+	rv := &SearchParams{}
+	if c := C.faiss_SearchParameters_new(&rv.sp, sel); c != 0 {
+		return nil, fmt.Errorf("failed to create faiss search params")
 	}
 	return rv, nil
 }

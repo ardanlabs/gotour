@@ -14,7 +14,7 @@
 
 package index
 
-type FieldIndexingOptions int
+type FieldIndexingOptions uint64
 
 const (
 	IndexField FieldIndexingOptions = 1 << iota
