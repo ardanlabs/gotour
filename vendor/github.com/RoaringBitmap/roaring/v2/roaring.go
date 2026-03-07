@@ -68,10 +68,10 @@ func (rb *Bitmap) DenseSize() uint64 {
 
 	maximum := 1 + uint64(rb.Maximum())
 	if maximum > (capacity - wordSize + 1) {
-		return uint64(capacity >> log2WordSize)
+		return capacity >> log2WordSize
 	}
 
-	return uint64((maximum + (wordSize - 1)) >> log2WordSize)
+	return (maximum + (wordSize - 1)) >> log2WordSize
 }
 
 // ToDense returns a slice of uint64s representing the bitmap as a dense bitmap.
@@ -611,7 +611,7 @@ func (ii *intReverseIterator) init() {
 			ii.shortIter = reverseIterator{t.content, len(t.content) - 1}
 			ii.iter = &ii.shortIter
 		case *runContainer16:
-			index := int(len(t.iv)) - 1
+			index := len(t.iv) - 1
 			pos := uint16(0)
 
 			if index >= 0 {
@@ -1509,8 +1509,7 @@ func (rb *Bitmap) Xor(x2 *Bitmap) {
 				pos1++
 				pos2++
 			} else {
-				// TODO: couple be computed in-place for reduced memory usage
-				c := rb.highlowcontainer.getContainerAtIndex(pos1).xor(x2.highlowcontainer.getContainerAtIndex(pos2))
+				c := rb.highlowcontainer.getWritableContainerAtIndex(pos1).ixor(x2.highlowcontainer.getContainerAtIndex(pos2))
 				if !c.isEmpty() {
 					rb.highlowcontainer.setContainerAtIndex(pos1, c)
 					pos1++
@@ -1879,11 +1878,11 @@ func (rb *Bitmap) Flip(rangeStart, rangeEnd uint64) {
 	for hb := hbStart; hb <= hbLast; hb++ {
 		var containerStart uint32
 		if hb == hbStart {
-			containerStart = uint32(lbStart)
+			containerStart = lbStart
 		}
 		containerLast := max
 		if hb == hbLast {
-			containerLast = uint32(lbLast)
+			containerLast = lbLast
 		}
 
 		i := rb.highlowcontainer.getIndex(uint16(hb))
@@ -2039,11 +2038,11 @@ func Flip(bm *Bitmap, rangeStart, rangeEnd uint64) *Bitmap {
 	for hb := hbStart; hb <= hbLast; hb++ {
 		var containerStart uint32
 		if hb == hbStart {
-			containerStart = uint32(lbStart)
+			containerStart = lbStart
 		}
 		containerLast := max
 		if hb == hbLast {
-			containerLast = uint32(lbLast)
+			containerLast = lbLast
 		}
 
 		i := bm.highlowcontainer.getIndex(uint16(hb))
@@ -2141,8 +2140,8 @@ func (rb *Bitmap) PreviousValue(target uint32) int64 {
 		return -1
 	}
 
-	originalKey := highbits(uint32(target))
-	query := lowbits(uint32(target))
+	originalKey := highbits(target)
+	query := lowbits(target)
 	var prevValue int64
 	prevValue = -1
 	containerIndex := rb.highlowcontainer.advanceUntil(originalKey, -1)

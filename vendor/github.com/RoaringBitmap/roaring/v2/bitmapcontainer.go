@@ -915,6 +915,43 @@ func (bc *bitmapContainer) iandBitmap(value2 *bitmapContainer) container {
 	return bc
 }
 
+func (bc *bitmapContainer) ixor(a container) container {
+	switch x := a.(type) {
+	case *arrayContainer:
+		return bc.ixorArray(x)
+	case *bitmapContainer:
+		return bc.ixorBitmap(x)
+	case *runContainer16:
+		return bc.ixorRun16(x)
+	}
+	panic("unsupported container type")
+}
+
+func (bc *bitmapContainer) ixorArray(value2 *arrayContainer) container {
+	vbc := value2.toBitmapContainer()
+	return bc.ixorBitmap(vbc)
+}
+
+func (bc *bitmapContainer) ixorRun16(value2 *runContainer16) container {
+	rcb := value2.toBitmapContainer()
+	return bc.ixorBitmap(rcb)
+}
+
+func (bc *bitmapContainer) ixorBitmap(value2 *bitmapContainer) container {
+	newCardinality := int(popcntXorSlice(bc.bitmap, value2.bitmap))
+	if newCardinality > arrayDefaultMaxSize {
+		for k := 0; k < len(bc.bitmap); k++ {
+			bc.bitmap[k] = bc.bitmap[k] ^ value2.bitmap[k]
+		}
+		bc.cardinality = newCardinality
+		return bc
+	}
+	ac := newArrayContainerSize(newCardinality)
+	fillArrayXOR(ac.content, bc.bitmap, value2.bitmap)
+	ac.content = ac.content[:newCardinality]
+	return ac
+}
+
 func (bc *bitmapContainer) andNot(a container) container {
 	switch x := a.(type) {
 	case *arrayContainer:
@@ -1133,7 +1170,7 @@ func (bc *bitmapContainer) NextSetBit(i uint) int {
 		return -1
 	}
 	w := bc.bitmap[x]
-	w = w >> uint(i%64)
+	w = w >> (i % 64)
 	if w != 0 {
 		return int(i) + countTrailingZeros(w)
 	}
@@ -1155,7 +1192,7 @@ func (bc *bitmapContainer) NextUnsetBit(i uint) int {
 		return int(i)
 	}
 	w := bc.bitmap[x]
-	w = w >> uint(i%64)
+	w = w >> (i % 64)
 	w = ^w
 	if w != 0 {
 		return int(i) + countTrailingZeros(w)
@@ -1192,7 +1229,7 @@ func (bc *bitmapContainer) uPrevSetBit(i uint) int {
 
 	b := i % 64
 
-	w = w << uint(63-b)
+	w = w << (63 - b)
 	if w != 0 {
 		return int(i) - countLeadingZeros(w)
 	}

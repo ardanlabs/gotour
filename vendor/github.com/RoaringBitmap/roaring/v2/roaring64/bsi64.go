@@ -66,7 +66,7 @@ func (b *BSI) GetExistenceBitmap() *Bitmap {
 // ValueExists tests whether the value exists.
 func (b *BSI) ValueExists(columnID uint64) bool {
 
-	return b.eBM.Contains(uint64(columnID))
+	return b.eBM.Contains(columnID)
 }
 
 // GetCardinality returns a count of unique column IDs for which a value has been set.
@@ -748,7 +748,7 @@ func transpose(e *task, batch []uint64, resultsChan chan *Bitmap, wg *sync.WaitG
 		results.RunOptimize()
 	}
 	for _, cID := range batch {
-		if value, ok := e.bsi.GetValue(uint64(cID)); ok {
+		if value, ok := e.bsi.GetValue(cID); ok {
 			results.Add(uint64(value))
 		}
 	}
@@ -957,7 +957,7 @@ func batchEqual(e *task, batch []uint64, resultsChan chan *Bitmap,
 
 	for i := 0; i < len(batch); i++ {
 		cID := batch[i]
-		if value, ok := e.bsi.GetBigValue(uint64(cID)); ok {
+		if value, ok := e.bsi.GetBigValue(cID); ok {
 			if _, yes := e.values[string(value.Bytes())]; yes {
 				results.Add(cID)
 			}
@@ -1066,7 +1066,7 @@ func transposeWithCounts(input *BSI, filterSet *Bitmap, batch []uint64, resultsC
 		results.RunOptimize()
 	}
 	for _, cID := range batch {
-		if value, ok := input.GetValue(uint64(cID)); ok {
+		if value, ok := input.GetValue(cID); ok {
 			if !filterSet.Contains(uint64(value)) {
 				continue
 			}

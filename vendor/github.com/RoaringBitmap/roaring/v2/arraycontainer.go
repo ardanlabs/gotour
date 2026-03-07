@@ -628,6 +628,30 @@ func (ac *arrayContainer) xor(a container) container {
 	panic("unsupported container type")
 }
 
+func (ac *arrayContainer) ixor(a container) container {
+	switch x := a.(type) {
+	case *arrayContainer:
+		return ac.ixorArray(x)
+	case *bitmapContainer:
+		return ac.ixorBitmap(x)
+	case *runContainer16:
+		return ac.ixorRun16(x)
+	}
+	panic("unsupported container type")
+}
+
+func (ac *arrayContainer) ixorArray(value2 *arrayContainer) container {
+	return ac.xorArray(value2)
+}
+
+func (ac *arrayContainer) ixorBitmap(value2 *bitmapContainer) container {
+	return value2.ixor(ac)
+}
+
+func (ac *arrayContainer) ixorRun16(value2 *runContainer16) container {
+	return value2.ixor(ac)
+}
+
 func (ac *arrayContainer) xorArray(value2 *arrayContainer) container {
 	value1 := ac
 	totalCardinality := value1.getCardinality() + value2.getCardinality()
@@ -969,7 +993,7 @@ func (ac *arrayContainer) resetTo(a container) {
 		x.fillArray(ac.content)
 
 	case *runContainer16:
-		card := int(x.getCardinality())
+		card := x.getCardinality()
 		ac.realloc(card)
 		cur := 0
 		for _, r := range x.iv {

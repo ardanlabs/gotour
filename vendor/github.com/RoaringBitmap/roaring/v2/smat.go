@@ -36,7 +36,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"sort"
+	"slices"
 	"strings"
 	"time"
 
@@ -132,7 +132,7 @@ func init() {
 	for actionId := range smatActionMap {
 		ids = append(ids, int(actionId))
 	}
-	sort.Ints(ids)
+	slices.Sort(ids)
 
 	pct := 100 / len(smatActionMap)
 	for _, actionId := range ids {
