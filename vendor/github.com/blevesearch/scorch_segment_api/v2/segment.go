@@ -67,6 +67,11 @@ type UpdatableSegment interface {
 	SetUpdatedFields(fieldInfo map[string]*index.UpdateFieldInfo)
 }
 
+type SegmentWithCallbacks interface {
+	Segment
+	CallbackId() string
+}
+
 type TermDictionary interface {
 	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
 

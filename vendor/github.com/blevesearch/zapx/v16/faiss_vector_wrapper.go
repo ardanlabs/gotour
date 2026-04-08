@@ -145,6 +145,10 @@ func (v *vectorIndexWrapper) SearchWithFilter(qVector []float32, k int64,
 	if len(vectorIDsToInclude) == 0 {
 		return rv, nil
 	}
+	// If all vectors are eligible, treat as unfiltered search.
+	if len(vectorIDsToInclude) == len(v.vecDocIDMap) {
+		return v.Search(qVector, k, params)
+	}
 	// If the index is not an IVF index, then the search can be
 	// performed directly, using the Flat index.
 	if !v.vecIndex.IsIVFIndex() {
