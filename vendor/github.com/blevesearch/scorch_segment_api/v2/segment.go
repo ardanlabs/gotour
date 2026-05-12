@@ -187,6 +187,10 @@ type FieldStatsReporter interface {
 	UpdateFieldStats(FieldStats)
 }
 
+type VectorFieldStatsReporter interface {
+	UpdateVectorFieldStats(FieldStats)
+}
+
 type FieldStats interface {
 	Store(statName, fieldName string, value uint64)
 	Aggregate(stats FieldStats)

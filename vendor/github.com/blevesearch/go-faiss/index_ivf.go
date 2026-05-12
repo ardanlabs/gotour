@@ -13,11 +13,11 @@ import (
 	"fmt"
 )
 
-func (idx *IndexImpl) SetDirectMap(mapType int) (err error) {
+func (idx *faissIndex) SetDirectMap(mapType int) (err error) {
 
 	ivfPtr := C.faiss_IndexIVF_cast(idx.cPtr())
 	if ivfPtr == nil {
-		return fmt.Errorf("index is not of ivf type")
+		return errNotIVFIndex
 	}
 	if c := C.faiss_IndexIVF_set_direct_map(
 		ivfPtr,
@@ -28,7 +28,7 @@ func (idx *IndexImpl) SetDirectMap(mapType int) (err error) {
 	return err
 }
 
-func (idx *IndexImpl) GetSubIndex() (*IndexImpl, error) {
+func (idx *faissIndex) GetSubIndex() (Index, error) {
 
 	ptr := C.faiss_IndexIDMap2_cast(idx.cPtr())
 	if ptr == nil {
@@ -45,7 +45,7 @@ func (idx *IndexImpl) GetSubIndex() (*IndexImpl, error) {
 
 // pass nprobe to be set as index time option for IVF indexes only.
 // varying nprobe impacts recall but with an increase in latency.
-func (idx *IndexImpl) SetNProbe(nprobe int32) {
+func (idx *faissIndex) SetNProbe(nprobe int32) {
 	ivfPtr := C.faiss_IndexIVF_cast(idx.cPtr())
 	if ivfPtr == nil {
 		return
@@ -53,7 +53,7 @@ func (idx *IndexImpl) SetNProbe(nprobe int32) {
 	C.faiss_IndexIVF_set_nprobe(ivfPtr, C.size_t(nprobe))
 }
 
-func (idx *IndexImpl) IVFParams() (nprobe, nlist int) {
+func (idx *faissIndex) IVFParams() (nprobe, nlist int) {
 	ivfPtr := C.faiss_IndexIVF_cast(idx.cPtr())
 	if ivfPtr == nil {
 		return 0, 0
@@ -62,15 +62,15 @@ func (idx *IndexImpl) IVFParams() (nprobe, nlist int) {
 		int(C.faiss_IndexIVF_nlist(ivfPtr))
 }
 
-func (idx *IndexImpl) IsSQIndex() bool {
+func (idx *faissIndex) IsSQIndex() bool {
 	sqPtr := C.faiss_IndexScalarQuantizer_cast(idx.cPtr())
 	return sqPtr != nil
 }
 
 func (idx *faissIndex) SetQuantizers(srcIndex Index) error {
-	ivfPtr := C.faiss_IndexIVF_cast(idx.idx)
-	if ivfPtr == nil {
-		return fmt.Errorf("index is not of ivf type")
+	if !(idx.IsIVFIndex() && srcIndex.IsIVFIndex()) &&
+		!(idx.IsSQIndex() && srcIndex.IsSQIndex()) {
+		return fmt.Errorf("faissIndex SetQuantizers: %w, index type not supported", errFailedToSetQuantizers)
 	}
 
 	srcIndexPtr := srcIndex.cPtr()
@@ -78,14 +78,10 @@ func (idx *faissIndex) SetQuantizers(srcIndex Index) error {
 		return fmt.Errorf("coarse quantizer is not valid")
 	}
 
-	err := C.faiss_Set_quantizers(ivfPtr, srcIndexPtr)
+	err := C.faiss_Set_quantizers(idx.idx, srcIndexPtr)
 	if err != 0 {
-		return fmt.Errorf("couldn't set the SQ quantizers")
+		return fmt.Errorf("faissIndex SetQuantizers: %w", errFailedToSetQuantizers)
 	}
 
 	return nil
-}
-
-func (idx *IndexImpl) SetQuantizers(srcIndex Index) error {
-	return idx.Index.SetQuantizers(srcIndex)
 }
