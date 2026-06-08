@@ -20,10 +20,25 @@ package zap
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
+	"reflect"
 	"sync/atomic"
 
+	index "github.com/blevesearch/bleve_index_api"
 	faiss "github.com/blevesearch/go-faiss"
 )
+
+var (
+	reflectStaticSizeGPUFloat32Index uint64
+	reflectStaticSizeGPUState        uint64
+)
+
+func init() {
+	var f faissGPUFloat32Index
+	reflectStaticSizeGPUFloat32Index = uint64(reflect.TypeOf(f).Size())
+	var gs gpuState
+	reflectStaticSizeGPUState = uint64(reflect.TypeOf(gs).Size())
+}
 
 // gpuState holds all the resources related to gpu vector search,
 // the gpu index and the request batcher to the gpu
@@ -38,6 +53,13 @@ func (gs *gpuState) batchSearch(qVector *vectorSet, k int64) ([]float32, []int64
 	return gs.idx.Search(qVector.floatData, k)
 }
 
+// size returns the amount of memory used by the gpuState.
+func (gs *gpuState) size() uint64 {
+	return reflectStaticSizeGPUState +
+		gs.idx.Size() +
+		gs.batcher.size()
+}
+
 // ---------------------------------
 // Faiss GPU Float32 Index
 // ---------------------------------
@@ -47,6 +69,10 @@ func (gs *gpuState) batchSearch(qVector *vectorSet, k int64) ([]float32, []int64
 // operations, serialization, etc.) are delegated to the CPU index.
 type faissGPUFloat32Index struct {
 	cpuIdx *faiss.IndexImpl
+
+	// idxBytes holds the original serialized index bytes to prevent GC.
+	idxBytes []byte
+	params   *faissIndexParams
 
 	// doneCh is closed when initGPU completes.
 	doneCh chan struct{}
@@ -60,13 +86,41 @@ type faissGPUFloat32Index struct {
 // newFaissGPUFloat32Index creates a GPU-backed float32 index. The GPU clone is
 // always performed asynchronously; search falls back to CPU until it
 // completes. All other GPU-operating methods block on doneCh before proceeding.
-func newFaissGPUFloat32Index(cpuIdx *faiss.IndexImpl) (faissIndex, error) {
+func newFaissGPUFloat32Index(cpuIdx *faiss.IndexImpl, params *faissIndexParams) (faissIndex, error) {
 	if cpuIdx == nil {
 		return nil, errNilIndex
 	}
+	if params == nil {
+		return nil, errNilParams
+	}
 	f := &faissGPUFloat32Index{
 		cpuIdx: cpuIdx,
+		params: params,
 		doneCh: make(chan struct{}),
+	}
+	go f.initGPU()
+	return f, nil
+}
+
+func newFaissGPUFloat32IndexFromBytes(idxBytes []byte, params *faissIndexParams) (faissIndex, error) {
+	if idxBytes == nil {
+		return nil, errNilIndex
+	}
+
+	if params == nil {
+		return nil, errNilParams
+	}
+
+	cpuIdx, err := faiss.ReadIndexFromBuffer(idxBytes, params.ioFlags)
+	if err != nil {
+		return nil, err
+	}
+
+	f := &faissGPUFloat32Index{
+		cpuIdx:   cpuIdx,
+		idxBytes: idxBytes,
+		params:   params,
+		doneCh:   make(chan struct{}),
 	}
 	go f.initGPU()
 	return f, nil
@@ -80,7 +134,13 @@ func (f *faissGPUFloat32Index) waitGPU() {
 // initGPU clones the CPU index to the GPU and sets up the request batcher.
 // It always closes doneCh when it returns, signalling completion to waiters.
 func (f *faissGPUFloat32Index) initGPU() {
+	// ensure doneCh is closed on exit, even if the GPU clone/setup fails.
 	defer close(f.doneCh)
+	// Check if we can use the GPU before attempting the clone,
+	// to avoid unnecessary overhead when the GPU is not expected to help.
+	if !f.canUseGPU() {
+		return
+	}
 	gpuIdx, err := faiss.CloneToGPU(f.cpuIdx)
 	if err != nil || gpuIdx == nil {
 		return
@@ -183,7 +243,13 @@ func (f *faissGPUFloat32Index) write(buf []byte, w *FileWriter) error {
 }
 
 func (f *faissGPUFloat32Index) size() uint64 {
-	return f.cpuIdx.Size()
+	sizeInBytes := reflectStaticSizeGPUFloat32Index +
+		f.params.size() +
+		f.cpuIdx.Size()
+	if gpuState := f.gpu.Load(); gpuState != nil {
+		sizeInBytes += gpuState.size()
+	}
+	return sizeInBytes
 }
 
 // inGPURam reports if the index is currently running on the GPU.
@@ -251,8 +317,21 @@ func (f *faissGPUFloat32Index) trainAndAdd(trainingData *vectorSet, vecsToAdd *v
 
 	err = gpuState.idx.Add(vecsToAdd.floatData)
 	if err != nil {
+		// Fallback to full CPU train and add if:
+		// 1. We get a non-OOM error from the GPU index
+		if !errors.Is(err, faiss.ErrGPUOutOfMemory) {
+			f.teardownGPU()
+			return f.trainAndAddCPU(trainingData, vecsToAdd)
+		}
+		// 2. We get an OOM error but syncing GPU to CPU fails.
+		if f.syncGPUToCPU() != nil {
+			f.teardownGPU()
+			return f.trainAndAddCPU(trainingData, vecsToAdd)
+		}
+		// OOM but CPU sync succeeded: both indexes are trained.
+		// Teardown GPU to avoid discrepancy, add to CPU instead.
 		f.teardownGPU()
-		return f.trainAndAddCPU(trainingData, vecsToAdd)
+		return f.cpuIdx.Add(vecsToAdd.floatData)
 	}
 
 	err = f.syncGPUToCPU()
@@ -287,6 +366,7 @@ func (f *faissGPUFloat32Index) mergeFrom(other faissIndex, offset int64) error {
 // syncGPUToCPU clones the current GPU index state back to the CPU index,
 // replacing the old CPU index.
 func (f *faissGPUFloat32Index) syncGPUToCPU() error {
+	f.waitGPU()
 	gpuState := f.gpu.Load()
 	if gpuState == nil {
 		return nil
@@ -301,4 +381,15 @@ func (f *faissGPUFloat32Index) syncGPUToCPU() error {
 	f.cpuIdx = cpuIdx
 	oldCPUIdx.Close()
 	return nil
+}
+
+func (f *faissGPUFloat32Index) canUseGPU() bool {
+	switch f.params.optimization {
+	case index.IndexOptimizedForLatency, index.IndexOptimizedForRecall:
+		return f.params.numVecs >= ivfSq8Threshold
+	case index.IndexOptimizedForMemoryEfficient:
+		return f.params.numVecs >= ivfThreshold
+	default:
+		return false
+	}
 }

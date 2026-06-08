@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math"
 	"math/bits"
+	"reflect"
 	"slices"
 
 	"github.com/RoaringBitmap/roaring/v2/roaring64"
@@ -29,6 +30,21 @@ import (
 	faiss "github.com/blevesearch/go-faiss"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
+
+var (
+	reflectStaticSizeIndexWrapper uint64
+	reflectStaticSizeIDMapping    uint64
+	reflectStaticSizeBitmap       uint64
+)
+
+func init() {
+	var w vectorIndexWrapper
+	reflectStaticSizeIndexWrapper = uint64(reflect.TypeOf(w).Size())
+	var m idMapping
+	reflectStaticSizeIDMapping = uint64(reflect.TypeOf(m).Size())
+	var b bitmap
+	reflectStaticSizeBitmap = uint64(reflect.TypeOf(b).Size())
+}
 
 const (
 	// maxMultiVectorDocSearchRetries limits repeated searches when deduplicating
@@ -48,11 +64,10 @@ const (
 
 // vectorIndexWrapper conforms to scorch_segment_api's VectorIndex interface
 type vectorIndexWrapper struct {
-	index        faissIndex
-	mapping      *idMapping
-	exclude      *bitmap
-	fieldID      uint16
-	vecIndexSize uint64
+	index   faissIndex
+	mapping *idMapping
+	exclude *bitmap
+	fieldID uint16
 
 	// nestedMode indicates if the vector index is operating in nested document mode.
 	// if so we have a reusable ancestry slice to help with docID lookups
@@ -272,7 +287,17 @@ func (v *vectorIndexWrapper) Close() {
 }
 
 func (v *vectorIndexWrapper) Size() uint64 {
-	return v.vecIndexSize
+	sizeInBytes := reflectStaticSizeIndexWrapper
+	if v.index != nil {
+		sizeInBytes += v.index.size()
+	}
+	if v.mapping != nil {
+		sizeInBytes += v.mapping.size()
+	}
+	if v.exclude != nil {
+		sizeInBytes += v.exclude.size()
+	}
+	return sizeInBytes
 }
 
 func (v *vectorIndexWrapper) ObtainKCentroidCardinalitiesFromIVFIndex(limit int, descending bool) (
@@ -772,22 +797,22 @@ func (rs *resultSetSlice) size() int64 {
 
 // bitmap is a simple, fixed-size bitmap.
 type bitmap struct {
-	bits []byte
-	size uint32
+	bits    []byte
+	numBits uint32
 }
 
 // newBitmap creates a new bitmap with the given number of bits
 func newBitmap(numBits uint32) *bitmap {
 	bitsetSize := (numBits + 7) / 8
 	return &bitmap{
-		bits: make([]byte, bitsetSize),
-		size: numBits,
+		bits:    make([]byte, bitsetSize),
+		numBits: numBits,
 	}
 }
 
 // set the bit at the given position
 func (b *bitmap) set(pos uint32) {
-	if pos >= b.size {
+	if pos >= b.numBits {
 		return
 	}
 	// set the bit in the byte slice
@@ -799,7 +824,7 @@ func (b *bitmap) set(pos uint32) {
 
 // clear the bit at the given position
 func (b *bitmap) clear(pos uint32) {
-	if pos >= b.size {
+	if pos >= b.numBits {
 		return
 	}
 	// clear the bit in the byte slice
@@ -811,7 +836,7 @@ func (b *bitmap) clear(pos uint32) {
 
 // test if the bit at the given position is set
 func (b *bitmap) test(pos uint32) bool {
-	if pos >= b.size {
+	if pos >= b.numBits {
 		return false
 	}
 	return (b.bits[pos>>3]>>(pos&7))&1 != 0
@@ -843,11 +868,16 @@ func (b *bitmap) isEmpty() bool {
 	return true
 }
 
+// size returns the memory size of the bitmap in bytes
+func (b *bitmap) size() uint64 {
+	return reflectStaticSizeBitmap + uint64(len(b.bits))
+}
+
 // creates a clone of the bitmap
 func (b *bitmap) clone() *bitmap {
 	newB := &bitmap{}
 	newB.bits = slices.Clone(b.bits)
-	newB.size = b.size
+	newB.numBits = b.numBits
 	return newB
 }
 
@@ -914,6 +944,16 @@ func (m *idMapping) vecsForDoc(docID uint32) ([]uint32, bool) {
 		return nil, false
 	}
 	return m.docToVec[docID], true
+}
+
+func (m *idMapping) size() uint64 {
+	sizeInBytes := reflectStaticSizeIDMapping +
+		(uint64(len(m.vecToDoc)) * uint64(SizeOfUint32)) +
+		(uint64(len(m.docToVec)) * uint64(SizeOfSlice))
+	for _, vecs := range m.docToVec {
+		sizeInBytes += (uint64(cap(vecs)) * uint64(SizeOfUint32))
+	}
+	return sizeInBytes
 }
 
 // ------------------------------------------------------------------------------

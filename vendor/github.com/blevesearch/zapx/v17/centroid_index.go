@@ -21,7 +21,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	faiss "github.com/blevesearch/go-faiss"
+	index "github.com/blevesearch/bleve_index_api"
 )
 
 func (sb *SegmentBase) GetCoarseQuantizer(field string) (interface{}, error) {
@@ -36,47 +36,49 @@ func (sb *SegmentBase) GetCoarseQuantizer(field string) (interface{}, error) {
 		return nil, fmt.Errorf("field %s does not have a vector section in the segment", field)
 	}
 
-	pos := int(vectorSection)
-	// doc values and vector optimization type
-	for i := 0; i < 3; i++ {
+	pos := vectorSection
+	// doc values
+	for i := 0; i < 2; i++ {
 		_, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-		pos += n
+		pos += uint64(n)
 	}
+	// read the index optimization type
+	opt, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
+	pos += uint64(n)
+	// get the optimization type string from the reverse lookup map
+	optStr := index.VectorIndexOptimizationsReverseLookup[int(opt)]
 
 	numVecs, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-	pos += n
+	pos += uint64(n)
 
 	// length of the vector to docID map
-	_, n = binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-	pos += n
-
-	// vector to docID mapping
-	for i := 0; i < int(numVecs); i++ {
-		_, n = binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-		pos += n
-	}
+	mapLen, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
+	pos += uint64(n)
+	pos += mapLen
 
 	// type of index
 	indexType, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-	pos += n
+	pos += uint64(n)
 	indexSize, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-	pos += n
+	pos += uint64(n)
+
+	params := newFaissIndexParams(optStr, int(numVecs), faissIOFlagsReadOnly)
 
 	// todo: might wanna use the vector cache here, early tests didn't show a big diff
-	faissIndex, err := faiss.ReadIndexFromBuffer(sb.mem[pos:pos+int(indexSize)], faissIOFlags)
+	fIndexBytes, err := sb.fileReader.process(sb.mem[pos : pos+indexSize])
 	if err != nil {
 		return nil, err
 	}
-	pos += int(indexSize)
+	pos += indexSize
 
 	if faissIndexType(indexType) == faissBIVFIndex {
 		binaryIndexSize, n := binary.Uvarint(sb.mem[pos : pos+binary.MaxVarintLen64])
-		pos += n
-		binaryIndex, err := faiss.ReadBinaryIndexFromBuffer(sb.mem[pos:pos+int(binaryIndexSize)], faissIOFlags)
+		pos += uint64(n)
+		bIndexBytes, err := sb.fileReader.process(sb.mem[pos : pos+binaryIndexSize])
 		if err != nil {
 			return nil, err
 		}
-		return newFaissBinaryIndex(binaryIndex, faissIndex)
+		return newFaissBinaryIndexFromBytes(bIndexBytes, fIndexBytes, params)
 	}
-	return newFaissFloat32Index(faissIndex)
+	return newFaissFloat32IndexFromBytes(fIndexBytes, params)
 }

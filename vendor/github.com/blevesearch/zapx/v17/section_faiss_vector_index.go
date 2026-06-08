@@ -46,12 +46,11 @@ const (
 	// Divide the estimated nprobe with this value to optimize
 	// for latency.
 	nprobeLatencyOptimization = 2
-	// The threshold for number of vectors beyond which we start building the ivf class
-	// of indexes
+	// The threshold for number of vectors at or beyond which we start building
+	// the IVF class of indexes.
 	ivfThreshold = 1000
-	// The threshold for number of vectors beyond which we consider fast merging
-	// using faiss's native merge capabilities, instead of reconstructing and adding
-	// vectors one by one
+	// The threshold for number of vectors at or beyond which we start building
+	// the IVF class of indexes with SQ8 quantization for memory efficiency.
 	ivfSq8Threshold = 10000
 )
 
@@ -102,6 +101,7 @@ type vecIndexInfo struct {
 	startOffset       int
 	indexSize         uint64
 	vecIds            []int64
+	nvecs             int
 	indexOptimizedFor string
 	indexType         faissIndexType
 	index             faissIndex
@@ -168,6 +168,7 @@ func (v *faissVectorIndexSection) Merge(opaque map[int]resetable, segments []*Se
 			newIndexInfo := &vecIndexInfo{
 				indexOptimizedFor: index.VectorIndexOptimizationsReverseLookup[int(indexOptimizationTypeInt)],
 				vecIds:            make([]int64, 0, numVecs),
+				nvecs:             int(numVecs),
 			}
 
 			// read the length of the docID list
@@ -250,19 +251,19 @@ func (v *faissVectorIndexSection) Merge(opaque map[int]resetable, segments []*Se
 
 func trainedIndexFromConfig(config map[string]interface{}, fieldName string) (faissIndexIVF, error) {
 	var trainedIndexFor index.TrainedIndexCallbackFn
-	var training bool
+	var trainingParams *index.TrainingParams
 	var rv faissIndex
 	if cb, ok := config[index.TrainedIndexCallback]; ok {
 		trainedIndexFor = cb.(index.TrainedIndexCallbackFn)
 	}
-	if tf, ok := config[index.TrainingKey]; ok {
-		training = tf.(bool)
+	if tp, ok := config[index.TrainingKey]; ok {
+		trainingParams = tp.(*index.TrainingParams)
 	}
-	// if we have a callback registered AND if the training flag is not set:
+	// if we have a callback registered AND if the training params are not set:
 	//  - fastmerge is supported for this index
 	// 	- we're not in the training phase of index creation where you want to be
 	//    able to reconstruct the vectors for training
-	if trainedIndexFor != nil && !training {
+	if trainedIndexFor != nil && trainingParams == nil {
 		trainedIndex, err := trainedIndexFor(fieldName)
 		if err != nil {
 			return nil, err
@@ -476,27 +477,45 @@ func (v *vectorIndexOpaque) mergeAndWriteVectorIndexes(trainedIndex faissIndexIV
 		}
 
 		// read the serialized index bytes
-		indexBytes, err := segBase.fileReader.process(segBase.mem[currVecIndex.startOffset : currVecIndex.startOffset+int(currVecIndex.indexSize)])
+		fIndexBytes, err := segBase.fileReader.process(segBase.mem[currVecIndex.startOffset : currVecIndex.startOffset+int(currVecIndex.indexSize)])
 		if err != nil {
 			freeReconstructedIndexes(vecIndexes)
 			return err
 		}
+
 		ioFlags := faissIOFlags
 		if trainedIndex == nil {
 			ioFlags = faissIOFlagsReadOnly
 		}
-		// reconstruct the faiss index from the bytes
-		faissIndex, err := faiss.ReadIndexFromBuffer(indexBytes, ioFlags)
+		reconsParams := newFaissIndexParams(currVecIndex.indexOptimizedFor, currVecIndex.nvecs, ioFlags)
+
+		// load binary index from disk if present
+		if currVecIndex.indexType == faissBIVFIndex {
+			// get to the bivf part of the vector index section
+			pos := currVecIndex.startOffset + int(currVecIndex.indexSize)
+			binSize, n := binary.Uvarint(segBase.mem[pos : pos+binary.MaxVarintLen64])
+			pos += n
+			bIndexBytes, err := segBase.fileReader.process(segBase.mem[pos : pos+int(binSize)])
+			if err != nil {
+				freeReconstructedIndexes(vecIndexes)
+				return err
+			}
+
+			vecIndexes[segI].index, err = newFaissBinaryIndexFromBytes(bIndexBytes, fIndexBytes, reconsParams)
+		} else {
+			vecIndexes[segI].index, err = newFaissFloat32IndexFromBytes(fIndexBytes, reconsParams)
+
+		}
 		if err != nil {
 			freeReconstructedIndexes(vecIndexes)
 			return err
 		}
 
 		// set the dims and metric values from the constructed index.
-		dims = faissIndex.D()
+		dims = vecIndexes[segI].index.dim()
 		// at least one valid index to be merged, mark the merge as valid.
 		validMerge = true
-		metric = faissIndex.MetricType()
+		metric = vecIndexes[segI].index.metricType()
 		indexOptimizedFor = currVecIndex.indexOptimizedFor
 		indexType = currVecIndex.indexType
 		// update trackers for buffer capacities
@@ -506,39 +525,6 @@ func (v *vectorIndexOpaque) mergeAndWriteVectorIndexes(trainedIndex faissIndexIV
 		}
 		indexDataCap += indexReconsLen
 
-		// track the reconstruct index for this vector index, which will be used
-		// to reconstruct the vectors corresponding to the valid vector IDs for this index.
-		config := newFaissIndexConfig(indexType, indexOptimizedFor, dims, metric, currNumVecs, determineCentroids(currNumVecs), useGPU)
-		fIndex, err := newFaissFloat32IndexWithConfig(faissIndex, config)
-		if err != nil {
-			freeReconstructedIndexes(vecIndexes)
-			return err
-		}
-		vecIndexes[segI].index = fIndex
-
-		// load binary index from disk if present
-		if currVecIndex.indexType == faissBIVFIndex {
-			// get to the bivf part of the vector index section
-			pos := currVecIndex.startOffset + int(currVecIndex.indexSize)
-			binSize, n := binary.Uvarint(segBase.mem[pos : pos+binary.MaxVarintLen64])
-			pos += n
-			indexBytes, err = segBase.fileReader.process(segBase.mem[pos : pos+int(binSize)])
-			if err != nil {
-				freeReconstructedIndexes(vecIndexes)
-				return err
-			}
-
-			binaryIndex, err := faiss.ReadBinaryIndexFromBuffer(indexBytes, ioFlags)
-			if err != nil {
-				freeReconstructedIndexes(vecIndexes)
-				return err
-			}
-			vecIndexes[segI].index, err = newFaissBinaryIndexWithConfig(binaryIndex, faissIndex, config)
-			if err != nil {
-				freeReconstructedIndexes(vecIndexes)
-				return err
-			}
-		}
 		nvecs += currNumVecs
 	}
 
@@ -554,8 +540,9 @@ func (v *vectorIndexOpaque) mergeAndWriteVectorIndexes(trainedIndex faissIndexIV
 		return nil
 	}
 
-	// create the faiss index to hold the merged data, either via fast merge or reconstruction
-	config := newFaissIndexConfig(indexType, indexOptimizedFor, dims, metric, nvecs, determineCentroids(nvecs), useGPU)
+	// create the faiss index config to hold the merged data, either via fast merge or reconstruction
+	nlist := v.numCentroids(nvecs)
+	config := newFaissIndexConfig(indexType, indexOptimizedFor, dims, metric, nvecs, nlist, useGPU)
 	// we perform fast merge if we're not using the GPU and if the trained index
 	// is compatible to be used for fast merge
 	if !useGPU && canFastMerge(trainedIndex, indexOptimizedFor, nvecs) {
@@ -729,6 +716,16 @@ func determineCentroids(nvecs int) int {
 	return nlist
 }
 
+func (vo *vectorIndexOpaque) numCentroids(nvecs int) int {
+	nlist := determineCentroids(nvecs)
+	// training key is associated with some addtional params such as num centroids
+	// that might be specific to the fast merge path
+	if tp, ok := vo.config[index.TrainingKey].(*index.TrainingParams); ok {
+		nlist = tp.NumCentroids
+	}
+	return nlist
+}
+
 // determineFloat32IndexToUse returns a description string for the float32
 // index and quantizer type, and an index type constant.
 func determineFloat32IndexToUse(nvecs, nlist int, optimizationType string) string {
@@ -828,11 +825,12 @@ func (vo *vectorIndexOpaque) writeVectorIndexes(w *FileWriter) error {
 			return err
 		}
 
+		nlist := vo.numCentroids(nvecs)
 		// determine the type of vector index to be created based on the index optimization
 		// and create the faiss index for the vectors associated with this field and
 		// write out the index into the segment writer.
 		indexType := determineIndexTypeFromOptimization(content.optimizedFor)
-		config := newFaissIndexConfig(indexType, content.optimizedFor, content.dimension, metric, nvecs, determineCentroids(nvecs), false)
+		config := newFaissIndexConfig(indexType, content.optimizedFor, content.dimension, metric, nvecs, nlist, false)
 		err = vo.writeFaissIndex(vecSet, config, w)
 		if err != nil {
 			return err
@@ -996,6 +994,7 @@ func newFaissIndexConfig(idxType faissIndexType, optimizationType string, dimens
 
 // Factory function to create a faissIndex for the given index config.
 func faissIndexFactory(cfg *faissIndexConfig) (faissIndex, error) {
+	params := newFaissIndexParams(cfg.optimizationType, cfg.numVecs, faissIOFlags)
 	switch cfg.indexType {
 	case faissFP32Index:
 		description := determineFloat32IndexToUse(cfg.numVecs, cfg.nlist, cfg.optimizationType)
@@ -1003,12 +1002,10 @@ func faissIndexFactory(cfg *faissIndexConfig) (faissIndex, error) {
 		if err != nil {
 			return nil, err
 		}
-		// we restrict GPU to IVF indexes only; flat and SQ indexes do not get a noticeable speedup
-		// when run on GPU, and the GPU overhead can actually make them slower than CPU.
-		if cfg.useGPU && idx.IsIVFIndex() {
-			return newFaissGPUFloat32Index(idx)
+		if cfg.useGPU {
+			return newFaissGPUFloat32Index(idx, params)
 		}
-		return newFaissFloat32Index(idx)
+		return newFaissFloat32Index(idx, params)
 	case faissBIVFIndex:
 		description := determineBinaryIndexToUse(cfg.numVecs, cfg.nlist)
 		binaryIdx, err := faiss.BinaryIndexFactory(cfg.dimension, description)
@@ -1021,7 +1018,7 @@ func faissIndexFactory(cfg *faissIndexConfig) (faissIndex, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newFaissBinaryIndex(binaryIdx, backingIdx)
+		return newFaissBinaryIndex(binaryIdx, backingIdx, params)
 	default:
 		return nil, errNotSupported
 	}
@@ -1048,5 +1045,5 @@ func canFastMerge(trainedIndex faissIndexIVF, opt string, totalVecs int) bool {
 	default:
 		minVecsForFastMerge = ivfSq8Threshold
 	}
-	return trainedIndex.ntotal() > int64(minVecsForFastMerge) && totalVecs > minVecsForFastMerge
+	return trainedIndex.ntotal() >= int64(minVecsForFastMerge) && totalVecs >= minVecsForFastMerge
 }

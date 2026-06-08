@@ -20,15 +20,62 @@ package zap
 import (
 	"encoding/json"
 	"errors"
+	"reflect"
 
 	"github.com/blevesearch/go-faiss"
 )
 
 var (
-	errNilConfig    error = errors.New("faiss index config is nil")
 	errNilIndex     error = errors.New("faiss index is nil")
+	errNilParams    error = errors.New("faiss index params is nil")
 	errNotSupported error = errors.New("operation not supported")
 )
+
+var reflectStaticSizeFaissIndexParams uint64
+
+func init() {
+	var f faissIndexParams
+	reflectStaticSizeFaissIndexParams = uint64(reflect.TypeOf(f).Size())
+}
+
+// -------------------------------------------
+// Parameters for constructing a Faiss index
+// -------------------------------------------
+// faissIndexParams holds the construction-time parameters required by a
+// faissIndex implementation that cannot be derived from the underlying
+// faiss index objects themselves (e.g. dimension and metric type are
+// already available on the faiss index).
+type faissIndexParams struct {
+	// optimization is the index optimization type string (e.g. latency,
+	// recall, memory-efficient, BIVF flavours).
+	optimization string
+	// numVecs is the number of vectors expected to populate the index.
+	// It is needed at construction time because the underlying faiss
+	// index reports zero vectors until trainAndAdd/add is called, but
+	// some construction-time decisions (e.g. whether to clone to GPU)
+	// depend on the eventual vector count.
+	numVecs int
+	// ioFlags used to read the index from bytes
+	ioFlags int
+}
+
+// newFaissIndexParams constructs a faissIndexParams with the given optimization
+// type and expected vector count.
+func newFaissIndexParams(optimization string, numVecs, ioFlags int) *faissIndexParams {
+	return &faissIndexParams{
+		optimization: optimization,
+		numVecs:      numVecs,
+		ioFlags:      ioFlags,
+	}
+}
+
+func (p *faissIndexParams) size() uint64 {
+	return reflectStaticSizeFaissIndexParams + uint64(len(p.optimization))
+}
+
+// -------------------------------------------
+// Faiss Index Interface
+// -------------------------------------------
 
 // Abstract interface for Faiss vector indices, which are returned by the go-faiss library.
 type faissIndex interface {

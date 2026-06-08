@@ -204,12 +204,12 @@ func (s *interim) convert() (uint64, uint64, error) {
 		result.VisitComposite(func(field index.CompositeField) {
 			fName = field.Name()
 			s.getOrDefineField(fName)
-			s.FieldsOptions[fName] = field.Options()
+			s.FieldsOptions[fName] |= field.Options()
 		})
 		result.VisitFields(func(field index.Field) {
 			fName = field.Name()
 			s.getOrDefineField(fName)
-			s.FieldsOptions[fName] = field.Options()
+			s.FieldsOptions[fName] |= field.Options()
 		})
 	}
 
